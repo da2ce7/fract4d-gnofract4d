@@ -39,7 +39,16 @@ public:
             }            
             pTemp[EJECT_VAL] = pTemp[X2] + pTemp[Y2];
         };
-    bool iter8_ok() { return true; };
+    virtual std::string bail_code() const 
+        {
+            return 
+                "if(!(flags & (HAS_X2 | HAS_Y2)))"
+                "{"
+                "    pTemp[X2] = pIter[X] * pIter[X];"
+                "    pTemp[Y2] = pIter[Y] * pIter[Y];"
+                "}"
+                "pTemp[EJECT_VAL] = pTemp[X2] + pTemp[Y2];";
+        } 
     void init(void) {};
 };
 /*
@@ -140,7 +149,10 @@ public:
             pTemp[EJECT_VAL] = pInput[EJECT] + epsilon - diff;
 
         }
-    bool iter8_ok() { return false; }
+    std::string bail_code() const
+        {
+            return "";
+        }
 };
 
 bailFunc *bailFunc_new(e_bailFunc e)

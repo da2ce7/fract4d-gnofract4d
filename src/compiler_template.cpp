@@ -15,7 +15,6 @@ class pointCalc : public pointFunc {
 private:
     /* members */
     iterFunc *m_pIter;
-    bailFunc *m_pBail;
     colorFunc *m_pOuterColor, *m_pInnerColor;
     double m_eject;
     colorizer *m_pcf;
@@ -23,20 +22,17 @@ private:
 public:
     /* ctor */
     pointCalc(iterFunc *iterType, 
-              e_bailFunc bailType, 
               double eject,
               colorizer *pcf,
               e_colorFunc outerCfType,
               e_colorFunc innerCfType) 
         : m_pIter(iterType), m_eject(eject), m_pcf(pcf)
         {
-            m_pBail = bailFunc_new(bailType);
             m_pOuterColor = colorFunc_new(outerCfType);
             m_pInnerColor = colorFunc_new(innerCfType);
         }
     virtual ~pointCalc()
         {
-            delete m_pBail;
             delete m_pOuterColor;
             delete m_pInnerColor;
         }
@@ -68,7 +64,7 @@ public:
                 {   
                     return false;
                 }                    
-                (*m_pBail)(pIter,pInput,pTemp,flags);  
+                bail(pIter,pInput,pTemp,flags);  
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
                     return true;
@@ -95,7 +91,7 @@ public:
                     // ran out of iterations
                     iter = -1; return false;
                 }
-                (*m_pBail)(pIter,pInput,pTemp,flags);            
+                bail(pIter,pInput,pTemp,flags);            
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
                     return true;
@@ -177,7 +173,7 @@ public:
         }
 
     //template<class T>
-    void iter1(
+    inline void iter1(
         double *pIter, 
         double *pInput, 
         double *pTemp) const 
@@ -186,18 +182,21 @@ public:
             ITER;
             RET;
         }
-
+    inline void bail(
+        double *pIter, double *pInput, double *pTemp, int flags)
+        {
+            BAIL;
+        }
 };
 
 extern "C" {
     void *create_pointfunc(
             iterFunc *iterType, 
-            e_bailFunc bailType, 
             double bailout,
             colorizer *pcf,
             e_colorFunc outerCfType,
             e_colorFunc innerCfType)
     {
-        return new pointCalc(iterType, bailType, bailout, pcf, outerCfType, innerCfType);
+        return new pointCalc(iterType, bailout, pcf, outerCfType, innerCfType);
     }
 }

@@ -46,10 +46,13 @@ pointFunc *pointFunc_new(
 
     compiler *c = new compiler();
 
+    bailFunc *b = bailFunc_new(bailType);
+
     std::string iter = iterType->iter_code();
     std::string decl = iterType->decl_code();
     std::string ret  = iterType->ret_code();
-    c->run(iter,decl,ret);
+    std::string bail = b->bail_code();
+    c->run(iter,decl,ret,bail);
 
     char buf[PATH_MAX];
     getcwd(buf,sizeof(buf));
@@ -61,8 +64,8 @@ pointFunc *pointFunc_new(
         return NULL;
     }
     pointFunc *(*pFunc)(
-        iterFunc *,e_bailFunc, double, colorizer *, e_colorFunc, e_colorFunc) = 
-        (pointFunc *(*)(iterFunc *,e_bailFunc, double, colorizer *, e_colorFunc, e_colorFunc)) 
+        iterFunc *,double, colorizer *, e_colorFunc, e_colorFunc) = 
+        (pointFunc *(*)(iterFunc *, double, colorizer *, e_colorFunc, e_colorFunc)) 
         dlsym(dlHandle, "create_pointfunc");
 
     if(NULL == pFunc)
@@ -70,6 +73,6 @@ pointFunc *pointFunc_new(
         return NULL;
     }
 
-    return pFunc(iterType, bailType, bailout, pcf, outerCfType, innerCfType);
+    return pFunc(iterType, bailout, pcf, outerCfType, innerCfType);
 }
 

@@ -24,6 +24,7 @@
 #include "pointFunc_public.h"
 
 #include <iosfwd>
+#include <string>
 
 /* a bailfunc is a function object which determines whether to stop
    iterating */
@@ -36,13 +37,10 @@ class bailFunc {
         double *pInput, 
         double *pTemp, 
         int flags)= 0;
+    virtual std::string bail_code() const = 0;
 #ifdef HAVE_GMP
     virtual void operator()(gmp::f *p, int flags)= 0;
 #endif
-
-    /* some functions (eg manhattan) can't cope with iter8 
-       since it can bail out then back in again */
-    virtual bool iter8_ok(void) = 0;
 };
 
 // factory method to construct bailout function objects 
