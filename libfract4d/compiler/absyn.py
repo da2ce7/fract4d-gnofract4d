@@ -158,6 +158,9 @@ def Func(id,settinglist):
 def Repeat(body,test):
     return Node("repeat", [test, Stmlist("",body)], "")
 
+def While(test,body):
+    return Node("while", [test, Stmlist("", body)], "")
+
 def If(test, left, right):
     return Node("if",
                 [test, Stmlist("",left), Stmlist("",right)], "")
