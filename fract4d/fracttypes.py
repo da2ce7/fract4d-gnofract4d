@@ -10,15 +10,17 @@ Int = 1
 Float = 2
 Complex = 3
 Color = 4
+String = 5
 
-typeList = [ Bool, Int, Float, Complex, Color]
+typeList = [ Bool, Int, Float, Complex, Color, String]
 
 suffixOfType = {
     Int : "i",
     Float : "f",
     Complex : "c",
     Bool : "b",
-    Color : "C"
+    Color : "C",
+    String : "S"
     }
 
 _typeOfStr = {
@@ -27,6 +29,7 @@ _typeOfStr = {
     "complex" : Complex,
     "bool" : Bool,
     "color" : Color,
+    "string" : String,
     }
 
 _strOfType = {
@@ -35,7 +38,8 @@ _strOfType = {
     Complex : "complex",
     Bool : "bool",
     Color : "color",
-    None : "none"
+    None : "none",
+    String : "string"
    }
 
 _defaultOfType = {
@@ -43,7 +47,8 @@ _defaultOfType = {
     Float : 0.0,
     Complex : [0.0, 0.0],
     Bool : 0,
-    Color : [0,0,0,0]
+    Color : [0,0,0,0],
+    String : ""
     }
 
 _cTypeOfType = {
@@ -51,7 +56,8 @@ _cTypeOfType = {
     Float : "double",
     Complex : "double",
     Bool : "int",
-    Color : "<Error>"
+    Color : "<Error>",
+    String : "<Error>"
     }
 
 def typeOfStr(tname):

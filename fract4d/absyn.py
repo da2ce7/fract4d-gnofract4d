@@ -155,7 +155,7 @@ def Negate(exp,pos):
     return Node("unop", pos, [exp], "t__neg")
 
 def String(s,list,pos):
-    return Node("string", pos, list, s)
+    return Node("string", pos, list, s, fracttypes.String)
 
 def Neg(exp,pos):
     return Node("unop", pos, [exp], "neg")

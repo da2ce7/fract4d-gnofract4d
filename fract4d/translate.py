@@ -166,6 +166,8 @@ class TBase:
             self.defaults[name] = [
                 self.const(val.children[0]),
                 self.const(val.children[1])]
+        elif val.type == "string":
+            self.defaults[name] = self.string(val)
         else:
             self.error("%d: only constants can be used in default sections" %
                        node.pos)
@@ -456,6 +458,9 @@ class TBase:
     def const(self,node):
         return ir.Const(node.leaf, node, node.datatype)        
 
+    def string(self,node):
+        return ir.Const(node.leaf, node, node.datatype)
+    
     def coerceList(self,expList,typeList):
         return map( lambda (exp,ty) : self.coerce(exp,ty) ,
                     zip(typeList, expList))

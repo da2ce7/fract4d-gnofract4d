@@ -146,12 +146,14 @@ class TranslateTest(testbase.TestBase):
         maxiter = 100
         xyangle = 4.9
         center = (8.1,2.0)
+        title = "Hello World"
         }''')
         self.assertNoErrors(t)
         self.assertEqual(t.defaults["maxiter"].value,100)
         self.assertEqual(t.defaults["xyangle"].value,4.9)
         self.assertEqual(t.defaults["center"][0].value,8.1)
         self.assertEqual(t.defaults["center"][1].value,2.0)
+        self.assertEqual(t.defaults["title"].value,"Hello World")
         
     def testParams(self):
         t12 = self.translate('''t_params {

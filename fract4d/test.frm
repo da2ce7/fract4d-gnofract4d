@@ -10,6 +10,7 @@ center = (1.0,2.0)
 zwcenter = (7.1,2.9)
 angle = 0.001
 magn = 8.0
+title = "Hello World"
 }
 
 ; a new-year's eve fractal - looks like a good torture test...
