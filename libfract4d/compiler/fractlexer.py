@@ -80,7 +80,7 @@ t_GT      = r'>'
 t_GTE     = r'>='
 t_ASSIGN  = r'='
 t_COMMA   = r','
-t_FORM_END= r'\}'
+t_FORM_END= r'\}' 
 
 def t_NUMBER(t):
     r'(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?'
@@ -113,7 +113,7 @@ def t_ENDPARAM(t):
 # trigger all the time mid-formula (eg, z = "z^2 + c" is a valid formid)
 
 def t_FORM_ID(t):
-    r'^[^;"\{]+{'
+    r'[^\r\n;"\{]+{'
     # TODO: chop down the expression to extract symmetry
     return t
 
