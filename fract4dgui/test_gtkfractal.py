@@ -100,8 +100,7 @@ class FctTest(unittest.TestCase):
         self.f.set_formula("test.frm","test_func")
         self.f.set_outer("test.cfrm","flat")
         
-        table = self.f.populate_formula_settings(
-            self.f.formula, 0)
+        table = self.f.populate_formula_settings(0)
 
         children = table.get_children()
         list.reverse(children)
@@ -112,7 +111,17 @@ class FctTest(unittest.TestCase):
         self.assertEqual(names[1],"bailfunc")
         self.assertEqual(names[2],"bailout")
         self.assertEqual(names[3],"myfunc")
-        
+
+        table = self.f.populate_formula_settings(1)
+
+        children = table.get_children()
+        list.reverse(children)
+
+        names = [x.get_text() for x in children if isinstance(x,gtk.Label)]
+
+        self.assertEqual(names[0],"myfunc")
+        self.assertEqual(names[1],"val")
+
     def testButton1(self):
         f = self.f
 

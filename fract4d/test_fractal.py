@@ -153,6 +153,7 @@ class FctTest(unittest.TestCase):
         image = fract4dc.image_create(40,30)
         f.draw(image)
 
+        
     def testLoadBadFileRaises(self):
         f = fractal.T(self.compiler)
         not_a_file = StringIO.StringIO("ceci n'est pas un file")
@@ -279,6 +280,7 @@ blue=0
             
     def assertFractalsEqual(self,f1,f2):
         # check that they are equivalent
+        self.assertEqual(f1.maxiter, f2.maxiter)
         self.assertEqual(f1.params, f2.params)
         self.assertEqual(f1.initparams,f2.initparams)
         self.assertEqual(f1.funcName,f2.funcName)
@@ -296,7 +298,7 @@ blue=0
         f1 = fractal.T(self.compiler)
         file1 = StringIO.StringIO(g_testfile)        
         f1.loadFctFile(file1)
-
+        
         # save again
         file2 = StringIO.StringIO()
         f1.save(file2)
@@ -307,12 +309,13 @@ blue=0
         file3 = StringIO.StringIO(saved)
         f2 = fractal.T(self.compiler)
         f2.loadFctFile(file3)
-
-        self.assertExpectedValues(f2)
+        f2.auto_deepen = False
         
+        self.assertExpectedValues(f2)
+
         # check that they are equivalent
         self.assertFractalsEqual(f1,f2)
-        
+
         
     def testRelocation(self):
         f = fractal.T(self.compiler)
