@@ -31,12 +31,14 @@ class GuiFractal(fractal.Threaded):
 
         c = gtk.gdk.rgb_get_cmap()        
         drawing_area = gtk.DrawingArea()
-        drawing_area.set_colormap(c)
-        drawing_area.set_size_request(640,480)
+        drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
+                                gtk.gdk.BUTTON_PRESS_MASK)
+        drawing_area.connect('button_release_event', self.onButtonRelease)
         drawing_area.connect('expose_event',self.onExpose)
-
-        drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK)
         
+        drawing_area.set_colormap(c)        
+        drawing_area.set_size_request(640,480)
+
         self.widget = drawing_area
         self.compile()
         self.draw(self.image)
@@ -46,22 +48,26 @@ class GuiFractal(fractal.Threaded):
 
     def onExpose(self,widget,exposeEvent):
         r = exposeEvent.area
-
         self.redraw_rect(r.x,r.y,r.width,r.height)
 
+    def onButtonRelease(self,widget,event):
+        print "button release"
+        print "click (%d,%d)" % (event.x, event.y)
+        
     def redraw_rect(self,x,y,w,h):
         gc = self.widget.get_style().white_gc
         
         # FIXME should draw smaller chunks but buf interface makes that tricky
         # FIXME remove hard-coded constants
-        self.widget.window.draw_rgb_image(
-            gc,
-            0, 0,
-            640,
-            480,
-            gtk.gdk.RGB_DITHER_NONE,
-            self.buf,
-            640*3)
+        if self.widget.window:
+            self.widget.window.draw_rgb_image(
+                gc,
+                0, 0,
+                640,
+                480,
+                gtk.gdk.RGB_DITHER_NONE,
+                self.buf,
+                640*3)
 
 class MainWindow:
     def __init__(self):
