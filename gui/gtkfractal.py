@@ -16,6 +16,8 @@ sys.path.append("..")
 
 from fract4d import fractal,fract4dc,fracttypes
 
+import undo
+
 class T(gobject.GObject):
     __gsignals__ = {
         'parameters-changed' : (
@@ -34,7 +36,7 @@ class T(gobject.GObject):
 
         (self.readfd,self.writefd) = os.pipe()
         self.nthreads = 1        
-
+        
         self.site = fract4dc.fdsite_create(self.writefd)
         f = fractal.T(comp,self.site)
         self.msgformat = "5i"

@@ -72,6 +72,7 @@ class UndoTest(unittest.TestCase):
         self.assertEqual(len(undoer.history),0)
         
         # perform an action
+        inc_status()
         undoer.do(inc_status,dec_status)
         
         self.assertEqual(status.count,1)
@@ -120,7 +121,9 @@ class UndoTest(unittest.TestCase):
 
         # create sequence
         undoer = undo.Sequence()
+        inc_status()
         undoer.do(inc_status,dec_status)
+        make_status_string()
         undoer.do(make_status_string, make_status_int)
 
         self.assertEqual(status.count,"foo")
@@ -142,13 +145,17 @@ class UndoTest(unittest.TestCase):
 
         # perform 3 actions, undo 2, do 1 again
         undoer = undo.Sequence()
+        inc_status()
         undoer.do(inc_status,dec_status)
+        inc_status()
         undoer.do(inc_status,dec_status)
+        inc_status()
         undoer.do(inc_status,dec_status)
         undoer.undo()
         undoer.undo()
         self.assertEqual(status.count,1)
-        
+
+        inc_status()
         undoer.do(inc_status,dec_status)
         self.assertEqual(len(undoer.history),2)
         self.assertEqual(undoer.can_redo(), False)
