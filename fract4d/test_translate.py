@@ -64,6 +64,45 @@ class TranslateTest(testbase.TestBase):
         }''')
         self.assertNoErrors(t3)
 
+    def testLightingOddness(self):
+        'Test no problems regress with lighting colorfunc from standard.ucl'
+        src = '''Lighting {
+final:
+  float vz = -sqrt(1-|#z|); extract implied portion of normal
+  float d2r = #pi/180; degrees to radians conversion factor
+
+  ; create vector for light direction
+  float t1a = (270.0-@angle)
+  float t1 = t1a*d2r
+  float t1b = cos(t1)
+  float t2 = cos(@elevation*d2r)
+  float lx = cos((270-@angle)*d2r) * cos(@elevation*d2r)
+default:
+  float param @angle
+    caption = "Light Rotation"
+    default = 90.0
+    hint = "Gives the rotation of the light source, in degrees. With 0 \
+            degrees, the light comes from above. Positive values give \
+            clockwise rotation."
+  endparam
+  param @elevation
+    caption = "Light Elevation"
+    default = 30.0
+    hint = "Gives the elevation of the light source, in degrees."
+  endparam
+  param @ambient
+    caption = "Ambient Light"
+    default = 0.0
+    min = -1.0
+    max = 1.0
+    hint = "Specifies the level of ambient light.  Use -1.0 to \
+            color all surfaces."
+  endparam
+}'''
+
+        t = self.translatecf(src)
+        self.assertNoErrors(t)
+
     def testTriangleInequality(self):
         t = self.translatecf('''
 Triangle {

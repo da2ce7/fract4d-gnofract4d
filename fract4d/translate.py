@@ -174,7 +174,11 @@ class TBase:
             datatype = node.datatype
             
         # create param if not already present
-        name = "@" + node.leaf
+        if node.leaf[0] == "@":
+            name = node.leaf
+        else:
+            name = "@" + node.leaf
+            
         v = self.symbols.get(name)
         set_v = False
         if not v:
