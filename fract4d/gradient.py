@@ -83,6 +83,20 @@ def HSVtoRGB(hsv):
 			
 	return rgb
 
+class ColorPoint:
+		def __init__(self, index, r, g, b):
+				self.index = index
+				self.r = r
+				self.g = g
+				self.b = b
+		
+class Segment:
+    def __init__(self, color_mode, blend_mode, left_point, right_point):
+			self.color_mode = color_mode
+			self.blend_mode = blend_mode
+			self.left = left_point
+			self.right = right_point
+			
 class Gradient:
 	def __init__(self):
 		#self.first=[255,0,255]
