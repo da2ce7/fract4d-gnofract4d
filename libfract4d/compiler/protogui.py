@@ -98,8 +98,10 @@ class GuiFractal(Threaded):
     def __init__(self,comp):
         Threaded.__init__(self,comp)
         gtk.input_add(self.readfd, gtk.gdk.INPUT_READ, self.onData)
-        
-        self.image = fract4d.image_create(640,480)
+
+        self.width = 640
+        self.height = 480
+        self.image = fract4d.image_create(self.width,self.height)
         self.buf = fract4d.image_buffer(self.image)
 
 
@@ -111,7 +113,7 @@ class GuiFractal(Threaded):
 
         c = gtk.gdk.rgb_get_cmap()
         drawing_area.set_colormap(c)        
-        drawing_area.set_size_request(640,480)
+        drawing_area.set_size_request(self.width,self.height)
 
         self.widget = drawing_area
         self.compile()
@@ -130,12 +132,16 @@ class GuiFractal(Threaded):
         self.redraw_rect(r.x,r.y,r.width,r.height)
 
     def onButtonRelease(self,widget,event):
-        print "button release"
         print "click (%d,%d)" % (event.x, event.y)
         self.interrupt()        
-        self.params[self.XCENTER] += 0.3
+        self.recenter(event.x,event.y,0.5)
         self.draw_image(False)
-        #gtk.idle_add(self.draw_image,self)
+
+    def recenter(self,x,y,zoom):
+        dx = float(x - self.width/2)/self.width
+        dy = float(y - self.height/2)/self.height
+        print "%f, %f" % (dx,dy)
+        self.relocate(dx,dy,zoom)
         
     def redraw_rect(self,x,y,w,h):
         gc = self.widget.get_style().white_gc
@@ -146,11 +152,11 @@ class GuiFractal(Threaded):
             self.widget.window.draw_rgb_image(
                 gc,
                 0, 0,
-                640,
-                480,
+                self.width,
+                self.height,
                 gtk.gdk.RGB_DITHER_NONE,
                 self.buf,
-                640*3)
+                self.width*3)
 
 class MainWindow:
     def __init__(self):

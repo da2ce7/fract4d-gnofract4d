@@ -193,6 +193,21 @@ class T(FctUtils):
 
         return self.outputfile
 
+    def mul_vs(self,v,s):
+        return map(lambda x : x * s, v)
+    
+    def relocate(self,dx,dy,zoom):
+        m = fract4d.rot_matrix(self.params)
+
+        deltax = self.mul_vs(m[0],dx)        
+        deltay = self.mul_vs(m[1],dy)
+
+        self.params[self.XCENTER] += deltax[0] + deltay[0]
+        self.params[self.YCENTER] += deltax[1] + deltay[1]
+        self.params[self.ZCENTER] += deltax[2] + deltay[2]
+        self.params[self.WCENTER] += deltax[3] + deltay[3]
+        self.params[self.MAGNITUDE] *= zoom
+        
     # status callbacks
     def status_changed(self,val):
         #print "status: %d" % val
