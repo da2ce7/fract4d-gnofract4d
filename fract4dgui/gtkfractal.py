@@ -283,7 +283,7 @@ class T(gobject.GObject):
             label.set_mnemonic_widget(widget)
             
         elif param.type == fracttypes.Bool:
-            widget = gtk.ToggleButton(self.param_display_name(name,param)+part)
+            widget = gtk.CheckButton(self.param_display_name(name,param)+part)
 
             def set_toggle(*args):
                 is_set = self.f.get_initparam(order,param_type)
@@ -291,7 +291,7 @@ class T(gobject.GObject):
                 if widget.get_active() != is_set:
                     widget.set_active(is_set)
                     
-            def set_fractal(entry,event,f,order,param_type):
+            def set_fractal(entry,f,order,param_type):
                 try:
                     gtk.idle_add(f.set_initparam,order,
                                  entry.get_active(),param_type)
