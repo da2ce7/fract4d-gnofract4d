@@ -11,6 +11,7 @@ todo for 2.2
 * WW	include formula in .fct file
 * B	O-fractals in fractint-g4.frm broken
 * W	assert that correct number of params passed to init()
+* B	click on colormap calls calc() twice
 
 UF Incompatibilities
 * W	boolean, int, enum params 
