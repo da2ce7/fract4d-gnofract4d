@@ -107,12 +107,12 @@ STFractWorker::row_aa(int x, int y, int w)
 inline bool 
 STFractWorker::periodGuess()
 { 
-    return (lastIter == -1 && ff->maxiter > 4096);
+    return (ff->periodicity && lastIter == -1 && ff->maxiter > 4096);
 }
 
 inline bool 
 STFractWorker::periodGuess(int last) {
-    return last == -1;
+    return ff->periodicity && last == -1;
 }
 
 inline void 

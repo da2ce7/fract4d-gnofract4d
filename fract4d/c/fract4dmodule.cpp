@@ -847,7 +847,7 @@ pycalc(PyObject *self, PyObject *args)
 
     //((PySite *)site)->state = PyEval_SaveThread();
     calc(params,eaa,maxiter,nThreads,pfo,cmap,
-	 (bool)auto_deepen,(bool)yflip,
+	 (bool)auto_deepen,(bool)yflip, (bool)periodicity,
 	 im,site);
     //PyEval_RestoreThread(((PySite *)site)->state);
 
@@ -867,7 +867,8 @@ calculation_thread(void *vdata)
 
     calc(args->params,args->eaa,args->maxiter,
 	 args->nThreads,args->pfo,args->cmap,
-	 args->auto_deepen,args->yflip,args->im,args->site);
+	 args->auto_deepen,args->yflip, args->periodicity,
+	 args->im,args->site);
 
 #ifdef DEBUG_THREADS 
     printf("%p : CA : ENDCALC(%d)\n",args,pthread_self());

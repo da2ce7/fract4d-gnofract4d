@@ -73,15 +73,10 @@ def call_package_config(package,option):
     if status != 0:
         print >>sys.stderr, "Can't set up. Error running '%s'." % cmd
         print >>sys.stderr, output
+        print >>sys.stderr, "Possibly you don't have %s installed." % package
         sys.exit(1)
 
     return output.split()
-
-def strip_option(arg):
-    ' change -lfoo into foo'
-    if arg[0] == "-" and len(arg) > 2:
-        arg = arg[2:]
-    return arg
 
 gtk_flags = call_package_config(gtk_pkg,"--cflags")
 gtk_libs =  call_package_config(gtk_pkg,"--libs")
