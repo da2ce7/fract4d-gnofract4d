@@ -250,17 +250,17 @@ def createDefaultDict():
       cmag(a,b) is equivalent to a*a+b*b. This is the same as |z|.''')
 
     f("log",
-      cfl("[_], _", [Float, Complex]),
+      cfl("[_], _", [Float, Complex, Hyper]),
       doc='The natural log.')
 
     f("sqrt",
-      cfl("[_], _", [Float, Complex]),
+      cfl("[_], _", [Float, Complex, Hyper]),
       doc='''The square root.
       The square root of a negative float number is NaN
       (ie it is NOT converted to complex). Thus sqrt((-3,0)) != sqrt(-3).''' )
 
     f("exp",
-      cfl("[_], _", [Float, Complex]),
+      cfl("[_], _", [Float, Complex, Hyper]),
       doc='exp(x) is equivalent to e^x')
 
     f("manhattan",
@@ -289,52 +289,52 @@ def createDefaultDict():
       backwards compatibility.''')
 
     f("sin",
-      cfl( "[_], _", [Float, Complex]),
+      cfl( "[_], _", [Float, Complex, Hyper]),
       doc='trigonometric sine function.')
     
     f("cos",
-      cfl( "[_], _", [Float, Complex]),
+      cfl( "[_], _", [Float, Complex, Hyper]),
       doc='trigonometric sine function.')
 
     f("cosxx",
-      cfl( "[_], _", [Complex]),
+      cfl( "[_], _", [Complex, Hyper]),
       doc='''Incorrect version of cosine function. Provided for backwards
       compatibility with equivalent wrong function in Fractint.''')
     
     f("tan",
-      cfl( "[_], _", [Float, Complex]),
+      cfl( "[_], _", [Float, Complex, Hyper]),
       doc='trigonometric sine function.')
 
     f("cotan",
-      cfl("[_], _", [Float, Complex]),
+      cfl("[_], _", [Float, Complex, Hyper]),
       doc="Trigonometric cotangent function.")
       
     f("sinh",
-      cfl( "[_], _", [Float, Complex]),
+      cfl( "[_], _", [Float, Complex, Hyper]),
       doc='Hyperbolic sine function.')
     
     f("cosh",
-      cfl( "[_], _", [Float, Complex]),
+      cfl( "[_], _", [Float, Complex, Hyper]),
       doc='Hyperbolic cosine function.')
     
     f("tanh",
-      cfl( "[_], _", [Float, Complex]),
+      cfl( "[_], _", [Float, Complex, Hyper]),
       doc='Hyperbolic tangent function.')
 
     f("cotanh",
-      cfl("[_], _", [Float, Complex]),
+      cfl("[_], _", [Float, Complex, Hyper]),
       doc='Hyperbolic cotangent function.')
         
     f("asin",
-      cfl( "[_], _", [Float, Complex]),
+      cfl( "[_], _", [Float, Complex, Hyper]),
       doc='Inverse sine function.')
     
     f("acos",
-      cfl( "[_], _", [Float, Complex]),
+      cfl( "[_], _", [Float, Complex, Hyper]),
       doc='Inverse cosine function.')
     
     f("atan",
-      cfl( "[_], _", [Float, Complex]),
+      cfl( "[_], _", [Float, Complex, Hyper]),
       doc='Inverse tangent function.')
 
     f("atan2",
@@ -343,15 +343,15 @@ def createDefaultDict():
       aka the complex argument.''')
     
     f("asinh",
-      cfl( "[_], _", [Float, Complex]),
+      cfl( "[_], _", [Float, Complex, Hyper]),
       doc='Inverse hyperbolic sine function.')
     
     f("acosh",
-      cfl( "[_], _", [Float, Complex]),
+      cfl( "[_], _", [Float, Complex, Hyper]),
       doc='Inverse hyperbolic cosine function.')
     
     f("atanh",
-      cfl( "[_], _", [Float, Complex]),
+      cfl( "[_], _", [Float, Complex, Hyper]),
       doc='Inverse hyperbolic tangent function.')
 
     # operators

@@ -179,6 +179,15 @@ def mul_cf_c(gen,t,srcs):
         gen.emit_binop('*',[srcs[0].re, srcs[1]], Float),
         gen.emit_binop('*',[srcs[0].im, srcs[1]], Float))
 
+def mul_hf_h(gen,t,srcs):
+    # multiply a hypercomplex number by a real one
+    return HyperArg(
+        gen.emit_binop('*',[srcs[0].parts[0], srcs[1]], Float),
+        gen.emit_binop('*',[srcs[0].parts[1], srcs[1]], Float),
+        gen.emit_binop('*',[srcs[0].parts[2], srcs[1]], Float),
+        gen.emit_binop('*',[srcs[0].parts[3], srcs[1]], Float)
+        )
+
 def cmag_c_f(gen,t,srcs):
     # |x| = x_re * x_re + x_im * x_im
     src = srcs[0]
@@ -754,3 +763,49 @@ def manhattanish2_c_f(gen,t,srcs):
     return sqr_f_f(
         gen,t,[gen.emit_binop('+',[sqr_f_f(gen,t,[srcs[0].re]),
                                    sqr_f_f(gen,t,[srcs[0].im])], Float)])
+
+def make_hyper_func(f):
+    # takes a function from C -> C and returns a function which does the same
+    # thing for H -> H
+    def genfunc(gen,t,srcs):
+        src = srcs[0]
+        ax = gen.emit_binop('-', [src.parts[0], src.parts[3]], Float)
+        ay = gen.emit_binop('+', [src.parts[1], src.parts[2]], Float)
+        bx = gen.emit_binop('+', [src.parts[0], src.parts[3]], Float)
+        by = gen.emit_binop('-', [src.parts[1], src.parts[2]], Float)
+        
+        res_a = f(gen,t, [ComplexArg(ax,ay)])
+        res_b = f(gen,t, [ComplexArg(bx,by)])
+
+        outa = gen.emit_binop('+', [res_a.re, res_b.re], Float)
+        outb = gen.emit_binop('+', [res_a.im, res_b.im], Float)
+        outc = gen.emit_binop('-', [res_a.im, res_b.im], Float)
+        outd = gen.emit_binop('-', [res_b.re, res_a.re], Float)
+        # divide by 2
+        return mul_hf_h(gen,t,[HyperArg(outa, outb, outc, outd),
+                               ConstFloatArg(0.5)])
+    return genfunc
+
+sin_h_h = make_hyper_func(sin_c_c)
+cos_h_h = make_hyper_func(cos_c_c)
+cosxx_h_h = make_hyper_func(cosxx_c_c)
+tan_h_h = make_hyper_func(tan_c_c)
+cotan_h_h = make_hyper_func(cotan_c_c)
+
+sinh_h_h = make_hyper_func(sinh_c_c)
+cosh_h_h = make_hyper_func(cosh_c_c)
+tanh_h_h = make_hyper_func(tanh_c_c)
+cotanh_h_h = make_hyper_func(cotanh_c_c)
+
+asin_h_h = make_hyper_func(asin_c_c)
+acos_h_h = make_hyper_func(acos_c_c)
+atan_h_h = make_hyper_func(atan_c_c)
+
+asinh_h_h = make_hyper_func(asinh_c_c)
+acosh_h_h = make_hyper_func(acosh_c_c)
+atanh_h_h = make_hyper_func(atanh_c_c)
+
+log_h_h = make_hyper_func(log_c_c)
+sqrt_h_h = make_hyper_func(sqrt_c_c)
+exp_h_h = make_hyper_func(exp_c_c)
+

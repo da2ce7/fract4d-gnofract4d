@@ -655,7 +655,15 @@ func fn1
                          "c1 = (1,2)\nc2 = (3,4)\n" +
                          "x = (4,3,2,1)\n" +
                          "y = (3,4,1,2)")
-        
+
+    def testHyperFuncs(self):
+        src = '''t_hyperfunc {
+        init:
+        hyper s = sin((1,2,3,4))
+        }'''
+        self.assertCSays(src,"init",
+                         self.inspect_hyper("s"),
+                         "s = (-5.9761,-36.897,-36.5636,4.49641)")
     def testC(self):
         # basic end-to-end testing. Compile a code fragment + instrumentation,
         # run it and check output
