@@ -162,15 +162,16 @@ class PfTest(unittest.TestCase):
         site = fract4d.fdsite_create(wfd)
 
         self.compileColorMandel()
-        handle = fract4d.pf_load("./test-pfc.so")
-        pfunc = fract4d.pf_create(handle)
-        fract4d.pf_init(pfunc,0.001,[0.5])
-        cmap = fract4d.cmap_create(
-            [(0.0,0,0,0,255),
-             (1/256.0,255,255,255,255),
-             (1.0, 255, 255, 255, 255)])
 
         for x in xrange(10):
+            handle = fract4d.pf_load("./test-pfc.so")
+            pfunc = fract4d.pf_create(handle)
+            fract4d.pf_init(pfunc,0.001,[0.5])
+            cmap = fract4d.cmap_create(
+                [(0.0,0,0,0,255),
+                 (1/256.0,255,255,255,255),
+                 (1.0, 255, 255, 255, 255)])
+
             print x
             fract4d.async_calc(
                 [0.0, 0.0, 0.0, 0.0,
@@ -189,17 +190,21 @@ class PfTest(unittest.TestCase):
             while True:
                 nb = 5*4
                 if nrecved == x:
+                    print "hit message count"
                     break
                 
                 bytes = os.read(rfd,nb)
                 if len(bytes) < nb:
+                    self.fail("bad message")
                     break
                 (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
                 m = self.name_of_msg[t] 
                 print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
                 if m == "STATUS" and p1 == 0:
                     #done
+                    print "done"
                     break
+                
                 nrecved += 1
             
         fract4d.image_save(image,"test.tga")
