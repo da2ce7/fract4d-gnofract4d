@@ -351,6 +351,7 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
     if(dialog) 
     {
         gtk_widget_show(dialog);
+	gdk_window_raise(dialog->window);
         return dialog;
     }
 

@@ -106,6 +106,7 @@ void create_prefs_box (model_t *m)
     // if it already exists, just show it
     if (global_prefs_box!=NULL) {
         gtk_widget_show(global_prefs_box);
+	gdk_window_raise(global_prefs_box->window);
         return;
     }
 

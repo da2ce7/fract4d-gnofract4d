@@ -1236,6 +1236,7 @@ create_propertybox (model_t *m)
     // if it already exists, just show it
     if (global_propertybox!=NULL) {
         gtk_widget_show(global_propertybox);
+	gdk_window_raise(global_propertybox->window);
         return;
     }
 

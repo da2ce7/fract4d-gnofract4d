@@ -349,6 +349,10 @@ fractal::load_params(const char *filename)
         }
         std::istringstream vs(val.c_str());
 
+	// default cfuncs because old files don't override
+	colorFuncs[INNER] = COLORFUNC_ZERO;
+	colorFuncs[OUTER] = COLORFUNC_CONT;
+
         if(FIELD_VERSION==name)
             ; // do nothing with it for now
         else if(FIELD_BAILOUT==name)
