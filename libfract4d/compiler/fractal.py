@@ -205,7 +205,12 @@ class T(FctUtils):
         #print "image: %d %d %d %d" %  (x1, x2, y1, y2)
         #self.image_list.append((x1,y1,x2,y2))
         pass
-    
+
+    def _pixel_changed(self,params,x,y,aa,maxIters,nNoPeriodIters,dist,fate,nIters,r,g,b,a):
+        # remove underscore to debug fractal generation
+        print "pixel: (%g,%g,%g,%g) %d %d %d %d %d %g %d %d (%d %d %d %d)" % \
+              (params[0],params[1],params[2],params[3],x,y,aa,maxIters,nNoPeriodIters,dist,fate,nIters,r,g,b,a)
+                      
     def draw(self,image):
         handle = fract4d.pf_load(self.outputfile)
         pfunc = fract4d.pf_create(handle)
@@ -272,12 +277,10 @@ class T(FctUtils):
 
     def parse_inner(self,val,f):
         name = self.colorfunc_names[int(val)]
-        print "inner %s" % name
         self.set_inner("gf4d.cfrm",name)
 
     def parse_outer(self,val,f):
         name = self.colorfunc_names[int(val)]
-        print "outer %s" % name
         self.set_outer("gf4d.cfrm",name)
         
     def parse_x(self,val,f):

@@ -297,6 +297,9 @@ public:
 	{
 	    site = site_;
 
+	    has_pixel_changed_method = 
+		PyObject_HasAttrString(site,"pixel_changed");
+
 	    Py_INCREF(site);
 	}
 
@@ -374,17 +377,20 @@ public:
 	double dist, int fate, int nIters,
 	int r, int g, int b, int a) 
 	{
-	    /*
-	    printf("pixel: params: <%g,%g,%g,%g>,"
-		   "pos: (%d,%d,%d), iters: %d, %d: "
-		   "dist %g, fate %d, iter %d: "
-		   "color (%d,%d,%d,%d)\n",
+	    if(has_pixel_changed_method)
+	    {
+		PyObject *pyret = PyObject_CallMethod(
+		    site,
+		    "pixel_changed",
+		    "(dddd)iiiiidiiiiii",
 		   params[0],params[1],params[2],params[3],
 		   x,y,aa,
 		   maxIters,nNoPeriodIters,
 		   dist,fate,nIters,
 		   r,g,b,a);
-	    */
+
+		Py_XDECREF(pyret);
+	    }
 	};
 
     ~PySite()
@@ -394,6 +400,7 @@ public:
 	}
 private:
     PyObject *site;
+    bool has_pixel_changed_method;
 };
 
 static void

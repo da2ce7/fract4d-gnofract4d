@@ -179,6 +179,28 @@ bailout:
 	|z| < 4.0
 }
 
+
+T02-01-G4 {; Modified for Gf4d by EY
+	; V.1.1 - earlier versions may be discarded
+        ; Copyright (c)1998,1999 Morgan L. Owens
+        ; Chebyshev Types:
+        ; Inspired by Clifford A. Pickover:
+        ; Dynamic (Euler method)
+        ;
+        ; T(n+1) = 2xT(n)-T(n-1)
+        ; T(0)  = 1
+        ; T(1)  = x
+        ;
+        ; = 2zT01-T00
+  t=z, bailout=4, z=pixel:
+  x=real(z), y=imag(z)
+  Tx=(x+x)*x-1
+  Ty=(y+y)*y-1
+  x=x-t*Ty, y=y+t*Tx
+  z=x+flip(y)
+  |z|<=bailout
+}
+
 T03-01-G4 {; based on T03-01 in CHBY1.FRM by Morgan L. Owens
         ; Modified for Gf4D by EY
         ; = 2zT02-T01
