@@ -65,33 +65,6 @@ class Alias:
     
 def createDefaultDict():
     d = {
-        "log" :  efl("log",  "[_], _", [Float, Complex]),
-        "sqrt" : efl("sqrt", "[_], _", [Float, Complex]),
-        "exp" :  efl("exp",  "[_], _", [Float, Complex]),
-
-        "manhattan" : OverloadList([ Func([Complex], Float, stdlib, "manhattan")]),
-        "manhattanish" : OverloadList([ Func([Complex], Float, stdlib, "manhattanish")]),
-        "manhattanish2" : OverloadList([ Func([Complex], Float, stdlib, "manhattanish2")]),
-        "max2" : OverloadList([ Func([Complex], Float, stdlib, "max2")]),
-        "min2" : OverloadList([ Func([Complex], Float, stdlib, "min2")]),
-        
-        "sin" :  efl("sin", "[_], _", [Float, Complex]),
-        "cos" :  efl("cos", "[_], _", [Float, Complex]),
-        "tan" :  efl("tan", "[_], _", [Float, Complex]),
-        "cotan": efl("cotan","[_], _", [Float, Complex]),
-        "sinh" :  efl("sinh", "[_], _", [Float, Complex]),
-        "cosh" :  efl("cosh", "[_], _", [Float, Complex]),
-        "tanh" :  efl("tanh", "[_], _", [Float, Complex]),
-        "cotanh": efl("cotanh", "[_], _", [Float, Complex]),
-        
-        "asin" :  efl("asin", "[_], _", [Float, Complex]),
-        "acos" :  efl("acos", "[_], _", [Float, Complex]),
-        "atan" :  efl("atan", "[_], _", [Float, Complex]),
-        "atan2" :  OverloadList([ Func([Complex], Float, stdlib, "atan2")]),
-        "asinh" :  efl("asinh", "[_], _", [Float, Complex]),
-        "acosh" :  efl("acosh", "[_], _", [Float, Complex]),
-        "atanh" :  efl("atanh", "[_], _", [Float, Complex]),
-
         # standard operators
 
         # comparison
@@ -229,7 +202,107 @@ def createDefaultDict():
       cabs(a,b) is equivalent to sqrt(a*a+b*b).
       This is also the same as sqrt(|z|)''')
 
+    f("log",
+      cfl("[_], _", [Float, Complex]),
+      doc='The natural log.')
 
+    f("sqrt",
+      cfl("[_], _", [Float, Complex]),
+      doc='''The square root.
+      The square root of a negative float number is NaN
+      (ie it is NOT converted to complex). Thus sqrt((-3,0)) != sqrt(-3).''' )
+
+    f("exp",
+      cfl("[_], _", [Float, Complex]),
+      doc='exp(x) is equivalent to e^x')
+
+    f("manhattan",
+      [[Complex], Float],
+      doc='''The Manhattan distance between the origin and complex number z.
+      manhattan(a,b) is equivalent to abs(a) + abs(b).''')
+    
+    f("manhattanish",
+      [[Complex], Float],
+      doc='''A variant on Manhattan distance provided for backwards
+      compatibility. manhattanish(a,b) is equivalent to a+b.''')
+      
+    f("manhattanish2",
+      [[Complex], Float],
+      doc='''A variant on Manhattan distance provided for backwards
+      compatibility. manhattanish2(a,b) is equivalent to (a*a + b*b)^2.''')
+
+    f("max2",
+      [[Complex], Float],
+      doc='''max2(a,b) returns the larger of a*a or b*b. Provided for
+      backwards compatibility.''')
+
+    f("min2",
+      [[Complex], Float],
+      doc='''min2(a,b) returns the smaller of a*a or b*b. Provided for
+      backwards compatibility.''')
+
+
+    f("sin",
+      cfl( "[_], _", [Float, Complex]),
+      doc='trigonometric sine function.')
+    
+    f("cos",
+      cfl( "[_], _", [Float, Complex]),
+      doc='trigonometric sine function.')
+    
+    f("tan",
+      cfl( "[_], _", [Float, Complex]),
+      doc='trigonometric sine function.')
+
+    f("cotan",
+      cfl("[_], _", [Float, Complex]),
+      doc="Trigonometric cotangent function.")
+      
+    f("sinh",
+      cfl( "[_], _", [Float, Complex]),
+      doc='Hyperbolic sine function.')
+    
+    f("cosh",
+      cfl( "[_], _", [Float, Complex]),
+      doc='Hyperbolic cosine function.')
+    
+    f("tanh",
+      cfl( "[_], _", [Float, Complex]),
+      doc='Hyperbolic tangent function.')
+
+    f("cotanh",
+      cfl("[_], _", [Float, Complex]),
+      doc='Hyperbolic cotangent function.')
+        
+    f("asin",
+      cfl( "[_], _", [Float, Complex]),
+      doc='Inverse sine function.')
+    
+    f("acos",
+      cfl( "[_], _", [Float, Complex]),
+      doc='Inverse cosine function.')
+    
+    f("atan",
+      cfl( "[_], _", [Float, Complex]),
+      doc='Inverse tangent function.')
+
+    f("atan2",
+      [[Complex], Float],
+      doc='''The angle between this complex number and the real line,
+      aka the complex argument.''')
+    
+    f("asinh",
+      cfl( "[_], _", [Float, Complex]),
+      doc='Inverse hyperbolic sine function.')
+    
+    f("acosh",
+      cfl( "[_], _", [Float, Complex]),
+      doc='Inverse hyperbolic cosine function.')
+    
+    f("atanh",
+      cfl( "[_], _", [Float, Complex]),
+      doc='Inverse hyperbolic tangent function.')
+    
     # predefined parameters
     for p in xrange(1,7):
         name = "p%d" % p
