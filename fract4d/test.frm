@@ -32,7 +32,7 @@ endparam
 
 test_simpleshape {
 default:
-maxiter = 1
+maxiter = 10
 float param angle
     default = 0.0
 endparam	
@@ -41,7 +41,6 @@ init:
 bailout:
 	real(z) + imag(z) < @angle
 }
-
 
 test_func {
 init:
