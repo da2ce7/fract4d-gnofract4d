@@ -148,7 +148,7 @@ image::clear_fate(int x, int y)
 }
 
 fate_t
-image::getFate(int x, int y, int subpixel)
+image::getFate(int x, int y, int subpixel) const
 {
     return fate_buf[index_of_subpixel(x,y,subpixel)];
 }
@@ -161,7 +161,7 @@ image::setFate(int x, int y, int subpixel, fate_t fate)
 }
 
 float
-image::getIndex(int x, int y, int subpixel)
+image::getIndex(int x, int y, int subpixel) const
 {
     return index_buf[index_of_subpixel(x,y,subpixel)];
 }
