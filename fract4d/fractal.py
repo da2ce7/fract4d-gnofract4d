@@ -41,6 +41,23 @@ class FctUtils:
             val = x[1]
         return (x[0],val)
 
+class ParamBag(FctUtils):
+    def __init__(self):
+        FctUtils.__init__(self)
+        self.dict = {}
+
+    def parseVal(self,name,val,f,sect=""):
+        self.dict[sect + name] = val
+
+    def load(self,f):
+        line = f.readline()
+        while line != "":
+            (name,val) = self.nameval(line)
+            if name != None:
+                if name == self.endsect: break
+                self.parseVal(name,val,f)
+            line = f.readline()
+
 class Colorizer(FctUtils):
     def __init__(self):
         FctUtils.__init__(self)
@@ -170,30 +187,48 @@ class T(FctUtils):
     def save(self,file):
         print >>file, "gnofract4d parameter file"
         print >>file, "version=2.0"
+
         paramnames = ["x","y","z","w","size","xy","xz","xw","yz","yw","zw"]
         for pair in zip(paramnames,self.params):
             print >>file, "%s=%.17f" % pair
 
-        print >>file, "[formula]"
+        print >>file, "maxiter=%d" % self.maxiter
+        print >>file, "[function]"
         print >>file, "formulafile=%s" % self.funcFile
         print >>file, "function=%s" % self.funcName
-
+        print >>file, "[endsection]"
+        
         print >>file, "[initparams]"
         for name in self.func_names():
             print >>file, "%s=%s" % (name, self.get_func_value(name))
         for name in self.formula.symbols.param_names():
             print >>file, "%s=%s" % (name, self.initvalue(name))
+        print >>file, "[endsection]"
 
+        print >>file, "[colors]"
+        print >>file, "colorizer=0"
+        
     def initvalue(self,name):
         ord = self.order_of_name(name)
         type = self.formula.symbols[name].type
         
-        print "ord:%s" % ord
         if type == fracttypes.Complex:
             return "(%.17f,%.17f)"%(self.initparams[ord],self.initparams[ord+1])
         else:
             return "%.17f" % self.initparams[ord]
     
+    def parse__initparams_(self,val,f):
+        params = ParamBag()
+        params.load(f)
+        for (name,val) in params.dict.items():
+            self.set_named_item(name,val)
+
+    def set_named_item(self,name,val):
+        sym = self.formula.symbols[name].first()
+        if isinstance(sym, fracttypes.Func):
+            self.set_named_func(name,val)
+        else:
+            self.set_named_param(name,val)
         
     def __del__(self):
         if self.outputfile:
@@ -478,16 +513,20 @@ class T(FctUtils):
         if ord == None:
             print "Ignoring unknown param %s" % name
             return
-        
-        m = cmplx_re.match(val)
-        if m != None:
-            re = float(m.group(1)); im = float(m.group(2))
-            if self.initparams[ord] != re:
-                self.initparams[ord] = re
-                self.changed()
-            if self.initparams[ord+1] != im:                
-                self.initparams[ord+1] = im
-                self.changed()
+
+        t = self.formula.symbols[name].type 
+        if t == fracttypes.Complex:
+            m = cmplx_re.match(val)
+            if m != None:
+                re = float(m.group(1)); im = float(m.group(2))
+                if self.initparams[ord] != re:
+                    self.initparams[ord] = re
+                    self.changed()
+                if self.initparams[ord+1] != im:                
+                    self.initparams[ord+1] = im
+                    self.changed()
+        elif t == fracttypes.Float:
+            self.initparams[ord] = float(val)
         
     def parse_func_a(self,val,f):
         self.set_named_param("@a",val)
