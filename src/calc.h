@@ -21,10 +21,6 @@
 #ifndef _CALC_H_
 #define _CALC_H_
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "vectors.h"
 
 #include <string>

@@ -16,7 +16,7 @@ gnofract4d_SOURCES = \
 	drawingareas.h drawingareas.cpp \
 	callbacks.cpp callbacks.h \
 	fract.cpp fract.h fract_public.h fract_callbacks.h calc.h \
-	pointFunc.cpp pointFunc.h \
+	pointFunc.cpp pointFunc.h pointFunc_public.h \
 	vectors.h \
 	model.cpp model.h \
 	gf4d_angle.cpp gf4d_angle.h \

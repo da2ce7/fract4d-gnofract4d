@@ -36,7 +36,7 @@ XGETTEXT = PATH=../src:$$PATH /usr/bin/xgettext
 MSGMERGE = PATH=../src:$$PATH msgmerge
 
 DEFS = -DHAVE_CONFIG_H
-CFLAGS = -g -O2 -Wall -Wunused 
+CFLAGS = -g -O2 -Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -Wpointer-arith 
 CPPFLAGS =  -I/usr/X11R6/include -I/usr/lib/glib/include
 
 INCLUDES = -I.. -I$(top_srcdir)/intl
@@ -59,7 +59,6 @@ POTFILES = \
 	../src/fractFunc.cpp \
 	../src/gf4d_angle.cpp \
 	../src/gf4d_fractal.cpp \
-	../src/gmptest.cpp \
 	../src/gundo.cpp \
 	../src/gundo_ui.cpp \
 	../src/image.cpp \
@@ -70,7 +69,6 @@ POTFILES = \
 	../src/model.cpp \
 	../src/pointFunc.cpp \
 	../src/properties.cpp \
-	../src/soi.cpp \
 	../src/toolbars.cpp
 
 CATALOGS = 

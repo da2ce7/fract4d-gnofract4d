@@ -7,7 +7,6 @@ src/fract.cpp
 src/fractFunc.cpp
 src/gf4d_angle.cpp
 src/gf4d_fractal.cpp
-src/gmptest.cpp
 src/gundo.cpp
 src/gundo_ui.cpp
 src/image.cpp
@@ -18,5 +17,4 @@ src/menus.cpp
 src/model.cpp
 src/pointFunc.cpp
 src/properties.cpp
-src/soi.cpp
 src/toolbars.cpp
