@@ -3,6 +3,9 @@
 # unit tests for canon module
 
 import unittest
+
+import testbase
+
 import canon
 import absyn
 import ir
@@ -10,7 +13,7 @@ import symbol
 import copy
 from fracttypes import *
 
-class CanonTest(unittest.TestCase):
+class CanonTest(testbase.TestBase):
     def setUp(self):
         self.fakeNode = absyn.Empty(0)
         self.canon = canon.T(symbol.T())
@@ -46,7 +49,7 @@ class CanonTest(unittest.TestCase):
         # binop with no eseqs
         tree = self.binop([self.var(), self.const()])
         ltree = self.canon.linearize(tree)
-        self.assertTreesEqual(tree, ltree)
+        self.assertTreesEqual("",tree, ltree)
         self.assertESeqsNotNested(ltree,1)
 
     def testLHBinop(self):
@@ -106,7 +109,7 @@ class CanonTest(unittest.TestCase):
                                                     self.var("b")])]))
         ltree = self.canon.linearize(tree)
         self.assertESeqsNotNested(ltree,1)
-        self.assertTreesEqual(ltree,exptree)
+        self.assertTreesEqual("",ltree,exptree)
 
     def testBothSidesBinop(self):
         tree = self.binop([self.var("a"),
@@ -120,7 +123,7 @@ class CanonTest(unittest.TestCase):
     def testESeq(self):
         tree = self.eseq([self.var("a")], self.var("b"))
         ltree = self.canon.linearize(tree)
-        self.assertTreesEqual(tree,ltree)
+        self.assertTreesEqual("",tree,ltree)
         self.assertESeqsNotNested(ltree,1)
         
         tree = self.eseq([self.eseq([self.var("a")], self.var("b"))], self.var("c"))
@@ -130,12 +133,12 @@ class CanonTest(unittest.TestCase):
         tree2 = self.eseq([self.var("a")], self.eseq([self.var("b")], self.var("c")))
         ltree2 = self.canon.linearize(tree2)
         self.assertESeqsNotNested(ltree2,1)
-        self.assertTreesEqual(ltree, ltree2)
+        self.assertTreesEqual("",ltree, ltree2)
 
     def testSeq(self):
         tree = self.seq([self.var("a"),self.var("b")])
         ltree = self.canon.linearize(tree)
-        self.assertTreesEqual(tree,ltree)
+        self.assertTreesEqual("",tree,ltree)
         self.assertESeqsNotNested(ltree,1)
 
         tree = self.seq([self.seq([self.var("a"), self.var("b")]), self.var("c")])
@@ -145,13 +148,13 @@ class CanonTest(unittest.TestCase):
         tree2 = self.seq([self.var("a"), self.seq([self.var("b"), self.var("c")])])
         ltree2 = self.canon.linearize(tree2)
         self.assertESeqsNotNested(ltree2,1)
-        self.assertTreesEqual(ltree, ltree2)
+        self.assertTreesEqual("",ltree, ltree2)
         
     def testCJump(self):
         tree = self.cjump(self.var(), self.var())
         ltree = self.canon.linearize(tree)
         self.assertESeqsNotNested(ltree,1)
-        self.assertTreesEqual(tree, ltree)
+        self.assertTreesEqual("",tree, ltree)
 
     def testCJumpWithLHESeq(self):
         tree = self.cjump(self.eseq([self.move(self.var("a"),self.const())],
@@ -308,57 +311,57 @@ class CanonTest(unittest.TestCase):
             for stm in b: print stm.pretty(),
             print
 
-    def assertValidTrace(self,trace):
-        # must have each cjump followed by false case
-        expecting = None
-        for stm in trace:
-            if expecting != None:
-                self.failUnless(isinstance(stm,ir.Label))
-                self.assertEqual(stm.name,expecting)
-                expecting = None
-            elif isinstance(stm, ir.CJump):
-                expecting = stm.falseDest
+#     def assertValidTrace(self,trace):
+#         # must have each cjump followed by false case
+#         expecting = None
+#         for stm in trace:
+#             if expecting != None:
+#                 self.failUnless(isinstance(stm,ir.Label))
+#                 self.assertEqual(stm.name,expecting)
+#                 expecting = None
+#             elif isinstance(stm, ir.CJump):
+#                 expecting = stm.falseDest
                 
-    def assertBlocksAreWellFormed(self,blocks):
-        for b in blocks:
-            self.assertBlockIsWellFormed(b)
+#     def assertBlocksAreWellFormed(self,blocks):
+#         for b in blocks:
+#             self.assertBlockIsWellFormed(b)
             
-    def assertBlockIsWellFormed(self,block,startLabel=None, endLabel=None):
-        self.assertStartsWithLabel(block,startLabel)
-        self.assertEndsWithJump(block,endLabel)
-        for stm in block[1:-1]:
-            if isinstance(stm,ir.Jump) or \
-               isinstance(stm,ir.CJump) or \
-               isinstance(stm,ir.Label):
-                self.fail("%s not allowed mid-basic-block", stm.pretty())
+#     def assertBlockIsWellFormed(self,block,startLabel=None, endLabel=None):
+#         self.assertStartsWithLabel(block,startLabel)
+#         self.assertEndsWithJump(block,endLabel)
+#         for stm in block[1:-1]:
+#             if isinstance(stm,ir.Jump) or \
+#                isinstance(stm,ir.CJump) or \
+#                isinstance(stm,ir.Label):
+#                 self.fail("%s not allowed mid-basic-block", stm.pretty())
     
-    def assertStartsWithLabel(self, block, name=None):
-        self.failUnless(isinstance(block[0], ir.Label))
-        if name != None:
-            self.assertEqual(block[0].name, name)
+#     def assertStartsWithLabel(self, block, name=None):
+#         self.failUnless(isinstance(block[0], ir.Label))
+#         if name != None:
+#             self.assertEqual(block[0].name, name)
 
-    def assertEndsWithJump(self,block, name=None):
-        self.failUnless(isinstance(block[-1], ir.Jump) or \
-                        isinstance(block[-1], ir.CJump))
-        if name != None:
-            self.assertEqual(block[-1].dest, name)
+#     def assertEndsWithJump(self,block, name=None):
+#         self.failUnless(isinstance(block[-1], ir.Jump) or \
+#                         isinstance(block[-1], ir.CJump))
+#         if name != None:
+#             self.assertEqual(block[-1].dest, name)
         
-    def assertESeqsNotNested(self,t,parentAllowsESeq):
-        'check that no ESeqs are left below other nodes'
-        if isinstance(t,ir.ESeq):
-            if parentAllowsESeq:
-                for child in t.children:
-                    self.assertESeqsNotNested(child,0)
-            else:
-                self.fail("tree not well-formed after linearize")
-        else:
-            for child in t.children:
-                self.assertESeqsNotNested(child,0)
+#     def assertESeqsNotNested(self,t,parentAllowsESeq):
+#         'check that no ESeqs are left below other nodes'
+#         if isinstance(t,ir.ESeq):
+#             if parentAllowsESeq:
+#                 for child in t.children:
+#                     self.assertESeqsNotNested(child,0)
+#             else:
+#                 self.fail("tree not well-formed after linearize")
+#         else:
+#             for child in t.children:
+#                 self.assertESeqsNotNested(child,0)
                 
-    def assertTreesEqual(self, t1, t2):
-        self.failUnless(
-            t1.pretty() == t2.pretty(),
-            ("%s, %s should be equivalent" % (t1.pretty(), t2.pretty())))
+#     def assertTreesEqual(self, t1, t2):
+#         self.failUnless(
+#             t1.pretty() == t2.pretty(),
+#             ("%s, %s should be equivalent" % (t1.pretty(), t2.pretty())))
 
 def suite():
     return unittest.makeSuite(CanonTest,'test')

@@ -7,6 +7,8 @@ import commands
 import math
 import cmath
 
+import testbase
+
 import absyn
 import ir
 import symbol
@@ -17,7 +19,7 @@ import fractparser
 import fractlexer
 import stdlib
 
-class CodegenTest(unittest.TestCase):
+class CodegenTest(testbase.TestBase):
     def setUp(self):
         self.fakeNode = absyn.Empty(0)
         self.codegen = codegen.T(symbol.T())
@@ -727,9 +729,6 @@ Newton4(XYAXIS) {; Mark Peterson
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
         self.assertEqual(str_output,exp)
 
-    def assertNoErrors(self,t):
-        self.assertEqual(len(t.errors),0,
-                         "Unexpected errors %s" % t.errors)
     def assertMatchResult(self, tree, template,result):
         template = self.codegen.expand(template)
         self.assertEqual(self.codegen.match_template(tree,template),result,
