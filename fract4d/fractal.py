@@ -8,7 +8,7 @@ import sys
 import struct
 
 sys.path.append("build/lib.linux-i686-2.2") # FIXME
-import fract4d
+import fract4dc
 
 #typedef enum
 #
@@ -29,7 +29,7 @@ cmplx_re = re.compile(r'\((.*?),(.*?)\)')
 class FctUtils:
     def __init__(self):
         self.endsect = "[endsection]"
-        self.tr = string.maketrans("[]","__")
+        self.tr = string.maketrans("[] ","___")
         
     def parseVal(self,name,val,f,sect=""):
         # try to find a method matching name        
@@ -137,7 +137,7 @@ class T(FctUtils):
         self.set_outer("gf4d.cfrm","default")
 
         # interaction with fract4d library
-        self.site = site or fract4d.site_create(self)
+        self.site = site or fract4dc.site_create(self)
 
         # default 
         self.colorlist = [
@@ -184,12 +184,12 @@ class T(FctUtils):
         self.formula.merge(self.cfuncs[0],"cf0_")        
         self.formula.merge(self.cfuncs[1],"cf1_")        
         outputfile = os.path.abspath(self.compiler.generate_code(self.formula, cg))
-        print "compiled %s" % outputfile
+        #print "compiled %s" % outputfile
         if outputfile != None:
             if self.outputfile != outputfile:
                 self.outputfile = outputfile
-                self.handle = fract4d.pf_load(self.outputfile)
-                self.pfunc = fract4d.pf_create(self.handle)
+                self.handle = fract4dc.pf_load(self.outputfile)
+                self.pfunc = fract4dc.pf_create(self.handle)
 
         return self.outputfile
 
@@ -197,7 +197,7 @@ class T(FctUtils):
         return map(lambda x : x * s, v)
     
     def relocate(self,dx,dy,zoom):
-        m = fract4d.rot_matrix(self.params)
+        m = fract4dc.rot_matrix(self.params)
 
         deltax = self.mul_vs(m[0],dx)        
         deltay = self.mul_vs(m[1],dy)
@@ -219,7 +219,7 @@ class T(FctUtils):
         return False
 
     def iters_changed(self,iters):
-        print "iters changed to %d" % iters
+        #print "iters changed to %d" % iters
         self.maxiter = iters
     
     def image_changed(self,x1,y1,x2,y2):
@@ -231,19 +231,25 @@ class T(FctUtils):
               (params[0],params[1],params[2],params[3],x,y,aa,maxIters,nNoPeriodIters,dist,fate,nIters,r,g,b,a)
                       
     def draw(self,image):
-        handle = fract4d.pf_load(self.outputfile)
-        pfunc = fract4d.pf_create(handle)
-        cmap = fract4d.cmap_create(self.colorlist)
+        handle = fract4dc.pf_load(self.outputfile)
+        pfunc = fract4dc.pf_create(handle)
+        cmap = fract4dc.cmap_create(self.colorlist)
         
-        fract4d.pf_init(pfunc,0.001,self.initparams)
+        fract4dc.pf_init(pfunc,0.001,self.initparams)
 
-        fract4d.calc(self.params,self.antialias,self.maxiter,1,
+        fract4dc.calc(self.params,self.antialias,self.maxiter,1,
                      pfunc,cmap,1,image,self.site)
 
         
     def set_param(self,n,val):
         self.params[n] = float(val)
 
+    def parse_gnofract4d_parameter_file(self,val,f):
+        pass
+
+    def parse_version(self,val,f):
+        pass
+    
     def parse__function_(self,val,f):
         line = f.readline()
         while line != "":
@@ -357,9 +363,8 @@ if __name__ == '__main__':
     import sys
     import fc
     sys.path.append("build/lib.linux-i686-2.2") # FIXME
-    import fract4d
+    import fract4dc
 
-    # centralized to speed up tests
     g_comp = fc.Compiler()
     g_comp.load_formula_file("./gf4d.frm")
     g_comp.load_formula_file("test.frm")
@@ -370,8 +375,8 @@ if __name__ == '__main__':
         file = open(arg)
         f.loadFctFile(file)
         f.compile()
-        image = fract4d.image_create(640,480)
+        image = fract4dc.image_create(640,480)
         f.draw(image)
-        fract4d.image_save(image,os.path.basename(arg) + ".tga")
+        fract4dc.image_save(image,os.path.basename(arg) + ".tga")
 
         

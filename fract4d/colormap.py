@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # code to load a .map file and produce a cmap object
 
-import fract4d
+import fract4dc
 import re
 
 rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
@@ -21,7 +21,7 @@ class ColorMap:
                               255))
                 i += 1
         self.r = r
-        self.cmap = fract4d.cmap_create(r)
+        self.cmap = fract4dc.cmap_create(r)
         
     def lookup(self,dist):
-        return fract4d.cmap_lookup(self.cmap,dist)
+        return fract4dc.cmap_lookup(self.cmap,dist)
