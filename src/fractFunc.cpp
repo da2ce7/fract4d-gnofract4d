@@ -325,14 +325,17 @@ void fractFunc::draw_threads(int rsize, int drawsize)
         {
             ptf->row (x, y2, w-x);
         }
-        update_image(y);
+        if(update_image(y))
+        {
+            goto done;
+        }
     }
 
     // remaining lines
     for ( y = h > rsize ? h - rsize : 0 ; y < h ; y++)
     {
         send_row(0,y,w);
-        update_image(y);
+        if(update_image(y)) goto done;
     }
 
     reset_progress(0.0);
@@ -343,18 +346,17 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     // calculate tops of boxes for future cross-reference
     for ( y = 0; y < h - rsize; y += rsize) {
         send_row(0,y,w);
-        update_image(y);
+        if(update_image(y)) goto done;
     }
 
     last_update_y = 0;
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
         send_box_row(w,y,rsize);
-
-        update_image(y);
+        if(update_image(y)) goto done;
     }
     
-
+ done:
     reset_progress(1.0);
 }
 
