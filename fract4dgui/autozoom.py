@@ -60,7 +60,7 @@ class AutozoomDialog(dialog.T):
                           gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
     def show(parent, f):
-        dialog.T.reveal(ColorDialog,parent,f)
+        dialog.T.reveal(AutozoomDialog,parent,f)
 
     show = staticmethod(show)
 

@@ -423,7 +423,7 @@ class T(FctUtils):
         c.parse_map_file(file)
         self.colorlist = c.colorlist
         self.solids[0:len(c.solids)] = c.solids[:]
-        self.changed()
+        self.changed(False)
 
     def get_initparam(self,n,param_type):
         if param_type == 0:
@@ -532,9 +532,10 @@ class T(FctUtils):
         func = formula.symbols[fname]
         return func[0].cname
     
-    def changed(self):
+    def changed(self,clear_image=True):
         self.dirty = True
         self.saved = False
+        self.clear_image = clear_image
         
     def formula_changed(self):
         self.dirtyFormula = True
@@ -720,7 +721,7 @@ class T(FctUtils):
                       self.yflip,self.periodicity,
                       pfunc,cmap,self.auto_deepen,
                       1,image,self.site, self.clear_image)
-
+        
     def clean(self):
         self.dirty = False
         
@@ -803,7 +804,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         cf.load(f)        
         self.colorlist = cf.colorlist
         self.solids[0:len(cf.solids)] = cf.solids[:]
-        self.changed()
+        self.changed(False)
         
     def parse__colorizer_(self,val,f):
         which_cf = int(val)
@@ -812,7 +813,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         if which_cf == 0:
             self.colorlist = cf.colorlist
             self.solids[0:len(cf.solids)] = cf.solids[:]
-            self.changed()
+            self.changed(False)
         # ignore other colorlists for now
 
     def parse_inner(self,val,f):

@@ -116,6 +116,9 @@ class fractFunc {
     // also checks for interruptions & returns true if we should stop
     bool update_image(int i);
 
+    // prepare for deepening by clearing 'in'-fated pixels
+    void fractFunc::clear_in_fates();
+
     // clear auto-deepen and last_update
     void reset_counts();
     void reset_progress(float progress);

@@ -11,7 +11,6 @@ todo for 2.2
 * WW	include formula in .fct file
 * B	O-fractals in fractint-g4.frm broken
 * W	assert that correct number of params passed to init()
-* B	deepening doesn't happen until aa pass
 
 UF Incompatibilities
 * W	boolean, int, enum params 
@@ -76,7 +75,8 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done in 2.2:
-* BB	close settings window with decoration = gtk-critical complaints
+* B	deepening doesn't happen until aa pass
+* BB	close window with decoration = gtk-critical complaints
 * W	reselect current fname and formula when reopening browser
 * W	if #zwpixel not used, disable 4D in toolbar and explorer
 * B	fix security bug

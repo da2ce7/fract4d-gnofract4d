@@ -52,6 +52,7 @@ module1 = Extension(
     'stdc++'
     ],
     extra_compile_args = [
+    #'-O0'
     ],
     define_macros = [ ('_REENTRANT',1),
                       #('DEBUG_CREATION',1)
