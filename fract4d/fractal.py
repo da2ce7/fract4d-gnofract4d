@@ -241,7 +241,8 @@ class T(FctUtils):
         print >>file, "[%s]" % section
         print >>file, "formulafile=%s" % self.cfunc_files[index]
         print >>file, "function=%s" % self.cfunc_names[index]
-        self.save_formula_params(file,self.cfuncs[index])
+        self.save_formula_params(
+            file,self.cfuncs[index],self.cfunc_params[index])
         print >>file, "[endsection]"
         
     def save(self,file):
@@ -257,7 +258,7 @@ class T(FctUtils):
         print >>file, "[function]"
         print >>file, "formulafile=%s" % self.funcFile
         print >>file, "function=%s" % self.funcName
-        self.save_formula_params(file,self.formula)
+        self.save_formula_params(file,self.formula,self.initparams)
         print >>file, "[endsection]"
         
         self.save_cfunc_info(1,"inner",file)
@@ -275,21 +276,21 @@ class T(FctUtils):
             print >>file, "%f=%02x%02x%02x%02x" % col
         print >>file, "]"
 
-    def save_formula_params(self,file,formula):
+    def save_formula_params(self,file,formula,params):
         for name in self.func_names(formula):
             print >>file, "%s=%s" % (name, self.get_func_value(name,formula))
         for name in formula.symbols.param_names():
             print >>file, "%s=%s" % \
-                  (name, self.initvalue(name, formula.symbols))
+                  (name, self.initvalue(name, formula.symbols,params))
         
-    def initvalue(self,name,symbol_table):
+    def initvalue(self,name,symbol_table,params):
         ord = self.order_of_name(name,symbol_table)
         type = symbol_table[name].type
         
         if type == fracttypes.Complex:
-            return "(%.17f,%.17f)"%(self.initparams[ord],self.initparams[ord+1])
+            return "(%.17f,%.17f)"%(params[ord],params[ord+1])
         else:
-            return "%.17f" % self.initparams[ord]
+            return "%.17f" % params[ord]
 
     def parse__inner_(self,val,f):
         params = ParamBag()
@@ -300,13 +301,18 @@ class T(FctUtils):
         params = ParamBag()
         params.load(f)
         self.set_outer(params.dict["formulafile"],params.dict["function"])
+        for (name,val) in params.dict.items():
+            if name == "formulafile" or name=="function":
+                pass
+            else:
+                self.set_named_item(name,val,self.cfuncs[0],self.cfunc_params[0])
 
-    def set_named_item(self,name,val):
-        sym = self.formula.symbols[name].first()
+    def set_named_item(self,name,val,formula,params):
+        sym = formula.symbols[name].first()
         if isinstance(sym, fracttypes.Func):
-            self.set_named_func(name,val)
+            self.set_named_func(name,val,formula)
         else:
-            self.set_named_param(name,val)
+            self.set_named_param(name,val,formula,params)
         
     def __del__(self):
         if self.outputfile:
@@ -323,9 +329,13 @@ class T(FctUtils):
         c.set_formula(self.funcFile,self.funcName)
         # copy the function overrides
         for name in self.func_names(self.formula):
-            c.set_named_func(name,self.get_func_value(name,self.formula))
+            c.set_named_func(name,
+                             self.get_func_value(name,self.formula),
+                             self.formula)
 
         c.initparams = copy.copy(self.initparams) # must be after set_formula
+
+        # FIXME copy colorfunc params too
         c.bailfunc = self.bailfunc
         c.cfuncs = copy.copy(self.cfuncs)
         c.cfunc_names = copy.copy(self.cfunc_names)
@@ -423,7 +433,7 @@ class T(FctUtils):
 
         func = self.formula.symbols.get("@bailfunc")
         if func != None:
-            self.set_func(func[0],funcname)            
+            self.set_func(func[0],funcname,self.formula)            
 
     def func_names(self,formula):
         return formula.symbols.func_names()
@@ -431,10 +441,10 @@ class T(FctUtils):
     def param_names(self,formula):
         return formula.symbols.param_names()
     
-    def set_named_func(self,func_to_set,val):
-        fname = self.formula.symbols.demangle(func_to_set)
-        func = self.formula.symbols.get(fname)
-        self.set_func(func[0],val)            
+    def set_named_func(self,func_to_set,val,formula):
+        fname = formula.symbols.demangle(func_to_set)
+        func = formula.symbols.get(fname)
+        self.set_func(func[0],val,formula)            
 
     def get_func_value(self,func_to_get,formula):
         fname = formula.symbols.demangle(func_to_get)        
@@ -447,9 +457,9 @@ class T(FctUtils):
     def formula_changed(self):
         self.dirtyFormula = True
         
-    def set_func(self,func,fname):
+    def set_func(self,func,fname,formula):
         if func.cname != fname:
-            self.formula.symbols.set_std_func(func,fname)
+            formula.symbols.set_std_func(func,fname)
             self.dirtyFormula = True            
             self.changed()
         
@@ -651,31 +661,33 @@ The image may not display correctly. Please upgrade to version %.1f.'''
                 self.funcName = val
                 self.set_formula(self.funcFile,self.funcName)
             elif name == "a" or name =="b" or name == "c":
-                self.set_named_param("@" + name, val)
+                self.set_named_param("@" + name, val,
+                                     self.formula, self.initparams)
             else:
-                self.set_named_item(name,val)
+                self.set_named_item(name,val,self.formula,
+                                    self.initparams)
 
-    def set_named_param(self,name,val):
+    def set_named_param(self,name,val,formula,params):
         #print "named param %s : %s" % (name, val)
-        op = self.formula.symbols.order_of_params()
-        ord = op.get(self.formula.symbols.mangled_name(name))
+        op = formula.symbols.order_of_params()
+        ord = op.get(formula.symbols.mangled_name(name))
         if ord == None:
             #print "Ignoring unknown param %s" % name
             return
 
-        t = self.formula.symbols[name].type 
+        t = formula.symbols[name].type 
         if t == fracttypes.Complex:
             m = cmplx_re.match(val)
             if m != None:
                 re = float(m.group(1)); im = float(m.group(2))
-                if self.initparams[ord] != re:
-                    self.initparams[ord] = re
+                if params[ord] != re:
+                    params[ord] = re
                     self.changed()
-                if self.initparams[ord+1] != im:                
-                    self.initparams[ord+1] = im
+                if params[ord+1] != im:                
+                    params[ord+1] = im
                     self.changed()
         elif t == fracttypes.Float:
-            self.initparams[ord] = float(val)
+            params[ord] = float(val)
         
     def parse_bailfunc(self,val,f):
         # can't set function directly because formula hasn't been parsed yet

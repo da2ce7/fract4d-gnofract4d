@@ -81,7 +81,7 @@ class Test(unittest.TestCase):
         bailfunc = f.get_func_value("@bailfunc",f.formula)
         self.assertEqual(bailfunc,"cmag")
         
-        f.set_named_func("@bailfunc","real2")
+        f.set_named_func("@bailfunc","real2",f.formula)
         self.assertEqual(counter.count,1)
         
         self.assertEqual(f.get_func_value("@bailfunc",f.formula),"real2")

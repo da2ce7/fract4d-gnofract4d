@@ -140,7 +140,8 @@ class T(gobject.GObject):
 
         t = self.f.tolerance(width,height)
         if self.f.auto_tolerance:
-            self.f.set_named_param("@epsilon",t)
+            self.f.set_named_param("@epsilon",t,
+                                   self.f.formula, self.f.initparams)
 
         initparams = self.all_params()
 
@@ -273,7 +274,7 @@ class T(gobject.GObject):
             self.changed()
         
     def set_func(self,func,fname):
-        self.f.set_func(func,fname)
+        self.f.set_func(func,fname,self.f.formula)
         
     def add_formula_function(self,table,i,name,param):
         label = gtk.Label(self.param_display_name(name,param))
