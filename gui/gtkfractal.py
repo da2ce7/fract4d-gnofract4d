@@ -98,7 +98,10 @@ class T(Threaded,gobject.GObject):
         gobject.TYPE_NONE, ()),
         'status-changed' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
-        gobject.TYPE_NONE, (gobject.TYPE_INT,))
+        gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+        'progress-changed' : (
+        (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
+        gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),        
         }
 
     def __init__(self,comp):
@@ -268,6 +271,10 @@ class T(Threaded,gobject.GObject):
             self.params[n] = val
             self.emit('parameters-changed')
 
+    def progress_changed(self,progress):
+        fractal.T.progress_changed(self,progress)
+        self.emit('progress-changed',progress)
+        
     def status_changed(self,status):
         fractal.T.status_changed(self,status)
         self.emit('status-changed',status)
@@ -355,5 +362,18 @@ class T(Threaded,gobject.GObject):
                 buf,
                 self.width*3)
 
+    def count_colors(self,rect):
+        # calculate the number of different colors which appear
+        # in the subsection of the image bounded by the rectangle
+        (xstart,ystart,xend,yend) = rect
+        buf = fract4dc.image_buffer(self.image,0,0)
+        colors = {}
+        for y in xrange(ystart,yend):
+            for x in xrange(xstart,xend):
+                offset = (y*self.width+x)*3
+                col = buf[offset:offset+3]
+                colors[col] = 1 + colors.get(col,0)
+        return len(colors)
+    
 # explain our existence to GTK's object system
 gobject.type_register(T)
