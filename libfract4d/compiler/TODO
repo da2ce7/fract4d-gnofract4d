@@ -1,4 +1,5 @@
 * Unsolved UF mysteries
+- what is range of color indexes - looks like [0,400)
 - Are identifiers case sensitive? (keywords aren't) - no
 - can < work on complex numbers? yes, but warning
 - is int foo = int bar = 3 ok? - yes
