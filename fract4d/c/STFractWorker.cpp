@@ -185,23 +185,23 @@ STFractWorker::antialias(int x, int y)
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
-    pos+=ff->delta_aa_x;
 
     // top right
+    pos+=ff->delta_aa_x;
     pf->calc(pos.n, ff->maxiter,nNoPeriodIters,x,y,2,&ptmp,&p); 
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
-    pos = topleft + ff->delta_aa_y;
 
     // bottom left
+    pos = topleft + ff->delta_aa_y;
     pf->calc(pos.n, ff->maxiter,nNoPeriodIters,x,y,3,&ptmp,&p); 
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
-    pos+= ff->delta_aa_x;
 
     // bottom right
+    pos+= ff->delta_aa_x;
     pf->calc(pos.n, ff->maxiter,nNoPeriodIters,x,y,4,&ptmp,&p); 
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;

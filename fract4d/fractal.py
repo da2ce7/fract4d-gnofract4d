@@ -431,7 +431,6 @@ class T(FctUtils):
 
     def parse_antialias(self,val,f):
         self.antialias = int(val)
-        print "aa : %d" % self.antialias
     
     def loadFctFile(self,f):
         line = f.readline()

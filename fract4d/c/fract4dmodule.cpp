@@ -669,10 +669,11 @@ public:
 	double dist, int fate, int nIters,
 	int r, int g, int b, int a) 
 	{
+	    /*
 	    printf("pixel: <%g,%g,%g,%g>(%d,%d,%d) = (%g,%d,%d)\n",
 		   params[0],params[1],params[2],params[3],
 		   x,y,aa,dist,fate,nIters);
-
+	    */
 	    return; // FIXME
 	};
 

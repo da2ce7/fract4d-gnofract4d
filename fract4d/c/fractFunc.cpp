@@ -42,21 +42,26 @@ fractFunc::fractFunc(
 
     rot = rotated_matrix(params);
     rot = rot/im->Xres();
+    // distance to jump for one pixel up or across
     deltax = rot[VX];
     deltay = rot[VY];
-    ddepth = (depth*2);
-    delta_aa_x = deltax / ddepth;    
-    delta_aa_y = deltay / ddepth;
+    
+    // half that distance
+    delta_aa_x = deltax / 2.0;    
+    delta_aa_y = deltay / 2.0;
+
+    // topleft is now top left corner of top left pixel...
     topleft = vec4<d>(params[XCENTER],params[YCENTER],
 		      params[ZCENTER],params[WCENTER]) -
         deltax * im->Xres() / 2.0 -
         deltay * im->Yres() / 2.0;
 
-    // offset to center of pixel
-    topleft += deltax / 2.0 + deltay / 2.0;
 
-    d depthby2 = ddepth/2.0;
-    aa_topleft = topleft - (delta_aa_y + delta_aa_x) * depthby2;
+    // .. then offset to center of pixel
+    topleft += delta_aa_x + delta_aa_y;
+
+    // antialias: offset to middle of top left quadrant of pixel
+    aa_topleft = topleft - (delta_aa_y + delta_aa_x) / 2.0;
     
     nTotalHalfIters = nTotalDoubleIters = nTotalK = 0;
     clear();
