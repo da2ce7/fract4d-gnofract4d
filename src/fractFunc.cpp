@@ -14,13 +14,6 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     gf = _gf;
     im = _im;
     f = _f; 
-    pf = pointFunc_new(
-        f->pIterFunc, 
-        f->bailout_type, 
-        f->params[BAILOUT], 
-        f->cizer, 
-        f->colorFuncs[OUTER],
-        f->colorFuncs[INNER]);
     
     depth = f->eaa ? 2 : 1; 
     
@@ -51,7 +44,7 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     ptf = new fractThreadFunc[nThreadFuncs];
     for(int i = 0; i < nThreadFuncs; ++i)
     {
-        ptf[i].ff = this;
+        ptf[i].init(this,f,im);
     }
 
     /* threading */

@@ -53,7 +53,21 @@ typedef struct {
 class fractThreadFunc {
  public:
     fractFunc *ff;
-    
+
+    /* pointers to data also held in fractFunc */
+    fractal_t *f; 
+    image *im;    
+
+    /* not a ctor because we always create a whole array then init them */
+    void init(fractFunc *ff, fractal_t *f, image *im);
+
+    ~fractThreadFunc();
+
+    // function object which calculates the colors of points 
+    // this is per-thread-func so it doesn't have to be re-entrant
+    // and can have member vars
+    pointFunc *pf; 
+
     // n pixels correctly classified that would be wrong 
     // if we halved iterations
     int nhalfiters;
