@@ -90,12 +90,12 @@ class PfTest(unittest.TestCase):
         self.compiler.compile(cf2)
         
         f = self.compiler.get_formula("gf4d.frm","Mandelbrot")
-        cg = self.compiler.compile(f)
 
-        f.merge(cf1,"cf0")
-        f.merge(cf2,"cf1")
+        self.color_mandel_params = f.symbols.default_params() + \
+                                   cf1.symbols.default_params() + \
+                                   cf2.symbols.default_params()
 
-        self.compiler.generate_code(f,cg,"test-pfc.so","cmandel.c")
+        return self.compiler.compile_all(f,cf1,cf2)
 
     def compileColorDiagonal(self):
         self.compiler.file_path.append('../formulas')
@@ -212,12 +212,14 @@ class PfTest(unittest.TestCase):
 
         return (fw,ff,site,handle,pfunc)
 
-    def assertPixelIs(self,img,x,y,fates,outcolor=None,incolor=None):
+    def assertPixelIs(self,img,x,y,fates,outcolor=None,incolor=None,efate=None):
         self.assertEqual(img.get_all_fates(x,y), fates)
         (r,g,b) = (0,0,0)
         nsubpixels = 0
         for i in xrange(img.FATE_SIZE):
             fate = fates[i]
+            if fate==img.UNKNOWN and efate != None:
+                fate = efate
             if fate == img.OUT:
                 if outcolor == None:
                     color = img.WHITE
@@ -235,17 +237,16 @@ class PfTest(unittest.TestCase):
                 index = 0.0
             else:
                 continue
+            
             r += color[0]; g += color[1]; b += color[2]
             nsubpixels += 1
-            if fate != img.UNKNOWN:
+            if fate != img.UNKNOWN and efate==None:
                 findex = img.get_color_index(x,y,i)
                 self.assertEqual(
                     findex,index,
-                    "unexpected index %.17f for subpixel %d" % (findex,i))
+                    "unexpected index %.17f for subpixel %d with fate %d" % (findex,i,fate))
 
         color = [r//nsubpixels, g//nsubpixels, b//nsubpixels]
-        #print "looking for", color
-        #print "finding", img.get_color(x,y)
         
         self.assertEqual(img.get_color(x,y),color)
         
@@ -309,10 +310,21 @@ class PfTest(unittest.TestCase):
         fract4dc.fw_pixel(fw,0,0,1,1)
         self.assertPixelIs(iw,0,0,[iw.OUT]+[iw.UNKNOWN]*3, [79,88,41])
 
+        # redraw antialiased pixel
         fract4dc.fw_pixel(fw,2,2,1,1)
         self.assertPixelIs(
             iw,2,2, [iw.OUT, iw.OUT, iw.IN, iw.OUT],
             [79,88,41], [100,101,102])
+
+        # draw large block overlapping existing pixels
+        fract4dc.fw_pixel(fw,0,0,4,4)
+        self.assertPixelIs(
+            iw,0,0, [iw.OUT, iw.UNKNOWN, iw.UNKNOWN, iw.UNKNOWN],
+            [79,88,41], [100,101,102])
+
+        self.assertPixelIs(
+            iw,3,1, [iw.UNKNOWN]*4,
+            [79,88,41], [100,101,102], iw.OUT)        
         
     def testCalc(self):
         xsize = 64
@@ -321,10 +333,10 @@ class PfTest(unittest.TestCase):
         siteobj = FractalSite()
         site = fract4dc.site_create(siteobj)
 
-        self.compileColorMandel()
-        handle = fract4dc.pf_load("./test-pfc.so")
+        file = self.compileColorMandel()
+        handle = fract4dc.pf_load(file)
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,[0.5])
+        fract4dc.pf_init(pfunc,0.001,self.color_mandel_params)
         cmap = fract4dc.cmap_create(
             [(0.0,0,0,0,255),
              (1/256.0,255,255,255,255),
@@ -385,10 +397,10 @@ class PfTest(unittest.TestCase):
         siteobj = FractalSite()
         site = fract4dc.site_create(siteobj)
 
-        self.compileColorMandel()
-        handle = fract4dc.pf_load("./test-pfc.so")
+        file = self.compileColorMandel()
+        handle = fract4dc.pf_load(file)
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,[0.5])
+        fract4dc.pf_init(pfunc,0.001,self.color_mandel_params)
         cmap = fract4dc.cmap_create(
             [(0.0,0,0,0,255),
              (1/256.0,255,255,255,255),
@@ -418,7 +430,7 @@ class PfTest(unittest.TestCase):
                     i / (4 * xsize),
                     i % 4)
 
-            self.assertNotEqual("%g" % d,"inf")            
+            self.assertNotEqual("%g" % d,"inf", "index %d is %g" % (i,d))
             self.assertNotEqual(ord(byte), 255,
                                 "pixel %d is %d" % (i,ord(byte)))
             i+= 1
@@ -468,12 +480,12 @@ class PfTest(unittest.TestCase):
         (rfd,wfd) = os.pipe()
         site = fract4dc.fdsite_create(wfd)
 
-        self.compileColorMandel()
+        file = self.compileColorMandel()
 
         for x in xrange(10):
-            handle = fract4dc.pf_load("./test-pfc.so")
+            handle = fract4dc.pf_load(file)
             pfunc = fract4dc.pf_create(handle)
-            fract4dc.pf_init(pfunc,0.001,[0.5])
+            fract4dc.pf_init(pfunc,0.001,self.color_mandel_params)
             cmap = fract4dc.cmap_create(
                 [(0.0,0,0,0,255),
                  (1/256.0,255,255,255,255),
@@ -516,20 +528,7 @@ class PfTest(unittest.TestCase):
                 
                 nrecved += 1
                     
-    def disabled_testWithColors(self):
-        self.compileMandel()
-        self.compiler.load_formula_file("../formulas/gf4d.cfrm")
-        f = self.compiler.get_formula("gf4d.frm","Mandelbrot",
-                                      "gf4d.cfrm","default")
-        cg = self.compiler.compile(f)
-        self.compiler.generate_code(f,cg,"test-pfc.so")
-        handle = fract4dc.pf_load("./test-pfc.so")
-        pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,[])
-        result = fract4dc.pf_calc(pfunc,[1.5,0,0,0],100)
-        self.assertEqual(result,(2,0,2.0/256.0))
-
-    def disabled_testDirtyFlagFullRender(self):
+    def testDirtyFlagFullRender(self):
         '''Render the same image 2x with different colormaps.
 
         First, with the dirty flag set for a full redraw.  Second,
@@ -547,21 +546,20 @@ class PfTest(unittest.TestCase):
             i += 1
                     
     def drawTwice(self,is_dirty):
-        xsize = 12
+        xsize = 64
         ysize = int(xsize * 3.0/4.0)
         image = fract4dc.image_create(xsize,ysize)
         siteobj = FractalSite()
         site = fract4dc.site_create(siteobj)
 
-        self.compileColorMandel()
-        handle = fract4dc.pf_load("./test-pfc.so")
+        file = self.compileColorMandel()
+        handle = fract4dc.pf_load(file)
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,[0.5])
+        fract4dc.pf_init(pfunc,0.001,self.color_mandel_params)
 
         cmap = fract4dc.cmap_create(
-            [(0.0,0,0,0,255),
-             (1/256.0,255,255,255,255),
-             (1.0, 255, 255, 255, 255)])
+            [(1.0, 255, 255, 255, 255)])
+        
         fract4dc.calc(
             [0.0, 0.0, 0.0, 0.0,
              4.0,
@@ -581,10 +579,7 @@ class PfTest(unittest.TestCase):
         #self.print_fates(image,xsize,ysize)
         
         cmap = fract4dc.cmap_create(
-            [(0.0,78,91,32,255),
-             (1/256.0,79,32,99,255),
-             (11/256.0,121,140,220,255),
-             (1.0, 76, 49, 189, 255)])
+            [(1.0, 76, 49, 189, 255)])
         
         fract4dc.calc(
             [0.0, 0.0, 0.0, 0.0,

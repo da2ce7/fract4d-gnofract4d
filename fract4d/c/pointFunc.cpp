@@ -41,10 +41,10 @@ public:
         // out params
         rgba_t *color, int *pnIters, float *pIndex, fate_t *pFate) const
 	{
-	    double dist; 
-	    int fate;
-	    int solid;
-
+	    double dist = 0.0; 
+	    int fate = 0;
+	    int solid = 0;
+	    
 	    if (checkPeriod)
 	    {
 		m_pfo->vtbl->calc_period(m_pfo, params, nIters, 

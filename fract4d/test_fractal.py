@@ -643,7 +643,6 @@ The image may not display correctly. Please upgrade to version 3.4.''')
 
     def testDiagonal(self):
         f = fractal.T(self.compiler)
-        #f.pixel_changed = f._pixel_changed
         f.set_formula("test.frm","test_simpleshape")
         f.set_outer("gf4d.cfrm","default")
         f.compile()
@@ -666,6 +665,31 @@ The image may not display correctly. Please upgrade to version 3.4.''')
                     # because 3 subpixels are white and 1 black
                     self.assertColor(buf,x,y,w,(255*3)/4)
 
+        
+    def testRecolor(self):
+        f = fractal.T(self.compiler)
+        f.set_formula("test.frm","test_simpleshape")
+        f.set_outer("gf4d.cfrm","default")
+        f.compile()
+        f.reset()
+        self.assertEqual(f.initparams,[0.0])
+        self.assertEqual(f.antialias,1)
+        (w,h) = (30,30)
+        im = fract4dc.image_create(w,h)
+        f.draw(im)
+
+        buf = fract4dc.image_buffer(im,0,0)
+        for y in xrange(h):
+            for x in xrange(w):
+                if x > y:
+                    self.assertWhite(buf,x,y,w)
+                elif y > x:
+                    self.assertBlack(buf,x,y,w)
+                else:
+                    # pixels on boundary should be antialiased to 25% grey
+                    # because 3 subpixels are white and 1 black
+                    self.assertColor(buf,x,y,w,(255*3)/4)
+        
     def testDiagonalWithColorFuncs(self):
         f = fractal.T(self.compiler)
         #f.pixel_changed = f._pixel_changed
