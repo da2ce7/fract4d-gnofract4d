@@ -15,11 +15,11 @@
 
 <sect1 id="introduction">
 <title>Introduction</title>
-<blockquote><attribution>Francis Bacon</attribution>
+<epigraph><attribution>Francis Bacon</attribution>
 <para>
 There is no excellent beauty which hath not some strangeness in the proportion.
 </para>
-</blockquote>
+</epigraph>
 
 <para>&gf4d; is a program which draws complex mathematical
 objects known as fractals, including the Mandelbrot and Julia sets and
@@ -30,10 +30,11 @@ images.
 </para>
  
 <para>
-This documentation covers version 2.0. For the most recent
-documentation and release, check <ulink
-url="http://gnofract4d.sourceforge.net/">
-http://gnofract4d.sourceforge.net</ulink>. 
+This user's manual provides a tutorial introduction to &gf4d; and the
+mathematical background behind it, information on how to use the
+graphical interface, and reference material on the language used to
+write fractal formulas.
+
 </para>
 
 </sect1>
@@ -87,15 +88,139 @@ Mandelbrot.
 </para>
 
 <para>
-In explorer mode, the central window behaves the same as normal - you
-can zoom as normal. The smaller windows only understand left-click,
-which transfers that image to the central window.  </para>
+The cursor keys pan around the image. Hold down
+<keycap>Control</keycap>+ <keycap>&lt;cursor&gt;</keycap> to move more
+quickly. Hold down <keycap>Shift</keycap> +
+<keycap>&lt;cursor&gt;</keycap> to move around in the other two
+dimensions, mutating the image.  </para> 
+
+</sect2>
+
+<sect2 id="files">
+<title>Working with Files</title>
 
 <para>
-The cursor keys pan around the image. Hold down Control + cursor to
-move more quickly. Hold down Alt+ cursor to move around in the other
-two dimensions, mutating the image.
+
+&gf4d; uses several different types of file. These have different purposes as listed in the table below.
+
+<informaltable>
+<tgroup cols="3">
+
+<thead><row>
+<entry>File Type</entry>
+<entry>Extensions</entry>
+<entry>Description</entry>
+</row></thead>
+
+<tbody>
+<row>
+<entry>
+Parameter File
+</entry>
+<entry><filename class="extension">.fct</filename></entry>
+<entry>
+
+A parameter file is a small text file which contains all the settings
+required to produce a particular image, such as the position of the
+viewer along the X axis and the coloring scheme used. The parameter
+file lists the formula used, but doesn't contain the entire formula,
+so if you invent a new formula and want to share parameter files which
+use it, you need to distribute the formula file as well.
+
+&fractint; uses <filename class="extension">.par</filename> files for
+this purpose and &ultrafractal; uses <filename
+class="extension">.upr</filename>. Unfortunately &gf4d; can't read
+those formats (yet).
+
+</entry>
+</row>
+<row>
+<entry>
+Image File
+</entry>
+<entry>
+<filename class="extension">.jpg</filename>,
+<filename class="extension">.png</filename>
+</entry>
+
+<entry>
+&gf4d; supports JPEG and PNG file formats for image
+output. <emphasis>No information about the fractal parameters is
+stored in the image file</emphasis>, so if you want to carry on
+exploring from a particular point you need to save a parameter file as
+well. &gf4d; can't load image files, only save them.</entry>
+
+</row>
+
+<row>
+<entry>
+Formula File
+</entry>
+<entry>
+<filename class="extension">.frm</filename>,
+<filename class="extension">.ufm</filename>
+</entry>
+<entry>
+
+A formula file is a collection of formulas, each of which is a
+description of the algorithm used to draw a particular kind of
+fractal, expressed in a simple programming language (see <xref
+linkend="reference"></xref> for language details). Both &gf4d; and &fractint;
+use <filename class="extension">.frm</filename> as the extension, and
+&ultrafractal; uses <filename class="extension">.ufm</filename>. In
+general, any formula which works in &fractint; should work in &gf4d;
+and any which works in &gf4d; should work in &ultrafractal;, but the
+reverse is not true. See <xref linkend="formula_compat"/> for details.
+
+</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+
+If you find an
+interesting part of a fractal and want to keep a note of it and
+explore further later, choosing <guimenu>File</guimenu> &gt;
+<guimenuitem>Save</guimenuitem> to create a parameter file for future
+viewing. 
+
 </para>
+</sect2>
+
+<sect2 id="tools">
+<title>Tools</title>
+
+<sect3 id="autozoom">
+<title>Autozoom</title>
+
+</sect3>
+
+<sect3 id="explorer">
+<title>Explorer</title>
+
+<para>
+The <emphasis>Explorer</emphasis> helps you find neat-looking fractals
+easily. It divides the screen into a large central section and smaller
+"subfractals" which surround it. The central section is the main image
+- you can click on this to zoom in, change the color, or perform any
+operation you can normally. The other images around the edges are
+"mutant" versions of the main image - they're formed by starting with
+the base parameters and randomly changing them a bit. Whenever you
+change the main images, you get a whole new set of mutants. If you
+like a mutant more than the main picture, click on it to move it to
+the middle - it then becomes the main picture and you get 12 new
+mutants based on the new main image. To return to normal mode, click
+the Explorer button again.  </para>
+
+<para> The "weirdness slider"
+determines how different the mutants are from the standard image. If
+it's set to 1.0, they're almost unrecognizable - if it's 0.0, they're
+exactly the same. You can also generate more mutants with the refresh
+button.  
+</para>
+
+</sect3>
+
 </sect2>
 
 <sect2 id="toolbar">
@@ -136,27 +261,6 @@ be fairly obvious. You can undo as many times as you like. Note that
 undo also affects parameters such as color, not just position on
 screen.  </para>
 
-<para>
-
-The <emphasis>Explore</emphasis> mode helps you find neat-looking fractals
-easily. It divides the screen into a large central section and smaller
-"subfractals" which surround it.The central section is
-the main image - you can click on this to zoom in, or update it as
-normal. The other images around the edges are "mutant" versions
-of the main image - they're formed by starting with the base
-parameters and randomly changing them a bit. Whenever you change the
-main images, you get a whole new set of mutants. If you like a mutant
-more than the main picture, click on it to move it to the middle - it
-then becomes the main picture and you get eight new mutants based on
-the new main image. To return to normal mode, click the Explorer
-button again.
-</para>
-<para>
-The "weirdness slider" determines how different the mutants are from
-the standard image. If it's set to 1.0, they're almost unrecognizable
-- if it's 0.0, they're exactly the same. You can also generate more
-mutants with the refresh button.
-</para>
 </sect2>
 
 <sect2 id="filemenu">
@@ -488,7 +592,7 @@ When you get tired of the fractal functions which come with Gnofract
 4D, you can write your own, or take advantage of thousands of formulas
 written by other fractal enthusiasts. Gnofract4D can load most fractal
 formula files written for &fractint; (and some written for
-UltraFractal). However the compiler is not 100%
+&ultrafractal;). However the compiler is not 100%
 backwards-compatible with &fractint;, so unfortunately some fractals
 can't be loaded, or will display differently when they do. &gf4d;
 also supports many constructs &fractint; doesn't, so you need to take
@@ -507,8 +611,8 @@ originally compiled by George C. Martin and currently maintained by
 Paul N. Lee. Indispensable. </para></listitem>
 
 <listitem><para> <ulink
-url="http://formulas.ultrafractal.com/">UltraFractal public formula
-database</ulink> Over 4.5MB of formulas by users of UltraFractal. Many
+url="http://formulas.ultrafractal.com/">&ultrafractal; public formula
+database</ulink> Over 4.5MB of formulas by users of &ultrafractal;. Many
 (but by no means all) of these will work with &gf4d;. Let me know
 of any issues, since I aim to improve compatibility further in future
 releases. </para></listitem>
@@ -572,7 +676,7 @@ incorrect for the latter two, but I could be wrong.
 <emphasis>Please</emphasis> report any bugs you encounter, either by
 mailing <ulink
 url="mailto:edwin@sourceforge.net">edwin@sourceforge.net</ulink> or by
-using the <ulink url="http://sourceforge.net/projects/gnofract4d/">bug
+using the <ulink url="http://sourceforge.net/tracker/?func=add&amp;group_id=785&amp;atid=100785">bug
 form</ulink> at SourceForge. I'll do my best to fix them.
 </para>
 
