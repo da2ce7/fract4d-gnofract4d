@@ -12,7 +12,7 @@ import symbol
 import re
 import types
 import fracttypes
-from fracttypes import Bool, Int, Float, Complex, Hyper
+from fracttypes import Bool, Int, Float, Complex, Hyper, Color
 
 def reals(l):
     # [[a + ib], [c+id]] => [ a, c]
@@ -56,7 +56,16 @@ class HyperArg:
         return [x.format() for x in self.parts]
     def __str__(self):
         return "Hyper(%s,%s,%s,%s)" % tuple(self.parts)
-    
+
+class ColorArg:
+    'four args'
+    def __init__(self,re,im1,im2,im3):
+        self.parts = [re, im1, im2, im3]
+    def format(self):
+        return [x.format() for x in self.parts]
+    def __str__(self):
+        return "Color(%s,%s,%s,%s)" % tuple(self.parts)
+
 class ConstFloatArg:
     def __init__(self,value):
         self.value = value
@@ -591,7 +600,8 @@ extern pf_obj *pf_new(void);
                         im_val = "t__pfo->p[%d].doubleval" % (ord+1)
                         out += self.make_complex_init(t,sym.cname, re_val, im_val)
 
-                elif sym.type == fracttypes.Hyper:
+                elif sym.type == fracttypes.Hyper or \
+                     sym.type == fracttypes.Color:
                     ord = op.get(key)
                     if ord == None:
                         fval = [ "%.17f" % v for v in val]
@@ -645,7 +655,8 @@ extern pf_obj *pf_new(void);
         if override == None:
             if sym.type == fracttypes.Complex:
                 out += self.make_complex_decl(t,sym.cname)
-            elif sym.type == fracttypes.Hyper:
+            elif sym.type == fracttypes.Hyper or \
+                 sym.type == fracttypes.Color:
                 out += self.make_hyper_decl(t,sym.cname)
             else:
                 out.append(Decl("%s %s;" % (t,sym.cname)))
@@ -826,7 +837,7 @@ extern pf_obj *pf_new(void);
                 self.out.append(Oper(assem,[src.re, src.im], [dst]))
             else:
                 dst = None
-        elif t.datatype == Hyper:
+        elif t.datatype == Hyper or t.datatype == Color:
             dst = HyperArg(TempArg(self.symbols.newTemp(Float)),
                            TempArg(self.symbols.newTemp(Float)),
                            TempArg(self.symbols.newTemp(Float)),
@@ -862,7 +873,7 @@ extern pf_obj *pf_new(void);
         if t.datatype == Complex:
             self.emit_move(src.re,dst.re)
             self.emit_move(src.im,dst.im)
-        elif t.datatype == Hyper:
+        elif t.datatype == Hyper or t.datatype == Color:
             for i in xrange(4):
                 self.emit_move(src.parts[i],dst.parts[i])
         else:
@@ -921,7 +932,7 @@ extern pf_obj *pf_new(void);
         name = self.symbols.realName(t.name)
         if t.datatype == fracttypes.Complex:
             return ComplexArg(TempArg(name + "_re"),TempArg(name + "_im"))
-        elif t.datatype == fracttypes.Hyper:
+        elif t.datatype == fracttypes.Hyper or t.datatype == fracttypes.Color:
             return HyperArg(
                 TempArg(name + "_re"),
                 TempArg(name + "_i"),
