@@ -45,3 +45,17 @@ def get_rgb_colormap():
     else:
         c = gtk.gdk.rgb_get_cmap()
     return c
+
+def get_file_save_chooser(title, parent):
+    try:
+        return gtk.FileChooserDialog(
+            title, parent, gtk.FILE_CHOOSER_ACTION_SAVE)
+    except:
+        return gtk.FileSelection(title)
+
+def get_file_save_chooser(title, parent):
+    try:
+        return gtk.FileChooserDialog(
+            title, parent, gtk.FILE_CHOOSER_ACTION_OPEN)
+    except:
+        return gtk.FileSelection(title)

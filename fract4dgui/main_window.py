@@ -672,7 +672,7 @@ class MainWindow:
 
     def saveas(self,action,widget):
         # need to gather a filename
-        fs = gtk.FileSelection(_("Save Parameters"))
+        fs = utils.get_file_save_chooser(_("Save Parameters"), self.window)
         fs.show_all()
 
         name = None
@@ -722,7 +722,7 @@ class MainWindow:
         d.destroy()
 
     def save_image(self,action,widget):
-        fs = gtk.FileSelection("Save Image")
+        fs = utils.get_file_save_chooser(_("Save Image"), self.window)
         fs.show_all()
         
         name = None
@@ -798,7 +798,7 @@ class MainWindow:
         os.system("yelp ghelp://%s%s >/dev/null 2>&1 &" % (abs_file, anchor))
         
     def open_formula(self,action,widget):
-        fs = gtk.FileSelection(_("Open Formula File"))
+        fs = utils.get_file_open_chooser(_("Open Formula File"), self.window)
         fs.show_all()
         filename = ""
         
@@ -819,7 +819,7 @@ class MainWindow:
             browser.show(self.window, self.f, browser.FRACTAL)
     
     def open(self,action,widget):
-        fs = gtk.FileSelection(_("Open Parameter File"))
+        fs = utils.get_file_open_chooser(_("Open Parameter File"), self.window)
         fs.show_all()
         
         while True:
