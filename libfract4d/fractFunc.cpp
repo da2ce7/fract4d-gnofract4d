@@ -39,25 +39,25 @@ fractFunc::fractFunc(
 
     status_changed(GF4D_FRACTAL_COMPILING);
 
-    /* threading */
-    ptm = new MTFractWorker(f->nThreads,this,f,im);
+    worker = IFractWorker::create(f->nThreads,f,im);
 
-    if(ptm->ok())
+    if(worker->ok())
     {
-	status_changed( GF4D_FRACTAL_CALCULATING);
+	site->status_changed( GF4D_FRACTAL_CALCULATING);
     }
     else
     {
-	status_changed(GF4D_FRACTAL_DONE);    
+	site->status_changed(GF4D_FRACTAL_DONE);    
     }
 
+    worker->set_fractFunc(this);
 
     last_update_y = 0;
 };
 
 fractFunc::~fractFunc()
 {
-    delete ptm;
+    delete worker;
 }
 
 void 
@@ -84,7 +84,7 @@ int
 fractFunc::updateiters()
 {
     // add up all the subtotals
-    ptm->stats(&nTotalDoubleIters,&nTotalHalfIters,&nTotalK);
+    worker->stats(&nTotalDoubleIters,&nTotalHalfIters,&nTotalK);
 
     double doublepercent = ((double)nTotalDoubleIters*AUTO_DEEPEN_FREQUENCY*100)/nTotalK;
     double halfpercent = ((double)nTotalHalfIters*AUTO_DEEPEN_FREQUENCY*100)/nTotalK;
@@ -119,7 +119,7 @@ void fractFunc::draw_aa()
     {
         last_update_y = 0;
         for(int y = i; y < h ; y+= f->nThreads) {
-	    ptm->row_aa(0,y,w);
+	    worker->row_aa(0,y,w);
 	    if(update_image(y))
 	    {
 		break;
@@ -132,14 +132,14 @@ void fractFunc::draw_aa()
 
 void fractFunc::reset_counts()
 {
-    ptm->reset_counts();
+    worker->reset_counts();
     
     nTotalHalfIters = nTotalDoubleIters = nTotalK = 0;
 }
 
 void fractFunc::reset_progress(float progress)
 {
-    ptm->flush();
+    worker->flush();
     image_changed(0,0,im->Xres(),im->Yres());
     progress_changed(progress);
 }
@@ -197,12 +197,12 @@ void fractFunc::draw(int rsize, int drawsize)
         // main large blocks 
         for ( x = 0 ; x< w - rsize ; x += rsize) 
         {
-            ptm->pixel ( x, y, drawsize, drawsize);
+            worker->pixel ( x, y, drawsize, drawsize);
         }
         // extra pixels at end of lines
         for(int y2 = y; y2 < y + rsize; ++y2)
         {
-            ptm->row (x, y2, w-x);
+            worker->row (x, y2, w-x);
         }
         if(update_image(y)) 
         {
@@ -212,7 +212,7 @@ void fractFunc::draw(int rsize, int drawsize)
     // remaining lines
     for ( ; y < h ; y++)
     {
-        ptm->row(0,y,w);
+        worker->row(0,y,w);
         if(update_image(y)) 
         {
             goto done;
@@ -225,7 +225,7 @@ void fractFunc::draw(int rsize, int drawsize)
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
         for(x = 0; x < w - rsize ; x += rsize) {
-            ptm->box(x,y,rsize);
+            worker->box(x,y,rsize);
         }
         if(update_image(y))
         {
@@ -254,12 +254,12 @@ void fractFunc::draw_threads(int rsize, int drawsize)
         // main large blocks 
         for ( x = 0 ; x< w - rsize ; x += rsize) 
         {
-            ptm->pixel ( x, y, drawsize, drawsize);
+            worker->pixel ( x, y, drawsize, drawsize);
         }
         // extra pixels at end of lines
         for(int y2 = y; y2 < y + rsize; ++y2)
         {
-            ptm->row (x, y2, w-x);
+            worker->row (x, y2, w-x);
         }
         if(update_image(y))
         {
@@ -270,7 +270,7 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     // remaining lines
     for ( y = h > rsize ? h - rsize : 0 ; y < h ; y++)
     {
-        ptm->row(0,y,w);
+        worker->row(0,y,w);
         if(update_image(y)) goto done;
     }
 
@@ -279,7 +279,7 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     last_update_y = 0;
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
-        ptm->box_row(w,y,rsize);
+        worker->box_row(w,y,rsize);
         if(update_image(y)) goto done;
     }
     

@@ -25,7 +25,7 @@
 #include "image_public.h"
 #include "pointFunc.h"
 #include "colorizer.h"
-#include "fractWorker.h"
+#include "fractWorker_public.h"
 
 /* this contains stuff which is useful for drawing the fractal,
    but can be recalculated at will, so isn't part of the fractal's
@@ -110,7 +110,7 @@ class fractFunc {
     IImage *im;    // pointer to image passed in to ctor
     pointFunc *pf; // function for calculating 1 point
 
-    IFractWorker *ptm;
+    IFractWorker *worker;
 
     void send_quit();
 
