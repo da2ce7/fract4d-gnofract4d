@@ -54,6 +54,7 @@ struct _model {
     Gf4dFractal *subfracts[8];
     GtkWidget *sub_drawing_areas[8];
     GtkWidget *topWidget;
+    GtkWidget *app;
     fractal *old_fract;
 
     bool explore_mode;
@@ -115,11 +116,17 @@ void model_set_height(model_t *m, int height)
     model_resize_widget(m);
 }
 
-void model_set_top_widget(model_t *m, GtkWidget *widget)
+void model_set_top_widget(model_t *m, GtkWidget *widget, GtkWidget *app)
 {
     m->topWidget = widget;
+    m->app = app;
 
     model_resize_widget(m);
+}
+
+GtkWidget *model_get_app(model_t *m)
+{
+    return m->app;
 }
 
 void model_status_callback(Gf4dFractal *f, gint val, model_t *m)

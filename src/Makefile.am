@@ -27,7 +27,8 @@ gnofract4d_SOURCES = \
 	colorizer.cpp colorizer.h colorizer_public.h \
 	iterFunc.h iterFunc.cpp \
 	bailFunc.h bailFunc.cpp \
-	fractFunc.h fractFunc.cpp 
+	fractFunc.h fractFunc.cpp \
+	cmapbrowser.h cmapbrowser.cpp
 
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) \
 	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)

@@ -573,3 +573,21 @@ fractal::calc(Gf4dFractal *gf, image *im)
     gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DONE);
     gf4d_fractal_progress_changed(gf,0.0);
 }
+
+void 
+fractal::recolor(image *im)
+{
+    int width = im->Xres;
+    int height = im->Yres;
+    for( int i = 0 ; i < height; ++i)
+    {
+        for( int j = 0; j < width; ++j)
+        {
+            // fake scratch space
+            scratch_space s= { 0.0 };
+            rgb_t result = (*cizer)(im->iter_buf[i * width + j ], s, false);
+            char *ppixel = im->buffer + 3 * (i * width + j);
+            ppixel[0] = result.r; ppixel[1] = result.g; ppixel[2] = result.b;
+        }
+    }
+}

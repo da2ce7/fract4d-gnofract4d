@@ -307,6 +307,12 @@ void gf4d_fractal_calc(Gf4dFractal *f, int nThreads)
     gf4d_fractal_cond_unlock(f);
 }
 
+void gf4d_fractal_recolor(Gf4dFractal *f)
+{
+    kill_slave_threads(f);
+    f->f->recolor(f->im);
+}
+
 void gf4d_fractal_reset(Gf4dFractal *f)
 {
     kill_slave_threads(f);

@@ -25,12 +25,12 @@
 #include "menus.h"
 #include "model.h"
 #include "properties.h"
+#include "cmapbrowser.h"
 
 typedef struct {
     model_t *m;
     GtkWidget *f;
 } save_cb_data;
-
 
 // invoked when OK clicked on save image file selector
 void 
@@ -219,6 +219,13 @@ static GnomeUIInfo file1_menu_uiinfo[] =
         load_param_cb, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_OPEN,
         0, (enum GdkModifierType)'l', NULL
+    },
+    {
+        GNOME_APP_UI_ITEM, N_("_Choose colormap"),
+        NULL,
+        create_cmap_browser, NULL, NULL,
+        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
+        0, (enum GdkModifierType) 'c', NULL
     },
     GNOMEUIINFO_SEPARATOR,
     GNOMEUIINFO_MENU_EXIT_ITEM (menu_quit_cb, NULL),

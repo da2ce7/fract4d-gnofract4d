@@ -70,6 +70,9 @@ void gf4d_fractal_move(Gf4dFractal *f, param_t i, int direction);
 
 void gf4d_fractal_calc(Gf4dFractal *f, int nThreads);
 
+// temporary method: not threaded, just works out new colors
+void gf4d_fractal_recolor(Gf4dFractal *f); 
+
 void gf4d_fractal_reset(Gf4dFractal *f);
 gboolean gf4d_fractal_write_params(Gf4dFractal *f, const gchar *filename);
 gboolean gf4d_fractal_load_params(Gf4dFractal *f, const gchar *filename);

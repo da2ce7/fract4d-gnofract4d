@@ -81,7 +81,8 @@ extern "C" {
 
     // this is crap - lose it
     void model_set_subfract_widget(model_t *m, GtkWidget *widget, int num);
-    void model_set_top_widget(model_t *m, GtkWidget *widget);
+    void model_set_top_widget(model_t *m, GtkWidget *widget, GtkWidget *app);
+    GtkWidget *model_get_app(model_t *m);
 
     // delegates to gundo
     void model_make_undo_sensitive(model_t *m, GtkWidget *widget);

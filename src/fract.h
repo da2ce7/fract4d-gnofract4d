@@ -77,6 +77,7 @@ struct fractal
     void set_inexact(const fractal& f, double weirdness); 
     void reset();
     void calc(Gf4dFractal *gf4d, image *im);
+    void recolor(image *im);
     void relocate(double x, double y, double zoom);
     void flip2julia(double x, double y);
     void move(param_t i, int direction);

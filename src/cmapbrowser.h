@@ -18,16 +18,14 @@
  *
  */
 
-#ifndef _DRAWINGAREAS_H_
-#define _DRAWINGAREAS_H_
+#ifndef _CMAP_BROWSER_H_
+#define _CMAP_BROWSER_H_
 
-#include <gtk/gtk.h>
+#include <gnome.h>
+
 #include "model.h"
 
-GtkWidget* create_drawing_area(model_t *, GtkWidget *);
-GtkWidget *create_sub_drawing_area(model_t *m, GtkWidget *table, int num, int x, int y);
+GtkWidget *create_cmap_browser(GtkMenuItem *menu, model_t *m);
 
-// utility function
-void redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int height, int image_width);
+#endif /* _CMAP_BROWSER_H_ */
 
-#endif /* _DRAWINGAREAS_H_ */

@@ -38,7 +38,9 @@ create_app (model_t *m)
     GtkWidget *drawing_area;
     
     GtkWidget *app = gnome_app_new ("Gnofract4D", _("Gnofract4D"));
-    
+
+    gtk_widget_realize(app);
+
     gnome_app_create_menus_with_data (GNOME_APP (app), menubar1_uiinfo, m);
     gtk_window_set_policy(GTK_WINDOW(app),true,true,false);
     
@@ -61,7 +63,7 @@ create_app (model_t *m)
     gtk_widget_show (table);
     gnome_app_set_contents (GNOME_APP (app), table);
     
-    model_set_top_widget(m, table);
+    model_set_top_widget(m, table, app);
     
     drawing_area = create_drawing_area(m,appbar);
     

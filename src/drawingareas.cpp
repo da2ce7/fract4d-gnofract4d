@@ -32,7 +32,7 @@ typedef struct {
 } subfract_cb_data;
 
 /* copy a section of the fractal's image to the screen */
-static void 
+void 
 redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int height, int image_width)
 {
     gdk_draw_rgb_image(widget->window,
