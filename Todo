@@ -15,8 +15,6 @@ todo for 2.0
 * B	parse continuation lines correctly
 * BB	more robust error reporting
 * W	command-line arguments
-* W	save images
-* WW	save parameter files (define a format first)
 * W	explorer mode
 * WW	parameters for colorfuncs
 * W	last-chance exception handler
@@ -40,7 +38,11 @@ todo for 2.0
 * B	undo/redo cause recompilation
 * W	make default fractal more interesting
 
+
 done:
+* W	save images
+* WW	save parameter files (define a format first)
+* B	set_initparam didn't trigger parameters-changed
 * BB	load dubious.fct, undo/redo = gone, black screen instead
 * B	shouldn't start drawing original before loading params on cmd-line
 * BB	acos,acosh,asin,asinh,atan,atanh,cotan,cotanh give 'str not callable'
