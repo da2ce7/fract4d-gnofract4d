@@ -459,7 +459,7 @@ class T(UserDict):
         names = []
         for (name,param) in params.items():
             if isinstance(param,Var):
-                func_names.append(self.demangle(name))
+                names.append(self.demangle(name))
         return names
 
     def func_names(self):

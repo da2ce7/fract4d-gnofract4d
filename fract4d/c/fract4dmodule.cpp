@@ -1,7 +1,15 @@
-/* C wrapper around pf so it can be called directly from python.
-   This isn't used at runtime, it's primarily for unit testing */
+/* Wrappers around C++ functions so they can be called from python The
+   C code starts one or more non-Python threads which work out which
+   points to calculate, and call the dynamically-compiled pointfunc C
+   code created by the compiler for each pixel. 
 
-#undef NDEBUG
+   Results are reported back through a site object. There are 2 kinds,
+   a synchronous site which calls back into python (used by
+   command-line fractal.py script) and an async site which wraps a
+   file descriptor into which we write simple messages. The GTK+ main
+   loop then listens to the FD and performs operations in response to
+   messages written to the file descriptor.
+*/
 
 #include "Python.h"
 

@@ -17,17 +17,7 @@ g_comp.load_formula_file("./gf4d.frm")
 g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")
         
-
-class FctTest(unittest.TestCase):
-    def setUp(self):
-        global g_comp
-        self.compiler = g_comp
-
-    def tearDown(self):
-        pass
-
-    def testRead(self):
-        file = '''gnofract4d parameter file
+g_testfile = '''gnofract4d parameter file
 version=1.9
 bailout=5.1
 x=0.0891
@@ -66,9 +56,24 @@ colorizer=1
 colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028b8102cb81430b81434bc1838c0183cc01c40c01c44c42048c8204cc82450c82454cc2858d0285cd02c60d02c64d43068d8306cd83470d83474dc3878e03c7ce03c80e04084e44088e84484e84488e8448ce84490e84894ec4898f04c9cf04ca0f050a4f450a8f854acf854b0f8287c00287c002c7c002c7c002c7c042c7c042c80042c800430800430800430800830800830840830840834840834840838840c38840c3c840c3c840c3c880c3c880c3c88103c88103c8c103c8c10408c10408c10408c14408c1440901440901444901444901444901844901844941848941848941c48981c4898204c98204c9c20509c20509c2450a02450a02854a02854a42858a42858a42c58a82c58a8305ca8305cac3060ac3060ac3460b03464b03464b03864b43864b43868b43c68b83c68b8406cb8406cbc406cbc4470bc4470bc4870c04870c04c74c04c74c44c74c45078c45078c85078c8547cc8547ccc547ccc5880cc5880d05880d05c84d05c84d45c88d45c88d46088d86088d8648cd8648cdc648cdc6890dc6890e06890e06c94e06c94e46c98e46c98e46c9ce46c9ce46ca0e46ca4e46ca8e46ca8e46cace46cace46cb0e46cb0e46cb4e46cb4e46cb8e46cb8e46cbce46cbce46cc0e46cc4e46cc4e46cc8e46ccce46ccce46cd0e46cd0e46cd4e46cd4e46cd8e46cdce46cdce46ce0e46ce4e46ce4e46ce8e46ce8e46ce8e468e8e468e8e464e8e464e8e460e8e460e8e45ce8e05ce8e05ce8dc58e8d854e8d850e8d450e8d44ce8d04ce8cc48e8cc44e8c844e8c840e8c840e8c440e8c43ce8c03ce8c038e8bc38e8bc34e8b834e8b830e8b430e8b42ce8b42ce8b02ce8b02ce8b028e8b028e8ac28e8ac24e8a824e8a824e4a420e4a420e4a020e4a020e09c1ce09818e09818e09414dc9414dc8c10dc8c10dc8410d88410d87c08d87c08d87408808080808080fcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcc0c0c0c0c0c0fcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfc
 [endsection]
 '''
+
+class FctTest(unittest.TestCase):
+    def setUp(self):
+        global g_comp
+        self.compiler = g_comp
+
+    def tearDown(self):
+        pass
+
+    def testRead(self):
+        global g_testfile
+        file = g_testfile
+        
         f = fractal.T(self.compiler);
         f.loadFctFile(StringIO.StringIO(file))
-
+        self.assertExpectedValues(f)
+        
+    def assertExpectedValues(self,f):        
         self.assertEqual(f.params[f.XCENTER],0.0891)
         self.assertEqual(f.params[f.YCENTER],-0.314159)
         self.assertEqual(f.params[f.ZCENTER],0.14)
@@ -81,7 +86,8 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         self.assertEqual(f.params[f.YWANGLE],0.4)
         self.assertEqual(f.params[f.ZWANGLE],0.2)
 
-        self.assertEqual(f.bailout,5.1)
+        self.assertEqual(f.initparams[f.order_of_name("@bailout")],5.1)
+        
         self.assertEqual(f.funcName,"Mandelbar")
         self.assertEqual(f.maxiter, 259)
         self.assertEqual(len(f.colorlist),255)
@@ -104,6 +110,30 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
             d = abs(ra-rb)
             self.failUnless(d < epsilon,"%f != %f (by %f)" % (ra,rb,d))
 
+    def testSave(self):
+        # load some settings
+        f1 = fractal.T(self.compiler)
+        file1 = StringIO.StringIO(g_testfile)        
+        f1.loadFctFile(file1)
+
+        # save again
+        file2 = StringIO.StringIO()
+        f1.save(file2)
+        saved = file2.getvalue()
+        print saved
+        self.failUnless(saved.startswith("gnofract4d parameter file"))
+
+        # load it into another instance
+        file3 = StringIO.StringIO(saved)
+        f2 = fractal.T(self.compiler)
+        f2.loadFctFile(file3)
+
+        self.assertExpectedValues(f2)
+        
+        # check that they are equivalent
+        self.assertEqual(f1.params, f2.params)
+        
+        
     def testRelocation(self):
         f = fractal.T(self.compiler)
         
@@ -162,7 +192,7 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         self.assertEqual(f.params[f.YZANGLE],0.0)
         self.assertEqual(f.params[f.YWANGLE],0.0)
         self.assertEqual(f.params[f.ZWANGLE],0.0)
-        self.assertEqual(f.bailout,4.0)
+        self.assertEqual(f.initparams, [4.0])
 
         f.compile()
         (w,h) = (40,30)
@@ -290,10 +320,7 @@ a=(0.34,-0.28)
 colorizer=1
 colordata=00000044286c441c704c4c7850788058a8885cd48c58cc8858c48858bc8854b48854ac8854a88850a0885098885090845088844c80844c7c844c7484486c84486484485c8448548044508044488044408040388040308040288040248044287c482c7c4c307c4c347c50387c543c7c54407c58447c5c487c60487c604c7c64507c68547c68587c6c5c7c70607c70647c74687c78687c7c6c7c7c707c80747c84787c847c788880788c84788c8878908c78948c789890789894789c9878a09c78a0a078a4a478a8a878a8ac78acac78b0b078b4b478b4b878b8bc78bcc078bcc478c0c878c4cc78c4cc78c0c06cc0b464bcac58bca050b89444b88c3cb48030b47428b06c1cb06014b0580cac5414a85018a4501ca04c249c4c289c482c98483494443890443c8c4044884048883c4c843c548038587c385c78346474346874306c7030706c2c78682c7c64288060288860248c5c249058209854209c501ca04c1ca84c18ac4818b04414b84014bc3c10c03c10c44014bc4018b4401cac4420a444249c442894442c8c48308448347c483874483c6c4c40644c445c4c48544c4c4c50504450543c505834505c2c54602454641c546814546c105068184c6420486028485c3044583840543c3c50443c4c4c38485434445c304060303c682c3870283478243080242c8434387c4044744c4c6c585868646060746c588078548c804c988c44a494409c8c4894884c908050887c5484785c7c7060746c64706468686070645c745c547854507c50488448448844408c3c3890343498302c9c2828a02424a41c1cac1418b01010b4080cb80408bc0810b80c14b81018b8141cb81820b41c24b42028b4242cb42830b02c34b0303cb03440b03844ac3c48ac3c4cac4050ac4454ac4858a84c5ca85060a85468a8586ca45c70a46074a46478a4687ca06c80a07084a07488a0748ca07080a86c74ac6868b4645cb86050c05c44c45838cc582cd05428cc5024cc4c24c84c20c8481cc4441cc44018c04018c058e81c58d82454c82854b83050a83850983c5088444c784c4c6850485858484860443864
 [endsection]
-'''
-
-        # FIXME: not supported yet
-        extra_colorizer = '''[colorizer]=1
+[colorizer]=1
 colorizer=0
 red=0.377255787461439
 green=1
@@ -402,7 +429,7 @@ blue=0.5543108971162746
         f = fractal.T(self.compiler)
         self.assertEqual(len(f.formula.symbols.parameters()),2)
         f.loadFctFile(open("../src/paramfiles/elfglow.fct"))
-        self.assertEqual(len(f.formula.symbols.parameters()),3)
+        self.assertEqual(len(f.formula.symbols.parameters()),4)
         
         
     def testFractalBadness(self):

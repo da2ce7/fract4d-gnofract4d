@@ -9,6 +9,7 @@ import math
 import copy
 
 import fract4dc
+import fracttypes
 
 rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
 cmplx_re = re.compile(r'\((.*?),(.*?)\)')
@@ -66,7 +67,16 @@ class Colorizer(FctUtils):
             pass
         else:
             raise ValueError("Unknown colorizer type %d" % t)
-        
+
+    def parse_red(self,val,f):
+        pass
+
+    def parse_green(self,val,f):
+        pass
+
+    def parse_blue(self,val,f):
+        pass
+    
     def parse_colordata(self,val,f):
         nc =len(val)//6
         i = 0
@@ -118,6 +128,8 @@ class T(FctUtils):
         for name in paramnames:
             self.__dict__[name] = i
             i += 1
+
+        self.format_version = 2.0
         
         # formula support
         self.formula = None
@@ -155,6 +167,34 @@ class T(FctUtils):
             "decomposition",
             "external_angle"]
 
+    def save(self,file):
+        print >>file, "gnofract4d parameter file"
+        print >>file, "version=2.0"
+        paramnames = ["x","y","z","w","size","xy","xz","xw","yz","yw","zw"]
+        for pair in zip(paramnames,self.params):
+            print >>file, "%s=%.17f" % pair
+
+        print >>file, "[formula]"
+        print >>file, "formulafile=%s" % self.funcFile
+        print >>file, "function=%s" % self.funcName
+
+        print >>file, "[initparams]"
+        for name in self.func_names():
+            print >>file, "%s=%s" % (name, self.get_func_value(name))
+        for name in self.formula.symbols.param_names():
+            print >>file, "%s=%s" % (name, self.initvalue(name))
+
+    def initvalue(self,name):
+        ord = self.order_of_name(name)
+        type = self.formula.symbols[name].type
+        
+        print "ord:%s" % ord
+        if type == fracttypes.Complex:
+            return "(%.17f,%.17f)"%(self.initparams[ord],self.initparams[ord+1])
+        else:
+            return "%.17f" % self.initparams[ord]
+    
+        
     def __del__(self):
         if self.outputfile:
             os.remove(self.outputfile)
@@ -169,7 +209,6 @@ class T(FctUtils):
         c.set_formula(self.funcFile,self.funcName)
         # copy the function overrides
         for name in self.func_names():
-            print name
             c.set_named_func(name,self.get_func_value(name))
 
         c.initparams = copy.copy(self.initparams) # must be after set_formula
@@ -189,7 +228,7 @@ class T(FctUtils):
             ]
         self.initparams = []
 
-        self.bailout = 4.0
+        self.bailout = 0.0
         self.maxiter = 256
         self.antialias = 1
         self.rot_by = math.pi/2
@@ -209,7 +248,7 @@ class T(FctUtils):
         val = float(val)
         if self.initparams[n] != val:
             self.initparams[n] = val
-            self.dirty = True
+            self.changed()
 
     def set_formula_defaults(self):
         if self.formula == None:
@@ -413,7 +452,7 @@ class T(FctUtils):
         pass
 
     def parse_version(self,val,f):
-        pass
+        self.format_version=float(val)
     
     def parse__function_(self,val,f):
         line = f.readline()
@@ -531,7 +570,23 @@ class T(FctUtils):
         # antialias now a user pref, not saved in file
         #self.antialias = int(val)
         pass
+
+    def order_of_name(self,name):
+        op = self.formula.symbols.order_of_params()
+        ord = op.get(self.formula.symbols.realName(name))
+        return ord
     
+    def fix_bailout(self):
+        # because bailout occurs before we know which function this is
+        # in older files, we save it in self.bailout then apply to the
+        # initparams later
+        if self.bailout != 0.0:
+            ord = self.order_of_name("@bailout")
+            if ord == None:
+                # no bailout value for this function
+                return
+            self.initparams[ord] = self.bailout
+            
     def loadFctFile(self,f):
         line = f.readline()
         if line == None or not line.startswith("gnofract4d parameter file"):
@@ -542,6 +597,7 @@ class T(FctUtils):
                 self.parseVal(name,val,f)
             
             line = f.readline()
+        self.fix_bailout()
         
 if __name__ == '__main__':
     import sys
