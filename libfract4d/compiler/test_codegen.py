@@ -400,7 +400,7 @@ goto t__end_init;''')
         src = 't_c1 {\nloop: int a = 1\nz = z + a\n}'
         self.assertCSays(src,"loop","printf(\"%g,%g\\n\",z_re,z_im);","1,0")
         
-        src = '''t_c2{\ninit:int a = 1 + 3 * 7\n}'''
+        src = '''t_c2{\ninit:int a = 1 + 3 * 7 + 4 % 2\n}'''
         self.assertCSays(src,"init","printf(\"%d\\n\",a);","22")
 
         src = 't_c3{\ninit: b = 1 + 3 * 7 - 2\n}'
@@ -619,6 +619,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
     def test_stdlib(self):
         tests = [
             # code to run, var to inspect, result
+            [ "fm = (3.0 % 2.0, 3.1 % 1.5)","fm","(1,0.1)"], 
             [ "cj = conj(y)", "cj", "(1,-2)"],
             [ "fl = flip(y)", "fl", "(2,1)"],
             [ "ri = (imag(y),real(y))","ri", "(2,1)"],

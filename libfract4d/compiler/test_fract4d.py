@@ -168,12 +168,19 @@ class PfTest(unittest.TestCase):
 
         params[6] = math.pi/2.0
         mat = fract4d.rot_matrix(params)
-        self.assertEqual(mat, ((0.0, 0.0, 1.0, 0.0),
-                               (0.0, 1.0, 0.0, 0.0),
-                               (-1.0, 0.0, 0.0, 0.0),
-                               (0.0, 0.0, 0.0, 1.0)))
+        self.assertNearlyEqual(mat, ((0.0, 0.0, 1.0, 0.0),
+                                     (0.0, 1.0, 0.0, 0.0),
+                                     (-1.0, 0.0, 0.0, 0.0),
+                                     (0.0, 0.0, 0.0, 1.0)))
         
-        
+    def assertNearlyEqual(self,a,b):
+        # check that each element is within epsilon of expected value
+        epsilon = 1.0e-12
+        for (ra,rb) in zip(a,b):
+            for (ca,cb) in zip(ra,rb):
+                d = abs(ca-cb)
+                self.failUnless(d < epsilon)
+                
     def testFDSite(self):
         xsize = 64
         ysize = xsize * 3.0/4.0
