@@ -2,7 +2,8 @@
 
 import unittest
 import tempfile
-import popen2
+import os
+import commands
 
 import absyn
 import ir
@@ -55,7 +56,7 @@ class CodegenTest(unittest.TestCase):
         pt = self.parser.parse(s)
         #print pt.pretty()
         ir = translate.T(pt.children[0])        
-        self.codegen = codegen.T(symbol.T())
+        self.codegen = codegen.T(ir.symbols)
         self.codegen.generate_all_code(ir.sections["c_" + section])
         return self.codegen.out
     
@@ -164,31 +165,29 @@ goto t__end_loop;''')
 
     def testFormatString(self):
         t = self.const(0,Int)
-        self.assertEqual(self.codegen.format_string(t,-1,0),("0",0))
+        self.assertEqual(codegen.format_string(t,-1,0),("0",0))
 
         t = self.const(0.5,Float)
-        self.assertEqual(self.codegen.format_string(t,-1,0),("0.50000000000000000",0))
+        self.assertEqual(codegen.format_string(t,-1,0),("0.50000000000000000",0))
 
         t = self.const([1,4],Complex)
-        self.assertEqual(self.codegen.format_string(t,0,0),
+        self.assertEqual(codegen.format_string(t,0,0),
                          ("1.00000000000000000", 0))
 
         t = self.var("a",Int)
-        self.assertEqual(self.codegen.format_string(t,0,0),("%(s0)s",1))
+        self.assertEqual(codegen.format_string(t,0,0),("%(s0)s",1))
 
     def testSymbols(self):
         out = self.codegen.output_symbols()
         self.failUnless("double z_re = 0.00000000000000000;" in out)
-        print string.join(out,"\n")
 
     def testC(self):
         asm = self.sourceToAsm('''t_s2a {
-init:
-int a = 1
 loop:
+int a = 1
 z = z + a
 }''', "loop")
-        self.compileAndRun()
+        self.compileAndRun("", "t__end_loop:\nprintf(\"%.17g\\n\",z_re);")
         
     def assertOutputMatch(self,exp):
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
@@ -205,14 +204,40 @@ z = z + a
     def makeC(self,user_preamble="", user_postamble=""):
         # construct a C stub for testing
         preamble = "#include <stdio.h>\nint main(){\n"
+        decls = string.join(self.codegen.output_symbols(),"\n")
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
-        postamble = "\n}\n"
+        postamble = "\nreturn 0;}\n"
 
-        return string.join([preamble,user_preamble,str_output,user_postamble,postamble],"")
+        return string.join([preamble,decls,"\n",
+                            user_preamble,str_output,"\n",
+                            user_postamble,postamble],"")
 
+    def writeToTempFile(self,data=None,suffix=""):
+        'try mkstemp or mktemp if missing'
+        try:
+            (cFile,cFileName) = tempfile.mkstemp("gf4d",suffix)
+        except AttributeError, err:
+            # this python is too antique for mkstemp
+            cFileName = tempfile.mktemp(suffix)
+            cFile = open(cFileName,"w+b")
+
+        if data != None:
+            cFile.write(data)
+        cFile.close()
+        return cFileName
+    
     def compileAndRun(self,user_preamble="", user_postamble=""):
         c_code = self.makeC(user_preamble, user_postamble)
+        cFileName = self.writeToTempFile(c_code,".c")
+        oFileName = self.writeToTempFile("")
         print c_code
+        cmd = "gcc -Wall %s -o %s" % (cFileName, oFileName)
+        print cmd
+        (status,output) = commands.getstatusoutput(cmd)
+        print "status: %s\noutput:\n%s" % (status, output)
+        cmd = oFileName
+        (status,output) = commands.getstatusoutput(cmd)
+        print "status: %s\noutput:\n%s" % (status, output)
         
 def suite():
     return unittest.makeSuite(CodegenTest,'test')

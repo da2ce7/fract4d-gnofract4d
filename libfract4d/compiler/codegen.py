@@ -16,6 +16,20 @@ def reals(l):
 def imags(l):
     return map(lambda x : x[1],filter(lambda x : x != [],l))
 
+def format_string(t,index,pos):
+    # compute a format string for a binop's child at position pos
+    if isinstance(t,ir.Const):
+        if t.datatype == Int or t.datatype == Bool:
+            return ("%d" % t.value,pos)
+        elif t.datatype == Float:
+            return ("%.17f" % t.value,pos)
+        elif t.datatype == Complex:
+            return ("%.17f" % t.value[index],pos)
+        else:
+            raise KeyError, "Invalid type %s" % t.datatype.__class__.__name__
+    else:
+        return ("%%(s%d)s" % pos,pos+1)
+
 class Insn:
     'An instruction to be written to output stream'
     def __init__(self,assem):
@@ -35,7 +49,12 @@ class Insn:
                     dname = "d%d" % i
                     lookup[dname] = dst
                     i = i+1
-        return self.assem % lookup
+        try:
+            return self.assem % lookup
+        except Exception, exn:
+            msg = "%s with %s" % (self, lookup)
+            raise fracttypes.TranslationError(
+                "Internal Compiler Error: can't format " + msg)
 
 
 class Oper(Insn):
@@ -60,8 +79,8 @@ class Label(Insn):
     
 class Move(Insn):
     ' A move instruction'
-    def __init__(self,src,dst):
-        Insn.__init__(self,"%(d0)s = %(s0)s;")
+    def __init__(self,format,src,dst):
+        Insn.__init__(self,"%%(d0)s = %s;" % format)
         self.src = src
         self.dst = dst
     def __str__(self):
@@ -89,27 +108,17 @@ class T:
     def emit_binop(self,op,s0,index1,s1,index2,srcs,type):
         dst = self.symbols.newTemp(type)
 
-        (f1,pos) = self.format_string(s0,index1,0)
-        (f2,pos) = self.format_string(s1,index2,pos)
+        (f1,pos) = format_string(s0,index1,0)
+        (f2,pos) = format_string(s1,index2,pos)
 
         assem = "%%(d0)s = %s %s %s;" % (f1, op, f2)
         self.out.append(Oper(assem, srcs ,[ dst ]))
         return dst
-        
-    def format_string(self,t,index,pos):
-        # compute a format string for a binop's child at position pos
-        if isinstance(t,ir.Const):
-            if t.datatype == Int or t.datatype == Bool:
-                return ("%d" % t.value,pos)
-            elif t.datatype == Float:
-                return ("%.17f" % t.value,pos)
-            elif t.datatype == Complex:
-                return ("%.17f" % t.value[index],pos)
-            else:
-                raise KeyError, "Invalid type %s" % t.datatype.__class__.__name__
-        else:
-            return ("%%(s%d)s" % pos,pos+1)
 
+    def emit_move(self, s0, index1, src, dst):
+        (f1,pos) = format_string(s0,index1,0)
+        self.out.append(Move(f1,src,dst))
+        
     def output_symbols(self):
         out = []
         for (key,sym) in self.symbols.items():
@@ -123,6 +132,9 @@ class T:
                     out.append("%s %s = %.17f;" % (t,key,val))
                 else:
                     out.append("%s %s = %d;" % (t,key,val))
+            else:
+                #print "Weird symbol %s: %s" %( key,sym)
+                pass
         return out
     
     # action routines
@@ -133,7 +145,7 @@ class T:
         if t.datatype == Complex:
             (d0,d1) = (self.symbols.newTemp(Float), self.symbols.newTemp(Float))
             if child.datatype == Int:
-                (f1,pos) = self.format_string(child,-1,0)
+                (f1,pos) = format_string(child,-1,0)
                 assem = "%%(d0)s = ((double)%s);" % f1
                 self.out.append(Oper(assem,src, [d0]))
                 assem = "%(d0)s = 0.0;"
@@ -146,10 +158,10 @@ class T:
         dst = self.generate_code(t.children[0])
         src = self.generate_code(t.children[1])
         if t.datatype == Complex:
-            self.out.append(Move([src[0]],[dst[0]]))
-            self.out.append(Move([src[1]],[dst[1]]))
+            self.emit_move(t.children[1],0,[src[0]],[dst[0]])
+            self.emit_move(t.children[1],1,[src[1]],[dst[1]])
         else:
-            self.out.append(Move(src,dst))
+            self.emit_move(t.children[1],-1,src,dst)
         return dst
     
     def label(self,t):
