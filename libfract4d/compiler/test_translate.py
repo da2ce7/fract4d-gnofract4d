@@ -22,11 +22,11 @@ class TranslateTest(unittest.TestCase):
         #print pt.pretty()
         return translate.T(pt.children[0])
 
-    def x_testFractintSections(self):
-        t1 = self.translate("t1 {\na=1:b=2,c=3}")
+    def testFractintSections(self):
+        t1 = self.translate("t1 {\na=1:\nb=2\nc=3}")
         t2 = self.translate('''
-             t1 {
-                 init:
+             t2 {
+                 init: 
                  a=1
                  loop:
                  b=2
@@ -36,9 +36,9 @@ class TranslateTest(unittest.TestCase):
         self.assertEquivalentTranslations(t1,t2)
         self.assertNoProbs(t1)
         self.assertNoProbs(t2)
-        
+
         t3 = self.translate('''
-             t1 {
+             t3 {
                  a=1:b=2,c=3
                  init:
                  a=1
@@ -51,12 +51,12 @@ class TranslateTest(unittest.TestCase):
         self.assertEqual(len(t3.warnings),3)
 
     def testDecls(self):
-        t1 = self.translate("t1 {\nglobal:int a\ncomplex b\nbool c = true\n}")
+        t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")
         self.assertNoProbs(t1)
         self.assertVar(t1, "a", fracttypes.Int)
         self.assertVar(t1, "b", fracttypes.Complex)
         t1 = self.translate('''
-        t1 {
+        t5 {
         init:
         float a = true,complex c = 1.0
         complex x = 2
@@ -70,14 +70,14 @@ class TranslateTest(unittest.TestCase):
         self.assertWarning(t1, "conversion from int to complex on line 5")
 
     def testMultiDecls(self):
-        t1 = self.translate("t1 {\ninit:int a = int b = 2}")
+        t1 = self.translate("t6 {\ninit:int a = int b = 2}")
         self.assertVar(t1, "a", fracttypes.Int)
         self.assertVar(t1, "b", fracttypes.Int)
         
     def testBadDecls(self):
-        t1 = self.translate("t1 {\nglobal:int z\n}")
+        t1 = self.translate("t7 {\nglobal:int z\n}")
         self.assertError(t1,"symbol 'z' is predefined")
-        t1 = self.translate("t1 {\nglobal:int a\nfloat A\n}")
+        t1 = self.translate("t8 {\nglobal:int a\nfloat A\n}")
         self.assertError(t1,"'A' was already defined on line 2")
         
     def assertError(self,t,str):
