@@ -40,7 +40,7 @@ class bailFunc {
         {
             map["BAIL"] = bail_code(flags);
             map["UNROLL"]= iter8_ok() ? "1" : "0";
-            map["NOPERIOD"] = period_ok() ? "0" : "1";
+            //map["NOPERIOD"] = period_ok() ? "0" : "1";
         }
 
     /* is it OK to unroll the loop with this bailout type? */

@@ -274,7 +274,6 @@ static GnomeUIInfo file1_menu_uiinfo[] =
 
 static GnomeUIInfo parameters1_menu_uiinfo[] =
 {
-    GNOMEUIINFO_MENU_PREFERENCES_ITEM (preferences_cb, NULL),
     {
         GNOME_APP_UI_ITEM, N_("_Fractal Settings..."),
         NULL,
@@ -289,6 +288,7 @@ static GnomeUIInfo parameters1_menu_uiinfo[] =
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
         0, (enum GdkModifierType) 'c', NULL
     },
+    GNOMEUIINFO_MENU_PREFERENCES_ITEM (preferences_cb, NULL),
     /*
     {
         GNOME_APP_UI_ITEM, N_("_Movie Editor..."),

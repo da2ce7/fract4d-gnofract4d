@@ -31,14 +31,15 @@ insultingly oversimplified or just plain wrong.
 </caution>
 
 <sect2 id="mset" >
-<title>The Mandelbrot Set</title>
-<para> The Mandelbrot is defined as the set of all complex numbers
-which, when you repeatedly square them and add them again, never
-become infinite. In pseudocode, the procedure is:
+<title>The Mandelbrot Set</title> <para> The Mandelbrot is defined as
+the set of all complex numbers which, when you repeatedly square them
+and add them again, never become infinite. We can tell that a number
+will eventually reach infinity if it ever gets outside a circle of
+radius 2 around the origin. In pseudocode, the procedure is:
 </para>
 <programlisting>
 z = 0
-while( magnitude(z) &lt; 4.0 )
+while( magnitude(z) &lt; 2.0 )
      z = z^2 + c
 </programlisting>
 

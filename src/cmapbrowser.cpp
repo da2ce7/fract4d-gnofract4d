@@ -266,9 +266,16 @@ create_current_maps_page(GtkWidget *notebook, model_t *m)
     GtkTooltips *tips = gtk_tooltips_new();
     gtk_tooltips_enable(tips);
 
-    gchar *mapdir = gnome_datadir_file("maps/" PACKAGE  "/");
+    gchar *mapdir; /* = g_concat_dir_and_file(
+        g_get_home_dir(),".gnome/" PACKAGE "-maps");
 
     add_map_directory(table, m, mapdir, tips);
+
+    g_free(mapdir);
+                   */
+    mapdir = gnome_datadir_file("maps/" PACKAGE  "/");
+    add_map_directory(table, m, mapdir, tips);
+    g_free(mapdir);
 
     /* add the chooser page to the notebook */
     gtk_notebook_append_page(
@@ -312,10 +319,11 @@ create_new_color_page(GtkWidget *notebook, model_t *m)
     gtk_table_attach(GTK_TABLE(table), colorsel, 0, 2, 0, 1, 
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
+    GtkWidget *tab_label = gtk_label_new(_("Colorz Range"));
     gtk_notebook_append_page(
         GTK_NOTEBOOK(notebook),
         table,
-        gtk_label_new(_("Color Range")));
+        tab_label);
 
     GtkWidget * label = gtk_label_new(_("Click to apply to main fractal >>"));
     gtk_widget_show(label);

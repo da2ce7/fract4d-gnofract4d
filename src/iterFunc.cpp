@@ -227,12 +227,14 @@ public:
 
 
 // Newton's method for a quadratic complex polynomial
-// z <- (z^2 + c)/2z
-class newtFunc : public iterImpl<newtFunc,0>
+// z <- z - (z^2 - 1)/2z
+class newtFunc : public iterImpl<newtFunc,1>
 {
  public:
     enum { FLAGS = USE_COMPLEX };
-    newtFunc() : iterImpl<newtFunc,0>(name()){};
+    newtFunc() : iterImpl<newtFunc,1>(name()){             
+        reset_opts(); 
+    };
     static const char *name() 
         {
             return "Newton";
@@ -243,24 +245,50 @@ class newtFunc : public iterImpl<newtFunc,0>
         }
     std::string decl_code() const 
         { 
-            return "std::complex<double> z(pIter[X],pIter[Y]) , c(pInput[CX],pInput[CY])";
+            return "std::complex<double> z(pIter[X],pIter[Y]) , c(pInput[CX],pInput[CY]), n_minus_one(a[0] - 1.0)";
         }
     std::string iter_code() const 
         { 
-            return "z = (2.0 *z*z*z + c)/ (3.0 * z * z)";
+            return "z = z - (pow(z,a[0]) - 1.0)/ (a[0] * pow(z,n_minus_one))";
         }
     std::string ret_code()  const 
         { 
             return "pIter[X] = z.real(); pIter[Y] = z.imag()"; 
         }
+    std::string save_iter_code() const
+        {
+            return "std::complex<double> last_z = z";
+        }
+    std::string restore_iter_code() const
+        {
+            return "z = last_z";
+        }
+
+    const char *optionName(int i) const
+        {
+            static const char *optNames[] =
+            {
+                "a"
+            };
+            if(i < 0 || i >= 1) return NULL;
+            return optNames[i];
+        }
     virtual void reset(double *params)
         {
-            iterImpl<newtFunc,0>::reset(params);
+            reset_opts();
+            iterImpl<newtFunc,1>::reset(params);
             // start at Julia
             params[XZANGLE] = params[YWANGLE] = M_PI/2.0;
             //offset from zero to give it something to work on
             params[XCENTER] = 0.1;
         }
+ private:
+    void reset_opts()
+        {
+            // default is z - (z^3 - 1) / 3z^2 + c
+            a[0] = std::complex<double>(3.0,0.0);
+        }
+
 };
 
 

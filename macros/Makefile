@@ -38,10 +38,10 @@ pkglibdir = $(libdir)/gnofract4d
 pkgincludedir = $(includedir)/gnofract4d
 top_builddir = ..
 
-ACLOCAL = aclocal-1.6 -I macros
-AUTOCONF = autoconf
-AUTOMAKE = automake-1.6
-AUTOHEADER = autoheader
+ACLOCAL = ${SHELL} /home/edwin/gnofract4d/missing --run aclocal-1.6 -I macros
+AUTOCONF = ${SHELL} /home/edwin/gnofract4d/missing --run autoconf
+AUTOMAKE = ${SHELL} /home/edwin/gnofract4d/missing --run automake-1.6
+AUTOHEADER = ${SHELL} /home/edwin/gnofract4d/missing --run autoheader
 
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = /usr/bin/install -c
@@ -65,7 +65,7 @@ host_triplet = i686-pc-linux-gnu
 EXEEXT = 
 OBJEXT = o
 PATH_SEPARATOR = :
-AMTAR = tar
+AMTAR = ${SHELL} /home/edwin/gnofract4d/missing --run tar
 AWK = gawk
 BUILD_INCLUDED_LIBINTL = @BUILD_INCLUDED_LIBINTL@
 CATOBJEXT = @CATOBJEXT@

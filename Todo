@@ -27,7 +27,7 @@ Other
 * W 	desktop mode
 * W 	demo mode
 * WWW 	no-X mode
-* W	dirty/clean stuff won't work unless 
+* WW	dirty/clean stuff won't work unless 
 	- eject val / (scratch?) is kept freach point
 	- can calc color without recalcing iter 
 * W	bookmarks
@@ -38,7 +38,7 @@ Other
 * WW	preview .fcts in open dialog
 * B 	invalid bailfunc # = crash
 * W	parameterize buffalo
-* W	profile number of threads: is > 2 better?
+* B	odd artifacts on default Barnsley T2
 
 Movies-
 * B	deadlock when render movie while image is being drawn
@@ -51,21 +51,30 @@ Movies-
 * W	move keyframes up/down 
 * B	lines are ugly
 
+
 Must do pre 1.7
-* BB 	weird graphical errors for some fractal types - fixed?
-* B	horrible_drawing_error has been observed to do weird shit - sometimes
-* B	diff_bailout produces weird squares - like isTheSame doesn't work?
 * W	update docs
-* B	odd artifacts on default Barnsley T2
-* W	parameterize newton 
-* B	periodicity + newton doesn't work : see newt_bug.fct
-* B	why periodicity being used for skipped squares antialiasing?
+* W	parameterize + fix newton 
+* W	move compiler_template back to proper dir
+* W 	install all headers + template in make install + rpm
+* W	check inner/outer loads/saves correctly
+* W	make sure inner function is sensible (itercount is pointless)
+* BB	nova doesn't display correctly unless TRACE defined - weird!
+	- starts working if no -O flags : g++ is broken
+	- must also disable periodicity for all bailfuncs
+* BBB	crash opening cmapbrowser when compiled with g++3. nova works though ;-)
 
 Mysteriously gone:
 * B	nova crash
-* B	nova doesn't display correctly unless TRACE defined - weird!
+
 
 Done:
+* B	horrible_drawing_error has been observed to do weird shit - sometimes
+* B	diff_bailout produces weird squares - like isTheSame doesn't work?
+* BB 	weird graphical errors for some fractal types - fixed?
+* W	profile number of threads: is > 2 better?
+* B	why periodicity being used for skipped squares antialiasing?
+* B	periodicity + newton doesn't work : see newt_bug.fct
 * B	default params of newton are all black
 * B	Newton doesn't work
 * B	real(), imag() bailouts broken for quadratic - see quad_deepen_bug.fct. 
