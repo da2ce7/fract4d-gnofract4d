@@ -120,6 +120,14 @@ class ParserTest(unittest.TestCase):
         #print t1.pretty()
         self.assertIsValidParse(t1)                        
 
+        t1 = self.parse(self.makeMinimalFormula('''
+        IF x==1
+        x=2
+        eLSe
+        x=3
+        Endif'''))
+        self.assertIsValidParse(t1)
+        
     def testBadIfStatements(self):
         self.assertIsBadFormula(self.makeMinimalFormula("if = 7"),
                                 "unexpected assign '='", 3)
@@ -181,7 +189,6 @@ class ParserTest(unittest.TestCase):
         endfunc
         }
         ''')
-        print t1.pretty()
         self.assertIsValidParse(t1)
         
     def testSimpleMandelbrot(self):
