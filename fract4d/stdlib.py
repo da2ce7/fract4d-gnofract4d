@@ -812,3 +812,6 @@ exp_h_h = make_hyper_func(exp_c_c)
 flip_h_h = make_hyper_func(flip_c_c)
 conj_h_h = make_hyper_func(conj_c_c)
 sqr_h_h = make_hyper_func(sqr_c_c)
+
+def rgb_fff_C(gen,t,srcs):
+    return ColorArg(srcs[0], srcs[1], srcs[2], ConstFloatArg(1.0))

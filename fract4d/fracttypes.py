@@ -22,7 +22,7 @@ suffixOfType = {
     Bool : "b",
     Color : "C",
     String : "S",
-    Hyper : "H"
+    Hyper : "h"
     }
 
 _typeOfStr = {
@@ -51,7 +51,7 @@ _defaultOfType = {
     Float : 0.0,
     Complex : [0.0, 0.0],
     Bool : 0,
-    Color : [0,0,0,0],
+    Color : [0.0,0.0,0.0,0.0],
     String : "",
     Hyper : [0.0, 0.0, 0.0, 0.0]
     }
@@ -123,8 +123,8 @@ class Func:
         else:
             typed_fname = fname + "_"
             for arg in self.args:
-                typed_fname = typed_fname + strOfType(arg)[0]
-            typed_fname = typed_fname + "_" + strOfType(self.ret)[0]
+                typed_fname = typed_fname + suffixOfType[arg]
+            typed_fname = typed_fname + "_" + suffixOfType[self.ret]
         
             #print typed_fname
             self.genFunc = module.__dict__.get(typed_fname,typed_fname)

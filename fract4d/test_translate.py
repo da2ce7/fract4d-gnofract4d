@@ -357,11 +357,13 @@ default:
         float f
         complex c
         hyper h
+        color col
         loop:
         i = 1
         f = 1.0
         c = (2.1, 2.3)
         h = (1.0,2.0,3.0,4.0)
+        col = rgb(0.0,0.0,0.0)
         }''')
         self.assertNoProbs(t9)
 
