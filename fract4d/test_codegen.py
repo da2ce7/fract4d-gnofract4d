@@ -231,8 +231,11 @@ int main()
     def testHyperGen(self):
         tree = self.var("h",Hyper)
         x = self.codegen.generate_code(tree)
-        print tree
         self.assertEqual(isinstance(x,codegen.HyperArg),1)
+        self.assertEqual(x.parts[0].value,"h_re")
+        self.assertEqual(x.parts[1].value,"h_i")
+        self.assertEqual(x.parts[2].value,"h_j")
+        self.assertEqual(x.parts[3].value,"h_k")
         
     def testComplexAdd(self):
         # (1,3) + a
@@ -573,7 +576,7 @@ func fn1
         outlines = output.split("\n")
         self.assertEqual(outlines[0],"0")
         self.assertEqual(outlines[2],"1")
-        
+
     def testC(self):
         # basic end-to-end testing. Compile a code fragment + instrumentation,
         # run it and check output
@@ -609,6 +612,12 @@ func fn1
                          self.inspect_complex("x") +
                          self.inspect_complex("y"),
                          "x = (2,1)\ny = (-2,-1)")
+
+        src = 't_c8{\ninit: hyper x = (1,2,3,4), hyper y = x + 1\n}'
+        self.assertCSays(src,"init",
+                         self.inspect_hyper("x") +
+                         self.inspect_hyper("y"),
+                         "x = (1,2,3,4)\ny = (2,2,3,4)")
 
         src = '''t_c_if{
         init:
@@ -715,7 +724,7 @@ func fn1
 
     def testFormulas(self):
         # these caused an error at one point in development
-        # so have been added ro regression suite
+        # so have been added to regression suite
         t = self.translate('''andy03 {
         z = c = pixel/4:
         z = p1*z + c
@@ -774,6 +783,11 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
     def inspect_complex(self,name,prefix="f"):
         return "printf(\"%s = (%%g,%%g)\\n\", %s%s_re, %s%s_im);" % \
                (name,prefix,name,prefix,name)
+
+    def inspect_hyper(self,name,prefix="f"):
+        return ("printf(\"%s = (%%g,%%g,%%g,%%g)\\n\"," +
+               "%s%s_re, %s%s_i, %s%s_j, %s%s_k);") % \
+               (name,prefix,name,prefix,name,prefix,name,prefix,name)
 
     def predict(self,f,arg1=0,arg2=1):
         # compare our compiler results to Python stdlib
