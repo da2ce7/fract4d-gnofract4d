@@ -118,11 +118,6 @@ void angle_set_cb(GtkAdjustment *adj, gpointer user_data);
 gchar *param_by_name(GtkWidget *pb, 
 		     gchar *name);
 
-
-void color_picker_cb(GnomeColorPicker *colorpicker, 
-		     guint arg1, guint arg2, guint arg3, guint arg4,
-		     gpointer user_data);
-
 void hide_move_toolbar_cb(GtkMenuItem *widget, gpointer user_data);
 void hide_main_toolbar_cb(GtkMenuItem *widget, gpointer user_data);
 void hide_status_bar_cb(GtkMenuItem *widget, gpointer user_data);
@@ -140,4 +135,32 @@ gint save_session_cb(GnomeClient* client, gint phase, GnomeSaveStyle save_style,
 
 gint quit_session_cb(GnomeClient* client, gpointer client_data);
 
-void color_type_changed(GtkToggleButton *, gpointer user_data);
+void set_aa_callback(GtkToggleButton *, gpointer user_data);
+void refresh_aa_callback(Gf4dFractal *f, gpointer user_data);
+
+void set_autodeepen_callback(GtkToggleButton *, gpointer user_data);
+void refresh_autodeepen_callback(Gf4dFractal *f, gpointer user_data);
+
+gboolean set_width_callback(GtkEntry *, GdkEventFocus *, gpointer user_data);
+void refresh_width_callback(Gf4dFractal *, gpointer user_data);
+
+gboolean set_height_callback(GtkEntry *, GdkEventFocus *, gpointer user_data);
+void refresh_height_callback(Gf4dFractal *, gpointer user_data);
+
+gboolean set_maxiter_callback(GtkEntry *, GdkEventFocus *, gpointer user_data);
+void refresh_maxiter_callback(Gf4dFractal *, gpointer user_data);
+
+gboolean set_param_callback(GtkEntry *, GdkEventFocus *, gpointer user_data);
+void refresh_param_callback(Gf4dFractal *, gpointer user_data);
+
+void set_color_callback(GnomeColorPicker *, guint r, guint g, guint b, guint a, gpointer user_data);
+void refresh_color_callback(Gf4dFractal *f, gpointer user_data);
+
+void set_cmap_callback(GtkEditable *, gpointer user_data);
+void refresh_cmap_callback(Gf4dFractal *f, gpointer user_data);
+
+void set_colortype_callback(GtkToggleButton *button, gpointer user_data);
+void refresh_colortype_callback(Gf4dFractal *button, gpointer user_data);
+
+void set_potential_callback(GtkToggleButton *button, gpointer user_data);
+void refresh_potential_callback(Gf4dFractal *f, gpointer user_data);

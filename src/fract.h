@@ -51,6 +51,7 @@ private:
 
 	// color params
 	colorizer *cizer;
+	bool potential;
 
 public:
 	fractal();
@@ -73,6 +74,8 @@ public:
 	int get_max_iterations();
 	int get_aa();
 	int get_auto();
+	bool get_potential() { return potential; };
+	void set_potential(bool p) { potential = p; };
 	void finish();
 	bool check_precision();
 	bool set_precision(int digits); 
@@ -95,7 +98,7 @@ private:
 };
 
 void fract_delete(fractal_t **f);
-
+void fract_set(fractal_t *dst, fractal_t *src);
 
 
 

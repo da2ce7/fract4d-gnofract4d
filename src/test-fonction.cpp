@@ -31,28 +31,56 @@ int test_cube(const dvec4& params, const d& eject, int nIters);
 
 fractFunc fractFuncTable[NFUNCS] = {
 	test_mandelbrot_double,
-	test_mandelbrot_cln,
 };
 
 // z = z^2 + c
-
-int test_mandelbrot_double(const dvec4& params, const d& eject, int nIters)
+void
+mandelbrot_iter(double *p)
 {
-	double  a =  DOUBLE(params.n[VZ]), 
-		b =  DOUBLE(params.n[VW]), 
-		px = DOUBLE(params.n[VX]), 
-		py = DOUBLE(params.n[VY]), 
-		e =  DOUBLE(eject),
-		atmp;
+	p[X2] = p[X] * p[X];
+	p[Y2] = p[Y] * p[Y];
+	double atmp = p[X2] - p[Y2] + p[CX];
+	p[Y] = 2.0 * p[X] * p[Y] + p[CY];
+	p[X] = atmp;
+}
+#define HAS_X2 1
+#define HAS_Y2 2
 
-	int n = 0;
-	while ((a * a + b * b) <= e) {
-		atmp = a * a - b * b + px;
-		b = 2 * a * b + py;
-		a = atmp;
-		if(n++ == nIters) return -1; // ran out of iterations
+void
+mag_bailout(double *p, int flags)
+{
+	if(!(flags & (HAS_X2 | HAS_Y2)))
+	{
+		p[X2] = p[X] * p[X];
+		p[Y2] = p[Y] * p[Y];
 	}
-	return n;
+	p[EJECT_VAL] = p[X2] + p[Y2];
+}
+
+
+int 
+test_mandelbrot_double(const dvec4& params, const d& eject, scratch_space scratch, int max_iters)
+{
+	double * p = scratch;
+	int flags = HAS_X2 | HAS_Y2;
+
+	p[X] =  DOUBLE(params.n[VZ]); 
+	p[Y] =  DOUBLE(params.n[VW]);
+	p[CX] = DOUBLE(params.n[VX]);
+	p[CY] = DOUBLE(params.n[VY]);
+	p[EJECT] = DOUBLE(eject);
+
+	int iter = 0;
+	do
+	{
+		mandelbrot_iter(p);
+
+		if(iter++ == max_iters) return -1; // ran out of iterations
+		mag_bailout(p,flags);
+		
+	}while(p[EJECT_VAL] < p[EJECT]);
+
+	return iter;
 }
 
 int test_mandelbrot_cln(const dvec4& params, const d& eject, int nIters)

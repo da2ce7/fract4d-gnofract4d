@@ -77,7 +77,7 @@ struct _Gf4dAngle
 
 struct _Gf4dAngleClass
 {
-  GtkWidgetClass parent_class;
+  GtkWidgetClass parent_klass;
 };
 
 

@@ -412,9 +412,9 @@ int gf4d_fractal_get_yres(Gf4dFractal *f)
 	return f->im->Yres;
 }
 
-char *gf4d_fractal_get_image(Gf4dFractal *f)
+guchar *gf4d_fractal_get_image(Gf4dFractal *f)
 {
-	return f->im->buffer;
+	return (guchar *)f->im->buffer;
 }
 
 double gf4d_fractal_get_ratio(Gf4dFractal *f)
@@ -518,4 +518,25 @@ void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val)
 	gf4d_fractal_leave_callback(f);
 }
 
+Gf4dFractal *gf4d_fractal_copy(Gf4dFractal *f)
+{
+	/* not a full copy : doesn't get image buffer */
+	Gf4dFractal *fnew = GF4D_FRACTAL(gf4d_fractal_new());
+	fnew->f = new fractal(*(f->f));
+	
+	fnew->im = new image();
+	fnew->im->Xres = f->im->Xres;
+	fnew->im->Yres = f->im->Yres;
+	return fnew;
+}
 
+gboolean gf4d_fractal_get_potential(Gf4dFractal *f)
+{
+	return f->f->get_potential();
+}
+
+void gf4d_fractal_set_potential(Gf4dFractal *f, gboolean potential)
+{
+	kill_slave_threads(f);
+	f->f->set_potential(potential);
+}

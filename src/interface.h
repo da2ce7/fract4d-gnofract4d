@@ -35,7 +35,8 @@ create_propertybox_general_page(GtkWidget *propertybox,
 void
 create_propertybox_location_page(GtkWidget *propertybox, 
 				 GtkWidget *notebook,
-				 GtkTooltips *tooltips);
+				 GtkTooltips *tooltips,
+				 Gf4dFractal *shadow);
 
 void
 create_propertybox_angles_page(GtkWidget *propertybox, 
@@ -49,11 +50,22 @@ create_propertybox_color_page(GtkWidget *propertybox,
 
 void
 create_entry_with_label(GtkWidget *propertybox,
-			      GtkWidget *table,
+			GtkWidget *table,
+			GtkTooltips *tooltips,
+			int row,
+			gchar *label_text,
+			Gf4dFractal *shadow,
+			GtkSignalFunc set_cb,
+			GtkSignalFunc refresh_cb,
+			gchar *tip);
+
+void
+create_param_entry_with_label(GtkWidget *table,
 			      GtkTooltips *tooltips,
 			      int row,
 			      gchar *label_text,
-			      gchar *combo_name,
+			      Gf4dFractal *shadow,
+			      param_t param,
 			      gchar *tip);
 
 GtkWidget* create_angle_button(char *text, int data, model_t *m);

@@ -101,12 +101,16 @@ rgb_colorizer::set_colors(double _r, double _g, double _b)
 }
 
 rgb_t
-rgb_colorizer::operator()(int n) const
+rgb_colorizer::operator()(int n, scratch_space scratch, bool potential) const
 {
 	struct rgb pixel={0,0,0};
+	double dn;
 
 	if (n != -1){
-		double dn = (double)n;
+		if(potential) 
+			dn = (double)n + scratch[EJECT]/scratch[EJECT_VAL];
+		else
+			dn = (double)n;
 		pixel.r = (char)(dn * cr);
 		pixel.g = (char)(dn * cg);
 		pixel.b = (char)(dn * cb);
@@ -188,13 +192,20 @@ cmap_colorizer::type() const
 }
 
 rgb_t
-cmap_colorizer::operator()(int n) const
+cmap_colorizer::operator()(int n, scratch_space scratch, bool potential) const
 {
 	if(n == -1)
 	{
 		return cmap[0];
 	}
-	return cmap[n % 255 +1];
+	rgb_t mix;
+	n %= 255;
+	double pos = potential ? scratch[EJECT]/scratch[EJECT_VAL] : 0.0;
+	mix.r = (unsigned char)(cmap[n].r * (1.0 - pos) + cmap[n+1].r * pos);
+	mix.g = (unsigned char)(cmap[n].g * (1.0 - pos) + cmap[n+1].g * pos);
+	mix.b = (unsigned char)(cmap[n].b * (1.0 - pos) + cmap[n+1].b * pos);
+	//return cmap[n % 255 +1];
+	return mix;
 }
 
 std::ostream& 

@@ -54,6 +54,7 @@ fractal::fractal()
 	running = false;
 	finished = false;
 	cizer = colorizer_new(COLORIZER_RGB);
+	potential=1;
 }
 
 /* dtor */
@@ -98,6 +99,7 @@ fractal::fractal(const fractal& f)
 	rot = f.rot;
 
 	cizer = f.cizer->clone();
+	potential = f.potential;
 }
 
 fractal&
@@ -120,7 +122,7 @@ fractal::operator=(const fractal& f)
 
 	colorizer_delete(&cizer);
 	cizer = f.cizer->clone();
-	
+	potential = f.potential;
 	return *this;
 }
 
@@ -145,8 +147,6 @@ fractal::reset()
 	nbit_max = 64;
 	fractal_type = 0;
 	rot_by = M_PI/2.0;
-
-	// FIXME doesn't copy cizer
 }
 
 e_colorizer
@@ -390,7 +390,6 @@ fractal::update_matrix()
 		rotYW<d>(params[YWANGLE],one,zero) *
 		rotZW<d>(params[ZWANGLE],one,zero);
 
-	// id *= param->size/param->Xres;
 	debug_precision(rot[VX][VY],"id 3");
 }
 
@@ -511,6 +510,7 @@ public:
 	void draw(int rsize);
 	void draw_aa();
 	void pixel_aa(int x, int y);
+	inline int RGB2INT(int y, int x);
 };
 
 inline void
@@ -533,6 +533,7 @@ fract_rot::antialias(const dvec4& cpos)
 	struct rgb ptmp;
 	unsigned int pixel_r_val=0, pixel_g_val=0, pixel_b_val=0;
 	int i,j;
+	scratch_space scratch;
 
 	dvec4 topleft = cpos;
 		
@@ -540,7 +541,8 @@ fract_rot::antialias(const dvec4& cpos)
 		dvec4 pos = topleft; 
 		for(j=0;j<depth;j++) {
 			colorizer *cf = f->cizer;
-			ptmp = (*cf)(pf(pos, f->params[BAILOUT], f->nbit_max)); 
+			int p = (pf(pos, f->params[BAILOUT], scratch, f->nbit_max)); 
+			ptmp = (*cf)(p,scratch,f->potential);
 			pixel_r_val += ptmp.r;
 			pixel_g_val += ptmp.g;
 			pixel_b_val += ptmp.b;
@@ -563,13 +565,14 @@ fract_rot::pixel(int x, int y,int w, int h)
 		              I2D_LIKE(y, f->params[SIZE]) * deltay;
 
 	struct rgb pixel;
+	scratch_space scratch;
 
 	//debug_precision(pos[VX],"pixel");
 	if(*ppos != -1) return;
 		
-	*ppos = pf(pos, f->params[BAILOUT], f->nbit_max); 
+	*ppos = pf(pos, f->params[BAILOUT], scratch, f->nbit_max); 
 	colorizer *cf = f->cizer;
-	pixel=(*cf)(*ppos);
+	pixel=(*cf)(*ppos, scratch, f->potential);
 
 	rectangle(pixel,x,y,w,h);
 	
@@ -577,7 +580,7 @@ fract_rot::pixel(int x, int y,int w, int h)
 	int i=0;
 	if(f->auto_deepen && k++ % 30 == 0)
 	{
-		i = pf(pos,f->params[BAILOUT], f->nbit_max*2);
+		i = pf(pos,f->params[BAILOUT], scratch, f->nbit_max*2);
 		if( (i > f->nbit_max/2) && (i < f->nbit_max))
 		{
 			/* we would have got this wrong if we used 
@@ -670,6 +673,14 @@ void fract_rot::draw_aa()
 	gf4d_fractal_progress_changed(gf,1.0);	
 }
 
+inline int fract_rot::RGB2INT(int y, int x)
+{
+	char *p = im->buffer + (y*im->Xres + x)*3;
+	int ret = *p++ << 16;
+	ret |= *p++ << 8;
+	ret |= *p;
+	return ret;
+}
 void fract_rot::draw(int rsize)
 {
 	int x,y;
@@ -714,13 +725,27 @@ void fract_rot::draw(int rsize)
 	for ( y = 0; y < h - 4; y += 4) {
 		check_update(y);
 		for(x = 0; x < w - 4 ; x += 4) {
-			int pthis = p[y * w + x];
-			if(pthis == p[y * w + x +4] &&
-			   pthis == p[(y+4) * w +x] &&
-			   pthis == p[(y+4) * w + x+ 4]) {
-				// all 4 corners equal, so assume
-				// square is flat
-				continue;
+			/* need to do comparison in both iteration space
+			 * and (if potential is on) color space */
+			int piter = im->iter_buf[y * w + x];
+			if(piter == im->iter_buf[y * w + x + 4] &&
+			   piter == im->iter_buf[(y+4) * w + x] &&
+			   piter == im->iter_buf[(y+4) * w + x + 4])
+			{
+				if(f->potential)
+				{
+					int pcol = RGB2INT(y,x);
+					if(pcol == RGB2INT(y,x+4) &&
+					   pcol == RGB2INT(y+4,x) &&
+					   pcol == RGB2INT(y+4,x+4)) {
+						
+						continue;
+					}
+				}
+				else
+				{
+					continue;
+				}
 			}
 			
 			pixel(x+1,y,1,1);

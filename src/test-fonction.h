@@ -25,14 +25,33 @@
 
 #define	NFUNCS 2
 
-typedef int (*fractFunc)(const dvec4& params, const d& eject, int nIters);
-typedef struct rgb (*colorFunc)(int n, double r, double g, double b);
+#define X 0
+#define Y 1
+#define CX 2
+#define CY 3
+#define X2 4
+#define Y2 5
+#define EJECT 6
+#define EJECT_VAL 7
+
+static const int N_SCRATCH_REGISTERS=8;
+
+typedef double scratch_space[N_SCRATCH_REGISTERS] ;
+
+typedef int (*fractFunc)(
+	const dvec4& params, 
+	const d& eject, 
+	scratch_space scratch,
+	int nIters);
 
 extern fractFunc fractFuncTable[NFUNCS];
 
-int test_mandelbrot_double(const dvec4& params, const d& eject, int nIters);
-int test_mandelbrot_cln(const dvec4& params, const d& eject, int nIters);
+int test_mandelbrot_double(
+	const dvec4& params, 
+	const d& eject, 
+	scratch_space scratch,
+	int nIters);
 
-struct rgb colorize(int nIters, double r, double g, double b);
+int test_mandelbrot_cln(const dvec4& params, const d& eject, int nIters);
 
 #endif

@@ -93,11 +93,13 @@ double gf4d_fractal_get_g(Gf4dFractal *f);
 double gf4d_fractal_get_b(Gf4dFractal *f);
 void gf4d_fractal_set_color(Gf4dFractal *f, double r, double g, double b);
 
+gboolean gf4d_fractal_get_potential(Gf4dFractal *f);
+void gf4d_fractal_set_potential(Gf4dFractal *f, gboolean potential);
 
 /* image-related functions: to be removed */
 int gf4d_fractal_get_xres(Gf4dFractal *f);
 int gf4d_fractal_get_yres(Gf4dFractal *f);
-char *gf4d_fractal_get_image(Gf4dFractal *f);
+guchar *gf4d_fractal_get_image(Gf4dFractal *f);
 double gf4d_fractal_get_ratio(Gf4dFractal *f);
 int  gf4d_fractal_set_resolution(Gf4dFractal *f, int xres, int yres);
 
@@ -108,6 +110,8 @@ void gf4d_fractal_progress_changed(Gf4dFractal *f, float progress);
 void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val);
 
 /* sneaky functions */
+Gf4dFractal *gf4d_fractal_copy(Gf4dFractal *f);
+
 fractal_t *gf4d_fractal_copy_fract(Gf4dFractal *f);
 void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f);
 #ifdef __cplusplus

@@ -18,6 +18,9 @@
  *
  */
 
+#ifndef _SUPPORT_H_
+#define _SUPPORT_H_
+
 #include <gnome.h>
 
 /*
@@ -30,6 +33,11 @@
  * or alternatively any widget in the component, and the name of the widget
  * you want returned.
  */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 GtkWidget*  lookup_widget              (GtkWidget       *widget,
                                         const gchar     *widget_name);
 
@@ -53,4 +61,14 @@ GtkWidget*  create_pixmap              (GtkWidget       *widget,
                                         gboolean         gnome_pixmap);
 
 GdkImlibImage* create_image            (const gchar     *filename);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _SUPPORT_H_ */
+
+
+
 

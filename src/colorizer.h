@@ -2,6 +2,8 @@
 #define _COLORIZER_H_
 
 #include "colorizer_public.h"
+#include "calc.h"
+#include "test-fonction.h"
 
 #include <iosfwd>
 #include <string>
@@ -17,7 +19,7 @@ class colorizer {
 	virtual colorizer *clone() const = 0;
 
 	virtual e_colorizer type(void) const = 0;
-	virtual rgb_t operator()(int iter) const = 0;
+	virtual rgb_t operator()(int iter, scratch_space scratch, bool potential) const = 0;
 
 	virtual ostream& put(ostream&) const = 0;
 	virtual istream& get(istream&) = 0;
@@ -33,7 +35,7 @@ class rgb_colorizer : public colorizer{
 	double r, g, b;
 	
  private:
-	static const double contrast = 3.0;
+	static const double contrast = 10.0;
 	double cr, cg, cb;
  public:
 	rgb_colorizer(void);
@@ -43,7 +45,7 @@ class rgb_colorizer : public colorizer{
 	colorizer* clone() const { return new rgb_colorizer(*this); }
 
 	e_colorizer type() const;
-	rgb_t operator()(int iter) const;
+	rgb_t operator()(int iter, scratch_space scratch, bool potential) const;
 
 	friend ostream& operator<<(ostream&, const rgb_colorizer&);
 	friend istream& operator>>(istream&, rgb_colorizer&);
@@ -70,7 +72,7 @@ class cmap_colorizer : public colorizer {
 	colorizer* clone() const { return new cmap_colorizer(*this); }
 
 	e_colorizer type() const;
-	rgb_t operator()(int iter) const;
+	rgb_t operator()(int iter, scratch_space scratch, bool potential) const;
 	friend ostream& operator<<(ostream&, const cmap_colorizer&);
 	friend istream& operator>>(istream&, cmap_colorizer&);
 	ostream& put(ostream& s) const { return s << *this; };

@@ -7,15 +7,15 @@ INCLUDES = \
 bin_PROGRAMS = gnofract4d
 
 gnofract4d_SOURCES = \
-	main.c \
-	support.c support.h \
-	interface.c interface.h \
-	callbacks.c callbacks.h \
+	main.cpp \
+	support.cpp support.h \
+	interface.cpp interface.h \
+	callbacks.cpp callbacks.h \
 	fract.cpp fract.h fract_public.h calc.h \
 	test-fonction.cpp test-fonction.h \
 	vectors.h \
 	model.cpp model.h \
-	gf4d_angle.c gf4d_angle.h \
+	gf4d_angle.cpp gf4d_angle.h \
 	gf4d_fractal.cpp gf4d_fractal.h \
 	gundo.c gundo.h \
 	gundo_ui.c gundo_ui.h \
