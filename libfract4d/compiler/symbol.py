@@ -19,6 +19,7 @@ def efl(template, tlist):
 class Alias:
     def __init__(self,realName):
         self.realName = realName
+        self.pos = -1
         
 def createDefaultDict():
     d = {
@@ -80,7 +81,10 @@ class T(UserDict):
         return self.data.has_key(mangle(key))
 
     def is_user(self,key):
-        return not self.data[mangle(key)].pos == -1
+        val = self.data[mangle(key)]
+        if isinstance(val,types.ListType):
+            val = val[0]
+        return val.pos != -1
     
     def __getitem__(self,key):
         val = self.data[mangle(key)]
