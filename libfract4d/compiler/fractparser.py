@@ -151,6 +151,10 @@ def p_stm_decl_assign(t):
 def p_stm_repeat(t):
     'stm : REPEAT NEWLINE stmlist UNTIL exp'
     t[0] = absyn.Repeat(t[3],t[5])
+
+def p_stm_while(t):
+    'stm : WHILE exp NEWLINE stmlist ENDWHILE'
+    t[0] = absyn.While(t[2],t[4])
     
 def p_stm_if(t):
     'stm : IF ifbody ENDIF' 

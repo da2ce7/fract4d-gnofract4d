@@ -199,14 +199,33 @@ class ParserTest(unittest.TestCase):
         self.assertIsValidParse(t1)
 
     def testRepeat(self):
-        t1 = self.parse(self.makeMinimalFormula('''
-        repeat
+        t1 = self.parse(self.makeMinimalFormula(
+        '''repeat
         z = z ^ 2
         until |z| > 2000.0
         '''))
         self.assertIsValidParse(t1)
-        print t1.pretty()
 
+    def testWhile(self):
+        t1 = self.parse(self.makeMinimalFormula(
+        '''while 1 > 0
+             z = z + 2
+             while x > y
+               foo = bar
+             endwhile
+           endwhile
+           '''))
+        self.assertIsValidParse(t1)
+        self.assertListTypesMatch(
+            t1.children[0].children[0].children[0],
+            ["while", "binop", "const", "const",
+             "stmlist",
+                 "assign", "binop", "id", "const",
+                 "while", "binop", "id", "id",
+                 "stmlist",
+                     "assign", "id"              
+            ])
+        
     def testSimpleMandelbrot(self):
         t1 = self.parse('''
 MyMandelbrot {
