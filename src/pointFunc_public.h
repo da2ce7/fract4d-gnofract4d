@@ -42,7 +42,9 @@ typedef enum
     COLORFUNC_FLAT,
     COLORFUNC_CONT,
     COLORFUNC_ZERO,
-    COLORFUNC_ED
+    COLORFUNC_ED,
+    COLORFUNC_DECOMP,
+    COLORFUNC_ANGLE
 } e_colorFunc;
 
 /* bailout flags */

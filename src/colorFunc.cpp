@@ -99,6 +99,50 @@ public:
         }
 };
 
+// decomposition: color according to which quadrant the result ended up in
+class decomp_colorFunc : public colorFunc {
+public:
+    int buffer_size() const
+	{
+	    return sizeof(float);
+	}
+    void extract_state(const double *in_buf, void *out_buf) const
+	{
+	    float quadrant = 0.0;
+	    if(in_buf[X] < 0.0) quadrant += 1.0;
+	    if(in_buf[Y] < 0.0) quadrant += 2.0;
+
+	    *(float *) out_buf = quadrant;
+	}
+    double operator()(int iter, double eject, const void *in_buf) const
+	{
+	    float quadrant = *(float *)in_buf;
+	    return 64.0 * quadrant;
+	}
+};
+
+
+// decomposition: color according to which quadrant the result ended up in
+class extAngle_colorFunc : public colorFunc {
+public:
+    int buffer_size() const
+	{
+	    return sizeof(float);
+	}
+    void extract_state(const double *in_buf, void *out_buf) const
+	{
+	    float angle= atan2(in_buf[Y],in_buf[X]);
+	    if(angle < 0.0) angle = 2 * M_PI + angle;
+
+	    *(float *) out_buf = angle;
+	}
+    double operator()(int iter, double eject, const void *in_buf) const
+	{
+	    float angle = *(float *)in_buf;
+	    return 256.0 * angle / (2.0 * M_PI);
+	}
+};
+
 colorFunc *colorFunc_new(e_colorFunc e)
 {
     colorFunc *pcf=NULL;
@@ -115,6 +159,12 @@ colorFunc *colorFunc_new(e_colorFunc e)
     case COLORFUNC_ED:
         pcf = new ejectDist_colorFunc;
         break;
+    case COLORFUNC_DECOMP:
+	pcf = new decomp_colorFunc;
+	break;
+    case COLORFUNC_ANGLE:
+	pcf = new extAngle_colorFunc;
+	break;
     default:
         std::cerr << "Warning: unknown colorFunc value" << (int)e << "\n";
     }
