@@ -35,6 +35,13 @@ class Node:
     def __iter__(self):
         return NodeIter(self)
 
+    def childByName(self,name):
+        'find a child with leaf == name'
+        for child in self.children:
+            if child.leaf == name:
+                return child
+        return None
+    
     def DeepCmp(self,other):
         if self.type < other.type: return -1
         if self.type > other.type: return 1
@@ -148,7 +155,7 @@ def Decl(type, id, exp=None):
     return Node("decl", l , id, fracttypes.typeOfStr(type))
 
 def Stmlist(id, list):
-    return Node("stmlist", list, id)
+    return Node("stmlist", list, string.lower(id))
 
 def Setlist(id, list):
     return Node("setlist", list, id)
