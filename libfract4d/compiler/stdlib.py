@@ -167,7 +167,7 @@ def sqrt_f_f(gen,t,srcs):
     return gen.emit_func('sqrt', srcs, Float)
 
 def sqrt_c_c(gen,t,srcs):
-    # t = sqrt(2 * (|a+ib| + abs(a)))
+    # t = sqrt(2 * (cabs(a+ib) + abs(a)))
     # u = t/2
     # sqrt(a+ib) when a == 0 : t = sqrt(abs(b)/2), (t, b < 0 ? -t : t)
     #            when a > 0  : (u,b/t)
@@ -241,7 +241,7 @@ def atan_f_f(gen,t,srcs):
     return gen.emit_func('atan', srcs, Float)
 
 def atan2_c_f(gen,t,srcs):
-    return gen.emit_func2('atan2', [srcs[0].re, srcs[0].im], Float)
+    return gen.emit_func2('atan2', [srcs[0].im, srcs[0].re], Float)
 
 def asinh_f_f(gen,t,srcs):
     return gen.emit_func('asinh', srcs, Float)

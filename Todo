@@ -58,6 +58,11 @@ netfract
 * WWW	write it
 
 gnofract4d
+* W	there is no warning before files are overwritten (parameter files +
+	pictures)
+* W	automatic addition of file extensions and
+* W	automatic saving of picture and parameters at the same time 
+* WW	How about colour cycling?
 * WW	register mime info?
 * B	image size should be persisted and kept under Preferences.
 * B	aspect ratio locked with -i and -j params
