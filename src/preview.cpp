@@ -62,8 +62,10 @@ preview_get_shadow(GtkWidget *preview)
 void 
 preview_disconnect(GtkWidget *preview, Gf4dFractal *f)
 {
-    //g_print("disconnecting from fractal prior to deletion\n");
-    gtk_signal_disconnect_by_data(GTK_OBJECT(f), preview);
+    g_signal_handlers_disconnect_matched(
+	G_OBJECT(f), 
+	G_SIGNAL_MATCH_DATA,
+	0, 0, NULL, NULL, (gpointer)preview);
 }
 
 GtkWidget*
@@ -77,8 +79,8 @@ create_preview_drawing_area(Gf4dFractal *f)
 
     gtk_widget_set_events (drawing_area, GDK_EXPOSURE_MASK);
 
-    gtk_drawing_area_size (
-        GTK_DRAWING_AREA(drawing_area), 
+    gtk_widget_set_size_request(
+        GTK_WIDGET(drawing_area), 
         PREVIEW_SIZE,
         PREVIEW_SIZE);
 
@@ -95,7 +97,7 @@ create_preview_drawing_area(Gf4dFractal *f)
     g_signal_connect(GTK_OBJECT(drawing_area), "destroy",
                        GTK_SIGNAL_FUNC (preview_disconnect), f);
 
-    gtk_object_set_data (GTK_OBJECT (drawing_area), "shadow", f);
+    g_object_set_data (G_OBJECT (drawing_area), "shadow", f);
 
     gf4d_fractal_calc(f,1,AA_NONE);
 

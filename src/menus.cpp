@@ -28,7 +28,7 @@
 #include "properties.h"
 #include "preferences.h"
 #include "cmapbrowser.h"
-#include "movie_editor.h"
+//#include "movie_editor.h"
 #include "gf4d_fractal.h"
 
 typedef struct {
@@ -285,6 +285,7 @@ static GnomeUIInfo edit_menu_uiinfo[] =
         GNOME_APP_PIXMAP_STOCK, GTK_STOCK_HOME,
         GDK_Home, (GdkModifierType)0, NULL
     },
+/*
     {
         GNOME_APP_UI_ITEM, N_("_Movie Editor..."),
         NULL,
@@ -292,6 +293,7 @@ static GnomeUIInfo edit_menu_uiinfo[] =
         GNOME_APP_PIXMAP_STOCK, "",
         'm', GDK_CONTROL_MASK, NULL
     },
+*/
     GNOMEUIINFO_END
 };
 

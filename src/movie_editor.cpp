@@ -26,6 +26,7 @@
 #include "preview.h"
 #include "gf4d_movie.h"
 #include "tls.h"
+#include "interface.h"
 
 static GtkWidget *movie_editor = NULL;
 static Gf4dMovieFrame *selected_frame = NULL;
@@ -291,7 +292,7 @@ void update_movie_progress_bar(Gf4dMovie *mov, gfloat progress, gpointer user_da
 {
     GtkProgressBar *bar = GTK_PROGRESS_BAR(user_data);
 
-    gtk_progress_bar_update(bar, progress);
+    gtk_progress_bar_set_fraction(bar, progress / 100.0);
 }
 
 void update_movie_status_text(Gf4dMovie *mov, gint status, gpointer user_data)
@@ -318,19 +319,25 @@ void create_movie_editor(GtkWidget *menuitem, model_t *m)
         return;
     }
 
-    movie_editor = gnome_dialog_new(PACKAGE " Movie Editor", _("Close"), NULL);
+    movie_editor = gtk_dialog_new_with_buttons(
+	PACKAGE " Movie Editor", 
+	GTK_WINDOW(main_app_window),
+	(GtkDialogFlags)0,
+	GTK_STOCK_CLOSE,
+	GTK_RESPONSE_ACCEPT,
+	NULL);
 
-    gnome_dialog_button_connect_object(
-        GNOME_DIALOG(movie_editor), 0,
-        (GtkSignalFunc)gnome_dialog_close,
-        GTK_OBJECT(movie_editor));
+    gtk_dialog_set_default_response(
+	GTK_DIALOG(movie_editor), GTK_RESPONSE_ACCEPT);
 
-    gnome_dialog_close_hides(GNOME_DIALOG(movie_editor), TRUE);
+    g_signal_connect (
+	G_OBJECT(movie_editor), "response",
+	GTK_SIGNAL_FUNC(hide_dialog_cb), NULL);
 
     GtkWidget *film_strip = create_film_strip(m);
     GtkWidget *window = gtk_scrolled_window_new(NULL,NULL);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(window), film_strip);
-    gtk_widget_set_usize(window, 300, 200);
+    gtk_widget_set_size_request(window, 300, 200);
 
     GtkWidget *commands = create_movie_commands(film_strip, m);
 
@@ -349,7 +356,7 @@ void create_movie_editor(GtkWidget *menuitem, model_t *m)
         (GtkSignalFunc) update_movie_status_text,
         status_text);
 
-    GtkWidget *vbox = GNOME_DIALOG(movie_editor)->vbox;
+    GtkWidget *vbox = GTK_DIALOG(movie_editor)->vbox;
     gtk_box_pack_start(GTK_BOX(vbox), window, TRUE, TRUE, 1);
     gtk_box_pack_start(GTK_BOX(vbox), commands, TRUE, TRUE, 1);
     gtk_box_pack_start(GTK_BOX(vbox), progress_bar, TRUE, TRUE, 1);
