@@ -63,5 +63,5 @@ typedef struct s_pf_vtable pf_vtable;
 typedef struct s_pf_data pf_obj;
 
 /* create a new pf_obj.*/ 
-pf_obj *pf_new();
+extern pf_obj *pf_new(void);
 
