@@ -1,6 +1,6 @@
 PIXMAPS=deepen_now.png explorer_mode.png gnofract4d-logo.png
 
-Pixmapsdir= $(destdir)@PACKAGE_PIXMAPS_DIR@
+Pixmapsdir= $(datadir)/@PACKAGE@/pixmaps
 Pixmaps_DATA=$(PIXMAPS)
 
 
