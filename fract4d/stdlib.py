@@ -244,6 +244,21 @@ def mul_hf_h(gen,t,srcs):
         gen.emit_binop('*',[srcs[0].parts[3], srcs[1]], Float)
         )
 
+def mul_Cf_C(gen,t,srcs):
+    return mul_hf_h(gen,t,[srcs[0], clamp_f_f(gen,t,[srcs[1]])])
+
+def div_hf_h(gen,t,srcs):
+    # multiply a hypercomplex number by a real one
+    return HyperArg(
+        gen.emit_binop('/',[srcs[0].parts[0], srcs[1]], Float),
+        gen.emit_binop('/',[srcs[0].parts[1], srcs[1]], Float),
+        gen.emit_binop('/',[srcs[0].parts[2], srcs[1]], Float),
+        gen.emit_binop('/',[srcs[0].parts[3], srcs[1]], Float)
+        )
+
+def div_Cf_C(gen,t,srcs):
+    return clamp_C_C(gen,t, [div_hf_h(gen,t,srcs)])
+
 def cmag_c_f(gen,t,srcs):
     # |x| = x_re * x_re + x_im * x_im
     src = srcs[0]
