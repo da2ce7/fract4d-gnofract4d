@@ -20,7 +20,7 @@ precedence = (
 
 def p_file(t):
      'file : formlist'
-     t[0] = absyn.Formlist(t[1])
+     t[0] = absyn.Formlist(t[1], t.lineno(1))
      
 def p_formlist(t):
      'formlist : formula NEWLINE formlist'
@@ -37,15 +37,15 @@ def p_formlist_empty(t):
 
 def p_formula(t):
      'formula : FORM_ID formbody'
-     t[0] = absyn.Formula(t[1],t[2])
+     t[0] = absyn.Formula(t[1],t[2],t.lineno(1))
 
 def p_formula_err(t):
      'formula : error FORM_ID formbody'
-     t[0] = absyn.Formula(t[2],t[3])
+     t[0] = absyn.Formula(t[2],t[3],t.lineno(2))
 
 def p_formbody_2(t):
      'formbody : NEWLINE stmlist sectlist FORM_END'
-     t[0] = [ absyn.Stmlist("nameless",t[2]) ] + t[3] 
+     t[0] = [ absyn.Stmlist("nameless",t[2],t.lineno(2)) ] + t[3] 
 
 def p_formbody_err(t):
      'formbody : error FORM_END'
@@ -69,7 +69,7 @@ def p_sectlist_section(t):
 
 def p_section_set(t):
      'section : SECT_SET setlist'
-     t[0] = absyn.Setlist(t[1],t[2])
+     t[0] = absyn.Setlist(t[1],t[2],t.lineno(1))
 
 def p_setlist_set(t):
      'setlist : set'
@@ -82,7 +82,7 @@ def p_setlist_2(t):
 
 def p_set_exp(t):
      'set : ID ASSIGN exp'     
-     t[0] = absyn.Set(t[1],[t[3]])
+     t[0] = absyn.Set(t[1],[t[3]],t.lineno(2))
 
 def p_set_empty(t):
      'set : empty'
@@ -90,27 +90,27 @@ def p_set_empty(t):
      
 def p_set_param(t):
      'set : PARAM ID setlist ENDPARAM'
-     t[0] = absyn.Param(t[2],t[3],"complex")
+     t[0] = absyn.Param(t[2],t[3],"complex",t.lineno(1))
 
 def p_set_typed_param(t):
      'set : TYPE PARAM ID setlist ENDPARAM'
-     t[0] = absyn.Param(t[3],t[4],t[1])
+     t[0] = absyn.Param(t[3],t[4],t[1],t.lineno(2))
 
 def p_set_func(t):
      'set : FUNC ID setlist ENDFUNC'
-     t[0] = absyn.Func(t[2],t[3],"complex")
+     t[0] = absyn.Func(t[2],t[3],"complex",t.lineno(1))
 
 def p_set_typed_func(t):
      'set : TYPE FUNC ID setlist ENDFUNC'
-     t[0] = absyn.Func(t[3],t[4],t[1])
+     t[0] = absyn.Func(t[3],t[4],t[1],t.lineno(2))
 
 def p_set_heading(t):
      'set : HEADING setlist ENDHEADING'
-     t[0] = absyn.Heading(t[2])
+     t[0] = absyn.Heading(t[2],t.lineno(1))
      
 def p_section_stm_2(t):
      'section : SECT_STM stmlist'
-     t[0] = absyn.Stmlist(t[1],t[2])
+     t[0] = absyn.Stmlist(t[1],t[2],t.lineno(1))
 
 def listify(stm):
     if stm.type == "empty":
@@ -137,24 +137,24 @@ def p_stm_empty(t):
     
 def p_empty(t):
     'empty :'
-    t[0] = absyn.Empty()
+    t[0] = absyn.Empty(t.lineno(0))
     
 def p_stm_decl(t):
     'stm : TYPE ID'
-    t[0] = absyn.Decl(t[1], t[2])
+    t[0] = absyn.Decl(t[1], t[2], t.lineno(2))
     
 def p_stm_assign(t):
     'stm : TYPE ID ASSIGN stm'
-    t[0] = absyn.Decl(t[1],t[2],t[4])
+    t[0] = absyn.Decl(t[1],t[2], t.lineno(2), t[4])
     
 def p_stm_repeat(t):
     'stm : REPEAT stmlist UNTIL exp'
-    t[0] = absyn.Repeat(t[2],t[4])
+    t[0] = absyn.Repeat(t[2],t[4],t.lineno(1))
 
 def p_stm_while(t):
     '''stm : WHILE exp NEWLINE stmlist ENDWHILE
        stm : WHILE exp COMMA stmlist ENDWHILE'''
-    t[0] = absyn.While(t[2],t[4])
+    t[0] = absyn.While(t[2],t[4], t.lineno(1))
     
 def p_stm_if(t):
     'stm : IF ifbody ENDIF' 
@@ -163,17 +163,17 @@ def p_stm_if(t):
 def p_ifbody(t):
     '''ifbody : exp NEWLINE stmlist
        ifbody : exp COMMA stmlist'''
-    t[0] = absyn.If(t[1],t[3],[absyn.Empty()])
+    t[0] = absyn.If(t[1],t[3],[absyn.Empty(t.lineno(1))], t.lineno(1))
     
 def p_ifbody_else(t):
     '''ifbody : exp NEWLINE stmlist ELSE stmlist
        ifbody : exp COMMA stmlist ELSE stmlist'''
-    t[0] = absyn.If(t[1], t[3], t[5])
+    t[0] = absyn.If(t[1], t[3], t[5], t.lineno(1))
     
 def p_ifbody_elseif(t):
     '''ifbody : exp NEWLINE stmlist ELSEIF ifbody
        ifbody : exp COMMA stmlist ELSEIF ifbody'''
-    t[0] = absyn.If(t[1], t[3], [t[5]])
+    t[0] = absyn.If(t[1], t[3], [t[5]], t.lineno(1))
 
 def p_exp_binop(t):
     '''exp : exp PLUS exp
@@ -191,16 +191,16 @@ def p_exp_binop(t):
        exp : exp GT exp
        exp : exp GTE exp
        '''
-    t[0] = absyn.Binop(t[2],t[1],t[3])
+    t[0] = absyn.Binop(t[2],t[1],t[3], t.lineno(2))
 
 def p_exp_assign(t):
     'exp : ID ASSIGN exp'
-    t[0] = absyn.Assign(t[1],t[3])
+    t[0] = absyn.Assign(t[1],t[3], t.lineno(2))
     
 # implement unary minus as 0 - n
 def p_exp_uminus(t):
     'exp : MINUS exp %prec UMINUS'
-    t[0] = absyn.Binop("-", absyn.Number(0), t[2])
+    t[0] = absyn.Binop("-", absyn.Number(0,t.lineno(1)), t[2], t.lineno(1))
     
 #unary plus is a no-op
 def p_exp_uplus(t):
@@ -209,27 +209,27 @@ def p_exp_uplus(t):
     
 def p_exp_mag(t):
     'exp : MAG exp MAG'
-    t[0] = absyn.Mag(t[2])
+    t[0] = absyn.Mag(t[2],t.lineno(1))
 
 def p_exp_neg(t):
     'exp : BOOL_NEG exp'
-    t[0] = absyn.Neg(t[2])
+    t[0] = absyn.Neg(t[2],t.lineno(1))
 
 def p_exp_num(t):
     'exp : NUMBER'
-    t[0] = absyn.Number(t[1])
+    t[0] = absyn.Number(t[1],t.lineno(1))
 
 def p_exp_boolconst(t):
     'exp : CONST'
-    t[0] = absyn.Const(t[1])
+    t[0] = absyn.Const(t[1],t.lineno(1))
 
 def p_exp_string(t):
      'exp : STRING stringlist'
-     t[0] = absyn.String(t[1],t[2])
+     t[0] = absyn.String(t[1],t[2],t.lineno(1))
 
 def p_stringlist_string(t):
      'stringlist : STRING stringlist'
-     t[0] = [absyn.String(t[1],None)] + t[2]
+     t[0] = [absyn.String(t[1],None,t.lineno(1))] + t[2]
 
 def p_stringlist_empty(t):
      'stringlist : empty'
@@ -237,23 +237,24 @@ def p_stringlist_empty(t):
 
 def p_exp_id(t):
     'exp : ID'
-    t[0] = absyn.ID(t[1])
+    t[0] = absyn.ID(t[1],t.lineno(1))
 
 def p_exp_funcall(t):
     'exp : ID LPAREN arglist RPAREN'
-    t[0] = absyn.Funcall(t[1],t[3])
+    t[0] = absyn.Funcall(t[1],t[3],t.lineno(1))
 
 def p_exp_complex(t):
      'exp : LPAREN exp COMMA exp RPAREN'
-     t[0] = absyn.Complex(t[2],t[4])
+     t[0] = absyn.Complex(t[2],t[4],t.lineno(1))
 
 def p_exp_complex_i(t):
     'exp : COMPLEX'
-    t[0] = absyn.Complex(absyn.Number(0.0),absyn.Number(t[1]))
+    ln = t.lineno(1)
+    t[0] = absyn.Complex(absyn.Number(0.0,ln),absyn.Number(t[1],ln),ln)
     
 def p_exp_funcall_noargs(t):
     'exp : ID LPAREN RPAREN'
-    t[0] = absyn.Funcall(t[1], None)
+    t[0] = absyn.Funcall(t[1], None,t.lineno(1))
     
 def p_exp_parexp(t):
     'exp : LPAREN exp RPAREN'

@@ -78,7 +78,7 @@ class T:
                 and an explicit UltraFractal bailout section. \
                 Using explict section.")
         else:
-            f.children.append(Stmlist("bailout",bailout))
+            f.children.append(Stmlist("bailout",bailout, bailout.pos))
         
         oldloop = f.childByName("loop")
         if oldloop:
@@ -87,7 +87,7 @@ class T:
                 and an explicit UltraFractal loop section. \
                 Using explict section.")
         else:
-            f.children.append(Stmlist("loop",loop))
+            f.children.append(Stmlist("loop",loop,loop[0].pos))
 
         f.children.remove(s)
 

@@ -28,12 +28,13 @@ def typeOfStr(tname):
     return _typeOfStr[string.lower(tname)]
 
 class Func:
-    def __init__(self,ret):
+    def __init__(self,ret,pos=-1):
         self.ret = ret
+        self.pos = pos
 
 class Var:
-    def __init__(self,type,value):
+    def __init__(self,type,value,pos=-1):
         self.type = type
         self.value = value
-
+        self.pos = pos
 
