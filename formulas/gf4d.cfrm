@@ -55,3 +55,26 @@ float param bailout
 	default = 4.0
 endparam
 }
+
+rgb {
+; for backwards compatibility with 1.x versions of Gnofract 4D
+final:
+	float dist = #numiter / 256.0
+	float r = (dist * (1.0 + 10.0 * @base_r)) % 256.0
+	float g = (dist * (1.0 + 10.0 * @base_g)) % 256.0
+	float b = (dist * (1.0 + 10.0 * @base_b)) % 256.0
+	#color = rgb(r,g,b)
+default:
+float param bailout
+	default = 4.0
+endparam
+float param base_r
+	default = 1.0 
+endparam
+float param base_g
+	default = 0.0 
+endparam
+float param base_b
+	default = 0.0 
+endparam
+}

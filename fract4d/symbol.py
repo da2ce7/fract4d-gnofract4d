@@ -487,7 +487,7 @@ class T(UserDict):
                  self.data[k].cname != other.data[k].cname:
                     new_key = self.insert_prefix(other.prefix,k)
                     self.data[new_key] = copy.copy(other.data[k])
-
+        
     def has_user_key(self,key):
         return self.data.has_key(mangle(key))
     
