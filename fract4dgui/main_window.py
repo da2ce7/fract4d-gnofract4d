@@ -11,7 +11,7 @@ sys.path.append("..")
 from fract4d import fractal,fc,fract4dc
 
 
-import gtkfractal, model, preferences, autozoom, settings
+import gtkfractal, model, preferences, autozoom, settings, toolbar
 import colors, undo, browser, fourway, angle, utils, hig
 
 class MainWindow:
@@ -20,8 +20,11 @@ class MainWindow:
         self.quit_when_done =False
         self.save_filename = None
         # window widget
+        
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
+
+        #self.set_icon()
 
         # keyboard handling
         self.keymap = {
@@ -84,6 +87,17 @@ class MainWindow:
                           _("Paused") ]
 
         self.f.set_saved(True)
+
+    def set_icon(self):
+        # currently disabled because set_icon_list doesn't exist on RH8
+        icon = utils.find_resource(
+            "gnofract4d-logo.png",
+            "pixmaps",
+            "share/pixmaps/gnofract4d")
+        
+        if icon:
+            pixbuf = gtk.gdk.pixbuf_new_from_file(icon)
+            self.window.set_icon_list(pixbuf)
 
     def update_subfract_visibility(self,visible):
         if visible:
@@ -373,15 +387,13 @@ class MainWindow:
         self.f.double_maxiter()
     
     def create_toolbar(self):
-        self.toolbar = gtk.Toolbar()
-        self.toolbar.set_tooltips(True)
+        self.toolbar = toolbar.T()
         self.vbox.pack_start(self.toolbar,expand=gtk.FALSE)
-        self.toolbar.set_border_width(1)
 
         self.four_d_sensitives = []
         
         # preview
-        self.toolbar.append_space()
+        self.toolbar.add_space()
         
         self.preview = gtkfractal.SubFract(self.compiler)
         self.preview.set_size(48,48)
@@ -389,19 +401,13 @@ class MainWindow:
         self.f.connect('parameters-changed', self.update_preview)
         self.f.connect('pointer-moved', self.update_preview_on_pointer)
         
-        self.toolbar.append_element(
-            gtk.TOOLBAR_CHILD_WIDGET,            
+        self.toolbar.add_widget(
             self.preview.widget,
             _("Preview"),
-            _("Shows what the next operation would do"),
-            None,
-            None,
-            None,
-            None
-            )
+            _("Shows what the next operation would do"))
 
         # angles
-        self.toolbar.append_space()
+        self.toolbar.add_space()
 
         self.create_angle_widget(
             _("xy"), _("Angle in the XY plane"), self.f.XYANGLE, False)
@@ -422,7 +428,7 @@ class MainWindow:
             _("zw"), _("Angle in the ZW plane"), self.f.ZWANGLE, True)
 
         # fourways
-        self.toolbar.append_space()
+        self.toolbar.add_space()
         
         self.add_fourway(_("pan"), _("Pan around the image"), 0, False)
         self.add_fourway(
@@ -430,7 +436,7 @@ class MainWindow:
             _("Mutate the image by moving along the other 2 axes"), 2, True)
 
         # deepen/resize
-        self.toolbar.append_space()
+        self.toolbar.add_space()
         
         image = gtk.Image()
         image.set_from_file(
@@ -438,54 +444,38 @@ class MainWindow:
                                 'pixmaps',
                                 'share/pixmaps/gnofract4d'))
 
-        self.toolbar.append_element(
-            gtk.TOOLBAR_CHILD_BUTTON,
-            None,
+        self.toolbar.add_button(
             _("Deepen"),
             _("Double the maximum number of iterations"),
-            None,
             image,
-            self.deepen_now,
-            None)
+            self.deepen_now)
 
         res_menu = self.create_resolution_menu()
 
-        self.toolbar.append_element(
-            gtk.TOOLBAR_CHILD_WIDGET,
+        self.toolbar.add_widget(
             res_menu,
             _("Resolution"),
-            _("Change fractal's resolution"),
-            None,
-            None,
-            None,
-            None)
-            
+            _("Change fractal's resolution"))            
 
         # undo/redo
-        self.toolbar.append_space()
-        
-        self.toolbar.insert_stock(
+        self.toolbar.add_space()
+
+        self.toolbar.add_stock(
             gtk.STOCK_UNDO,
             _("Undo the last change"),
-            _("Undo the last change"),
-            self.undo,
-            None,
-            -1)
+            self.undo)
 
         self.model.seq.make_undo_sensitive(self.toolbar.get_children()[-1])
         
-        self.toolbar.insert_stock(
+        self.toolbar.add_stock(
             gtk.STOCK_REDO,
             _("Redo the last undone change"),
-            _("Redo the last undone change"),
-            self.redo,
-            None,
-            -1)
+            self.redo)
         
         self.model.seq.make_redo_sensitive(self.toolbar.get_children()[-1])
 
         # explorer mode widgets
-        self.toolbar.append_space()
+        self.toolbar.add_space()
 
         image = gtk.Image()
         image.set_from_file(
@@ -493,17 +483,11 @@ class MainWindow:
                                 'pixmaps',
                                 'share/pixmaps/gnofract4d'))
                             
-        self.explorer_toggle = gtk.ToggleButton()
-        self.toolbar.append_element(
-            gtk.TOOLBAR_CHILD_TOGGLEBUTTON,
-            None,
+        self.toolbar.add_toggle(
             _("Explore"),
             _("Toggle Explorer Mode"),
-            None,
             image,
-            self.toolbar_toggle_explorer,
-            None)
-
+            self.toolbar_toggle_explorer)
         
         self.weirdness_adjustment = gtk.Adjustment(
             20.0, 0.0, 100.0, 5.0, 5.0, 0.0)
@@ -523,16 +507,10 @@ class MainWindow:
 
         self.weirdbox.pack_start(shapebox)
         
-        self.toolbar.append_element(
-            gtk.TOOLBAR_CHILD_WIDGET,            
+        self.toolbar.add_widget(
             self.weirdbox,
             _("Weirdness"),
-            _("How different to make the random mutant fractals"),
-            None,
-            None,
-            None,
-            None
-            )
+            _("How different to make the random mutant fractals"))
 
         self.color_weirdness_adjustment = gtk.Adjustment(
             20.0, 0.0, 100.0, 5.0, 5.0, 0.0)
@@ -624,16 +602,10 @@ class MainWindow:
         
         my_angle.axis = axis
 
-        self.toolbar.append_element(
-            gtk.TOOLBAR_CHILD_WIDGET,            
+        self.toolbar.add_widget(
             my_angle.widget,
             tip,
-            tip,
-            None,
-            None,
-            None,
-            None
-            )
+            tip)
 
         if is4dsensitive:
             self.four_d_sensitives.append(my_angle.widget)
@@ -659,16 +631,10 @@ class MainWindow:
     
     def add_fourway(self, name, tip, axis, is4dsensitive):
         my_fourway = fourway.T(name)
-        self.toolbar.append_element(
-            gtk.TOOLBAR_CHILD_WIDGET,            
+        self.toolbar.add_widget(
             my_fourway.widget,
             tip,
-            None,
-            None,
-            None,
-            None,
-            None
-            )
+            None)
 
         my_fourway.axis = axis
         

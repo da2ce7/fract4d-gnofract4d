@@ -596,6 +596,7 @@ class T(UserDict):
         # bypass normal setitem because that checks for t__
         v = Var(type)
         v.cname = name
+        v.is_temp = True
         self.data[name] = v
         
         return name

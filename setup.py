@@ -52,7 +52,9 @@ module1 = Extension(
     'stdc++'
     ],
     extra_compile_args = [
-    #'-O0'
+    #'-O0',
+    '-Wall',
+    #'-Wno-non-template-friend'
     ],
     define_macros = [ ('_REENTRANT',1),
                       #('DEBUG_CREATION',1)
@@ -107,7 +109,7 @@ def get_files(dir,ext):
     return [ os.path.join(dir,x) for x in os.listdir(dir) if x.endswith(ext)] 
 
 setup (name = 'gnofract4d',
-       version = '2.2',
+       version = '2.3',
        description = 'A program to draw fractals',
        long_description = \
 '''Gnofract 4D is a fractal browser. It can generate many different fractals, 

@@ -1,4 +1,4 @@
 #!/bin/sh
 pushd dist
-mkisofs -o gf4d.iso *.gz *.rpm
+mkisofs -J -R -o gf4d.iso *.gz *.rpm
 popd dist

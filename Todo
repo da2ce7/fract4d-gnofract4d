@@ -1,4 +1,10 @@
-todo for 2.3
+DeprecationWarnings:
+main_window:344 (use gtk.UIManager), 398, 414, 418, 649, 439, 684, 447, 463, 581 (use ComboBox), 475, 479, 487, 497, 502, 519, 548
+browser.py: 269 (use ComboBox)
+gtkfractal.py: 307
+preferences.py: 251
+
+todo for 2.4
 * WW	cmap browser
 * WW	cmap editor - brightness/contrast/gamma/HSV/RGB
 * B	opening color browser sometimes applies 1st item
@@ -24,6 +30,21 @@ UF Incompatibilities
 * B	jock.ufm:neptwona = "complex z = #pixel", ie redeclare z
 * W	raise/remove limit on number of parameters
 
+Orbits/Attractors
+
+A new kind of formula which specifies a per-iteration function or set
+of functions from a 4D point to another 4D point. Plot after each
+iteration. Initially, ignore Z,W position - later, project to screen.
+
+Or: use same functions, a separate drawing mechanism, plus a flag for
+formula to set default. That could allow Buddhabrot-style
+calculations on all types.
+
+params (not all applicable to all types): 
+1) how to set color of point
+2) time step
+3) which points to start with
+ 
 UI improvements 
 * W	tooltips for custom widgets in toolbar
 * BB	more robust error reporting
