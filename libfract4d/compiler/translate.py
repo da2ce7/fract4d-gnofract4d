@@ -145,10 +145,9 @@ class T:
             self.symbols[node.leaf] = Var(fracttypes.Complex,0,node)
 
         expectedType = self.symbols[node.leaf].type
-        e = self.exp(node.children[0])
+        rhs = self.exp(node.children[0])
         
         lhs = ir.Name(node.leaf, node, node.datatype)
-        rhs = e
         return ir.Move(lhs,self.coerce(rhs,expectedType),node,expectedType)
 
     def findOp(self, opnode, list):
