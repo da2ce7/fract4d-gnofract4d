@@ -16,7 +16,6 @@ todo for 2.0
 * WW	bailFuncs
 * W	set size of diff_bailout check from periodicity info
 * WW	parameters for colorfuncs
-* B	test_fract4d.testMiniTextRender unreliable
 * W	last-chance exception handler
 * W	exact SMP equality test
 * W	end-to-end regression test vs V1.9
@@ -24,10 +23,15 @@ todo for 2.0
 * W 	enums, int parameters
 * W	formula browser
 * W	i18n, gettext
+* BB	acos,acosh,asin,asinh,atan,atanh,cotan,cotanh give 'str not callable'
+* B	Reset changes antialiasing
+* W	keyboard shortcuts for all widgets
+* W	review human interface guidelines
 
 done:
 * W	SMP/nthreads > 1
 * B	exception if you open and choose OK without selecting a file
+* B	test_fract4d.testMiniTextRender unreliable - initparams missing?
 
 postponed
 * W	logmap
