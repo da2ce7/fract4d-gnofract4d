@@ -32,7 +32,6 @@ class T:
                 e1 = eseq.children[-1]
                 assert(not isinstance(e1, ir.ESeq))
                 e2 = children[1]
-                assert(not isinstance(e2, ir.ESeq))
                 newtree = ir.ESeq(stms,
                                   ir.Binop(tree.op,[e1,e2],tree.node, tree.datatype),
                                   eseq.node, eseq.datatype)

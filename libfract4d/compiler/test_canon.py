@@ -7,6 +7,7 @@ import canon
 import absyn
 import ir
 import symbol
+import copy
 from fracttypes import *
 
 class CanonTest(unittest.TestCase):
@@ -97,6 +98,15 @@ class CanonTest(unittest.TestCase):
         self.assertESeqsNotNested(ltree,1)
         self.assertTreesEqual(ltree,exptree)
 
+    def testBothSidesBinop(self):
+        tree = self.binop([self.var("a"),
+                           self.eseq([self.move(self.var("b"),self.const())],
+                                                self.var("b"))])
+        tree2 = copy.deepcopy(tree)
+        tree = self.binop([tree, tree2])
+        ltree = self.canon.linearize(tree)
+        self.assertESeqsNotNested(ltree,1)
+        
     def testESeq(self):
         tree = self.eseq([self.var("a")], self.var("b"))
         ltree = self.canon.linearize(tree)
