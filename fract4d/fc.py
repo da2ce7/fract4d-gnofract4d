@@ -49,9 +49,12 @@ class Compiler:
         self.files = {}
         self.c_code = ""
         self.file_path = []
-        self.cache_dir = "/tmp"
+        self.cache_dir = os.path.expanduser("~/.gnofract4d-cache/")
         self.init_cache()
-
+        self.compiler_name = "gcc"
+        self.flags = "-fPIC -DPIC -g -O3 -shared"
+        self.libs = "-lm"
+        
     def init_cache(self):
         if not os.path.exists(self.cache_dir):
             os.makedirs(self.cache_dir)
@@ -93,9 +96,14 @@ class Compiler:
         return os.path.join(self.cache_dir, "fract4d_%s%s" % (name, ext))
 
     def hashcode(self,c_code):
-        return md5.new(c_code).hexdigest()
+        hash = md5.new(c_code)
+        hash.update(self.compiler_name)
+        hash.update(self.flags)
+        hash.update(self.libs)
+        return hash.hexdigest()
         
     def generate_code(self,ir, cg, outputfile=None,cfile=None):
+        print "generate_code: %s" % outputfile
         cg.output_decls(ir)
         self.c_code = cg.output_c(ir)
 
@@ -114,8 +122,9 @@ class Compiler:
         open(cfile,"w").write(self.c_code)
 
         # -march=i686 for 10% speed gain
-        cmd = "gcc -Wall -fPIC -DPIC -g -O3 -shared %s -o %s -lm" % \
-              (cfile, outputfile)
+        cmd = "%s %s %s -o %s %s" % \
+              (self.compiler_name, cfile, self.flags, outputfile, self.libs)
+        print "cmd: %s" % cmd
         (status,output) = commands.getstatusoutput(cmd)
         if status != 0:
             raise fracttypes.TranslationError(
@@ -142,6 +151,13 @@ class Compiler:
             f = translate.ColorFunc(f,name)
 
         return f
+
+    def clear_cache(self):
+        for f in os.listdir(self.cache_dir):
+            os.remove(os.path.join(self.cache_dir,f))
+
+    def __del__(self):
+        self.clear_cache()
         
 def usage():
     print "FC : a compiler from Fractint .frm files to C code"
@@ -212,5 +228,7 @@ def main():
                 print err
     else:
         generate(fc,formulafile,formula,outputfile,cfile)
-            
+
+    fc.clear_cache()
+    
 if __name__ =='__main__': main()

@@ -1,59 +1,86 @@
 #!/usr/bin/env python
 
-# an interactive browser to examine and debug fractal functions
+# a browser to examine fractal functions
 import string
 
 import gobject
 import gtk
 
-import fc
+_browser = None
 
-class MainWindow:
-    def __init__(self):
+def show(parent, f):
+    global _browser
+    if not _browser:
+        _browser = BrowserDialog(parent,f)
+    _browser.show_all()
+
+class BrowserDialog(gtk.Dialog):
+    def __init__(self,main_window,f):
+        gtk.Dialog.__init__(
+            self,
+            "Formula Browser",
+            main_window,
+            gtk.DIALOG_DESTROY_WITH_PARENT,
+            (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+
         self.formula_list = gtk.ListStore(
-            gobject.TYPE_STRING, gobject.TYPE_STRING)
-        
-        self.compiler = fc.Compiler()
-        
-        self.window = gtk.Window()
-        self.window.connect('destroy', self.quit)
-        self.window.set_default_size(640,400)
-        self.window.set_title('formula browser')
-        self.vbox = gtk.VBox()
-        self.window.add(self.vbox)
+            gobject.TYPE_STRING)
 
-        self.accelgroup = gtk.AccelGroup()
-        self.window.add_accel_group(self.accelgroup)
+        self.file_list = gtk.ListStore(
+            gobject.TYPE_STRING)
 
-        self.create_menu()
+        self.f = f
+        self.compiler = f.compiler
+        
+        #self.accelgroup = gtk.AccelGroup()
+        #self.window.add_accel_group(self.accelgroup)
+
         self.create_panes()
         
-        self.window.show_all()
+        self.connect('response',self.onResponse)
 
-    def create_menu(self):
-        menu_items = (
-            ('/_File', None, None, 0, '<Branch>' ),
-            ('/File/_Open', '<control>O', self.open, 0, ''),
-            ('/File/sep1', None, None, 0, '<Separator>'),
-            ('/File/_Quit', '<control>Q', self.quit, 0, ''),   
-            ('/_Preferences', None, None, 0, '<Branch>'),
-            ('/_Help', None, None, 0, '<Branch>'),
-            ('/Help/_About', None, self.about, 0, ''),
-            )
-    
-        item_factory = gtk.ItemFactory(gtk.MenuBar, '<main>', self.accelgroup)
-        item_factory.create_items(menu_items)
+    def onResponse(self,widget,id):
+        if id == gtk.RESPONSE_CLOSE or \
+               id == gtk.RESPONSE_NONE or \
+               id == gtk.RESPONSE_DELETE_EVENT:
+            self.hide()
+        else:
+            print "unexpected response %d" % id
 
-        menubar = item_factory.get_widget('<main>')
+    def create_file_list(self):
+        sw = gtk.ScrolledWindow ()
+        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
+        sw.set_policy (gtk.POLICY_NEVER,
+                       gtk.POLICY_AUTOMATIC)
 
-        self.vbox.pack_start(menubar, expand=gtk.FALSE)
+        self.treeview = gtk.TreeView (self.file_list)
+        sw.add(self.treeview)
 
-    def create_panes(self):
-        panes = gtk.HPaned()
-        self.vbox.pack_start(panes, gtk.TRUE, gtk.TRUE)
-        panes.set_border_width(5)
+        renderer = gtk.CellRendererText ()
+        column = gtk.TreeViewColumn ('File', renderer, text=0)
+        self.treeview.append_column (column)
 
-        # left-hand pane displays formula list
+        selection = self.treeview.get_selection()
+        selection.connect('changed',self.file_selection_changed)
+
+        self.populate_file_list()
+        return sw
+
+    def populate_file_list(self):
+        for (fname,formulalist) in self.compiler.files.items():
+            iter = self.file_list.append ()
+            self.file_list.set (iter, 0, fname)
+
+    def populate_formula_list(self,fname):
+        ff = self.compiler.files[fname]
+
+        form_names = ff.formulas.keys()
+        form_names.sort()
+        for formula_name in form_names:
+            iter = self.formula_list.append()
+            self.formula_list.set(iter,0,formula_name)
+        
+    def create_formula_list(self):
         sw = gtk.ScrolledWindow ()
         sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
         sw.set_policy (gtk.POLICY_NEVER,
@@ -68,64 +95,54 @@ class MainWindow:
 
         selection = self.treeview.get_selection()
         selection.connect('changed',self.selection_changed)
+        return sw
+    
+    def create_panes(self):
+        # 3 panes: files, formulas, formula contents
+        panes1 = gtk.HPaned()
+        self.vbox.pack_start(panes1, gtk.TRUE, gtk.TRUE)
+        panes1.set_border_width(5)
+
+        file_list = self.create_file_list()
+        formula_list = self.create_formula_list()
         
-        panes.add1(sw)
+        panes2 = gtk.HPaned()
+        # left-hand pane displays file list
+        panes2.add1(file_list)
+        # middle is formula list for that file
+        panes2.add2(formula_list)        
+        panes1.add1(panes2)
 
         # right-hand pane is details of current formula
         notebook = gtk.Notebook()
 
         # source
-        sw = gtk.ScrolledWindow ()
-        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
-        sw.set_policy (gtk.POLICY_AUTOMATIC,
-                       gtk.POLICY_AUTOMATIC)
-
         self.sourcetext = gtk.TextView()
-        sw.add(self.sourcetext)
-        notebook.append_page(sw, gtk.Label('Source'))
+        notebook.append_page(self.sourcetext, gtk.Label('Source'))
         
         # parse tree
-        sw = gtk.ScrolledWindow ()
-        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
-        sw.set_policy (gtk.POLICY_AUTOMATIC,
-                       gtk.POLICY_AUTOMATIC)
-
         self.text = gtk.TextView()
-        sw.add(self.text)
-        notebook.append_page(sw, gtk.Label('Parse Tree'))
+        notebook.append_page(self.text, gtk.Label('Parse Tree'))
 
         # translated tree
-        sw = gtk.ScrolledWindow ()
-        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
-        sw.set_policy (gtk.POLICY_AUTOMATIC,
-                       gtk.POLICY_AUTOMATIC)
-
         self.transtext = gtk.TextView()
-        sw.add(self.transtext)
-        notebook.append_page(sw, gtk.Label('IR Tree'))
+        notebook.append_page(self.transtext, gtk.Label('IR Tree'))
 
         # messages
-        sw = gtk.ScrolledWindow ()
-        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
-        sw.set_policy (gtk.POLICY_AUTOMATIC,
-                       gtk.POLICY_AUTOMATIC)
-
         self.msgtext = gtk.TextView()
-        sw.add(self.msgtext)
-        notebook.append_page(sw, gtk.Label('Messages'))
+        notebook.append_page(self.msgtext, gtk.Label('Messages'))
 
         # asm
-        sw = gtk.ScrolledWindow ()
-        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
-        sw.set_policy (gtk.POLICY_AUTOMATIC,
-                       gtk.POLICY_AUTOMATIC)
-
         self.asmtext = gtk.TextView()
-        sw.add(self.asmtext)
-        notebook.append_page(sw, gtk.Label('Generated Code'))
+        notebook.append_page(self.asmtext, gtk.Label('Generated Code'))
         
-        panes.add2(notebook)
+        panes1.add2(notebook)
 
+    def file_selection_changed(self,selection):
+        (model,iter) = selection.get_selected()
+        fname = model.get_value(iter,0)
+        self.populate_formula_list(fname)
+        
     def selection_changed(self,selection):
         (model,iter) = selection.get_selected()
         title = model.get_value(iter,0)
@@ -163,9 +180,6 @@ class MainWindow:
         buffer = self.asmtext.get_buffer()
         buffer.set_text(self.compiler.c_code,-1)
         
-    def quit(self,action,widget=None):
-        gtk.main_quit()
-        
     def open(self,action,widget):
         fs = gtk.FileSelection("Open Formula File")
         result = fs.run()
@@ -180,19 +194,15 @@ class MainWindow:
         for formula in ff.formulas:
             iter = self.formula_list.append ()
             self.formula_list.set (iter, 0, formula)
-            self.formula_list.set (iter, 1, file)
+
+        text = ff.contents
+        self.sourcetext.get_buffer().set_text(text,-1)
+                
+    def display_file(self,ff,name):
+        for formula in ff.formulas:
+            iter = self.formula_list.append ()
+            self.formula_list.set (iter, 0, formula)
 
         text = ff.contents
         self.sourcetext.get_buffer().set_text(text,-1)
         
-    def about(self,action,widget):
-        print "about"
-        
-def main():
-    mainWindow = MainWindow()
-    mainWindow.load('formulas/fractint.frm')
-    gtk.main()
-
-    
-    
-if __name__ =='__main__': main()

@@ -1,6 +1,4 @@
 todo for 2.0
-* W	max size for .so cache, compiler properties
-* W	store user preferences
 * BB	deeper.fct, hive.fct, image.fct doesn't load properly - old format
 * BB	tower_of_thorns, untitled_5 don't load - need bailout for colorfunc
 * BB	novaspiral.fct
@@ -35,8 +33,11 @@ todo for 2.0
 * W	keyboard shortcuts for all widgets
 * W	review human interface guidelines
 * B	shouldn't start drawing original before loading params on cmd-line
+* B	undo/redo cause recompilation
 
 done:
+* W	compiler properties
+* W	store user preferences
 * B	flip2julia puts 2 undo entries, + doesn't produce correct answer
 * WW	undo/redo
 * B	reset messes up undo order?
@@ -51,6 +52,7 @@ done:
 * W	user parameter functions
 
 postponed
+* W	max size for .so cache
 * W	diff bailout for other types
 * W	logmap
 * W	periodicity

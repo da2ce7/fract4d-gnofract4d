@@ -100,10 +100,14 @@ class MainWindow:
         (w,h) = (prefs.getint("display","width"),
                  prefs.getint("display","height"))
         self.f.set_size(w,h)
+        self.f.set_auto_deepen(prefs.getboolean("display","autodeepen"))
+        self.f.set_antialias(prefs.getint("display","antialias"))
         
     def on_prefs_changed(self,prefs):
+        self.f.freeze()
         self.update_compiler_prefs(prefs)
         self.update_image_prefs(prefs)
+        self.f.thaw()
         self.f.draw_image()
         
     def on_fractal_change(self,object):
@@ -250,6 +254,7 @@ class MainWindow:
     def quit(self,action,widget=None):
         try:
             preferences.userPrefs.save()
+            g_comp.clear_cache()
         finally:
             gtk.main_quit()
 

@@ -22,7 +22,9 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             },
             "display" : {
               "width" : "640",
-              "height" : "480"
+              "height" : "480",
+              "antialias" : "1",
+              "autodeepen" : "1"
             }
         }
 
@@ -136,13 +138,13 @@ class PrefsDialog(gtk.Dialog):
         entry.connect('focus-out-event', set_prefs)
         return entry
 
-    def create_compiler_entry(self):
+    def create_compiler_entry(self,propname):
         entry = gtk.Entry()
         def set_entry(*args):
-            entry.set_text(self.prefs.get("compiler","name"))
+            entry.set_text(self.prefs.get("compiler",propname))
 
         def set_prefs(*args):
-            self.prefs.set("compiler","name",entry.get_text())
+            self.prefs.set("compiler",propname,entry.get_text())
 
         set_entry()
         self.prefs.connect('preferences-changed',set_entry)
@@ -154,10 +156,49 @@ class PrefsDialog(gtk.Dialog):
         self.notebook.append_page(table,gtk.Label("Compiler"))
 
         table.attach(gtk.Label("Compiler :"),0,1,0,1,0,0,2,2)
-
-        entry = self.create_compiler_entry()
+        entry = self.create_compiler_entry("name")
         table.attach(entry,1,2,0,1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
-        
+
+        table.attach(gtk.Label("Compiler Options :"),0,1,1,2,0,0,2,2)
+        entry = self.create_compiler_entry("options")
+        table.attach(entry,1,2,1,2,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+    def create_auto_deepen_widget(self):
+        widget = gtk.CheckButton("Auto Deepen")
+
+        def set_widget(*args):
+            widget.set_active(self.prefs.getboolean("display","autodeepen"))
+
+        def set_prefs(*args):
+            self.prefs.set("display","autodeepen",str(widget.get_active()))
+
+        set_widget()
+        self.prefs.connect('preferences-changed',set_widget)
+        widget.connect('toggled',set_prefs)
+
+        return widget
+
+    def create_antialias_menu(self):
+        optMenu = gtk.OptionMenu()
+        menu = gtk.Menu()
+        for item in ["None", "Fast", "Best"]:
+            mi = gtk.MenuItem(item)
+            menu.append(mi)
+        optMenu.set_menu(menu)
+
+        def set_widget(*args):
+            optMenu.set_history(self.prefs.getint("display","antialias"))
+
+        def set_prefs(*args):
+            index = optMenu.get_history()
+            if index != -1:
+                self.prefs.set("display","antialias",str(index))
+
+        set_widget()
+        self.prefs.connect('preferences-changed',set_widget)
+        optMenu.connect('changed',set_prefs)
+        return optMenu
+    
     def create_image_options_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
         self.notebook.append_page(table,gtk.Label("Image"))
@@ -176,39 +217,13 @@ class PrefsDialog(gtk.Dialog):
         self.fix_ratio.set_active(True)
 
         # auto deepening
-        self.auto_deepen = gtk.CheckButton("Auto Deepen")
+        self.auto_deepen = self.create_auto_deepen_widget()
         table.attach(self.auto_deepen,0,2,3,4,gtk.EXPAND | gtk.FILL, 0, 2, 2)
-
-        def set_auto_deepen_widget(*args):
-            self.auto_deepen.set_active(self.f.auto_deepen)
-
-        def set_fractal_auto_deepen(*args):
-            self.f.set_auto_deepen(self.auto_deepen.get_active())
-
-        set_auto_deepen_widget()
-        self.f.connect('parameters-changed',set_auto_deepen_widget)
-        self.auto_deepen.connect('toggled',set_fractal_auto_deepen)
         
         # antialiasing
         table.attach(gtk.Label("Antialiasing : "),0,1,4,5,0,0,2,2)
-        optMenu = gtk.OptionMenu()
-        menu = gtk.Menu()
-        for item in ["None", "Fast", "Best"]:
-            mi = gtk.MenuItem(item)
-            menu.append(mi)
-        optMenu.set_menu(menu)
 
-        def set_selected_aa(*args):
-            optMenu.set_history(self.f.antialias)
-
-        def set_fractal_aa(*args):
-            index = optMenu.get_history()
-            if index != -1:
-                self.f.set_antialias(index)
-
-        set_selected_aa()
-        self.f.connect('parameters-changed',set_selected_aa)
-        optMenu.connect('changed',set_fractal_aa)
+        optMenu = self.create_antialias_menu()
         table.attach(optMenu,1,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         
     def onResponse(self,widget,id):
