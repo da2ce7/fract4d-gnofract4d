@@ -48,9 +48,9 @@ def createDefaultDict():
         # unary negation already factored out
 
         # logical ops
-        "&&": Func([Bool, Bool], Bool),
-        "||": Func([Bool, Bool], Bool),
-        "!" : Func([Bool],Bool),
+        "&&": [ Func([Bool, Bool], Bool) ],
+        "||": [ Func([Bool, Bool], Bool) ],
+        "!" : [ Func([Bool],Bool) ],
         
         "#pixel": Var(Complex,0.0), # fixme, value 
         "#z" : Var(Complex,0.0),
@@ -68,6 +68,7 @@ class T(UserDict):
         UserDict.__init__(self)
         self.reset()
         self.nextlabel = 0
+        self.nextTemp = 0
         
     def has_key(self,key):
         return self.data.has_key(mangle(key))
@@ -100,4 +101,8 @@ class T(UserDict):
         self.nextlabel += 1
         return label
 
-    
+    def newTemp(self,type):
+        name = "temp%d" % self.nextTemp
+        self.nextTemp += 1
+        self[name] = Var(type,0) # fixme type of value
+        return name

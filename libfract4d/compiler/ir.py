@@ -96,14 +96,9 @@ class Call(Exp):
         return "Call(" + self.func + "\n"
         
 class ESeq(Exp):
-    def __init__(self, stm, exp, node, datatype):
+    def __init__(self, stms, exp, node, datatype):
         Exp.__init__(self, node, datatype)
-        self.stm = stm
-        self.exp = exp
-    def pretty(self, depth=0):
-        return d(depth) + "ESeq(\n" + \
-               self.stm.pretty(depth+1) + self.exp.pretty(depth+1) + \
-               d(depth,")\n")
+        self.children = stms + [ exp ]
     
 # stm and subtypes
 # side effects + flow control
@@ -144,8 +139,8 @@ class CJump(Stm):
                self.falseDest + ")\n"
         
 class Seq(Stm):
-    def __init__(self,stms, node, datatype):
-        Stm.__init__(self, node, datatype)
+    def __init__(self,stms, node):
+        Stm.__init__(self, node, None)
         self.children = stms
 
 class Label(Stm):

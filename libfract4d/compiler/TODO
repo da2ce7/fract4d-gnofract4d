@@ -1,6 +1,6 @@
 * Unsolved UF mysteries
 - Are identifiers case sensitive? (keywords aren't) - no
-- can < work on complex numbers?
+- can < work on complex numbers? yes, but warning
 - is int foo = int bar = 3 ok? - yes
 - does int foo = bar = 3 make bar an int or not? - no,bar is complex
 - is this really valid?:
