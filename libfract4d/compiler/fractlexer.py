@@ -131,7 +131,7 @@ def t_ID(t):
 
 # don't produce tokens for newlines preceded by \
 def t_ESCAPED_NL(t):
-    r'\\\r?\n'
+    r'\\\r?\s*\n'
     t.lineno += 1
 
 def t_COMMENT(t):
