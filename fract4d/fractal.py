@@ -300,9 +300,13 @@ class T(FctUtils):
             self.saved = True
 
     def save_formula_params(self,file,formula,params):
-        for name in self.func_names(formula):
+        names = self.func_names(formula)
+        names.sort()
+        for name in names:
             print >>file, "%s=%s" % (name, self.get_func_value(name,formula))
-        for name in formula.symbols.param_names():
+        names = formula.symbols.param_names()
+        names.sort()
+        for name in names:
             print >>file, "%s=%s" % \
                   (name, self.initvalue(name, formula.symbols,params))
         

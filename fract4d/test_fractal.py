@@ -481,12 +481,17 @@ blue=0
         # check that they are equivalent
         self.assertEqual(f1.maxiter, f2.maxiter)
         self.assertEqual(f1.params, f2.params)
+        
         self.assertEqual(f1.initparams,f2.initparams)
+        self.assertEqual(f1.paramtypes, f2.paramtypes)        
         self.assertEqual(f1.funcName,f2.funcName)
         self.assertEqual(f1.funcFile,f2.funcFile)
+
+        self.assertEqual(f1.cfunc_params, f2.cfunc_params)
+        self.assertEqual(f1.cfunc_paramtypes, f2.cfunc_paramtypes)
         self.assertEqual(f1.cfunc_names, f2.cfunc_names)
         self.assertEqual(f1.cfunc_files, f2.cfunc_files)
-        self.assertEqual(f1.cfunc_params, f2.cfunc_params)
+        
         self.assertFuncsEqual(f1, f1.formula,f2, f2.formula)
         self.assertFuncsEqual(f1, f1.cfuncs[0],f2, f2.cfuncs[0])
         self.assertFuncsEqual(f1, f1.cfuncs[1],f2, f2.cfuncs[1])
@@ -899,6 +904,8 @@ blue=0.5543108971162746
         f.set_formula("gf4d.frm","Barnsley Type 1")
         f.set_named_item("@bailfunc","manhattanish",f.formula,f.initparams)
         f.set_outer("test.cfrm","flat")
+        f.set_named_item("@ep", 2, f.cfuncs[0], f.cfunc_params[0])
+        f.set_named_item("@i", 789, f.cfuncs[0], f.cfunc_params[0])
         f.set_named_item("@_transfer","sqrt",f.cfuncs[0],f.cfunc_params[0])
         c = copy.copy(f)
 
@@ -944,7 +951,7 @@ blue=0.5543108971162746
         c = copy.copy(f)
 
         self.assertEqual(f.get_func_value("@fn1",f.formula),"sinh")
-            
+        
     def assertDirty(self,f):
         self.assertEqual(f.dirty,True)
 

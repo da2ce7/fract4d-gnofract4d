@@ -110,6 +110,7 @@ class MainWindow:
         self.update_image_prefs(preferences.userPrefs)
         
     def update_subfracts(self):
+        print "update subfracts"
         if not self.show_subfracts:
             return
 
@@ -119,11 +120,13 @@ class MainWindow:
 
         for f in self.subfracts:
             f.interrupt()
+            f.freeze()
             f.set_fractal(self.f.copy_f())
             f.mutate(
                 self.weirdness_adjustment.get_value()/100.0,
                 self.color_weirdness_adjustment.get_value()/100.0,
                 maps)
+            f.thaw()
             f.draw_image(aa,auto_deepen)
         
     def create_subfracts(self,f):
