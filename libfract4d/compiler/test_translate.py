@@ -104,11 +104,16 @@ class TranslateTest(unittest.TestCase):
         complex y = @fn1((1,0)) + fn2((2,0)) + @my_func((1,0))
         }''')
         self.assertNoErrors(t12)
-        k = t12.parameters.keys().sort()
+        k = t12.symbols.parameters().keys()
+        k.sort()
         exp_k = ["t__a_p1", "t__a_p2", "t__a_my_param",
-                 "t__a_fn1", "t__a_fn2", "t__a_my_func"].sort()
+                 "t__a_fn1", "t__a_fn2", "t__a_my_func"]
+        exp_k.sort()
 
         self.assertEqual(k,exp_k)
+        op = t12.symbols.order_of_params()
+        for (key,ord) in op.items():
+            self.assertEqual(op[key],exp_k.index(key))
 
     def testBadFunc(self):
         t = self.translate('t_badfunc {\nx= badfunc(0):\n}')

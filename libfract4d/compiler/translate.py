@@ -20,7 +20,6 @@ class T:
         self.sections = {}
         self.canon_sections = {}
         self.output_sections = {}
-        self.parameters = {}
         self.fakeNode = Empty(-1) # node used for code not written by user
         
         self.dumpCanon = 0
@@ -36,7 +35,6 @@ class T:
 
         try:
             self.formula(f)
-            self.identify_parameters()
             if self.dumpPreCanon:
                 self.dumpSections(f)
             self.canonicalize()
@@ -82,13 +80,6 @@ class T:
         self.errors.append(msg)
     def warning(self,msg):
         self.warnings.append(msg)
-
-    def identify_parameters(self):
-        for (name,sym) in self.symbols.items():
-            if self.symbols.is_param(name):
-                if not self.parameters.has_key(name):
-                    self.parameters[name] = sym
-
     
     def formula(self, f):
         self.symbols.reset()
