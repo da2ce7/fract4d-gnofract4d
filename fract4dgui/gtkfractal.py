@@ -50,6 +50,7 @@ class T(gobject.GObject):
         self.nthreads = 1        
 
         self.parent = parent
+        self.compiler = comp
         
         self.msgformat = "5i"
         self.msgsize = struct.calcsize(self.msgformat)
@@ -68,9 +69,8 @@ class T(gobject.GObject):
 
         self.site = fract4dc.fdsite_create(self.writefd)
         self.f = None
-        f = fractal.T(comp,self.site)
-        self.set_fractal(f)
-        
+        self.try_init_fractal()
+            
         gtk.input_add(self.readfd, gtk.gdk.INPUT_READ, self.onData)
         
         self.width = width
@@ -97,8 +97,17 @@ class T(gobject.GObject):
         drawing_area.set_size_request(self.width,self.height)
 
         self.widget = drawing_area
-        self.f.compile()
 
+    def try_init_fractal(self):
+        try:
+            f = fractal.T(self.compiler,self.site)
+            self.set_fractal(f)
+            self.f.compile()
+            return True
+        except IOError, err:
+            self.error(_("Can't load default fractal"), err)
+            return False
+        
     def get_rgb_colormap(self):
         # work around a difference between pygtk versions
         if hasattr(gtk.gdk,'rgb_get_colormap'):
@@ -108,12 +117,16 @@ class T(gobject.GObject):
         return c
     
     def update_formula(self):
-        self.f.dirtyFormula = True
+        if self.f != None:
+            self.f.dirtyFormula = True
         
     def freeze(self):
         self.frozen = True
 
     def thaw(self):
+        if self.f == None:
+            return False
+        
         self.frozen = False
         was_dirty = self.f.dirty
         self.f.clean()
@@ -139,7 +152,14 @@ class T(gobject.GObject):
 
     def copy_f(self):
         return copy.copy(self.f)
-    
+
+    def set_formula(self, fname, formula):
+        ok = True
+        if self.f == None:
+            ok = self.try_init_fractal()
+        if ok:
+            self.f.set_formula(fname, formula)
+        
     def draw(self,image,width,height,nthreads):
         self.cmap = fract4dc.cmap_create(self.colorlist)
         (r,g,b,a) = self.f.solids[0]
@@ -288,9 +308,12 @@ class T(gobject.GObject):
             print "Warning: ", msg
 
     def set_saved(self,val):
-        self.f.saved = val
+        if self.f != None:
+            self.f.saved = val
         
     def changed(self,clear_image=True):
+        if self.f == None:
+            return
         self.f.dirty=True
         self.f.clear_image = clear_image
         self.set_saved(False)
@@ -450,12 +473,16 @@ class T(gobject.GObject):
         self.set_saved(True)
 
     def is_saved(self):
+        if self.f == None:
+            return True
         return self.f.saved
     
     def save_image(self,filename):
         fract4dguic.image_save(self.image,filename)
         
     def draw_image(self,aa,auto_deepen):
+        if self.f == None:
+            return
         self.interrupt()
         try:
             self.f.compile()
@@ -600,9 +627,24 @@ class T(gobject.GObject):
                 colors[col] = 1 + colors.get(col,0)
         return len(colors)
 
+    def get_func_name(self):
+        if self.f == None:
+            return _("No fractal loaded")
+        return self.f.get_func_name()
+
+    def get_saved(self):
+        if self.f == None:
+            return True
+        return self.f.get_saved()
+
+    def serialize(self):
+        if self.f == None:
+            return None
+        return self.f.serialize()
+
 class SubFract(T):
     def __init__(self,comp,width=640,height=480):
-        T.__init__(self,comp,width,height)
+        T.__init__(self,comp,None,width,height)
         self.master = None
         
     def set_master(self,master):

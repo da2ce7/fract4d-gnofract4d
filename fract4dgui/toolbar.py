@@ -73,6 +73,11 @@ class T(gtk.Toolbar):
         except:
             pixbuf = self.render_icon(
                 stock_id, gtk.ICON_SIZE_LARGE_TOOLBAR, "toolbar")
+            if pixbuf == None:
+                pixbuf = self.render_icon(
+                    gtk.STOCK_MISSING_IMAGE,
+                    gtk.ICON_SIZE_LARGE_TOOLBAR, "toolbar")
+                
             image = gtk.Image()
             image.set_from_pixbuf(pixbuf)
             self.append_element(

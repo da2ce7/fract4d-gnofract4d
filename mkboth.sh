@@ -10,7 +10,7 @@
 unset BUILD_PYTHON_VERSION
 unset BUILD_PYTHON
 
-rm MANIFEST
+rm -f MANIFEST
 rm -rf build
 rm -f fract4d/*.so fract4d/*.pyc fract4dgui/*.so fract4dgui/*.pyc
 ./setup.py clean

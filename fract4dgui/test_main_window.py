@@ -16,15 +16,20 @@ sys.path.append("..")
 
 import main_window
 
+class WrapMainWindow(main_window.MainWindow):
+    def __init__(self):
+        self.errors = []
+        main_window.MainWindow.__init__(self, ['../formulas'])
+        
+    def show_error_message(self,message,exception):
+        self.errors.append((message,exception))
+        
 class Test(unittest.TestCase):
     def setUp(self):
-        self.mw = main_window.MainWindow()
+        self.mw = WrapMainWindow()
         self.assertEqual(self.mw.filename, None, "shouldn't have a filename")
-        self.mw.show_error_message = self.save_error_message
-        self.errors = []
-    
+        
     def tearDown(self):
-        self.errors = []
         if os.path.exists('mytest.fct'):
             os.remove('mytest.fct')
         os.system("killall realyelp > /dev/null 2>&1")
@@ -36,9 +41,6 @@ class Test(unittest.TestCase):
         if status == 0:
             gtk.main_quit()
 
-    def save_error_message(self,message,exception):
-        self.errors.append((message,exception))
-        
     def testLoad(self):
         # load good file
         fn_good = "../testdata/test.fct"
@@ -50,17 +52,19 @@ class Test(unittest.TestCase):
         fn_bad = "test_main_window.py"
         result = self.mw.load(fn_bad)
         self.assertEqual(result, False, "load of bad file succeeded")
-        self.assertEqual(self.mw.filename, fn_good) # filename shouldn't change
+        # filename shouldn't change
+        self.assertEqual(self.mw.filename, fn_good) 
         self.assertEqual(
-            self.errors[0][0], "Error opening test_main_window.py")
+            self.mw.errors[0][0], "Error opening test_main_window.py")
 
         # load missing file
         fn_bad = "wibble.fct"
         result = self.mw.load(fn_bad)
         self.assertEqual(result, False, "load of missing file succeeded")
-        self.assertEqual(self.mw.filename, fn_good) # filename shouldn't change
+        # filename shouldn't change
+        self.assertEqual(self.mw.filename, fn_good) 
         self.assertEqual(
-            self.errors[1][0], "Error opening wibble.fct")
+            self.mw.errors[1][0], "Error opening wibble.fct")
 
     def testSave(self):
         # load good file
@@ -78,7 +82,8 @@ class Test(unittest.TestCase):
         self.assertEqual(result, False, "save file to bad location succeeded")
         self.assertEqual(self.mw.filename, "mytest.fct")
         self.assertEqual(
-            self.errors[0][0], "Error saving to file /no_such_dir/mytest.fct")
+            self.mw.errors[0][0],
+            "Error saving to file /no_such_dir/mytest.fct")
         
     def testLoadFormula(self):
         # load good formula file
@@ -89,7 +94,7 @@ class Test(unittest.TestCase):
         result = self.mw.load_formula("/no_such_dir/wibble.frm")
         self.assertEqual(result, False, "load bad formula succeeded")
         self.assertEqual(
-            self.errors[0][0], "Error opening /no_such_dir/wibble.frm")
+            self.mw.errors[0][0], "Error opening /no_such_dir/wibble.frm")
 
         # load bad file. Formula parser is pretty permissive so
         # we'll just load it and claim it contains no formulas
