@@ -36,6 +36,7 @@ int main()
     int nItersDone=0;
     int nFate=0;
     double dist=0.0;
+    int solid=0;
     pf_obj *pf = pf_new();
     pf->vtbl->init(pf,0.001,initparams,2);
     
@@ -44,7 +45,7 @@ int main()
          pparams,
          100, 100,
          0,0,0,
-         &nItersDone, &nFate, &dist);
+         &nItersDone, &nFate, &dist,&solid);
     
     printf("(%d,%d,%g)\\n",nItersDone,nFate,dist);
 
@@ -57,7 +58,7 @@ int main()
         pparams,
         20, 20,
         0,0,0,
-        &nItersDone, &nFate, &dist);
+        &nItersDone, &nFate, &dist,&solid);
 
     printf("(%d,%d,%g)\\n",nItersDone,nFate,dist);
 
@@ -397,6 +398,50 @@ goto t__end_init;''')
         output = self.compileAndRun(c_code)
         self.assertEqual(["(0,0,3)", "(20,1,789.1)"],output.split("\n"))
 
+    def testSolidCF(self):
+        tcf0 = self.translatecf('''
+        biomorph {
+        init:
+        float d = |z|
+        loop:
+        d = d + |z|
+        final:
+        #index = log(d+1.0) + 3.0
+        }''',"cf0")
+        cg_cf0 = codegen.T(tcf0.symbols)
+        cg_cf0.output_all(tcf0)
+
+        tcf1 = self.translatecf('x {\n #solid = true\n}', "cf1")
+        cg_cf1 = codegen.T(tcf1.symbols)
+        cg_cf1.output_all(tcf1)
+
+        t = self.translate('''
+        mandel {
+        loop:
+        z = sqr(z)+#pixel
+        bailout:
+        |z| < 4.0
+        }''')
+
+        cg = codegen.T(t.symbols)
+        cg.output_all(t)
+        
+        t.merge(tcf0,"cf0_")
+        t.merge(tcf1,"cf1_")
+
+        cg.output_decls(t)
+
+        inserts = {
+            "main_inserts": self.main_stub,
+            "return_inserts": "printf(\"%d\\n\",t__h_solid);" 
+            }
+        
+        c_code = self.codegen.output_c(t,inserts)
+        output = self.compileAndRun(c_code)
+        outlines = output.split("\n")
+        self.assertEqual(outlines[0],"0")
+        self.assertEqual(outlines[2],"1")
+        
     def testC(self):
         # basic end-to-end testing. Compile a code fragment + instrumentation,
         # run it and check output

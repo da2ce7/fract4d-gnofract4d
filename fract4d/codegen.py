@@ -231,7 +231,7 @@ static void pf_calc(
     // only used for debugging
     int t__p_x, int t__p_y, int t__p_aa,
     // out params
-    int *t__p_pnIters, int *t__p_pFate, double *t__p_pDist)
+    int *t__p_pnIters, int *t__p_pFate, double *t__p_pDist, int *t__p_pSolid)
 {
     pf_real *t__pfo = (pf_real *)t__p_stub;
 
@@ -241,6 +241,7 @@ double t__h_zwpixel_re = t__params[2];
 double t__h_zwpixel_im = t__params[3];
 
 double t__h_index = 0.0;
+int t__h_solid = 0;
 
 /* variable declarations */
 %(decls)s
@@ -286,6 +287,7 @@ else
     t__end_cf1final:
 }
 *t__p_pDist = t__h_index;
+*t__p_pSolid = t__h_solid;
 
 %(return_inserts)s
 return;
@@ -334,6 +336,7 @@ pf_obj *pf_new()
    int nItersDone=0;
    int nFate=0;
    double dist=0.0;
+   int solid=0;
    pf_obj *pf = pf_new();
    pf->vtbl->init(pf,0.001,initparams,2);
    
@@ -342,7 +345,7 @@ pf_obj *pf_new()
         pparams,
         100, 100,
         0,0,0,
-        &nItersDone, &nFate, &dist);
+        &nItersDone, &nFate, &dist, &solid);
    
    pf->vtbl->kill(pf);
 */
@@ -376,7 +379,7 @@ struct s_pf_vtable {
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        int *pnIters, int *pFate, double *pDist
+        int *pnIters, int *pFate, double *pDist, int *pSolid
 	);
     /* deallocate data in p */
     void (*kill)(
@@ -455,7 +458,7 @@ extern pf_obj *pf_new(void);
                      "maxiter" : "",
                      "t__h_tolerance" :
                          "double t__h_tolerance = t__pfo->period_tolerance;",
-                     
+                     "t__h_solid" : ""
                      }
         for (k,v) in user_overrides.items():
             #print "%s = %s" % (k,v)

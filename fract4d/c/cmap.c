@@ -43,7 +43,7 @@ cmap_new(int ncolors)
     cmap->ncolors = ncolors; cmap->items = NULL; 
     cmap->solids[0] = cmap->solids[1] = black;
     cmap->transfers[0] = TRANSFER_LINEAR; // outer
-    cmap->transfers[1] = TRANSFER_NONE; // inner
+    cmap->transfers[1] = TRANSFER_LINEAR; // inner
 
     cmap->items = (item_t *)malloc(sizeof(item_t) * ncolors);
     if(!cmap->items) goto cleanup;
@@ -185,12 +185,17 @@ find(double key, item_t *array, int n)
 }
 
 rgba_t 
-cmap_lookup_with_transfer(cmap_t *cmap, int fate, double index)
+cmap_lookup_with_transfer(cmap_t *cmap, int fate, double index, int solid)
 {
     assert(NULL != cmap);
 
     if(fate >= 0 && fate < 2)
     {
+	if(solid)
+	{
+	    return cmap->solids[fate];
+	}
+
 	e_transferType t = cmap->transfers[fate];
 	switch(t)
 	{

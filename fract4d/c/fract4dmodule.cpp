@@ -196,6 +196,7 @@ pf_calc(PyObject *self, PyObject *args)
     int nIters, nNoPeriodIters,x=0,y=0,aa=0;
     int outIters=0, outFate=-777;
     double outDist=0.0;
+    int outSolid=0;
 
     if(!PyArg_ParseTuple(args,"O(dddd)ii|iii",
 			 &pyobj,
@@ -217,9 +218,9 @@ pf_calc(PyObject *self, PyObject *args)
     pfh->pfo->vtbl->calc(pfh->pfo,params,
 		    nIters,nNoPeriodIters,
 		    x,y,aa,
-		    &outIters,&outFate,&outDist);
+		    &outIters,&outFate,&outDist,&outSolid);
     assert(outFate != -777);
-    pyret = Py_BuildValue("iid",outIters,outFate,outDist);
+    pyret = Py_BuildValue("iidi",outIters,outFate,outDist,outSolid);
     return pyret; // Python can handle errors if this is NULL
 }
 
@@ -360,8 +361,9 @@ cmap_pylookup_with_fate(PyObject *self, PyObject *args)
     rgba_t color;
     cmap_t *cmap;
     int fate;
+    int solid;
 
-    if(!PyArg_ParseTuple(args,"Oid", &pyobj, &fate, &d))
+    if(!PyArg_ParseTuple(args,"Oidi", &pyobj, &fate, &d,&solid))
     {
 	return NULL;
     }
@@ -372,7 +374,7 @@ cmap_pylookup_with_fate(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    color = cmap_lookup_with_transfer(cmap,fate,d);
+    color = cmap_lookup_with_transfer(cmap,fate,d,solid);
     
     pyret = Py_BuildValue("iiii",color.r,color.g,color.b,color.a);
 

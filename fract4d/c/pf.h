@@ -56,7 +56,7 @@ struct s_pf_vtable {
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        int *pnIters, int *pFate, double *pDist
+        int *pnIters, int *pFate, double *pDist, int *pSolid
 	);
     /* deallocate data in p */
     void (*kill)(

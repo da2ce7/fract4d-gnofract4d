@@ -43,15 +43,16 @@ public:
 	{
 	    double dist; 
 	    int fate;
+	    int solid;
 	    m_pfo->vtbl->calc(m_pfo, params, nIters, nNoPeriodIters, x, y, aa,
-			      pnIters, &fate, &dist);
+			      pnIters, &fate, &dist, &solid);
 
 	    //printf("%d,%d,%g\n",*pnIters,fate,dist);
 	    if(fate == 1)
 	    {
 		*pnIters = -1;
 	    }
-	    *color = cmap_lookup_with_transfer(m_cmap,fate,dist);
+	    *color = cmap_lookup_with_transfer(m_cmap,fate,dist,solid);
 
 	    m_site->pixel_changed(
 		params,nIters,nNoPeriodIters,

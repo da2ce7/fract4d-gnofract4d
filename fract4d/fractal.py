@@ -192,7 +192,6 @@ class T(FctUtils):
         self.antialias = 1
         self.compiler = compiler
         self.outputfile = None
-        self.funcFile = "gf4d.frm"
         self.set_formula("gf4d.frm",self.funcName)
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","default")
@@ -498,8 +497,12 @@ class T(FctUtils):
         
         m = fract4dc.rot_matrix(self.params)
 
-        deltax = self.mul_vs(m[0],dx)        
-        deltay = self.mul_vs(m[1],-dy)
+        deltax = self.mul_vs(m[0],dx)
+        if self.yflip:
+            deltay = self.mul_vs(m[1],dy)
+        else:
+            deltay = self.mul_vs(m[1],-dy)
+
 
         #print "dx: %s dy: %s" % (deltax,deltay)
         
@@ -575,7 +578,7 @@ class T(FctUtils):
             # old versions displayed everything upside down
             # switch the rotation so they load OK
             self.yflip = True
-        if 1.7 > self.format_version > 2.0:
+        if 1.7 < self.format_version < 2.0:
             # a version that used auto-tolerance for Nova and Newton
             self.auto_tolerance = True
             
@@ -751,6 +754,7 @@ if __name__ == '__main__':
     import fract4dc
 
     g_comp = fc.Compiler()
+    g_comp.file_path.append("formulas")
     g_comp.file_path.append("../formulas")
     g_comp.file_path.append(
             os.path.join(sys.exec_prefix, "share/formulas/gnofract4d"))

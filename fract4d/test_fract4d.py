@@ -88,19 +88,19 @@ class PfTest(unittest.TestCase):
 
         # a point which doesn't bail out
         result = fract4dc.pf_calc(pfunc,[0.15, 0.0, 0.0, 0.0],100,100,0,0,0)
-        self.assertEqual(result,(100, 1, 0.0))
+        self.assertEqual(result,(100, 1, 0.0,0))
         # one which does
         result = fract4dc.pf_calc(pfunc,[1.0, 1.0, 0.0, 0.0],100,100,0,0,0)
-        self.assertEqual(result,(1,0, 0.0)) 
+        self.assertEqual(result,(1,0, 0.0,0)) 
 
         # one which is already out
         result = fract4dc.pf_calc(pfunc,[17.5, 14.0, 0.0, 0.0],100,100,0,0,0)
-        self.assertEqual(result,(0, 0, 0.0)) 
+        self.assertEqual(result,(0, 0, 0.0,0)) 
 
 
         # without optional args
         result = fract4dc.pf_calc(pfunc,[17.5, 14.0, 0.0, 0.0],100,100)
-        self.assertEqual(result,(0, 0, 0.0)) 
+        self.assertEqual(result,(0, 0, 0.0,0)) 
         
         pfunc = None
         handle = None
@@ -267,7 +267,7 @@ class PfTest(unittest.TestCase):
         for y in xrange(-20,20):
             line = []
             for x in xrange(-20,20):
-                (iter,fate,dist) = fract4dc.pf_calc(pfunc,[x/10.0,y/10.0,0,0],100,100)
+                (iter,fate,dist,solid) = fract4dc.pf_calc(pfunc,[x/10.0,y/10.0,0,0],100,100)
                 if(fate == 1):
                     line.append("#")
                 else:
@@ -349,12 +349,15 @@ class PfTest(unittest.TestCase):
         cmap = fract4dc.cmap_create(
             [(0.0,33,33,33,255)])
 
+        # make inner transfer func none
+        fract4dc.cmap_set_transfer(cmap,1,0)
+        
         # inside should be all-black by default, outside should never be
         index = 0.0
         while index < 2.0: 
-            color = fract4dc.cmap_fate_lookup(cmap,1,index)
+            color = fract4dc.cmap_fate_lookup(cmap,1,index,0)
             self.assertEqual(color,(0,0,0,255))
-            color = fract4dc.cmap_fate_lookup(cmap,0,index)
+            color = fract4dc.cmap_fate_lookup(cmap,0,index,0)
             self.assertEqual(color,(33,33,33,255))            
             index += 0.1
 
@@ -365,9 +368,9 @@ class PfTest(unittest.TestCase):
         
         index = 0.0
         while index < 2.0: 
-            color = fract4dc.cmap_fate_lookup(cmap,1,index)
+            color = fract4dc.cmap_fate_lookup(cmap,1,index,0)
             self.assertEqual(color,(177,177,177,255))
-            color = fract4dc.cmap_fate_lookup(cmap,0,index)
+            color = fract4dc.cmap_fate_lookup(cmap,0,index,0)
             self.assertEqual(color,(166,166,166,255))            
             index += 0.1
 
@@ -376,11 +379,19 @@ class PfTest(unittest.TestCase):
 
         index = 0.0
         while index < 2.0: 
-            color = fract4dc.cmap_fate_lookup(cmap,1,index)
+            color = fract4dc.cmap_fate_lookup(cmap,1,index,0)
             self.assertEqual(color,(33,33,33,255))
-            color = fract4dc.cmap_fate_lookup(cmap,0,index)
+            color = fract4dc.cmap_fate_lookup(cmap,0,index,0)
             self.assertEqual(color,(166,166,166,255))            
             index += 0.1
+
+        # test that solid overrides
+        color = fract4dc.cmap_fate_lookup(cmap,1,0.1,1)
+        self.assertEqual(color,(177,177,177,255))
+        color = fract4dc.cmap_fate_lookup(cmap,0,0.1,1)
+        self.assertEqual(color,(166,166,166,255))
+        
+        
 
 def suite():
     return unittest.makeSuite(PfTest,'test')
