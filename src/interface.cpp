@@ -173,7 +173,7 @@ create_app (model_t *m)
 
     // turn explore mode *off*
     model_toggle_explore_mode(m);
-    
+
     g_signal_connect (
         GTK_OBJECT (app), "delete_event",
         GTK_SIGNAL_FUNC (quit_cb),

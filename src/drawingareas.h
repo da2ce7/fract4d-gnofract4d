@@ -28,6 +28,6 @@ GtkWidget* create_drawing_area(model_t *, GtkWidget *);
 GtkWidget *create_sub_drawing_area(model_t *m, GtkWidget *table, int num, int x, int y);
 
 // utility function
-void redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int height, int image_width);
+void redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int height, int image_width, int image_height);
 
 #endif /* _DRAWINGAREAS_H_ */

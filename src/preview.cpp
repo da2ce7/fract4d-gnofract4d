@@ -37,7 +37,8 @@ popup_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data
     redraw_image_rect(widget, gf4d_fractal_get_image(f),
                       event->area.x, event->area.y,
                       event->area.width, event->area.height,
-                      gf4d_fractal_get_xres(f));
+                      gf4d_fractal_get_xres(f),
+		      gf4d_fractal_get_yres(f));
     return FALSE;
 }
 
@@ -55,7 +56,8 @@ preview_status_callback(Gf4dFractal *f, gint val, void *user_data)
     redraw_image_rect(drawing_area, gf4d_fractal_get_image(f),
                       0, 0,
                       PREVIEW_SIZE, PREVIEW_SIZE,
-                      gf4d_fractal_get_xres(f));
+                      gf4d_fractal_get_xres(f),
+		      gf4d_fractal_get_yres(f));
     return;
 }
 

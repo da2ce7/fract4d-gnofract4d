@@ -78,7 +78,9 @@ update_preview_image(Gf4dFractal *f, GtkWidget *drawable, model_t *m_if_edit)
     memcpy(img,gf4d_fractal_get_image(f), BYTE_SIZE);
     
     // update currently displayed image
-    redraw_image_rect(drawable, img, 0, 0, PREVIEW_SIZE, PREVIEW_SIZE, PREVIEW_SIZE);
+    redraw_image_rect(drawable, img, 0, 0, 
+		      PREVIEW_SIZE, PREVIEW_SIZE, 
+		      PREVIEW_SIZE, PREVIEW_SIZE);
 }
 
 /* called back by the private fractal as it renders */
@@ -124,9 +126,9 @@ preview_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_da
         redraw_image_rect(
             widget, image, 
             event->area.x, event->area.y, 
-            std::min(event->area.width, PREVIEW_SIZE - event->area.x), 
-	    std::min(event->area.height, PREVIEW_SIZE - event->area.y),
-            PREVIEW_SIZE);
+            event->area.width,
+	    event->area.height,
+            PREVIEW_SIZE, PREVIEW_SIZE);
     }
     return FALSE;
 }

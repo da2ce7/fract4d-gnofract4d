@@ -27,6 +27,8 @@
 #include "properties.h"
 #include "gf4d_fractal.h"
 
+#include <algorithm>
+
 typedef struct {
     model_t *m;
     int num;
@@ -34,7 +36,7 @@ typedef struct {
 
 /* copy a section of the fractal's image to the screen */
 void 
-redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int height, int image_width)
+redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int height, int image_width, int image_height)
 {
     /* widget may be hidden or not yet created */
     if(widget && widget->window)
@@ -42,7 +44,9 @@ redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int h
         gdk_draw_rgb_image(
             widget->window,
             widget->style->white_gc,
-            x, y, width, height,
+            x, y, 
+	    std::min(width,image_width-x), 
+	    std::min(height,image_height-y),
             GDK_RGB_DITHER_NONE,
             img + 3*(x + y * image_width) ,
             3*image_width);
@@ -103,7 +107,8 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
             0,0,
             gf4d_fractal_get_xres(f), 
             gf4d_fractal_get_yres(f),
-            gf4d_fractal_get_xres(f));
+            gf4d_fractal_get_xres(f),
+	    gf4d_fractal_get_yres(f));
 
         /* draw new one */
         gdk_window_get_pointer(widget->window,
@@ -129,7 +134,8 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
                 0,0,
                 gf4d_fractal_get_xres(f),
                 gf4d_fractal_get_yres(f),
-                gf4d_fractal_get_xres(f));
+                gf4d_fractal_get_xres(f),
+		gf4d_fractal_get_yres(f));
 
             /* zoom factor */
             if(x == new_x || y == new_y)
@@ -162,10 +168,12 @@ gint
 expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
     Gf4dFractal *f = GF4D_FRACTAL(user_data);
+    int fw = gf4d_fractal_get_xres(f), fh = gf4d_fractal_get_yres(f);
     redraw_image_rect(widget, gf4d_fractal_get_image(f),
                       event->area.x, event->area.y,
-                      event->area.width, event->area.height,
-                      gf4d_fractal_get_xres(f));
+                      event->area.width, 
+		      event->area.height, 
+		      fw, fh);
     return FALSE;
 }
 
