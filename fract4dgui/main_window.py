@@ -101,7 +101,7 @@ class MainWindow:
             f.set_fractal(self.f.copy_f())
             f.mutate(self.weirdness_adjustment.get_value()/100.0)
             aa = preferences.userPrefs.getint("display","antialias")
-            auto_deepen = preferences.userPrefs.getint("display","autodeepen")
+            auto_deepen = preferences.userPrefs.getboolean("display","autodeepen")
             f.draw_image(aa,auto_deepen)
         
     def create_subfracts(self,f):
@@ -316,8 +316,11 @@ class MainWindow:
         self.draw_preview()
 
     def draw_preview(self):
-        auto_deepen = preferences.userPrefs.getint("display","autodeepen")
+        auto_deepen = preferences.userPrefs.getboolean("display","autodeepen")
         self.preview.draw_image(False,auto_deepen)
+
+    def deepen_now(self, widget):
+        self.f.set_maxiter(self.f.maxiter*2)
         
     def create_toolbar(self):
         self.toolbar = gtk.Toolbar()
@@ -370,7 +373,22 @@ class MainWindow:
             _("wrp"),
             _("Mutate the image by moving along the other 2 axes"), 2)
 
+        image = gtk.Image()
+        image.set_from_file(
+            utils.find_resource('deepen_now.png',
+                                'pixmaps',
+                                'share/pixmaps/gnofract4d'))
 
+        self.toolbar.append_element(
+            gtk.TOOLBAR_CHILD_BUTTON,
+            None,
+            _("Deepen"),
+            _("Double the maximum number of iterations"),
+            None,
+            image,
+            self.deepen_now,
+            None)
+        
         # undo/redo
         self.toolbar.append_space()
         
