@@ -168,29 +168,36 @@ class Gradient:
             seg.save(f)
 
     def load(self,f):
-        self.segments = []
+        new_segments = []
+        name = None
         line = f.readline()
         if line != "GIMP Gradient\n":
-            print line
             raise Error("Invalid gradient file: no header found")
-        line = f.readline()
-        if line.startswith("Name:"):
-            self.name = line[5:].strip()
+        
+        try:
             line = f.readline()
-        num_vals = int(line)
-        for i in xrange(num_vals):
-            line = f.readline()
-            [left, mid, right,
-             lr, lg, lb, la,
-             rr, rg, rb, ra,
-             bmode, cmode] = line.split()
-            
-            seg = Segment(
-                float(left), [float(lr), float(lg), float(lb), float(la)],
-                float(right),[float(rr), float(rg), float(rb), float(ra)],
-                float(mid),
-                int(bmode), int(cmode))
-            self.segments.append(seg)
+            if line.startswith("Name:"):
+                name = line[5:].strip()
+                line = f.readline()
+            num_vals = int(line)
+            for i in xrange(num_vals):
+                line = f.readline()
+                [left, mid, right,
+                 lr, lg, lb, la,
+                 rr, rg, rb, ra,
+                 bmode, cmode] = line.split()
+
+                seg = Segment(
+                    float(left), [float(lr), float(lg), float(lb), float(la)],
+                    float(right),[float(rr), float(rg), float(rb), float(ra)],
+                    float(mid),
+                    int(bmode), int(cmode))
+                new_segments.append(seg)
+        except Exception, err:
+            raise Error("Invalid gradient file: %s" % str(err))
+        
+        self.segments = new_segments
+        self.name = name
         
     def broken_compute(self):
         num=255
@@ -314,7 +321,59 @@ class Gradient:
             return self.segments[seg].left
         else:
             return self.segments[seg].right
-            
+
+    def clamp(self,a,min,max):
+        if a > max:
+            return max
+        elif a < min:
+            return min
+        else:
+            return a
+        
+    def set_left(self,i,pos):
+        # set left end of segment i to pos, if possible
+        if i < 0 or i >= len(self.segments):
+            raise IndexError("No such segment")
+
+        if i == 0:
+            # can't move left-hand end of entire gradient
+            return 0.0
+        else:
+            pos = self.clamp(pos,
+                             self.segments[i-1].mid + Segment.EPSILON,
+                             self.segments[i].mid - Segment.EPSILON)
+            self.segments[i-1].right = self.segments[i].left = pos
+            return pos
+
+    def set_right(self,i,pos):
+        # set left end of segment i to pos, if possible
+        if i < 0 or i >= len(self.segments):
+            raise IndexError("No such segment")
+
+        max = len(self.segments)-1
+        if i == max:
+            # can't move right-hand end of entire gradient
+            return 1.0
+        else:
+            pos = self.clamp(pos,
+                             self.segments[i].mid + Segment.EPSILON,
+                             self.segments[i+1].mid - Segment.EPSILON)
+                             
+            self.segments[i+1].left = self.segments[i].right = pos
+            return pos
+
+    def set_middle(self,i,pos):
+        # set middle of segment i to pos, if possible
+        if i < 0 or i >= len(self.segments):
+            raise IndexError("No such segment")
+
+        pos = self.clamp(pos,
+                         self.segments[i].left + Segment.EPSILON,
+                         self.segments[i].right - Segment.EPSILON)
+                             
+        self.segments[i].mid = pos
+        return pos
+        
     def broken_move(self, handle, move):
         seg, side = self.getSegFromHandle(handle)
         segindex = self.segments.index(seg)
