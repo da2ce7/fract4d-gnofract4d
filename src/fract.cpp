@@ -646,6 +646,7 @@ fractal::recolor(image *im)
         pIterFunc,
         bailout_type,
         params[BAILOUT],
+        tolerance(im),
         cizer,
         colorFuncs[OUTER],
         colorFuncs[INNER]);
@@ -662,4 +663,12 @@ fractal::recolor(image *im)
     }
 
     delete p;
+}
+
+d 
+fractal::tolerance(image *im)
+{
+    // 10% of the size of a pixel
+    d t = params[MAGNITUDE]/(2 * max(im->Xres(),im->Yres()) * 10.0);
+    return t;
 }

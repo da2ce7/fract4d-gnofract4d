@@ -46,6 +46,7 @@ static int g_param_r=0;
 static int g_param_g=0;
 static int g_param_b=0;
 static char *g_param_cmap=NULL;
+static char *g_param_flags=NULL;
 static int g_param_width=0;
 static int g_param_height=0;
 static int g_param_nThreads= guess_calc_threads();
@@ -240,6 +241,15 @@ struct poptOption options[] = {
         N_("Number of calculation threads to use"),
         N_("1")
     },
+    {
+        "cxxflags",
+        'C',
+        POPT_ARG_STRING,
+        &g_param_flags,
+        0,
+        N_("Additional flags to compiler"),
+        N_("\"-DNOPERIOD\"")
+    },
     { NULL, '\0', 0, NULL, 0 , NULL, NULL }
 };
 
@@ -300,6 +310,13 @@ apply_arguments(model_t *m)
     if(g_param_quit)
     {
         model_set_quit(m,true);
+    }
+    if(g_param_flags)
+    {
+        const char *current_flags = model_get_compiler_flags(m);
+        gchar *new_flags = g_strjoin(" ",current_flags, g_param_flags, NULL);
+        model_set_compiler_flags(m,new_flags, false);
+        g_free(new_flags);
     }
     model_set_calcthreads(m,g_param_nThreads);
 }

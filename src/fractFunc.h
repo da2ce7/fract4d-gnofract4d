@@ -197,7 +197,6 @@ class fractFunc {
     void send_quit();
 
     // MEMBER FUNCTIONS
-    
 
     void send_box(int x, int y, int rsize);
     void send_row(int x, int y, int n);

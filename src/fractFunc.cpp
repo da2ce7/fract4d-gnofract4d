@@ -23,7 +23,7 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     deltax = rot[VX];
     deltay = rot[VY];
     ddepth = D_LIKE((double)(depth*2),f->params[MAGNITUDE]);
-    delta_aa_x = deltax / ddepth;
+    delta_aa_x = deltax / ddepth;    
     delta_aa_y = deltay / ddepth;
     
     debug_precision(deltax[VX],"deltax");
@@ -328,5 +328,4 @@ void fractFunc::draw_threads(int rsize, int drawsize)
  done:
     reset_progress(1.0);
 }
-
 

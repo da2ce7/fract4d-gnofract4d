@@ -14,6 +14,7 @@ fractThreadFunc::init(fractFunc *ff_,fractal_t *f_, image *im_)
         f->pIterFunc, 
         f->bailout_type, 
         f->params[BAILOUT], 
+        f->tolerance(im),
         f->cizer, 
         f->colorFuncs[OUTER],
         f->colorFuncs[INNER]);

@@ -54,6 +54,7 @@ pointFunc *pointFunc_new(
     iterFunc *iterType, 
     e_bailFunc bailType,
     double eject,
+    double periodicity_tolerance,
     colorizer *pcf,
     e_colorFunc outerCfType,    
     e_colorFunc innerCfType);

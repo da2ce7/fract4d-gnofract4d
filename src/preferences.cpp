@@ -41,7 +41,7 @@ set_cflags_cb(GtkEntry *e, GdkEventFocus *, gpointer user_data)
 {
     model_t *m = (model_t *)(m);
     char *text = gtk_entry_get_text(e);
-    model_set_compiler_flags(m,text);
+    model_set_compiler_flags(m,text,true);
     return TRUE;
 }
 

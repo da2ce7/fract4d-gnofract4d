@@ -33,12 +33,13 @@ pointFunc *pointFunc_new(
     iterFunc *iterType, 
     e_bailFunc bailType, 
     double bailout,
+    double periodicity_tolerance,
     colorizer *pcf,
     e_colorFunc outerCfType,
     e_colorFunc innerCfType)
 {
 #ifdef STATIC_FUNCTION
-    return (pointFunc *)create_pointfunc(NULL,bailout,pcf,outerCfType,innerCfType);
+    return (pointFunc *)create_pointfunc(NULL,bailout,periodicity_tolerance, pcf,outerCfType,innerCfType);
 #else
     bailFunc *b = bailFunc_new(bailType);
 
@@ -48,8 +49,14 @@ pointFunc *pointFunc_new(
     void *dlHandle = g_pCompiler->getHandle(code_map);
 
     pointFunc *(*pFunc)(
-        void *, double, std::complex<double> *,colorizer *, e_colorFunc, e_colorFunc) = 
-        (pointFunc *(*)(void *, double, std::complex<double> *, colorizer *, e_colorFunc, e_colorFunc)) 
+        void *, 
+        double, 
+        double, 
+        std::complex<double> *,
+        colorizer *, 
+        e_colorFunc, 
+        e_colorFunc) = 
+        (pointFunc *(*)(void *, double, double, std::complex<double> *, colorizer *, e_colorFunc, e_colorFunc)) 
         dlsym(dlHandle, "create_pointfunc");
 
     if(NULL == pFunc)
@@ -57,7 +64,7 @@ pointFunc *pointFunc_new(
         return NULL;
     }
 
-    return pFunc(dlHandle, bailout, iterType->opts(), pcf, outerCfType, innerCfType);
+    return pFunc(dlHandle, bailout, periodicity_tolerance, iterType->opts(), pcf, outerCfType, innerCfType);
 #endif
 }
 

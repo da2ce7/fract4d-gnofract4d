@@ -113,7 +113,7 @@ extern "C" {
     void model_set_compiler_location(model_t *m, char *location);
     const char *model_get_compiler_location(model_t *m);
 
-    void model_set_compiler_flags(model_t *m, char *location);
+    void model_set_compiler_flags(model_t *m, char *location, bool save);
     const char *model_get_compiler_flags(model_t *m);
 
     // report an error

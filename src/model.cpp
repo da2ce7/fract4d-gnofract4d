@@ -230,7 +230,7 @@ model_init_compiler(model_t *m,compiler *pc)
         gnome_config_get_string(PACKAGE "/Compiler/flags");
     if(NULL != compiler_flags)
     {
-        model_set_compiler_flags(m,compiler_flags);
+        model_set_compiler_flags(m,compiler_flags,false);
     }
 
     g_free(compiler_flags);
@@ -265,10 +265,13 @@ model_get_compiler_location(model_t *m)
 }
 
 void
-model_set_compiler_flags(model_t *m, char *flags)
+model_set_compiler_flags(model_t *m, char *flags, bool save)
 {
     g_pCompiler->flags = flags;
-    gnome_config_set_string(PACKAGE "/Compiler/flags", flags);
+    if(save)
+    {
+        gnome_config_set_string(PACKAGE "/Compiler/flags", flags);
+    }
 }
 
 const char *

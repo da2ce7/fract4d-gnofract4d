@@ -112,6 +112,9 @@ public:
     friend class fractFunc;
     friend class fractThreadFunc;
 
+    // calculate the periodicity error tolerance
+    d tolerance(image *im); 
+
     private:
     void recenter(const dvec4& delta);
     // used by copy ctor and op=

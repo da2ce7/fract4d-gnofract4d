@@ -7,12 +7,11 @@
 #if TRACE
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 #endif
 #include <float.h>
 #include <stdio.h>
 #include <algorithm>
-
-const d PERIOD_TOLERANCE = 1.0E-10;
 
 typedef double T;
 
@@ -21,8 +20,10 @@ private:
     /* members */
     colorFunc *m_pOuterColor, *m_pInnerColor;
     double m_eject;
+    T m_period_tolerance;
     colorizer *m_pcf;
     void *m_handle; // handle of .so which keeps us in memory
+
 #if N_OPTIONS > 0
     std::complex<double> a[N_OPTIONS];
 #endif
@@ -33,11 +34,12 @@ public:
     /* ctor */
     pointCalc(void *handle,
               double eject,
+              double period_tolerance,
               std::complex<double> *options,
               colorizer *pcf,
               e_colorFunc outerCfType,
               e_colorFunc innerCfType) 
-        : m_eject(eject), m_pcf(pcf), m_handle(handle)
+        : m_eject(eject), m_period_tolerance(period_tolerance), m_pcf(pcf), m_handle(handle)
         {
 #if N_OPTIONS > 0
             for(int i = 0; i < N_OPTIONS; ++i)
@@ -50,7 +52,6 @@ public:
 #endif
             m_pOuterColor = colorFunc_new(outerCfType);
             m_pInnerColor = colorFunc_new(innerCfType);
-            
         }
     virtual ~pointCalc()
         {
@@ -60,7 +61,6 @@ public:
             delete out;
 #endif
         }
-
     inline rgb_t colorize(int iter, const T*pIter, const T*pInput, const T*pTemp)
         {
             double colorDist;
@@ -80,11 +80,19 @@ public:
     bool calcNoPeriod(int& iter, int maxIter)
         {
             DECL;
+#if TRACE
+            (*out) << "in:" << XPOS << "," << YPOS << "\n";
+#endif 
+
 #if UNROLL
             while(iter + 8 < maxIter)
             {
                 SAVE_ITER;
                 ITER; ITER; ITER; ITER; ITER; ITER; ITER; ITER; 
+#if TRACE
+                (*out) << "8:" << XPOS << "," << YPOS << "\n";
+#endif 
+
                 BAIL;
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
@@ -96,21 +104,20 @@ public:
                 iter += 8;
             }
 #endif      
-            RET; // why this?
+            while(iter + 1 < maxIter)
             {
-                DECL; // and this?
-                while(iter + 1 < maxIter)
+                ITER;
+#if TRACE
+                (*out) << "1:" << XPOS << "," << YPOS << "\n";
+#endif 
+                BAIL;
+                if(pTemp[EJECT_VAL] >= m_eject)
                 {
-                    ITER;
-                    BAIL;
-                    if(pTemp[EJECT_VAL] >= m_eject)
-                    {
-                        RET;
-                        return true; // escaped
-                    }
-                    iter++;
-                }            
-            }
+                    RET;
+                    return true; // escaped
+                }
+                iter++;
+            }            
             RET;
             return false; // finished iterations without escaping
         }
@@ -120,27 +127,34 @@ public:
         int &iter, int nMaxIters)
         {
             /* periodicity vars */
-            d lastx = XPOS, lasty=YPOS;
+            d lastx = pIter[X], lasty=pIter[Y];
             int k =1, m = 1;
             
             // single iterations
+            DECL; 
             do
             {
-                DECL; ITER; RET;
+                ITER; 
+#if TRACE
+                (*out) << "p:" << XPOS << "," << YPOS << "\n";
+#endif 
                 BAIL;
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
+                    RET;
                     return true;
                 }
                 if(iter++ >= nMaxIters) 
                 {
                     // ran out of iterations
+                    RET;
                     iter = -1; return false;
                 }
-                if(fabs(XPOS - lastx) < PERIOD_TOLERANCE &&
-                   fabs(YPOS - lasty) < PERIOD_TOLERANCE)
+                if(fabs(XPOS - lastx) < m_period_tolerance &&
+                   fabs(YPOS - lasty) < m_period_tolerance)
                 {
                     // period detected!
+                    RET;
                     iter = -1;  return false;
                 }
                 if(--k == 0)
@@ -168,6 +182,7 @@ public:
                 std::string outname = ofname.str();
                 cout << outname << "\n";
                 out = new std::ofstream(outname.c_str());
+                (*out) << std::setprecision(17);
             }
 #endif
             pIter[X] =  params.n[VZ]; 
@@ -181,6 +196,15 @@ public:
             bool done = false;
 
             assert(nNoPeriodIters >= 0 && nNoPeriodIters <= nMaxIters);
+
+#ifdef NOPERIOD
+            nNoPeriodIters = nMaxIters;
+#else 
+#ifdef ALLPERIOD
+            nNoPeriodIters = 0;
+#endif
+#endif
+
             if(nNoPeriodIters > 0)
             {
                 done = calcNoPeriod(iter,nNoPeriodIters);
@@ -192,7 +216,7 @@ public:
 
             *pnIters = iter;
 #if TRACE
-            (*out) << iter << "\n";
+            //(*out) << iter << "\n";
 #endif
             if(color)
             {
@@ -237,11 +261,19 @@ extern "C" {
     void *create_pointfunc(
         void *handle,
         double bailout,
+        double period_tolerance,
         std::complex<double> *params,
         colorizer *pcf,        
         e_colorFunc outerCfType,
         e_colorFunc innerCfType)
     {
-        return new pointCalc(handle, bailout, params, pcf, outerCfType, innerCfType);
+        return new pointCalc(
+            handle, 
+            bailout, 
+            period_tolerance, 
+            params, 
+            pcf, 
+            outerCfType, 
+            innerCfType);
     }
 }
