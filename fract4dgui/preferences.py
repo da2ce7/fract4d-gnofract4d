@@ -91,7 +91,7 @@ class PrefsDialog(gtk.Dialog):
         global userPrefs
         gtk.Dialog.__init__(
             self,
-            "Preferences",
+            _("Gnofract 4D Preferences"),
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))

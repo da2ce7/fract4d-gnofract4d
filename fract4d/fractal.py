@@ -393,6 +393,18 @@ class T(FctUtils):
         
         self.set_formula_defaults()
 
+    def reset_zoom(self):
+        mag = self.formula.defaults.get("magn")
+        if mag:
+            mag = mag.value
+        else:
+            mag = self.formula.defaults.get("magnitude")
+            if mag:
+                mag = mag.value
+            else:
+                mag = 4.0
+        self.set_param(self.MAGNITUDE, mag)
+            
     def set_cmap(self,mapfile):
         c = Colorizer(self)
         file = open(mapfile)

@@ -290,12 +290,18 @@ class MainWindow:
              self.colors, 0, ''),
             (_('/Edit/_Preferences...'), '<control>P',
              self.preferences, 0, '<StockItem>', gtk.STOCK_PREFERENCES),
+            (_('/Edit/sep1'), None,
+             None, 0, '<Separator>'),
             (_('/Edit/_Undo'), '<control>Z',
              self.undo, 0, ''),
-            (_('/Edit/_Redo'), '<control>Y',
+            (_('/Edit/_Redo'), '<control><shift>Z',
              self.redo, 0, ''),
+            (_('/Edit/sep2'), None,
+             None, 0, '<Separator>'),
             (_('/Edit/R_eset'), 'Home',
              self.reset, 0, '<StockItem>', gtk.STOCK_HOME),
+            (_('/Edit/Re_set Zoom'), '<control>Home',
+             self.reset_zoom, 0, ''),
 
             (_('/_Tools'), None,
              None, 0, '<Branch>'),
@@ -695,13 +701,12 @@ class MainWindow:
     def confirm(self,name):
         'if this file exists, check with user before overwriting it'
         if os.path.exists(name):
-            d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                  gtk.MESSAGE_QUESTION,
-                                  gtk.BUTTONS_YES_NO,
-                                  _("File %s already exists. Overwrite?") % name)
+            msg = _("File %s already exists. Overwrite?") % name
+            d = hig.ConfirmationAlert(msg,None,self.window,_("Overwrite"))
+
             response = d.run()                
             d.destroy()
-            return response == gtk.RESPONSE_YES
+            return response == gtk.RESPONSE_OK
         else:
             return True
 
@@ -764,6 +769,9 @@ class MainWindow:
     def reset(self,action,widget):
         self.f.reset()
 
+    def reset_zoom(self,action,widget):
+        self.f.reset_zoom()
+        
     def autozoom(self,action,widget):
         autozoom.show_autozoom(self.window, self.f)
         
