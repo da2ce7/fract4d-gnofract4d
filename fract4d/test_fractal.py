@@ -872,6 +872,19 @@ blue=0.5543108971162746
         self.assertEqual(c0,c.colorlist[0])
         self.assertNotEqual(c0,f.colorlist[0])
 
+    def x_testCopy2(self):
+        '''There was a bug where copy() would reset func values.
+        Check for recurrence'''
+        f = fractal.T(self.compiler)
+        f.loadFctFile(open("../testdata/julfn.fct"))
+        f.set_named_item("@fn1","sinh",f.formula,f.initparams)
+
+        self.assertEqual(f.get_func_value("@fn1",f.formula),"sinh")
+        
+        c = copy.copy(f)
+
+        self.assertEqual(f.get_func_value("@fn1",f.formula),"sinh")
+            
     def assertDirty(self,f):
         self.assertEqual(f.dirty,True)
 

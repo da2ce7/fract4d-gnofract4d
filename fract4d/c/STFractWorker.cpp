@@ -388,7 +388,7 @@ STFractWorker::box(int x, int y, int rsize)
     int iter = im->getIter(x,y);
     int pcol = RGB2INT(y,x);
     
-    // calculate top and bottom of box + remember flatness
+    // calculate top and bottom of box & check for flatness
     for(int x2 = x; x2 < x + rsize; ++x2)
     {
         pixel(x2,y,1,1);
@@ -396,7 +396,7 @@ STFractWorker::box(int x, int y, int rsize)
         pixel(x2,y+rsize-1,1,1);        
         bFlat = isTheSame(bFlat,iter,pcol,x2,y+rsize-1);
     }
-    // calc left of next box over & check for flatness
+    // calc left and right of box & check for flatness
     for(int y2 = y; y2 <= y + rsize; ++y2)
     {
         pixel(x,y2,1,1);
@@ -420,7 +420,7 @@ STFractWorker::box(int x, int y, int rsize)
         for(int y2 = y + 1 ; y2 < y + rsize -1; ++y2)
         {
             row(x+1,y2,rsize-2);
-        }		
+        }
     }		
 }
 

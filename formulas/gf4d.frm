@@ -262,7 +262,7 @@ Buffalo {
 init:
 	z = #zwpixel
 loop:
-	z = (abs(real(z)),abs(imag(z)))
+	z = abs(z)
 	z = (z - 1.0) * z + #pixel
 bailout:
 	@bailfunc(z) < @bailout
@@ -290,7 +290,7 @@ Burning Ship {
 init:
 	z = #zwpixel
 loop:
-	z = (abs(real(z)),abs(imag(z)))
+	z = abs(z)
 	z = z*z + #pixel
 bailout: 
 	@bailfunc(z) < @bailout

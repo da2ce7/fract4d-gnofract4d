@@ -37,16 +37,20 @@ class SettingsDialog(dialog.T):
         self.create_angle_page()
         
     def create_location_page(self):
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = self.create_location_table()
         label = gtk.Label(_("_Location"))
         label.set_use_underline(True)
         self.notebook.append_page(table,label)
+        
+    def create_location_table(self):
+        table = gtk.Table(5,2,gtk.FALSE)
         self.create_param_entry(table,0,_("_X :"), self.f.XCENTER)
         self.create_param_entry(table,1,_("_Y :"), self.f.YCENTER)
         self.create_param_entry(table,2,_("_Z :"), self.f.ZCENTER)
         self.create_param_entry(table,3,_("_W :"), self.f.WCENTER)
         self.create_param_entry(table,4,_("_Size :"), self.f.MAGNITUDE)
-
+        return table
+    
     def create_general_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
         label = gtk.Label(_("_General"))
@@ -56,7 +60,8 @@ class SettingsDialog(dialog.T):
         table.attach(yflip_widget,0,2,0,1, gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         periodicity_widget = self.create_periodicity_widget()
-        table.attach(periodicity_widget,0,2,1,2, gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        table.attach(periodicity_widget,0,2,1,2,
+                     gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
     def create_angle_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
@@ -73,7 +78,9 @@ class SettingsDialog(dialog.T):
     def create_yflip_widget(self):
         widget = gtk.CheckButton(_("Flip Y Axis"))
         widget.set_use_underline(True)
-        self.tooltips.set_tip(widget,_("If set, Y axis increases down the screen, otherwise up the screen"))
+        self.tooltips.set_tip(
+            widget,
+            _("If set, Y axis increases down the screen, otherwise up the screen"))
         
         def set_widget(*args):
             widget.set_active(self.f.yflip)
@@ -90,7 +97,9 @@ class SettingsDialog(dialog.T):
     def create_periodicity_widget(self):
         widget = gtk.CheckButton(_("Periodicity Checking"))
         widget.set_use_underline(True)
-        self.tooltips.set_tip(widget,_("Try to speed up calculations by looking for loops. Can cause incorrect images with some functions, though."))
+        self.tooltips.set_tip(
+            widget,
+            _("Try to speed up calculations by looking for loops. Can cause incorrect images with some functions, though."))
         
         def set_widget(*args):
             widget.set_active(self.f.periodicity)

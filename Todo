@@ -7,9 +7,12 @@ preferences.py: 251
 Done in 2.6:
 
 * W	prefs dialog option to change number of threads
+* BBB	open parade.fct, go to outer, change density = gtk-ERROR
+* BB	overwriting files doesn't work
 
 todo:
 * B	opening browser should select current fractfile and formula
+* BB	resetting doesn't change bailout text in settings dialog
 * BB	settings dialog doesn't update - can't repro
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x

@@ -184,7 +184,9 @@ class MainWindow:
         f.connect('progress_changed', self.progress_changed)
         f.connect('status_changed',self.status_changed)
 
-        self.vbox.pack_start(window)
+        hbox = gtk.HBox()
+        hbox.pack_start(window)
+        self.vbox.pack_start(hbox)
 
     def draw(self):
         aa = preferences.userPrefs.getint("display","antialias")
@@ -673,7 +675,7 @@ class MainWindow:
 
             response = d.run()                
             d.destroy()
-            return response == gtk.RESPONSE_OK
+            return response == gtk.RESPONSE_ACCEPT
         else:
             return True
 
