@@ -79,11 +79,11 @@ class T(gobject.GObject):
         
         style.paint_box(widget.window, widget.state,
                         gtk.SHADOW_IN, r, widget, "",
-                        0, 0, w, h)
+                        0, 0, w-1, h-1)
 
         xc = w//2
         yc = h//2
-        radius = min(w,h)//2
+        radius = min(w,h)//2 -1
 
         context = widget.get_pango_context()
         layout = pango.Layout(context)

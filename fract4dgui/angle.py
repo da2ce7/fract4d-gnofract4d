@@ -46,6 +46,10 @@ class T(gobject.GObject):
         self.widget.connect('button_release_event', self.onButtonRelease)
         self.widget.connect('button_press_event', self.onButtonPress)
         self.widget.connect('expose_event',self.onExpose)
+
+    def set_value(self,val):
+        val = math.fmod(val + math.pi, 2.0 * math.pi) - math.pi
+        self.adjustment.set_value(val)
         
     def update_from_mouse(self,x,y):
         (w,h) = (self.widget.allocation.width, self.widget.allocation.height)
@@ -108,7 +112,7 @@ class T(gobject.GObject):
         
         xc = w//2
         yc = h//2
-        radius = min(w,h)//2
+        radius = min(w,h)//2 - 1
 
         # text
         context = widget.get_pango_context()
