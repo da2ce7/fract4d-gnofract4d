@@ -78,6 +78,7 @@ def createDefaultDict():
         "-":  efl("sub",   "[_,_] , _", [Int, Float, Complex, Color]),
         "^":  efl("pow",   "[_,_] , _", [Float, Complex]),
         "mag":[ Func([Complex], Float, stdlib, "mag")],
+        "neg": efl("neg", "[_], _", [Int, Float, Complex]),
         
         # unary negation already factored out
 

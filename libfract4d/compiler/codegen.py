@@ -370,7 +370,7 @@ return;
         s0 = t.children[0]
         src = self.generate_code(s0)
         op = self.findOp(t)
-        dst = op.genFunc(self, t, src)
+        dst = op.genFunc(self, t, [src])
         return dst
 
     def call(self,t):

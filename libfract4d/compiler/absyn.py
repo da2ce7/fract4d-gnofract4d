@@ -145,6 +145,9 @@ def ID(id,pos):
 def Mag(exp,pos):
     return Node("unop", pos, [exp], "mag")
 
+def Negate(exp,pos):
+    return Node("unop", pos, [exp], "neg")
+
 def String(s,list,pos):
     return Node("string", pos, list, s)
 

@@ -286,12 +286,11 @@ goto t__end_loop;''')
 
         asm = self.sourceToAsm('t_s2a_2{\ninit: a = -1.5\n}',"init")
         self.assertOutputMatch('''t__start_init:
-t__temp0 = ((double)0);
-t__temp1 = t__temp0 - 1.50000000000000000;
-t__temp2 = t__temp1;
-t__temp3 = 0.0;
-a_re = t__temp2;
-a_im = t__temp3;
+t__temp0 = -(1.50000000000000000);
+t__temp1 = t__temp0;
+t__temp2 = 0.0;
+a_re = t__temp1;
+a_im = t__temp2;
 goto t__end_init;''')
         
     def testSymbols(self):
@@ -403,9 +402,7 @@ goto t__end_init;''')
             [ "t_atanh = (atanh(0),atanh(0.5))","t_atanh", "(0,0.549306)" ],
 
             # trig functions on complex args
-            #[ "ct_ss = -(sin(0) * sinh(0),0)", "ct_ss", "(0,0)"],
-            # FIXME: Python and C++ say (1,-0), but C says (1,0)
-            [ "ct_cos1 = cos((0,0))","ct_cos1", "(1,0)"], 
+            [ "ct_cos1 = cos((0,0))","ct_cos1", "(1,-0)"], 
              
             ]
 

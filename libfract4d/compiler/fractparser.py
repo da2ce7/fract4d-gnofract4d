@@ -197,10 +197,9 @@ def p_exp_assign(t):
     'exp : ID ASSIGN exp'
     t[0] = absyn.Assign(t[1],t[3], t.lineno(2))
     
-# implement unary minus as 0 - n
 def p_exp_uminus(t):
     'exp : MINUS exp %prec UMINUS'
-    t[0] = absyn.Binop("-", absyn.Number("0",t.lineno(1)), t[2], t.lineno(1))
+    t[0] = absyn.Negate(t[2], t.lineno(1))
     
 #unary plus is a no-op
 def p_exp_uplus(t):
