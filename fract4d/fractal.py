@@ -670,6 +670,17 @@ class T(FctUtils):
         
         return weirdness * (random.random() - 0.5) * math.pi/2.0
 
+    def mutate_formula_params(self, weirdness, size, params, paramtypes):
+        for i in xrange(len(params)):
+            if paramtypes[i] == fracttypes.Float:
+                params[i] += self.zw_random(weirdness, size)
+            elif paramtypes[i] == fracttypes.Int:
+                # FIXME: need to be able to look up enum to find min/max
+                pass
+            elif paramtypes[i] == fracttypes.Bool:
+                if random.random() < weirdness * 0.2:
+                    params[i] = not params[i]
+        
     def mutate(self,weirdness,color_weirdness,colormaps):
         '''randomly adjust position, colors, angles and parameters.
         weirdness is between 0 and 1 - 0 is no change, 1 is lots'''
@@ -691,12 +702,12 @@ class T(FctUtils):
         if random.random() < weirdness * 0.75:
             self.params[self.MAGNITUDE] *= 1.0 + (0.5 - random.random())
 
-        for i in xrange(len(self.initparams)):
-            self.initparams[i] += self.zw_random(weirdness, size)
-
-        for i in xrange(len(self.cfunc_params[0])):
-            self.cfunc_params[0][i] += self.zw_random(color_weirdness, 1.0)
-
+        self.mutate_formula_params(weirdness, size, self.initparams, self.paramtypes)
+        self.mutate_formula_params(
+            color_weirdness, size, self.cfunc_params[0], self.cfunc_paramtypes[0])
+        self.mutate_formula_params(
+            color_weirdness, size, self.cfunc_params[1], self.cfunc_paramtypes[1])
+        
         if random.random() < color_weirdness * 0.3:
             self.set_cmap(random.choice(colormaps))
         

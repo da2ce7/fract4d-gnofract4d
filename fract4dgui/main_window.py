@@ -110,7 +110,6 @@ class MainWindow:
         self.update_image_prefs(preferences.userPrefs)
         
     def update_subfracts(self):
-        print "update subfracts"
         if not self.show_subfracts:
             return
 
@@ -128,7 +127,7 @@ class MainWindow:
                 maps)
             f.thaw()
             f.draw_image(aa,auto_deepen)
-        
+            
     def create_subfracts(self,f):
         self.subfracts = [ None ] * 12
         for i in xrange(12):
