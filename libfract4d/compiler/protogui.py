@@ -40,6 +40,7 @@ class MainWindow:
         drawing_area.set_colormap(c)
         drawing_area.set_size_request(640,480)
         drawing_area.connect('expose_event',self.expose)
+        drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK)
         
         self.window.add(drawing_area)
 
@@ -52,8 +53,13 @@ class MainWindow:
 
         gc = widget.get_style().white_gc
 
+        # FIXME should draw smaller chunks but buf interface makes that tricky
+        # FIXME remove hard-coded constants
         exposeEvent.window.draw_rgb_image(
-            gc, 0,0,640,480, #r.x,r.y,r.width,r.height,
+            gc,
+            0, 0,
+            640,
+            480,
             gtk.gdk.RGB_DITHER_NONE,
             buf,
             640*3)
