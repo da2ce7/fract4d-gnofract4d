@@ -16,7 +16,11 @@ init:
 loop:
 	z = z * z + #pixel
 bailout:
-	|z| <= 4
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 Mandelbar {
@@ -25,7 +29,11 @@ init:
 loop:
 	z = conj(z)^@p1 + #pixel
 bailout:
-	|z| <= 4
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 Quadratic {
@@ -34,7 +42,11 @@ init:
 loop:
 	z = (@p1 * z + @p2) * z + @p3 * #pixel
 bailout:
-	|z| <= 4
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 Cubic Mandelbrot {
@@ -43,14 +55,22 @@ init:
 loop:
 	z = z * z * (z - 3.0 * @p1) + #pixel
 bailout:
-	|z| <= 4
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 ManZPower {
 loop:
 	z = z^@p1 + #pixel
 bailout:
-	|z| <= 4
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 Barnsley Type 1 {
@@ -66,7 +86,11 @@ loop:
 		z = (x_cx + real(#pixel) - y_cy, y_cx + imag(#pixel) + x_cy)
 	endif
 bailout:
-	|z| <= 4
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 Barnsley Type 2 {
@@ -82,7 +106,11 @@ loop:
 		z = (x_cx + real(#pixel) - y_cy, y_cx + imag(#pixel) + x_cy)
 	endif
 bailout:
-	|z| < 4
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 Barnsley Type 3 {
@@ -98,7 +126,11 @@ loop:
 		     xy * 2.0 + imag(#pixel) * real(z))
 	endif
 bailout:
-	|z| < 4.0
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 Buffalo {
@@ -106,7 +138,11 @@ loop:
 	z = (abs(real(z)),abs(imag(z)))
 	z = (z - 1.0) * z + #pixel
 bailout:
-	|z| < 4.0
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }     
 		
 Burning Ship {
@@ -114,7 +150,11 @@ loop:
 	z = (abs(real(z)),abs(imag(z)))
 	z = z*z + #pixel
 bailout: 
-	|z| < 4.0
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 Cubic Burning Ship {
@@ -122,7 +162,7 @@ loop:
 	z = (abs(real(z)),abs(imag(z)))
 	z = z*z*z + #pixel
 bailout: 
-	|z| < 4.0
+	|z| < @bailout
 }
 
 Lambda {
@@ -130,7 +170,11 @@ loop:
 	t = z * (1.0 - z)
 	z = t * #pixel
 bailout:
-	|z| < 4.0
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 Magnet {
@@ -138,7 +182,11 @@ loop:
 	z = (z * z + #pixel - 1.0)/(2.0 * z + #pixel - 2.0)
 	z = z *z
 bailout:
-	|z| < 4.0
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 Magnet 2 {
@@ -149,7 +197,11 @@ loop:
 	z = z*z
 
 bailout:
-	|z| < 4.0
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 Newton {
@@ -176,7 +228,11 @@ Tetrate {
 loop:
 	z = #pixel^z
 bailout:
-	|z| < 4.0
+	|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 
@@ -192,29 +248,31 @@ T02-01-G4 {; Modified for Gf4d by EY
         ; T(1)  = x
         ;
         ; = 2zT01-T00
-  t=z, bailout=4, z=pixel:
+  t=z, z=pixel:
   x=real(z), y=imag(z)
   Tx=(x+x)*x-1
   Ty=(y+y)*y-1
   x=x-t*Ty, y=y+t*Tx
   z=x+flip(y)
-  |z|<=bailout
+  |z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 T03-01-G4 {; based on T03-01 in CHBY1.FRM by Morgan L. Owens
         ; Modified for Gf4D by EY
         ; = 2zT02-T01
-  t=z, bailout=4, z=pixel:
+  t=z, z=pixel:
   float x=real(z), float y=imag(z)
   float Tx=x*(4*x*x-3)
   float Ty=y*(4*y*y-3)
   cx=x-t*Ty, cy=y+t*Tx
   z=cx+flip(cy)
-  |z|<=bailout
+  |z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
-
-Richard1 (XYAXIS) {; Jm Collard-Richard
-  z = pixel:
-   sq=z*z, z=(sq*sin(sq)+sq)+pixel
-    |z|<=50
-  }
