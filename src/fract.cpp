@@ -20,13 +20,18 @@
 
 #include <stdlib.h>
 
-#include <gnome.h> // g_warning, mostly
+//#include <gnome.h> // g_warning, mostly
 #include "calc.h"
 #include "fractFunc.h"
 #include "iterFunc.h"
 
 #include <fstream>
 #include <queue>
+#include <cmath>
+
+#ifdef _WIN32
+#include "win_drand.h"
+#endif
 
 void 
 debug_precision(const d& s, char *location)
@@ -121,13 +126,13 @@ fractal::operator==(const fractal& f)
         if(params[i] != f.params[i]) return false;
     }
     if(maxiter != f.maxiter) return false;
-    if(*pIterFunc != *f.pIterFunc) return false;
+    if(!(*pIterFunc == *f.pIterFunc)) return false;
     if(antialias != f.antialias) return false;
     if(auto_deepen != f.auto_deepen) return false;
     if(digits != f.digits) return false;
     if(rot_by != f.rot_by) return false;
 
-    if(*cizer != *f.cizer) return false;
+    if(!(*cizer == *f.cizer)) return false;
     if(potential != f.potential) return false;
     if(bailout_type != f.bailout_type) return false;
     
@@ -141,22 +146,22 @@ fractal::set_fractal_type(int type)
     pIterFunc = iterFunc_new(type);
 }
 
-/* x & y vary by up to 50% of the size */
+/* x & y vary by up to 50% of the MAGNITUDE */
 
 static double
-xy_random(double weirdness, double size)
+xy_random(double weirdness, double MAGNITUDE)
 {
-    return weirdness * 0.5 * size * (drand48() - 0.5);
+    return weirdness * 0.5 * MAGNITUDE * (drand48() - 0.5);
 }
 
-/* z & w vary by up to 1.0 / log(size) 
-   small size = gradually diminishing changes 
+/* z & w vary by up to 1.0 / log(MAGNITUDE) 
+   small MAGNITUDE = gradually diminishing changes 
 */
 
 static double
-zw_random(double weirdness, double size)
+zw_random(double weirdness, double MAGNITUDE)
 {
-    double factor = fabs(1.0 - log(size)) + 1.0;
+    double factor = fabs(1.0 - log(MAGNITUDE)) + 1.0;
     return weirdness * (drand48() - 0.5 ) * 1.0 / factor;
 }
 
@@ -182,10 +187,10 @@ fractal::set_inexact(const fractal& f, double weirdness)
 {
     *this = f; // invoke op=
     
-    params[XCENTER] += xy_random(weirdness, params[SIZE]);
-    params[YCENTER] += xy_random(weirdness, params[SIZE]);
-    params[ZCENTER] += zw_random(weirdness, params[SIZE]);
-    params[WCENTER] += zw_random(weirdness, params[SIZE]);
+    params[XCENTER] += xy_random(weirdness, params[MAGNITUDE]);
+    params[YCENTER] += xy_random(weirdness, params[MAGNITUDE]);
+    params[ZCENTER] += zw_random(weirdness, params[MAGNITUDE]);
+    params[WCENTER] += zw_random(weirdness, params[MAGNITUDE]);
 
     for(int i = XYANGLE; i <= ZWANGLE ; i++)
     {	       
@@ -194,7 +199,7 @@ fractal::set_inexact(const fractal& f, double weirdness)
 	
     if(drand48() < weirdness * 0.75)
     {
-        params[SIZE] *= 1.0 + (0.5 - drand48());
+        params[MAGNITUDE] *= 1.0 + (0.5 - drand48());
     }
 }
 
@@ -210,7 +215,7 @@ fractal::reset()
     params[ZCENTER] = zero;
     params[WCENTER] = zero;
 	
-    params[SIZE] = four;
+    params[MAGNITUDE] = four;
     params[BAILOUT] = four;
     for(int i = XYANGLE; i < ZWANGLE+1; i++) {
         params[i] = zero;
@@ -336,8 +341,8 @@ fractal::set_precision(int digits)
     }
 
     debug_precision(params[XCENTER],"set precision:x");
-    g_print("new bits of precision: %d\n",float_digits(params[SIZE]));
-    if(float_digits(params[SIZE]) > 53)
+    g_print("new bits of precision: %d\n",float_digits(params[MAGNITUDE]));
+    if(float_digits(params[MAGNITUDE]) > 53)
     {
         fractal_type = 1;
     } else {
@@ -356,12 +361,12 @@ bool
 fractal::check_precision()
 {
     // assume image < 1024 pixels wide
-    d delta = (params[SIZE])/D_LIKE(1024.0,params[SIZE]);
+    d delta = (params[MAGNITUDE])/D_LIKE(1024.0,params[MAGNITUDE]);
 
-    debug_precision(params[SIZE],"check precision");
+    debug_precision(params[MAGNITUDE],"check precision");
 
 #ifdef HAVE_CLN
-    if (delta < float_epsilon(cl_float_format(params[SIZE]))*D_LIKE(10.0,params[SIZE])) { 
+    if (delta < float_epsilon(cl_float_format(params[MAGNITUDE]))*D_LIKE(10.0,params[MAGNITUDE])) { 
         g_print("increasing precision from %d\n",float_digits(delta)); 
         // float_digits gives bits of precision,
         // cl_float takes decimal digits. / by 3 should be safe?
@@ -371,7 +376,10 @@ fractal::check_precision()
 #else
     if ( delta < 1.0e-15)
     {
+		// FIXME this is hideous and user-hostile
+#ifndef _WIN32
         gtk_widget_show(gnome_warning_dialog(_("Sorry, max precision was reached, the image will become horrible !")));
+#endif
         return false;
     }	
 #endif
@@ -382,7 +390,7 @@ fractal::check_precision()
 bool 
 fractal::set_param(param_t pnum, const char *val)
 {
-    g_return_val_if_fail(pnum > -1 && pnum < N_PARAMS,false);
+    if(pnum < 0 || pnum >= N_PARAMS) return false;
     params[pnum] = A2D(val);
     return true;
 }
@@ -391,7 +399,7 @@ char *
 fractal::get_param(param_t pnum)
 {
     D2ADECL;
-    g_return_val_if_fail(pnum > -1 && pnum < N_PARAMS,NULL);
+    if(pnum < 0 || pnum >= N_PARAMS) return false;
     return D2A(params[pnum]);
 }
 
@@ -399,9 +407,9 @@ void
 fractal::update_matrix()
 {
     debug_precision(params[XYANGLE],"xyangle");
-    d one = D_LIKE(1.0,params[SIZE]);
-    d zero = D_LIKE(0.0, params[SIZE]);
-    dmat4 id = identity3D<d>(params[SIZE],zero);
+    d one = D_LIKE(1.0,params[MAGNITUDE]);
+    d zero = D_LIKE(0.0, params[MAGNITUDE]);
+    dmat4 id = identity3D<d>(params[MAGNITUDE],zero);
 
     debug_precision(id[VX][VY],"id 1");
 
@@ -440,8 +448,8 @@ fractal::relocate(double x, double y, double zoom)
     dvec4 deltax,deltay;
 
     // offset to clicked point from center
-    d dx = D_LIKE(x,params[SIZE]);
-    d dy = D_LIKE(y,params[SIZE]);  
+    d dx = D_LIKE(x,params[MAGNITUDE]);
+    d dy = D_LIKE(y,params[MAGNITUDE]);  
 
     update_matrix();
     deltax=rot[VX];
@@ -450,11 +458,11 @@ fractal::relocate(double x, double y, double zoom)
     debug_precision(deltax[VX],"relocate:deltax");
     recenter(dx *deltax + dy *deltay);
 
-    debug_precision(params[SIZE],"relocate 1");
+    debug_precision(params[MAGNITUDE],"relocate 1");
 
-    params[SIZE] /= D_LIKE(zoom,params[SIZE]);
+    params[MAGNITUDE] /= D_LIKE(zoom,params[MAGNITUDE]);
 
-    debug_precision(params[SIZE],"relocate 2");
+    debug_precision(params[MAGNITUDE],"relocate 2");
 
     check_precision();
 
@@ -465,8 +473,8 @@ fractal::flip2julia(double x, double y)
 {
     relocate(x,y,1.0);
 	
-    params[XZANGLE] += D_LIKE(rot_by,params[SIZE]);
-    params[YWANGLE] += D_LIKE(rot_by,params[SIZE]);
+    params[XZANGLE] += D_LIKE(rot_by,params[MAGNITUDE]);
+    params[YWANGLE] += D_LIKE(rot_by,params[MAGNITUDE]);
 
     rot_by = -rot_by;
 }
@@ -527,8 +535,7 @@ fractal::recolor(image *im)
             // fake scratch space
             scratch_space s= { 0.0 };
             rgb_t result = (*cizer)(im->iter_buf[i * width + j ], s, false);
-            char *ppixel = im->buffer + 3 * (i * width + j);
-            ppixel[0] = result.r; ppixel[1] = result.g; ppixel[2] = result.b;
+            im->put(i,j,result);
         }
     }
 }

@@ -2,6 +2,7 @@
 #include "iterFunc.h"
 
 #include <cstddef>
+#include <cmath>
 
 inline double MIN(double x, double y) { return x < y ? x : y; }
 inline double MAX(double x, double y) { return x > y ? x : y; }

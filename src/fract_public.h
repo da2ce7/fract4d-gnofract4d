@@ -21,7 +21,7 @@ typedef enum {
     YCENTER,
     ZCENTER,
     WCENTER,
-    SIZE,
+    MAGNITUDE,
     XYANGLE,
     XZANGLE,
     XWANGLE,

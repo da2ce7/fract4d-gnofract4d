@@ -20,12 +20,19 @@
 
 #ifndef _CALC_H_
 #define _CALC_H_
+
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #include "vectors.h"
 
 #include <string>
+#ifdef HAVE_SSTREAM
+#include <sstream>
+#elseif HAVE_STRSTREAM
 #include <strstream.h>
+#endif
 
 #ifdef HAVE_GMP
 #include "gmp.h"
@@ -42,9 +49,9 @@ typedef gmp::f d;
 #else
 typedef double d;
 
-#define D2ADECL 
+#define D2ADECL char buf[100];
 #define A2D(_x) atof(_x)
-#define D2A(_x) g_strdup_printf("%g",_x)
+#define D2A(_x) sprintf(buf,"%g",_x), strdup(buf)
 #define D(_x) (d)(_x)
 #define D_LIKE(_x,_y) (d)(_x)
 #define I2D_LIKE(_x,_y) (d)(_x)
@@ -56,5 +63,9 @@ typedef mat4<d> dmat4;
 
 
 void debug_precision(const d& s, char *location);
+
+#ifndef M_PI
+#define M_PI 3.1415926535897932384626433832795
+#endif
 
 #endif /* _CALC_H_ */

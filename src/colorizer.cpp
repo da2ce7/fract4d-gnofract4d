@@ -71,6 +71,7 @@ operator>>(std::istream& s, colorizer& cizer)
 }
 
 /* RGB subtype */
+const double rgb_colorizer::contrast = 10.0;
 
 e_colorizer
 rgb_colorizer::type() const
@@ -154,6 +155,7 @@ operator>>(std::istream& is, rgb_colorizer& cizer)
 }
 
 /* Color map subtype */
+const int cmap_colorizer::size = 256;
 
 cmap_colorizer::cmap_colorizer()
 {
@@ -253,7 +255,7 @@ cmap_colorizer::set_cmap_file(const char *filename)
         // the standard "is >>" because there may be junk at the
         // end of lines
         std::string line;
-        getline(cmapfile,line);
+		std::getline(cmapfile,line);
 		
         // use old class 'cos g++ *still* doesn't have <sstream>
         std::istrstream ss(line.c_str());

@@ -133,20 +133,20 @@ public:
 
 // friends
 
-	friend vec2 operator - <>(const vec2& v);			    // -v1
-	friend vec2 operator + <>(const vec2& a, const vec2& b);	    // v1 + v2
-	friend vec2 operator - <>(const vec2& a, const vec2& b);	    // v1 - v2
-	friend vec2 operator * <>(const vec2& a, const T& d);	    // v1 * 3.0
-	friend vec2 operator * <>(const T& d, const vec2& a);	    // 3.0 * v1
-	friend vec2 operator * <>(const mat3<T>& a, const vec2& v);	    // M . v
-	friend vec2 operator * <>(const vec2& v, mat3<T>& a);	    // v . M
-	friend T operator * <>(const vec2& a, const vec2& b);    // dot product
-	friend vec2 operator / <>(const vec2& a, const T& d);	    // v1 / 3.0
-	friend vec3<T> operator ^ <>(const vec2& a, const vec2& b);	    // cross product
-	friend bool operator == <>(const vec2& a, const vec2& b);	    // v1 == v2 ?
-	friend bool operator != <>(const vec2& a, const vec2& b);	    // v1 != v2 ?
-	friend void swap<>(vec2& a, vec2& b);			    // swap v1 & v2
-	friend vec2 prod<>(const vec2& a, const vec2& b);		    // term by term *
+	friend vec2 operator - (const vec2& v);			    // -v1
+	friend vec2 operator + (const vec2& a, const vec2& b);	    // v1 + v2
+	friend vec2 operator - (const vec2& a, const vec2& b);	    // v1 - v2
+	friend vec2 operator * (const vec2& a, const T& d);	    // v1 * 3.0
+	friend vec2 operator * (const T& d, const vec2& a);	    // 3.0 * v1
+	friend vec2 operator * (const mat3<T>& a, const vec2& v);	    // M . v
+	friend vec2 operator * (const vec2& v, mat3<T>& a);	    // v . M
+	friend T operator * (const vec2& a, const vec2& b);    // dot product
+	friend vec2 operator / (const vec2& a, const T& d);	    // v1 / 3.0
+	friend vec3<T> operator ^ (const vec2& a, const vec2& b);	    // cross product
+	friend bool operator == (const vec2& a, const vec2& b);	    // v1 == v2 ?
+	friend bool operator != (const vec2& a, const vec2& b);	    // v1 != v2 ?
+	friend void swap(vec2& a, vec2& b);			    // swap v1 & v2
+	friend vec2 prod(const vec2& a, const vec2& b);		    // term by term *
 
 // necessary friend declarations
 
@@ -311,21 +311,21 @@ public:
         // friends
 
 
-	friend vec3 operator - <>(const vec3& v);	            // -v1
+	friend vec3 operator - (const vec3& v);	            // -v1
 
-	friend vec3 operator + <>(const vec3& a, const vec3& b);    // v1 + v2
-	friend vec3 operator - <>(const vec3& a, const vec3& b);    // v1 - v2
-	friend vec3 operator * <>(const vec3& a, const T& d);	    // v1 * 3.0
-	friend vec3 operator * <>(const T& d, const vec3& a);	    // 3.0 * v1
-	friend vec3 operator * <>(const mat4<T>& a, const vec3& v); // M . v
-	friend vec3 operator * <>(const vec3& v, mat4<T>& a);	    // v . M
-	friend T operator * <>(const vec3& a, const vec3& b);       // dot product
-	friend vec3 operator / <>(const vec3& a, const T& d);	    // v1 / 3.0
-	friend vec3 operator ^ <>(const vec3& a, const vec3& b);    // cross product
-	friend bool operator == <>(const vec3& a, const vec3& b);   // v1 == v2 ?
-	friend bool operator != <>(const vec3& a, const vec3& b);   // v1 != v2 ?
-	friend void swap<>(vec3& a, vec3& b);			    // swap v1 & v2
-	friend vec3 prod<>(const vec3& a, const vec3& b);	    // term by term *
+	friend vec3 operator + (const vec3& a, const vec3& b);    // v1 + v2
+	friend vec3 operator - (const vec3& a, const vec3& b);    // v1 - v2
+	friend vec3 operator * (const vec3& a, const T& d);	    // v1 * 3.0
+	friend vec3 operator * (const T& d, const vec3& a);	    // 3.0 * v1
+	friend vec3 operator * (const mat4<T>& a, const vec3& v); // M . v
+	friend vec3 operator * (const vec3& v, mat4<T>& a);	    // v . M
+	friend T operator * (const vec3& a, const vec3& b);       // dot product
+	friend vec3 operator / (const vec3& a, const T& d);	    // v1 / 3.0
+	friend vec3 operator ^ (const vec3& a, const vec3& b);    // cross product
+	friend bool operator == (const vec3& a, const vec3& b);   // v1 == v2 ?
+	friend bool operator != (const vec3& a, const vec3& b);   // v1 != v2 ?
+	friend void swap(vec3& a, vec3& b);			    // swap v1 & v2
+	friend vec3 prod(const vec3& a, const vec3& b);	    // term by term *
 
         // necessary friend declarations
 
@@ -334,10 +334,10 @@ public:
 	friend class mat3<T>;
 
         // linear transform
-	friend vec2<T> operator * <>(const mat3<T>& a, const vec2<T>& v);
+	friend vec2<T> operator * (const mat3<T>& a, const vec2<T>& v);
 
 	// matrix 3 product
-	friend mat3<T> operator * <>(mat3<T>& a, mat3<T>& b);
+	friend mat3<T> operator * (mat3<T>& a, mat3<T>& b);
 
 };
 
@@ -489,26 +489,26 @@ public:
 
         // friends
 
-	friend vec4 operator - <>(const vec4& v);			    // -v1
-	friend vec4 operator + <>(const vec4& a, const vec4& b);	    // v1 + v2
-	friend vec4 operator - <>(const vec4& a, const vec4& b);	    // v1 - v2
-	friend vec4 operator * <>(const vec4& a, const T& d);	    // v1 * 3.0
-	friend vec4 operator * <>(const T& d, const vec4& a);	    // 3.0 * v1
-	friend vec4 operator * <>(const mat4<T>& a, const vec4& v);	    // M . v
-	friend vec4 operator * <>(const vec4& v, mat4<T>& a);	    // v . M
-	friend T operator * <>(const vec4& a, const vec4& b);    // dot product
-	friend vec4 operator / <>(const vec4& a, const T& d);	    // v1 / 3.0
-	friend bool operator == <>(const vec4& a, const vec4& b);	    // v1 == v2 ?
-	friend bool operator != <>(const vec4& a, const vec4& b);	    // v1 != v2 ?
-	friend void swap<>(vec4& a, vec4& b);			    // swap v1 & v2
-	friend vec4 prod<>(const vec4& a, const vec4& b);		    // term by term *
+	friend vec4 operator - (const vec4& v);			    // -v1
+	friend vec4 operator + (const vec4& a, const vec4& b);	    // v1 + v2
+	friend vec4 operator - (const vec4& a, const vec4& b);	    // v1 - v2
+	friend vec4 operator * (const vec4& a, const T& d);	    // v1 * 3.0
+	friend vec4 operator * (const T& d, const vec4& a);	    // 3.0 * v1
+	friend vec4 operator * (const mat4<T>& a, const vec4& v);	    // M . v
+	friend vec4 operator * (const vec4& v, mat4<T>& a);	    // v . M
+	friend T operator * (const vec4& a, const vec4& b);    // dot product
+	friend vec4 operator / (const vec4& a, const T& d);	    // v1 / 3.0
+	friend bool operator == (const vec4& a, const vec4& b);	    // v1 == v2 ?
+	friend bool operator != (const vec4& a, const vec4& b);	    // v1 != v2 ?
+	friend void swap(vec4& a, vec4& b);			    // swap v1 & v2
+	friend vec4 prod(const vec4& a, const vec4& b);		    // term by term *
 
         // necessary friend declarations
 
 	friend class vec3<T>;
 	friend class mat4<T>;
-	friend vec3<T> operator * <>(const mat4<T>& a, const vec3<T>& v);	    // linear transform
-	friend mat4<T> operator * <>(const mat4<T>& a, const mat4<T>& b);		    // matrix 4 product
+	friend vec3<T> operator * (const mat4<T>& a, const vec3<T>& v);	    // linear transform
+	friend mat4<T> operator * (const mat4<T>& a, const mat4<T>& b);		    // matrix 4 product
 };
 
 // vec4 friends
@@ -695,21 +695,21 @@ public:
 
         // friends
 
-	friend mat3 operator - <>(const mat3& a);			    // -m1
-	friend mat3 operator + <>(const mat3& a, const mat3& b);	    // m1 + m2
-	friend mat3 operator - <>(const mat3& a, const mat3& b);	    // m1 - m2
-	friend mat3 operator * <>(mat3& a, mat3& b);		    // m1 * m2
-	friend mat3 operator * <>(const mat3& a, const T&);	    // m1 * 3.0
-	friend mat3 operator * <>(const T&, const mat3& a);	    // 3.0 * m1
-	friend mat3 operator / <>(const mat3& a, const T& d);	    // m1 / 3.0
-	friend bool operator == <>(const mat3& a, const mat3& b);	    // m1 == m2 ?
-	friend bool operator != <>(const mat3& a, const mat3& b);	    // m1 != m2 ?
-	friend void swap<>(mat3& a, mat3& b);			    // swap m1 & m2
+	friend mat3 operator - (const mat3& a);			    // -m1
+	friend mat3 operator + (const mat3& a, const mat3& b);	    // m1 + m2
+	friend mat3 operator - (const mat3& a, const mat3& b);	    // m1 - m2
+	friend mat3 operator * (mat3& a, mat3& b);		    // m1 * m2
+	friend mat3 operator * (const mat3& a, const T&);	    // m1 * 3.0
+	friend mat3 operator * (const T&, const mat3& a);	    // 3.0 * m1
+	friend mat3 operator / (const mat3& a, const T& d);	    // m1 / 3.0
+	friend bool operator ==(const mat3& a, const mat3& b);	    // m1 == m2 ?
+	friend bool operator !=(const mat3& a, const mat3& b);	    // m1 != m2 ?
+	friend void swap(mat3& a, mat3& b);			    // swap m1 & m2
 	
         // necessary friend declarations
 	
-	friend vec3<T> operator * <>(const mat3& a, const vec3<T>& v);	    // linear transform
-	friend vec2<T> operator * <>(const mat3& a, const vec2<T>& v);	    // linear transform
+	friend vec3<T> operator * (const mat3& a, const vec3<T>& v);	    // linear transform
+	friend vec2<T> operator * (const mat3& a, const vec2<T>& v);	    // linear transform
 };
 
 
@@ -882,21 +882,21 @@ public:
 
         // friends
 
-	friend mat4 operator - <>(const mat4& a);			    // -m1
-	friend mat4 operator + <>(const mat4& a, const mat4& b);	    // m1 + m2
-	friend mat4 operator - <>(const mat4& a, const mat4& b);	    // m1 - m2
-	friend mat4 operator * <>(const mat4& a, const mat4& b);		    // m1 * m2
-	friend mat4 operator * <>(const mat4& a, const T& d);	    // m1 * 4.0
-	friend mat4 operator * <>(const T& d, const mat4& a);	    // 4.0 * m1
-	friend mat4 operator / <>(const mat4& a, const T& d);	    // m1 / 3.0
-	friend bool operator == <>(const mat4& a, const mat4& b);	    // m1 == m2 ?
-	friend bool operator != <>(const mat4& a, const mat4& b);	    // m1 != m2 ?
-	friend void swap<>(mat4& a, mat4& b);			    // swap m1 & m2
+	friend mat4 operator - (const mat4& a);			    // -m1
+	friend mat4 operator + (const mat4& a, const mat4& b);	    // m1 + m2
+	friend mat4 operator - (const mat4& a, const mat4& b);	    // m1 - m2
+	friend mat4 operator * (const mat4& a, const mat4& b);		    // m1 * m2
+	friend mat4 operator * (const mat4& a, const T& d);	    // m1 * 4.0
+	friend mat4 operator * (const T& d, const mat4& a);	    // 4.0 * m1
+	friend mat4 operator / (const mat4& a, const T& d);	    // m1 / 3.0
+	friend bool operator == (const mat4& a, const mat4& b);	    // m1 == m2 ?
+	friend bool operator != (const mat4& a, const mat4& b);	    // m1 != m2 ?
+	friend void swap(mat4& a, mat4& b);			    // swap m1 & m2
 	
         // necessary friend declarations
 	
-	friend vec4<T> operator * <>(const mat4& a, const vec4<T>& v);	    // linear transform
-	friend vec3<T> operator * <>(const mat4& a, const vec3<T>& v);	    // linear transform
+	friend vec4<T> operator * (const mat4& a, const vec4<T>& v);	    // linear transform
+	friend vec3<T> operator * (const mat4& a, const vec3<T>& v);	    // linear transform
 };
 
 // mat4 friends

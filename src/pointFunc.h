@@ -34,7 +34,7 @@ class pointFunc {
         // in params
         const dvec4& params, int nIters,
         // out params
-        struct rgb *color, int *nIters
+        struct rgb *color, int *pnIters
         ) = 0;
 };
 

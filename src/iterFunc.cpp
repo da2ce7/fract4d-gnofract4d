@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <iostream>
 #include <string>
+#include <cmath>
 
 #define IO_DECLS(className) \
     friend std::ostream& operator<<(std::ostream& s, const className& m); \

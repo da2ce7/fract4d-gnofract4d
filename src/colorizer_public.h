@@ -1,7 +1,7 @@
 #ifndef _COLORIZER_PUBLIC_H_
 #define _COLORIZER_PUBLIC_H_
 
-typedef struct colorizer colorizer_t;
+typedef class colorizer colorizer_t;
 typedef struct rgb rgb_t;
 
 struct rgb

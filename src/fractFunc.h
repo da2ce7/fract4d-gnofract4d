@@ -2,7 +2,7 @@
 #define _FRACTFUNC_H_
 
 // opaque declaration
-typedef struct _Gf4dFractal Gf4dFractal;
+class Gf4dFractal;
 
 #include "fract_callbacks.h"
 #include "fract.h"

@@ -52,11 +52,8 @@ fractFunc::rectangle(struct rgb pixel, int x, int y, int w, int h)
 {
     for(int i = y ; i < y+h; i++)
     {
-        char *tmp = im->buffer  + (i * im->Xres + x )*3;
         for(int j = x; j < x+w; j++) {
-            *tmp++=pixel.r;
-            *tmp++=pixel.g;
-            *tmp++=pixel.b;
+            im->put(j,i,pixel);
         }
     }
 }
@@ -227,10 +224,8 @@ void fractFunc::draw_aa()
 
 inline int fractFunc::RGB2INT(int y, int x)
 {
-    char *p = im->buffer + (y*im->Xres + x)*3;
-    int ret = *p++ << 16;
-    ret |= *p++ << 8;
-    ret |= *p;
+    rgb_t pixel = im->get(x,y);
+	int ret = (pixel.r << 16) | (pixel.g << 8) | pixel.b;
     return ret;
 }
 

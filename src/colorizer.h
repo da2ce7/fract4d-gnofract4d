@@ -21,8 +21,8 @@ class colorizer {
     virtual e_colorizer type(void) const = 0;
     virtual rgb_t operator()(int iter, scratch_space scratch, bool potential) const = 0;
 
-    virtual ostream& put(ostream&) const = 0;
-    virtual istream& get(istream&) = 0;
+    virtual std::ostream& put(std::ostream&) const = 0;
+    virtual std::istream& get(std::istream&) = 0;
     virtual bool operator==(const colorizer&) const = 0;
 };
 
@@ -35,7 +35,7 @@ class rgb_colorizer : public colorizer{
     double r, g, b;
 	
  private:
-    static const double contrast = 10.0;
+    static const double contrast;
     double cr, cg, cb;
  public:
     rgb_colorizer(void);
@@ -48,10 +48,10 @@ class rgb_colorizer : public colorizer{
     rgb_t operator()(int iter, scratch_space scratch, bool potential) const;
     bool operator==(const colorizer&) const;
 
-    friend ostream& operator<<(ostream&, const rgb_colorizer&);
-    friend istream& operator>>(istream&, rgb_colorizer&);
-    ostream& put(ostream& s) const { return s << *this; };
-    istream& get(istream& s) { return s >> *this; };
+    friend std::ostream& operator<<(std::ostream&, const rgb_colorizer&);
+    friend std::istream& operator>>(std::istream&, rgb_colorizer&);
+	std::ostream& put(std::ostream& s) const { return s << *this; };
+	std::istream& get(std::istream& s) { return s >> *this; };
 
 
     // not shared with colorizer
@@ -60,7 +60,7 @@ class rgb_colorizer : public colorizer{
 
 class cmap_colorizer : public colorizer {
  public:
-    static const int size = 256;
+    static const int size;
  public:
     rgb_t *cmap;
     std::string name;
@@ -75,10 +75,10 @@ class cmap_colorizer : public colorizer {
 
     e_colorizer type() const;
     rgb_t operator()(int iter, scratch_space scratch, bool potential) const;
-    friend ostream& operator<<(ostream&, const cmap_colorizer&);
-    friend istream& operator>>(istream&, cmap_colorizer&);
-    ostream& put(ostream& s) const { return s << *this; };
-    istream& get(istream& s) { return s >> *this; };
+    friend std::ostream& operator<<(std::ostream&, const cmap_colorizer&);
+    friend std::istream& operator>>(std::istream&, cmap_colorizer&);
+	std::ostream& put(std::ostream& s) const { return s << *this; };
+	std::istream& get(std::istream& s) { return s >> *this; };
 	
     // not shared with colorizer
     // FIXME: should return a status indication or throw
