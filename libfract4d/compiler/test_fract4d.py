@@ -10,22 +10,31 @@ sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4d
 
 class FractalSite:
+    def __init__(self):
+        self.status_list = []
+        self.progress_list = []
+        self.parameters_times = 0
+        self.image_list = []
+        
     def status_changed(self,val):
-        print "status: %d" % val
-
+        #print "status: %d" % val
+        self.status_list.append(val)
+        
     def progress_changed(self,d):
-        print "progress:", d
-        #print "progress: %g" % d
+        #print "progress:", d
+        self.progress_list.append(d)
 
     def is_interrupted(self):
         return False
 
     def parameters_changed(self):
-        print "params changed"
-
-    def image_changed(self,x1,x2,y1,y2):
-        print "image: %d %d %d %d" %  (x1, x2, y1, y2)
-
+        #print "params changed"
+        self.parameters_times += 1
+        
+    def image_changed(self,x1,y1,x2,y2):
+        #print "image: %d %d %d %d" %  (x1, x2, y1, y2)
+        self.image_list.append((x1,y1,x2,y2))
+        
 class PfTest(unittest.TestCase):
 
     def compileMandel(self):
@@ -96,7 +105,14 @@ class PfTest(unittest.TestCase):
             image,
             site)
 
-        
+        self.failUnless(siteobj.progress_list[-1]== 0.0 and \
+                         siteobj.progress_list[-2]== 1.0)
+
+        self.failUnless(siteobj.image_list[-1]==(0,0,40,30))
+
+        self.failUnless(siteobj.status_list[0]== 1 and \
+                         siteobj.status_list[-1]== 0)
+
     def disabled_testWithColors(self):
         self.compileMandel()
         self.compiler.load_formula_file("./gf4d.cfrm")
