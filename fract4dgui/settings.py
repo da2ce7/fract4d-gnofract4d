@@ -208,7 +208,13 @@ class SettingsDialog(gtk.Dialog):
         label.set_mnemonic_widget(entry)
         
         def set_entry(f):
-            entry.set_text("%.17f" % f.get_param(param))
+            try:
+                current = float(entry.get_text())
+                if current != f.get_param(param):
+                    entry.set_text("%.17f" % f.get_param(param)) 
+            except ValueError, err:
+                # set to something that isn't a float
+                entry.set_text("%.17f" % f.get_param(param))
 
         def set_fractal(*args):
             self.f.set_param(param,entry.get_text())
