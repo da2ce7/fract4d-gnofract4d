@@ -368,6 +368,7 @@ goto t__end_finit;''')
         final:
         #index = log(d+1.0) + 3.0
         }''',"cf0")
+        
         cg_cf0 = codegen.T(tcf0.symbols)
         cg_cf0.output_all(tcf0)
 
@@ -396,6 +397,7 @@ goto t__end_finit;''')
             }
         
         c_code = self.codegen.output_c(t,inserts)
+        
         output = self.compileAndRun(c_code)
         self.assertEqual(["(0,0,3)", "(20,1,789.1)"],output.split("\n"))
 

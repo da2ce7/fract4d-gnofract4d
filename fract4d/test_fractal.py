@@ -277,7 +277,7 @@ colorlist=[
         f.formula.merge(f.cfuncs[1],"cf1_")        
 
         p2 = f.formula.symbols.parameters()
-        self.assertEqual(len(p2),4) # 2 x bailout, bailfunc, size
+        self.assertEqual(len(p2),6) # 2 x bailout, bailfunc, size, 2x transfer
         self.assertEqual(p2["t__a_bailout"].cname, "t__a_fbailout")
         self.assertEqual(p2["t__a_cf0bailout"].cname, "t__a_cf0bailout") 
 

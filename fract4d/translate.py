@@ -709,6 +709,16 @@ class ColorFunc(TBase):
 
         self.post_init()
 
+    def final(self,f):
+        TBase.final(self,f)
+        # append [#index = @transfer(#index)]
+        transfer = Stmlist(
+            "", [ Assign(
+            ID("#index",-1),
+            Funcall("@transfer",[ID("#index",-1)],-1),
+            -1)], -1)
+        TBase.final(self,transfer)
+        
     def main(self,f):
         if f.children[0].type == "error":
             self.error(f.children[0].leaf)

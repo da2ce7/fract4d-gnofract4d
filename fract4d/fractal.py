@@ -524,7 +524,7 @@ class T(FctUtils):
             raise ValueError("no such colorfunc: %s:%s" % (funcfile, funcname))
         if func.errors != []:
             raise ValueError("Invalid colorfunc '%s':\n%s" % \
-                             funcname,"\n".join(func.errors))
+                             (funcname,"\n".join(func.errors)))
         
         self.cfuncs[index] = func
         self.cfunc_files[index] = funcfile

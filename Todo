@@ -1,6 +1,14 @@
-todo for 2.0
-
-* WW	doc
+todo for 2.1
+* WW	cmap browser
+* WW	cmap editor - brightness/contrast/gamma/HSV/RGB
+* B	opening color browser sometimes applies 1st item
+* W	drop-down resolution chooser
+* W	logmap
+* W	periodicity
+* B	fractint doesn't reset vars between calls
+* B	parse continuation lines correctly
+* W	fmod, tdis, bof60, bof61, other fractint colorfuncs
+* BB	changing inner colormap modifies outer one
 
 UI improvements 
 * BB	more robust error reporting
@@ -16,10 +24,6 @@ UI improvements
 * W	recently-used files
 * W	angles in degrees?
 * W	connect identically-named params in different parts of formula
-
-1.9 features:
-* WW	cmap browser
-* B	opening color browser sometimes applies 1st item
 
 Math weirdness:
 * B	untitled_5 displays weirdly - 
@@ -51,12 +55,10 @@ differences from fractint:
 	function, not ident()
 * B	fn(z)+c: acos, acosh - think Fractint may be wrong
 * B	fn(z*z)+c : acos, acosh 
-* B	fractint doesn't reset vars between calls
-* B	parse continuation lines correctly
-* W	fmod, tdis, bof60, bof61, other fractint colorfuncs
 * W	fractint-builtins.frm
 
 done:
+* WW	doc
 * W	command-line arguments
 * W	add some more built-in types
 * W	Browser: remember selected formula on compile
@@ -167,8 +169,6 @@ postponed
 * W	autosave/restore?
 * W	max size for .so cache
 * W	diff bailout for other types
-* W	logmap
-* W	periodicity
 * B	interrupt takes too long on deep-zoomed fractals
 * W	signal tpool conds after releasing mutex?
 * W	associate with file type?
