@@ -246,6 +246,7 @@ int t__h_solid = 0;
 
 /* variable declarations */
 %(decls)s
+%(decl_period)s
 int t__h_numiter = 0;
 %(init)s
 t__end_finit:
@@ -253,6 +254,7 @@ t__end_finit:
 t__end_cf0init:
 %(cf1_init)s
 t__end_cf1init:
+%(init_period)s
 do
 {
     %(loop)s
@@ -262,6 +264,7 @@ do
     t__end_fbailout:
     %(bailout_inserts)s
     if(!%(bailout_var)s) break;
+    %(check_period)s   
     %(cf0_loop)s
     t__end_cf0loop:
     %(cf1_loop)s
@@ -521,6 +524,34 @@ extern pf_obj *pf_new(void);
             
         inserts["bailout_var"] = bailout_var
         inserts["pf"] = self.pf_header
+        # can only do periodicity if formula uses z
+        if self.symbols.data.has_key("z"):
+            inserts["decl_period"] = '''
+                double old_z_re;
+                double old_z_im;
+                int period_iters = 0;
+                int k=1,m=1;'''
+            inserts["init_period"] = '''
+                old_z_re = z_re;
+                old_z_im = z_im;'''
+
+            inserts["check_period"] = '''
+                if ((fabs(z_re - old_z_re) < t__pfo->period_tolerance) &&
+                    (fabs(z_im - old_z_im) < t__pfo->period_tolerance))
+                {
+                    period_iters = t__h_numiter;
+                    t__h_numiter = maxiter; break;
+                }
+                if(--k == 0)
+                {
+                    old_z_re = z_re;
+                    old_z_im = z_im;
+                    m *= 2;
+                    k = m;
+                }'''
+        else:
+            pass #print "no z"
+            
         f = Formatter(self,t,inserts)
         if output_template == None:
             output_template = self.output_template
