@@ -21,10 +21,6 @@ precedence = (
 def p_file(t):
      'file : formlist'
      t[0] = absyn.Formlist(t[1])
-
-def p_bad_file(t):
-     'file : error'
-     t[0] = absyn.Formlist([])
      
 def p_formlist(t):
      'formlist : formula NEWLINE formlist'
@@ -72,19 +68,17 @@ def p_sectlist_empty(t):
      t[0] = [] # absyn.Empty() ]
 
 def p_section_set(t):
-     'section : SECT_SET NEWLINE setlist'
+     '''section : SECT_SET NEWLINE setlist
+     section : SECT_SET COMMA setlist'''
      t[0] = absyn.Setlist(t[1],t[3])
 
 def p_setlist_set(t):
      'setlist : set'
-     if t[1].type == "empty":
-          t[0] = []
-     else:
-          t[0] = [ t[1] ]
+     t[0] = listify(t[1])
 
 def p_setlist_2(t):
      'setlist : set NEWLINE setlist'
-     t[0] = [t[1]] + t[3]
+     t[0] = listify(t[1]) + t[3]
 
 def p_set_exp(t):
      'set : ID ASSIGN exp'     
@@ -116,31 +110,34 @@ def p_set_typed_param(t):
 
 def p_set_func(t):
      'set : FUNC ID NEWLINE setlist ENDFUNC'
-     t[0] = absyn.Func(t[2],t[4])
+     t[0] = absyn.Func(t[2],t[4],"complex")
+
+def p_set_typed_func(t):
+     'set : TYPE FUNC ID NEWLINE setlist ENDFUNC'
+     t[0] = absyn.Func(t[3],t[5],t[1])
 
 def p_set_heading(t):
      'set : HEADING NEWLINE setlist ENDHEADING'
      t[0] = absyn.Heading(t[3])
      
-def p_section_stm(t):
-     'section : SECT_STM NEWLINE stmlist'
-     t[0] = absyn.Stmlist(t[1],t[3])
-
 def p_section_stm_2(t):
      'section : SECT_STM stmlist'
      t[0] = absyn.Stmlist(t[1],t[2])
 
+def listify(stm):
+    if stm.type == "empty":
+         return []
+    else:
+         return [ stm ]
+ 
 def p_stmlist_stm(t):
     'stmlist : stm'
-    if t[1].type == "empty":
-         t[0] = []
-    else:
-         t[0] = [ t[1] ]
-
+    t[0] = listify(t[1])
+    
 def p_stmlist_2(t):
     '''stmlist : stm NEWLINE stmlist
        stmlist : stm COMMA stmlist'''
-    t[0] = [t[1]] + t[3]
+    t[0] = listify(t[1]) + t[3]
 
 def p_stm_exp(t):
     'stm : exp'
@@ -157,11 +154,11 @@ def p_empty(t):
 def p_stm_decl(t):
     'stm : TYPE ID'
     t[0] = absyn.Decl(t[1], t[2])
-
-def p_stm_decl_assign(t):
-    'stm : TYPE ID ASSIGN exp'
+    
+def p_stm_assign(t):
+    'stm : TYPE ID ASSIGN stm'
     t[0] = absyn.Decl(t[1],t[2],t[4])
-
+    
 def p_stm_repeat(t):
     'stm : REPEAT NEWLINE stmlist UNTIL exp'
     t[0] = absyn.Repeat(t[3],t[5])
@@ -175,8 +172,13 @@ def p_stm_if(t):
     t[0] = t[2]
 
 def p_ifbody(t):
-    'ifbody : exp NEWLINE stmlist'
+    '''ifbody : exp NEWLINE stmlist'''
     t[0] = absyn.If(t[1],t[3],[absyn.Empty()])
+
+def p_sep(t):
+    '''sep : NEWLINE
+       sep : COMMA'''
+    t[0] = t[1]
     
 def p_ifbody_else(t):
     'ifbody : exp NEWLINE stmlist ELSE NEWLINE stmlist'
@@ -204,11 +206,6 @@ def p_exp_binop(t):
        '''
     t[0] = absyn.Binop(t[2],t[1],t[3])
 
-# allow 2+\n 3
-# def p_exp_pre_nl(t):
-#     'exp : NEWLINE exp'
-#     t[0] = t[2]
-
 def p_exp_assign(t):
     'exp : ID ASSIGN exp'
     t[0] = absyn.Assign(t[1],t[3])
@@ -217,7 +214,12 @@ def p_exp_assign(t):
 def p_exp_uminus(t):
     'exp : MINUS exp %prec UMINUS'
     t[0] = absyn.Binop("-", absyn.Number(0),t[2])
-
+    
+#unary plus is a no-op
+def p_exp_uplus(t):
+    'exp : PLUS exp %prec UMINUS'
+    t[0] = t[2]
+    
 def p_exp_mag(t):
     'exp : MAG exp MAG'
     t[0] = absyn.Mag(t[2])
@@ -230,7 +232,6 @@ def p_exp_num(t):
     'exp : NUMBER'
     t[0] = absyn.Number(t[1])
 
-     
 def p_exp_boolconst(t):
     'exp : CONST'
     t[0] = absyn.Const(t[1])
