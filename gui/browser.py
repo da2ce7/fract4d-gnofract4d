@@ -31,6 +31,7 @@ class BrowserDialog(gtk.Dialog):
 
         self.f = f
         self.compiler = f.compiler
+        self.current_fname = None
         
         #self.accelgroup = gtk.AccelGroup()
         #self.window.add_accel_group(self.accelgroup)
@@ -72,10 +73,12 @@ class BrowserDialog(gtk.Dialog):
             self.file_list.set (iter, 0, fname)
 
     def populate_formula_list(self,fname):
+        self.formula_list.clear()
+        
         ff = self.compiler.files[fname]
 
         form_names = ff.formulas.keys()
-        form_names.sort()
+        form_names.sort()        
         for formula_name in form_names:
             iter = self.formula_list.append()
             self.formula_list.set(iter,0,formula_name)
@@ -94,8 +97,18 @@ class BrowserDialog(gtk.Dialog):
         self.treeview.append_column (column)
 
         selection = self.treeview.get_selection()
-        selection.connect('changed',self.selection_changed)
+        selection.connect('changed',self.formula_selection_changed)
         return sw
+
+    def create_scrolled_textview(self):
+        sw = gtk.ScrolledWindow ()
+        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
+        sw.set_policy (gtk.POLICY_NEVER,
+                       gtk.POLICY_AUTOMATIC)
+
+        textview = gtk.TextView()
+        sw.add(textview)
+        return (textview,sw)
     
     def create_panes(self):
         # 3 panes: files, formulas, formula contents
@@ -117,49 +130,55 @@ class BrowserDialog(gtk.Dialog):
         notebook = gtk.Notebook()
 
         # source
-        self.sourcetext = gtk.TextView()
-        notebook.append_page(self.sourcetext, gtk.Label('Source'))
+        (self.sourcetext,sw) = self.create_scrolled_textview()
+        notebook.append_page(sw, gtk.Label('Source'))
         
         # parse tree
-        self.text = gtk.TextView()
-        notebook.append_page(self.text, gtk.Label('Parse Tree'))
+        (self.text,sw) = self.create_scrolled_textview()
+        notebook.append_page(sw, gtk.Label('Parse Tree'))
 
         # translated tree
-        self.transtext = gtk.TextView()
-        notebook.append_page(self.transtext, gtk.Label('IR Tree'))
+        (self.transtext,sw) = self.create_scrolled_textview()
+        notebook.append_page(sw, gtk.Label('IR Tree'))
 
         # messages
-        self.msgtext = gtk.TextView()
-        notebook.append_page(self.msgtext, gtk.Label('Messages'))
+        (self.msgtext, sw) = self.create_scrolled_textview()
+        notebook.append_page(sw, gtk.Label('Messages'))
 
         # asm
-        self.asmtext = gtk.TextView()
-        notebook.append_page(self.asmtext, gtk.Label('Generated Code'))
+        #(self.asmtext, sw) = self.create_scrolled_textview()
+        #notebook.append_page(sw, gtk.Label('Generated Code'))
         
         panes1.add2(notebook)
 
     def file_selection_changed(self,selection):
         (model,iter) = selection.get_selected()
-        fname = model.get_value(iter,0)
-        self.populate_formula_list(fname)
-        
-    def selection_changed(self,selection):
-        (model,iter) = selection.get_selected()
-        title = model.get_value(iter,0)
-        file = model.get_value(iter,1)
-        formula = self.compiler.get_formula(file,title)
+        self.current_fname = model.get_value(iter,0)
+        text = self.compiler.files[self.current_fname].contents
+        self.sourcetext.get_buffer().set_text(text,-1)
+        self.populate_formula_list(self.current_fname)
 
+    def formula_selection_changed(self,selection):
+        (model,iter) = selection.get_selected()
+        if iter == None:
+            print "no formula"
+            return
+        
+        form_name = model.get_value(iter,0)
+        file = self.current_fname
+        formula = self.compiler.get_parsetree(file,form_name)
+        
         # update parse tree
-        #buffer = self.text.get_buffer()
-        #buffer.set_text(formula.pretty(),-1)
+        buffer = self.text.get_buffer()
+        buffer.set_text(formula.pretty(),-1)
 
         #update location of source buffer
-        #sourcebuffer = self.sourcetext.get_buffer()
-        #iter = sourcebuffer.get_iter_at_line(formula.pos-1)
-        #self.sourcetext.scroll_to_iter(iter,0.0,gtk.TRUE,0.0,0.0)
+        sourcebuffer = self.sourcetext.get_buffer()
+        iter = sourcebuffer.get_iter_at_line(formula.pos-1)
+        self.sourcetext.scroll_to_iter(iter,0.0,gtk.TRUE,0.0,0.0)
 
         # update IR tree
-        self.ir = formula
+        self.ir = self.compiler.get_formula(file,form_name)
         irbuffer = self.transtext.get_buffer()
         irbuffer.set_text(self.ir.pretty(),-1)
         
@@ -175,10 +194,10 @@ class BrowserDialog(gtk.Dialog):
             
         buffer.set_text(msg,-1)
 
-        self.compiler.generate_code(formula,"browser-tmp.c")
+        #self.compiler.generate_code(formula,"browser-tmp.c")
         
-        buffer = self.asmtext.get_buffer()
-        buffer.set_text(self.compiler.c_code,-1)
+        #buffer = self.asmtext.get_buffer()
+        #buffer.set_text(self.compiler.c_code,-1)
         
     def open(self,action,widget):
         fs = gtk.FileSelection("Open Formula File")
@@ -195,8 +214,6 @@ class BrowserDialog(gtk.Dialog):
             iter = self.formula_list.append ()
             self.formula_list.set (iter, 0, formula)
 
-        text = ff.contents
-        self.sourcetext.get_buffer().set_text(text,-1)
                 
     def display_file(self,ff,name):
         for formula in ff.formulas:
