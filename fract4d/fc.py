@@ -145,6 +145,14 @@ class Compiler:
             #print "Error parsing '%s' : %s" % (filename, err)
             raise
 
+    def out_of_date(self,filename):
+        basefile = os.path.basename(filename)
+        ff = self.files.get(basefile)
+        if not ff:            
+            self.load_formula_file(filename)
+            ff = self.files.get(basefile)
+        return ff.out_of_date()
+    
     def get_file(self,filename):
         basefile = os.path.basename(filename)
         ff = self.files.get(basefile)
