@@ -39,6 +39,7 @@ class Compiler:
         self.parser = fractparser.parser
         self.lexer = fractlexer.lexer
         self.files = {}
+        self.c_code = ""
         
     def load_formula_file(self, filename):
         try:
@@ -59,9 +60,9 @@ class Compiler:
     def generate_code(self,ir,outputfile):
         cg = codegen.T(ir.symbols)
         cg.output_all(ir, {"z" : "", "pixel" : ""})
-        c_code = cg.output_c(ir)
-
-        cFileName = cg.writeToTempFile(c_code,".c")
+        self.c_code = cg.output_c(ir)
+        
+        cFileName = cg.writeToTempFile(self.c_code,".c")
         #print c_code
         cmd = "gcc -Wall -fPIC -dPIC -O3 -shared %s -o %s -lm" % \
               (cFileName, outputfile)
@@ -83,6 +84,26 @@ def usage():
     print "FC : a compiler from Fractint .frm files to C code"
     print "fc.py -o [outfile] -f [formula] infile"
     sys.exit(1)
+
+def generate(fc,formulafile, formula, outputfile):
+    # find the function we want
+    ir = fc.get_formula(formulafile,formula)
+    if ir == None:
+        print "Can't find formula %s in %s" % \
+              (formula, formulafile)
+        sys.exit(1)
+
+    if ir.errors != []:
+        print "Errors during translation"
+        for e in ir.errors:
+            print e
+        sys.exit(1)
+
+    try:
+        fc.generate_code(ir, outputfile)
+    except fracttypes.TranslationError, err:
+        print err
+        sys.exit(1)
 
 def main():
     fc = Compiler()
@@ -108,24 +129,12 @@ def main():
         fc.load_formula_file(args[0])
     except IOError, err:
         sys.exit(1)
-            
-    # find the function we want
-    ir = fc.get_formula(formulafile,formula)
-    if ir == None:
-        print "Can't find formula %s in %s" % \
-              (formula, formulafile)
-        sys.exit(1)
 
-    if ir.errors != []:
-        print "Errors during translation"
-        for e in ir.errors:
-            print e
-        sys.exit(1)
-
-    try:
-        fc.generate_code(ir, outputfile)
-    except TranslationError, err:
-        print err
-        sys.exit(1)
-
+    if formula == "*":
+        for formula in fc.files[os.path.basename(formulafile)].formulas.keys():
+            print "%s:%s" % (formulafile, formula)
+            generate(fc,formulafile,formula,outputfile)
+    else:
+        generate(fc,formulafile,formula,outputfile)
+    
 if __name__ =='__main__': main()

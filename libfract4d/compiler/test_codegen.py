@@ -365,6 +365,12 @@ goto t__end_init;''')
                          self.inspect_complex("y"),
                          "x = (2,1)\ny = (3,1)")
 
+        src = 't_c7{\ninit: complex x = (2,1), y = -x\n}'
+        self.assertCSays(src,"init",
+                         self.inspect_complex("x") +
+                         self.inspect_complex("y"),
+                         "x = (2,1)\ny = (-2,-1)")
+
         src = '''t_c_if{
         init:
         int x = 1

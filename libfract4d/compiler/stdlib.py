@@ -18,8 +18,8 @@ neg_f_f = neg_i_i
 
 def neg_c_c(gen,t,srcs):
     return ComplexArg(
-        neg_i_i(gen,t,[srcs[0].re]),
-        neg_i_i(gen,t,[srcs[0].im]))
+        gen.emit_func('-', [srcs[0].re], Float),
+        gen.emit_func('-', [srcs[0].im], Float))
 
 # basic binary operation
 def add_ff_f(gen,t,srcs):
