@@ -14,6 +14,8 @@ import fc
 sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4d
 
+import settings
+
 #gtk.gdk.threads_init()
 
 # centralized to speed up tests
@@ -44,24 +46,31 @@ class Threaded(fractal.T):
             ]
 
         self.skip_updates = False
+        self.running = False
 
     def interrupt(self):
+        if self.skip_updates:
+            print "skip recursive interrupt"
+            return
+        
+        self.skip_updates = True
+        
         print "interrupt"
         fract4d.interrupt(self.site)
-        self.skip_updates = True
 
         n = 0
         # wait for stream from worker to flush
         while self.running:
             n += 1
             gtk.main_iteration(True)
+
+        self.skip_updates = False
         
     def draw(self,image):
         self.cmap = fract4d.cmap_create(self.colorlist)
         
         fract4d.pf_init(self.pfunc,0.001,self.initparams)
 
-        self.skip_updates = False
         self.running = True
         fract4d.async_calc(self.params,self.antialias,self.maxiter,1,
                            self.pfunc,self.cmap,1,image,self.site)
@@ -93,11 +102,19 @@ class Threaded(fractal.T):
         else:
             raise Exception("Unknown message from fractal thread")
 
-class GuiFractal(Threaded):
+class GuiFractal(Threaded,gobject.GObject):
+    __gsignals__ = {
+        'parameters-changed' : (
+        (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
+        gobject.TYPE_NONE, ())
+        }
+
     def __init__(self,comp):
         Threaded.__init__(self,comp)
         gtk.input_add(self.readfd, gtk.gdk.INPUT_READ, self.onData)
 
+        gobject.GObject.__init__(self)
+            
         self.width = 640
         self.height = 480
         self.image = fract4d.image_create(self.width,self.height)
@@ -115,10 +132,21 @@ class GuiFractal(Threaded):
         self.widget = drawing_area
         self.compile()
         
-    def draw_image(self,dummy):
+    def draw_image(self):
+        self.interrupt()
         self.draw(self.image)
         return gtk.FALSE
-    
+
+    def set_param(self,n,val):
+        print "set param: %s %s" % (n, val)
+        if self.params[n] != val:
+            self.params[n] = val
+            self.emit('parameters-changed')
+        
+    def iters_changed(self,n):
+        fractal.T.iters_changed(self,n)
+        #self.emit('parameters-changed')
+        
     def image_changed(self,x1,y1,x2,y2):
         #print "img changed: %d %d %d %d" % (x1,y1,x2,y2)
         #gtk.idle_add(self.redraw_rect,x1,y1,x2-y1,y2-y1)
@@ -139,15 +167,14 @@ class GuiFractal(Threaded):
             zoom = 2.0
             
         print "click (%d,%d)" % (event.x, event.y)
-        self.interrupt()        
         self.recenter(event.x,event.y,zoom)
-        self.draw_image(False)
 
     def recenter(self,x,y,zoom):
         dx = float(x - self.width/2)/self.width
         dy = float(y - self.height/2)/self.height
         print "%f, %f" % (dx,dy)
         self.relocate(dx,dy,zoom)
+        self.emit('parameters-changed')
         
     def redraw_rect(self,x,y,w,h):
         gc = self.widget.get_style().white_gc
@@ -163,13 +190,14 @@ class GuiFractal(Threaded):
                 buf,
                 self.width*3)
 
+gobject.type_register(GuiFractal)
+
 class MainWindow:
     def __init__(self):
         global g_comp
         self.compiler = g_comp
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
-        #self.window.set_default_size(640+8,480+40)
         self.window.set_title('Gnofract 4D')
 
         self.accelgroup = gtk.AccelGroup()
@@ -197,7 +225,9 @@ class MainWindow:
         if len(sys.argv) > 1:
             self.load(sys.argv[1])
 
-        self.f.draw_image(None)
+        self.f.connect('parameters-changed', self.on_fractal_change)
+        
+        self.f.draw_image()
         window.set_size_request(640+2,480+2)
         window.add_with_viewport(self.f.widget)
         self.f.progress_changed = self.progress_changed
@@ -205,6 +235,10 @@ class MainWindow:
         
         self.vbox.pack_start(window)
 
+    def on_fractal_change(self,object):
+        print "parameters changed"
+        self.f.draw_image()
+        
     def progress_changed(self,progress):
         self.bar.set_fraction(progress/100.0)
 
@@ -220,19 +254,19 @@ class MainWindow:
     def create_menu(self):
         menu_items = (
             ('/_File', None, None, 0, '<Branch>' ),
-            ('/File/_Open', '<control>O', self.open, 0, '<StockItem>', gtk.STOCK_OPEN),
+            ('/File/_Open...', '<control>O', self.open, 0, '<StockItem>', gtk.STOCK_OPEN),
             ('/File/_Save', '<control>S', self.save, 0, '<StockItem>', gtk.STOCK_SAVE),
-            ('/File/Save _As', '<control><shift>S', self.saveas, 0, '<StockItem>', gtk.STOCK_SAVE_AS),
+            ('/File/Save _As...', '<control><shift>S', self.saveas, 0, '<StockItem>', gtk.STOCK_SAVE_AS),
             ('/File/Save _Image', '<control>I', self.save_image, 0, ''),
             ('/File/sep1', None, None, 0, '<Separator>'),
             ('/File/_Quit', '<control>Q', self.quit, 0, '<StockItem>', gtk.STOCK_QUIT),   
             ('/_Edit', None, None, 0, '<Branch>'),
-            ('/Edit/_Fractal Settings','<control>F',self.settings, 0, ''),
-            ('/Edit/_Colors', '<control>L', self.colors, 0, ''),
-            ('/Edit/_Preferences', None, self.preferences, 0, ''),
+            ('/Edit/_Fractal Settings...','<control>F',self.settings, 0, ''),
+            ('/Edit/_Colors...', '<control>L', self.colors, 0, ''),
+            ('/Edit/_Preferences...', None, self.preferences, 0, '<StockItem>', gtk.STOCK_PREFERENCES),
             ('/Edit/_Undo', '<control>Z', self.undo, 0, ''),
             ('/Edit/_Redo', '<control>Y', self.redo, 0, ''),
-            ('/Edit/R_eset', 'Home', self.reset, 0, ''),
+            ('/Edit/R_eset', 'Home', self.reset, 0, '<StockItem>', gtk.STOCK_HOME),
             ('/_Help', None, None, 0, '<Branch>'),
             ('/_Help/Contents', '<function>1', self.contents, 0, ''),
             ('/Help/_About', None, self.about, 0, ''),
@@ -258,6 +292,8 @@ class MainWindow:
         print "save_image"
     def settings(self,action,widget):
         print "settings"
+        settings.show_settings(self.window,self.f)
+        
     def colors(self,action,widget):
         print "colors"
     def preferences(self,action,widget):
