@@ -30,9 +30,15 @@
 #include "gf4d_fractal.h"
 
 static char *g_param_file = NULL;
-static char *g_param_x = NULL;
+static char *g_params[N_PARAMS] = { NULL };
 static int g_param_quit=0;
 static char *g_param_save=NULL;
+static int g_param_r=0;
+static int g_param_g=0;
+static int g_param_b=0;
+static char *g_param_cmap=NULL;
+static int g_param_width=0;
+static int g_param_height=0;
 
 struct poptOption options[] = {
     {
@@ -48,10 +54,154 @@ struct poptOption options[] = {
         "x",
         'x',
         POPT_ARG_STRING,
-        &g_param_x,
+        g_params + XCENTER,
         0,
         N_("X Coordinate"),
         N_("2.5768939")
+    },
+    {
+        "y",
+        'y',
+        POPT_ARG_STRING,
+        g_params + YCENTER,
+        0,
+        N_("Y Coordinate"),
+        N_("1.0020343")
+    },
+    {
+        "z",
+        'z',
+        POPT_ARG_STRING,
+        g_params + ZCENTER,
+        0,
+        N_("Z Coordinate"),
+        N_("0.0002303")
+    },
+    {
+        "w",
+        'w',
+        POPT_ARG_STRING,
+        g_params + WCENTER,
+        0,
+        N_("W Coordinate"),
+        N_("0.1341453")
+    },
+    {
+        "xy",
+        'a',
+        POPT_ARG_STRING,
+        g_params + XYANGLE,
+        0,
+        N_("XY Angle"),
+        N_("4.4265632")
+    },
+    {
+        "xz",
+        'b',
+        POPT_ARG_STRING,
+        g_params + XZANGLE,
+        0,
+        N_("XZ Angle"),
+        N_("1.9782122")
+    },
+    {
+        "xw",
+        'c',
+        POPT_ARG_STRING,
+        g_params + XWANGLE,
+        0,
+        N_("XW Angle"),
+        N_("2.7818281")
+    },
+    {
+        "yz",
+        'd',
+        POPT_ARG_STRING,
+        g_params + YZANGLE,
+        0,
+        N_("YZ Angle"),
+        N_("3.1415926")
+    },
+    {
+        "yw",
+        'e',
+        POPT_ARG_STRING,
+        g_params + YWANGLE,
+        0,
+        N_("YW Angle"),
+        N_("2.4987611")
+    },
+    {
+        "zw",
+        'f',
+        POPT_ARG_STRING,
+        g_params + ZWANGLE,
+        0,
+        N_("ZW Angle"),
+        N_("2.4673331")
+    },
+    {
+        "size",
+        'S',
+        POPT_ARG_STRING,
+        g_params + SIZE,
+        0,
+        N_("Size"),
+        N_("8.0033211")
+    },
+    {
+        "red",
+        'r',
+        POPT_ARG_INT,
+        &g_param_r,
+        0,
+        N_("Red component of base color (0-255)"),
+        N_("89")
+    },
+    {
+        "green",
+        'g',
+        POPT_ARG_INT,
+        &g_param_g,
+        0,
+        N_("Green component of base color (0-255)"),
+        N_("78")
+    },
+    {
+        "blue",
+        'B',
+        POPT_ARG_INT,
+        &g_param_b,
+        0,
+        N_("Blue component of base color (0-255)"),
+        N_("255")
+    },
+    {
+        "colormap",
+        'm',
+        POPT_ARG_STRING,
+        &g_param_cmap,
+        0,
+        N_("Filename of colormap file to use"),
+        N_("FOO.MAP")
+    },
+    {
+        "width",
+        'i',
+        POPT_ARG_INT,
+        &g_param_width,
+        0,
+        N_("Image Width"),
+        N_("1024")
+    },
+    {
+        "height",
+        'j',
+        POPT_ARG_INT,
+        &g_param_height,
+        0,
+        N_("Image height"),
+        N_("768")
     },
     {
         "save",
@@ -74,6 +224,40 @@ struct poptOption options[] = {
     { NULL, '\0', 0, NULL, 0 , NULL, NULL }
 };
 
+// execute any command-line arguments
+void
+apply_arguments(model_t *m)
+{
+    Gf4dFractal *f = model_get_fract(m);
+    if(g_param_file) 
+    { 
+        model_cmd_load(m,g_param_file);        
+    }
+    for(int i = 0; i < N_PARAMS; ++i)
+    {
+        if(g_params[i])
+        {
+            gf4d_fractal_set_param(f, (param_t)i, g_params[i]);
+        }
+    }
+    if(g_param_width)
+    {
+        model_set_width(m,g_param_width);
+    }
+    if(g_param_height)
+    {
+        model_set_height(m,g_param_height);
+    }
+    if(g_param_save)
+    {
+        model_set_save_file(m,g_param_save);
+    }
+    if(g_param_quit)
+    {
+        model_set_quit(m,true);
+    }
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -90,23 +274,8 @@ main (int argc, char *argv[])
 
     m = model_new();
 
-    Gf4dFractal *f = model_get_fract(m);
-    if(g_param_file) 
-    { 
-        model_cmd_load(m,g_param_file);        
-    }
-    if(g_param_x)
-    {
-        gf4d_fractal_set_param(f, XCENTER, g_param_x);
-    }
-    if(g_param_save)
-    {
-        model_set_save_file(m,g_param_save);
-    }
-    if(g_param_quit)
-    {
-        model_set_quit(m,true);
-    }
+    apply_arguments(m);
+
     client = gnome_master_client();
     gtk_signal_connect(GTK_OBJECT (client), "save_yourself",
                        GTK_SIGNAL_FUNC( save_session_cb ), m);

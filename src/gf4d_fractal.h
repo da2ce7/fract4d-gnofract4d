@@ -58,6 +58,12 @@ struct _Gf4dFractalClass
 GtkObject*    gf4d_fractal_new(void);
 GtkType       gf4d_fractal_get_type(void);
 
+#ifdef __cplusplus
+}
+#endif
+
+class iterFunc;
+
 void gf4d_fractal_relocate(Gf4dFractal *f, int x, int y, double zoom);
 void gf4d_fractal_flip2julia(Gf4dFractal *f, int x, int y);
 void gf4d_fractal_move(Gf4dFractal *f, param_t i, int direction);
@@ -85,7 +91,7 @@ void gf4d_fractal_set_auto(Gf4dFractal *f, gboolean val);
 int gf4d_fractal_set_precision(Gf4dFractal *f, int digits);
 
 /* iteration functions */
-int gf4d_fractal_get_func(Gf4dFractal *f);
+iterFunc *gf4d_fractal_get_func(Gf4dFractal *f);
 void gf4d_fractal_set_func(Gf4dFractal *f, int type);
 
 /* color functions */
@@ -127,10 +133,6 @@ void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f);
 void gf4d_fractal_update_fract(Gf4dFractal *gf, Gf4dFractal *gf2);
 
 void gf4d_fractal_set_inexact(Gf4dFractal *gf_dst, Gf4dFractal *gf_src, double weirdness);
-
-#ifdef __cplusplus
-}
-#endif
 
 #include "fract_callbacks.h"
 

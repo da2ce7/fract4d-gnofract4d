@@ -53,9 +53,9 @@ struct _model {
     Gf4dFractal *fract;
     Gf4dFractal *subfracts[8];
     GtkWidget *sub_drawing_areas[8];
+    GtkWidget *topWidget;
     fractal *old_fract;
 
-    int interrupted;
     bool explore_mode;
     double weirdness;
 
@@ -65,7 +65,62 @@ struct _model {
     bool quitWhenDone;
 
     int nCalcThreads;
+
+    // image dimensions
+    int width;
+    int height;
 };
+
+void model_get_dimensions(model_t *m, int *pWidth, int *pHeight)
+{
+    g_assert(m && pWidth && pHeight);
+    *pWidth = m->width;
+    *pHeight = m->height;
+}
+
+static void model_resize_widget(model_t *m)
+{
+    g_assert(m);
+    
+    // resize widget if it exists (we won't have one if
+    // we're being called by the arg-parsing stuff)
+    if(m->topWidget)
+    {        
+        // +2 to account for padding in table
+        gtk_widget_set_usize(m->topWidget,m->width+2,m->height+2);
+    }
+}
+
+void model_set_dimensions(model_t *m, int width, int height)
+{
+    if(m->width == width && m->height == height) return;
+    m->width = width;
+    m->height = height;
+    model_resize_widget(m);
+}
+
+void model_set_width(model_t *m, int width)
+{
+    if(width == m->width) return;
+
+    m->width = width;
+    model_resize_widget(m);
+}
+
+void model_set_height(model_t *m, int height)
+{
+    if(height == m->height) return;
+
+    m->height = height;
+    model_resize_widget(m);
+}
+
+void model_set_top_widget(model_t *m, GtkWidget *widget)
+{
+    m->topWidget = widget;
+
+    model_resize_widget(m);
+}
 
 void model_status_callback(Gf4dFractal *f, gint val, model_t *m)
 {
@@ -135,7 +190,7 @@ model_free_undo_data(gpointer undo_data)
     //g_print("done deleting %x\n",p);
 }
 
-/* attempt to peek at /proc/cpuinfo (which might conceivably work on Linux) - 
+/* attempt to peek at /proc/cpuinfo, which might conceivably work on Linux, 
    but not on anything else. If it doesn't work, just assume 1 processor */
 
 // FIXME: user should be able to set this value 
@@ -184,6 +239,10 @@ model_new(void)
 
     m->nCalcThreads = model_guess_calc_threads();
     gf4d_fractal_parameters_changed(m->fract);
+
+    m->topWidget=NULL;
+    m->width = 640;
+    m->height = 480;
     return m;
 }
 
@@ -224,10 +283,10 @@ int
 model_cmd_load(model_t *m, char *filename)
 {
     int ret;
-    if(model_cmd_start(m))
+    if(model_cmd_start(m,"load"))
     {
         ret = gf4d_fractal_load_params(m->fract,filename);
-        model_cmd_finish(m);
+        model_cmd_finish(m, "load");
     }
     return ret;
 }
@@ -252,10 +311,11 @@ model_redo(model_t *m)
 
 
 bool
-model_cmd_start(model_t *m)
+model_cmd_start(model_t *m, char *msg)
 {
     if(m->commandInProgress) return false;
 
+    //g_print("%d> %s\n",pthread_self(), msg);
     model_set_cmd_in_progress(m,true);
     // invoke copy constructor to get original fractal before update
     m->old_fract = gf4d_fractal_copy_fract(m->fract);
@@ -278,10 +338,10 @@ model_get_subfract(model_t *m, int num)
 void
 model_set_subfract(model_t *m, int num)
 {
-    if(model_cmd_start(m))
+    if(model_cmd_start(m,"sub"))
     {
         gf4d_fractal_set_fract(m->fract,gf4d_fractal_copy_fract(m->subfracts[num]));
-        model_cmd_finish(m);
+        model_cmd_finish(m, "sub");
     }
 }
 
@@ -298,7 +358,7 @@ model_set_calcthreads(model_t *m, int n)
 }
 
 void
-model_cmd_finish(model_t *m)
+model_cmd_finish(model_t *m, char *msg)
 {
     g_assert(m->commandInProgress);
 
@@ -312,6 +372,7 @@ model_cmd_finish(model_t *m)
     gf4d_fractal_parameters_changed(m->fract);
     model_update_subfracts(m);
 
+    //g_print("%d< %s\n",pthread_self(),msg);
     model_set_cmd_in_progress(m,false);
 }
 

@@ -69,23 +69,23 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
             y = (int)event->button.y;
             new_x = x ; new_y = y;
         }else if (event->button.button == 2) {
-            if(model_cmd_start(m))
+            if(model_cmd_start(m,"button2"))
             {
                 gf4d_fractal_flip2julia(
                     f, 
                     (int)event->button.x,
                     (int)event->button.y);
-                model_cmd_finish(m);
+                model_cmd_finish(m,"button2");
             }
         }else if (event->button.button == 3) {
-            if(model_cmd_start(m))
+            if(model_cmd_start(m,"button3"))
             {
                 gf4d_fractal_relocate(
                     f,
                     (int)event->button.x,
                     (int)event->button.y,
                     (1.0/zoom) );
-                model_cmd_finish(m);
+                model_cmd_finish(m,"button3");
             }
         }
         break;
@@ -139,10 +139,10 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
             x = (x + new_x)/2;
             y = (y + new_y)/2;
 
-            if(model_cmd_start(m))
+            if(model_cmd_start(m,"button"))
             {
                 gf4d_fractal_relocate(f, x, y, this_zoom);
-                model_cmd_finish(m);
+                model_cmd_finish(m,"button");
             }
         }
     default:
@@ -171,7 +171,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
                                 widget->allocation.width, 
                                 widget->allocation.height);
     gf4d_fractal_parameters_changed(f);
-
+    
     return TRUE;
 }
 

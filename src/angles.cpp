@@ -11,10 +11,11 @@ void angle_set_cb (GtkAdjustment *adj, gpointer user_data)
     char buf[100];
     set_cb_data *pdata = (set_cb_data *)user_data;
     sprintf(buf,"%g",adj->value);
-    if(model_cmd_start(pdata->m))
+
+    if(model_cmd_start(pdata->m, "angle"))
     {
         gf4d_fractal_set_param(model_get_fract(pdata->m),pdata->pnum, buf);
-        model_cmd_finish(pdata->m);
+        model_cmd_finish(pdata->m, "angle");
     }
 }
 

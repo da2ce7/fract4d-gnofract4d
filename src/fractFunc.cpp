@@ -7,7 +7,7 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     im = _im;
     f = _f; 
     pf = pointFunc_new(
-        f->fractal_type, 
+        f->pIterFunc, 
         f->bailout_type, 
         f->params[BAILOUT], 
         f->cizer, 

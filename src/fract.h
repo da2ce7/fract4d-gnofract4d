@@ -28,6 +28,7 @@
 #include "calc.h"
 
 class fractFunc;
+class iterFunc;
 
 struct fractal
 {
@@ -47,7 +48,7 @@ struct fractal
     public:
 
     e_bailFunc bailout_type;    
-    int fractal_type;
+    iterFunc *pIterFunc;
 
     private:
     // parameters which aren't saved
@@ -68,6 +69,9 @@ struct fractal
     fractal& operator=(const fractal& f); // assignment op
     bool operator==(const fractal& f); // equality 
     ~fractal();
+
+    // change the function type
+    void set_fractal_type(int type);
 
     // make this fractal like f but weirder
     void set_inexact(const fractal& f, double weirdness); 

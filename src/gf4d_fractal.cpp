@@ -75,18 +75,6 @@ gf4d_fractal_new ()
 }
 
 static void
-gf4d_fractal_lock(Gf4dFractal *f)
-{
-    pthread_mutex_lock(&f->lock);
-}
-
-static void
-gf4d_fractal_unlock(Gf4dFractal *f)
-{
-    pthread_mutex_unlock(&f->lock);
-}
-
-static void
 gf4d_fractal_cond_lock(Gf4dFractal *f)
 {
     pthread_mutex_lock(&f->cond_lock);
@@ -322,9 +310,7 @@ void gf4d_fractal_calc(Gf4dFractal *f, int nThreads)
 void gf4d_fractal_reset(Gf4dFractal *f)
 {
     kill_slave_threads(f);
-
     f->f->reset();
-    gf4d_fractal_parameters_changed(f);
 }
 
 gboolean gf4d_fractal_write_params(Gf4dFractal *f, const char *filename)
@@ -567,13 +553,13 @@ void gf4d_fractal_set_inexact(Gf4dFractal *gf_dst, Gf4dFractal *gf_src, double w
     gf_dst->f->set_inexact(*gf_src->f,weirdness);
 }
 
-int gf4d_fractal_get_func(Gf4dFractal *f)
+iterFunc *gf4d_fractal_get_func(Gf4dFractal *f)
 {
-    return f->f->fractal_type;
+    return f->f->pIterFunc;
 }
 
 void gf4d_fractal_set_func(Gf4dFractal *f, int type)
 {
     kill_slave_threads(f);
-    f->f->fractal_type = type;
+    f->f->set_fractal_type(type);
 }

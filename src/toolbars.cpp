@@ -24,17 +24,14 @@
 
 void position_set_cb (GtkWidget *button, gpointer user_data)
 {
-    char buf[100];
-    double val;
-    double size;
     set_cb_data *pdata = (set_cb_data *)user_data;
 
-    if(model_cmd_start(pdata->m))
+    if(model_cmd_start(pdata->m,"setpos"))
     {
 
         Gf4dFractal *f = model_get_fract(pdata->m);
         gf4d_fractal_move(f,pdata->pnum,pdata->dir);
-        model_cmd_finish(pdata->m);
+        model_cmd_finish(pdata->m,"setpos");
     }
 }
 

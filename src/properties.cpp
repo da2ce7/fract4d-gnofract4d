@@ -33,9 +33,13 @@
 GtkWidget *global_propertybox=NULL;
 
 gboolean 
-set_width_callback(GtkEntry *, GdkEventFocus *, gpointer user_data)
+set_width_callback(GtkEntry *e, GdkEventFocus *, gpointer user_data)
 {
-    // FIXME: doesn't do anything
+    model_t *m = (model_t *)user_data;
+    char *s = gtk_entry_get_text(e);
+    int width=0;
+    sscanf(s,"%d",&width);
+    model_set_width(m,width);
     return TRUE;
 }
 
@@ -49,9 +53,13 @@ refresh_width_callback(Gf4dFractal *f, gpointer user_data)
 }
 
 gboolean
-set_height_callback(GtkEntry *, GdkEventFocus *, gpointer user_data)
+set_height_callback(GtkEntry *e, GdkEventFocus *, gpointer user_data)
 {
-    // FIXME : doesn't do anything
+    model_t *m = (model_t *)user_data;
+    char *s = gtk_entry_get_text(e);
+    int height=0;
+    sscanf(s,"%d",&height);
+    model_set_height(m,height);
     return TRUE;
 }
 
@@ -125,6 +133,48 @@ create_entry_with_label(
 
 };
 
+void
+create_image_entry(
+    GtkWidget *table,
+    GtkTooltips *tooltips,
+    int row,
+    gchar *label_text,
+    Gf4dFractal *f,
+    model_t *m,
+    int initial_val,
+    GtkSignalFunc set_cb,
+    GtkSignalFunc refresh_cb,
+    gchar *tip)
+{
+    GtkWidget *label = gtk_label_new (label_text);
+    GtkWidget *combo_entry=gtk_entry_new();
+    
+    char buf[80];
+    sprintf(buf,"%d",initial_val);
+
+    gtk_entry_set_text(GTK_ENTRY(combo_entry), buf);
+
+    gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1,
+                      (GtkAttachOptions) (GTK_FILL),
+                      (GtkAttachOptions) (0), 0, 0);
+    gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_RIGHT);
+    gtk_widget_show (label);
+    
+    gtk_table_attach (GTK_TABLE (table), combo_entry, 1, 2, row, row+1,
+                      (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                      (GtkAttachOptions) (0), 0, 0);
+    
+    gtk_tooltips_set_tip (tooltips, combo_entry, tip, NULL);
+    gtk_widget_show (combo_entry);
+    
+    gtk_signal_connect(GTK_OBJECT(combo_entry),"focus-out-event",
+                       set_cb,
+                       m);
+    
+    gtk_signal_connect(GTK_OBJECT(f), "parameters_changed",
+                       refresh_cb,
+                       combo_entry);
+};
 
 // ugh!
 static param_t 
@@ -252,7 +302,7 @@ GtkWidget *create_bailout_menu(Gf4dFractal *shadow)
         N_("And")
     };
 
-    for(int i=0; i < sizeof(bailout_names)/sizeof(bailout_names[0]); ++i)
+    for(unsigned int i=0; i < sizeof(bailout_names)/sizeof(bailout_names[0]); ++i)
     {
         GtkWidget *menu_item = gtk_menu_item_new_with_label(bailout_names[i]);
     
@@ -362,7 +412,7 @@ GtkWidget *create_aa_menu(Gf4dFractal *shadow)
         N_("Best (Slowest)")
     };
 
-    for(int i=0; i < sizeof(aa_names)/sizeof(aa_names[0]); ++i)
+    for(unsigned int i=0; i < sizeof(aa_names)/sizeof(aa_names[0]); ++i)
     {
         GtkWidget *menu_item = gtk_menu_item_new_with_label(aa_names[i]);
     
@@ -573,7 +623,6 @@ create_propertybox_color_page(
     GtkTooltips *tooltips,
     Gf4dFractal *shadow)
 {
-    GtkWidget *label;
     GtkWidget *table;
     GtkWidget *clabel, *cpicker;
     GtkWidget *cmaplabel;
@@ -784,8 +833,8 @@ set_func_callback(GtkWidget *widget, gpointer user_data)
 
     int func_type = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"type"));
 
-    int old_type = gf4d_fractal_get_func(f);
-    if(func_type != old_type)
+    iterFunc *old_func = gf4d_fractal_get_func(f);
+    if(func_type != old_func->type())
     {
         gf4d_fractal_set_func(f,func_type);
         gf4d_fractal_parameters_changed(f);
@@ -800,7 +849,8 @@ refresh_func_callback(Gf4dFractal *f, gpointer user_data)
 
     GList *list = gtk_container_children(GTK_CONTAINER(m));
     int index=0;
-    int func_val = gf4d_fractal_get_func(f);
+    iterFunc *func = gf4d_fractal_get_func(f);
+    int func_val = func->type();
 
     // find an element with the same antialias value as the one the fractal has
     while(list)
@@ -887,36 +937,39 @@ create_propertybox_function_page(
 }
 
 void
-create_propertybox_general_page(
+create_propertybox_image_page(
     GtkWidget *main_vbox,
     GtkTooltips *tooltips,
-    Gf4dFractal *shadow)
+    Gf4dFractal *shadow,
+    model_t *m)
 {
-	GtkWidget *table = gtk_table_new (6, 2, FALSE);
-	GtkWidget *auto_deepen_button;
+    GtkWidget *table = gtk_table_new (2, 2, FALSE);    
+    GtkWidget *image_page = create_page(table,_("Image"));
+    
+    gtk_box_pack_start( GTK_BOX (main_vbox), image_page, 1, 1, 0 );
+    
+    int height, width;
+    model_get_dimensions(m,&width,&height);
 
-        GtkWidget *general_page = create_page(table,_("Image"));
-
-	gtk_box_pack_start( GTK_BOX (main_vbox), general_page, 1, 1, 0 );
-
-	create_entry_with_label(
-            table, 
-            tooltips, 
-            0,
-            _("Width :"),
-            shadow,
-            (GtkSignalFunc)set_width_callback,
-            (GtkSignalFunc)refresh_width_callback,
-            _("Image width (in pixels)"));
-        
-
-	create_entry_with_label(
-            table, tooltips, 1,
-            _("Height :"),
-            shadow,
-            (GtkSignalFunc)set_height_callback,
-            (GtkSignalFunc)refresh_height_callback,
-            _("Image height (in pixels)"));
+    create_image_entry(
+        table, 
+        tooltips, 
+        0,
+        _("Width :"),
+        model_get_fract(m),
+        m, width,
+        (GtkSignalFunc)set_width_callback,
+        (GtkSignalFunc)refresh_width_callback,
+        _("Image width (in pixels)"));
+    
+    create_image_entry(
+        table, tooltips, 1,
+        _("Height :"),
+        model_get_fract(m),
+        m, height,
+        (GtkSignalFunc)set_height_callback,
+        (GtkSignalFunc)refresh_height_callback,
+        _("Image height (in pixels)"));
 }
 
 void
@@ -927,9 +980,9 @@ create_propertybox_location_page(
 {
     GtkWidget *table = gtk_table_new (5, 2, FALSE);
     
-    GtkWidget *general_page = create_page(table,_("Location"));
+    GtkWidget *location_page = create_page(table,_("Location"));
 
-    gtk_box_pack_start( GTK_BOX (main_vbox), general_page, 1, 1, 0 );
+    gtk_box_pack_start( GTK_BOX (main_vbox), location_page, 1, 1, 0 );
             
     create_param_entry_with_label(
         table, tooltips, 0, _("X (Re) :"), shadow, XCENTER, _("This is c.re in z^2 + c"));
@@ -974,7 +1027,6 @@ propertybox_refresh(model_t *m)
 
     // property box is NULL if it's not currently displayed
     if (propertybox!=NULL) {
-        GtkWidget *w;
 
         Gf4dFractal *shadow;
         shadow = GF4D_FRACTAL(gtk_object_get_data(GTK_OBJECT(propertybox),"shadow"));
@@ -998,10 +1050,10 @@ update_main_fractal(Gf4dFractal *shadow, gpointer user_data)
     model_t *m = (model_t *)user_data;
     Gf4dFractal *f = model_get_fract(m);
 
-    if(!gf4d_fractal_is_equal(f,shadow) && model_cmd_start(m))
+    if(!gf4d_fractal_is_equal(f,shadow) && model_cmd_start(m,"update"))
     {
         gf4d_fractal_update_fract(f,shadow);
-        model_cmd_finish(m);
+        model_cmd_finish(m,"update");
     }
 }
 
@@ -1030,7 +1082,7 @@ create_propertybox (model_t *m)
     create_propertybox_color_page(vbox, tooltips, shadow);
     create_propertybox_rendering_page(vbox, tooltips, shadow);
     create_propertybox_bailout_page(vbox, tooltips, shadow);
-    create_propertybox_general_page(vbox,tooltips, shadow);
+    create_propertybox_image_page(vbox,tooltips, shadow, m);
     create_propertybox_location_page(vbox, tooltips, shadow);
     create_propertybox_angles_page(vbox, tooltips, shadow);
     

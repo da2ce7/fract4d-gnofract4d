@@ -4,6 +4,8 @@
 
 #include "pointFunc_public.h"
 
+#include <iosfwd>
+
 // offsets into parameter array
 #define X 0
 #define Y 1
@@ -23,12 +25,29 @@
    on the scratch space in p */
 class iterFunc {
  public:
-    virtual void operator()(double *p) = 0;
-//    virtual void iter8(double *p) = 0;
-    virtual int flags() = 0;
-    virtual char *name() = 0;
+    virtual void operator()(double *p) const = 0;
+    virtual int flags() const = 0;
+    virtual char *name() const = 0;
+    virtual int type() const = 0;
+
+    // make a new one Just Like This
+    virtual iterFunc *clone() const = 0;
+
+    // boring things
+    virtual std::ostream& put(std::ostream&) const = 0;
+    virtual std::istream& get(std::istream&) = 0;
+    virtual bool operator==(const iterFunc&) const = 0;
+
+    // the number of options this fractal takes
+    virtual int nOptions() const = 0;
+    virtual void setOption(int n, double val) = 0;
+    virtual double getOption(int n) const = 0;
 };
 
 iterFunc *iterFunc_new(int nFunc);
+iterFunc *iterFunc_read(std::istream& s);
+
+std::ostream& operator<<(std::ostream& s, const iterFunc& iter);
+std::istream& operator>>(std::istream& s, iterFunc& iter);
 
 #endif _ITERFUNC_H_

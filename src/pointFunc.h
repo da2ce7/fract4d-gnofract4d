@@ -25,7 +25,7 @@
 #include "pointFunc_public.h"
 #include "colorizer.h"
 
-
+class iterFunc;
 
 /* interface for function object which computes a single point */
 class pointFunc {
@@ -40,7 +40,7 @@ class pointFunc {
 
 /* factory method for making new fractFuncs */
 pointFunc *pointFunc_new(
-    int iterType, 
+    iterFunc *iterType, 
     e_bailFunc bailType,
     const d& eject,
     colorizer *pcf,

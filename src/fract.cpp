@@ -23,6 +23,8 @@
 #include <gnome.h> // g_warning, mostly
 #include "calc.h"
 #include "fractFunc.h"
+#include "iterFunc.h"
+
 #include <fstream>
 #include <queue>
 
@@ -41,6 +43,9 @@ fractal::fractal()
 {
     reset();
 
+    // set fractal type to Mset
+    pIterFunc = iterFunc_new(0);
+
     // display params
     antialias = AA_FAST;
     auto_deepen = true;
@@ -56,6 +61,7 @@ fractal::fractal()
 fractal::~fractal()
 {
     colorizer_delete(&cizer);
+    delete pIterFunc;
 }
 
 /* call destructor & set ptr to NULL */
@@ -75,7 +81,7 @@ fractal::copy(const fractal& f)
         params[i] = f.params[i];
     }
     maxiter = f.maxiter;
-    fractal_type = f.fractal_type;
+    pIterFunc = f.pIterFunc->clone();
     antialias = f.antialias;
     auto_deepen = f.auto_deepen;
     digits = f.digits;
@@ -100,6 +106,7 @@ fractal::operator=(const fractal& f)
     if(&f != this)
     {
         colorizer_delete(&cizer);
+        delete pIterFunc;
         copy(f);
     }
     return *this;
@@ -114,7 +121,7 @@ fractal::operator==(const fractal& f)
         if(params[i] != f.params[i]) return false;
     }
     if(maxiter != f.maxiter) return false;
-    if(fractal_type != f.fractal_type) return false;
+    if(*pIterFunc != *f.pIterFunc) return false;
     if(antialias != f.antialias) return false;
     if(auto_deepen != f.auto_deepen) return false;
     if(digits != f.digits) return false;
@@ -125,6 +132,13 @@ fractal::operator==(const fractal& f)
     if(bailout_type != f.bailout_type) return false;
     
     return true;
+}
+
+void 
+fractal::set_fractal_type(int type)
+{
+    delete pIterFunc;
+    pIterFunc = iterFunc_new(type);
 }
 
 /* x & y vary by up to 50% of the size */
@@ -203,7 +217,6 @@ fractal::reset()
     }
 
     maxiter = 64;
-    fractal_type = 0;
     rot_by = M_PI/2.0;
 }
 
@@ -260,10 +273,10 @@ fractal::write_params(const char *filename)
     }
 
     os << maxiter << "\n";
-    os << fractal_type << "\n";
-    os << antialias << "\n";
+    os << *pIterFunc << "\n";
+    os << (int) antialias << "\n";
     os << *cizer << "\n";
-    os << bailout_type << "\n";
+    os << (int) bailout_type << "\n";
 
     if(!os) return false;
     return true;
@@ -281,15 +294,20 @@ fractal::load_params(const char *filename)
     }
 
     is >> maxiter;
-    is >> fractal_type;
-    is >> antialias;
+    // cast is to quiet a curious compiler warning
+    iterFunc *iter_tmp = iterFunc_read(is);
+    if(iter_tmp)
+    {
+        delete pIterFunc;
+        pIterFunc = iter_tmp;
+    }
+    is >> (int&)antialias;
     colorizer *cizer_tmp = colorizer_read(is);
     if(cizer_tmp)
     {
         colorizer_delete(&cizer);
         cizer = cizer_tmp;
     }
-    // cast is to quiet a curious compiler warning
     is >> (int&)bailout_type;
 
     if(!is) return false;

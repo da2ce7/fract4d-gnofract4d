@@ -36,20 +36,18 @@ private:
 
 public:
     /* ctor */
-    pointCalc(int iterType, 
+    pointCalc(iterFunc *iterType, 
               e_bailFunc bailType, 
               const d& eject,
               colorizer *pcf,
               bool potential) 
-        : m_eject(eject), m_pcf(pcf), m_potential(potential)
+        : m_pIter(iterType), m_eject(eject), m_pcf(pcf), m_potential(potential)
         {
-            m_pIter = iterFunc_new(iterType);
             m_pBail = bailFunc_new(bailType);
         }
-    ~pointCalc()
+    virtual ~pointCalc()
         {
             delete m_pBail;
-            delete m_pIter;
         }
 
     virtual void operator()(
@@ -108,19 +106,6 @@ public:
 };
 
 
-int test_cube(const dvec4& params, const d& eject, int nIters);
-
-
-void
-weird_iter(double *p)
-{
-    p[X2] = p[X] * p[X];
-    p[Y2] = p[Y] * p[Y];
-    double atmp = p[X2] - p[Y2] + p[X] + p[CX];
-    p[Y] = 2.0 * p[X] * p[Y] + p[Y] + p[CY];
-    p[X] = atmp;
-}
-
 int test_mandelbrot_cln(const dvec4& params, const d& eject, int nIters)
 {
     d a = params.n[VZ], b = params.n[VW], 
@@ -140,30 +125,12 @@ int test_mandelbrot_cln(const dvec4& params, const d& eject, int nIters)
     return n;
 }
 
-// z = z^3 + c
-int
-test_cube(const dvec4& params, const d& eject, int nIters)
-{
-    d a = params.n[VZ], b = params.n[VW],
-        px = params.n[VX], py = params.n[VY], atmp;
-
-    int n = 0;
-
-    while((a * a + b * b) <= eject) {
-        atmp = a * a * a - 3 * a * b * b +px;
-        b = 3 * a * a * b - b * b * b + py;
-        a = atmp;
-        if(n++ == nIters) return -1;
-    }
-    return n;
-}
-
 pointFunc *pointFunc_new(
-    int iterFunc, 
+    iterFunc *iterType, 
     e_bailFunc bailFunc, 
     const d& bailout,
     colorizer *pcf,
     bool potential)
 {
-    return new pointCalc(iterFunc, bailFunc, bailout, pcf, potential);
+    return new pointCalc(iterType, bailFunc, bailout, pcf, potential);
 }

@@ -23,24 +23,18 @@
 #endif
 
 #include <gnome.h>
-#include <gtk/gtk.h>
 
 #include "model.h"
 #include "callbacks.h"
 #include "interface.h"
-#include "properties.h"
 #include "menus.h"
 #include "toolbars.h"
 #include "drawingareas.h"
-
-#include "colorizer_public.h"  
-
 
 GtkWidget *
 create_app (model_t *m)
 {
     GtkWidget *table;
-    GtkWidget *scrolledwindow1;
     GtkWidget *drawing_area;
     
     GtkWidget *app = gnome_app_new ("Gnofract4D", _("Gnofract4D"));
@@ -67,7 +61,7 @@ create_app (model_t *m)
     gtk_widget_show (table);
     gnome_app_set_contents (GNOME_APP (app), table);
     
-    gtk_widget_set_usize(table,640,480);
+    model_set_top_widget(m, table);
     
     drawing_area = create_drawing_area(m,appbar);
     

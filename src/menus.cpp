@@ -151,14 +151,14 @@ menu_quit_cb(GtkWidget       *widget,
 }
 
 void
-new_image_cb(GtkMenuItem     *menuitem,
+reset_cb(GtkMenuItem     *menuitem,
              gpointer         user_data)
 {
     model_t *m = (model_t *)user_data;
-    if(model_cmd_start(m))
+    if(model_cmd_start(m,"reset"))
     {
         gf4d_fractal_reset(model_get_fract(m));
-        model_cmd_finish(m);
+        model_cmd_finish(m, "reset");
     }
 }
 
@@ -193,18 +193,18 @@ preferences_cb(GtkMenuItem     *menuitem,
 static GnomeUIInfo file1_menu_uiinfo[] =
 {
     {
-        GNOME_APP_UI_ITEM, N_("Back to _Mandelbrot"),
-        NULL,
-        new_image_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_HOME,
-        0, (enum GdkModifierType)'m', NULL
-    },
-    {
         GNOME_APP_UI_ITEM, N_("_Save image"),
         NULL,
         save_image_cb, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE,
         0, (enum GdkModifierType)'s', NULL
+    },
+    {
+        GNOME_APP_UI_ITEM, N_("_Reset parameters"),
+        NULL,
+        reset_cb, NULL, NULL,
+        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_HOME,
+        0, (enum GdkModifierType)'m', NULL
     },
     {
         GNOME_APP_UI_ITEM, N_("Save _parameters"),

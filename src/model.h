@@ -46,8 +46,8 @@ extern "C" {
     void model_set_save_file(model_t *m, char *filename);
 
     /* commands */
-    bool model_cmd_start(model_t *m);
-    void model_cmd_finish(model_t *m);
+    bool model_cmd_start(model_t *m, char *msg);
+    void model_cmd_finish(model_t *m, char *msg);
     void model_undo(model_t *m);
     void model_redo(model_t *m);
 
@@ -81,6 +81,7 @@ extern "C" {
 
     // this is crap - lose it
     void model_set_subfract_widget(model_t *m, GtkWidget *widget, int num);
+    void model_set_top_widget(model_t *m, GtkWidget *widget);
 
     // delegates to gundo
     void model_make_undo_sensitive(model_t *m, GtkWidget *widget);
@@ -88,7 +89,13 @@ extern "C" {
 
     // explorer stuff
     void model_set_weirdness_factor(model_t *m, gfloat weirdness);
-
+    
+    // image dimensions
+    void model_get_dimensions(model_t *m, int *pWidth, int *pHeight);
+    void model_set_dimensions(model_t *m, int width, int height);
+    void model_set_width(model_t *m, int width);
+    void model_set_height(model_t *m, int height);
+        
 #ifdef __cplusplus
 }
 #endif
