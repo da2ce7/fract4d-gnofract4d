@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = intl po macros src doc
+SUBDIRS = intl po macros src doc 
 
 install-data-local:
 	@$(NORMAL_INSTALL)
@@ -12,6 +12,14 @@ install-data-local:
 	    fi \
 	  done \
 	fi
+	if test -d $(srcdir)/maps; then \
+	  $(mkinstalldirs) $(DESTDIR)@PACKAGE_MAPS_DIR@; \
+	  for map in $(srcdir)/maps/*; do \
+	    if test -f $$map; then \
+	      $(INSTALL_DATA) $$map $(DESTDIR)@PACKAGE_MAPS_DIR@; \
+	    fi \
+	  done \
+	fi
 
 dist-hook:
 	if test -d pixmaps; then \
@@ -19,6 +27,14 @@ dist-hook:
 	  for pixmap in pixmaps/*; do \
 	    if test -f $$pixmap; then \
 	      cp -p $$pixmap $(distdir)/pixmaps; \
+	    fi \
+	  done \
+	fi
+	if test -d maps; then \
+	  mkdir $(distdir)/maps; \
+	  for map in maps/*; do \
+	    if test -f $$map; then \
+	      cp -p $$map $(distdir)/maps; \
 	    fi \
 	  done \
 	fi

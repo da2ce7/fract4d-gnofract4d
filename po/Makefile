@@ -8,7 +8,7 @@
 # Please note that the actual code is *not* freely available.
 
 PACKAGE = gnofract4d
-VERSION = 1.0
+VERSION = 1.2
 
 SHELL = /bin/sh
 

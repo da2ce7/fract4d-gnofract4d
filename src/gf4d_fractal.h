@@ -39,10 +39,9 @@ struct _Gf4dFractal
 	image_t *im;
 	pthread_t tid;
 	pthread_mutex_t lock;
-	pthread_cond_t finish_cond;
-	pthread_cond_t start_cond;
-	int finished;
-	int started;
+	pthread_mutex_t cond_lock;
+	pthread_cond_t running_cond;
+	int workers_running;
 };
 
 struct _Gf4dFractalClass

@@ -13,7 +13,10 @@
 <sect1 id="introduction">
 <title>Introduction</title>
 
-<para>&gf4; is a fractal generation program which can draw some unusual hybrids between the mandelbrot and julia sets. It treats both fractals as views of the same four-dimensional object and allows you to explore other views of the same object. </para>
+<para>&gf4; is a fractal generation program which can draw some
+unusual hybrids between the Mandelbrot and Julia sets. It treats both
+fractals as views of the same four-dimensional object and allows you
+to explore other views of the same object. </para>
 
 </sect1>
 
@@ -195,7 +198,7 @@ you to the Mandelbrot set. <guimenuitem>Save Image</guimenuitem>
 writes the current image to disk. I recommend using .png images; jpegs
 look horrible, and GIFs can only manage 256 colors.  <guimenuitem>Save
 Parameters</guimenuitem> and <guimenuitem>Load
-Parameters</guimenuitem> save and load plain-text paramter description
+Parameters</guimenuitem> save and load plain-text parameter description
 files, so you can return to images in the future.
 </para>
 </sect1>
@@ -220,8 +223,31 @@ screen center and the image size. The <guilabel>angles</> tab allows
 you to set the rotation angles. Only values between 0 and 2 * pi are
 different; values outside this range "wrap" to points inside that
 range.
-
 </para>
 </sect1>
+<sect1 id="about">
+<title>About &gf4;</title>
+<para>
+&gf4; is based on Gnofract, written by Aurelien Alleaume <ulink
+url="mailto:manchot@club-internet.fr">(manchot@club-internet.fr)</ulink>.
+Gnofract can be obtained from
+<ulink url="http://www.multimania.com/mason/">
+http://www.multimania.com/mason/</ulink>. The new code in &gf4; is by
+Edwin Young <ulink
+url="mailto:edwin@sourceforge.net">(edwin@sourceforge.net)
+</ulink>. You can find the most recent version of &gf4; from <ulink
+url="http://gnofract4d.sourceforge.net">
+http://gnofract4d.sourceforge.net/</ulink>. &gf4; contains code from
+<emphasis>gundo</>, by Nat Pryce. &gf4; also contains palette files (by
+a number of authors) which were originally distributed with <ulink
+url="http://spanky.triumf.ca/">Fractint</ulink>.
+
+</para>
+<para>
+&gf4; is distributed under the <emphasis>Gnu General Public
+License</>. See the file "COPYING" for details.
+</para>
+</sect1>
+
 </article>
 

@@ -63,10 +63,10 @@ gf4d_fractal_init (Gf4dFractal *f)
 	f->change_pending=FALSE;
 	f->sensitive=TRUE;
 	f->tid=0;
-	f->finished=0;
+	f->workers_running=0;
 	pthread_mutex_init(&f->lock,NULL);
-	pthread_cond_init(&f->finish_cond,NULL);
-	pthread_cond_init(&f->start_cond,NULL);
+	pthread_mutex_init(&f->cond_lock,NULL);
+	pthread_cond_init(&f->running_cond,NULL);
 }
 
 GtkObject*
@@ -91,31 +91,62 @@ gf4d_fractal_unlock(Gf4dFractal *f)
 	pthread_mutex_unlock(&f->lock);
 }
 
+static void
+gf4d_fractal_cond_lock(Gf4dFractal *f)
+{
+	pthread_mutex_lock(&f->cond_lock);
+}
+
+static void
+gf4d_fractal_cond_unlock(Gf4dFractal *f)
+{
+	pthread_mutex_unlock(&f->cond_lock);
+}
+
+static void 
+set_finished_cond(Gf4dFractal *f)
+{
+	f->workers_running=0;
+}
+
+static void
+try_finished_cond(Gf4dFractal *f)
+{
+	// this doesn't do any locking, but is safe:
+	// if we miss it this time, we'll catch it next
+	// time, and won't do any harm in the meantime
+
+	if(f->workers_running==0) 
+	{
+		// we've been signalled
+		//g_print("finished\n");
+		throw(1);
+	}
+}
+
+static void
+set_started_cond(Gf4dFractal *f)
+{
+	gf4d_fractal_cond_lock(f);
+	f->workers_running=1;
+	pthread_cond_signal(&f->running_cond);
+	gf4d_fractal_cond_unlock(f);
+}
+
+
 void
 kill_slave_threads(Gf4dFractal *f)
 {
-	gf4d_fractal_lock(f);
 	if(f->tid)
 	{
-		int err = pthread_cancel(f->tid);
-		g_print("< %d\n",f->tid);
-		if(err)
-		{
-			// the error is ok, it just means the thread
-			// has already exited
-			//g_warning("error in cancel\n");
-		}
-		else
-		{
-			while(!f->finished)
-			{
-				pthread_cond_wait(&f->finish_cond,&f->lock);
-			}
-			f->finished=0;
-		}
+		set_finished_cond(f);
+
+		// wait until worker has stopped running
+		gdk_threads_leave();
+		pthread_join(f->tid,NULL);
+		gdk_threads_enter();
 	}
 	f->tid = 0;
-	gf4d_fractal_unlock(f);
 }
 
 static void
@@ -232,42 +263,21 @@ void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f)
 	*(gf->f) = *f;
 }
 
-/* signal parent thread that we have indeed finished: 
- * a kind of homegrown pthread_join because I can't get
- * the fscking real thing to work */
-
-static void 
-set_finished_cond(Gf4dFractal *f)
-{
-	gf4d_fractal_lock(f);
-	f->finished=1;
-	pthread_cond_signal(&f->finish_cond);
-	g_print("signalled finish condition\n");
-	gf4d_fractal_unlock(f);
-}
-
-static void
-set_started_cond(Gf4dFractal *f)
-{
-	gf4d_fractal_lock(f);
-	f->started=1;
-	pthread_cond_signal(&f->start_cond);
-	gf4d_fractal_unlock(f);
-}
-
 static void *
 calculation_thread(void *vdata) 
 {
 	Gf4dFractal *f = (Gf4dFractal *)vdata;
 
-	pthread_cleanup_push(set_finished_cond,f);
-	g_print("ready\n");
+	gf4d_fractal_lock(f);
 	set_started_cond(f);
-	f->f->calc(f,f->im);	
-
-	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,NULL);
-	pthread_cleanup_pop(0);
-	set_finished_cond(f);
+	gf4d_fractal_unlock(f);
+	try {
+		f->f->calc(f,f->im);	
+	}
+	catch(...)
+	{
+		//g_print("interrupted\n");
+	}
 	return NULL;
 }
 
@@ -277,23 +287,18 @@ void gf4d_fractal_calc(Gf4dFractal *f)
 
 	kill_slave_threads(f);
 
-	gf4d_fractal_lock(f);
-	f->started=0;
 	if(pthread_create(&f->tid,NULL,calculation_thread,(void *)f))
 	{
 		g_print("Error, couldn't start thread\n");
 	}
-	// avoids zombies
-	pthread_detach(f->tid);
-
-	// wait until thread has completed init
-	while(!f->started)
+	
+	// check that it really has started (and set workers) before returning
+	gf4d_fractal_cond_lock(f);
+	while(f->workers_running==0)
 	{
-		pthread_cond_wait(&f->start_cond,&f->lock);
+		pthread_cond_wait(&f->running_cond,&f->cond_lock);
 	}
-	g_print("> %d",f->tid);
-
-	gf4d_fractal_unlock(f);
+	gf4d_fractal_cond_unlock(f);
 }
 
 void gf4d_fractal_reset(Gf4dFractal *f)
@@ -469,10 +474,24 @@ void gf4d_fractal_interrupt(Gf4dFractal *f)
 	// f->f->finish();
 }
 
-void gf4d_fractal_parameters_changed(Gf4dFractal *f)
+void 
+gf4d_fractal_parameters_changed(Gf4dFractal *f)
 {
 	//g_print("parameters changed: emit\n");
 	gtk_signal_emit(GTK_OBJECT(f), fractal_signals[PARAMETERS_CHANGED]); 
+}
+
+static void
+gf4d_fractal_enter_callback(Gf4dFractal *f)
+{
+	try_finished_cond(f);
+	gdk_threads_enter();
+}
+
+static void
+gf4d_fractal_leave_callback(Gf4dFractal *f)
+{
+	gdk_threads_leave();
 }
 
 void gf4d_fractal_image_changed(Gf4dFractal *f, int x1, int y1, int x2, int y2)
@@ -490,38 +509,31 @@ void gf4d_fractal_image_changed(Gf4dFractal *f, int x1, int y1, int x2, int y2)
 	fakeEvent.area = rect;
 	fakeEvent.count = 0;
 
-	pthread_testcancel();
-	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,NULL);
-	gdk_threads_enter();
+	gf4d_fractal_enter_callback(f);
 	gtk_signal_emit(GTK_OBJECT(f), 
 			fractal_signals[IMAGE_CHANGED],
 			&fakeEvent);
-	gdk_threads_leave();
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
+	gf4d_fractal_leave_callback(f);
 }
 
 void gf4d_fractal_progress_changed(Gf4dFractal *f, float progress)
 {
-	pthread_testcancel();
-	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,NULL);
-	gdk_threads_enter();
+	gf4d_fractal_enter_callback(f);
+
 	gtk_signal_emit(GTK_OBJECT(f),
 			fractal_signals[PROGRESS_CHANGED], 
 			progress);
-	gdk_threads_leave();
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
+	gf4d_fractal_leave_callback(f);
 }
 
 void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val)
 {
-	pthread_testcancel();
-	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,NULL);
-	gdk_threads_enter();
+	gf4d_fractal_enter_callback(f);
+
 	gtk_signal_emit(GTK_OBJECT(f),
 			fractal_signals[STATUS_CHANGED],
 			status_val);
-	gdk_threads_leave();
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
+	gf4d_fractal_leave_callback(f);
 }
 
 int gf4d_fractal_is_interrupted(Gf4dFractal *f)

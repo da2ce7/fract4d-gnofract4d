@@ -1,4 +1,4 @@
-%define ver     1.0 
+%define ver     1.2 
 %define RELEASE 1
 %define prefix  /usr      
 
@@ -33,6 +33,12 @@ make
 
 make prefix=$RPM_BUILD_ROOT%{prefix} install
 
+# hack to get gnome-config-relative stuff into build dir. ugh.
+mkdir -p $RPM_BUILD_ROOT/%{prefix}/share/maps/gnofract4d
+mkdir -p $RPM_BUILD_ROOT/%{prefix}/share/pixmaps/gnofract4d
+cp `gnome-config --datadir`/maps/gnofract4d/* $RPM_BUILD_ROOT/%{prefix}/share/maps/gnofract4d
+cp `gnome-config --datadir`/pixmaps/gnofract4d/* $RPM_BUILD_ROOT/%{prefix}/share/pixmaps/gnofract4d
+
 %clean
 [ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf $RPM_BUILD_ROOT
 
@@ -41,6 +47,6 @@ make prefix=$RPM_BUILD_ROOT%{prefix} install
 %doc AUTHORS COPYING ChangeLog NEWS README
 
 %{prefix}/bin/gnofract4d
-
-
-
+%{prefix}/share/gnome/apps/Graphics/gnofract4d.desktop
+%{prefix}/share/gnome/help/gnofract4d/*/*
+%{prefix}/share/maps/gnofract4d/*

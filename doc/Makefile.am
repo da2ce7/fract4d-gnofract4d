@@ -6,9 +6,14 @@ gnofract4d_help_DATA = \
 
 SGML_FILES = gnofract4d.sgml
 
+GIFS = julia_perturbed.gif julia_standard.gif \
+	mandelbrot_perturbed.gif mandelbrot_standard.gif \
+	xw_plane.gif 
+
 EXTRA_DIST = \
 	$(SGML_FILES) \
-	topic.dat 
+	topic.dat \
+	$(GIFS)
 
 all:
 

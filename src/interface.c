@@ -597,9 +597,12 @@ create_propertybox_color_page(GtkWidget *propertybox,
 	cmapselector = gnome_file_entry_new("cmaps",_("Select a color map file"));
 	
 	{
+		gchar *dir = gnome_datadir_file("maps/" PACKAGE  "/");
+
 		GtkWidget *entry = gnome_file_entry_gtk_entry(
 			GNOME_FILE_ENTRY(cmapselector));
-			
+
+		gnome_file_entry_set_default_path(GNOME_FILE_ENTRY(cmapselector), dir);
 		gtk_entry_set_text(GTK_ENTRY(entry), _("Default"));
 
 		/* set cmap selector name */
@@ -610,6 +613,8 @@ create_propertybox_color_page(GtkWidget *propertybox,
 		gtk_signal_connect_object(GTK_OBJECT(entry),"changed",
 					  GTK_SIGNAL_FUNC(gnome_property_box_changed),
 					  GTK_OBJECT(propertybox));
+
+		g_free(dir);
 	}
 	gtk_widget_show(cmapselector);
 	gtk_table_attach(GTK_TABLE(table), cmapselector,1,2,1,2, 

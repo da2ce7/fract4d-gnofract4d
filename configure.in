@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(configure.in)
-AM_INIT_AUTOMAKE(gnofract4d, 1.0)
+AM_INIT_AUTOMAKE(gnofract4d, 1.2)
 AM_CONFIG_HEADER(config.h)
 
 dnl Pick up the Gnome macros.
@@ -17,10 +17,7 @@ AC_HEADER_STDC
 GNOME_COMPILE_WARNINGS
 GNOME_X_CHECKS
 
-dnl AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR("can't find glib"), gthread)
-dnl AM_PATH_GTK(1.2, , AC_MSG_ERROR("can't find gtk"), gthread)
-GNOMEUI_LIBS=" -lgthread $GNOMEUI_LIBS "
-
+AM_PATH_GTK(1.2.0, , AC_MSG_ERROR("cannot find gtk"), gthread)
 
 dnl look for cln 
 dnl AC_MSG_CHECKING(for CLN arbitrary-precision math library)
@@ -33,13 +30,26 @@ AM_GNU_GETTEXT
 dnl Set PACKAGE_LOCALE_DIR in config.h.
 if test "x${prefix}" = "xNONE"; then
   AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${ac_default_prefix}/${DATADIRNAME}/locale")
+  real_prefix="${ac_default_prefix}"
 else
   AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/${DATADIRNAME}/locale")
+  real_prefix="${prefix}"
 fi
+
+dnl problem with these is that they don't work with the rpm build
+dnl (they put things outside the $prefix)
 
 dnl Subst PACKAGE_PIXMAPS_DIR.
 PACKAGE_PIXMAPS_DIR="`gnome-config --datadir`/pixmaps/${PACKAGE}"
+dnl PACKAGE_PIXMAPS_DIR="${real_prefix}/${DATADIRNAME}/pixmaps/${PACKAGE}"
 AC_SUBST(PACKAGE_PIXMAPS_DIR)
+
+
+dnl Subst MAPS_DIR
+PACKAGE_MAPS_DIR="`gnome-config --datadir`/maps/${PACKAGE}"
+dnl PACKAGE_MAPS_DIR="${real_prefix}/${DATADIRNAME}/maps/${PACKAGE}"
+AC_SUBST(PACKAGE_MAPS_DIR)
+
 
 AC_OUTPUT([
 Makefile

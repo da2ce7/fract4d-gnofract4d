@@ -11,7 +11,7 @@ gnofract4d_SOURCES = \
 	support.c support.h \
 	interface.c interface.h \
 	callbacks.c callbacks.h \
-	fract.cpp fract.h calc.h \
+	fract.cpp fract.h fract_public.h calc.h \
 	test-fonction.cpp test-fonction.h \
 	vectors.h \
 	model.cpp model.h \
@@ -22,5 +22,5 @@ gnofract4d_SOURCES = \
 	image.cpp image.h \
 	colorizer.cpp colorizer.h colorizer_public.h 
 
-gnofract4d_LDADD = $(GNOME_LIBDIR) $(GNOMEUI_LIBS) $(INTLLIBS)
+gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) $(GNOMEUI_LIBS) $(INTLLIBS)
 

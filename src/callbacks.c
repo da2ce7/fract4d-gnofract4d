@@ -60,7 +60,6 @@ void set_cb (GtkAdjustment *adj, gpointer user_data)
 	char buf[100];
 	set_cb_data *pdata = (set_cb_data *)user_data;
 	sprintf(buf,"%g",adj->value);
-	g_print("set_cb\n");
 	model_cmd_start(pdata->m);
 	gf4d_fractal_set_param(model_get_fract(pdata->m),pdata->pnum, buf);
 	model_cmd_finish(pdata->m);
@@ -71,7 +70,6 @@ void adjustment_update_callback(Gf4dFractal *gf, gpointer user_data)
 	set_cb_data *pdata = (set_cb_data *)user_data;
 	gchar *sval = gf4d_fractal_get_param(gf,pdata->pnum);
 	gfloat fval;
-	g_print("adjustment_cb\n");
 	sscanf(sval,"%f",&fval);
 	gtk_adjustment_set_value(pdata->adj, fval);
 
