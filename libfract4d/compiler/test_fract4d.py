@@ -103,7 +103,9 @@ class PfTest(unittest.TestCase):
         fract4d.image_resize(image,80,60)
 
     def testCalc(self):
-        image = fract4d.image_create(40,30)
+        xsize = 64
+        ysize = xsize * 3.0/4.0
+        image = fract4d.image_create(xsize,ysize)
         siteobj = FractalSite()
         site = fract4d.site_create(siteobj)
 
@@ -132,7 +134,7 @@ class PfTest(unittest.TestCase):
         self.failUnless(siteobj.progress_list[-1]== 0.0 and \
                          siteobj.progress_list[-2]== 1.0)
 
-        self.failUnless(siteobj.image_list[-1]==(0,0,40,30))
+        self.failUnless(siteobj.image_list[-1]==(0,0,xsize,ysize))
 
         self.failUnless(siteobj.status_list[0]== 1 and \
                          siteobj.status_list[-1]== 0)

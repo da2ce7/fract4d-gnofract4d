@@ -103,7 +103,7 @@ bool image::set_data_size(int size)
 	       
 bool image::save(const char *filename)
 {
-    printf("saving to %s\n",filename);
+    //printf("saving to %s\n",filename);
     FILE *fp = fopen(filename,"wb");
     if(!fp) return false;
     unsigned char tga_header[] = {
