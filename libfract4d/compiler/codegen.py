@@ -18,6 +18,9 @@ def reals(l):
 def imags(l):
     return map(lambda x : x[1],filter(lambda x : x != [],l))
 
+def filter_nulls(l):
+    return [x for x in l if x != []]
+
 def format_string(t,index,pos):
     # compute a format string for a binop's child at position pos
     if isinstance(t,ir.Const):
@@ -104,12 +107,11 @@ class Formatter:
     def __getitem__(self,key):
         try:
             out = self.tree.output_sections[key]
-            print out
             str_output = string.join(map(lambda x : x.format(), out),"\n")
             return str_output
 
         except KeyError, err:
-            print "missed %s" % key
+            #print "missed %s" % key
             return self.lookup.get(key,"")
 
 class T:
@@ -192,10 +194,11 @@ return 0;
         t.output_sections[section] = self.out
     
     def output_all(self,t):
-        t.output_sections["decls"] = self.output_symbols()
         for k in t.canon_sections.keys():
             self.output_section(t,k)
-
+        # must be done afterwards or temps are missing
+        t.output_sections["decls"] = self.output_symbols()
+        
     def output_c(self,t,inserts={}):
         # find bailout variable
         bailout_insn = t.output_sections["bailout"][-2]
@@ -292,8 +295,8 @@ return 0;
                 r = reals(srcs) ; i = imags(srcs)
                 ac = self.emit_binop(t.op, s0, 0, s1, 0, r, Float)
                 bd = self.emit_binop(t.op, s0, 1, s1, 1, i, Float)
-                bc = self.emit_binop(t.op, s0, 1, s1, 0, r, Float)
-                ad = self.emit_binop(t.op, s0, 0, s1, 1, i, Float)
+                bc = self.emit_binop(t.op, s0, 1, s1, 0, [r[0],i[1]], Float)
+                ad = self.emit_binop(t.op, s0, 0, s1, 1, [r[1],i[0]], Float)
                 dst = [
                     self.emit_binop('-', ac, -1, bd, -1, [ac, bd], Float),
                     self.emit_binop('+', bc, -1, ad, -1, [bc, ad], Float)]
