@@ -3,6 +3,7 @@
 - can < work on complex numbers?
 - is int foo = int bar = 3 ok?
 - does int foo = bar = 3 make bar an int or not?
+- removing trailing newline requirement
 
 + stuff to fix
 - symmetry id
