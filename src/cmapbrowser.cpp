@@ -38,6 +38,9 @@
 
 #define BYTE_SIZE ((PREVIEW_SIZE) * (PREVIEW_SIZE) * 3)
 
+
+GtkWidget *current_colorbut = NULL;
+
 void update_previews(GtkWidget *button, gpointer user_data);
 
 void
@@ -308,7 +311,7 @@ create_current_maps_page(GtkWidget *notebook, model_t *m)
 void
 color_change_callback(GtkWidget *colorsel, gpointer user_data)
 {
-    gdouble colors[8];
+    gdouble colors[4];
     gtk_color_selection_get_color(GTK_COLOR_SELECTION(colorsel), colors);
 
     GtkWidget *button = GTK_WIDGET(user_data);  
@@ -336,7 +339,7 @@ colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
     guint color;
     if(cm_cizer)
     {
-	rgb_t col = (*cm_cizer)((double)index);
+	rgb_t col = cm_cizer->cmap[index];
 	color = (col.r << 16) | (col.g << 8) | col.b;
     }
     else
@@ -350,26 +353,79 @@ colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
     GdkGC *gc = widget->style->fg_gc[widget->state];
     gdk_gc_set_clip_rectangle (gc,
 			       &event->area);
+
+    gdk_draw_rectangle(widget->window,
+		       widget->style->bg_gc[GTK_WIDGET_STATE(widget)],
+		       FALSE,
+		       0,0,
+		       widget->allocation.width, widget->allocation.height);
  
     GdkGCValues values;
     gdk_gc_get_values(gc,&values);
     gdk_rgb_gc_set_foreground(gc, color);
+
     gdk_draw_rectangle (widget->window,
 			gc,
 			TRUE,
-			0, 0, 
-			widget->allocation.width, widget->allocation.height);
+			1, 1, 
+			widget->allocation.width-2, widget->allocation.height-2);
     
     gdk_gc_set_foreground(gc,&values.foreground);
     return TRUE;
 }
 
+rgb_t colorbut_get_color(GtkWidget *widget)
+{
+    int index = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"index"));
+
+    cmap_colorizer *cizer = (cmap_colorizer *)gtk_object_get_data(
+	GTK_OBJECT(widget->parent), "cizer");
+
+    return cizer->cmap[index];
+}
+
 void colorbut_mouse_event(
     GtkWidget *widget, GdkEvent *event, GtkWidget *colorsel)
 {
+    if(current_colorbut)
+    {
+	gtk_widget_set_state(current_colorbut, GTK_STATE_NORMAL);
+    }
+    
+    //guint color = colorbut_get_color(widget);
+    current_colorbut = widget;
+    gtk_widget_set_state(widget, GTK_STATE_SELECTED);
 
-    //guint color = colorbut_get_color(widget
+    gdouble colors[4];
+    rgb_t rgb_color =colorbut_get_color(widget);
+    colors[0] = (gdouble) rgb_color.r / 256.0;
+    colors[1] = (gdouble) rgb_color.g / 256.0;
+    colors[2] = (gdouble) rgb_color.b / 256.0;
+    colors[3] = 1.0;
+    gtk_color_selection_set_color(GTK_COLOR_SELECTION(colorsel),colors);
     g_print("color selected\n");
+}
+
+void colorbut_set_event(GtkWidget *colorsel, gpointer)
+{
+    GtkWidget *colorbut = current_colorbut;
+    if(!current_colorbut) return;
+
+    gdouble colors[4];
+    gtk_color_selection_get_color(GTK_COLOR_SELECTION(colorsel),colors);
+    rgb_t rgb_color;
+    rgb_color.r = (char)(colors[0]*255.0);
+    rgb_color.g = (char)(colors[1]*255.0);
+    rgb_color.b = (char)(colors[2]*255.0);
+
+    int index = GPOINTER_TO_INT(
+	gtk_object_get_data(GTK_OBJECT(colorbut),"index"));
+
+    cmap_colorizer *cizer = (cmap_colorizer *)gtk_object_get_data(
+	GTK_OBJECT(colorbut->parent), "cizer");
+
+    g_print("%d\n",index);
+    cizer->cmap[index] = rgb_color;
 }
 
 GtkWidget *
@@ -409,6 +465,11 @@ create_edit_colormap_page(GtkWidget *notebook, model_t *m)
     gtk_table_attach(GTK_TABLE(table), colorsel, 0, 2, 2, 3, 
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
+
+    gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed",
+		       (GtkSignalFunc)colorbut_set_event,
+		       NULL);
+
     gtk_object_set_data(GTK_OBJECT(colorbox),"colorsel",colorsel);
     gtk_object_set_data(GTK_OBJECT(colorbox),"cizer",cizer);
 
@@ -434,7 +495,7 @@ create_edit_colormap_page(GtkWidget *notebook, model_t *m)
 
 	int x = i % 32, y = i / 32;
 	gtk_table_attach(GTK_TABLE(colorbox), colorbut, x,x+1,y,y+1,
-			 (GtkAttachOptions) 0, (GtkAttachOptions) 0, 1 , 1);
+			 (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0 , 0);
     }
 
     gtk_widget_show_all(table);
