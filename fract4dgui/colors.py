@@ -6,15 +6,12 @@ import sys
 import gtk
 import gobject
 
-_colors = None
+import dialog
+
 _color_model = None
 
 def show_colors(parent,f):
-    global _colors
-    if not _colors:
-        _colors = ColorDialog(parent,f)
-    _colors.show_all()
-    _colors.present()
+    ColorDialog.show(parent,f)
 
 def _get_model():
     global _color_model
@@ -45,15 +42,16 @@ class ColorModel:
                 
     def populate_file_list(self):
         self.add_directory("maps")
-        self.add_directory(os.path.join(sys.exec_prefix,"share/maps/gnofract4d"))
+        self.add_directory(
+            os.path.join(sys.exec_prefix,"share/maps/gnofract4d"))
         
 def stricmp(a,b):
     return cmp(a.lower(),b.lower())
 
-class ColorDialog(gtk.Dialog):
+class ColorDialog(dialog.T):
     def __init__(self,main_window,f):
         global userPrefs
-        gtk.Dialog.__init__(
+        dialog.T.__init__(
             self,
             "Color Maps",
             main_window,
@@ -67,9 +65,13 @@ class ColorDialog(gtk.Dialog):
         sw = self.create_map_file_list()
 
         self.vbox.add(sw)
-        self.connect('response',self.onResponse)
         self.treeview.get_selection().unselect_all()
-        
+
+    def show(parent, f):
+        dialog.T.reveal(ColorDialog,parent,f)
+
+    show = staticmethod(show)
+
     def file_selection_changed(self,selection):
         (model,iter) = selection.get_selected()
 

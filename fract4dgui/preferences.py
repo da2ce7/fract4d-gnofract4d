@@ -6,6 +6,8 @@ import os
 import gtk
 import gobject
 
+import dialog
+
 class Preferences(ConfigParser.ConfigParser,gobject.GObject):
     # This class holds the preference data
     __gsignals__ = {
@@ -77,19 +79,13 @@ gobject.type_register(Preferences)
 
 userPrefs = Preferences()
     
-_prefs = None
-
 def show_preferences(parent,f):
-    global _prefs
-    if not _prefs:
-        _prefs = PrefsDialog(parent,f)
-    _prefs.show_all()
-    _prefs.present()
+    PrefsDialog.show(parent,f)
     
-class PrefsDialog(gtk.Dialog):
+class PrefsDialog(dialog.T):
     def __init__(self,main_window,f):
         global userPrefs
-        gtk.Dialog.__init__(
+        dialog.T.__init__(
             self,
             _("Gnofract 4D Preferences"),
             main_window,
@@ -104,10 +100,13 @@ class PrefsDialog(gtk.Dialog):
         self.tips = gtk.Tooltips()
         self.create_image_options_page()
         self.create_compiler_options_page()
-        #self.create_editor_options_page()
         
         self.set_size_request(500,-1)
-        self.connect('response',self.onResponse)
+
+    def show(parent, f):
+        dialog.T.reveal(PrefsDialog,parent,f)
+
+    show = staticmethod(show)
 
     def show_error(self,message):
         d = gtk.MessageDialog(self, gtk.DIALOG_MODAL,
@@ -310,8 +309,3 @@ class PrefsDialog(gtk.Dialog):
         aalabel.set_mnemonic_widget(optMenu)
         table.attach(aalabel,0,1,4,5,0,0,2,2)
         
-    def onResponse(self,widget,id):
-        if id == gtk.RESPONSE_CLOSE or \
-               id == gtk.RESPONSE_NONE or \
-               id == gtk.RESPONSE_DELETE_EVENT:
-            self.hide()

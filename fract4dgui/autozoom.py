@@ -5,18 +5,14 @@ import operator
 
 import gtk
 
-_autozoom = None
+import dialog
 
 def show_autozoom(parent,f):
-    global _autozoom
-    if not _autozoom:
-        _autozoom = AutozoomDialog(parent,f)
-    _autozoom.show_all()
-    _autozoom.present()
+    AutozoomDialog.show(parent,f)
     
-class AutozoomDialog(gtk.Dialog):
+class AutozoomDialog(dialog.T):
     def __init__(self,main_window,f):
-        gtk.Dialog.__init__(
+        dialog.T.__init__(
             self,
             _("Autozoom"),
             main_window,
@@ -62,9 +58,13 @@ class AutozoomDialog(gtk.Dialog):
         self.table.attach(self.minsize_entry,
                           1,2,1,2,
                           gtk.EXPAND | gtk.FILL, 0, 2, 2)
-        
-        self.connect('response',self.onResponse)
-        
+
+    def show(parent, f):
+        dialog.T.reveal(ColorDialog,parent,f)
+
+    show = staticmethod(show)
+
+
     def onZoomToggle(self,*args):
         if self.zoombutton.get_active():
             self.zoombutton.child.set_text_with_mnemonic("Stop _Zooming")
@@ -106,10 +106,4 @@ class AutozoomDialog(gtk.Dialog):
                 else:
                     self.zoombutton.set_active(False)
                 
-    def onResponse(self,widget,id):
-        if id == gtk.RESPONSE_CLOSE or \
-               id == gtk.RESPONSE_NONE or \
-               id == gtk.RESPONSE_DELETE_EVENT:
-            self.zoombutton.set_active(False)
-            self.hide()
     

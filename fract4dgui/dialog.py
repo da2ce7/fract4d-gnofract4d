@@ -29,7 +29,6 @@ class T(gtk.Dialog):
     
     reveal = staticmethod(reveal)
 
-    
     def onResponse(self,widget,id):
         if id == gtk.RESPONSE_CLOSE or \
                id == gtk.RESPONSE_NONE or \
