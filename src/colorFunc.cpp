@@ -77,17 +77,12 @@ public:
 
 };
 
-// calculate magnitude of last position, scaled so that 0 -> bailout is
-// 256.0
-
-class mag_colorFunc : public colorFunc {
+// use just the ejection distance, without using the number of
+// iterations.
+class ejectDist_colorFunc : public colorFunc {
 public:
     double operator()(int iter, double *scratch) const
         {
-            /*
-            return (scratch[X] * scratch[X] + scratch[Y] * scratch[Y]) *
-                (256.0 / scratch[EJECT]);
-            */
             return 256.0 * scratch[EJECT]/scratch[EJECT_VAL];
         }
 };
@@ -105,8 +100,8 @@ colorFunc *colorFunc_new(e_colorFunc e)
     case COLORFUNC_ZERO:
         pcf = new zero_colorFunc;
         break;
-    case COLORFUNC_MAG:
-        pcf = new mag_colorFunc;
+    case COLORFUNC_ED:
+        pcf = new ejectDist_colorFunc;
         break;
     default:
         std::cerr << "Warning: unknown colorFunc value" << (int)e << "\n";

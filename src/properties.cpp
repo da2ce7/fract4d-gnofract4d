@@ -581,7 +581,7 @@ create_cf_menu(Gf4dFractal *shadow, int whichCf)
         N_("Iteration Count"),
         N_("Continuous Potential"),
         N_("Color Zero"),
-        N_("Magnitude")
+        N_("Ejection Distance")
     };
 
     gtk_object_set_data(
