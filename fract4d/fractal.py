@@ -98,7 +98,6 @@ class Colorizer(FctUtils):
         
     def parse_file(self,val,f):
         mapfile = open(val)
-        print mapfile
         i = 0
         for line in mapfile:
             m = rgb_re.match(line)
@@ -111,7 +110,7 @@ class Colorizer(FctUtils):
                     # first color is inside solid color
                     self.solid = (r,g,b,255)
                 else:
-                    self.colorlist.append((i-1/255.0,r,g,b,255))
+                    self.colorlist.append(((i-1)/255.0,r,g,b,255))
             i += 1
 
         

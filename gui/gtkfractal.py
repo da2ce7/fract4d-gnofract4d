@@ -20,6 +20,7 @@ class Threaded(fractal.T):
     def __init__(self,comp):
         (r,w) = os.pipe()
         self.readfd = r
+        self.nthreads = 1        
         s = fract4dc.fdsite_create(w)
         fractal.T.__init__(self,comp,s)
         self.msgformat = "5i"
@@ -35,6 +36,7 @@ class Threaded(fractal.T):
 
         self.skip_updates = False
         self.running = False
+
 
     def interrupt(self):
         if self.skip_updates:
@@ -60,8 +62,9 @@ class Threaded(fractal.T):
         fract4dc.pf_init(self.pfunc,0.001,self.initparams)
 
         self.running = True
-        fract4dc.async_calc(self.params,self.antialias,self.maxiter,1,
-                           self.pfunc,self.cmap,1,image,self.site)
+        fract4dc.async_calc(self.params,self.antialias,self.maxiter,
+                            self.nthreads,
+                            self.pfunc,self.cmap,1,image,self.site)
 
     def onData(self,fd,condition):
         bytes = os.read(fd,self.msgsize)
@@ -184,6 +187,16 @@ class T(Threaded,gobject.GObject):
     def reset(self):
         fractal.T.reset(self)
         self.emit('parameters-changed')
+
+    def save_image(self,filename):
+        # FIXME need to get hold of a pixbuf
+        pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,None,8,self.width,self.height)
+        pixbuf.get_from_drawable(self.widget.window,None,0,0,0,0,self.width,self.height)
+        if pixbuf == None:
+            # FIXME a bad thing happened,complain
+            return
+        
+        pixbuf.save(filename,"png")
         
     def draw_image(self):
         self.interrupt()

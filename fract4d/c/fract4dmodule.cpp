@@ -605,13 +605,21 @@ public:
 #ifdef DEBUG_CREATION
 	    printf("%p : FD : CTOR\n",this);
 #endif
+	    pthread_mutex_init(&write_lock,NULL);
 	}
 
+    inline void send(msg_t *pm)
+	{
+	    pthread_mutex_lock(&write_lock);
+	    write(fd,pm,sizeof(msg_t));
+	    pthread_mutex_unlock(&write_lock);
+	}
     virtual void iters_changed(int numiters)
 	{
 	    msg_t m = { ITERS, 0, 0, 0, 0};
 	    m.p1 = numiters;
-	    write(fd,&m,sizeof(m));
+
+	    send(&m);
 	}
     
     // we've drawn a rectangle of image
@@ -621,7 +629,8 @@ public:
 	    {
 		msg_t m = { IMAGE };
 		m.p1 = x1; m.p2 = y1; m.p3 = x2; m.p4 = y2;
-		write(fd,&m,sizeof(m));
+
+		send(&m);
 	    }
 	}
     // estimate of how far through current pass we are
@@ -632,7 +641,8 @@ public:
 		msg_t m = { PROGRESS };
 		m.p1 = (int) (100.0 * progress);
 		m.p2 = m.p3 = m.p4 = 0;
-		write(fd,&m,sizeof(m));
+
+		send(&m);
 	    }
 	}
     // one of the status values above
@@ -641,7 +651,8 @@ public:
 	    msg_t m = { STATUS };
 	    m.p1 = status_val;
 	    m.p2 = m.p3 = m.p4 = 0;
-	    write(fd,&m,sizeof(m));
+
+	    send(&m);
 	}
 
     // return true if we've been interrupted and are supposed to stop
@@ -712,6 +723,7 @@ private:
     int tid;
     volatile bool interrupted;
     calc_args *params;
+    pthread_mutex_t write_lock;
 };
 
 static void
