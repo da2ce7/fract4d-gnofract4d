@@ -176,6 +176,8 @@ class ParserTest(unittest.TestCase):
     def testStrings(self):
         t1 = self.parse('''
         t1 {
+        loop:
+        x = "wombat"
         default:
         x = ""
         y = "hi"
@@ -183,7 +185,8 @@ class ParserTest(unittest.TestCase):
         }
         ''')
         self.assertIsValidParse(t1)
-        self.assertEqual(len(self.allNodesOfType(t1,"string")),5)
+        print t1.pretty()
+        self.assertEqual(len(self.allNodesOfType(t1,"string")),6)
         self.assertIsBadFormula(self.makeMinimalFormula('"'),
                                 "unexpected '\"'",3)
     def testParamBlocks(self):
