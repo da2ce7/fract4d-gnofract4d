@@ -196,6 +196,11 @@ def p_exp_binop(t):
        '''
     t[0] = absyn.Binop(t[2],t[1],t[3])
 
+# allow 2+\n 3
+# def p_exp_pre_nl(t):
+#     'exp : NEWLINE exp'
+#     t[0] = t[2]
+
 def p_exp_assign(t):
     'exp : ID ASSIGN exp'
     t[0] = absyn.Assign(t[1],t[3])

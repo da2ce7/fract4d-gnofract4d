@@ -245,7 +245,26 @@ class ParserTest(unittest.TestCase):
                  "stmlist",
                      "assign", "id"              
             ])
-        
+
+    # this comes from anon.ufm, which appears broken -UF doesn't
+    # parse it either
+    def testTrailingExpressions(self):
+        f = '''
+TZ0509-03 {
+;
+;from TieraZon2 fl-05-09.fll
+init:
+  z = -(3 * #pixel) / 5
+loop:
+  z = z - (z * z^4 + z^4 * #pixel - sin(z) - z) / (5 * z^4 + 4 * z^3 *
+#pixel -
+cos(z) - z)
+bailout:
+  |z| < 4
+}
+'''
+        self.assertIsBadFormula(f,"unexpected newline",8)
+
     def testSimpleMandelbrot(self):
         t1 = self.parse('''
 MyMandelbrot {
@@ -310,7 +329,9 @@ default:
         self.assertTreesEqual(t1,t2)
         
     def assertTreesEqual(self, t1, t2):
-        self.failUnless(t1.DeepCmp(t2)==0, "should be equivalent")
+        self.failUnless(
+            t1.DeepCmp(t2)==0,
+            ("%s, %s should be equivalent" % (t1.pretty(), t2.pretty())))
 
     def allNodesOfType(self, t1, type):
         return [ n for n in t1 if n.type == type]
