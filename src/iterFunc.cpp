@@ -296,7 +296,7 @@ class newtFunc : public iterImpl<newtFunc,1>
 class novaFunc : public iterImpl<novaFunc,3>
 {
 public:
-    enum {  FLAGS = USE_COMPLEX };
+    enum {  FLAGS = USE_COMPLEX | NO_UNROLL};
     novaFunc() : iterImpl<novaFunc,3>(name()) 
         { 
             reset_opts(); 

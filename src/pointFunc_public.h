@@ -47,4 +47,11 @@ typedef enum
     COLORFUNC_ED
 } e_colorFunc;
 
+/* bailout flags */
+#define HAS_X2 1
+#define HAS_Y2 2
+#define USE_COMPLEX 4
+#define NO_UNROLL 8
+#define NO_PERIOD 16
+
 #endif

@@ -121,16 +121,22 @@ public:
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
                     RET;
+#if TRACE
+		    (*out) << "bail\n";
+#endif
                     return true; // escaped
                 }
                 iter++;
             }            
             RET;
+#if TRACE
+	    (*out) << "max\n";
+#endif
             return false; // finished iterations without escaping
         }
 
     //template<class T>
-    bool calcWithPeriod(
+    void calcWithPeriod(
         int &iter, int nMaxIters)
         {
             /* periodicity vars */
@@ -139,6 +145,9 @@ public:
             
             // single iterations
             DECL; 
+#if TRACE
+            (*out) << "pin:" << XPOS << "," << YPOS << "\n";
+#endif 
             do
             {
                 ITER; 
@@ -149,20 +158,29 @@ public:
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
                     RET;
-                    return true;
+#if TRACE
+		    (*out) << "pbail\n";
+#endif
+                    return;
                 }
                 if(iter++ >= nMaxIters) 
                 {
                     // ran out of iterations
                     RET;
-                    iter = -1; return false;
+#if TRACE
+		    (*out) << "pmax\n";
+#endif
+                    iter = -1; return;
                 }
                 if(fabs(XPOS - lastx) < m_period_tolerance &&
                    fabs(YPOS - lasty) < m_period_tolerance)
                 {
                     // period detected!
                     RET;
-                    iter = -1;  return false;
+#if TRACE
+		    (*out) << "pp\n";
+#endif
+                    iter = -1;  return;
                 }
                 if(--k == 0)
                 {
@@ -178,6 +196,7 @@ public:
     //template<class T>
     inline void calc(
         const vec4<T>& params, int nMaxIters, int nNoPeriodIters,
+	int x, int y, int aa,
         struct rgb *color, int *pnIters
         )
         {
@@ -187,7 +206,7 @@ public:
                 std::ostringstream ofname;
                 ofname << "out-" << pthread_self() << ".txt";
                 std::string outname = ofname.str();
-                cout << outname << "\n";
+                std::cout << outname << "\n";
                 out = new std::ofstream(outname.c_str());
                 (*out) << std::setprecision(17);
             }
@@ -212,18 +231,29 @@ public:
 #endif
 #endif
 
+#if TRACE
+	    (*out)  << "calc: " << nNoPeriodIters << " " << nMaxIters 
+		    << " " << x << " " << y << " " << aa << "\n";
+#endif
             if(nNoPeriodIters > 0)
             {
                 done = calcNoPeriod(iter,nNoPeriodIters);
             }
             if(!done)
             {
-                done = calcWithPeriod(iter,nMaxIters);
+		if(nMaxIters > nNoPeriodIters)
+		{
+		    calcWithPeriod(iter,nMaxIters);
+		}
+		else
+		{
+		    iter = -1;
+		}
             }
 
             *pnIters = iter;
 #if TRACE
-            //(*out) << iter << "\n";
+            (*out) << iter << "\n";
 #endif
             if(color)
             {
@@ -233,10 +263,11 @@ public:
 
     virtual void operator()(
         const vec4<double>& params, int nMaxIters, int nNoPeriodIters,
+	int x, int y, int aa,
         struct rgb *color, int *pnIters
         )
         {
-            calc(params, nMaxIters, nNoPeriodIters, color, pnIters);
+            calc(params, nMaxIters, nNoPeriodIters, x, y, aa,color, pnIters);
         }
 #ifdef HAVE_GMP
     virtual void operator()(

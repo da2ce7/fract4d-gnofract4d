@@ -4,7 +4,6 @@ Compiler
 
 
 Other
-
 * W	Julia preview by moving around while holding button3
 * B	why is Barnsley so slow?
 * B	interrupt takes too long on deep-zoomed fractals
@@ -52,12 +51,13 @@ Movies-
 
 Must do pre 1.7
 * W	update docs
-* W	parameterize + fix newton 
 * W	check inner/outer loads/saves correctly
 * W	make sure inner function is sensible (itercount is pointless)
 
 
 Done:
+* B	caduceus.fct broken
+* W	parameterize + fix newton 
 * W 	Keyboard
 *		- Cursors : left/right/up/down
 * W 	install all headers + template in make install + rpm

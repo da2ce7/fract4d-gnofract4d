@@ -34,6 +34,8 @@ class pointFunc {
     virtual void operator()(
         // in params
         const vec4<double>& params, int nIters, int nNoPeriodIters,
+	// only used for debugging
+	int x, int y, int aa,
         // out params
         struct rgb *color, int *pnIters
         ) = 0;

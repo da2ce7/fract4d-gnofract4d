@@ -39,8 +39,10 @@ class bailFunc {
     virtual void get_code(std::map<std::string,std::string>& map, int flags) const
         {
             map["BAIL"] = bail_code(flags);
-            map["UNROLL"]= iter8_ok() ? "1" : "0";
-            //map["NOPERIOD"] = period_ok() ? "0" : "1";
+	    // either iterfunc or bailfunc can veto unrolling or periodicity 
+	    // operations. Might allow user to do so too later
+            map["UNROLL"]= iter8_ok() && !(flags & NO_UNROLL) ? "1" : "0";
+            map["NOPERIOD"] = period_ok() && !(flags & NO_PERIOD) ? "0" : "1";
         }
 
     /* is it OK to unroll the loop with this bailout type? */

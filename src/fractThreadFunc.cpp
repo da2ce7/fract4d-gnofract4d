@@ -160,28 +160,28 @@ fractThreadFunc::antialias(int x, int y)
         pixel_r_val = 99;
     }
     // top left
-    (*(pf))(pos, f->maxiter,nNoPeriodIters,&ptmp,&p); 
+    (*(pf))(pos, f->maxiter,nNoPeriodIters,x,y,1,&ptmp,&p); 
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
     pos+=ff->delta_aa_x;
 
     // top right
-    (*(pf))(pos, f->maxiter,nNoPeriodIters,&ptmp,&p); 
+    (*(pf))(pos, f->maxiter,nNoPeriodIters,x,y,2,&ptmp,&p); 
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
     pos = topleft + ff->delta_aa_y;
 
     // bottom left
-    (*(pf))(pos, f->maxiter,nNoPeriodIters,&ptmp,&p); 
+    (*(pf))(pos, f->maxiter,nNoPeriodIters,x,y,3,&ptmp,&p); 
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
     pos+= ff->delta_aa_x;
 
     // bottom right
-    (*(pf))(pos, f->maxiter,nNoPeriodIters,&ptmp,&p); 
+    (*(pf))(pos, f->maxiter,nNoPeriodIters,x,y,4,&ptmp,&p); 
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
@@ -206,7 +206,7 @@ fractThreadFunc::pixel(int x, int y,int w, int h)
         I2D_LIKE(x, f->params[MAGNITUDE]) * ff->deltax + 
         I2D_LIKE(y, f->params[MAGNITUDE]) * ff->deltay;
 		
-    (*(pf))(pos, f->maxiter,periodGuess(), &pixel,ppos); 
+    (*(pf))(pos, f->maxiter,periodGuess(), x,y,0,&pixel,ppos); 
     periodSet(ppos);
 
     // test for iteration depth
@@ -214,7 +214,7 @@ fractThreadFunc::pixel(int x, int y,int w, int h)
     {
         int i=0;
 
-        (*(pf))(pos, f->maxiter*2,periodGuess()*2,NULL,&i);
+        (*(pf))(pos, f->maxiter*2,periodGuess()*2,x,y,-1,NULL,&i);
 
         if( (i > f->maxiter/2) && (i < f->maxiter))
         {
