@@ -37,8 +37,9 @@ def createDefaultDict():
         "recip": efl("recip", "[_] , _", [ Float, Complex]),
         "abs" :  efl("abs", "[_], _", [Float, Complex]),
         "cabs":  [ Func([Complex], Float, stdlib, "cabs")],
-        
-        "sqrt" :  efl("sqrt", "[_], _", [Float, Complex]),
+
+        "log" :  efl("log",  "[_], _", [Float, Complex]),
+        "sqrt" : efl("sqrt", "[_], _", [Float, Complex]),
         
         "sin" :  efl("sin", "[_], _", [Float, Complex]),
         "cos" :  efl("cos", "[_], _", [Float, Complex]),

@@ -85,7 +85,15 @@ def mag_c_f(gen,t,srcs):
     im_2 = gen.emit_binop('*',[src.im,src.im],Float)
     return gen.emit_binop('+',[re_2,im_2],Float)
 
+def log_f_f(gen,t,srcs):
+    return gen.emit_func('log', srcs, Float)
 
+def log_c_c(gen,t,srcs):
+    # log(a+ib) = (log(mag(a+ib)), atan2(a+ib))
+    re = gen.emit_func('log', [cabs_c_f(gen,t,srcs)], Float)
+    im = atan2_c_f(gen,t,srcs)
+    return ComplexArg(re,im)
+    
 def lt_cc_b(gen,t,srcs):    
     # compare real parts only
     return gen.emit_binop(t.op,reals(srcs), Bool)
