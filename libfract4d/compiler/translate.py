@@ -20,6 +20,7 @@ class T:
         self.sections = {}
         self.canon_sections = {}
         self.output_sections = {}
+        self.parameters = {}
         self.fakeNode = Empty(-1) # node used for code not written by user
         
         self.dumpCanon = 0
@@ -35,6 +36,7 @@ class T:
 
         try:
             self.formula(f)
+            self.identify_parameters()
             if self.dumpPreCanon:
                 self.dumpSections(f)
             self.canonicalize()
@@ -55,7 +57,7 @@ class T:
                         print name,": ",sym
                     except Exception, err:
                         print "Error \"%s\" dumping %s" %(err,name)
-                        
+
         if self.dumpTranslation:
             self.dumpSections(f)
 
@@ -80,7 +82,14 @@ class T:
         self.errors.append(msg)
     def warning(self,msg):
         self.warnings.append(msg)
-        
+
+    def identify_parameters(self):
+        for (name,sym) in self.symbols.items():
+            if self.symbols.is_param(name):
+                if not self.parameters.has_key(name):
+                    self.parameters[name] = sym
+
+    
     def formula(self, f):
         self.symbols.reset()
         if f.children[0].type == "error":
@@ -257,7 +266,17 @@ class T:
 
     def findOp(self, opnode, list):
         ' find the most appropriate overload for this op'
-        overloadList = self.symbols[opnode.leaf]
+        try:
+            overloadList = self.symbols[opnode.leaf]
+        except KeyError:
+            if opnode.leaf[0] == "@":
+                # an attempt to call an undeclared parameter function,
+                # create it now
+                overloadList = self.symbols[opnode.leaf] = [
+                    Func([Complex],Complex,None,None)]
+            else:
+                raise
+        
         typelist = map(lambda ir : ir.datatype , list)
         for ol in overloadList:
             if ol.matchesArgs(typelist):
