@@ -41,11 +41,11 @@
 #define INPUT_SPACE (EJECT+1)
 
 // temp state
-#define X2 5
-#define Y2 6
-#define EJECT_VAL 7
-#define LASTX 8
-#define LASTY 9
+#define X2 0
+#define Y2 1
+#define EJECT_VAL 2
+#define LASTX 3
+#define LASTY 4
 #define TEMP_SPACE (LASTY+1)
 
 /* bailout flags */
