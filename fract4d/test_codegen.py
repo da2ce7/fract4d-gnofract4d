@@ -276,7 +276,7 @@ int main()
         self.assertEqual(x.parts[3].value,"h_k")
         
     def testComplexAdd(self):
-        'simple complex srithmetic'
+        'simple complex arithmetic'
         # (1,3) + a
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"+",Complex)
         x = self.codegen.generate_code(tree)
@@ -622,6 +622,26 @@ func fn1
         self.assertEqual(outlines[0],"0")
         self.assertEqual(outlines[2],"1")
 
+    def testCColor(self):
+        'test color arithmetic'
+        src = '''t_color{
+        init:
+        color red = rgba(1,0,0,1)
+        color green = rgba(0,1,0,1)
+        color blue = rgba(0,0,1,1)
+        color alpha = rgba(0,0,0,1)
+        color yellow = red + green
+        color cyan = blue + green
+        color white = red + blue + green
+        color black = white - red - blue - green - green
+        }'''
+        self.assertCSays(src,"init",
+                         self.inspect_hyper("yellow") +
+                         self.inspect_hyper("cyan") +
+                         self.inspect_hyper("white") +
+                         self.inspect_hyper("black"),
+                         "yellow = (1,1,0,1)\ncyan = (0,1,1,1)\nwhite = (1,1,1,1)\nblack = (0,0,0,0)")
+        
     def testCHyper(self):
         'test arithmetic in hypercomplex numbers'
 
@@ -1066,12 +1086,17 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         src = '''t {
         init:
         color black = rgb(0,0,0)
-        color something = rgb(0.4, 0.7, 0.3) 
+        color something = rgba(0.4, 0.7, 0.3,0.9)
+        color out_of_range = rgb(-7.9, 1e13, 1.0/0.0)
         }'''
 
         check = "\n".join([self.inspect_color("black"),
-                           self.inspect_color("something")])
-        exp = "black = (0,0,0,1)\nsomething = (0.4,0.7,0.3,1)"
+                           self.inspect_color("something"),
+                           self.inspect_color("out_of_range")])
+        exp = "\n".join([
+            "black = (0,0,0,1)",
+            "something = (0.4,0.7,0.3,0.9)",
+            "out_of_range = (0,1,1,1)"])
         self.assertCSays(src,"init",check,exp)
         
     def test_stdlib(self):

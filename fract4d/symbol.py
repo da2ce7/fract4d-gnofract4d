@@ -361,13 +361,13 @@ def createDefaultDict():
     # operators
     
     f("+", 
-      cfl("[_,_] , _", [Int, Float, Complex, Hyper]),
+      cfl("[_,_] , _", [Int, Float, Complex, Hyper, Color]),
       fname="add",
       operator=True,
       doc='Adds two numbers together.')
 
     f("-",
-      cfl("[_,_] , _", [Int, Float, Complex, Hyper]),
+      cfl("[_,_] , _", [Int, Float, Complex, Hyper, Color]),
       fname="sub",
       operator=True,
       doc='Subtracts two numbers')
@@ -390,7 +390,11 @@ def createDefaultDict():
 
     f("rgb",
       [ [Float, Float, Float], Color],
-      doc='''Create an rgb color from three color components. The alpha channel is set to to 1.0 (=100%).''')
+      doc='''Create a color from three color components. The alpha channel is set to to 1.0 (=100%).''')
+
+    f("rgba",
+      [ [Float, Float, Float, Float], Color],
+      doc='''Create a color from three color components and an alpha channel.''')
     
     # predefined parameters
     for p in xrange(1,7):
