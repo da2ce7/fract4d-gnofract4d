@@ -16,10 +16,14 @@ class T:
         self.node = node # the absyn node we were constructed from
         self.children = None
     def pretty_children(self,depth):
-        r = ""
-        for child in self.children:
-            r += child.pretty(depth+1)
-        return r
+        r = []
+        if self.children != None:
+            for child in self.children:
+                if child == None:
+                    r.append(d(depth+1,"<<None>>"))
+                else:
+                    r.append(child.pretty(depth+1))
+        return string.join(r,"")
     
 # exp and subtypes
 # an exp computes a value
@@ -155,12 +159,9 @@ class CJump(Stm):
 class Seq(Stm):
     def __init__(self,stms, node, datatype):
         Stm.__init__(self, node, datatype)
-        self.stms = stms
+        self.children = stms
     def pretty(self, depth=0):
-        r = d(depth) + "Seq(\n"
-        for stm in self.stms:
-            r += stm.pretty(depth+1)
-        r += d(depth, ")\n")
+        r = d(depth) + "Seq(\n" + self.pretty_children(depth) + d(depth, ")\n")
         return r
 
 class Label(Stm):

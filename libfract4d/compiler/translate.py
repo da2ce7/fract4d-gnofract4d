@@ -22,7 +22,7 @@ class T:
         self.dumpCanon = 0
         self.dumpDecorated = 0
         self.dumpProbs = 0
-        self.dumpTranslation = 0
+        self.dumpTranslation = 1
         self.dumpVars = 0
         try:
             self.formula(f)
