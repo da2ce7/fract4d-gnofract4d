@@ -220,10 +220,21 @@ class ColorDialog(dialog.T):
         table.attach(gtk.Label("Simplify by:"),
                      0,1,3,4)
 
+        self.fudge_spinbutton = gtk.SpinButton()
+        self.fudge_spinbutton.set_range(0,20)
+        self.fudge_spinbutton.set_value(self.fudge_factor)
+        self.fudge_spinbutton.set_increments(0.5,5)
+        table.attach(self.fudge_spinbutton,
+                     1,2,3,4)
+
+        self.fudge_spinbutton.connect("value-changed", self.fudge_changed)
         gradbox.add(table)
 
         return gradbox
 
+    def fudge_changed(self, widget):
+        self.fudge_factor = self.fudge_spinbutton.get_value()
+        
     def solid_color_changed(self, r, g, b, index):
         self.solids[index] = \
             utils.updateColor256FromFloat(r,g,b, self.solids[index])
