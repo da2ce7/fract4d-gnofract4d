@@ -219,7 +219,8 @@ class T(gobject.GObject):
                 try:
                     f.set_initparam(order,entry.get_text(),param_type)
                 except Exception, err:
-                    msg = "Invalid value '%s': must be a number" %widget.get_text()
+                    msg = "Invalid value '%s': must be a number" % \
+                          entry.get_text()
                     gtk.idle_add(self.warn,msg)
                 return False
             

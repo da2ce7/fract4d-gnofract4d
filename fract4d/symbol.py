@@ -134,6 +134,10 @@ def createDefaultDict():
       cfl("[_] , _",  [Int, Float, Complex]),
       doc="Square the argument. sqr(x) is equivalent to x*x or x^2.")
 
+    #f("cube",
+    #  cfl("[_] , _", [Int, Float, Complex]),
+    #  doc="Cube the argument. cube(x) is equivalent to x*x*x or x^3.")
+    
     f("ident",
       cfl("[_] , _",  [Int, Float, Complex, Bool]),
       doc='''Do nothing. ident(x) is equivalent to x.
