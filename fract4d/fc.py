@@ -58,7 +58,12 @@ class Compiler:
     def init_cache(self):
         if not os.path.exists(self.cache_dir):
             os.makedirs(self.cache_dir)
-         
+
+    def last_chance(self,filename):
+        '''does nothing here, but can be overridden by GUI to prompt user.'''
+        raise IOError("Can't find formula file %s in formula search path" % \
+                      filename)
+    
     def find_file(self,filename):
         if os.path.exists(filename):
             return filename
@@ -66,9 +71,10 @@ class Compiler:
             f = os.path.join(path,filename)
             if os.path.exists(f):
                 return f
-        raise IOError("Can't find formula file %s in formula search path" % \
-                      filename)
-    
+
+        return self.last_chance(filename)
+        
+        
     def load_formula_file(self, filename):
         try:
             filename = self.find_file(filename)

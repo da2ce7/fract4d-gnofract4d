@@ -370,7 +370,7 @@ blue=0.5543108971162746
         f.draw(image)
 
     def testFct(self):
-        file = open("test.fct")
+        file = open("../testdata/test.fct")
         f = fractal.T(self.compiler);
         f.loadFctFile(file)
         f.compile()
