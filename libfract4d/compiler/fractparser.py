@@ -68,16 +68,16 @@ def p_sectlist_section(t):
      t[0] = listify(t[1])
 
 def p_section_set(t):
-     '''section : SECT_SET NEWLINE setlist
-     section : SECT_SET COMMA setlist'''
-     t[0] = absyn.Setlist(t[1],t[3])
+     'section : SECT_SET setlist'
+     t[0] = absyn.Setlist(t[1],t[2])
 
 def p_setlist_set(t):
      'setlist : set'
      t[0] = listify(t[1])
 
 def p_setlist_2(t):
-     'setlist : set NEWLINE setlist'
+     '''setlist : set NEWLINE setlist
+        setlist : set COMMA setlist'''
      t[0] = listify(t[1]) + t[3]
 
 def p_set_exp(t):
@@ -101,24 +101,24 @@ def p_set_empty(t):
      t[0] = t[1]
      
 def p_set_param(t):
-     'set : PARAM ID NEWLINE setlist ENDPARAM'
-     t[0] = absyn.Param(t[2],t[4],"complex")
+     'set : PARAM ID setlist ENDPARAM'
+     t[0] = absyn.Param(t[2],t[3],"complex")
 
 def p_set_typed_param(t):
-     'set : TYPE PARAM ID NEWLINE setlist ENDPARAM'
-     t[0] = absyn.Param(t[3],t[5],t[1])
+     'set : TYPE PARAM ID setlist ENDPARAM'
+     t[0] = absyn.Param(t[3],t[4],t[1])
 
 def p_set_func(t):
-     'set : FUNC ID NEWLINE setlist ENDFUNC'
-     t[0] = absyn.Func(t[2],t[4],"complex")
+     'set : FUNC ID setlist ENDFUNC'
+     t[0] = absyn.Func(t[2],t[3],"complex")
 
 def p_set_typed_func(t):
-     'set : TYPE FUNC ID NEWLINE setlist ENDFUNC'
-     t[0] = absyn.Func(t[3],t[5],t[1])
+     'set : TYPE FUNC ID setlist ENDFUNC'
+     t[0] = absyn.Func(t[3],t[4],t[1])
 
 def p_set_heading(t):
-     'set : HEADING NEWLINE setlist ENDHEADING'
-     t[0] = absyn.Heading(t[3])
+     'set : HEADING setlist ENDHEADING'
+     t[0] = absyn.Heading(t[2])
      
 def p_section_stm_2(t):
      'section : SECT_STM stmlist'
@@ -172,20 +172,18 @@ def p_stm_if(t):
     t[0] = t[2]
 
 def p_ifbody(t):
-    '''ifbody : exp NEWLINE stmlist'''
+    '''ifbody : exp NEWLINE stmlist
+       ifbody : exp COMMA stmlist'''
     t[0] = absyn.If(t[1],t[3],[absyn.Empty()])
-
-def p_sep(t):
-    '''sep : NEWLINE
-       sep : COMMA'''
-    t[0] = t[1]
     
 def p_ifbody_else(t):
-    'ifbody : exp NEWLINE stmlist ELSE NEWLINE stmlist'
-    t[0] = absyn.If(t[1], t[3], t[6])
+    '''ifbody : exp NEWLINE stmlist ELSE stmlist
+       ifbody : exp COMMA stmlist ELSE stmlist'''
+    t[0] = absyn.If(t[1], t[3], t[5])
     
 def p_ifbody_elseif(t):
-    'ifbody : exp NEWLINE stmlist ELSEIF ifbody'
+    '''ifbody : exp NEWLINE stmlist ELSEIF ifbody
+       ifbody : exp COMMA stmlist ELSEIF ifbody'''
     t[0] = absyn.If(t[1], t[3], [t[5]])
 
 def p_exp_binop(t):
@@ -213,7 +211,7 @@ def p_exp_assign(t):
 # implement unary minus as 0 - n
 def p_exp_uminus(t):
     'exp : MINUS exp %prec UMINUS'
-    t[0] = absyn.Binop("-", absyn.Number(0),t[2])
+    t[0] = absyn.Binop("-", absyn.Number(0), t[2])
     
 #unary plus is a no-op
 def p_exp_uplus(t):
