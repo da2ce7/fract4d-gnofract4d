@@ -2,6 +2,8 @@
 
 import gtk
 
+import browser
+
 _settings = None
 
 def show_settings(parent,f):
@@ -52,8 +54,26 @@ class SettingsDialog(gtk.Dialog):
     def create_formula_parameters_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
         self.notebook.append_page(table,gtk.Label("Formula"))
-        self.f.populate_formula_settings(table)
 
+        table.attach(gtk.Label("Formula :"), 0,1,0,1,0,0,2,2)
+        hbox = gtk.HBox(False,1)
+        label = gtk.Label(self.f.funcName)
+
+        def set_label(*args):
+            label.set_text(self.f.funcName)
+            
+        self.f.connect('parameters-changed',set_label)
+        
+        hbox.pack_start(label)
+        button = gtk.Button("Browse...")
+        button.connect('clicked', self.show_browser)
+        hbox.pack_start(button)
+        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)
+        self.f.populate_formula_settings(table,1)
+
+    def show_browser(self,*args):
+        browser.show(self, self.f)
+        
     def create_param_entry(self,table, row, text, param):
         label = gtk.Label(text)
         label.set_justify(gtk.JUSTIFY_RIGHT)

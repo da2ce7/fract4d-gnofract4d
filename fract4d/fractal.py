@@ -496,7 +496,9 @@ class T(FctUtils):
         self.maxiter = int(val)
 
     def parse_antialias(self,val,f):
-        self.antialias = int(val)
+        # antialias now a user pref, not saved in file
+        #self.antialias = int(val)
+        pass
     
     def loadFctFile(self,f):
         line = f.readline()
