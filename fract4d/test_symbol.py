@@ -99,7 +99,7 @@ class SymbolTest(unittest.TestCase):
         exp_fnames = ['cabs','manhattanish','real','imag','manhattan','atan2']
         for exp in exp_fnames:
             self.assertEqual(fnames.count(exp),1,exp)
-        
+
     def testAllSymbolsWork(self):
         for (name,val) in self.t.default_dict.items():
             if isinstance(val,types.ListType):

@@ -27,6 +27,14 @@ todo for 2.0
 * W	end-to-end regression test vs V1.9
 * W 	enums, int parameters
 * W	formula browser
+	load formula file
+	apply to current fractal
+	manage search path (user prefs)
+	color funcs vs normal funcs
+	edit & continue
+	save/save-as
+	run $EDITOR, refresh
+	
 * W	i18n, gettext
 * BB	acos,acosh,asin,asinh,atan,atanh,cotan,cotanh give 'str not callable'
 * B	Reset changes antialiasing
@@ -34,8 +42,12 @@ todo for 2.0
 * W	review human interface guidelines
 * B	shouldn't start drawing original before loading params on cmd-line
 * B	undo/redo cause recompilation
+* W	make default fractal more interesting
+* W	autosave/restore?
+* B	selected func in fractal settings not updated by undo/redo
 
 done:
+* B	change func then undo causes problems
 * W	compiler properties
 * W	store user preferences
 * B	flip2julia puts 2 undo entries, + doesn't produce correct answer

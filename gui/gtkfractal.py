@@ -233,9 +233,7 @@ class T(gobject.GObject):
             self.changed()
         
     def set_func(self,func,fname):
-        if func.cname != fname:
-            self.f.set_func(func,fname)
-            self.changed()
+        self.f.set_func(func,fname)
         
     def add_formula_function(self,table,i,name,param):
         label = gtk.Label(self.param_display_name(name,param))
@@ -289,7 +287,7 @@ class T(gobject.GObject):
 
         table.attach(widget,1,2,i,i+1,0,0,2,2)
         return i+1
-    
+        
     def populate_formula_settings(self,table,i):
         # create widget to fiddle with this fractal's settings
         i = self.create_maxiter_widget(table,i)

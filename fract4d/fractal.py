@@ -163,6 +163,11 @@ class T(FctUtils):
         c = T(self.compiler,self.site)
         c.params = copy.copy(self.params)
         c.set_formula(self.funcFile,self.funcName)
+        # copy the function overrides
+        for name in self.func_names():
+            print name
+            c.set_named_func(name,self.get_func_value(name))
+            
         c.bailfunc = self.bailfunc
         c.cfuncs = copy.copy(self.cfuncs)
         c.colorlist = copy.copy(self.colorlist)
@@ -250,17 +255,25 @@ class T(FctUtils):
         if func != None:
             self.set_func(func[0],funcname)            
 
+    def func_names(self):
+        return self.formula.symbols.func_names()
+    
     def set_named_func(self,func_to_set,fname):
         func = self.formula.symbols.get("@" + func_to_set)
         self.set_func(func[0],fname)            
 
+    def get_func_value(self,func_to_get):
+        func = self.formula.symbols.get("@" + func_to_get)
+        return func[0].cname
+    
     def changed(self):
         self.dirty = True
         
     def set_func(self,func,fname):
-        self.formula.symbols.set_std_func(func,fname)
-        self.dirtyFormula = True
-        self.changed()
+        if func.cname != fname:
+            self.formula.symbols.set_std_func(func,fname)
+            self.dirtyFormula = True            
+            self.changed()
         
     def set_inner(self,funcfile,func):
         self.cfuncs[1] = self.compiler.get_colorfunc(funcfile,func,"cf1")

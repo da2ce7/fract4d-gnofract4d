@@ -23,7 +23,8 @@ class Test(unittest.TestCase):
         
     def testCreate(self):        
         flags = self.config.get("compiler","options")
-        self.assertEqual(flags,"-shared -O3 -ffast-math")
+        self.assertEqual(flags,
+                         "-fPIC -DPIC -D_REENTRANT -O3 -shared -ffast-math")
 
     def testSave(self):
         self.config.set("compiler","options","-foo")
