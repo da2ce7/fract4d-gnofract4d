@@ -55,6 +55,7 @@ public:
     //template<class T>
     bool calcNoPeriod(int& iter, int maxIter)
         {
+#ifdef UNROLL
             while(iter + 8 < maxIter)
             {
                 T lastx = pIter[X]; T lasty = pIter[Y];
@@ -71,7 +72,7 @@ public:
                 }
                 iter += 8;
             }
-            
+#endif      
             do
             {
                 DECL;
@@ -137,12 +138,14 @@ public:
             pInput[CX] = params.n[VX];
             pInput[CY] = params.n[VY];
             pInput[EJECT] = m_eject;
-            pTemp[LASTX] = pTemp[LASTY] = DBL_MAX;
+            pTemp[LASTX] = pTemp[LASTY] = DBL_MAX/4.0;
 
             int iter = 0;
             bool done = false;
 
-            assert(nNoPeriodIters <= nMaxIters);
+            nNoPeriodIters = nMaxIters;
+
+            assert(nNoPeriodIters >= 0 && nNoPeriodIters <= nMaxIters);
             if(nNoPeriodIters > 0)
             {
                 done = calcNoPeriod(iter,nNoPeriodIters);

@@ -44,6 +44,7 @@ public:
             return bail;
         } 
     void init(void) {};
+    bool iter8_ok() const { return true; };
 };
 
 /* eject if difference between this point and last iteration is < epsilon */
@@ -62,6 +63,7 @@ public:
                 // FIXME: continuous potential doesn't work well with this
                 "pTemp[EJECT_VAL] = pInput[EJECT] + epsilon - diff;";
         }
+    bool iter8_ok() const { return false; };
 };
 
 /*

@@ -121,6 +121,7 @@ class fractThreadFunc {
 
     // draw a rectangle of this colour
     void rectangle(struct rgb pixel, int x, int y, int w, int h);
+    void rectangle_with_iter(struct rgb pixel, int iter, int x, int y, int w, int h);
 
     // calculate this point using antialiasing
     struct rgb antialias(int x, int y);

@@ -58,7 +58,8 @@ pointFunc *pointFunc_new(
     std::string decl = iterType->decl_code();
     std::string ret  = iterType->ret_code();
     std::string bail = b->bail_code(iterType->flags());
-    void *dlHandle = g_pCompiler->getHandle(iter,decl,ret,bail);
+    bool unroll_ok = b->iter8_ok();
+    void *dlHandle = g_pCompiler->getHandle(iter,decl,ret,bail,unroll_ok);
 
     pointFunc *(*pFunc)(
         void *, double, colorizer *, e_colorFunc, e_colorFunc) = 

@@ -261,40 +261,18 @@ void fractFunc::draw(int rsize, int drawsize)
         }
     }
 
-    // second pass - fill in the remaining pixels
-
     last_update_y = 0;
-    // calculate tops of next row down
-    for ( y = 0; y < h - rsize; y += rsize) {        
-        for(x = 0; x < w - rsize ; x += rsize) {
-            for(int x2 = x+1; x2 < x + rsize; ++x2)
-            {
-                ptf->pixel(x2,y,1,1);
-            }
-        }        
-        if(update_image(y))
-        {
-            goto done;
-        }
-    }
+    reset_progress(0.0);
 
-    last_update_y = 0;
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
+        for(x = 0; x < w - rsize ; x += rsize) {
+            ptf->box(x,y,rsize);
+        }
         if(update_image(y))
         {
             goto done;
         }
-
-        // calculate left edge of the row
-        for(int y2 = y+1; y2 < y + rsize; ++y2)
-        {
-            ptf->pixel(0,y2,1,1);
-        }
-
-        for(x = 0; x < w - rsize ; x += rsize) {
-            ptf->box(x,y,rsize);
-        }		
     }
 
  done:
@@ -339,15 +317,6 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     }
 
     reset_progress(0.0);
-
-    // second pass - fill in the remaining pixels
-    
-    last_update_y = 0;
-    // calculate tops of boxes for future cross-reference
-    for ( y = 0; y < h - rsize; y += rsize) {
-        send_row(0,y,w);
-        if(update_image(y)) goto done;
-    }
 
     last_update_y = 0;
     // fill in gaps in the rsize-blocks

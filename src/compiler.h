@@ -46,7 +46,7 @@ public:
 
     compiler();
 
-    void *getHandle(std::string iter, std::string decl, std::string ret, std::string bail);
+    void *getHandle(std::string iter, std::string decl, std::string ret, std::string bail, bool unroll_ok);
 
  private:
     void on_error(std::string message) { 
@@ -60,7 +60,7 @@ public:
     std::string so_cache_dir;
 
     void *compile(std::string commandLine);
-    std::string Dstring(std::string iter, std::string decl, std::string ret, std::string bail);
+    std::string Dstring(std::string iter, std::string decl, std::string ret, std::string bail, bool unroll_ok);
 
     void invalidate_cache();
     std::string flow(std::string in);

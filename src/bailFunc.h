@@ -33,6 +33,8 @@ class bailFunc {
  public:
     /* returns a code snippet which does bailout */
     virtual std::string bail_code(int flags) const = 0;
+    /* is it OK to unroll the loop with this bailout type? */
+    virtual bool iter8_ok() const = 0;
 };
 
 // factory method to construct bailout function objects 

@@ -231,12 +231,6 @@ fractThreadFunc::pixel(int x, int y,int w, int h)
 void 
 fractThreadFunc::box_row(int w, int y, int rsize)
 {
-    // calculate left edge of the row
-    for(int y2 = y+1; y2 < y + rsize; ++y2)
-    {
-        pixel(0,y2,1,1);
-    }
-
     for(int x = 0; x < w - rsize ; x += rsize) {
         box(x,y,rsize);            
     }		
@@ -286,33 +280,38 @@ fractThreadFunc::box(int x, int y, int rsize)
     int iter = im->getIter(x,y);
     int pcol = RGB2INT(y,x);
     
-    // check top and bottom of box for flatness
-    for(int x2 = x+1; x2 <= x + rsize; ++x2)
+    // calculate top and bottom of box + remember flatness
+    for(int x2 = x; x2 < x + rsize; ++x2)
     {
+        pixel(x2,y,1,1);
         bFlat = isTheSame(bFlat,iter,pcol,x2,y);
-        bFlat = isTheSame(bFlat,iter,pcol,x2,y+rsize);
+        pixel(x2,y+rsize-1,1,1);        
+        bFlat = isTheSame(bFlat,iter,pcol,x2,y+rsize-1);
     }
     // calc left of next box over & check for flatness
-    for(int y2 = y+1; y2 <= y + rsize; ++y2)
+    for(int y2 = y; y2 <= y + rsize; ++y2)
     {
+        pixel(x,y2,1,1);
         bFlat = isTheSame(bFlat, iter, pcol, x, y2);
-        pixel(x+rsize,y2,1,1);
-        bFlat = isTheSame(bFlat,iter,pcol,x+rsize,y2);
+        pixel(x+rsize-1,y2,1,1);
+        bFlat = isTheSame(bFlat,iter,pcol,x+rsize-1,y2);
     }
     
     if(bFlat)
     {
         // just draw a solid rectangle
         struct rgb pixel = im->get(x,y);
-        rectangle(pixel,x+1,y+1,rsize-1,rsize-1);
+        //pixel.r = pixel.g = pixel.b = 0xff;
+        //rectangle_with_iter(pixel,100,x+1,y+1,rsize-2,rsize-2);
+        rectangle(pixel,x+1,y+1,rsize-2,rsize-2);
     }
     else
     {
         // we do need to calculate the interior 
         // points individually
-        for(int y2 = y + 1 ; y2 < y + rsize; ++y2)
+        for(int y2 = y + 1 ; y2 < y + rsize -1; ++y2)
         {
-            row(x+1,y2,rsize-1);
+            row(x+1,y2,rsize-2);
         }		
     }		
 }
@@ -324,6 +323,19 @@ fractThreadFunc::rectangle(struct rgb pixel, int x, int y, int w, int h)
     {
         for(int j = x; j < x+w; j++) {
             im->put(j,i,pixel);
+        }
+    }
+}
+
+inline void
+fractThreadFunc::rectangle_with_iter(
+    struct rgb pixel, int iter, int x, int y, int w, int h)
+{
+    for(int i = y ; i < y+h; i++)
+    {
+        for(int j = x; j < x+w; j++) {
+            im->put(j,i,pixel);
+            im->iter_buf[y*im->Xres() + x] = iter;            
         }
     }
 }

@@ -281,36 +281,46 @@ public:
         }
 };
                                
+#endif
+
+
 // z <- ( re(z) > 0 ? (z - 1) * c : (z + 1) * c)
 class barnsleyFunc: public iterImpl<barnsleyFunc,0>
 {
-#define BARNSLEY_DECL double x_cy, x_cx, y_cy, y_cx
-#define BARNSLEY_ITER \
-    x_cy = p[X] * p[CY]; x_cx = p[X] * p[CX];\
-    y_cy = p[Y] * p[CY]; y_cx = p[Y] * p[CX];\
-    \
-    if(p[X] >= 0) \
-    { \
-        p[X] = (x_cx - p[CX] - y_cy ); \
-        p[Y] = (y_cx - p[CY] + x_cy ); \
-    } \
-    else \
-    { \
-        p[X] = (x_cx + p[CX] - y_cy); \
-        p[Y] = (y_cx + p[CY] + x_cy); \
-    }
-
 public:
     enum {  FLAGS = 0 };
     barnsleyFunc() : iterImpl<barnsleyFunc,0>(name()) {};
 
-    ITER_DECLS(BARNSLEY_DECL, BARNSLEY_ITER)
     static char *name()
         {
             return "Barnsley Type 1";
         }
+    std::string decl_code() const 
+        { 
+            return "double x_cy, x_cx, y_cy, y_cx";
+        }
+    std::string iter_code() const 
+        { 
+            return 
+                "x_cy = pIter[X] * pInput[CY]; x_cx = pIter[X] * pInput[CX];"
+                "y_cy = pIter[Y] * pInput[CY]; y_cx = pIter[Y] * pInput[CX];"
+                
+                "if(pIter[X] >= 0)"
+                "{"
+                    "pIter[X] = (x_cx - pInput[CX] - y_cy );"
+                    "pIter[Y] = (y_cx - pInput[CY] + x_cy );"
+                "}"
+                "else"
+                "{"
+                    "pIter[X] = (x_cx + pInput[CX] - y_cy);"
+                    "pIter[Y] = (y_cx + pInput[CY] + x_cy);"
+                "}";
+        }
+    std::string ret_code()  const { return ""; }
+
 };
 
+#if 0
 class barnsley2Func: public iterImpl<barnsley2Func,0>
 {
 #define BARNSLEY2_DECL double x_cy, x_cx, y_cy, y_cx
@@ -547,7 +557,9 @@ ctorInfo ctorTable[] = {
     CTOR_TABLE_ENTRY(buffaloFunc),
     CTOR_TABLE_ENTRY(cubeFunc),
     CTOR_TABLE_ENTRY(quadFunc),
+*/
     CTOR_TABLE_ENTRY(barnsleyFunc),
+/*
     CTOR_TABLE_ENTRY(barnsley2Func),
 */
     CTOR_TABLE_ENTRY(lambdaFunc),

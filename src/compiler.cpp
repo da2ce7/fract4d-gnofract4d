@@ -70,12 +70,13 @@ compiler::set_cache_dir(const char *s)
     }
 }
 std::string
-compiler::Dstring(std::string iter, std::string decl, std::string ret, std::string bail)
+compiler::Dstring(std::string iter, std::string decl, std::string ret, std::string bail, bool unroll_ok)
 {
     return "-DITER=\"" + iter + 
         "\" -DDECL=\"" + decl + 
         "\" -DRET=\""  + ret  + 
-        "\" -DBAIL=\"" + bail + "\"";
+        "\" -DBAIL=\"" + bail + "\"" + 
+        (unroll_ok ? " -DUNROLL" : "");
 }
 
 // TODO: replace all this with a fork/exec thingy so I can get exit status etc
@@ -121,9 +122,9 @@ compiler::invalidate_cache()
 }
 
 void * 
-compiler::getHandle(std::string iter, std::string decl, std::string ret, std::string bail)
+compiler::getHandle(std::string iter, std::string decl, std::string ret, std::string bail, bool unroll_ok)
 {
-    std::string dflags = Dstring(iter, decl, ret, bail);
+    std::string dflags = Dstring(iter, decl, ret, bail, unroll_ok);
     std::string find = flags + dflags;
 
     void *handle = NULL;
