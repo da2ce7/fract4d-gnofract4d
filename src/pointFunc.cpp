@@ -24,6 +24,7 @@
 #include "pointFunc.h"
 #include "iterFunc.h"
 #include "bailFunc.h"
+#include "compiler.h"
 
 #include <unistd.h>
 #include <dlfcn.h>

@@ -39,11 +39,13 @@ public:
 
     void *getHandle(std::string iter, std::string decl, std::string ret, std::string bail);
 
+ private:
     typedef std::map<std::string,void *> t_cache;
     t_cache cache;
     int next_so;
     pthread_mutex_t cache_lock;
-private:
+    std::string so_cache_dir;
+
     void *compile(std::string commandLine);
     std::string Dstring(std::string iter, std::string decl, std::string ret, std::string bail);
 };

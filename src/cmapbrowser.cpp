@@ -276,6 +276,7 @@ create_current_maps_page(GtkWidget *notebook, model_t *m)
         scrolledwindow, 
         gtk_label_new(_("Color Maps")));
 
+    g_free(mapdir);
     return table;
 }
 

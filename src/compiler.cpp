@@ -22,28 +22,49 @@
  * code which calculates this fractal - this file contains our interface to the
  * compiler */
 
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include "compiler.h"
+
 
 #include <cstdio>
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <dlfcn.h>
+#include <errno.h>
 
 #include <iostream>
 #include <sstream>
 
+#include "glib.h"
+
 // global compiler instance
 compiler *g_pCompiler;
 
-// TODO: replace all this with a fork/exec thingy so I can get exit status etc
 compiler::compiler()
 {
     pthread_mutex_init(&cache_lock,NULL);
     cc = "g++";
     flags = "-shared -O3 -ffast-math";
     in = "compiler_template.cpp";
-    out = "fract.so";
     next_so = 0;
+    so_cache_dir = g_get_home_dir() + std::string("/.gnome/" PACKAGE "-cache");
+    
+    struct stat buf;
+    if(stat(so_cache_dir.c_str(),&buf)== -1 && errno == ENOENT)
+    {
+        // cache dir doesn't exist - create it
+        if(mkdir(so_cache_dir.c_str(),0777) == -1)
+        {
+            // couldn't create the directory
+            cerr << "Couldn't create cache directory " << so_cache_dir << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
 }
 
 std::string
@@ -55,6 +76,7 @@ compiler::Dstring(std::string iter, std::string decl, std::string ret, std::stri
         "\" -DBAIL=\"" + bail + "\"";
 }
 
+// TODO: replace all this with a fork/exec thingy so I can get exit status etc
 void *
 compiler::compile(std::string commandLine)
 {
@@ -74,12 +96,7 @@ compiler::compile(std::string commandLine)
         pclose(compiler_output);
     }
     
-    // get absolute path of file
-
-    getcwd(buf,sizeof(buf));
-    std::string abs_out = buf + ("/" + out);
-    
-    void *dlHandle = dlopen(abs_out.c_str(), RTLD_NOW);
+    void *dlHandle = dlopen(out.c_str(), RTLD_NOW);
     return dlHandle;
 }
 
@@ -96,9 +113,9 @@ compiler::getHandle(std::string iter, std::string decl, std::string ret, std::st
     if(i == cache.end())
     {
         ostringstream os;
-        os << "fract" << (next_so++) << ".so";
+        os << so_cache_dir << "/fract" << (next_so++) << ".so";
         out = os.str();
-        cout << out << endl;
+
         std::string commandLine = 
             cc + " " + flags + " " + dflags + " " + in + " -o " + out + " 2>&1";
 

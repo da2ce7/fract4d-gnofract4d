@@ -1,7 +1,6 @@
 #include "pointFunc.h"
 #include "iterFunc.h"
 #include "bailFunc.h"
-#include "compiler.h"
 
 #include <math.h>
 #include <iostream>
@@ -51,16 +50,17 @@ public:
 
     /* do some iterations without periodicity */
     template<class T>
-    bool calcNoPeriod(int& iter, int maxIter, T *pIter, T *pInput, T *pTemp)
+    inline bool calcNoPeriod(int& iter, int maxIter, T *pIter, T *pInput, T *pTemp)
         {
             while(iter + 8 < maxIter)
             {
                 T lastx = pIter[X]; T lasty = pIter[Y];
-                //DECL;
-                //ITER; ITER; ITER; ITER; ITER; ITER; ITER; ITER; 
-                //BAIL;
-                iter8(pIter,pInput,pTemp);
-                bail(pIter,pInput,pTemp);
+                DECL;
+                ITER; ITER; ITER; ITER; ITER; ITER; ITER; ITER; 
+                RET;
+                BAIL;
+                //iter8(pIter,pInput,pTemp);
+                //bail(pIter,pInput,pTemp);
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
                     // we bailed out somewhere in the last 8iters -
@@ -73,15 +73,16 @@ public:
 
             do
             {
-                iter1(pIter,pInput,pTemp);
-                //DECL;
-                //ITER;
+                //iter1(pIter,pInput,pTemp);
+                DECL;
+                ITER;
+                RET;
                 if((iter++) >= maxIter)
                 {   
                     return false;
                 }
-                //BAIL;
-                bail(pIter,pInput,pTemp);  
+                BAIL;
+                //bail(pIter,pInput,pTemp);  
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
                     return true;
@@ -90,7 +91,7 @@ public:
         }
 
     template<class T>
-    bool calcWithPeriod(
+    inline bool calcWithPeriod(
         int &iter, int nMaxIters, 
         T *pIter, T *pInput, T *pTemp)
         {
@@ -101,13 +102,15 @@ public:
             // single iterations
             do
             {
-                iter1(pIter,pInput,pTemp);
+                //iter1(pIter,pInput,pTemp);
+                DECL; ITER; RET;
                 if(iter++ >= nMaxIters) 
                 {
                     // ran out of iterations
                     iter = -1; return false;
                 }
-                bail(pIter,pInput,pTemp);            
+                //bail(pIter,pInput,pTemp);            
+                BAIL;
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
                     return true;
