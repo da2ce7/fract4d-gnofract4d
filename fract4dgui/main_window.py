@@ -104,7 +104,7 @@ class MainWindow:
             for f in self.subfracts:
                 f.widget.hide()
             self.weirdbox.hide_all()
-                
+
         self.show_subfracts = visible
         self.update_image_prefs(preferences.userPrefs)
         

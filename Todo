@@ -12,20 +12,18 @@ done in 2.4:
 * B	compiler error on start won't let gf4d open
 * B	can't use auto_deepen prefs widget after auto_deepening (Joe Healy)
 * B 	(also introduced in 2.4) - yelp not run in background
+* B	make transition <-> explorer mode less slow + ugly
 
-todo for 2.4
+todo:
 * BB	settings dialog doesn't update - can't repro
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
-
-* B	make transition <-> explorer mode less slow + ugly
 * WW	cmap browser
 * WW	cmap editor - brightness/contrast/gamma/HSV/RGB
 * B	opening color browser sometimes applies 1st item
 * W	logmap
 * B	fractint doesn't reset vars between calls
 * B	parse continuation lines correctly
-* BB	changing inner colormap modifies outer appearance
 * W	warn if overwrite/always save as/clear name on major change
 * WW	include formula in .fct file
 * B	O-fractals in fractint-g4.frm broken
