@@ -87,19 +87,19 @@ class PfTest(unittest.TestCase):
         fract4dc.pf_init(pfunc,0.001,[4.0, 0.5])
 
         # a point which doesn't bail out
-        result = fract4dc.pf_calc(pfunc,[0.15, 0.0, 0.0, 0.0],100,100,0,0,0)
+        result = fract4dc.pf_calc(pfunc,[0.15, 0.0, 0.0, 0.0],100,0,0,0)
         self.assertEqual(result,(100, 1, 0.0,0))
         # one which does
-        result = fract4dc.pf_calc(pfunc,[1.0, 1.0, 0.0, 0.0],100,100,0,0,0)
+        result = fract4dc.pf_calc(pfunc,[1.0, 1.0, 0.0, 0.0],100,0,0,0)
         self.assertEqual(result,(1,0, 0.0,0)) 
 
         # one which is already out
-        result = fract4dc.pf_calc(pfunc,[17.5, 14.0, 0.0, 0.0],100,100,0,0,0)
+        result = fract4dc.pf_calc(pfunc,[17.5, 14.0, 0.0, 0.0],100,0,0,0)
         self.assertEqual(result,(0, 0, 0.0,0)) 
 
 
         # without optional args
-        result = fract4dc.pf_calc(pfunc,[17.5, 14.0, 0.0, 0.0],100,100)
+        result = fract4dc.pf_calc(pfunc,[17.5, 14.0, 0.0, 0.0],100)
         self.assertEqual(result,(0, 0, 0.0,0)) 
         
         pfunc = None
@@ -255,7 +255,7 @@ class PfTest(unittest.TestCase):
         handle = fract4dc.pf_load("./test-pfc.so")
         pfunc = fract4dc.pf_create(handle)
         fract4dc.pf_init(pfunc,0.001,[])
-        result = fract4dc.pf_calc(pfunc,[1.5,0,0,0],100,100)
+        result = fract4dc.pf_calc(pfunc,[1.5,0,0,0],100)
         self.assertEqual(result,(2,0,2.0/256.0))
                          
     def testMiniTextRender(self):
@@ -267,7 +267,7 @@ class PfTest(unittest.TestCase):
         for y in xrange(-20,20):
             line = []
             for x in xrange(-20,20):
-                (iter,fate,dist,solid) = fract4dc.pf_calc(pfunc,[x/10.0,y/10.0,0,0],100,100)
+                (iter,fate,dist,solid) = fract4dc.pf_calc(pfunc,[x/10.0,y/10.0,0,0],100)
                 if(fate == 1):
                     line.append("#")
                 else:
@@ -304,8 +304,8 @@ class PfTest(unittest.TestCase):
         handle = fract4dc.pf_load("./test-pf.so")
         pfunc = fract4dc.pf_create(handle)
         fract4dc.pf_init(pfunc,0.001,[])
-        self.assertRaises(ValueError,fract4dc.pf_calc,0,[1.0,2.0,3.0,4.0],100,100)
-        self.assertRaises(TypeError,fract4dc.pf_calc,pfunc,[1.0,2.0,3.0],100,100)
+        self.assertRaises(ValueError,fract4dc.pf_calc,0,[1.0,2.0,3.0,4.0],100)
+        self.assertRaises(TypeError,fract4dc.pf_calc,pfunc,[1.0,2.0,3.0],100)
         pfunc = None
 
     def testShutdownOrder(self):

@@ -20,7 +20,7 @@
    pf->vtbl->calc(
         pf,
         pparams,
-        100, 100,
+        100, 
         0,0,0,
         &nItersDone, &nFate, &dist);
    
@@ -42,7 +42,6 @@ struct s_pf_vtable {
 	);
     /* calculate one point.
        perform up to nIters iterations,
-       using periodicity (if supported) after the 1st nNoPeriodIters
        return:
        number of iters performed in pnIters
        outcome in pFate: 0 = escaped, 1 = trapped. 
@@ -52,12 +51,23 @@ struct s_pf_vtable {
     void (*calc)(
 	struct s_pf_data *p,
         // in params
-        const double *params, int nIters, int nNoPeriodIters,
+        const double *params, int nIters, 
 	// only used for debugging
 	int x, int y, int aa,
         // out params
         int *pnIters, int *pFate, double *pDist, int *pSolid
 	);
+    /* calc as above using periodicity checking */
+    void (*calc_period)(
+	struct s_pf_data *p,
+        // in params
+        const double *params, int nIters, 
+	// only used for debugging
+	int x, int y, int aa,
+        // out params
+        int *pnIters, int *pFate, double *pDist, int *pSolid
+	);
+
     /* deallocate data in p */
     void (*kill)(
 	struct s_pf_data *p

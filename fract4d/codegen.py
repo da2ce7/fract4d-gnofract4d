@@ -228,7 +228,7 @@ static void pf_calc(
     // "object" pointer
     struct s_pf_data *t__p_stub,
     // in params
-    const double *t__params, int maxiter, int t__p_nNoPeriodIters,
+    const double *t__params, int maxiter,
     // only used for debugging
     int t__p_x, int t__p_y, int t__p_aa,
     // out params
@@ -307,6 +307,7 @@ static struct s_pf_vtable vtbl =
 {
     pf_init,
     pf_calc,
+    NULL, /* FIXME */
     pf_kill
 };
 
@@ -347,7 +348,7 @@ pf_obj *pf_new()
    pf->vtbl->calc(
         pf,
         pparams,
-        100, 100,
+        100,
         0,0,0,
         &nItersDone, &nFate, &dist, &solid);
    
@@ -369,7 +370,6 @@ struct s_pf_vtable {
 	);
     /* calculate one point.
        perform up to nIters iterations,
-       using periodicity (if supported) after the 1st nNoPeriodIters
        return:
        number of iters performed in pnIters
        outcome in pFate: 0 = escaped, 1 = trapped. 
@@ -379,7 +379,17 @@ struct s_pf_vtable {
     void (*calc)(
 	struct s_pf_data *p,
         // in params
-        const double *params, int nIters, int nNoPeriodIters,
+        const double *params, int nIters, 
+	// only used for debugging
+	int x, int y, int aa,
+        // out params
+        int *pnIters, int *pFate, double *pDist, int *pSolid
+	);
+    /* calculate one point, using periodicity checking */
+    void (*calc_period)(
+	struct s_pf_data *p,
+        // in params
+        const double *params, int nIters, 
 	// only used for debugging
 	int x, int y, int aa,
         // out params
