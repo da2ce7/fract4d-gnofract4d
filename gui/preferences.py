@@ -1,7 +1,39 @@
-# GUI for user settings
+# GUI and backend for user settings
+
+import ConfigParser
+import os
 
 import gtk
 
+class Preferences(ConfigParser.ConfigParser):
+    def __init__(self, file='~/.gnofract4d'):
+        _defaults = {
+            "compiler" : {
+              "name" : "gcc",
+              "options" : "-shared -O3 -ffast-math"
+            },
+            "display" : {
+              "width" : "640",
+              "height" : "480"
+            }
+        }
+        
+        ConfigParser.ConfigParser.__init__(self)
+
+        self.read(os.path.expanduser(file))
+
+        # we don't use the normal ConfigParser default stuff because
+        # we want sectionized defaults
+
+        for (section,entries) in _defaults.items():
+            if not self.has_section(section):
+                self.add_section(section)
+            for (key,val) in entries.items():
+                if not self.has_option(section,key):
+                    self.set(section,key,val)
+
+userPrefs = Preferences()
+    
 _prefs = None
 
 def show_preferences(parent,f):

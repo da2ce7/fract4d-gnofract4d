@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
         self.failUnless(self.m)
         self.assertEqual(self.m.f, self.f)
 
-    def testAction(self):
+    def testUndoChangeParameter(self):
         counter = EmitCounter()
         f = self.m.f        
         f.connect('parameters-changed',counter.onCallback)
@@ -70,7 +70,7 @@ class Test(unittest.TestCase):
 
         self.m.redo()
         self.assertEqual(f.get_param(f.MAGNITUDE),9.0)
-        
+
 def suite():
     return unittest.makeSuite(Test,'test')
 
