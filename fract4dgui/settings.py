@@ -34,6 +34,7 @@ class SettingsDialog(gtk.Dialog):
         self.create_formula_parameters_page()
         self.create_outer_page()
         self.create_inner_page()
+        self.create_general_page()
         self.create_location_page()
         self.create_angle_page()
 
@@ -49,9 +50,18 @@ class SettingsDialog(gtk.Dialog):
         self.create_param_entry(table,2,_("_Z :"), self.f.ZCENTER)
         self.create_param_entry(table,3,_("_W :"), self.f.WCENTER)
         self.create_param_entry(table,4,_("_Size :"), self.f.MAGNITUDE)
+
+    def create_general_page(self):
+        table = gtk.Table(5,2,gtk.FALSE)
+        label = gtk.Label(_("_General"))
+        label.set_use_underline(True)
+        self.notebook.append_page(table,label)
         yflip_widget = self.create_yflip_widget()
-        table.attach(yflip_widget,0,2,5,6, gtk.EXPAND | gtk.FILL, 0, 2, 2)
-        
+        table.attach(yflip_widget,0,2,0,1, gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        periodicity_widget = self.create_periodicity_widget()
+        table.attach(periodicity_widget,0,2,1,2, gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
     def create_angle_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
         label = gtk.Label("_Angles")
@@ -74,6 +84,23 @@ class SettingsDialog(gtk.Dialog):
 
         def set_fractal(*args):
             self.f.set_yflip(widget.get_active())
+
+        set_widget()
+        self.f.connect('parameters-changed',set_widget)
+        widget.connect('toggled',set_fractal)
+
+        return widget
+
+    def create_periodicity_widget(self):
+        widget = gtk.CheckButton(_("Periodicity Checking"))
+        widget.set_use_underline(True)
+        self.tooltips.set_tip(widget,_("Try to speed up calculations by looking for loops. Can cause incorrect images with some functions, though."))
+        
+        def set_widget(*args):
+            widget.set_active(self.f.periodicity)
+
+        def set_fractal(*args):
+            self.f.set_periodicity(widget.get_active())
 
         set_widget()
         self.f.connect('parameters-changed',set_widget)

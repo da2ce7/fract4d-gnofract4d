@@ -196,6 +196,7 @@ class T(FctUtils):
         self.cfunc_files = [None,None]
         self.cfunc_params = [[],[]]
         self.yflip = False
+        self.periodicity = True
         self.auto_tolerance = False
         self.antialias = 1
         self.compiler = compiler
@@ -257,6 +258,7 @@ class T(FctUtils):
 
         print >>file, "maxiter=%d" % self.maxiter
         print >>file, "yflip=%s" % self.yflip
+        print >>file, "periodicity=%s" % self.periodicity
         print >>file, "[function]"
         print >>file, "formulafile=%s" % self.funcFile
         print >>file, "function=%s" % self.funcName
@@ -297,6 +299,9 @@ class T(FctUtils):
         else:
             return "%.17f" % params[ord]
 
+    def parse_periodicity(self,val,f):
+        self.set_periodicity(int(val))
+        
     def parse__inner_(self,val,f):
         params = ParamBag()
         params.load(f)
@@ -365,6 +370,7 @@ class T(FctUtils):
         c.colorlist = copy.copy(self.colorlist)
         c.solids = copy.copy(self.solids)
         c.yflip = self.yflip
+        c.periodicity = self.periodicity
         c.saved = self.saved
         return c
     
@@ -513,6 +519,11 @@ class T(FctUtils):
         if func.cname != fname:
             formula.symbols.set_std_func(func,fname)
             self.dirtyFormula = True            
+            self.changed()
+
+    def set_periodicity(self,periodicity):
+        if self.periodicity != periodicity:
+            self.periodicity = periodicity
             self.changed()
         
     def set_inner(self,funcfile,funcname):
@@ -676,7 +687,8 @@ class T(FctUtils):
         initparams = self.all_params()
         fract4dc.pf_init(pfunc,1.0E-9,initparams)
 
-        fract4dc.calc(self.params,self.antialias,self.maxiter,self.yflip,1,
+        fract4dc.calc(self.params,self.antialias,self.maxiter,
+                      self.yflip,self.periodicity,
                       pfunc,cmap,self.auto_deepen,1,image,self.site)
 
     def clean(self):

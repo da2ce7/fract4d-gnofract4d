@@ -29,6 +29,7 @@ class fractFunc {
 	int nThreads_,
 	bool auto_deepen,
 	bool yflip,
+	bool periodicity,
 	IFractWorker *fw,
 	IImage *_im, 
 	IFractalSite *_site);
@@ -87,6 +88,7 @@ class fractFunc {
     int maxiter;
     int nThreads;
     bool auto_deepen;
+    bool periodicity;
     d *params;
 
     IImage *im;    
@@ -142,6 +144,7 @@ extern void calc(
     cmap_t *cmap, 
     bool auto_deepen,
     bool yflip,
+    bool periodicity,
     IImage *im, 
     IFractalSite *site);
 

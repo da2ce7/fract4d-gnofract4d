@@ -24,6 +24,7 @@ fractFunc::fractFunc(
 	int nThreads_,
 	bool auto_deepen_,
 	bool yflip,
+	bool periodicity_,
 	IFractWorker *fw,
 	IImage *im_, 
 	IFractalSite *site_)
@@ -39,6 +40,7 @@ fractFunc::fractFunc(
     maxiter = maxiter_;
     nThreads = nThreads_;
     auto_deepen = auto_deepen_;
+    periodicity = periodicity_;
 
     rot = rotated_matrix(params);
     rot = rot/im->Xres();
@@ -324,6 +326,7 @@ calc(
     cmap_t *cmap, 
     bool auto_deepen,
     bool yflip,
+    bool periodicity,
     IImage *im, 
     IFractalSite *site)
 {
@@ -338,6 +341,7 @@ calc(
 	    nThreads,
 	    auto_deepen,
 	    yflip,
+	    periodicity,
 	    worker,
 	    im,
 	    site);
