@@ -23,6 +23,7 @@
 #endif
 
 #include "menus.h"
+#include "callbacks.h"
 #include "model.h"
 #include "properties.h"
 #include "preferences.h"
@@ -226,69 +227,64 @@ preferences_cb(GtkMenuItem *menuitem,
 static GnomeUIInfo file1_menu_uiinfo[] =
 {
     {
-        GNOME_APP_UI_ITEM, N_("_Save image"),
+        GNOME_APP_UI_ITEM, N_("_Open Parameter File"),
         NULL,
-        (void *)save_image_cb, NULL, NULL,
+        (void *)load_param_cb, NULL, NULL,
+        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_OPEN,
+        'o', GDK_CONTROL_MASK, NULL
+    },
+    {
+        GNOME_APP_UI_ITEM, N_("_Save Parameter File"),
+        NULL,
+        (void *)save_param_cb, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE,
         's', GDK_CONTROL_MASK, NULL
     },
     {
-        GNOME_APP_UI_ITEM, N_("_Reset parameters"),
+        GNOME_APP_UI_ITEM, N_("Save _Image"),
         NULL,
-        (void *)reset_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_HOME,
-        'r', GDK_CONTROL_MASK, NULL
+        (void *)save_image_cb, NULL, NULL,
+        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE,
+        'i', GDK_CONTROL_MASK, NULL
     },
     {
-        GNOME_APP_UI_ITEM, N_("Reset _Zoom"),
-        NULL,
-        (void *)reset_zoom_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
-        'z', GDK_CONTROL_MASK, NULL
-    },
-    {
-        GNOME_APP_UI_ITEM, N_("Save _parameters"),
-        NULL,
-        (void *)save_param_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE_AS,
-        'p', GDK_CONTROL_MASK, NULL
-    },
-    {
-        GNOME_APP_UI_ITEM, N_("_Load parameters"),
-        NULL,
-        (void *)load_param_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_OPEN,
-        'l', GDK_CONTROL_MASK, NULL
-    },
-    {
-        GNOME_APP_UI_TOGGLEITEM, N_("P_ause"),
+        GNOME_APP_UI_TOGGLEITEM, N_("_Pause"),
         NULL,
         (void *)pause_cb, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
-        'a', GDK_CONTROL_MASK, NULL
+        'p', GDK_CONTROL_MASK, NULL
     },
     GNOMEUIINFO_SEPARATOR,
     GNOMEUIINFO_MENU_EXIT_ITEM ((void *)menu_quit_cb, NULL),
     GNOMEUIINFO_END
 };
 
-static GnomeUIInfo parameters1_menu_uiinfo[] =
+static GnomeUIInfo edit_menu_uiinfo[] =
 {
     {
         GNOME_APP_UI_ITEM, N_("_Fractal Settings..."),
         NULL,
         (void *)fractal_settings_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
+        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_PROP,
          'f', GDK_CONTROL_MASK, NULL
     },
     {
-        GNOME_APP_UI_ITEM, N_("_Colors..."),
+        GNOME_APP_UI_ITEM, N_("Co_lors..."),
         NULL,
         (void *)create_cmap_browser, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
-         'c', GDK_CONTROL_MASK, NULL
+         'l', GDK_CONTROL_MASK, NULL
     },
     GNOMEUIINFO_MENU_PREFERENCES_ITEM (preferences_cb, NULL),
+    GNOMEUIINFO_MENU_UNDO_ITEM(undo_cb, NULL),
+    GNOMEUIINFO_MENU_REDO_ITEM(redo_cb, NULL),
+    {
+        GNOME_APP_UI_ITEM, N_("Reset"),
+        NULL,
+        (void *)reset_cb, NULL, NULL,
+        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_HOME,
+        GDK_Home, (GdkModifierType)0, NULL
+    },
     /*
     {
         GNOME_APP_UI_ITEM, N_("_Movie Editor..."),
@@ -310,7 +306,7 @@ static GnomeUIInfo help1_menu_uiinfo[] =
 GnomeUIInfo menubar1_uiinfo[] =
 {
     GNOMEUIINFO_MENU_FILE_TREE (file1_menu_uiinfo),
-    GNOMEUIINFO_MENU_EDIT_TREE (parameters1_menu_uiinfo),
+    GNOMEUIINFO_MENU_EDIT_TREE (edit_menu_uiinfo),
     GNOMEUIINFO_MENU_HELP_TREE (help1_menu_uiinfo),
     GNOMEUIINFO_END
 };

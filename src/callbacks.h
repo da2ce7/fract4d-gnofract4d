@@ -49,6 +49,9 @@ gint save_session_cb(GnomeClient* client, gint phase, GnomeSaveStyle save_style,
 
 gint quit_session_cb(GnomeClient* client, gpointer client_data);
 
+void undo_cb(GtkMenuItem *menuitem, gpointer user_data);
+void redo_cb(GtkMenuItem *menuitem, gpointer user_data);
+
 
 
 

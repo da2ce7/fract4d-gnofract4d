@@ -41,19 +41,6 @@ position_set_cb (GtkWidget *button, gpointer user_data)
     }
 }
 
-void 
-undo_cb(GtkMenuItem *menuitem, gpointer user_data)
-{
-    model_t *m = (model_t *)user_data;
-    model_undo(m);
-}
-
-void 
-redo_cb(GtkMenuItem *menuitem, gpointer user_data)
-{
-    model_t *m = (model_t *)user_data;
-    model_redo(m);
-}
 
 void 
 explore_cb(GtkWidget *widget, gpointer user_data)

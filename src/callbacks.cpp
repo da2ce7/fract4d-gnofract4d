@@ -51,6 +51,20 @@ quit_cb(GtkWidget *widget, GdkEventAny *event, gpointer user_data)
     return menu_quit_cb(widget,user_data);
 }
 
+void 
+undo_cb(GtkMenuItem *menuitem, gpointer user_data)
+{
+    model_t *m = (model_t *)user_data;
+    model_undo(m);
+}
+
+void 
+redo_cb(GtkMenuItem *menuitem, gpointer user_data)
+{
+    model_t *m = (model_t *)user_data;
+    model_redo(m);
+}
+
 
 
 
