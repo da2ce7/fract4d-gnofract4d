@@ -1,7 +1,8 @@
-# Yacc example
+# Parser for UltraFractal + Fractint input files
 
 import yacc
 import fractlexer
+import absyn
 
 tokens = fractlexer.tokens
 
@@ -17,24 +18,21 @@ precedence = (
 
 
 def p_exp_plus(t):
-    'exp : exp PLUS exp'
-    t[0] = t[1] + t[3]
+    '''exp : exp PLUS exp
+       exp : exp MINUS exp
+       exp : exp TIMES exp
+       exp : exp DIVIDE exp
+       exp : exp MOD exp'''
+    t[0] = absyn.Binop(t[2],t[1],t[3])
 
-def p_exp_minus(t):
-    'exp : exp MINUS exp'
-    t[0] = t[1] - t[3]
-
-def p_exp_times(t):
-    'exp : exp TIMES exp'
-    t[0] = t[1] * t[3]
-
-def p_exp_div(t):
-    'exp : exp DIVIDE exp'
-    t[0] = t[1] / t[3]
-
+# implement unary minus as 0 - n
+def p_exp_uminus(t):
+    'exp : MINUS exp %prec UMINUS'
+    t[0] = absyn.Binop("-", absyn.Number(0),t[2])
+    
 def p_exp_num(t):
     'exp : NUMBER'
-    t[0] = t[1]
+    t[0] = absyn.Number(t[1])
 
 def p_exp_expr(t):
     'exp : LPAREN exp RPAREN'
@@ -57,5 +55,5 @@ if __name__ == '__main__':
             break
         if not s: continue
         result = yacc.parse(s)
-        print result
+        print result.pretty()
 
