@@ -337,7 +337,7 @@ public:
 	    RELEASE_LOCK;
 	}
     // estimate of how far through current pass we are
-    virtual void progress_vchanged(float progress)
+    virtual void progress_changed(float progress)
 	{
 	    double d = (double)progress;
 
@@ -968,7 +968,7 @@ static PyMethodDef PfMethods[] = {
 };
 
 extern "C" PyMODINIT_FUNC
-initfract4d(void)
+initfract4dc(void)
 {
-    (void) Py_InitModule("fract4d", PfMethods);
+    (void) Py_InitModule("fract4dc", PfMethods);
 }

@@ -17,7 +17,7 @@ class CmapTest(testbase.TestBase):
         pass
 
     def testLoad(self):
-        f = open("../../maps/volcano.map","r")
+        f = open("../maps/volcano.map","r")
         c = colormap.ColorMap(f)
         self.assertEqual(c.r[0],(0.0,0,0,0,255))
         for i in xrange(256):
