@@ -25,7 +25,11 @@ class Test(unittest.TestCase):
         self.compiler.file_path.append("../formulas")
         
         self.f = gtkfractal.T(self.compiler,self)
-    
+
+        self.red = [1.0, 0.0, 0.0, 1.0]
+        self.green = [0.0, 1.0, 0.0, 1.0]
+        self.blue = [0.0, 0.0, 1.0, 1.0]
+
     def tearDown(self):
         pass
         
@@ -63,6 +67,20 @@ class Test(unittest.TestCase):
         self.assertEqual(c.grad.segments[0].right_color,
                          [0.8, 0.5, 0.3, alpha_r])
 
+    def testUpdateGradient(self):
+        c = colors.ColorDialog(None,self.f)
+        self.f.set_gradient(self.make_rgb_gradient())
+        c.update_gradient()
+        self.assertFractalSegmentsEqualEditorSegments(c)
+
+    def make_rgb_gradient(self):
+        g = gradient.Gradient()
+        g.segments = [
+           gradient.Segment(0.0, self.red, 0.333, self.red),
+           gradient.Segment(0.333, self.green, 0.667, self.green),
+           gradient.Segment(0.667, self.blue, 1.0, self.blue)]
+        return g
+        
     def testApply(self):
         c = colors.ColorDialog(None,self.f)
         c.grad.segments[0].left_color = new_color = [0.4, 0.7, 0.3, 1.0]
@@ -80,7 +98,10 @@ class Test(unittest.TestCase):
 	    self.assertEqual(k1,k2)
 	    for k in k1:
 		self.assertEqual(seg1.__dict__[k], seg2.__dict__[k])
-    
+                
+        for i in xrange(len(self.f.solids)):
+            self.assertEqual(self.f.solids[i], editor.solids[i])
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 
