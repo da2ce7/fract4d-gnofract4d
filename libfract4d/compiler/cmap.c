@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include <math.h>
 
 typedef struct 
 {
@@ -18,7 +19,8 @@ struct s_cmap
     item_t *items;
 };
 
-cmap_t *cmap_new(int ncolors)
+cmap_t *
+cmap_new(int ncolors)
 {
     cmap_t *cmap = NULL;
     rgba_t black = { 0,0,0,1};
@@ -87,7 +89,8 @@ cmap_delete(cmap_t *cmap)
    sadly C stdlib's bsearch is no good because it won't tell us the position
    of nearest match if there's no exact one */
 
-int find(double key, item_t *array, int n)
+int 
+find(double key, item_t *array, int n)
 {
     int left=0,right=n-1;
     do
@@ -113,12 +116,15 @@ int find(double key, item_t *array, int n)
     }while(1);
 }
 
-rgba_t cmap_lookup(cmap_t *cmap, double index)
+rgba_t 
+cmap_lookup(cmap_t *cmap, double index)
 {
-    int i = find(index, cmap->items, cmap->ncolors),j; 
+    int i,j;
     rgba_t mix, left, right;
     double dist, r;
 
+    index = index == 1.0 ? 1.0 : fmod(index,1.0);
+    i = find(index, cmap->items, cmap->ncolors); 
     assert(i >= 0 && i < cmap->ncolors);
 
     /* printf("%g->%d\n",index,i); */
@@ -144,10 +150,10 @@ rgba_t cmap_lookup(cmap_t *cmap, double index)
     left = cmap->items[i].color;
     right = cmap->items[j].color;
 
-    mix.r = (unsigned char)(left.r * (1.0-r) + right.r * r);
-    mix.g = (unsigned char)(left.g * (1.0-r) + right.g * r);
-    mix.b = (unsigned char)(left.b * (1.0-r) + right.b * r);
-    mix.a = (unsigned char)(left.a * (1.0-r) + right.a * r);
+    mix.r = (unsigned char)((left.r * (1.0-r) + right.r * r));
+    mix.g = (unsigned char)((left.g * (1.0-r) + right.g * r));
+    mix.b = (unsigned char)((left.b * (1.0-r) + right.b * r));
+    mix.a = (unsigned char)((left.a * (1.0-r) + right.a * r));
 
     return mix;
 }
