@@ -14,74 +14,98 @@ Done in 2.7:
 * W	initial gradient stuff (chris le sueur)
 
 todo:
-* B	should save enum params as strings, not indexes
-* W	copy & paste to text or image
+
+bugs (the more B's, the worse the bug):
+* BB	explorer doesn't work properly with int/enum/bool params?
+* BB	intermittently failing test in test_fract4d
+* BB	should save enum params as strings, not indexes
 * B	collapsar preview different color from main image?
 * B	should start drawing straight away when image returns to normal size
 * B	weird behavior when using explorer mode & oversized image
 * B	incredibly slow when allocate very big image which fits in VM
 * B	fractint builtin fns with () in the name 
-* B	painter produces wrong color sometimes?
+* BB	painter produces wrong color sometimes?
 * B	painter doesn't understand solid
 * B	each fractal gets compiled twice, 2nd time with extra vars:
 * B	compile whenever resolution changes - pointless
-* W	don't allocate memory for recoloring buffer when image very large
-* B	opening browser should select current fractfile and formula
+* BB	opening browser should select current fractfile and formula
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
+* BB	opening color browser sometimes applies 1st item
+* BB	click on colormap calls calc() twice
+* BB	fractint doesn't reset vars between calls
+* B	parse continuation lines correctly mid-token
+* B	O-fractals in fractint-g4.frm broken
+* B	recoloring during deepening can make things shallower
+* B     var called 'loat' would clash with C reserved word
+* BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
+* B	Mandrake: desktop icon not added to menu
+* B	mandrake: pygtk2 is called pygtk2.0
+* B	does everything have to be .17f ?
+* B	seaslug.fct - diff bailout for quadratic
+* B	coolness.fct - need direct coloring algorithm
+* B	deeper.fct, hive.fct, image.fct doesn't load properly - old format
+* B	daisychain.fct - bailFunc != diff for newton
+* B	interrupt takes too long on deep-zoomed fractals
+* B	untitled_5 displays weirdly - 
+	so do some combinations of bailout+colorfunc
+* B	giger.fct - results of extangle are different vs 1.9
+* B	horrible_drawing_bug.fct - zoom out & it looks very different
+* B	click on GaussianInteger cfrm = print out some stuff
+* B	default chebyshev gives blank screen
+* B	standard.cfrm:triangle = all black
+
+features (the more W's, the more work involved):
+* W	copy & paste to text or image
+* W	don't allocate memory for recoloring buffer when image very large
 * WW	cmap browser
 * WW	cmap editor - brightness/contrast/gamma/HSV/RGB
-* B	opening color browser sometimes applies 1st item
-* B	click on colormap calls calc() twice
 * W	logmap
-* B	fractint doesn't reset vars between calls
-* B	parse continuation lines correctly
 * W	warn if overwrite/always save as/clear name on major change
 * WW	include formula in .fct file
-* B	O-fractals in fractint-g4.frm broken
+* W	make explorer mode work better if you're zoomed in a long way
+* W	"explore this parameter"
 * W	assert that correct number of params passed to init()
-* B	recoloring during deepening can make things shallower
-* BB	intermittently failing test in test_fract4d
-* B     var called 'loat' would clash with C reserved word
 * WWW	create colormap from picture (eg digital photo)
-* W 	update spec for RPMs to use desktop-file-install (per DAG spec)
-* W	does everything have to be .17f ?
-* W	regression test vs fractint
-* B	other windows always in front - is that good?
-* W	exact SMP equality test
-* B	reset doesn't affect function params
 * W	tie menu-based and toolbar-based explorer toggling
 * W	regenerate for explorer mode 
-* BB	seaslug.fct - diff bailout for quadratic
-* B	coolness.fct - need direct coloring algorithm
-* BB	deeper.fct, hive.fct, image.fct doesn't load properly - old format
-* BB	daisychain.fct - bailFunc != diff for newton
 * W	autosave/restore?
 * W	max size for .so cache
 * W	diff bailout for other types
-* B	interrupt takes too long on deep-zoomed fractals
-* W	signal tpool conds after releasing mutex?
+* W	signal tpool conds after releasing mutex? (tiny perf change, maybe)
 * W	associate with file type?
 * WW	register mime info?
-* W	make it work with GMP
-* W	faster GMP (get at internals during loop, maybe?)
+* WWW	make it work with GMP
 * W	full-screen mode
 * W 	desktop mode
 * W 	demo mode
-* WW	dirty/clean stuff won't work unless 
-	- eject val / (scratch?) is kept freach point
-	- can calc color without recalcing iter 
 * W	bookmarks
-* B	Mutants don't work at deep zooms
-* W	fast single-undo
 * WW	critical values + multiple basins/color schemes
 * WW	import .par files
 * WW	import .upr files
 * W	import ultrafractal gradient files
-* WW	gimp gradient files:
+* WW	load/save gimp gradient files:
+* W	tooltips for custom widgets in toolbar
+* W	last-chance exception handler
+* W	formula browser:manage search path (user prefs)
+* W	formula browser:save changes to .frm files
+* W	review human interface guidelines
+* W	recently-used files
+* W	angles in degrees?
+* W	connect identically-named params in different parts of formula
+* W	autosave
+* W	make easier to use on click-to-focus systems
+* W	click-and-release on angle,fourway - may require pointer_grab, though
+* WW	visible history
+* WW	get formulas from UF Database
+* W	finish fractint-builtins.frm
 
-UF Incompatibilities
-* W	boolean, int, enum params 
+tests:
+* W	regression test vs fractint, previous versions
+* W	improve benchmark
+* W	exact SMP equality test
+
+UF Incompatibilities:
 * B? 	jgr.ufm:Rowan - default is blank
 * B	jgr.ufm:Willow - '@fn1' is predefined (in switch)
 * B	browse fhq.ufm - invalid UTF8 string passed to pango_layout
@@ -89,6 +113,7 @@ UF Incompatibilities
 * B	dmj.udm:dmj-ManyJulia - looks like 3 quadrants are wrong somehow
 * B	jock.ufm:neptwona = "complex z = #pixel", ie redeclare z
 * W	raise/remove limit on number of parameters
+* W	allow redeclaration of variables
 
 Orbits/Attractors
 
@@ -105,48 +130,6 @@ params (not all applicable to all types):
 2) time step
 3) which points to start with
  
-UI improvements 
-* W	tooltips for custom widgets in toolbar
-* W	last-chance exception handler
-* W	formula browser
-	manage search path (user prefs)
-	save changes to .frm files
-* W	review human interface guidelines
-* W	recently-used files
-* W	angles in degrees?
-* W	connect identically-named params in different parts of formula
-* W	autosave
-* W	make easier to use on click-to-focus systems
-* W	click-and-release on angle,fourway - may require pointer_grab, though
-* WW	visible history
-
-Data gathering
-* WW	SQM
-* WW	Watson
-* WW	Content Watson
-
-Math weirdness:
-* B	untitled_5 displays weirdly - 
-	so do some combinations of bailout+colorfunc
-* BB	giger.fct - results of extangle are different vs 1.9
-* BB	horrible_drawing_bug.fct - zoom out & it looks very different
-* B	click on GaussianInteger cfrm = print out some stuff
-* W	default chebyshev gives blank screen
-* B	standard.cfrm:triangle = all black
-
-Testing:
-* W	end-to-end regression test
-
-Distribution weirdness
-* B	Mandrake: desktop icon not added to menu, pygtk2 is called pygtk2.0
-
-differences from fractint:
-* B	3rdim05 - default params bulge with fractint. They use sin() as default
-	function, not ident()
-* B	fn(z)+c: acos, acosh - think Fractint may be wrong
-* B	fn(z*z)+c : acos, acosh 
-* W	fractint-builtins.frm
-
 Done in 2.6:
 * W	prefs dialog option to change number of threads
 * BBB	open parade.fct, go to outer, change density = gtk-ERROR
