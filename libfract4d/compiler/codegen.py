@@ -76,7 +76,13 @@ class T:
         assem = "%%(d0)s = %d %s %%(s0)s" % (val, op)
         self.out.append(Oper(assem, srcs ,[ dst ]))
         return dst
-    
+
+    def emit_binop_exp_exp(self,op,srcs,type):
+        dst = self.symbols.newTemp(type)
+        assem = "%%(d0)s = %%(s0)s %s %%(s1)s" % op
+        self.out.append(Oper(assem, srcs ,[ dst ]))
+        return dst
+        
     # action routines
     def binop_const_exp(self,t):
         s0 = t.children[0]
@@ -87,10 +93,19 @@ class T:
                 dst = [
                     self.emit_binop_const_exp(t.op,s0.value[0], [srcs[0]], Float),
                     self.emit_binop_const_exp(t.op,s0.value[1], [srcs[1]], Float)]
-            if t.op=="*":
+            elif t.op=="*":
                 # (a+ib) * (c+id) = ac - bd + i(bc + ad)
                 (a,b,c,d) = (s0.value[0], s0.value[1], srcs[0], srcs[1])
-                self.emit_binop_const_exp(t.op,a, [b], [d0], Float)
+                ac = self.emit_binop_const_exp(t.op, a, [c], Float)
+                bd = self.emit_binop_const_exp(t.op, b, [d], Float)
+                bc = self.emit_binop_const_exp(t.op, b, [c], Float)
+                ad = self.emit_binop_const_exp(t.op, a, [d], Float)
+                dst = [
+                    self.emit_binop_exp_exp('-', [ac, bd], Float),
+                    self.emit_binop_exp_exp('+', [bc, ad], Float)]
+            else:
+                msg = "Unsupported operation %s" % t.op
+                raise fracttypes.TranslationError(msg)
         else:
             dst = [
                 self.emit_binop_const_exp(t.op,s0.value,srcs,t.datatype)]
