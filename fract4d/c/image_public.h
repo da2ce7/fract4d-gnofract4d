@@ -48,6 +48,10 @@ public:
     // accessors for iteration data
     virtual int getIter(int x, int y) const = 0;
     virtual void setIter(int x, int y, int iter) = 0;
+
+    // accessors for fate data
+    virtual fate_t getFate(int x, int y, int sub) = 0;
+    virtual void setFate(int x, int y, int sub, fate_t fate) = 0;
 };
 
 #endif /* IMAGE_PUBLIC_H_ */
