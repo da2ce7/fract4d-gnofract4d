@@ -1,3 +1,6 @@
+#define GTK_DISABLE_DEPRECATED 
+#define GNOME_DISABLE_DEPRECATED
+
 #include "gf4d_fractal.h"
 #include "image.h"
 #include <gtk/gtkmain.h>
@@ -49,23 +52,28 @@ static GtkObjectClass *parent_class = NULL;
 GtkType
 gf4d_fractal_get_type ()
 {
-    static guint fractal_type = 0;
+    static GType fractal_type = 0;
 
     if (!fractal_type)
     {
-        GtkTypeInfo fractal_info =
+        static const GTypeInfo fractal_info =
         {
-            "Gf4dFractal",
+	    sizeof (Gf4dFractalClass),
+	    NULL,
+	    NULL,
+	    (GClassInitFunc) gf4d_fractal_class_init,
+	    NULL,
+	    NULL,
             sizeof (Gf4dFractal),
-            sizeof (Gf4dFractalClass),
-            (GtkClassInitFunc) gf4d_fractal_class_init,
-            (GtkObjectInitFunc) gf4d_fractal_init,
-            NULL,
-            NULL,
-            (GtkClassInitFunc) NULL
+	    0,
+            (GInstanceInitFunc) gf4d_fractal_init
         };
 
-        fractal_type = gtk_type_unique (gtk_object_get_type (), &fractal_info);
+        fractal_type = g_type_register_static(
+	    GTK_TYPE_OBJECT,
+	    "Gf4dFractal",
+	    &fractal_info,
+	    (GTypeFlags)0);
     }
 
     return fractal_type;
@@ -94,7 +102,7 @@ gf4d_fractal_new ()
 {
     Gf4dFractal *f;
 
-    f = GF4D_FRACTAL(gtk_type_new (gf4d_fractal_get_type ()));
+    f = GF4D_FRACTAL(g_object_new (gf4d_fractal_get_type(), NULL));
 
     return GTK_OBJECT (f);
 }
@@ -204,40 +212,44 @@ gf4d_fractal_class_init (Gf4dFractalClass *klass)
     parent_class = (GtkObjectClass *)(gtk_type_class(GTK_TYPE_OBJECT));
 
     fractal_signals[PARAMETERS_CHANGED] = 
-        gtk_signal_new("parameters_changed",
-                       GtkSignalRunType(GTK_RUN_FIRST | GTK_RUN_NO_RECURSE),
-                       GTK_CLASS_TYPE(object_class),
-                       GTK_SIGNAL_OFFSET(Gf4dFractalClass, parameters_changed),
-                       gtk_marshal_NONE__NONE,
-                       GTK_TYPE_NONE, 0);
+        g_signal_new("parameters_changed",
+		     G_TYPE_FROM_CLASS(klass),
+		     (GSignalFlags)(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
+		     G_STRUCT_OFFSET(Gf4dFractalClass, parameters_changed),
+		     NULL, NULL,
+		     g_cclosure_marshal_VOID__VOID, 
+		     G_TYPE_NONE, 
+		     0);
 
     fractal_signals[IMAGE_CHANGED] = 
-        gtk_signal_new("image_changed",
-                       GTK_RUN_FIRST,
-                       GTK_CLASS_TYPE(object_class),
-                       GTK_SIGNAL_OFFSET(Gf4dFractalClass, image_changed),
-                       gtk_marshal_NONE__POINTER,
-                       GTK_TYPE_NONE, 1,
-                       GTK_TYPE_POINTER);
+        g_signal_new("image_changed",
+		     G_TYPE_FROM_CLASS(klass),
+		     G_SIGNAL_RUN_FIRST,
+		     G_STRUCT_OFFSET(Gf4dFractalClass, image_changed),
+		     NULL, NULL,
+		     gf4d_marshal_VOID__POINTER,
+		     G_TYPE_NONE, 1,
+		     G_TYPE_POINTER);
 
     fractal_signals[PROGRESS_CHANGED] = 
-        gtk_signal_new("progress_changed",
-                       GTK_RUN_FIRST,
-                       GTK_CLASS_TYPE(object_class),
-                       GTK_SIGNAL_OFFSET(Gf4dFractalClass, progress_changed),
-                       gf4d_marshal_VOID__FLOAT,
-                       GTK_TYPE_NONE, 1,
-                       GTK_TYPE_FLOAT);
+        g_signal_new("progress_changed",
+		     G_TYPE_FROM_CLASS(klass),
+		     G_SIGNAL_RUN_FIRST,
+		     G_STRUCT_OFFSET(Gf4dFractalClass, progress_changed),
+		     NULL, NULL,
+		     gf4d_marshal_VOID__FLOAT,
+		     G_TYPE_NONE, 1,
+		     G_TYPE_FLOAT);
 
-    g_warning("emit status defined");
     fractal_signals[STATUS_CHANGED] = 
-        gtk_signal_new("status_changed",
-                       GTK_RUN_FIRST,
-                       GTK_CLASS_TYPE(object_class),
-                       GTK_SIGNAL_OFFSET(Gf4dFractalClass, status_changed),
-                       gf4d_marshal_VOID__INT,
-                       GTK_TYPE_NONE, 1,
-                       GTK_TYPE_INT);
+        g_signal_new("status_changed",
+		     G_TYPE_FROM_CLASS(klass),
+		     G_SIGNAL_RUN_FIRST,
+		     G_STRUCT_OFFSET(Gf4dFractalClass, status_changed),
+		     NULL, NULL,
+		     gf4d_marshal_VOID__INT,
+		     G_TYPE_NONE, 1,
+		     G_TYPE_INT);
 
     /* default signal handlers don't do anything */
     klass->parameters_changed=NULL;
