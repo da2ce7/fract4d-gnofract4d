@@ -101,7 +101,7 @@ GtkWidget *create_strip_item(Gf4dMovieFrame *fr)
 // given a pointer to a listitem, extract the relevant info
 Gf4dMovieFrame *film_strip_get_frame(GtkWidget *item)
 {
-    return (Gf4dMovieFrame *)(gtk_object_get_data(GTK_OBJECT(item), "frame"));
+    return (Gf4dMovieFrame *)(g_object_get_data(G_OBJECT(item), "frame"));
 }
 
 /*

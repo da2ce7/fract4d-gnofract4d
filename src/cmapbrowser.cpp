@@ -54,8 +54,8 @@ update_preview_image(Gf4dFractal *f, GtkWidget *drawable, model_t *m_if_edit)
     g_assert(drawable);
 
 
-    colorizer_t *cizer = (colorizer_t *)gtk_object_get_data(
-        GTK_OBJECT(drawable), "colorizer"); 
+    colorizer_t *cizer = (colorizer_t *)g_object_get_data(
+        G_OBJECT(drawable), "colorizer"); 
     g_assert(cizer);
 
     if(m_if_edit)
@@ -63,7 +63,7 @@ update_preview_image(Gf4dFractal *f, GtkWidget *drawable, model_t *m_if_edit)
 	delete cizer;
 	Gf4dFractal *mf = model_get_fract(m_if_edit);
 	cizer = gf4d_fractal_get_colorizer(mf,current_colorizer)->clone();
-	gtk_object_set_data(GTK_OBJECT(drawable), "colorizer",cizer);
+	g_object_set_data(G_OBJECT(drawable), "colorizer",cizer);
     }
     
 
@@ -72,7 +72,7 @@ update_preview_image(Gf4dFractal *f, GtkWidget *drawable, model_t *m_if_edit)
     gf4d_fractal_recolor(f);
     
     // copy contents of image to drawable's backing store
-    guchar *img = (guchar *)gtk_object_get_data(GTK_OBJECT(drawable),"image");
+    guchar *img = (guchar *)g_object_get_data(G_OBJECT(drawable),"image");
     g_assert(img);
     memcpy(img,gf4d_fractal_get_image(f), BYTE_SIZE);
     
@@ -102,8 +102,8 @@ preview_status_callback(Gf4dFractal *f, gint val, void *user_data)
             {
 		// if this preview is on the edit page, we now update
 		// its colormap from the model
-		model_t *m_if_edit = (model_t *)gtk_object_get_data(
-		    GTK_OBJECT(drawable), "get_from_main");
+		model_t *m_if_edit = (model_t *)g_object_get_data(
+		    G_OBJECT(drawable), "get_from_main");
 
                 update_preview_image(f, drawable, m_if_edit);
             }
@@ -116,7 +116,7 @@ preview_status_callback(Gf4dFractal *f, gint val, void *user_data)
 gint 
 preview_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
-    guchar *image = (guchar *)gtk_object_get_data(GTK_OBJECT(widget), "image");
+    guchar *image = (guchar *)g_object_get_data(G_OBJECT(widget), "image");
 
     if(image)
     {
@@ -139,7 +139,7 @@ preview_button_clicked(GtkWidget *button, gpointer user_data)
     GtkWidget *drawable = GTK_BIN(button)->child;
     model_t *m = (model_t *)user_data;
 
-    colorizer_t *cizer = (colorizer_t *)gtk_object_get_data(GTK_OBJECT(drawable), "colorizer");
+    colorizer_t *cizer = (colorizer_t *)g_object_get_data(G_OBJECT(drawable), "colorizer");
     g_assert(cizer);
 
     if(model_cmd_start(m, "preview"))
@@ -179,19 +179,19 @@ create_cmap_browser_item(
 
     // buffer for image
     guchar *img = new guchar[BYTE_SIZE];
-    gtk_object_set_data(GTK_OBJECT(drawing_area), "image", img);
+    g_object_set_data(G_OBJECT(drawing_area), "image", img);
 
-    gtk_object_set_data(GTK_OBJECT(drawing_area), "colorizer", cizer);
+    g_object_set_data(G_OBJECT(drawing_area), "colorizer", cizer);
 
     if(take_cizer_from_main)
     {
-	gtk_object_set_data(GTK_OBJECT(drawing_area), "get_from_main",
+	g_object_set_data(G_OBJECT(drawing_area), "get_from_main",
 			    m);
     }
 
     // get drawable to redraw itself properly
     g_signal_connect (
-        GTK_OBJECT(drawing_area), "expose_event", 
+        G_OBJECT(drawing_area), "expose_event", 
         (GtkSignalFunc) preview_expose_event, NULL);
     
     gtk_widget_show(drawing_area);
@@ -203,7 +203,7 @@ create_cmap_browser_item(
  
     // button callback
     g_signal_connect (
-        GTK_OBJECT(button), "clicked",
+        G_OBJECT(button), "clicked",
         (GtkSignalFunc) preview_button_clicked, m);
 
     return button;
@@ -228,7 +228,7 @@ update_previews(GtkWidget *button, gpointer user_data)
 {
     model_t *m = (model_t *)user_data;
     //GtkWidget *dialog = gtk_widget_get_toplevel(button);
-    Gf4dFractal *f = GF4D_FRACTAL(gtk_object_get_data(GTK_OBJECT(dialog), "fractal"));
+    Gf4dFractal *f = GF4D_FRACTAL(g_object_get_data(G_OBJECT(dialog), "fractal"));
 
     // update this fractal with the main one
     gf4d_fractal_update_fract(f,model_get_fract(m));
@@ -319,9 +319,9 @@ color_change_callback(GtkWidget *colorsel, gpointer user_data)
     GtkWidget *button = GTK_WIDGET(user_data);  
     GtkWidget *drawable = GTK_BIN(button)->child;
     rgb_colorizer *rgb_cizer = (rgb_colorizer *)
-        gtk_object_get_data(GTK_OBJECT(drawable), "colorizer");
+        g_object_get_data(G_OBJECT(drawable), "colorizer");
 
-    Gf4dFractal *f = GF4D_FRACTAL(gtk_object_get_data(GTK_OBJECT(dialog), "fractal"));
+    Gf4dFractal *f = GF4D_FRACTAL(g_object_get_data(G_OBJECT(dialog), "fractal"));
 
     rgb_cizer->set_colors(colors[0],colors[1],colors[2]);
 
@@ -331,10 +331,10 @@ color_change_callback(GtkWidget *colorsel, gpointer user_data)
 
 void colorbut_draw(GtkWidget *widget)
 {
-    int index = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"index"));
+    int index = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget),"index"));
 
-    colorizer_t *cizer = (colorizer *)gtk_object_get_data(
-	GTK_OBJECT(widget->parent), "cizer");
+    colorizer_t *cizer = (colorizer *)g_object_get_data(
+	G_OBJECT(widget->parent), "cizer");
 
     cmap_colorizer *cm_cizer = dynamic_cast<cmap_colorizer *>(cizer);
     guint color;
@@ -383,10 +383,10 @@ colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 
 rgb_t colorbut_get_color(GtkWidget *widget)
 {
-    int index = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"index"));
+    int index = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget),"index"));
 
-    cmap_colorizer *cizer = (cmap_colorizer *)gtk_object_get_data(
-	GTK_OBJECT(widget->parent), "cizer");
+    cmap_colorizer *cizer = (cmap_colorizer *)g_object_get_data(
+	G_OBJECT(widget->parent), "cizer");
 
     return cizer->cmap[index];
 }
@@ -425,10 +425,10 @@ void colorbut_set_event(GtkWidget *colorsel, gpointer user_data)
     rgb_color.b = (char)(colors[2]*255.0);
 
     int index = GPOINTER_TO_INT(
-	gtk_object_get_data(GTK_OBJECT(colorbut),"index"));
+	g_object_get_data(G_OBJECT(colorbut),"index"));
 
-    cmap_colorizer *cizer = (cmap_colorizer *)gtk_object_get_data(
-	GTK_OBJECT(colorbut->parent), "cizer");
+    cmap_colorizer *cizer = (cmap_colorizer *)g_object_get_data(
+	G_OBJECT(colorbut->parent), "cizer");
 
     g_print("%d\n",index);
     cizer->cmap[index] = rgb_color;
@@ -439,7 +439,7 @@ void colorbut_set_event(GtkWidget *colorsel, gpointer user_data)
     GtkWidget *drawable = GTK_BIN(button)->child;
 
     Gf4dFractal *f = GF4D_FRACTAL(
-	gtk_object_get_data(GTK_OBJECT(dialog), "fractal"));
+	g_object_get_data(G_OBJECT(dialog), "fractal"));
 
     update_preview_image(f, drawable, NULL);
 
@@ -486,12 +486,12 @@ create_edit_colormap_page(GtkWidget *notebook, model_t *m)
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
 
-    g_signal_connect(GTK_OBJECT(colorsel), "color-changed",
+    g_signal_connect(G_OBJECT(colorsel), "color-changed",
 		       (GtkSignalFunc)colorbut_set_event,
 		       cmap_preview);
 
-    gtk_object_set_data(GTK_OBJECT(colorbox),"colorsel",colorsel);
-    gtk_object_set_data(GTK_OBJECT(colorbox),"cizer",cizer);
+    g_object_set_data(G_OBJECT(colorbox),"colorsel",colorsel);
+    g_object_set_data(G_OBJECT(colorbox),"cizer",cizer);
 
     for(int i = 0 ; i < 256; ++i)
     {
@@ -503,13 +503,13 @@ create_edit_colormap_page(GtkWidget *notebook, model_t *m)
 			       GDK_BUTTON_PRESS_MASK | 
 			       GDK_BUTTON_RELEASE_MASK);
 
-	gtk_object_set_data(GTK_OBJECT(colorbut),"index",GINT_TO_POINTER(i));
+	g_object_set_data(G_OBJECT(colorbut),"index",GINT_TO_POINTER(i));
 
-	g_signal_connect(GTK_OBJECT(colorbut),"expose_event",
+	g_signal_connect(G_OBJECT(colorbut),"expose_event",
 			   (GtkSignalFunc)colorbut_expose_event,
 			   (gpointer)m);
 
-	g_signal_connect (GTK_OBJECT(colorbut), "button_press_event",
+	g_signal_connect (G_OBJECT(colorbut), "button_press_event",
 			    (GtkSignalFunc) colorbut_mouse_event, colorsel);
 
 
@@ -557,7 +557,7 @@ create_new_color_page(GtkWidget *notebook, model_t *m)
 
     /* connect up color selector callbacks */
     g_signal_connect(
-        GTK_OBJECT(colorsel), "color-changed",
+        G_OBJECT(colorsel), "color-changed",
         (GtkSignalFunc) color_change_callback,
         (gpointer) rgb_preview);
 
@@ -569,7 +569,7 @@ void set_id_callback(GtkWidget *menu_item, gpointer user_data)
     model_t *m = (model_t *)user_data;
 
     int id = GPOINTER_TO_INT(
-	gtk_object_get_data(GTK_OBJECT(menu_item), "id"));
+	g_object_get_data(G_OBJECT(menu_item), "id"));
  
     if(id == current_colorizer) {
 	// nothing to do
@@ -588,13 +588,13 @@ create_which_colorizer_menu(GtkWidget *vbox, Gf4dFractal *shadow, model_t *m)
     
     GtkWidget *menu_item = gtk_menu_item_new_with_label("Outer");
     
-    gtk_object_set_data(
-	GTK_OBJECT (menu_item), 
+    g_object_set_data(
+	G_OBJECT (menu_item), 
 	"id",
 	GINT_TO_POINTER(0));
     
     g_signal_connect(
-	GTK_OBJECT(menu_item),
+	G_OBJECT(menu_item),
 	"activate",
 	GTK_SIGNAL_FUNC(set_id_callback),
 	m);
@@ -604,13 +604,13 @@ create_which_colorizer_menu(GtkWidget *vbox, Gf4dFractal *shadow, model_t *m)
 
     menu_item = gtk_menu_item_new_with_label("Inner");
     
-    gtk_object_set_data(
-	GTK_OBJECT (menu_item), 
+    g_object_set_data(
+	G_OBJECT (menu_item), 
 	"id",
 	GINT_TO_POINTER(1));
     
     g_signal_connect(
-	GTK_OBJECT(menu_item),
+	G_OBJECT(menu_item),
 	"activate",
 	GTK_SIGNAL_FUNC(set_id_callback),
 	m);
@@ -667,7 +667,7 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
     gf4d_fractal_set_aa(f, (e_antialias)0);
  
     // store a pointer to the fract
-    gtk_object_set_data(GTK_OBJECT(dialog), "fractal", f);
+    g_object_set_data(G_OBJECT(dialog), "fractal", f);
 
  
     /* make notebook */
@@ -686,17 +686,17 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
     // setup callbacks from fract's calculations
     
     g_signal_connect(
-        GTK_OBJECT(f), "status_changed", 
+        G_OBJECT(f), "status_changed", 
         GTK_SIGNAL_FUNC(preview_status_callback),
         table);
     
     g_signal_connect(
-        GTK_OBJECT(f), "status_changed", 
+        G_OBJECT(f), "status_changed", 
         GTK_SIGNAL_FUNC(preview_status_callback),
         table2);
 /*
     g_signal_connect(
-        GTK_OBJECT(f), "status_changed", 
+        G_OBJECT(f), "status_changed", 
         GTK_SIGNAL_FUNC(preview_status_callback),
         table3);
 */    

@@ -176,7 +176,7 @@ create_image_entry(
 static param_t 
 get_param(GtkEntry *e)
 {
-    return (param_t)GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(e),"param"));
+    return (param_t)GPOINTER_TO_INT(g_object_get_data(G_OBJECT(e),"param"));
 }
 
 gboolean
@@ -239,7 +239,7 @@ create_param_entry_with_label(
                        (GtkSignalFunc)refresh_param_callback,
                        combo_entry);
     
-    gtk_object_set_data(GTK_OBJECT(combo_entry),"param",GINT_TO_POINTER(param));
+    g_object_set_data(G_OBJECT(combo_entry),"param",GINT_TO_POINTER(param));
 };
 
 
@@ -247,7 +247,7 @@ void set_bailout_callback(GtkWidget *widget, gpointer user_data)
 {
     Gf4dFractal *f = GF4D_FRACTAL(user_data);
 
-    e_bailFunc type = (e_bailFunc)GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"type"));
+    e_bailFunc type = (e_bailFunc)GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget),"type"));
 
     e_bailFunc old_type = gf4d_fractal_get_bailout_type(f);
     if(type != old_type)
@@ -271,7 +271,7 @@ void refresh_bailout_callback(Gf4dFractal *f, gpointer user_data)
     {
         GtkMenuItem *mi = GTK_MENU_ITEM(list->data);
         e_bailFunc t = (e_bailFunc)GPOINTER_TO_INT(
-            gtk_object_get_data(GTK_OBJECT(mi),"type"));
+            g_object_get_data(G_OBJECT(mi),"type"));
         
         if(t == bailType)
         {
@@ -305,13 +305,13 @@ GtkWidget *create_bailout_menu(Gf4dFractal *shadow)
     {
         GtkWidget *menu_item = gtk_menu_item_new_with_label(bailout_names[i]);
     
-        gtk_object_set_data(
-            GTK_OBJECT (menu_item), 
+        g_object_set_data(
+            G_OBJECT (menu_item), 
             "type",
             GINT_TO_POINTER((e_bailFunc)i));
     
         g_signal_connect(
-            GTK_OBJECT(menu_item),
+            G_OBJECT(menu_item),
             "activate",
             GTK_SIGNAL_FUNC(set_bailout_callback),
             shadow);
@@ -337,7 +337,7 @@ set_aa_callback(GtkWidget *widget, gpointer user_data)
 {
     Gf4dFractal *f = GF4D_FRACTAL(user_data);
 
-    e_antialias aa_type = (e_antialias)GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"type"));
+    e_antialias aa_type = (e_antialias)GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget),"type"));
 
     e_antialias old_type = gf4d_fractal_get_aa(f);
     if(aa_type != old_type)
@@ -352,11 +352,11 @@ set_cf_callback(GtkWidget *widget, gpointer user_data)
 {
     Gf4dFractal *f = GF4D_FRACTAL(user_data);
 
-    e_colorFunc cf_type = (e_colorFunc)GPOINTER_TO_INT(gtk_object_get_data(
-        GTK_OBJECT(widget),"type"));
+    e_colorFunc cf_type = (e_colorFunc)GPOINTER_TO_INT(g_object_get_data(
+        G_OBJECT(widget),"type"));
 
-    int whichCf = GPOINTER_TO_INT(gtk_object_get_data(
-        GTK_OBJECT(widget->parent), "whichCf"));
+    int whichCf = GPOINTER_TO_INT(g_object_get_data(
+        G_OBJECT(widget->parent), "whichCf"));
 
     e_colorFunc old_type = gf4d_fractal_get_colorFunc(f,whichCf);
     if(cf_type != old_type)
@@ -381,7 +381,7 @@ refresh_aa_callback(Gf4dFractal *f, gpointer user_data)
     {
         GtkMenuItem *mi = GTK_MENU_ITEM(list->data);
         e_antialias aa = (e_antialias)GPOINTER_TO_INT(
-            gtk_object_get_data(GTK_OBJECT(mi),"type"));
+            g_object_get_data(G_OBJECT(mi),"type"));
         
         if(aa == aa_val)
         {
@@ -400,8 +400,8 @@ refresh_cf_callback(Gf4dFractal *f, gpointer user_data)
     GtkOptionMenu *om = GTK_OPTION_MENU(user_data);
     GtkWidget *m = gtk_option_menu_get_menu(om);
 
-    int whichCf = GPOINTER_TO_INT(gtk_object_get_data(
-        GTK_OBJECT(m), "whichCf"));
+    int whichCf = GPOINTER_TO_INT(g_object_get_data(
+        G_OBJECT(m), "whichCf"));
 
     GList *list = gtk_container_children(GTK_CONTAINER(m));
     int index=0;
@@ -412,7 +412,7 @@ refresh_cf_callback(Gf4dFractal *f, gpointer user_data)
     {
         GtkMenuItem *mi = GTK_MENU_ITEM(list->data);
         e_colorFunc cf = (e_colorFunc)GPOINTER_TO_INT(
-            gtk_object_get_data(GTK_OBJECT(mi),"type"));
+            g_object_get_data(G_OBJECT(mi),"type"));
         
         if(cf == cf_val)
         {
@@ -441,13 +441,13 @@ GtkWidget *create_aa_menu(Gf4dFractal *shadow)
     {
         GtkWidget *menu_item = gtk_menu_item_new_with_label(aa_names[i]);
     
-        gtk_object_set_data(
-            GTK_OBJECT (menu_item), 
+        g_object_set_data(
+            G_OBJECT (menu_item), 
             "type",
             GINT_TO_POINTER(i));
     
         g_signal_connect(
-            GTK_OBJECT(menu_item),
+            G_OBJECT(menu_item),
             "activate",
             GTK_SIGNAL_FUNC(set_aa_callback),
             shadow);
@@ -591,8 +591,8 @@ create_cf_menu(Gf4dFractal *shadow, int whichCf)
 	N_("Angle")
     };
 
-    gtk_object_set_data(
-        GTK_OBJECT (cf_menu),
+    g_object_set_data(
+        G_OBJECT (cf_menu),
         "whichCf",
         GINT_TO_POINTER(whichCf));
 
@@ -600,13 +600,13 @@ create_cf_menu(Gf4dFractal *shadow, int whichCf)
     {
         GtkWidget *menu_item = gtk_menu_item_new_with_label(cf_names[i]);
     
-        gtk_object_set_data(
-            GTK_OBJECT (menu_item), 
+        g_object_set_data(
+            G_OBJECT (menu_item), 
             "type",
             GINT_TO_POINTER(i));
     
         g_signal_connect(
-            GTK_OBJECT(menu_item),
+            G_OBJECT(menu_item),
             "activate",
             GTK_SIGNAL_FUNC(set_cf_callback),
             shadow);
@@ -620,7 +620,7 @@ create_cf_menu(Gf4dFractal *shadow, int whichCf)
     // refresh when shadow changes
 
     g_signal_connect(
-        GTK_OBJECT(shadow),
+        G_OBJECT(shadow),
         "parameters_changed",
         GTK_SIGNAL_FUNC(refresh_cf_callback),
         cf_type);
@@ -679,11 +679,11 @@ create_propertybox_rendering_page(
 
     gtk_widget_show(auto_deepen_button);
 
-    g_signal_connect (GTK_OBJECT(auto_deepen_button),"toggled",
+    g_signal_connect (G_OBJECT(auto_deepen_button),"toggled",
                         GTK_SIGNAL_FUNC(set_autodeepen_callback),
                         (gpointer) shadow);
 
-    g_signal_connect (GTK_OBJECT(shadow),"parameters_changed",
+    g_signal_connect (G_OBJECT(shadow),"parameters_changed",
                         GTK_SIGNAL_FUNC(refresh_autodeepen_callback),
                         (gpointer) auto_deepen_button);
 
@@ -724,7 +724,7 @@ set_func_callback(GtkWidget *widget, gpointer user_data)
 {
     Gf4dFractal *f = GF4D_FRACTAL(user_data);
 
-    const char *func_type = (const char *)gtk_object_get_data(GTK_OBJECT(widget),"type");
+    const char *func_type = (const char *)g_object_get_data(G_OBJECT(widget),"type");
 
     iterFunc *old_func = gf4d_fractal_get_func(f);
     if(strcmp(func_type, old_func->type()))
@@ -749,7 +749,7 @@ refresh_func_callback(Gf4dFractal *f, gpointer user_data)
     while(list)
     {
         GtkMenuItem *mi = GTK_MENU_ITEM(list->data);
-        const char *func = (const char *)(gtk_object_get_data(GTK_OBJECT(mi),"type"));
+        const char *func = (const char *)(g_object_get_data(G_OBJECT(mi),"type"));
         
         if(0 == strcmp(func,func_val))
         {
@@ -774,13 +774,13 @@ GtkWidget *create_function_menu(Gf4dFractal *shadow)
         const char *name = names[i];
         GtkWidget *menu_item = gtk_menu_item_new_with_label(name);
     
-        gtk_object_set_data(
-            GTK_OBJECT (menu_item), 
+        g_object_set_data(
+            G_OBJECT (menu_item), 
             "type",
             const_cast<char *>(name));
     
         g_signal_connect(
-            GTK_OBJECT(menu_item),
+            G_OBJECT(menu_item),
             "activate",
             GTK_SIGNAL_FUNC(set_func_callback),
             shadow);
@@ -793,7 +793,7 @@ GtkWidget *create_function_menu(Gf4dFractal *shadow)
 
     // refresh when shadow changes
     g_signal_connect(
-        GTK_OBJECT(shadow),
+        G_OBJECT(shadow),
         "parameters_changed",
         GTK_SIGNAL_FUNC(refresh_func_callback),
         func_type);
@@ -834,7 +834,7 @@ set_func_parameter_cb(GtkWidget * entry, GdkEventFocus *, model_t *m)
 {
     Gf4dFractal *f = model_get_fract(m);
     iterFunc *func = gf4d_fractal_get_func(f);
-    int index = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(entry),"index"));
+    int index = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(entry),"index"));
     const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
 
     double newPart = strtod(text,NULL);
@@ -874,7 +874,7 @@ void make_func_label(const char *name, const char *part_name, GtkWidget *table, 
 
 void refresh_funcparam_cb(Gf4dFractal *f, GtkWidget *entry)
 {
-    int index = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(entry),"index"));
+    int index = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(entry),"index"));
     iterFunc *func = gf4d_fractal_get_func(f);
     
     std::complex<double> newVal = func->getOption(index/2);
@@ -900,7 +900,7 @@ void make_func_entry(Gf4dFractal *shadow, double d, GtkWidget *table, int i)
     GtkWidget *entry = gtk_entry_new();
 
     /* data for callbacks */
-    gtk_object_set_data(GTK_OBJECT(entry), "index", GINT_TO_POINTER(i));
+    g_object_set_data(G_OBJECT(entry), "index", GINT_TO_POINTER(i));
     
     gtk_table_attach(
         GTK_TABLE(table), entry, 1,2,i,i+1, 
@@ -908,11 +908,11 @@ void make_func_entry(Gf4dFractal *shadow, double d, GtkWidget *table, int i)
         (GtkAttachOptions)0, 
         0, 2);
     
-    model_t *m = (model_t *)gtk_object_get_data(GTK_OBJECT(table),"model");
+    model_t *m = (model_t *)g_object_get_data(G_OBJECT(table),"model");
     assert(m);
 
     g_signal_connect(
-        GTK_OBJECT(entry),"focus-out-event",
+        G_OBJECT(entry),"focus-out-event",
         GTK_SIGNAL_FUNC(set_func_parameter_cb),
         m);
 
@@ -936,7 +936,7 @@ fourway_set_param_cb(
         Gf4dFractal *f = model_get_fract(m);
         iterFunc *func = gf4d_fractal_get_func(f);
         int index = GPOINTER_TO_INT(
-            gtk_object_get_data(GTK_OBJECT(fourway),"index"));
+            g_object_get_data(G_OBJECT(fourway),"index"));
         
         std::complex<double> oldVal = func->getOption(index);
         std::complex<double> delta(deltax / 100.0 , deltay / 100.0);
@@ -958,7 +958,7 @@ fourway_preview_param_cb(
     Gf4dFractal *f = get_toolbar_preview_fract();
     iterFunc *func = gf4d_fractal_get_func(f);
     int index = GPOINTER_TO_INT(
-        gtk_object_get_data(GTK_OBJECT(fourway),"index"));
+        g_object_get_data(G_OBJECT(fourway),"index"));
     
     std::complex<double> oldVal = func->getOption(index);
     std::complex<double> delta(deltax / 100.0 , deltay / 100.0);
@@ -989,7 +989,7 @@ make_func_edit_widgets(
     /* fourway widget for interactive twiddling */
     GtkWidget *fourway = gf4d_fourway_new(name);
 
-    gtk_object_set_data(GTK_OBJECT(fourway), "index", GINT_TO_POINTER(i));
+    g_object_set_data(G_OBJECT(fourway), "index", GINT_TO_POINTER(i));
     
     gtk_table_attach(
         GTK_TABLE(table), fourway, 2, 3, 2*i, 2*i+2,
@@ -997,14 +997,14 @@ make_func_edit_widgets(
         (GtkAttachOptions)0, 
         0, 2);
 
-    model_t *m = (model_t *)gtk_object_get_data(GTK_OBJECT(table),"model");
+    model_t *m = (model_t *)g_object_get_data(G_OBJECT(table),"model");
     assert(m);
 
-    g_signal_connect(GTK_OBJECT(fourway), "value_changed",
+    g_signal_connect(G_OBJECT(fourway), "value_changed",
                        (GtkSignalFunc)fourway_set_param_cb,
                        (gpointer)m);
 
-    g_signal_connect(GTK_OBJECT(fourway), "value_slightly_changed",
+    g_signal_connect(G_OBJECT(fourway), "value_slightly_changed",
                        (GtkSignalFunc)fourway_preview_param_cb,
                        (gpointer)m);
 }
@@ -1014,7 +1014,7 @@ refresh_func_parameters_callback(Gf4dFractal *f, GtkWidget *table)
 {
     /* has the function type changed? */
     const char *current_type = (const char *)
-        gtk_object_get_data(GTK_OBJECT(table),"type");
+        g_object_get_data(G_OBJECT(table),"type");
 
     iterFunc *func = gf4d_fractal_get_func(f);
     const char *new_type = func->type();
@@ -1026,7 +1026,7 @@ refresh_func_parameters_callback(Gf4dFractal *f, GtkWidget *table)
     }
 
     /* update current type */
-    gtk_object_set_data(GTK_OBJECT(table),"type",const_cast<char *>(new_type));
+    g_object_set_data(G_OBJECT(table),"type",const_cast<char *>(new_type));
 
     /* delete current widgets under table */
     GList *children = gtk_container_children(GTK_CONTAINER(table));
@@ -1075,11 +1075,11 @@ create_propertybox_func_parameters_page(
     
     create_page(vbox, table,_("Parameters"));
     
-    gtk_object_set_data(GTK_OBJECT(table), "type", (gpointer)"");
-    gtk_object_set_data(GTK_OBJECT(table), "model", (gpointer)m);
+    g_object_set_data(G_OBJECT(table), "type", (gpointer)"");
+    g_object_set_data(G_OBJECT(table), "model", (gpointer)m);
 
     g_signal_connect(
-        GTK_OBJECT(shadow),
+        G_OBJECT(shadow),
         "parameters_changed",
         GTK_SIGNAL_FUNC(refresh_func_parameters_callback),
         table);
@@ -1134,7 +1134,7 @@ create_propertybox_image_page(
 	model_get_maintain_aspect(m));
 
     g_signal_connect(
-        GTK_OBJECT(aspect_check),
+        G_OBJECT(aspect_check),
         "toggled",
         GTK_SIGNAL_FUNC(set_maintain_aspect_callback),
         m);
@@ -1195,7 +1195,7 @@ propertybox_refresh(model_t *m)
     if (propertybox!=NULL) {
 
         Gf4dFractal *shadow;
-        shadow = GF4D_FRACTAL(gtk_object_get_data(GTK_OBJECT(propertybox),"shadow"));
+        shadow = GF4D_FRACTAL(g_object_get_data(G_OBJECT(propertybox),"shadow"));
         // invoke assignment operator to copy entire state of fractal
         gf4d_fractal_update_fract(shadow,f);
 
@@ -1261,10 +1261,10 @@ create_propertybox (model_t *m)
     
     /* whenever the shadow fractal changes, update the main one */
     g_signal_connect (
-        GTK_OBJECT(shadow), "parameters_changed",
+        G_OBJECT(shadow), "parameters_changed",
         GTK_SIGNAL_FUNC(update_main_fractal), (gpointer) m);
     
-    gtk_object_set_data (GTK_OBJECT (propertybox), "shadow", shadow);
+    g_object_set_data (G_OBJECT (propertybox), "shadow", shadow);
 
     propertybox_refresh(m);
 
