@@ -46,6 +46,9 @@ def createDefaultDict():
         "log" :  efl("log",  "[_], _", [Float, Complex]),
         "sqrt" : efl("sqrt", "[_], _", [Float, Complex]),
         "exp" :  efl("exp",  "[_], _", [Float, Complex]),
+
+        "manhattanish" : [ Func([Complex], Float, stdlib, "manhattanish")],
+        "manhattan" : [ Func([Complex], Float, stdlib, "manhattan")],
         
         "sin" :  efl("sin", "[_], _", [Float, Complex]),
         "cos" :  efl("cos", "[_], _", [Float, Complex]),

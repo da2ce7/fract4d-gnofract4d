@@ -642,6 +642,10 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
             [ "pow2 = (-2,-3)^7.5","pow2","(-13320.5,6986.17)"],
             [ "pow3 = (-2,-3)^(1.5,-3.1)","pow3","(0.00507248,-0.00681128)"],
             [ "pow4 = (0,0)^(1.5,-3.1)","pow4","(0,0)"],
+            [ "manh1 = (manhattanish(2.0,-1.0),manhattanish(0.1,-0.1))",
+              "manh1", "(1,0)"],
+            [ "manh2 = (manhattan(2.0,-1.5),manhattan(-2,1.7))",
+              "manh2", "(3.5,3.7)"],
             # trig functions
             [ "t_sin = (sin(0),sin(1))","t_sin", self.predict(math.sin)],
             [ "t_cos = (cos(0),cos(1))","t_cos", self.predict(math.cos)],

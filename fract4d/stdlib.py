@@ -418,4 +418,11 @@ def acosh_f_f(gen,t,srcs):
 def atanh_f_f(gen,t,srcs):
     return gen.emit_func('atanh', srcs, Float)
 
+def manhattanish_c_f(gen,t,srcs):
+    return gen.emit_binop('+',[srcs[0].re,srcs[0].im],Float)
+
+def manhattan_c_f(gen,t,srcs):
+    return gen.emit_binop('+',[abs_f_f(gen,t,[srcs[0].re]),
+                               abs_f_f(gen,t,[srcs[0].im])], Float)
+
 
