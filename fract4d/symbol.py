@@ -116,7 +116,8 @@ def createDefaultDict():
         "maxiter" : Var(Int),
         "t__h_pi" : Var(Float,math.pi),
         "t__h_tolerance" : Var(Float),
-        "t__h_zwpixel" : Var(Complex,doc="The (Z,W) coordinates of the current point. (See #pixel for the other two coordinates.) When viewing the Mandelbrot set, this remains constant for each pixel on the screen; when viewing the Julia set, it's different for each pixel. Initialize z to some function of this to take advantage of 4D drawing.")
+        "t__h_zwpixel" : Var(Complex,doc="The (Z,W) coordinates of the current point. (See #pixel for the other two coordinates.) When viewing the Mandelbrot set, this remains constant for each pixel on the screen; when viewing the Julia set, it's different for each pixel. Initialize z to some function of this to take advantage of 4D drawing."),
+        "t__h_solid" : Var(Bool,doc="Set this to true in a coloring function to use the solid color rather than the color map.")
         }
 
     # extra shorthand to make things as short as possible

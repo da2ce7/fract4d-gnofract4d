@@ -43,7 +43,7 @@ class FctTest(unittest.TestCase):
                 
     def tearDown(self):
         self.window.destroy()
-        self.f= None
+        self.f = None
         
     def wait(self):
         gtk.main()
@@ -147,6 +147,13 @@ class FctTest(unittest.TestCase):
         self.assertEqual(f.params(),tparams)
 
     def testZooms(self):
+        self.doTestZooms(1)
+
+    def testFlipYZooms(self):
+        self.f.f.yflip = True
+        self.doTestZooms(-1)
+            
+    def doTestZooms(self,dir):
         # select each quarter of the screen to zoom into - check
         # that resulting params look correct
         f = self.f
@@ -158,7 +165,7 @@ class FctTest(unittest.TestCase):
         f.onButtonRelease(f.widget,FakeEvent(button=1))
 
         tparams[f.XCENTER] -= tparams[f.MAGNITUDE]/4.0
-        tparams[f.YCENTER] += tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
+        tparams[f.YCENTER] += dir * tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] /= 2.0
 
         self.assertEqual(f.params(),tparams)
@@ -169,7 +176,7 @@ class FctTest(unittest.TestCase):
         f.onButtonRelease(f.widget,FakeEvent(button=1))
 
         tparams[f.XCENTER] += tparams[f.MAGNITUDE]/4.0
-        tparams[f.YCENTER] += tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
+        tparams[f.YCENTER] += dir * tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] /= 2.0
 
         self.assertEqual(f.params(),tparams)
@@ -180,7 +187,7 @@ class FctTest(unittest.TestCase):
         f.onButtonRelease(f.widget,FakeEvent(button=1))
 
         tparams[f.XCENTER] -= tparams[f.MAGNITUDE]/4.0
-        tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
+        tparams[f.YCENTER] -= dir * tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] /= 2.0
 
         self.assertEqual(f.params(),tparams)
@@ -191,7 +198,7 @@ class FctTest(unittest.TestCase):
         f.onButtonRelease(f.widget,FakeEvent(button=1))
 
         tparams[f.XCENTER] += tparams[f.MAGNITUDE]/4.0
-        tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
+        tparams[f.YCENTER] -= dir * tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] /= 2.0
 
         self.assertEqual(f.params(),tparams)

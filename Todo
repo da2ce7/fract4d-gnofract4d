@@ -1,20 +1,15 @@
 todo for 2.0
-* BB	deeper.fct, hive.fct, image.fct doesn't load properly - old format
-* BB	tower_of_thorns, untitled_5 don't load - need bailout for colorfunc
-* B	coolness.fct - need direct coloring algorithm
-* BB	daisychain.fct
-* BB	dubious.fct - overall structure is the same, but local differences, only cmag bailout a problem
 * BB	giger.fct
-* BB	novamount.fct
-* BB	seaslug.fct
-* BB	skull_fairy.fct
 * B	fn1..4 appear in random order in dialog box
-* B	fractint doesn't reset vars between calls?
-* B	parse continuation lines correctly
+* W	explorer mode
+* B	if load rgb colorizer .fct, report ValueError: Empty color array
+
 * BB	more robust error reporting
 * W	last-chance exception handler
-* W	explorer mode
+
+* BB	tower_of_thorns, untitled_5 don't load - need bailout for colorfunc
 * WW	parameters for colorfuncs
+
 * W	exact SMP equality test
 * W	end-to-end regression test vs V1.9
 * W	formula browser
@@ -22,12 +17,10 @@ todo for 2.0
 	edit & continue
 	save/save-as
 	run $EDITOR, refresh
-* W	fmod, tdis, bof60, bof61, other fractint colorfuncs
 * W	i18n, gettext
 * W	keyboard shortcuts for all widgets
 * W	review human interface guidelines
 * B	warnings for several fractal types
-* BB	auto-tolerance for older fractals
 * B	other windows always in front - is that good?
 * WW	docs
 * BB	some horror (closing settings window?) then applying formula gave:
@@ -38,21 +31,32 @@ todo for 2.0
 	(gtk_container_foreach): assertion `GTK_IS_CONTAINER (container)' failed
 * B	3damand01.fct gives "list index out of range" when loaded. It tries 
 	to set parameters which don't exist
-* B	ejection_distance broken (Errors:
-	invalid type complex for / on line 51, expecting float
-	Warnings:
-	Uninitialized variable @bailout referenced on line 51)
+
 * B	setting inner func has no effect
+* BB	seaslug.fct
+
 * B	shrink image while drawing: python: fract4d/c/image.cpp:40: virtual void image::put(int, int, s_rgba): Assertion `off + 2 < bytes()' failed.
+* BB	horrible_drawing_bug.fct - zoom out & it looks very different
 
-
-* differences from fractint
+differences from fractint:
 * B	3rdim05 - default params bulge with fractint. They use sin() as default
 	function, not ident()
 * B	fn(z)+c: acos, acosh - think Fractint may be wrong
 * B	fn(z*z)+c : acos, acosh 
+* B	fractint doesn't reset vars between calls
+* B	parse continuation lines correctly
+* W	fmod, tdis, bof60, bof61, other fractint colorfuncs
+* W	fractint-builtins.frm
 
 done:
+* B	zooming broken if y-axis is flipped
+* B	ejection_distance broken (Errors:
+	invalid type complex for / on line 51, expecting float
+	Warnings:
+	Uninitialized variable @bailout referenced on line 51)
+* BB	novamount.fct
+* BB	auto-tolerance for older fractals
+* BB	skull_fairy.fct
 * WW	Inner, Outer pages for settings notebook
 * BB	old images are flipped left-to-right. 
 	- xy-rotating by #pi != vertical flip
@@ -104,6 +108,9 @@ done:
 * W	user parameter functions
 
 postponed
+* B	coolness.fct - need direct coloring algorithm
+* BB	deeper.fct, hive.fct, image.fct doesn't load properly - old format
+* BB	daisychain.fct - bailFunc != diff for newton
 * W 	enums, int parameters
 * B	undo/redo cause recompilation
 * W	command-line arguments
