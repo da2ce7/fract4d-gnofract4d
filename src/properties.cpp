@@ -670,11 +670,11 @@ GtkWidget *create_function_menu(Gf4dFractal *shadow)
     GtkWidget *func_type = gtk_option_menu_new();
     GtkWidget *func_menu = gtk_menu_new();
 
-    const char * const *names = iterFunc_names();
+    const ctorInfo *names = iterFunc_names();
     int i = 0;
-    while(names[i])
+    while(names[i].name)
     {
-        const char *name = names[i];
+        const char *name = names[i].name;
         GtkWidget *menu_item = gtk_menu_item_new_with_label(name);
     
         gtk_object_set_data(
@@ -730,6 +730,120 @@ create_propertybox_function_page(
                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
                      (GtkAttachOptions)0, 
                      0, 2);
+}
+
+void
+set_func_parameter_cb(GtkWidget * entry, GdkEventFocus *, Gf4dFractal *f)
+{
+    iterFunc *func = gf4d_fractal_get_func(f);
+    int index = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(entry),"index"));
+    const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
+
+    func->setOption(index,strtod(text,NULL));
+}
+
+void
+refresh_parameters_callback(Gf4dFractal *f, GtkWidget *table)
+{
+    /* has the function type changed? */
+    const char *current_type = (const char *)
+        gtk_object_get_data(GTK_OBJECT(table),"type");
+
+    iterFunc *func = gf4d_fractal_get_func(f);
+    const char *new_type = func->type();
+    g_print("last was %s, this is %s\n",current_type,new_type);
+
+    if(0 == strcmp(current_type, new_type))
+    {
+        // type hasn't changed - do nothing
+        g_print("same type\n");
+        return;
+    }
+
+    /* update current type */
+    gtk_object_set_data(GTK_OBJECT(table),"type",const_cast<char *>(new_type));
+
+    /* delete current widgets under table */
+    GList *children = gtk_container_children(GTK_CONTAINER(table));
+    while(children)
+    {
+        gtk_container_remove(GTK_CONTAINER(table), GTK_WIDGET(children->data));
+        children = children->next;
+    }
+
+    /* add new widgets */
+    int nOptions = func->nOptions();
+    if(nOptions == 0)
+    {
+        g_print("no options\n");
+        GtkWidget *label = gtk_label_new(_("This fractal type has no parameters"));
+        gtk_table_attach(GTK_TABLE(table), label, 0,2,0,1, 
+                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+                     (GtkAttachOptions)0, 
+                     0, 2);
+    }        
+    else
+    {
+        /* fractal has parameters */
+        g_print("%d options\n",nOptions);
+        for(int i = 0; i < nOptions; ++i)
+        {
+            /* label for parameter name */
+            const char *name = func->optionName(i);
+            GtkWidget *label = gtk_label_new(name);
+            
+            gtk_table_attach(GTK_TABLE(table), label, 0,1,i,i+1, 
+                             (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+                             (GtkAttachOptions)0, 
+                             0, 2);
+
+
+
+            /* widget to enter new parameter value */
+            GtkWidget *entry = gtk_entry_new();
+
+            /* data for callbacks */
+            gtk_object_set_data(GTK_OBJECT(entry), "index", GINT_TO_POINTER(i));
+
+            /* convert double -> string */
+            double d = func->getOption(i);
+            char strOpt[30];
+            sprintf(strOpt,"%20g",d);
+
+            gtk_entry_set_text(GTK_ENTRY(entry),strOpt);
+
+            gtk_table_attach(GTK_TABLE(table), entry, 1,2,i,i+1, 
+                             (GtkAttachOptions)(0, GTK_EXPAND | GTK_FILL), 
+                             (GtkAttachOptions)0, 
+                             0, 2);
+            
+            gtk_signal_connect(GTK_OBJECT(entry),"focus-out-event",
+                               GTK_SIGNAL_FUNC(set_func_parameter_cb),
+                               f);
+        }
+    }
+    gtk_widget_show_all(table);
+}
+
+void
+create_propertybox_parameters_page(
+    GtkWidget *vbox,
+    GtkTooltips *tooltips,
+    Gf4dFractal *shadow)
+{
+    GtkWidget *table = gtk_table_new (1, 2, FALSE);
+    
+    GtkWidget *general_page = create_page(table,_("Parameters"));
+    
+    gtk_box_pack_start( GTK_BOX (vbox), general_page, 1, 1, 0 );
+
+    gtk_object_set_data(GTK_OBJECT(table), "type", "");
+
+    gtk_signal_connect(
+        GTK_OBJECT(shadow),
+        "parameters_changed",
+        GTK_SIGNAL_FUNC(refresh_parameters_callback),
+        table);
 }
 
 void
@@ -875,6 +989,7 @@ create_propertybox (model_t *m)
 
     gtk_box_set_spacing(GTK_BOX(vbox),0);
     create_propertybox_function_page(vbox, tooltips, shadow);
+    create_propertybox_parameters_page(vbox, tooltips, shadow);
     create_propertybox_rendering_page(vbox, tooltips, shadow);
     create_propertybox_bailout_page(vbox, tooltips, shadow);
     create_propertybox_image_page(vbox,tooltips, shadow, m);

@@ -79,8 +79,8 @@ fractal::fractal()
     reset();
 
     // set fractal type to first type in list
-    const char * const * names = iterFunc_names();
-    pIterFunc = iterFunc_new(names[0]);
+    const ctorInfo *names = iterFunc_names();
+    pIterFunc = names[0].ctor();
 
     // display params
     antialias = AA_FAST;

@@ -48,11 +48,17 @@ class iterFunc {
 
     virtual void setOption(int n, double val) = 0;
     virtual double getOption(int n) const = 0;
+    virtual const char *optionName(int n) const = 0;
     // FIXME: no gmp options
 };
 
-// return a NULL-terminated array of the available names
-const char * const *iterFunc_names();
+
+typedef struct {
+    const char *name;
+    iterFunc *(*ctor)();
+} ctorInfo;
+
+const ctorInfo *iterFunc_names();
 
 iterFunc *iterFunc_new(const char *name);
 //iterFunc *iterFunc_mix(iterFunc *a, iterFunc *b);
