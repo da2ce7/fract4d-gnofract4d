@@ -77,7 +77,7 @@ class Var(Exp):
         Exp.__init__(self, node, datatype)
         self.name = name
     def __str__(self):
-        return "Var(" + self.name
+        return "Var<%s>(%s" % (fracttypes.strOfType(self.datatype), self.name)
 
 class Cast(Exp):
     def __init__(self, exp, node, datatype):

@@ -49,17 +49,29 @@ class T:
         if self.dumpVars:
             for (name,sym) in self.symbols.items():
                 if self.symbols.is_user(name):
-                    print name,": ",sym
-        
+                    try:
+                        print name,": ",sym
+                    except Exception, err:
+                        print "Error \"%s\" dumping %s" %(err,name)
+                        
         if self.dumpTranslation:
             self.dumpSections(f)
 
     def dumpSections(self,f):
         print f.leaf + "{"
         for (name,tree) in self.sections.items():
-            if tree != None:
+            if isinstance(tree,ir.T):
                 print " " + name + "("
                 print tree.pretty(2) + " )"
+            elif isinstance(tree,types.ListType):
+                print " " + name + "("
+                for t in tree:
+                    print t.pretty(2)
+                print " )"
+            elif tree == None:
+                pass
+            else:
+                print "Unknown tree %s in section %s" % (tree, name)
         print "}\n"
         
     def error(self,msg):
@@ -115,7 +127,7 @@ class T:
                 s.leaf = "init"
         
         s = f.childByName("")
-        if not s:
+        if not s or s.children == []:
             return
         
         bailout = [s.children[-1]]
@@ -233,12 +245,12 @@ class T:
         '''assign a new value to a variable, creating it if required'''
         if not self.symbols.has_key(node.leaf):
             # implicitly create a new var - a warning?
-            self.symbols[node.leaf] = Var(Complex,default_value(Complex),node)
+            self.symbols[node.leaf] = Var(Complex,default_value(Complex),node.pos)
 
         expectedType = self.symbols[node.leaf].type
         rhs = self.exp(node.children[0])
         
-        lhs = ir.Var(node.leaf, node, rhs.datatype)
+        lhs = ir.Var(node.leaf, node, expectedType)
         return ir.Move(lhs,self.coerce(rhs,expectedType),node,expectedType)
 
     def findOp(self, opnode, list):

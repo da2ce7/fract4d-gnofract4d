@@ -88,7 +88,7 @@ class Move(Insn):
     
 class T:
     'code generator'
-    def __init__(self,symbols):
+    def __init__(self,symbols,dump=None):
         self.symbols = symbols
         self.out = []
         # a list of templates and associated actions
