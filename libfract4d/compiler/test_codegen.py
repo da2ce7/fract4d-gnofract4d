@@ -19,29 +19,6 @@ class CodegenTest(unittest.TestCase):
         self.fakeNode = absyn.Empty(0)
         self.codegen = codegen.T(symbol.T())
         self.parser = fractparser.parser
-        self.test_output_template ='''
-#include <stdio.h>
-int main()
-{
-/* variable declarations */
-%(decls)s
-int nMaxIters = 16, nIters = 0;
-%(init)s
-t__end_init:
-while(nIters < nMaxIters)
-{
-    %(loop)s
-    t__end_loop:
-    %(loop_inserts)s
-    %(bailout)s
-    t__end_bailout:
-    %(bailout_inserts)s
-    if(%(bailout_var)s) break;
-    nIters++;
-}
-%(done_inserts)s
-return 0;
-}'''
         
     def tearDown(self):
         pass
@@ -131,7 +108,8 @@ return 0;
         cmd = "gcc -Wall %s -o %s" % (cFileName, oFileName)
         #print cmd
         (status,output) = commands.getstatusoutput(cmd)
-        self.assertEqual(status,0,"C error:\n" + output)
+        self.assertEqual(status,0,"C error:\n%s\nProgram:\n%s\n" % \
+                         ( output,c_code))
         #print "status: %s\noutput:\n%s" % (status, output)
         cmd = oFileName
         (status,output) = commands.getstatusoutput(cmd)
@@ -345,7 +323,7 @@ z = 0,c = 1.5
 loop:
 z = z*z + c
 bailout:
-|z| > 4.0
+|z| < 4.0
 }'''
         t = self.translate(src)
         self.codegen.output_all(t, {"z" : "", "c" : ""} )
@@ -357,7 +335,7 @@ int main()
     double params[4] = { 0.0, 0.0, 1.5, 1.0 };
     int nItersDone=0;
     pf_calc(params, 100, &nItersDone);
-    printf("(%d)\n",nItersDone);
+    printf("(%d)\\n",nItersDone);
     return 0;
 }
 '''
@@ -365,7 +343,7 @@ int main()
         c_code = self.codegen.output_c(t,inserts)
         #print c_code
         output = self.compileAndRun(c_code)
-        self.assertEqual(output,"(1.5,0)\n(3.75,0)\n(1)",output)
+        self.assertEqual(output,"(1.5,0)\n(3.75,0)\n(2)",output)
 
     # assertions
     def assertCSays(self,source,section,check,result,dump=None):
