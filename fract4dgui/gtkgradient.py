@@ -1,6 +1,7 @@
 import gtk
 import dialog
 import utils
+import random
 
 from fract4d import gradient
 
@@ -17,14 +18,13 @@ class GradientDialog(dialog.T):
 			gtk.DIALOG_DESTROY_WITH_PARENT,
 			(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 		
-		self.set_size_request(300, 400)
+		self.set_size_request(300, 320)
 		
 		self.mousedown = False
 		self.origmpos = self.startmpos = 0
 		
 		self.f = f
 		self.grad=grad
-		self.grad.dialog = self
 		self.grad.compute()
 		
 		self.create_gradient_dialog()
@@ -56,8 +56,17 @@ class GradientDialog(dialog.T):
 		
 		###CONTEXT MENU###
 		menu_items = ( 
-			( "/_Insert",	"<control>I",	self.grad.add,		0		 ),
-			( "/_Delete",	"<control>D",	self.grad.remove,	0, 	None )
+			( "/_Insert",	"<control>I",	self.add_handle,	0 ),
+			( "/_Delete",	"<control>D",	self.rem_handle,	0 ),
+			( "/_Colouring Mode",		None,			None,		0, "<Branch>"	),
+			( "/Colouring Mode/_RGB", 	"<control>R",	self.cmode,	0 				),
+			( "/Colouring Mode/_HSV",	"<control>H",	self.cmode,	1 				),
+			( "/_Blending Mode",		None,			None,		0, "<Branch>"	),
+			( "/Blending Mode/_Linear",	"<control>L",	self.bmode,	0				),
+			( "/Blending Mode/_Sinusoidal",	None,		self.bmode,	1				),
+			( "/Blending Mode/Curved _Increasing",None,	self.bmode,	2				),
+			( "/Blending Mode/Curved _Decreasing",None,	self.bmode,	3				),
+			( "/Debug",		None,			self.printstuff,	0 )
 			)
 		
 		accel_group = gtk.AccelGroup()
@@ -66,27 +75,47 @@ class GradientDialog(dialog.T):
 		self.add_accel_group(accel_group)
 		self.menu=self.item_factory.get_widget("<gradients>")
 		
-		###COLOR SELECTION###
+		###COLOUR SELECTION###
 		if gtk.pygtk_version[0] >= 2 and gtk.pygtk_version[1] >= 4:
-			lblCsel = gtk.Label("Color:")
-			self.csel = gtk.ColorButton(gtk.gdk.Color(hData.col[0]*255,hData.col[1]*255,hData.col[2]*255))
-			self.csel.connect('color-set', self.colorchanged)
-			self.colorbutton = True
+			lblCsel = gtk.Label("Colour:")
+			self.csel = gtk.ColorButton(
+					utils.create_color(hData.col[0], hData.col[1], hData.col[2]))
+			self.csel.connect('color-set', self.colourchanged)
+			self.colourbutton = True
 		else:
-			self.csel = gtk.Button("Color...")
+			self.csel = gtk.Button("Colour...")
 			self.csel.connect('clicked', self.cbutton_clicked)
-			self.csel_dialog = gtk.ColorSelectionDialog("Select a Color")
+			self.csel_dialog = gtk.ColorSelectionDialog("Select a Colour")
 			self.csel_dialog.colorsel.set_current_color(
-					gtk.gdk.color_parse("#%4x%4x%4x" % \
-										(hData.col[0]*255,
-										 hData.col[1]*255,
-										 hData.col[2]*255)))
+					utils.create_color(hData.col[0], hData.col[1], hData.col[2]))
+
 			self.csel_dialog.ok_button.connect('clicked', self.cdialog_response)
-			self.colorbutton = False
-		synccolsB = gtk.Button("Sync Colors")
-		synccolsB.connect('clicked', self.sync_colors)
+			self.colourbutton = False
+		synccolsB = gtk.Button("Sync Colours")
+		synccolsB.connect('clicked', self.sync_colours)
 			
 		CSelBox = gtk.HBox(False, 0)
+		
+		###ALTERNATION CONTROL###
+		lblAlternate = gtk.Label(_("Alternation:"))
+		alternate    = gtk.SpinButton(gtk.Adjustment(self.grad.getAlt(), 0, .5, 0.01, .5, 0.0))
+		alternate.set_digits(3)
+		alternate.connect('value-changed', self.alternate_changed)
+		
+		AlternateBox = gtk.HBox(False, 0)
+		
+		###POSITION CONTROL###
+		lblPos    = gtk.Label(_("Position:"))
+		self.pos = gtk.SpinButton(gtk.Adjustment(hData.pos, 0, 1, 0.01, 0.1, 0.0))
+		self.pos.set_digits(2)
+		self.pos.connect('value-changed', self.pos_changed)
+		
+		PosBox = gtk.HBox(False, 0)
+		
+		###RANDOMIZE BUTTON###
+		randomize = gtk.Button(_("Randomize"))
+		randomize.connect('clicked', self.randomize)
+		randBox = gtk.HBox(False, 0)
 		
 		###OFFSET CONTROL###
 		lblOffset = gtk.Label(_("Offset:"))
@@ -96,20 +125,32 @@ class GradientDialog(dialog.T):
 		offset.set_digits(3)
 		offset.connect('value-changed', self.offset_changed)
 		
-		
+		####################
 		###WIDGET PACKING###
+		####################
 		self.vbox.set_homogeneous(0)
 		gradareaBox.pack_start(self.gradarea, 1, 0, 10)
-		self.vbox.pack_start(gradareaBox, 0, 0, 10)
+		self.vbox.pack_start(gradareaBox, 0, 0, 5)
 		
-		if self.colorbutton: CSelBox.pack_start(lblCsel, 1, 0, 40)
-		CSelBox.pack_start(self.csel, 1, 0, 10)
-		CSelBox.pack_start(synccolsB, 1, 0, 10)
-		self.vbox.pack_start(CSelBox, 1, 0, 10)
+		if self.colourbutton: CSelBox.pack_start(lblCsel, 0, 0, 10)
+		CSelBox.pack_start(self.csel, 0, 0, 10)
+		CSelBox.pack_end(synccolsB, 0, 0, 10)
+		self.vbox.pack_start(CSelBox, 0, 0, 5)
+		
+		PosBox.pack_start(lblPos, 0, 0, 10)
+		PosBox.pack_start(self.pos, 0, 0, 10)
+		self.vbox.pack_start(PosBox, 0, 0, 5)
+		
+		AlternateBox.pack_start(lblAlternate, 0, 0, 10)
+		AlternateBox.pack_start(alternate, 0, 0, 10)
+		self.vbox.pack_start(AlternateBox, 0, 0, 5)
 		
 		lblOffsetBox.pack_start(lblOffset, 0, 0, 5)
 		self.vbox.pack_start(lblOffsetBox, 0, 0, 5)
-		self.vbox.pack_start(offset, 0, 0, 10)
+		self.vbox.pack_start(offset, 0, 0, 5)
+		
+		randBox.pack_start(randomize, 1, 0, 10)
+		self.vbox.pack_start(randBox, 0, 0, 5)
 		
 	def offset_changed(self, widget):
 		if self.grad.getOffset() != widget.get_value():
@@ -119,33 +160,41 @@ class GradientDialog(dialog.T):
 			self.f.colorlist=self.grad.clist
 			self.f.changed(False)
 	
-	def colorchanged(self, widget):
-		color = widget.get_color()
-		self.update_color(color)
-		
-	def update_color(self, color):
-		seg, index = self.grad.getSegFromHandle(self.grad.cur)
-		getattr(seg,index).color = [color.red/255, color.green/255, color.blue/255]
+	def colourchanged(self, widget):
+		colour = widget.get_color()
+		seg, side = self.grad.getSegFromHandle(self.grad.cur)
+
+		if side == 'left':
+			seg.left.col = [colour.red/256, colour.green/256, colour.blue/256]
+		else:
+			seg.right.col = [colour.red/256, colour.green/256, colour.blue/256]
 		self.grad.compute()
 		self.gradarea.queue_draw()
 		self.f.colorlist=self.grad.clist
 		self.f.changed(False)
-			
+	
 	#The backwards-compatible button was clicked
 	def cbutton_clicked(self, widget):
 		self.csel_dialog.show()
-		
 	def cdialog_response(self, widget):
-		color = self.csel_dialog.colorsel.get_current_color()
-		self.update_color(color)
+		colour = self.csel_dialog.colorsel.get_current_color()
+		seg, side = self.grad.getSegFromHandle(self.grad.cur)
+		if side == 'left':
+			seg.left.col = [colour.red/256, colour.green/256, colour.blue/256]
+		else:
+			seg.right.col = [colour.red/256, colour.green/256, colour.blue/256]
+		self.grad.compute()
+		self.gradarea.queue_draw()
+		self.f.colorlist=self.grad.clist
+		self.f.changed(False)
 		
 		self.csel_dialog.hide()
 		
 		return False
 		
-	###Each handle is comprised of two handles, whose colors can be set independently.
-	###This function finds the other handle and sets it to the current handle's color.
-	def sync_colors(self, widget):
+	###Each handle is comprised of two handles, whose colours can be set independently.
+	###This function finds the other handle and sets it to the current handle's colour.
+	def sync_colours(self, widget):
 		if self.grad.cur % 2 == 0: #The handle is the first in its segment
 			if self.grad.cur > 0:
 				self.grad.segments[self.grad.cur/2-1].right.col = self.grad.getDataFromHandle(self.grad.cur).col
@@ -161,6 +210,27 @@ class GradientDialog(dialog.T):
 		self.gradarea.queue_draw()
 		self.f.colorlist=self.grad.clist
 		self.f.changed(False)
+	
+	###ALTERNATION CHANGED###
+	def alternate_changed(self, widget):
+		if self.grad.getAlt() != widget.get_value():
+			self.grad.setAlt(widget.get_value())
+			self.grad.compute()
+			self.gradarea.queue_draw()
+			self.f.colorlist = self.grad.clist
+			self.f.changed(False)
+	
+	###POSITION CHANGED###
+	def pos_changed(self, widget):
+		if self.grad.getDataFromHandle(self.grad.cur).pos != widget.get_value():
+			self.grad.move(self.grad.cur, widget.get_value()-self.grad.getDataFromHandle(self.grad.cur).pos)
+			widget.set_value(self.grad.getDataFromHandle(self.grad.cur).pos)
+			
+			self.grad.compute()
+			self.gradarea.queue_draw()
+			self.f.colorlist = self.grad.clist
+			self.f.changed(False)
+	
 	
 	###INIT FOR GRADIENT PREVIEW###
 	def gradarea_realized(self, widget):
@@ -182,7 +252,7 @@ class GradientDialog(dialog.T):
 		
 		##Draw the gradient itself##
 		for col in self.grad.clist:
-			self.gradcol = widget.get_colormap().alloc_color(col[1]*256,col[2]*256,col[3]*256, True, True)
+			self.gradcol = widget.get_colormap().alloc_color(col[1]*255,col[2]*255,col[3]*255, True, True)
 			self.gradgc.set_foreground(self.gradcol)
 			widget.window.draw_line(self.gradgc,
 									col[0]*self.grad.num+4, 0,
@@ -236,7 +306,7 @@ class GradientDialog(dialog.T):
 		return False
 	
 	def gradarea_mousedown(self, widget, event):
-		if self.mousedown == False:
+		if self.mousedown == False and event.button == 1:
 			x=event.x/self.grad.num
 			x-=1-self.grad.offset
 			if x < 0:
@@ -249,13 +319,25 @@ class GradientDialog(dialog.T):
 				self.grad.cur=self.grad.segments.index(seg)*2
 			else:
 				self.grad.cur=self.grad.segments.index(seg)*2+1
+				
+			hData = self.grad.getDataFromHandle(self.grad.cur)
+			
+			if self.colourbutton == True:
+				self.csel.set_color(
+						utils.create_color(hData.col[0],hData.col[1],hData.col[2]))
+			else:
+				self.csel_dialog.colorsel.set_current_color(
+						utils.create_color(hData.col[0],hData.col[1],hData.col[2]))
+				
+			self.pos.set_value(hData.pos)
+				
 			self.gradarea.queue_draw()
 		
 		if event.button == 1:
 			self.mousedown = True
 			self.origmpos = self.startmpos = event.x
 		elif event.button == 3:
-			self.grad.mousepos = event.x #We can't pass this as callback data, because things're screwed. If this isn't true, please tell!
+			self.mousepos = event.x #We can't pass this as callback data, because things're screwed. If this isn't true, please tell!
 			#self.item_factory.popup(int(event.x), int(event.y), event.button)
 			self.menu.popup(None, None, None, event.button, event.time)
 		
@@ -266,65 +348,86 @@ class GradientDialog(dialog.T):
 		if self.startmpos != event.x:
 			self.grad.compute()
 			self.gradarea.queue_draw()
-			self.f.colorlist=self.grad.clist
+			self.f.colorlist=self.grad.getCList()
 			self.f.changed(False)
 		
 		return False
 		
 	def gradarea_mousemoved(self, widget, event):
 		if self.mousedown:
-			seg, side = self.grad.getSegFromHandle(self.grad.cur)
-			segindex = self.grad.segments.index(seg)
-			move = (event.x - self.origmpos)/self.grad.num
-			#A humongous bowl of hackiness!
-			#Basically, this is similar to the problem when drawing the handles: each
-			#handle is comprised of two individuals. Therefore we most move either the
-			#one that occupies one segment up or down. An exception will be raised if
-			#the selected handle is either the last or the first, so then we move the
-			#one on the other end.
-			if (segindex > 0 or side == 'right') and (segindex < len(self.grad.segments)-1 or side == 'left'):
-				if side == 'left':
-					self.grad.segments[segindex-1].right.pos+=move
-					if self.grad.segments[segindex-1].right.pos > 1:
-						self.grad.segments[segindex-1].right.pos = 1
-					elif self.grad.segments[segindex-1].right.pos < 0:
-						self.grad.segments[segindex-1].right.pos = 0
-						
-					seg.left.pos+=move
-					if seg.left.pos > 1:
-						seg.left.pos =1
-					elif seg.left.pos < 0:
-						seg.left.pos =0
-						
-					if seg.left.pos > seg.right.pos:
-						seg.left.pos = seg.right.pos
-						self.grad.segments[segindex-1].right.pos=seg.right.pos
-					elif self.grad.segments[segindex-1].right.pos < self.grad.segments[segindex-1].left.pos:
-						self.grad.segments[segindex-1].right.pos=self.grad.segments[segindex-1].left.pos
-						seg.left.pos=self.grad.segments[segindex-1].left.pos
-				else:
-					self.grad.segments[segindex+1].left.pos+=move
-					if self.grad.segments[segindex+1].left.pos > 1:
-						self.grad.segments[segindex+1].left.pos = 1
-					elif self.grad.segments[segindex+1].left.pos < 0:
-						self.grad.segments[segindex+1].left.pos = 0
-						
-					seg.right.pos+=move
-					if seg.right.pos > 1:
-						seg.right.pos =1
-					elif seg.right.pos < 0:
-						seg.right.pos =0
-						
-					if seg.left.pos > seg.right.pos:
-						seg.right.pos=seg.left.pos
-						self.grad.segments[segindex+1].left.pos=seg.left.pos
-					elif self.grad.segments[segindex+1].right.pos < self.grad.segments[segindex+1].left.pos:
-						self.grad.segments[segindex+1].left.pos=self.grad.segments[segindex+1].right.pos
-						seg.right.pos=self.grad.segments[segindex+1].right.pos
+			self.grad.move(self.grad.cur, (event.x - self.origmpos)/self.grad.num)
 			
 			self.origmpos = event.x
 			self.grad.compute()
 			self.gradarea.queue_draw()
+	
+	def add_handle(self, action, widget):
+		self.grad.add(self.mousepos/self.grad.num)
+		self.gradarea.queue_draw()	
+		
+	def rem_handle(self, action, widget):
+		self.grad.remove(self.grad.cur)
+		self.grad.cur = 0
+		self.gradarea.queue_draw()
+		
+	def cmode(self, action, widget):
+		seg, side = self.grad.getSegFromHandle(self.grad.cur)
+
+		if action == 0:
+			seg.cmode = 'RGB'
+		else:
+			seg.cmode = 'HSV'
+		self.grad.compute()
+		self.gradarea.queue_draw()
+		self.f.colorlist=self.grad.getCList()
+		self.f.changed(False)
+		
+	def bmode(self, action, widget):
+		seg, side = self.grad.getSegFromHandle(self.grad.cur)
+		
+		if action == 0:
+			seg.bmode = 'Linear'
+		elif action == 1:
+			seg.bmode = 'Sinusoidal'
+		elif action == 2:
+			seg.bmode = 'CurvedI'
+		else:
+			seg.bmode = 'CurvedD'
+		self.grad.compute()
+		self.gradarea.queue_draw()
+		self.f.colorlist=self.grad.getCList()
+		self.f.changed(False)
+	
+	def printstuff(self, action, widget):
+		for seg in self.grad.segments:
+			print [seg.left.pos, seg.left.col], [seg.right.pos, seg.right.col]
+			
+	def randomize(self, widget):
+		oldcol = [random.randint(0, 255),random.randint(0, 255),random.randint(0, 255)]
+		oldpos = i = 0
+		poslist = []
+		
+		for seg in self.grad.segments:
+			poslist.append(random.random())
+		poslist.sort()
+		
+		for seg in self.grad.segments:
+			seg.left.pos = oldpos
+			seg.left.col = oldcol
+			
+			seg.right.pos = oldpos = poslist[i]
+			seg.right.col = oldcol = [random.randint(0, 255),random.randint(0, 255),random.randint(0, 255)]
+			i+=1
+			
+		seg.right.pos = 1
+		seg.right.col = self.grad.segments[0].left.col
+		
+		self.grad.compute()
+		self.gradarea.queue_draw()
+		self.f.colorlist=self.grad.getCList()
+		self.f.changed(False)
+		
+		return False
 	
 	def draw_handle(self, drawable, pos, fill, outline):
 		for y in range(8):
