@@ -126,6 +126,7 @@ class T(FctUtils):
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","default")
         self.dirty = True
+        self.auto_deepen = True
         
         self.reset()
 
@@ -323,7 +324,7 @@ class T(FctUtils):
 
         #print "draw aa: %d %d %d" % (self.antialias,self.maxiter,threads)
         fract4dc.calc(self.params,self.antialias,self.maxiter,1,
-                     pfunc,cmap,1,image,self.site)
+                     pfunc,cmap,self.auto_deepen,image,self.site)
 
         
     def set_param(self,n,val):

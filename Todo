@@ -36,6 +36,7 @@ todo for 2.0
 * W	review human interface guidelines
 
 done:
+* W	auto_deepen, antialiasing widgets
 * W	set size of diff_bailout check from periodicity info
 * W	SMP/nthreads > 1
 * B	exception if you open and choose OK without selecting a file

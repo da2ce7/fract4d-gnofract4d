@@ -57,6 +57,8 @@ class Threaded(fractal.T):
 
     def draw(self,image):
         self.cmap = fract4dc.cmap_create(self.colorlist)
+        (r,g,b,a) = self.solids[0]
+        fract4dc.cmap_set_solid(self.cmap,0,r,g,b,a)
 
         #print "draw: init with %s" % self.initparams
         t = self.tolerance(self.width,self.height)
@@ -65,7 +67,8 @@ class Threaded(fractal.T):
         self.running = True
         fract4dc.async_calc(self.params,self.antialias,self.maxiter,
                             self.nthreads,
-                            self.pfunc,self.cmap,1,image,self.site)
+                            self.pfunc,self.cmap,self.auto_deepen,
+                            image,self.site)
 
     def onData(self,fd,condition):
         bytes = os.read(fd,self.msgsize)
@@ -175,6 +178,16 @@ class T(Threaded,gobject.GObject):
 
         return menu
 
+    def set_auto_deepen(self,deepen):
+        if self.auto_deepen != deepen:
+            self.auto_deepen = deepen
+            self.emit('parameters-changed')
+            
+    def set_antialias(self,aa_type):
+        if self.antialias != aa_type:
+            self.antialias = aa_type
+            self.emit('parameters-changed')
+        
     def set_func(self,func,fname):
         if func.cname != fname:
             fractal.T.set_func(self,func,fname)
@@ -211,13 +224,33 @@ class T(Threaded,gobject.GObject):
         widget.connect('changed',set_fractal_function)
         
         table.attach(widget,1,2,i,i+1,0,0,2,2)
-        
+
+    def create_maxiter_widget(self,table,i):
+        label = gtk.Label("Max Iterations :")
+        label.set_justify(gtk.JUSTIFY_RIGHT)
+        table.attach(label,0,1,i,i+1,0,0,2,2)
+
+        widget = gtk.Entry()
+
+        def set_entry(*args):
+            widget.set_text("%d" % self.maxiter)
+
+        def set_fractal(*args):
+            self.set_maxiter(int(widget.get_text()))
+
+        set_entry(self)
+        self.connect('parameters-changed',set_entry)
+        widget.connect('focus-out-event',set_fractal)
+
+        table.attach(widget,1,2,i,i+1,0,0,2,2)
+        return i+1
+    
     def populate_formula_settings(self,table):
         # create widget to fiddle with this fractal's settings
+        i = self.create_maxiter_widget(table,0)
         params = self.formula.symbols.parameters()
         op = self.formula.symbols.order_of_params()
 
-        i = 0
         for (name,param) in params.items():
             if isinstance(param,fracttypes.Func):
                 self.add_formula_function(table,i,name,param)                
@@ -231,6 +264,11 @@ class T(Threaded,gobject.GObject):
                 else:
                     self.add_formula_setting(table,i,name,param,op[name])
             i += 1
+
+    def set_maxiter(self,new_iter):
+        if self.maxiter != new_iter:
+            self.maxiter = new_iter
+            self.emit('parameters_changed')
         
     def set_size(self, new_width, new_height):
         if self.width == new_width and self.height == new_height :

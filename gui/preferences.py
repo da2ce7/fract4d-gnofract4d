@@ -23,7 +23,7 @@ class PrefsDialog(gtk.Dialog):
         self.notebook = gtk.Notebook()
         self.vbox.add(self.notebook)
         
-        self.create_image_size_page()
+        self.create_image_options_page()
         
         self.connect('response',self.onResponse)
 
@@ -61,12 +61,12 @@ class PrefsDialog(gtk.Dialog):
         entry.connect('focus-out-event', set_fractal)
         return entry
 
-    def create_image_size_page(self):
+    def create_image_options_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
-        self.notebook.append_page(table,gtk.Label("Image Size"))
+        self.notebook.append_page(table,gtk.Label("Image Options"))
 
-        table.attach(gtk.Label("Width"),0,1,0,1,0,0,2,2)
-        table.attach(gtk.Label("Height"),0,1,1,2,0,0,2,2)
+        table.attach(gtk.Label("Width :"),0,1,0,1,0,0,2,2)
+        table.attach(gtk.Label("Height :"),0,1,1,2,0,0,2,2)
 
         wentry = self.create_width_entry()
         table.attach(wentry,1,2,0,1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
@@ -77,6 +77,42 @@ class PrefsDialog(gtk.Dialog):
         self.fix_ratio = gtk.CheckButton("Maintain Aspect Ratio")
         table.attach(self.fix_ratio,0,2,2,3,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         self.fix_ratio.set_active(True)
+
+        # auto deepening
+        self.auto_deepen = gtk.CheckButton("Auto Deepen")
+        table.attach(self.auto_deepen,0,2,3,4,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        def set_auto_deepen_widget(*args):
+            self.auto_deepen.set_active(self.f.auto_deepen)
+
+        def set_fractal_auto_deepen(*args):
+            self.f.set_auto_deepen(self.auto_deepen.get_active())
+
+        set_auto_deepen_widget()
+        self.f.connect('parameters-changed',set_auto_deepen_widget)
+        self.auto_deepen.connect('toggled',set_fractal_auto_deepen)
+        
+        # antialiasing
+        table.attach(gtk.Label("Antialiasing : "),0,1,4,5,0,0,2,2)
+        optMenu = gtk.OptionMenu()
+        menu = gtk.Menu()
+        for item in ["None", "Fast", "Best"]:
+            mi = gtk.MenuItem(item)
+            menu.append(mi)
+        optMenu.set_menu(menu)
+
+        def set_selected_aa(*args):
+            optMenu.set_history(self.f.antialias)
+
+        def set_fractal_aa(*args):
+            index = optMenu.get_history()
+            if index != -1:
+                self.f.set_antialias(index)
+
+        set_selected_aa()
+        self.f.connect('parameters-changed',set_selected_aa)
+        optMenu.connect('changed',set_fractal_aa)
+        table.attach(optMenu,1,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         
     def onResponse(self,widget,id):
         if id == gtk.RESPONSE_CLOSE or \
