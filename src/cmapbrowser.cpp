@@ -351,6 +351,8 @@ colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
     gdk_gc_set_clip_rectangle (gc,
 			       &event->area);
  
+    GdkGCValues values;
+    gdk_gc_get_values(gc,&values);
     gdk_rgb_gc_set_foreground(gc, color);
     gdk_draw_rectangle (widget->window,
 			gc,
@@ -358,6 +360,7 @@ colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 			0, 0, 
 			widget->allocation.width, widget->allocation.height);
     
+    gdk_gc_set_foreground(gc,&values.foreground);
     return TRUE;
 }
 
