@@ -126,73 +126,81 @@ class T:
         self.sections["global"] = self.stmlist(node)
 
     def stmlist(self, node):
-        seq = ir.Seq(map(lambda c: self.stm(c), node.children), node.pos, None)
+        seq = ir.Seq(map(lambda c: self.stm(c), node.children), node, None)
         return seq
         
-    def stm(self,node,expectedType=None):
+    def stm(self,node):
         if node.type == "decl":
-            r = self.decl(node, None)
+            r = self.decl(node)
         elif node.type == "assign":
             r = self.assign(node)
         else:
-            r = self.exp(node,expectedType)
+            r = self.exp(node)
         return r
     
     def assign(self, node):
         '''assign a new value to a variable, creating it if required'''
         if not self.symbols.has_key(node.leaf):
             # implicitly create a new var - a warning?
-            self.symbols[node.leaf] = Var(fracttypes.Complex,0,node.pos)
+            self.symbols[node.leaf] = Var(fracttypes.Complex,0,node)
 
         expectedType = self.symbols[node.leaf].type
-        e = self.exp(node.children[0],expectedType)
+        e = self.exp(node.children[0])
         
-        lhs = ir.Name(node.leaf, node.pos, expectedType)
+        lhs = ir.Name(node.leaf, node, node.datatype)
         rhs = e
-        return self.coerce(lhs,rhs,node.children[0])
-    
-    def decl(self,node,expectedType):
-        if expectedType != None:
-            if expectedType != node.datatype:
-                print "bad decl"
-                self.badCast(node, expectedType)
+        return ir.Move(lhs,self.coerce(rhs,expectedType),node,expectedType)
 
+    def findOp(self, opnode, list):
+        overloadList = self.symbols[opnode.leaf]
+        typelist = map(lambda ir : ir.datatype , list)
+        for ol in overloadList:
+            if ol.matchesArgs(typelist):
+                return ol
+        raise TranslationError(
+            "Invalid argument types %s for %s on line %s" % \
+            (typelist, opnode.leaf, opnode.pos))
+            
+    def decl(self,node):
         if node.children:
-            exp = self.stm(node.children[0],node.datatype)
+            exp = self.stm(node.children[0])
         else:
             # default initializer
             exp = ir.Const(fracttypes.default(node.datatype),
-                           node.pos, node.datatype)
+                           node, node.datatype)
 
         try:
             # fixme - get exp right instead of 0.0
-            self.symbols[node.leaf] = Var(node.datatype, 0.0, node.pos) 
-            return self.coerce(
-                ir.Name(node.leaf, node.pos, node.datatype),
-                exp, node)
+            self.symbols[node.leaf] = Var(node.datatype, 0.0, node.pos)
+            return ir.Move(
+                ir.Name(node.leaf, node, node.datatype),                
+                self.coerce(exp, node.datatype),
+                node, node.datatype)
         
         except KeyError, e:
             self.error("Invalid declaration on line %d: %s" % (node.pos,e))
 
-    def exp(self,node,expectedType):
+    def exp(self,node):
         if node.type == "const":
-            r = self.const(node,expectedType)
+            r = self.const(node)
         elif node.type == "id":
-            r = self.id(node,expectedType)
+            r = self.id(node)
         elif node.type == "binop":
-            r = self.binop(node,expectedType)
+            r = self.binop(node)
         else:
             self.badNode(node,"exp")
 
         return r
 
-    def binop(self, node, expectedType):
+    def binop(self, node):
         # todo - detect and special-case logical operations
-        lhs = self.exp(node.children[0],expectedType)
-        rhs = self.exp(node.children[1],expectedType)
-        return ir.Binop(node.leaf,lhs,rhs,node.pos,expectedType)
-        
-    def id(self, node, expectedType):
+        children = map(lambda n : self.exp(n) , node.children)        
+        op = self.findOp(node,children)
+        return ir.Binop(node.leaf,
+                        self.coerceList(op.args,children),
+                        node,op.ret)
+    
+    def id(self, node):
         try:
             node.datatype = self.symbols[node.leaf].type
         except KeyError, e:
@@ -202,49 +210,29 @@ class T:
             self.symbols[node.leaf] = Var(fracttypes.Complex, 0.0, node.pos)
             node.datatype = fracttypes.Complex
 
-        return ir.Var(node.leaf, node.pos, node.datatype)
+        return ir.Var(node.leaf, node, node.datatype)
         
-    def const(self,node,expectedType):
-        return ir.Const(node.leaf, node.pos, node.datatype)        
+    def const(self,node):
+        return ir.Const(node.leaf, node, node.datatype)        
+
+    def coerceList(self,expList,typeList):
+        return map( lambda (exp,ty) : self.coerce(exp,ty) ,
+                    zip(typeList, expList))
     
-    def coerce(self, lhs, rhs, node):
-        '''insert code to assign rhs to lhs, even if they are different types,
+    def coerce(self, exp, expectedType):
+        '''insert code to cast exp to expectedType 
            or produce an error if conversion is not permitted'''
 
-        ok = 0
-        if lhs.datatype == None or rhs.datatype == None:
+        if exp.datatype == None or expectedType == None:
             raise TranslationError("Internal Compiler Error: coercing an untyped node")
-        elif lhs.datatype == rhs.datatype:
-            ok = 1
-            
-        elif rhs.datatype == Bool:
-            if lhs.datatype == Int or lhs.datatype == Float or \
-               lhs.datatype == Complex: 
-                self.warnCast(rhs,lhs.datatype)
-                rhs = ir.Cast(rhs,lhs.datatype,rhs.pos)
-                ok = 1
-        elif rhs.datatype == Int:
-            if lhs.datatype == Bool or lhs.datatype == Float or \
-            lhs.datatype == Complex:
-                self.warnCast(rhs,lhs.datatype)
-                rhs = ir.Cast(rhs,lhs.datatype,rhs.pos)
-                ok = 1
-        elif rhs.datatype == Float:
-            if lhs.datatype == Bool or lhs.datatype == Complex:
-                self.warnCast(rhs, lhs.datatype)
-                rhs = ir.Cast(rhs, lhs.datatype, rhs.pos)
-                ok = 1
-        elif rhs.datatype == Complex:
-            if lhs.datatype == Bool:
-                self.warnCast(rhs, lhs.datatype)
-                rhs = ir.Cast(rhs, lhs.datatype, rhs.pos)
-                ok = 1
+        elif exp.datatype == expectedType:
+            return exp
 
-        if ok:
-            return ir.Move(lhs,rhs,lhs.pos,lhs.datatype)
-        
-        # if we didn't cast successfully, fall through to here
-        self.badCast(node,lhs.datatype)
+        if fracttypes.canBeCast(exp.datatype, expectedType):
+            self.warnCast(exp, expectedType)
+            return ir.Cast(exp,expectedType,exp.node)
+        else:
+            self.badCast(exp,expectedType)
             
     def init(self,node):
         self.sections["init"] = self.stmlist(node)
@@ -258,16 +246,15 @@ class T:
     def badNode(self, node, rule):
         msg = "Internal Compiler Error: Unexpected node '%s' in %s" % \
             (node.type, rule)
-        print msg
         raise TranslationError(msg)
 
-    def badCast(self, node, expectedType):
+    def badCast(self, exp, expectedType):
         raise TranslationError(
-           ("invalid type %s for %s %s on line %s, expecting %s" %
-            (strOfType(node.datatype), node.type, node.leaf, node.pos, strOfType(expectedType))))
-    def warnCast(self,node,expectedType):
+           ("invalid type %s for %s on line %s, expecting %s" %
+            (strOfType(exp.datatype), exp.node.leaf, exp.node.pos, strOfType(expectedType))))
+    def warnCast(self,exp,expectedType):
         msg = "Warning: conversion from %s to %s on line %s" % \
-        (strOfType(node.datatype), strOfType(expectedType), node.pos)
+        (strOfType(exp.datatype), strOfType(expectedType), exp.node.pos)
         self.warnings.append(msg)
         
 parser = fractparser.parser

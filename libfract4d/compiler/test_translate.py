@@ -74,7 +74,7 @@ class TranslateTest(unittest.TestCase):
         i = 1.0 ; downcast - error
         }''')
         self.assertWarning(t10,"conversion from int to float on line 4")
-        self.assertError(t10, "invalid type float for const 1.0 on line 5, expecting int")
+        self.assertError(t10, "invalid type float for 1.0 on line 5, expecting int")
 
     def testIDs(self):
         t11 = self.translate('''t11 {
