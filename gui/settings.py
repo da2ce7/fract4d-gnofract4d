@@ -53,7 +53,7 @@ class SettingsDialog(gtk.Dialog):
         table = gtk.Table(5,2,gtk.FALSE)
         self.notebook.append_page(table,gtk.Label("Formula"))
         self.f.populate_formula_settings(table)
-        
+
     def create_param_entry(self,table, row, text, param):
         label = gtk.Label(text)
         label.set_justify(gtk.JUSTIFY_RIGHT)
