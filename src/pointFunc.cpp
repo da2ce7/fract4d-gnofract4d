@@ -76,7 +76,7 @@ public:
         }
 
     template<class T>inline void calc(
-        const vec4<T>& params, int nMaxIters,
+        const vec4<T>& params, int nMaxIters, int nNoPeriodIters,
         struct rgb *color, int *pnIters
         )
         {
@@ -94,25 +94,31 @@ public:
 
             /* periodicity vars */
             const d PERIOD_TOLERANCE = 1.0E-10;
-            const int PERIOD_START = 256;
             d lastx = pIter[X], lasty=pIter[Y];
             int k =1, m = 1;
 
+            assert(nNoPeriodIters <= nMaxIters);
             /* to save on bailout tests and function call overhead, we
                try to calculate 8 iterations at a time. Some bailout
                functions don't allow this, however */
             if(m_pBail->iter8_ok())
             {
                 int nMax8Iters = (nMaxIters/8) * 8;
-                int nNoPeriodIters = min<int>(PERIOD_START,nMax8Iters);
+                int nNoPeriod8Iters = min<int>((nNoPeriodIters/8) *8, nMax8Iters);
 
-                // do the first PERIOD_START iterations without periodicity
+                // do the first chunk of iterations without periodicity
+                // the size of this chunk depends on whether the last point
+                // bailed or not
+                
                 do
                 {
                     m_pIter->iter8(pIter,pInput,pTemp);
-                    if((iter+= 8) >= nNoPeriodIters)
-                    {
-                        if(nNoPeriodIters < nMax8Iters)
+                    if((iter+= 8) >= nNoPeriod8Iters)
+                    {   
+                        iter -= 8;
+                        goto finished8;
+
+                        if(iter < nMax8Iters)
                         {
                             break;
                         }
@@ -129,7 +135,8 @@ public:
                     pIter[X] = pIter[X + (2*8)];
                     pIter[Y] = pIter[Y + (2*8)];
                 }while(true);
-                
+
+                // do remaining 8iter chunks with periodicity
                 do
                 {
                     m_pIter->iter8(pIter,pInput,pTemp);
@@ -220,11 +227,11 @@ public:
         };
 
     virtual void operator()(
-        const vec4<double>& params, int nMaxIters,
+        const vec4<double>& params, int nMaxIters, int nNoPeriodIters,
         struct rgb *color, int *pnIters
         )
         {
-            calc<double>(params, nMaxIters, color, pnIters);
+            calc<double>(params, nMaxIters, nNoPeriodIters, color, pnIters);
         }
 #ifdef HAVE_GMP
     virtual void operator()(
@@ -232,7 +239,7 @@ public:
         struct rgb *color, int *pnIters
         )
         {
-            calc<gmp::f>(params, nMaxIters, color, pnIters);
+            calc<gmp::f>(params, nMaxIters, nNoPeriodIters, color, pnIters);
         }
 #endif
     virtual rgb_t recolor(int iter)
