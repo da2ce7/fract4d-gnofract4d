@@ -4,6 +4,7 @@
 
 import copy
 from UserDict import UserDict
+from UserList import UserList
 import string
 import types
 import re
@@ -12,6 +13,13 @@ import math
 from fracttypes import *
 import stdlib
 
+class OverloadList(UserList):
+    def __init__(self,list):
+        UserList.__init__(self,list)
+        self.pos = -1
+    def first(self):
+        return self[0]
+    
 def efl(fname, template, tlist):
     'short-hand for expandFuncList - just reduces the amount of finger-typing'
     list = []
@@ -19,41 +27,43 @@ def efl(fname, template, tlist):
         f = "Func(%s,stdlib,\"%s\")" % (re.sub("_", str(t), template), fname)
         realf = eval(f)
         list.append(eval(f))
-    return list
+    return OverloadList(list)
 
 class Alias:
     def __init__(self,realName):
         self.realName = realName
         self.pos = -1
         self.cname = None
-        
+
+    
 def createDefaultDict():
     d = {
         # standard library functions
         
         "sqr": efl("sqr", "[_] , _",  [Int, Float, Complex]),
         "ident": efl("ident", "[_] , _",  [Int, Float, Complex, Bool]),
-        "complex" : [ Func([Float, Float], Complex,
-                           stdlib, "complex")],
-        "conj" : [ Func([Complex], Complex, stdlib, "conj")],
-        "flip" : [ Func([Complex], Complex, stdlib, "flip")],
-        "real" : [ Func([Complex], Float, stdlib, "real")],
-        "real2" : [ Func([Complex], Float, stdlib, "real2")],        
-        "imag" : [ Func([Complex], Float, stdlib, "imag")],
-        "imag2" : [ Func([Complex], Float, stdlib, "imag2")],
+        "complex" : OverloadList(
+        [ Func([Float, Float], Complex, stdlib, "complex")]),
+        
+        "conj" : OverloadList([ Func([Complex], Complex, stdlib, "conj")]),
+        "flip" : OverloadList([ Func([Complex], Complex, stdlib, "flip")]),
+        "real" : OverloadList([ Func([Complex], Float, stdlib, "real")]),
+        "real2" : OverloadList([ Func([Complex], Float, stdlib, "real2")]),        
+        "imag" : OverloadList([ Func([Complex], Float, stdlib, "imag")]),
+        "imag2" : OverloadList([ Func([Complex], Float, stdlib, "imag2")]),
         "recip": efl("recip", "[_] , _", [ Float, Complex]),
         "abs" :  efl("abs", "[_], _", [Float, Complex]),
-        "cabs":  [ Func([Complex], Float, stdlib, "cabs")],
+        "cabs":  OverloadList([ Func([Complex], Float, stdlib, "cabs")]),
 
         "log" :  efl("log",  "[_], _", [Float, Complex]),
         "sqrt" : efl("sqrt", "[_], _", [Float, Complex]),
         "exp" :  efl("exp",  "[_], _", [Float, Complex]),
 
-        "manhattan" : [ Func([Complex], Float, stdlib, "manhattan")],
-        "manhattanish" : [ Func([Complex], Float, stdlib, "manhattanish")],
-        "manhattanish2" : [ Func([Complex], Float, stdlib, "manhattanish2")],
-        "max2" : [ Func([Complex], Float, stdlib, "max2")],
-        "min2" : [ Func([Complex], Float, stdlib, "min2")],
+        "manhattan" : OverloadList([ Func([Complex], Float, stdlib, "manhattan")]),
+        "manhattanish" : OverloadList([ Func([Complex], Float, stdlib, "manhattanish")]),
+        "manhattanish2" : OverloadList([ Func([Complex], Float, stdlib, "manhattanish2")]),
+        "max2" : OverloadList([ Func([Complex], Float, stdlib, "max2")]),
+        "min2" : OverloadList([ Func([Complex], Float, stdlib, "min2")]),
         
         "sin" :  efl("sin", "[_], _", [Float, Complex]),
         "cos" :  efl("cos", "[_], _", [Float, Complex]),
@@ -67,7 +77,7 @@ def createDefaultDict():
         "asin" :  efl("asin", "[_], _", [Float, Complex]),
         "acos" :  efl("acos", "[_], _", [Float, Complex]),
         "atan" :  efl("atan", "[_], _", [Float, Complex]),
-        "atan2" :  [ Func([Complex], Float, stdlib, "atan2")],
+        "atan2" :  OverloadList([ Func([Complex], Float, stdlib, "atan2")]),
         "asinh" :  efl("asinh", "[_], _", [Float, Complex]),
         "acosh" :  efl("acosh", "[_], _", [Float, Complex]),
         "atanh" :  efl("atanh", "[_], _", [Float, Complex]),
@@ -87,11 +97,12 @@ def createDefaultDict():
         # arithmetic
         "%":  efl("mod",   "[_,_] , _", [Int, Float]),
 
-        "/":  [ Func([Float, Float], Float, stdlib, "div"),
+        "/":  OverloadList([
+                Func([Float, Float], Float, stdlib, "div"),
                 Func([Complex, Float], Complex, stdlib, "div"),
                 Func([Complex, Complex], Complex, stdlib, "div"),
                 #Func([Color, Float], Float, stdlib, "div")
-                ],
+                ]),
 
         "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex]), #+ \
               #[ Func([Color, Float], Float, stdlib, "mul")],
@@ -99,19 +110,19 @@ def createDefaultDict():
         "+":  efl("add",   "[_,_] , _", [Int, Float, Complex, Color]),
         "-":  efl("sub",   "[_,_] , _", [Int, Float, Complex, Color]),
 
-        "^":  [ Func([Float, Float], Float, stdlib, "pow"),
+        "^": OverloadList([ Func([Float, Float], Float, stdlib, "pow"),
                 Func([Complex, Float], Complex, stdlib, "pow"),
-                Func([Complex, Complex], Complex, stdlib, "pow")],
+                Func([Complex, Complex], Complex, stdlib, "pow")]),
         
-        "cmag":[ Func([Complex], Float, stdlib, "cmag")],
+        "cmag": OverloadList([ Func([Complex], Float, stdlib, "cmag")]),
         "t__neg": efl("neg", "[_], _", [Int, Float, Complex]),
         
         # unary negation already factored out
 
         # logical ops
-        "&&": [ Func([Bool, Bool], Bool, stdlib, None) ],
-        "||": [ Func([Bool, Bool], Bool, stdlib, None) ],
-        "!" : [ Func([Bool],Bool, stdlib, None) ],
+        "&&": OverloadList([ Func([Bool, Bool], Bool, stdlib, None) ]),
+        "||": OverloadList([ Func([Bool, Bool], Bool, stdlib, None) ]),
+        "!" : OverloadList([ Func([Bool],Bool, stdlib, None) ]),
 
         # predefined magic variables
         "t__h_pixel": Alias("pixel"),
@@ -135,7 +146,7 @@ def createDefaultDict():
     for f in xrange(1,5):
         name = "fn%d" % f
         d[name] = Alias("t__a_" + name)
-        d["t__a_" + name ] = [Func([Complex],Complex, stdlib, "ident") ]
+        d["t__a_" + name ] = OverloadList([Func([Complex],Complex, stdlib, "ident") ])
 
     for (k,v) in d.items():
         if hasattr(v,"cname") and v.cname == None:
@@ -182,8 +193,6 @@ class T(UserDict):
         val = self.data.get(mangle(key),None)
         if val == None:
             val = self.default_dict.get(mangle(key))
-        if isinstance(val,types.ListType):
-            val = val[0]
         return val.pos != -1
 
     def is_param(self,key):
@@ -242,11 +251,8 @@ class T(UserDict):
         for (name,sym) in self.data.items():
             if self.is_param(name):
                 if not varOnly or isinstance(sym,Var):
-                    if isinstance(sym,types.ListType):
-                        # just take 1st overload for functions
-                        params[name] = sym[0]
-                    else:
-                        params[name] = sym
+                    params[name] = sym.first()
+
         return params
 
     def demangle(self,name):
@@ -276,11 +282,15 @@ class T(UserDict):
         # and return one (for GUI to select a function)
         flist = []
         for (name,func) in self.default_dict.items():
-            if isinstance(func,types.ListType):
+            try:
                 for f in func:
                     if f.ret == ret and f.args == args and \
                            not self.is_private(name):
                         flist.append(name)
+            except TypeError:
+                # wasn't a list
+                pass
+            
         return flist
     
     def order_of_params(self):

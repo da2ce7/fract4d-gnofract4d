@@ -39,7 +39,8 @@ class SymbolTest(unittest.TestCase):
         self.t["fish"] = Var(Int,1,1)
         self.failUnless(self.t.is_user("fish"))
         self.failUnless(not self.t.is_user("z"))
-
+        self.failUnless(not self.t.is_user("cmag"))
+        
     def test_expand(self):
         l = symbol.efl("foo", "[_,_] , _", [Int, Float, Complex])
         self.assertEqual(len(l),3)
@@ -82,7 +83,14 @@ class SymbolTest(unittest.TestCase):
         self.assertEqual(self.t["@p6"].type, Complex)
         self.assertEqual(self.t["@p1"], self.t["p1"])
         self.assertEqual(self.t["@fn1"][0].ret, Complex)
-                         
+
+        params = self.t.parameters()
+        self.failUnless(isinstance(params["t__a_fn1"],Func))
+
+    def testFirst(self):
+        self.assertEqual(self.t["z"].first(),self.t["z"])
+        self.failUnless(isinstance(self.t["@fn1"].first(), Func))
+        
     def testReset(self):
         self.t["fish"] = Var(Int, 1, 1)
         self.t.reset()

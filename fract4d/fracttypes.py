@@ -99,6 +99,8 @@ class Func:
         self.ret = ret
         self.pos = pos
         self.set_func(module,fname)        
+    def first(self):
+        return self
         
     def set_func(self,module,fname):
         # compute the name of the stdlib function to call
@@ -136,6 +138,8 @@ class Var:
             self.value = value
         self.pos = pos
         self.cname = None
+    def first(self):
+        return self
         
     def __str__(self):
         return "%s %s (%d)" % (strOfType(self.type), self.value, self.pos)
