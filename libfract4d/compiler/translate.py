@@ -166,8 +166,9 @@ class T:
 
         try:
             self.symbols[node.leaf] = Var(node.datatype, 0.0,node.pos) # fixme exp
-            return ir.Move(ir.Name(node.leaf, node.pos, node.datatype),exp,
-                           node.pos, node.datatype)
+            return self.coerce(
+                ir.Name(node.leaf, node.pos, node.datatype),
+                exp)
         
         except KeyError, e:
             self.error("Invalid declaration on line %d: %s" % (node.pos,e))
@@ -212,43 +213,53 @@ class T:
     def coerce(self, lhs, rhs):
         '''insert code to assign rhs to lhs, even if they are different types,
            or produce an error if conversion is not permitted'''
-        
+
+        ok = 0
         if lhs.datatype == None or rhs.datatype == None:
-            raise TranslationError("Internal Compiler Error: coercing an untyped node %s" % node)
+            raise TranslationError("Internal Compiler Error: coercing an untyped node")
         elif lhs.datatype == rhs.datatype:
-            return ir.Move(lhs,rhs,lhs.pos,lhs.datatype)
+            ok = 1
             
         elif rhs.datatype == Bool:
-            if expectedType == Int:
-                self.warnCast(node,expectedType)
-            elif expectedType == Float:
-                self.warnCast(node,expectedType)
-            elif expectedType == Complex:
-                self.warnCast(node,expectedType)
-
-            return node
+            if lhs.datatype == Int or lhs.datatype == Float: 
+                self.warnCast(rhs,lhs.datatype)
+                rhs = ir.Cast(rhs,lhs.datatype,rhs.pos)
+                ok = 1
+            elif lhs.datatype == Complex:
+                self.warnCast(rhs,lhs.datatype)
+                lhs = ir.Real(lhs,lhs.pos)
+                rhs = ir.Cast(rhs,Float,rhs.pos)
+                ok = 1
         elif rhs.datatype == Int:
-            if expectedType == Bool:
-                self.warnCast(node,expectedType)
-            elif expectedType == Float:
-                self.warnCast(node,expectedType)
-            elif expectedType == Complex:
-                self.warnCast(node,expectedType)
-                return ir.Move(ir.Real(lhs,node.pos),
-                               ir.Cast(rhs,Float,rhs.pos),
-                               lhs.pos, lhs.datatype)
-            return node
+            if lhs.datatype == Bool or lhs.datatype == Float:
+                self.warnCast(rhs,lhs.datatype)
+                rhs = ir.Cast(rhs,lhs.datatype,rhs.pos)
+                ok = 1
+            elif lhs.datatype == Complex:
+                self.warnCast(rhs,lhs.datatype)
+                rhs = ir.Cast(rhs,Float,rhs.pos)
+                lhs = ir.Real(lhs,lhs.pos)
+                ok = 1
         elif rhs.datatype == Float:
-            if expectedType == Bool or expectedType == Complex:
-                self.warnCast(node, expectedType)
-                return node
+            if lhs.datatype == Bool:
+                self.warnCast(rhs, lhs.datatype)
+                rhs = ir.Cast(rhs, lhs.datatype, rhs.pos)
+                ok = 1
+            elif lhs.datatype == Complex:
+                self.warnCast(rhs, lhs.datatype)
+                lhs = ir.Real(lhs, lhs.pos)
+                ok = 1
         elif rhs.datatype == Complex:
-            if expectedType == Bool:
-                self.warnCast(node, expectedType)
-                return node
-            
+            if lhs.datatype == Bool:
+                self.warnCast(rhs, lhs.datatype)
+                rhs = ir.Cast(rhs, lhs.datatype, rhs.pos)
+                ok = 1
+
+        if ok:
+            return ir.Move(lhs,rhs,lhs.pos,lhs.datatype)
+        
         # if we didn't cast successfully, fall through to here
-        self.badCast(node,expectedType)
+        self.badCast(rhs,lhs.datatype)
             
     def init(self,node):
         self.sections["init"] = self.stmlist(node)

@@ -66,14 +66,14 @@ class Real(Exp):
         Exp.__init__(self,pos, fracttypes.Float)
         self.cexp = cexp
     def pretty(self,depth=0):
-        return d(depth) + "Real(" + self.cexp.pretty(depth+1) + d(depth,")\n")
+        return d(depth) + "Real(\n" + self.cexp.pretty(depth+1) + d(depth,")\n")
 
 class Cast(Exp):
     def __init__(self, exp, pos, datatype):
         Exp.__init__(self,pos, datatype)
         self.exp = exp
     def pretty(self,depth=0):
-        return d(depth) + "Cast(" + self.cexp.pretty(depth+1) + d(depth,")\n")
+        return d(depth) + "Cast(\n" + self.exp.pretty(depth+1) + d(depth,")\n")
     
 class Call(Exp):
     def __init__(self, func, args, pos, datatype):
