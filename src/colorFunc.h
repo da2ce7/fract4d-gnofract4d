@@ -36,7 +36,7 @@ drawing */
 // abstract base class
 class colorFunc {
  public:
-    virtual double operator()(int iter, double *pIter, double *pInput, double *pTemp) const = 0;
+    virtual double operator()(int iter, const double *pIter, const double *pInput, const double *pTemp) const = 0;
 #ifdef HAVE_GMP
     virtual double operator()(int iter, gmp::f *scratch) const = 0;
 #endif

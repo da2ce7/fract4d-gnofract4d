@@ -36,7 +36,7 @@ public:
             delete m_pInnerColor;
         }
 
-    inline rgb_t colorize(int iter, double *pIter, double *pInput, double *pTemp)
+    inline rgb_t colorize(int iter, const T*pIter, const T*pInput, const T*pTemp)
         {
             double colorDist;
             if(iter == -1)
@@ -52,7 +52,7 @@ public:
 
     /* do some iterations without periodicity */
     //template<class T>
-    bool calcNoPeriod(int& iter, int maxIter, T *pIter, T *pInput, T *pTemp)
+    bool calcNoPeriod(int& iter, int maxIter)
         {
             while(iter + 8 < maxIter)
             {
@@ -86,15 +86,9 @@ public:
             return true;
         }
 
-    void testFunc(T *pIter, T*pInput, T*pTemp)
-        {
-            DECL; ITER; RET;
-        }
-
     //template<class T>
     bool calcWithPeriod(
-        int &iter, int nMaxIters, 
-        T *pIter, T *pInput, T *pTemp)
+        int &iter, int nMaxIters)
         {
             /* periodicity vars */
             d lastx = pIter[X], lasty=pIter[Y];
@@ -129,13 +123,14 @@ public:
             }while(1);
         }
 
+    T pIter[ITER_SPACE], pInput[INPUT_SPACE], pTemp[TEMP_SPACE];
+         
     //template<class T>
     inline void calc(
         const vec4<T>& params, int nMaxIters, int nNoPeriodIters,
         struct rgb *color, int *pnIters
         )
         {
-            T pIter[ITER_SPACE], pInput[INPUT_SPACE], pTemp[TEMP_SPACE];
             pIter[X] =  params.n[VZ]; 
             pIter[Y] =  params.n[VW];
             pInput[CX] = params.n[VX];
@@ -149,11 +144,11 @@ public:
             assert(nNoPeriodIters <= nMaxIters);
             if(nNoPeriodIters > 0)
             {
-                done = calcNoPeriod(iter,nNoPeriodIters,pIter,pInput, pTemp);
+                done = calcNoPeriod(iter,nNoPeriodIters);
             }
             if(!done)
             {
-                done = calcWithPeriod(iter,nMaxIters,pIter,pInput,pTemp);
+                done = calcWithPeriod(iter,nMaxIters);
             }
 
             *pnIters = iter;
@@ -179,20 +174,16 @@ public:
             calc<gmp::f>(params, nMaxIters, nNoPeriodIters, color, pnIters);
         }
 #endif
+    
     virtual rgb_t recolor(int iter)
         {
-            // fake the calculation state
-            d inputSpace[INPUT_SPACE]= { 0.0 };
-            d iterSpace[ITER_SPACE] = { 0.0 };
+            // fake the calculation state for recoloration
+            const T inputSpace[INPUT_SPACE]= { 0.0 };
+            const T iterSpace[ITER_SPACE] = { 0.0 };
             // set ejectval = 1.0 , otherwise we have 0/0 = NaN for some colorFuncs
-            d tempSpace[TEMP_SPACE] = { 0.0, 0.0, 1.0, 0.0, 0.0 };
-            return colorize(iter, &inputSpace[0], &iterSpace[0], &tempSpace[0]);
-        }
+            const T tempSpace[TEMP_SPACE] = { 0.0, 0.0, 1.0, 0.0, 0.0 };
 
-    inline void bail(
-        double *pIter, double *pInput, double *pTemp)
-        {
-            BAIL;
+            return colorize(iter, &inputSpace[0], &iterSpace[0], &tempSpace[0]);
         }
 };
 
