@@ -26,6 +26,8 @@
 /* create the interface for the main window */
 GtkWidget* create_app (model_t *);
 
+extern GtkWidget* main_app_window;
+
 #endif /* _INTERFACE_H_ */
 
 

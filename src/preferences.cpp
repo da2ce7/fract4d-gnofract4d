@@ -52,8 +52,6 @@ create_prefs_compiler_page(
     GtkTooltips *tooltips)
 {
     GtkWidget *table = gtk_table_new (2, 2, FALSE);
-    GtkWidget *page = create_page(vbox, table, _("Compiler"));
-    gtk_box_pack_start( GTK_BOX (vbox), page, 1, 1, 0 );
 
     // Compiler location
     GtkWidget *cpath_label= gtk_label_new(_("Path to Compiler"));
@@ -99,6 +97,7 @@ create_prefs_compiler_page(
                        (GtkSignalFunc)set_cflags_cb,
                        m);
     
+    create_page(vbox, table, _("Compiler"));
 }
 
 void create_prefs_box (model_t *m)
@@ -117,10 +116,13 @@ void create_prefs_box (model_t *m)
 
     GtkWidget *vbox = (GNOME_DIALOG(global_prefs_box))->vbox;
 
-    create_prefs_compiler_page(m,vbox,tooltips);
+    GtkWidget *notebook = gtk_notebook_new();
+    gtk_container_add(GTK_CONTAINER(vbox),notebook);
+
+    create_prefs_compiler_page(m,notebook,tooltips);
 
     gnome_dialog_set_close(GNOME_DIALOG(global_prefs_box), TRUE);
     gnome_dialog_close_hides(GNOME_DIALOG(global_prefs_box), TRUE);
 
-    gtk_widget_show(global_prefs_box);
+    gtk_widget_show_all(global_prefs_box);
 }
