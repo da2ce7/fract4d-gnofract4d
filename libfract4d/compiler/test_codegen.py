@@ -39,6 +39,10 @@ class CodegenTest(unittest.TestCase):
     def label(self,name):
         return ir.Label(name,self.fakeNode)
 
+    def generate_code(self,t):
+        self.codegen = codegen.T(symbol.T())
+        self.codegen.generate_code(t)
+
     def testMatching(self):
         template = "[Binop, Const, Const]"
 
@@ -70,17 +74,25 @@ class CodegenTest(unittest.TestCase):
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
 
     def testComplexAdd(self):
+        # (1,3) + a
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"+",Complex)
-        self.codegen.generate_code(tree)
+        self.generate_code(tree)
         self.assertEqual(len(self.codegen.out),2)
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
             
-        self.assertEqual(self.codegen.out[0].format(), "t__temp0 = 1 + a_re")
-        self.assertEqual(self.codegen.out[1].format(), "t__temp1 = 3 + a_im")
+        self.assertOutputMatch("t__temp0 = 1 + a_re\nt__temp1 = 3 + a_im")
+
+        # a + (1,3) gets reversed
+        tree = self.binop([self.var("a",Complex),self.const([1,3],Complex)],"+",Complex)
+        self.generate_code(tree)
+        self.assertEqual(len(self.codegen.out),2)
+        self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
+
+        self.assertOutputMatch("t__temp0 = 1 + a_re\nt__temp1 = 3 + a_im")
 
     def testComplexMul(self):
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"*",Complex)
-        self.codegen.generate_code(tree)
+        self.generate_code(tree)
         self.assertEqual(len(self.codegen.out),6)
         exp = '''t__temp0 = 1 * a_re
 t__temp1 = 3 * a_im
@@ -88,8 +100,27 @@ t__temp2 = 3 * a_re
 t__temp3 = 1 * a_im
 t__temp4 = t__temp0 - t__temp1
 t__temp5 = t__temp2 + t__temp3'''
-        str_output = map(lambda x : x.format(), self.codegen.out)
-        self.assertEqual(exp, string.join(str_output,"\n"))
+        
+        self.assertOutputMatch(exp)
+
+    def testCompare(self):
+        tree = self.binop([self.const(3,Int),self.var("a",Int)],">",Bool)
+        self.generate_code(tree)
+        self.assertOutputMatch("t__temp0 = 3 > a")
+
+        tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],">",Complex)
+        self.generate_code(tree)
+        self.assertOutputMatch("t__temp0 = 1 > a_re")
+
+        tree.op = "=="
+        self.generate_code(tree)
+        self.assertOutputMatch('''t__temp0 = 1 == a_re
+t__temp1 = 3 == a_im
+t__temp2 = t__temp0 && t__temp1''')
+        
+    def assertOutputMatch(self,exp):
+        str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
+        self.assertEqual(str_output,exp)
         
     def printAsm(self):
         for i in self.codegen.out:
