@@ -204,7 +204,7 @@ class CodegenTest(unittest.TestCase):
                  "t__temp3 = t__temp1 + c_im;"
 
         self.assertOutputMatch(expAdd)
-        
+
     def testComplexMul(self):
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"*",Complex)
         self.generate_code(tree)
@@ -218,7 +218,29 @@ t__temp5 = t__temp2 + t__temp3;'''
         
         self.assertOutputMatch(exp)
 
-    def x_testCompare(self):
+        # a * b * c
+        tree = self.binop([
+            self.binop([
+                self.var("a",Complex),
+                self.var("b",Complex)],"*",Complex),
+            self.var("c", Complex)],"*",Complex)
+        self.generate_code(tree)
+
+        expAdd = '''t__temp0 = a_re * b_re;
+t__temp1 = a_im * b_im;
+t__temp2 = a_im * b_re;
+t__temp3 = a_re * b_im;
+t__temp4 = t__temp0 - t__temp1;
+t__temp5 = t__temp2 + t__temp3;
+t__temp6 = t__temp4 * c_re;
+t__temp7 = t__temp5 * c_im;
+t__temp8 = t__temp5 * c_re;
+t__temp9 = t__temp4 * c_im;
+t__temp10 = t__temp6 - t__temp7;
+t__temp11 = t__temp8 + t__temp9;'''
+        self.assertOutputMatch(expAdd)
+        
+    def testCompare(self):
         tree = self.binop([self.const(3,Int),self.var("a",Int)],">",Bool)
         self.generate_code(tree)
         self.assertOutputMatch("t__temp0 = 3 > a;")
@@ -239,7 +261,7 @@ t__temp2 = t__temp0 && t__temp1;''')
 t__temp1 = 3.00000000000000000 != a_im;
 t__temp2 = t__temp0 || t__temp1;''')
 
-    def x_testS2A(self):
+    def testS2A(self):
         asm = self.sourceToAsm('''t_s2a {
 init:
 int a = 1
@@ -254,21 +276,6 @@ t__temp3 = z_im + t__temp1;
 z_re = t__temp2;
 z_im = t__temp3;
 goto t__end_loop;''')
-
-
-    def x_testFormatString(self):
-        t = self.const(0,Int)
-        self.assertEqual(codegen.format_string(t,-1,0),("0",0))
-
-        t = self.const(0.5,Float)
-        self.assertEqual(codegen.format_string(t,-1,0),("0.50000000000000000",0))
-
-        t = self.const([1,4],Complex)
-        self.assertEqual(codegen.format_string(t,0,0),
-                         ("1.00000000000000000", 0))
-
-        t = self.var("a",Int)
-        self.assertEqual(codegen.format_string(t,0,0),("%(s0)s",1))
 
     def testSymbols(self):
         out = self.codegen.output_symbols()

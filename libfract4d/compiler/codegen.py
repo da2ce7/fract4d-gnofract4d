@@ -13,10 +13,10 @@ from fracttypes import Bool, Int, Float, Complex
 
 def reals(l):
     # [[a + ib], [c+id]] => [ a, c]
-    return map(lambda x : x[0],filter(lambda x : x != [],l))
+    return [x.re for x in l]
 
 def imags(l):
-    return map(lambda x : x[1],filter(lambda x : x != [],l))
+    return [x.im for x in l]
 
 def filter_nulls(l):
     return [x for x in l if x != []]
@@ -87,21 +87,21 @@ class Insn:
     def __init__(self,assem):
         self.assem = assem # string format of instruction
     def format(self,lookup = None):
-        if lookup == None:
-            lookup = {}
-            i = 0
-            if self.src != None:
-                for src in self.src:
-                    sname = "s%d" % i
-                    lookup[sname] = src.format()
-                    i = i+1
-                i = 0
-            if self.dst != None:
-                for dst in self.dst:
-                    dname = "d%d" % i
-                    lookup[dname] = dst.format()
-                    i = i+1
         try:
+            if lookup == None:
+                lookup = {}
+                i = 0
+                if self.src != None:
+                    for src in self.src:
+                        sname = "s%d" % i
+                        lookup[sname] = src.format()
+                        i = i+1
+                    i = 0
+                if self.dst != None:
+                    for dst in self.dst:
+                        dname = "d%d" % i
+                        lookup[dname] = dst.format()
+                        i = i+1
             return self.assem % lookup
         except Exception, exn:
             msg = "%s with %s" % (self, lookup)
@@ -131,8 +131,8 @@ class Label(Insn):
     
 class Move(Insn):
     ' A move instruction'
-    def __init__(self,format,src,dst):
-        Insn.__init__(self,"%%(d0)s = %s;" % format)
+    def __init__(self,src,dst):
+        Insn.__init__(self,"%(d0)s = %(s0)s;")
         self.src = src
         self.dst = dst
     def __str__(self):
@@ -210,9 +210,8 @@ return 0;
         self.out.append(Oper(assem, srcs ,[ dst ]))
         return dst
 
-    def emit_move(self, s0, index1, src, dst):
-        (f1,pos) = format_string(s0,index1,0)
-        self.out.append(Move(f1,src,dst))
+    def emit_move(self, src, dst):
+        self.out.append(Move([src],[dst]))
         
     def output_symbols(self):
         out = []
@@ -257,28 +256,23 @@ return 0;
 
         dst = None
         if t.datatype == Complex:
-            (d0,d1) = (self.symbols.newTemp(Float), self.symbols.newTemp(Float))
+            dst = ComplexArg(TempArg(self.symbols.newTemp(Float)),
+                             TempArg(self.symbols.newTemp(Float)))
             if child.datatype == Int or child.datatype == Bool:
-                (f1,pos) = format_string(child,-1,0)
-                assem = "%%(d0)s = ((double)%s);" % f1
-                self.out.append(Oper(assem,src, [d0]))
+                assem = "%(d0)s = ((double)%(s0)s);"
+                self.out.append(Oper(assem,[src], [dst.re]))
                 assem = "%(d0)s = 0.0;"
-                self.out.append(Oper(assem,src, [d1]))
-                dst = [d0, d1]
+                self.out.append(Oper(assem,[src], [dst.im]))
             elif child.datatype == Float:
-                (f1,pos) = format_string(child,-1,0)
-                assem = "%%(d0)s = %s;" % f1
-                self.out.append(Oper(assem,src, [d0]))
+                assem = "%(d0)s = %(s0)s;"
+                self.out.append(Oper(assem,[src], [dst.re]))
                 assem = "%(d0)s = 0.0;"
-                self.out.append(Oper(assem,src, [d1]))
-                dst = [d0, d1]
+                self.out.append(Oper(assem,[src], [dst.im]))
         elif t.datatype == Float:
-            d0 = self.symbols.newTemp(Float)
+            dst = TempArg(self.symbols.newTemp(Float))
             if child.datatype == Int or child.datatype == Bool:
-                (f1,pos) = format_string(child,-1,0)
-                assem = "%%(d0)s = ((double)%s);" % f1
-                self.out.append(Oper(assem,src, [d0]))
-                dst = [d0]
+                assem = "%%(d0)s = ((double)%(s0)s);" 
+                self.out.append(Oper(assem,[src], [dst]))
         elif t.datatype == Int:
             if child.datatype == Bool:
                 # needn't do anything
@@ -297,10 +291,10 @@ return 0;
         dst = self.generate_code(t.children[0])
         src = self.generate_code(t.children[1])
         if t.datatype == Complex:
-            self.emit_move(t.children[1],0,[src[0]],[dst[0]])
-            self.emit_move(t.children[1],1,[src[1]],[dst[1]])
+            self.emit_move(src.re,dst.re)
+            self.emit_move(src.im,dst.im)
         else:
-            self.emit_move(t.children[1],-1,src,dst)
+            self.emit_move(src,dst)
         return dst
     
     def label(self,t):
@@ -316,9 +310,9 @@ return 0;
         src = self.generate_code(s0)
         if t.op == "mag":
             # x_re * x_re + x_im * x_im
-            re_2 = self.emit_binop('*',s0,0,s0,0,[src[0],src[0]],Float)
-            im_2 = self.emit_binop('*',s0,1,s0,1,[src[1],src[1]],Float)
-            dst = [ self.emit_binop('+',re_2,-1,im_2,-1,[re_2,im_2],Float)]
+            re_2 = self.emit_binop('*',[src[0].re,src[0].re],Float)
+            im_2 = self.emit_binop('*',[src[0].im,src[0].im],Float)
+            dst = self.emit_binop('+',[re_2,im_2],Float)
         else:
             msg = "Unsupported unary operation %s" % t.op
             raise TranslationError(msg)
@@ -330,12 +324,12 @@ return 0;
         s1 = t.children[1]
         srcs = [self.generate_code(s0), self.generate_code(s1)]
         if t.datatype == fracttypes.Complex:
-            assert(isinstance(srcs[0],ComplexArg),srcs[0])
-            assert(isinstance(srcs[1],ComplexArg),srcs[1])
+            assert(isinstance(srcs[0],ComplexArg)==1,srcs[0])
+            assert(isinstance(srcs[1],ComplexArg)==1,srcs[1])
             if t.op=="+" or t.op == "-":
                 dst = ComplexArg(
-                    self.emit_binop(t.op,[srcs[0].re,srcs[1].re], Float),
-                    self.emit_binop(t.op,[srcs[0].im,srcs[1].im], Float))
+                    self.emit_binop(t.op,reals(srcs), Float),
+                    self.emit_binop(t.op,imags(srcs), Float))
             elif t.op=="*":
                 # (a+ib) * (c+id) = ac - bd + i(bc + ad)
                 ac = self.emit_binop(t.op, [srcs[0].re, srcs[1].re], Float)
@@ -347,18 +341,16 @@ return 0;
                     self.emit_binop('+', [bc, ad], Float))
             elif t.op==">" or t.op==">=" or t.op=="<" or t.op == "<=":
                 # compare real parts only
-                dst = [
-                    self.emit_binop(t.op,s0,0,s1,0, reals(srcs), Bool)]
+                dst = self.emit_binop(t.op,reals(srcs), Bool)
             elif t.op=="==" or t.op=="!=":
                 # compare both
-                d1 = self.emit_binop(t.op,s0, 0, s1, 0, reals(srcs), Bool)
-                d2 = self.emit_binop(t.op,s0, 1, s1, 1, imags(srcs), Bool)
+                d1 = self.emit_binop(t.op,reals(srcs), Bool)
+                d2 = self.emit_binop(t.op,imags(srcs), Bool)
                 if t.op=="==":
                     combine_op = "&&"
                 else:
                     combine_op = "||"
-                dst = [
-                    self.emit_binop(combine_op, d1, -1, d2, -1, [d1,d2], Bool)]
+                dst = self.emit_binop(combine_op, [d1, d2], Bool)
             else:
                 # need to implement /, compares, etc
                 msg = "Unsupported binary operation %s" % t.op
