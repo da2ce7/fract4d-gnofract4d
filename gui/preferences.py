@@ -222,7 +222,6 @@ class PrefsDialog(gtk.Dialog):
         
         # antialiasing
         table.attach(gtk.Label("Antialiasing : "),0,1,4,5,0,0,2,2)
-
         optMenu = self.create_antialias_menu()
         table.attach(optMenu,1,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         

@@ -105,7 +105,7 @@ class MainWindow:
         self.f.set_size(w,h)
         self.f.set_auto_deepen(prefs.getboolean("display","autodeepen"))
         self.f.set_antialias(prefs.getint("display","antialias"))
-        
+
     def on_prefs_changed(self,prefs):
         self.f.freeze()
         self.update_compiler_prefs(prefs)
@@ -140,6 +140,7 @@ class MainWindow:
             ('/File/Save _Image', '<control>I', self.save_image, 0, ''),
             ('/File/sep1', None, None, 0, '<Separator>'),
             ('/File/_Quit', '<control>Q', self.quit, 0, '<StockItem>', gtk.STOCK_QUIT),   
+
             ('/_Edit', None, None, 0, '<Branch>'),
             ('/Edit/_Fractal Settings...','<control>F',self.settings, 0, ''),
             ('/Edit/_Colors...', '<control>L', self.colors, 0, ''),
@@ -147,8 +148,10 @@ class MainWindow:
             ('/Edit/_Undo', '<control>Z', self.undo, 0, ''),
             ('/Edit/_Redo', '<control>Y', self.redo, 0, ''),
             ('/Edit/R_eset', 'Home', self.reset, 0, '<StockItem>', gtk.STOCK_HOME),
+
             ('/_Tools', None, None, 0, '<Branch>'),
             ('/_Tools/_Autozoom', '<control>A', self.autozoom, 0, ''),
+
             ('/_Help', None, None, 0, '<Branch>'),
             ('/_Help/Contents', 'F1', self.contents, 0, ''),
             ('/Help/_About', None, self.about, 0, ''),
