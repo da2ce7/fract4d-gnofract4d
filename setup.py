@@ -40,7 +40,7 @@ module1 = Extension(
     'fract4d.fract4dc',
     sources = [
     'fract4d/c/fract4dmodule.cpp',
-    'fract4d/c/cmap.c',
+    'fract4d/c/cmap.cpp',
     'fract4d/c/pointFunc.cpp',
     'fract4d/c/fractFunc.cpp',
     'fract4d/c/STFractWorker.cpp',
