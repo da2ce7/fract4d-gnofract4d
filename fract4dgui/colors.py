@@ -69,18 +69,19 @@ class ColorDialog(dialog.T):
             _("Color Maps"),
             main_window.window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
-            (gtk.STOCK_REFRESH, ColorDialog.RESPONSE_REFRESH,
+            (#gtk.STOCK_REFRESH, ColorDialog.RESPONSE_REFRESH,
              gtk.STOCK_APPLY, gtk.RESPONSE_APPLY,
              gtk.STOCK_OK, gtk.RESPONSE_OK,
              gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
-        #self.set_size_request(500,300)
+        self.set_size_request(500,300)
         
         self.f = f
         self.grad= copy.copy(self.f.gradient)
                 
         self.model = _get_model()
         sw = self.create_map_file_list()
+        self.selected_segment = -1
         self.create_preview()
         
         hbox = gtk.HBox()
@@ -89,40 +90,73 @@ class ColorDialog(dialog.T):
         self.vbox.add(hbox)
         self.treeview.get_selection().unselect_all()
 
+        
     def create_preview(self):
         #gradient preview
-        self.grad_width = 256
-        self.grad_colorband_height = 56
         self.grad_handle_height = 8
-        self.grad_total_height = \
-            self.grad_colorband_height + self.grad_handle_height
         
         self.gradarea=gtk.DrawingArea()
         c = utils.get_rgb_colormap()
         self.gradarea.set_colormap(c)        
 
-        self.gradarea.set_size_request(self.grad_width, self.grad_total_height)
+        self.gradarea.add_events(
+            gtk.gdk.BUTTON_RELEASE_MASK |
+            gtk.gdk.BUTTON1_MOTION_MASK |
+            gtk.gdk.POINTER_MOTION_HINT_MASK |
+            gtk.gdk.BUTTON_PRESS_MASK |
+            gtk.gdk.KEY_PRESS_MASK |
+            gtk.gdk.KEY_RELEASE_MASK
+            )
+
+        self.gradarea.set_size_request(256, 64)
         self.gradarea.connect('realize', self.gradarea_realized)
         self.gradarea.connect('expose_event', self.gradarea_expose)
+        self.gradarea.connect('button-press-event', self.gradarea_mousedown)
+        self.gradarea.connect('button-release-event', self.gradarea_clicked)
+        self.gradarea.connect('motion-notify-event', self.gradarea_mousemoved)
+
         return self.gradarea
+
+    def gradarea_mousedown(self, widget, event):
+        pass
+
+    def gradarea_clicked(self, widget, event):
+        pos = float(event.x) / widget.allocation.width
+        i = self.grad.get_index_at(pos)
+        self.selected_segment = i
+        print "selected %d" % i
+        self.redraw()
+
+    def gradarea_mousemoved(self, widget, event):
+        pass
     
     def gradarea_realized(self, widget):
-        white = widget.get_colormap().alloc_color(
-            "#FFFFFFFFFFFF", True, True)
-        self.gradgc = widget.window.new_gc(
-            foreground=white,
-            background=white,
-            fill=gtk.gdk.SOLID)
-                                
+        self.gradgc = widget.window.new_gc(fill=gtk.gdk.SOLID)
         return True
         
     def gradarea_expose(self, widget, event):
         #Draw the gradient itself
         r = event.area
         self.redraw_rect(widget, r.x, r.y, r.width, r.height)
-        
+
+    def draw_handle(self, widget, midpoint, fill):
+        # draw a triangle pointing up, centered on midpoint
+        total_height = widget.allocation.height
+        colorband_height = total_height - self.grad_handle_height
+        points = [
+            (midpoint, colorband_height),
+            (midpoint - 5, total_height),
+            (midpoint + 5, total_height)]
+
+        widget.window.draw_polygon(
+            widget.style.black_gc, fill, points)
+
     def redraw_rect(self, widget, x, y, w, h):
+
+        # draw the color preview bar
         wwidth = float(widget.allocation.width)
+        colorband_height = widget.allocation.height - self.grad_handle_height
+        
         colormap = widget.get_colormap()
         for i in xrange(x, x+w):
             pos_in_gradient = float(i)/wwidth
@@ -134,31 +168,39 @@ class ColorDialog(dialog.T):
                 True, True)
             
             self.gradgc.set_foreground(gtkcol)
-            widget.window.draw_line(self.gradgc, i, y, i, y+h)
+            widget.window.draw_line(
+                self.gradgc, i, y, i, min(y+h, colorband_height))
             
+        #Draw the handles
+        wgc=widget.style.white_gc
+        bgc=widget.style.black_gc
+
+        style = widget.get_style()
+        widget.window.draw_rectangle(
+            style.bg_gc[gtk.STATE_NORMAL], True,
+            x, colorband_height, w, self.grad_handle_height)
+
+        for i in xrange(len(self.grad.segments)):
+            seg = self.grad.segments[i]
+            
+            left = seg.left * wwidth
+            mid = seg.mid * wwidth
+            right = seg.right * wwidth
+
+            if i == self.selected_segment:
+                # draw this chunk selected
+                widget.window.draw_rectangle(
+                    style.bg_gc[gtk.STATE_SELECTED], True,
+                    left, colorband_height,
+                    right-left, self.grad_handle_height)
+
+            self.draw_handle(widget, left, True)
+            self.draw_handle(widget, mid, False)
+
+        # draw last handle on the right
+        self.draw_handle(widget, wwidth, True)
         
-        return False
-    
-        ##Draw some handles##                        
-        for seg in self.grad.segments:
-            s_lpos = (seg.left.pos+(1-self.grad.offset)) * self.grad.num
-            s_rpos = (seg.right.pos+(1-self.grad.offset)) * self.grad.num
-            
-            if s_lpos > self.grad.num:
-                s_lpos -= self.grad.num
-            elif s_lpos < 0:
-                s_lpos += self.grad.num
-            if s_rpos > self.grad.num:
-                s_rpos -= self.grad.num
-            elif s_rpos < 0:
-                s_rpos += self.grad.num
-            
-            s_lpos += 4
-            s_rpos += 4
-            
-            wgc=widget.style.white_gc
-            bgc=widget.style.black_gc
-            
+        if 0:
             index=self.grad.segments.index(seg)
             
             #A vast ugliness that should draw the selected handle with a white centre.
@@ -204,6 +246,9 @@ class ColorDialog(dialog.T):
         if not self.grad.name:
             self.grad.name = mapfile
 
+        self.redraw()
+        
+    def redraw(self):
         allocation = self.gradarea.allocation
         self.redraw_rect(self.gradarea,
                          0,0,allocation.width, allocation.height)
@@ -242,8 +287,23 @@ class ColorDialog(dialog.T):
             iter = self.map_list.append ()
             self.map_list.set (iter, 0, k)
 
+    def onRefresh(self):
+        print "not implemented"
+
+    def onApply(self):
+        self.f.set_gradient(copy.copy(self.grad))
+        
     def onResponse(self,widget,id):
         if id == gtk.RESPONSE_CLOSE or \
                id == gtk.RESPONSE_NONE or \
                id == gtk.RESPONSE_DELETE_EVENT:
             self.hide()
+        elif id == gtk.RESPONSE_APPLY:
+            self.onApply()
+        elif id == gtk.RESPONSE_OK:
+            self.onApply()
+            self.hide()
+        elif id == ColorDialog.RESPONSE_REFRESH:
+            self.onRefresh()
+        else:
+            print "unexpected response %d" % id

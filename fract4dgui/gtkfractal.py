@@ -148,6 +148,10 @@ class T(gobject.GObject):
     def copy_f(self):
         return copy.copy(self.f)
 
+    def set_gradient(self, g):
+        self.f.gradient = g
+        self.changed(False)
+        
     def set_formula(self, fname, formula):
         ok = True
         if self.f == None:
