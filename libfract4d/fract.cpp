@@ -678,7 +678,7 @@ void
 fractal::recolor(IImage *im)
 {
 
-    pointFunc *p = pointFunc_new(
+    pointFunc *p = pointFunc::create(
         pIterFunc,
         bailout_type,
         params[BAILOUT],

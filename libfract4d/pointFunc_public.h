@@ -57,6 +57,18 @@ class iterFunc;
 /* interface for function object which computes and/or colors a single point */
 class pointFunc {
  public:
+    /* factory method for making new pointFuncs */
+    static pointFunc *create(
+	iterFunc *iterType, 
+	e_bailFunc bailType,
+	double eject,
+	double periodicity_tolerance,
+	colorizer *pcf,
+	e_colorFunc outerCfType,    
+	e_colorFunc innerCfType);
+	
+    virtual ~pointFunc() {};
+    //virtual pointFunc *clone() const = 0;
     virtual void calc(
         // in params. params points to [x,y,cx,cy]
         const double *params, int nIters, int nNoPeriodIters,
@@ -64,19 +76,9 @@ class pointFunc {
 	int x, int y, int aa,
         // out params
         struct rgb *color, int *pnIters, void *out_buf
-        ) = 0;
+        ) const = 0;
     virtual rgb_t recolor(int iter, double eject, const void *buf) const = 0;
     virtual int buffer_size() const = 0;
 };
-
-/* factory method for making new pointFuncs */
-pointFunc *pointFunc_new(
-    iterFunc *iterType, 
-    e_bailFunc bailType,
-    double eject,
-    double periodicity_tolerance,
-    colorizer *pcf,
-    e_colorFunc outerCfType,    
-    e_colorFunc innerCfType);
 
 #endif

@@ -78,7 +78,7 @@ public:
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        struct rgb *color, int *pnIters, void *out_buf)
+        struct rgb *color, int *pnIters, void *out_buf) const
 	{
 	    double colorDist=-777.4;
 
@@ -107,7 +107,7 @@ public:
 		return m_pOuterColor;
 	    }
 	}
-    inline double colorize(int iter, const double *p, void *out_buf)
+    inline double colorize(int iter, const double *p, void *out_buf) const
         {
             double colorDist;
 	    colorFunc *pcf = getColorFunc(iter);
@@ -129,7 +129,8 @@ public:
 	}
 };
 
-pointFunc *pointFunc_new(
+
+pointFunc *pointFunc::create(
     iterFunc *iterType, 
     e_bailFunc bailType, 
     double bailout,
@@ -149,7 +150,7 @@ pointFunc *pointFunc_new(
     {
 	code_map["NOPERIOD"]="1";
     }
-
+	    
     void *dlHandle = g_pCompiler->getHandle(code_map);
 
     // get a pointer to the pf_new function in the new .so
@@ -157,12 +158,12 @@ pointFunc *pointFunc_new(
 
     if(NULL == pFunc)
     {
-        return NULL;
+	return NULL;
     }
-
+	    
     // create a new pf_obj
     pf_obj *p = (*pFunc)();
-
+	    
     return new pf_wrapper(
 	p,
 	bailout,
@@ -170,10 +171,3 @@ pointFunc *pointFunc_new(
 	iterType->opts(),
 	pcf, dlHandle, outerCfType, innerCfType);
 }
-
-void
-pointFunc_delete(pointFunc *pF)
-{
-    delete pF;
-}
-

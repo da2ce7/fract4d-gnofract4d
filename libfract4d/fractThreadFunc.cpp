@@ -10,7 +10,7 @@ fractThreadFunc::init(fractFunc *ff_,fractal_t *f_, IImage *im_)
     f = f_;
     im = im_;
 
-    pf = pointFunc_new(
+    pf = pointFunc::create(
         f->pIterFunc, 
         f->bailout_type, 
         f->params[BAILOUT], 
