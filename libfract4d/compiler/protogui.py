@@ -3,6 +3,7 @@
 import sys
 import os
 import struct
+import math
 
 import gtk
 import gobject
@@ -132,9 +133,18 @@ class GuiFractal(Threaded):
         self.redraw_rect(r.x,r.y,r.width,r.height)
 
     def onButtonRelease(self,widget,event):
+        if event.button == 1:
+            zoom = 0.5
+        elif event.button == 2:
+            zoom = 1.0
+            self.params[self.XZANGLE] += math.pi / 2
+            self.params[self.YWANGLE] += math.pi / 2
+        else:
+            zoom = 2.0
+            
         print "click (%d,%d)" % (event.x, event.y)
         self.interrupt()        
-        self.recenter(event.x,event.y,0.5)
+        self.recenter(event.x,event.y,zoom)
         self.draw_image(False)
 
     def recenter(self,x,y,zoom):
