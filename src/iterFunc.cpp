@@ -362,7 +362,7 @@ public:
 class barnsleyFunc: public iterImpl<barnsleyFunc,0>
 {
 public:
-    enum {  FLAGS = 0 };
+    enum {  FLAGS = NO_UNROLL };
     barnsleyFunc() : iterImpl<barnsleyFunc,0>(name()) {};
 
     static char *name()
@@ -396,7 +396,7 @@ public:
 class barnsley2Func: public iterImpl<barnsley2Func,0>
 {
 public:
-    enum {  FLAGS = 0 };
+    enum {  FLAGS = NO_UNROLL };
     barnsley2Func() : iterImpl<barnsley2Func,0>(name()) {};
 
     static const char *name()

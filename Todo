@@ -35,7 +35,7 @@ Other
 * WW	preview .fcts in open dialog
 * B 	invalid bailfunc # = crash
 * W	parameterize buffalo
-* B	odd artifacts on default Barnsley T2
+
 
 Movies-
 * B	deadlock when render movie while image is being drawn
@@ -56,6 +56,7 @@ Must do pre 1.7
 
 
 Done:
+* B	odd artifacts on default Barnsley T2
 * B	caduceus.fct broken
 * W	parameterize + fix newton 
 * W 	Keyboard
