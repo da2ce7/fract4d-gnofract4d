@@ -7,6 +7,7 @@ import gtk
 import gobject
 
 _colors = None
+_color_model = None
 
 def show_colors(parent,f):
     global _colors
@@ -14,26 +15,21 @@ def show_colors(parent,f):
         _colors = ColorDialog(parent,f)
     _colors.show_all()
     _colors.present()
-    
-class ColorDialog(gtk.Dialog):
-    def __init__(self,main_window,f):
-        global userPrefs
-        gtk.Dialog.__init__(
-            self,
-            "Color Maps",
-            main_window,
-            gtk.DIALOG_DESTROY_WITH_PARENT,
-            (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
-        self.f = f
+def _get_model():
+    global _color_model
+    if not _color_model:
+        _color_model = ColorModel()
+    return _color_model
 
-        self.set_size_request(200,500)
+def maps():
+    return _get_model().maps
+
+class ColorModel:
+    def __init__(self):
         self.maps = {}
-        sw = self.create_map_file_list()
-        self.vbox.add(sw)
-        self.connect('response',self.onResponse)
-        self.treeview.get_selection().unselect_all()
-
+        self.populate_file_list()
+        
     def add_directory(self,dirname):
         if not os.path.isdir(dirname):
             return
@@ -46,12 +42,30 @@ class ColorDialog(gtk.Dialog):
                 if self.maps.get(f):
                     continue # avoid duplicates
                 self.maps[f] = absfile
-                iter = self.map_list.append ()
-                self.map_list.set (iter, 0, f)
                 
     def populate_file_list(self):
         self.add_directory("maps")
         self.add_directory(os.path.join(sys.exec_prefix,"share/maps/gnofract4d"))
+
+class ColorDialog(gtk.Dialog):
+    def __init__(self,main_window,f):
+        global userPrefs
+        gtk.Dialog.__init__(
+            self,
+            "Color Maps",
+            main_window,
+            gtk.DIALOG_DESTROY_WITH_PARENT,
+            (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+
+        self.set_size_request(200,500)
+        
+        self.f = f
+        self.model = get_model()
+        sw = self.create_map_file_list()
+
+        self.vbox.add(sw)
+        self.connect('response',self.onResponse)
+        self.treeview.get_selection().unselect_all()
         
     def file_selection_changed(self,selection):
         (model,iter) = selection.get_selected()
@@ -60,7 +74,7 @@ class ColorDialog(gtk.Dialog):
             return
         
         mapfile = model.get_value(iter,0)
-        self.f.set_cmap(self.maps[mapfile])
+        self.f.set_cmap(self.model.maps[mapfile])
     
     def create_map_file_list(self):
         sw = gtk.ScrolledWindow ()
@@ -83,9 +97,16 @@ class ColorDialog(gtk.Dialog):
         selection.unselect_all()
         selection.connect('changed',self.file_selection_changed)
 
-        self.populate_file_list()
-        
+        self.update_list()
         return sw
+    
+    def update_list(self):
+        self.map_list.clear()
+        keys = self.model.maps.keys()
+        keys.sort()
+        for k in keys:
+            iter = self.map_list.append ()
+            self.map_list.set (iter, 0, k)
 
     def onResponse(self,widget,id):
         if id == gtk.RESPONSE_CLOSE or \
