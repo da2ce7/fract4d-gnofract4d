@@ -55,10 +55,8 @@ class Threaded(fractal.T):
         while self.running:
             n += 1
             gtk.main_iteration(True)
-        print "waited %d" % n
         
     def draw(self,image):
-        print "drawing with %s" % self.pfunc
         self.cmap = fract4d.cmap_create(self.colorlist)
         
         fract4d.pf_init(self.pfunc,0.001,self.initparams)
@@ -118,7 +116,6 @@ class GuiFractal(Threaded):
         self.compile()
         
     def draw_image(self,dummy):
-        print "draw image"
         self.draw(self.image)
         return gtk.FALSE
     
@@ -127,6 +124,9 @@ class GuiFractal(Threaded):
         #gtk.idle_add(self.redraw_rect,x1,y1,x2-y1,y2-y1)
         self.redraw_rect(x1,y1,x2-x1,y2-y1)
 
+    def progress_changed(self,progress):
+        self.widget.parent.bar.set_fraction(progress/100.0)
+        
     def onExpose(self,widget,exposeEvent):
         r = exposeEvent.area
         self.redraw_rect(r.x,r.y,r.width,r.height)
@@ -172,7 +172,7 @@ class MainWindow:
         self.compiler = g_comp
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
-        self.window.set_default_size(640+8,480+40)
+        #self.window.set_default_size(640+8,480+40)
         self.window.set_title('Gnofract 4D')
 
         self.accelgroup = gtk.AccelGroup()
@@ -183,9 +183,16 @@ class MainWindow:
 
         self.create_menu()
         self.create_fractal()
-
+        self.create_status_bar()
+        
         self.window.show_all()
 
+        self.statuses = [ "Done",
+                          "Calculating",
+                          "Deepening",
+                          "Antialiasing",
+                          "Paused" ]
+        
     def create_fractal(self):
         window = gtk.ScrolledWindow()
         window.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
@@ -194,9 +201,19 @@ class MainWindow:
             self.load(sys.argv[1])
 
         self.f.draw_image(None)
+        window.set_size_request(640+2,480+2)
         window.add_with_viewport(self.f.widget)
+        self.f.progress_changed = self.progress_changed
+        self.f.status_changed = self.status_changed
+        
         self.vbox.pack_start(window)
 
+    def progress_changed(self,progress):
+        self.bar.set_fraction(progress/100.0)
+
+    def status_changed(self,status):
+        self.bar.set_text(self.statuses[status])
+        
     def create_menu(self):
         menu_items = (
             ('/_File', None, None, 0, '<Branch>' ),
@@ -225,6 +242,10 @@ class MainWindow:
 
         self.vbox.pack_start(menubar, expand=gtk.FALSE)
 
+    def create_status_bar(self):
+        self.bar = gtk.ProgressBar()
+        self.vbox.pack_end(self.bar, expand=gtk.FALSE)
+        
     def save(self,action,widget):
         print "save"
 
