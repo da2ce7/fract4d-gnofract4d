@@ -299,7 +299,7 @@ static GnomeUIInfo edit_menu_uiinfo[] =
 
 static GnomeUIInfo help1_menu_uiinfo[] =
 {
-    GNOMEUIINFO_HELP ((void *)PACKAGE),
+    GNOMEUIINFO_HELP ((void *)PACKAGE "-manual"),
     GNOMEUIINFO_END
 };
 
