@@ -1,6 +1,5 @@
 todo for 2.0
 * BB	giger.fct - results of extangle are different vs 1.9
-* B	fn1..4 appear in random order in dialog box
 * W	explorer mode
 * WW	angle and 4way widgets
 * B	if load rgb colorizer .fct, report ValueError: Empty color array
@@ -27,7 +26,6 @@ todo for 2.0
 * B	other windows always in front - is that good?
 
 * WW	doc
-* B	footnotes are fucked in yelp
 
 * BB	some horror (closing settings window?) then applying formula gave:
 	(gnofract4d:29936): Gtk-CRITICAL **: file gtkcontainer.c: line 880 
@@ -54,6 +52,7 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* B	fn1..4 appear in random order in dialog box
 * B	shrink image while drawing: python: fract4d/c/image.cpp:40: virtual void image::put(int, int, s_rgba): Assertion `off + 2 < bytes()' failed.
 * B	load frm not on search path, undo = IOError "can't find formula file"
 * B	setting inner func has no effect
@@ -116,6 +115,7 @@ done:
 * W	user parameter functions
 
 postponed
+* B	footnotes are fucked in yelp (have removed them)
 * BB	seaslug.fct - diff bailout for quadratic
 * B	coolness.fct - need direct coloring algorithm
 * BB	deeper.fct, hive.fct, image.fct doesn't load properly - old format

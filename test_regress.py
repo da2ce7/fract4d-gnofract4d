@@ -22,6 +22,10 @@ good_files = [
     "compass_rose.fct",
     "crest.fct",
     "cubicspiral.fct",
+    "towers.fct",
+    "valley_of_obvious_errors.fct",
+    "shattered.fct",
+    
 ]
 
 bad_files = [
