@@ -114,6 +114,7 @@ def _periodText(seconds):
         return "%d seconds" % seconds
     
 class SaveConfirmationAlert(ConfirmationAlert):
+    NOSAVE = ConfirmationAlert.ALTERNATE
     def __init__(self,
                  document_name,
                  time_period=-1,

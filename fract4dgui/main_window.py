@@ -11,7 +11,7 @@ from fract4d import fractal,fc,fract4dc
 
 
 import gtkfractal, model, preferences, autozoom, settings
-import colors, undo, browser, fourway, angle, utils
+import colors, undo, browser, fourway, angle, utils, hig
 
 class MainWindow:
     def __init__(self):
@@ -196,11 +196,14 @@ class MainWindow:
         if self.f.thaw():
             self.draw()
 
-    def set_window_title(self):
+    def display_filename(self):
         if self.filename == None:
-            title = _("(Untitled %s)") % self.f.funcName
+            return _("(Untitled %s)") % self.f.funcName
         else:
-            title = self.filename
+            return self.filename
+        
+    def set_window_title(self):
+        title = self.display_filename()
         if not self.f.saved:
             title += "*"
             
@@ -837,28 +840,33 @@ class MainWindow:
             return False
 
     def check_save_fractal(self):
-        msg = _("Do you want to save the current parameters before quitting?")
+        "Prompt user to save if necessary. Return whether to quit"
         while not self.f.is_saved():
-            d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                                  gtk.MESSAGE_QUESTION,
-                                  gtk.BUTTONS_YES_NO,
-                                  msg)
+            d = hig.SaveConfirmationAlert(
+                self.display_filename(),-1,self.window)
+            
             response = d.run()                
             d.destroy()
-            if response == gtk.RESPONSE_YES:
+            if response == gtk.RESPONSE_ACCEPT:
                 self.save(None,None)
-            elif response == gtk.RESPONSE_NO:
-                return
-            
+            elif response == gtk.RESPONSE_CANCEL:
+                return False
+            elif response == hig.SaveConfirmationAlert.NOSAVE:
+                break
+        return True
+    
     def about(self,action,widget):
         self.display_help("about")
 
     def quit(self,action,widget=None):
+        self.f.interrupt()
+        for f in self.subfracts:
+            f.interrupt()
+        if not self.check_save_fractal():
+            # user doesn't want to quit after all
+            return
+        
         try:
-            self.f.interrupt()
-            for f in self.subfracts:
-                f.interrupt()
-            self.check_save_fractal()
             preferences.userPrefs.save()
             self.compiler.clear_cache()
         finally:
