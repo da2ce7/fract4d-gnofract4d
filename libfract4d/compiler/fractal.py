@@ -21,6 +21,8 @@ import fract4d
 #   BAILOUT_DIFF
 # e_bailFunc;
 
+rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
+
 # generally useful funcs for reading in .fct files
 class FctUtils:
     def __init__(self):
@@ -79,6 +81,21 @@ class Colorizer(FctUtils):
             c = (float(i)/(nc-1),int(r,16),int(g,16),int(b,16),255)
             self.colorlist.append(c)
             i+= 1
+
+    def parse_file(self,val,f):
+        mapfile = open(val)
+        print mapfile
+        i = 0
+        for line in mapfile:
+            m = rgb_re.match(line)
+            if m != None:
+                self.colorlist.append((i/256.0,
+                                       int(m.group(1)),
+                                       int(m.group(2)),
+                                       int(m.group(3)),
+                                       255))
+            i += 1
+
         
 class T(FctUtils):
     def __init__(self,compiler):
@@ -214,6 +231,11 @@ class T(FctUtils):
         self.funcName = val
         self.set_formula("gf4d.frm",self.funcName)
 
+    def parse__colors_(self,val,f):
+        cf = Colorizer()
+        cf.load(f)        
+        self.colorlist = cf.colorlist
+        
     def parse__colorizer_(self,val,f):
         which_cf = int(val)
         cf = Colorizer()
@@ -282,3 +304,26 @@ class T(FctUtils):
                 self.parseVal(name,val,f)
             
             line = f.readline()
+
+if __name__ == '__main__':
+    import sys
+    import fc
+    sys.path.append("build/lib.linux-i686-2.2") # FIXME
+    import fract4d
+
+    # centralized to speed up tests
+    g_comp = fc.Compiler()
+    g_comp.load_formula_file("./gf4d.frm")
+    g_comp.load_formula_file("test.frm")
+    g_comp.load_formula_file("gf4d.cfrm")
+
+    for arg in sys.argv[1:]:
+        file = open(arg)
+        f = T(g_comp)
+        f.loadFctFile(file)
+        f.compile()
+        image = fract4d.image_create(640,480)
+        f.draw(image)
+        fract4d.image_save(image,os.path.basename(arg) + ".tga")
+
+        
