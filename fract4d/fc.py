@@ -89,6 +89,10 @@ class Compiler:
     
     def find_file(self,filename):
         if os.path.exists(filename):
+            dir = os.path.dirname(filename)
+            if self.file_path.count(dir) == 0:
+                # add directory to search path
+                self.file_path.append(dir)            
             return filename
         for path in self.file_path:
             f = os.path.join(path,filename)

@@ -2,6 +2,7 @@ todo for 2.0
 * BB	giger.fct - results of extangle are different vs 1.9
 * B	fn1..4 appear in random order in dialog box
 * W	explorer mode
+* WW	angle and 4way widgets
 * B	if load rgb colorizer .fct, report ValueError: Empty color array
 
 * BB	more robust error reporting
@@ -12,6 +13,8 @@ todo for 2.0
 
 * W	exact SMP equality test
 * W	end-to-end regression test vs V1.9
+* W	regression test vs fractint
+
 * W	formula browser
 	manage search path (user prefs)
 	edit & continue
@@ -32,9 +35,9 @@ todo for 2.0
 * B	3damand01.fct gives "list index out of range" when loaded. It tries 
 	to set parameters which don't exist
 
-* B	shrink image while drawing: python: fract4d/c/image.cpp:40: virtual void image::put(int, int, s_rgba): Assertion `off + 2 < bytes()' failed.
 * BB	horrible_drawing_bug.fct - zoom out & it looks very different
-* B	load frm not on search path, undo = IOError "can't find formula file"
+* B	change width or setting to something which isn't a number/float: 
+	ValueError in set_prefs, set_initparam etc
 
 differences from fractint:
 * B	3rdim05 - default params bulge with fractint. They use sin() as default
@@ -48,6 +51,8 @@ differences from fractint:
 * B	click on GaussianInteger cfrm = print out some stuff
 
 done:
+* B	shrink image while drawing: python: fract4d/c/image.cpp:40: virtual void image::put(int, int, s_rgba): Assertion `off + 2 < bytes()' failed.
+* B	load frm not on search path, undo = IOError "can't find formula file"
 * B	setting inner func has no effect
 * B	zooming broken if y-axis is flipped
 * B	ejection_distance broken (Errors:
