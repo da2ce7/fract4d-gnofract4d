@@ -62,8 +62,7 @@ class NodeIter:
         self.nodestack.append((node.children[child],-1))                
         
         return ret
-                    
-
+    
 def CheckTree(tree, nullOK=0):
     if nullOK and tree == None:
         return 1
