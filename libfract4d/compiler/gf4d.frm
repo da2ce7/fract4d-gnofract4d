@@ -170,3 +170,18 @@ bailout:
 	|z - last| > 1.0e-9
 }
 
+Nova {
+loop:
+	last = z
+	z = z - (@p1 * z * z * z - @p2)/(@p3 * z * z) + #pixel
+bailout:
+	|z - last| > 1.0e-9
+}
+
+
+Tetrate {
+loop:
+	z = #pixel^z
+bailout:
+	|z| < 4.0
+}

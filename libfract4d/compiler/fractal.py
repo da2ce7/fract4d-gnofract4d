@@ -240,7 +240,23 @@ class T(FctUtils):
             re = float(m.group(1)); im = float(m.group(2))
             print "%g,%g" % (re,im)
             self.initparams += [re,im]
-        
+
+    def parse_func_b(self,val,f):
+        # a complex arg in the form (x,y)
+        m = cmplx_re.match(val)
+        if m != None:
+            re = float(m.group(1)); im = float(m.group(2))
+            print "%g,%g" % (re,im)
+            self.initparams += [re,im]
+
+    def parse_func_c(self,val,f):
+        # a complex arg in the form (x,y)
+        m = cmplx_re.match(val)
+        if m != None:
+            re = float(m.group(1)); im = float(m.group(2))
+            print "%g,%g" % (re,im)
+            self.initparams += [re,im]
+
     def parse__colors_(self,val,f):
         cf = Colorizer()
         cf.load(f)        
