@@ -149,7 +149,7 @@ int a = 1
 loop:
 z = z + a
 }''', "loop")
-        #self.printAsm()
+        self.printAsm()
 
 
     def testFormatString(self):
@@ -174,7 +174,7 @@ z = z + a
     def printAsm(self):
         for i in self.codegen.out:
             try:
-                print i
+                #print i
                 print i.format()
             except Exception, e:
                 print "Can't format %s:%s" % (i,e)

@@ -41,6 +41,7 @@ class T:
 
 class Exp(T):
     def __init__(self, node, datatype):
+        assert(datatype != None)
         T.__init__(self, node, datatype)
 
 class Const(Exp):
@@ -99,23 +100,18 @@ class ESeq(Exp):
     def __init__(self, stms, exp, node, datatype):
         Exp.__init__(self, node, datatype)
         self.children = stms + [ exp ]
-    
+
+class Move(Exp):
+    def __init__(self, dest, exp, node, datatype):
+        Exp.__init__(self, node, datatype)
+        self.children = [dest,exp]
+
 # stm and subtypes
 # side effects + flow control
 
 class Stm(T):
     def __init__(self, node, datatype): 
         T.__init__(self, node, datatype)
-
-class Move(Stm):
-    def __init__(self, dest, exp, node, datatype):
-        Stm.__init__(self, node, datatype)
-        self.children = [dest,exp]
-    
-class SExp(Stm):
-    def __init__(self, exp, node, datatype):
-        Stm.__init__(self, node, datatype)
-        self.exp = exp
     
 class Jump(Stm):
     def __init__(self,dest, node):

@@ -91,6 +91,7 @@ class Func:
 
 class Var:
     def __init__(self,type,value=None,pos=-1):
+        assert(type != None)
         self.type = type
         if value == None:
             self.value = default_value(type)
