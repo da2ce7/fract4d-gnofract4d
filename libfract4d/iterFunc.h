@@ -79,7 +79,7 @@ class iterFunc {
 
 typedef struct {
     const char *name;
-    iterFunc *(*ctor)();
+    iterFunc *(*ctor)(const char *name);
 } ctorInfo;
 
 const ctorInfo *iterFunc_names();

@@ -79,7 +79,7 @@ fractal::fractal()
 {
     // set fractal type to first type in list
     const ctorInfo *names = iterFunc_names();
-    pIterFunc = names[0].ctor();
+    pIterFunc = iterFunc::create(names[0].name);
 
     reset();
 
@@ -91,8 +91,11 @@ fractal::fractal()
 	
     cizer = colorizer_new(COLORIZER_RGB);
     bailout_type=bailFunc_new(BAILOUT_MAG);
+
     colorFuncs[OUTER]=COLORFUNC_CONT;
     colorFuncs[INNER]=COLORFUNC_ZERO;
+
+    assert(bailout_type > (void *)0x4);
 }
 
 /* dtor */
@@ -118,7 +121,7 @@ fractal::copy(const fractal& f)
     }
     maxiter = f.maxiter;
 
-    pIterFunc = f.pIterFunc->clone();
+    set_iterFunc(f.pIterFunc);
 
     antialias = f.antialias;
     auto_deepen = f.auto_deepen;
@@ -127,7 +130,8 @@ fractal::copy(const fractal& f)
 
     rot = f.rot;
 
-    cizer = f.cizer->clone();
+    set_colorizer(f.cizer);
+
     for(int i = 0; i < N_COLORFUNCS; ++i)
     {
         colorFuncs[i] = f.colorFuncs[i];
@@ -136,33 +140,19 @@ fractal::copy(const fractal& f)
 }
 
 /* copy ctor */
-IFractal *IFractal::clone(const IFractal *f)
+IFractal *fractal::clone()
 {
-    IFractal *nf = IFractal::create();
-    for(int i = 0; i < N_PARAMS; ++i)
-    {
-	nf->set_param((param_t)i,f->get_param((param_t)i));
-    }
-    nf->set_max_iterations(f->get_max_iterations());
-    nf->set_iterFunc(f->get_iterFunc()->clone());
-    nf->set_aa(f->get_aa());
-    nf->set_auto(f->get_auto());
-    
-    // FIXME: doesn't copy digits, rot_by, rot, eaa
-    nf->set_colorizer(f->get_colorizer());
-    
-    for(int i = 0; i < N_COLORFUNCS; ++i)
-    {
-        nf->set_colorFunc(f->get_colorFunc(i),i);
-    }
-    
-    nf->set_bailFunc(f->get_bailFunc());
-    
-    return nf;
+    return new fractal(*this);
 }
 
 fractal::fractal(const fractal& f)
 {	
+    // ensure these are initialized to something that is
+    // safe to be deleted
+    pIterFunc = NULL;
+    cizer = NULL;
+    bailout_type = NULL;
+
     copy(f);
 }
 
@@ -171,8 +161,6 @@ fractal::operator=(const fractal& f)
 {
     if(&f != this)
     {
-        colorizer_delete(&cizer);
-        delete pIterFunc;
         copy(f);
     }
     return *this;
@@ -370,7 +358,7 @@ fractal::write_params(const char *filename) const
 
     os << FIELD_MAXITER << "=" << maxiter << "\n";
     os << FIELD_AA << "=" << (int) antialias << "\n";
-    os << FIELD_BAILFUNC << "=" << (int) bailout_type << "\n";
+    os << FIELD_BAILFUNC << "=" << (int) bailout_type->type() << "\n";
     os << FIELD_INNER << "=" << (int) colorFuncs[INNER] << "\n";
     os << FIELD_OUTER << "=" << (int) colorFuncs[OUTER] << "\n";
     os << SECTION_ITERFUNC << "\n" << *pIterFunc;
@@ -433,7 +421,11 @@ fractal::load_params(const char *filename)
         else if(FIELD_AA==name)
             vs >> (int&)antialias;
         else if(FIELD_BAILFUNC==name)
-            vs >> (int&)bailout_type;
+	{
+	    e_bailFunc bf;
+            vs >> (int&)bf;
+	    set_bailFunc(bf);
+	}
         else if(FIELD_INNER==name)
             vs >> (int&)colorFuncs[INNER];
         else if(FIELD_OUTER==name)
@@ -714,6 +706,7 @@ fractal::tolerance(IImage *im)
 e_bailFunc
 fractal::get_bailFunc() const
 {
+    assert(bailout_type > (void *)0x4);
     return bailout_type->type();
 }
 
@@ -722,6 +715,7 @@ fractal::set_bailFunc(e_bailFunc bf)
 {
     delete bailout_type;
     bailout_type = bailFunc_new(bf);
+    assert(bailout_type > (void *)0x4);
 }
 
 void 

@@ -107,7 +107,7 @@ public:
     /* because you can't get a function pointer to a constructor (for no
        good reason that I can determine), we have a static member function
        called create which performs the construction for us. */
-    static iterFunc *create()
+    static iterFunc *create(const char *name)
         {
             return new T();
         }
@@ -772,7 +772,7 @@ iterFunc *iterFunc::create(const char *name)
     {
         if(0 == strcmp(name,p->name))
         {
-            return p->ctor();
+            return p->ctor(name);
         }
         p++;
     }

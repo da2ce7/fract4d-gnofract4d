@@ -84,8 +84,8 @@ class IFractal
 public:
     // factory method in lieu of ctor
     static IFractal *create();
-    // equivalent to copy ctor
-    static IFractal *clone(const IFractal *f); 
+ 
+    virtual IFractal *clone()=0; 
 
     virtual IFractal& operator=(const IFractal& f) =0; // assignment op
     virtual bool operator==(const IFractal& f) const =0; // equality 

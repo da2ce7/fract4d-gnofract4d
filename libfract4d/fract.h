@@ -46,13 +46,14 @@ private:
     // color params
     colorizer *cizer;
 
-    bailFunc *bailout_type;    
+
     e_colorFunc colorFuncs[N_COLORFUNCS];
     iterFunc *pIterFunc;
 
     // parameters beyond this point aren't saved
     int nThreads;
     e_antialias eaa;
+    bailFunc *bailout_type;    
 
 private:
 
@@ -69,6 +70,8 @@ public:
     // member funs
     fractal();
     fractal(const fractal& f); // copy ctor
+    IFractal *clone();
+
     fractal& operator=(const fractal& f); // assignment op
     IFractal& operator=(const IFractal& f);
     bool operator==(const fractal& f) const; // equality 

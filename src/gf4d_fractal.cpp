@@ -4,6 +4,7 @@
 #include <gtk/gtksignal.h>
 #include "gf4d_utils.h"
 #include "tls.h"
+#include <cassert>
 
 static void gf4d_fractal_class_init               (Gf4dFractalClass    *klass);
 static void gf4d_fractal_init                     (Gf4dFractal         *dial);
@@ -273,7 +274,7 @@ void gf4d_fractal_move(Gf4dFractal *f, param_t i, double direction)
 IFractal *gf4d_fractal_copy_fract(Gf4dFractal *f)
 {
     kill_slave_threads(f);
-    return IFractal::clone(f->f);
+    return f->f->clone();
 }
 
 void gf4d_fractal_set_fract(Gf4dFractal *gf, IFractal * f)
@@ -584,9 +585,12 @@ void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val)
 
 Gf4dFractal *gf4d_fractal_copy(Gf4dFractal *f)
 {
+    assert(f != NULL && f->f != NULL);
     /* not a full copy : doesn't get image buffer */
     Gf4dFractal *fnew = GF4D_FRACTAL(gf4d_fractal_new());
-    fnew->f = IFractal::clone(f->f);
+    assert(fnew != NULL);
+    
+    fnew->f = f->f->clone();
 	
     fnew->im = new image();
     /*
