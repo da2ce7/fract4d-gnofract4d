@@ -300,14 +300,13 @@ class PfTest(unittest.TestCase):
 
         # change cmap, draw same pixel again, check color changes
         cmap = fract4dc.cmap_create(
-            [(0.0,100,101,102,255),
-             (1/256.0,188,196,212,255),
-             (1.0, 79, 88, 41, 255)])
-
+            [(1.0, 79, 88, 41, 255)])
+        fract4dc.cmap_set_solid(cmap,1,100,101,102,255)
+        
         (fw,ff,site,handle,pfunc) = self.makeWorkerAndFunc(image,cmap)
 
         fract4dc.fw_pixel(fw,0,0,1,1)
-        self.assertPixelIs(iw,0,0,[iw.OUT]+[iw.UNKNOWN]*3, [100,101,102])
+        self.assertPixelIs(iw,0,0,[iw.OUT]+[iw.UNKNOWN]*3, [79,88,41])
 
         fract4dc.fw_pixel(fw,2,2,1,1)
         self.assertPixelIs(
