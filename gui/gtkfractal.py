@@ -188,7 +188,6 @@ class T(gobject.GObject):
                 return False
             
             set_entry(self)
-            widget.handler_id = self.connect('parameters-changed',set_entry)
             widget.connect('focus-out-event',set_fractal)
         else:
             raise "Unsupported parameter type"
@@ -255,7 +254,7 @@ class T(gobject.GObject):
                 return
             
             widget.set_history(index)
-
+            
         def set_fractal_function(*args):
             index = widget.get_history()
             if index != -1:
@@ -263,9 +262,6 @@ class T(gobject.GObject):
                 self.set_func(param,fname)
                 
         set_selected_function()
-        
-        widget.handler_id = self.connect(
-            'parameters-changed',set_selected_function)
         
         widget.connect('changed',set_fractal_function)
         
@@ -286,7 +282,7 @@ class T(gobject.GObject):
             return False
         
         set_entry(self)
-        self.connect('parameters-changed',set_entry)
+
         widget.connect('focus-out-event',set_fractal)
 
         table.attach(widget,1,2,i,i+1,0,0,2,2)

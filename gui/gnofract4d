@@ -53,12 +53,22 @@ class MainWindow:
         self.window.add(self.vbox)
         
         self.f = gtkfractal.T(self.compiler)
-
+        
         self.set_filename(None)
         
         if len(sys.argv) > 1:
             self.load(sys.argv[1])
 
+        else:
+            try:
+                # try to make default image more interesting
+                self.f.set_cmap(os.path.join(
+                    sys.exec_prefix,
+                    "share/maps/gnofract4d",
+                    "basic.map"))
+            except:
+                pass
+            
         self.model = model.Model(self.f)
 
         preferences.userPrefs.connect('preferences-changed',
@@ -151,27 +161,47 @@ class MainWindow:
     def create_menu(self):
         menu_items = (
             ('/_File', None, None, 0, '<Branch>' ),
-            ('/File/_Open...', '<control>O', self.open, 0, '<StockItem>', gtk.STOCK_OPEN),
-            ('/File/_Save', '<control>S', self.save, 0, '<StockItem>', gtk.STOCK_SAVE),
-            ('/File/Save _As...', '<control><shift>S', self.saveas, 0, '<StockItem>', gtk.STOCK_SAVE_AS),
-            ('/File/Save _Image', '<control>I', self.save_image, 0, ''),
-            ('/File/sep1', None, None, 0, '<Separator>'),
-            ('/File/_Quit', '<control>Q', self.quit, 0, '<StockItem>', gtk.STOCK_QUIT),   
+            ('/File/_Open Parameter File...', '<control>O',
+             self.open, 0, '<StockItem>', gtk.STOCK_OPEN),
+            ('/File/Open _Formula File...', '<control><shift>O',
+             self.open_formula, 0, ''),
+            ('/File/_Save', '<control>S',
+             self.save, 0, '<StockItem>', gtk.STOCK_SAVE),
+            ('/File/Save _As...', '<control><shift>S',
+             self.saveas, 0, '<StockItem>', gtk.STOCK_SAVE_AS),
+            ('/File/Save _Image', '<control>I',
+             self.save_image, 0, ''),
+            ('/File/sep1', None,
+             None, 0, '<Separator>'),
+            ('/File/_Quit', '<control>Q',
+             self.quit, 0, '<StockItem>', gtk.STOCK_QUIT),   
 
-            ('/_Edit', None, None, 0, '<Branch>'),
-            ('/Edit/_Fractal Settings...','<control>F',self.settings, 0, ''),
-            ('/Edit/_Colors...', '<control>L', self.colors, 0, ''),
-            ('/Edit/_Preferences...', None, self.preferences, 0, '<StockItem>', gtk.STOCK_PREFERENCES),
-            ('/Edit/_Undo', '<control>Z', self.undo, 0, ''),
-            ('/Edit/_Redo', '<control>Y', self.redo, 0, ''),
-            ('/Edit/R_eset', 'Home', self.reset, 0, '<StockItem>', gtk.STOCK_HOME),
+            ('/_Edit', None,
+             None, 0, '<Branch>'),
+            ('/Edit/_Fractal Settings...','<control>F',
+             self.settings, 0, ''),
+            ('/Edit/_Colors...', '<control>L',
+             self.colors, 0, ''),
+            ('/Edit/_Preferences...', '<control>P',
+             self.preferences, 0, '<StockItem>', gtk.STOCK_PREFERENCES),
+            ('/Edit/_Undo', '<control>Z',
+             self.undo, 0, ''),
+            ('/Edit/_Redo', '<control>Y',
+             self.redo, 0, ''),
+            ('/Edit/R_eset', 'Home',
+             self.reset, 0, '<StockItem>', gtk.STOCK_HOME),
 
-            ('/_Tools', None, None, 0, '<Branch>'),
-            ('/_Tools/_Autozoom', '<control>A', self.autozoom, 0, ''),
+            ('/_Tools', None,
+             None, 0, '<Branch>'),
+            ('/_Tools/_Autozoom', '<control>A',
+             self.autozoom, 0, ''),
 
-            ('/_Help', None, None, 0, '<Branch>'),
-            ('/_Help/Contents', 'F1', self.contents, 0, ''),
-            ('/Help/_About', None, self.about, 0, ''),
+            ('/_Help', None,
+             None, 0, '<Branch>'),
+            ('/_Help/_Contents', 'F1',
+             self.contents, 0, ''),
+            ('/Help/_About', None,
+             self.about, 0, ''),
             )
     
         item_factory = gtk.ItemFactory(gtk.MenuBar, '<main>', self.accelgroup)
@@ -342,6 +372,22 @@ class MainWindow:
 
         os.system("yelp ghelp://%s%s 2>/dev/null &" % (abs_file, anchor))
 
+    def open_formula(self,action,widget):
+        fs = gtk.FileSelection("Open Formula File")
+        fs.show_all()
+        fs.complete("*.frm")
+        
+        while True:
+            result = fs.run()            
+            if result == gtk.RESPONSE_OK:
+                if self.load_formula(fs.get_filename()):
+                    break
+            else:
+                break
+            
+        fs.destroy()
+        
+    
     def open(self,action,widget):
         fs = gtk.FileSelection("Open Parameter File")
         fs.show_all()
@@ -365,7 +411,15 @@ class MainWindow:
         except Exception, err:
             self.show_error_message("Error opening %s: '%s'" % (file, err))
             return False
-        
+
+    def load_formula(self,file):
+        try:
+            self.compiler.load_formula_file(file)
+            return True
+        except Exception, err:
+            self.show_error_message("Error opening %s: '%s'" % (file, err))
+            return False
+
     def about(self,action,widget):
         self.display_help("about")
 

@@ -58,25 +58,17 @@ class SettingsDialog(gtk.Dialog):
         vbox.pack_start(table)
         
         self.table2 = None
-        def add_current_formula_parameters(*args):
+        def update_formula_parameters(*args):
             if self.table2 != None:
-                # ensure old children are not called back -
-                # this can happen even after they're destroyed, which is odd
-                for child in self.table2.get_children():
-                    hid = getattr(child,"handler_id",None)
-                    if hid != None:
-                        self.f.disconnect(hid)
-                    
                 self.table2.destroy()
                 
             self.table2 = self.f.populate_formula_settings()
             self.table2.show_all()
             vbox.pack_start(self.table2)
-
-        # this handler must be attached first before populating table
-        self.f.connect('parameters-changed',add_current_formula_parameters)
         
-        add_current_formula_parameters()
+        update_formula_parameters()
+
+        self.f.connect('parameters-changed', update_formula_parameters)
         
         self.notebook.append_page(vbox,gtk.Label("Formula"))
 
