@@ -18,7 +18,7 @@ class ParserTest(unittest.TestCase):
         self.failUnless(absyn.CheckTree(tree))
         #print tree.pretty()
 
-    def testFormula(self):
+    def testEmptyFormula(self):
         tree = self.parser.parse("t1 {\n}\n")
         self.failUnless(absyn.CheckTree(tree))
         formula = tree.children[0]
@@ -42,7 +42,27 @@ class ParserTest(unittest.TestCase):
         self.failUnless(err.type == "error")
         self.assertNotEqual(re.search("line 2",err.leaf),None,
                             "bad error mesage line number") 
+
+    def testPrecedence(self):
+        tree = self.parser.parse('''t2 {
+init:
+x = 2 * 3 + 1 ^ 7 / 2 - 4
+}
+''')
+        explicit_tree = self.parser.parse('''t2 {
+init:
+x = ((2 * 3) + ((1 ^ 7) / 2)) - 4
+}
+''')
+        # linearize both trees and check that they're equivalent
+        eqs = [ (x.leaf == y.leaf and x.type == y.type) for (x,y) in zip(tree, explicit_tree) ]
+        # are any nodes not equal?
+        self.assertEqual(eqs.count(0),0, "should be no false matches")
         
+        #print tree.pretty()
+        #for node in tree:
+        #    print node
+
 def suite():
     return unittest.makeSuite(ParserTest,'test')
 
