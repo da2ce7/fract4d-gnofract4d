@@ -522,8 +522,13 @@ class T(UserDict):
             msg = ("was already defined on line %d" % l)
             raise KeyError, ("symbol '%s' %s" % (key,msg))
         elif T.default_dict.has_key(k):
-            msg = "is predefined"
-            raise KeyError, ("symbol '%s' %s" % (key,msg))
+            pre_var = T.default_dict[k]
+            if isinstance(pre_var,OverloadList):
+                msg = "is predefined as a function"
+                raise KeyError, ("symbol '%s' %s" % (key,msg))
+            if pre_var.type != value.type:
+                msg = "is predefined as %s" % strOfType(T.default_dict[k].type)
+                raise KeyError, ("symbol '%s' %s" % (key,msg))
         elif string.find(k,"t__",0,3)==0 and not key[0]=='@':
             raise KeyError, \
                   ("symbol '%s': no symbol starting with t__ is allowed" % key)

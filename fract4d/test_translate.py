@@ -813,12 +813,19 @@ default:
         self.assertVar(t1, "a", fracttypes.Int)
         self.assertVar(t1, "b", fracttypes.Int)
         self.assertNoErrors(t1)
+
+    def testRedeclare(self):
+        'For better uf-compat, allow redeclaring builtin vars -ick'
+        t1 = self.translate("t {\ninit:complex z = (3,1)}")
+        self.assertNoErrors(t1)
         
     def testBadDecls(self):
         t1 = self.translate("t7 {\nglobal:int z\n}")
-        self.assertError(t1,"symbol 'z' is predefined")
+        self.assertError(t1,"symbol 'z' is predefined as complex")
         t1 = self.translate("t8 {\nglobal:int a\nfloat A\n}")
         self.assertError(t1,"'A' was already defined on line 2")
+        t1 = self.translate("t8 {\nglobal:int sin\n}")
+        self.assertError(t1,"symbol 'sin' is predefined as a function")
 
     def testMultiAssign(self):
         t = self.translate("t_ma {\ninit:z = c = 1.0\n}")
