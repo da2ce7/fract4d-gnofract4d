@@ -46,22 +46,35 @@ class ParserTest(unittest.TestCase):
     def testPrecedence(self):
         tree = self.parser.parse('''t2 {
 init:
-x = 2 * 3 + 1 ^ 7 / 2 - 4
+x = 2 * 3 + 1 ^ -7 / 2 - |4 - 1|
 }
 ''')
         explicit_tree = self.parser.parse('''t2 {
 init:
-x = ((2 * 3) + ((1 ^ 7) / 2)) - 4
+x = ((2 * 3) + ((1 ^ -7) / 2)) - | 4 - 1|
 }
 ''')
+        self.assertTreesEqual(tree, explicit_tree)
+
+    def testBooleanPrecedence(self):
+        tree = self.parser.parse('''t2 {
+init:
+2 * 3 > 1 + 1 && x + 1 <= 4.0 || !d >= 2.0
+}
+''')
+        explicit_tree = self.parser.parse('''t2 {
+init:
+(((2 * 3) > (1 + 1)) && ((x + 1) <= 4.0)) || ((!d) >= 2.0)
+}
+''')
+        self.assertTreesEqual(tree,explicit_tree)
+        
+    def assertTreesEqual(self, t1, t2):
         # linearize both trees and check that they're equivalent
-        eqs = [ (x.leaf == y.leaf and x.type == y.type) for (x,y) in zip(tree, explicit_tree) ]
+        eqs = [ (x.leaf == y.leaf and x.type == y.type) for (x,y) in zip(t1, t2) ]
         # are any nodes not equal?
         self.assertEqual(eqs.count(0),0, "should be no false matches")
-        
-        #print tree.pretty()
-        #for node in tree:
-        #    print node
+
 
 def suite():
     return unittest.makeSuite(ParserTest,'test')
