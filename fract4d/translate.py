@@ -108,9 +108,9 @@ class TBase:
 
     def dupSectionWarning(self,sect):
         self.warning(
-                    "formula contains a fractint-style implicit %s section\
-                    and an explicit UltraFractal %s section. \
-                    Using explicit section." % (sect,sect))
+                    ("Formula contains a fractint-style implicit %s section "+
+                    "and an explicit UltraFractal %s section. "+
+                    "Using explicit section.") % (sect,sect))
         
     def sectionOrNone(self,sectname):
         if self.sections.has_key(sectname):
@@ -644,7 +644,7 @@ class T(TBase):
 
         # a "nameless" section is really an init section
         s = f.childByName("nameless")
-        if s:
+        if s and s.children != []:
             oldinit = f.childByName("init")
             if oldinit:
                 self.dupSectionWarning("init")

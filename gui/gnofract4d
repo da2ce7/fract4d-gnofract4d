@@ -114,17 +114,21 @@ class MainWindow:
         self.update_image_prefs(prefs)
         self.f.thaw()
         self.f.draw_image()
-        
-    def on_fractal_change(self,object):
-        self.f.draw_image()
 
-    def set_filename(self,name):
-        self.filename = name
+    def set_window_title(self):
         if self.filename == None:
             title = "(Untitled %s)" % self.f.funcName
         else:
             title = self.filename
         self.window.set_title(title)
+        
+    def on_fractal_change(self,object):
+        self.f.draw_image()
+        self.set_window_title()
+        
+    def set_filename(self,name):
+        self.filename = name
+        self.set_window_title()
         
     def on_key_press(self, event, *args):
         print "key:", event.keyval

@@ -50,7 +50,11 @@ class BrowserDialog(gtk.Dialog):
                id == gtk.RESPONSE_DELETE_EVENT:
             self.hide()
         elif id == gtk.RESPONSE_APPLY:
-            self.f.set_formula(self.current_fname,self.current_formula) 
+            self.f.freeze()
+            self.f.set_formula(self.current_fname,self.current_formula)
+            self.f.reset()
+            if self.f.thaw():
+                self.f.changed()
         else:
             print "unexpected response %d" % id
 
