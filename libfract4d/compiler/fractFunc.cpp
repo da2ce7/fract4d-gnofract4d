@@ -78,10 +78,14 @@ fractFunc::clear()
 bool
 fractFunc::update_image(int i)
 {
-    image_changed(0,last_update_y,im->Xres(),i);
-    progress_changed((float)i/(float)im->Yres());
+    bool done = try_finished_cond();
+    if(!done)
+    {
+	image_changed(0,last_update_y,im->Xres(),i);
+	progress_changed((float)i/(float)im->Yres());
+    }
     last_update_y = i;
-    return try_finished_cond();
+    return done; 
 }
 
 // see if the image needs more (or less) iterations to display
