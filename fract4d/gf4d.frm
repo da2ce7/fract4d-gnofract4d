@@ -286,7 +286,7 @@ loop:
 	last = z
 	z = z - (@a * z * z * z - @b)/(@c * z * z) + #pixel
 bailout:
-	|z - last| > #tolerance
+	|z - last| > @epsilon
 default:
 param a
 	default = (1.0, 0.0)
@@ -296,6 +296,9 @@ param b
 endparam
 param c
 	default = (3.0, 0.0)
+endparam
+float param epsilon
+	default = 0.01
 endparam
 }
 

@@ -47,7 +47,8 @@ public:
     inline char *getBuffer() { return buffer; };
 
     // utilities
-    inline int row_length() const;
+    inline int row_length() const {return m_Xres * 3; };
+
     int bytes() const;
 
     // accessors
