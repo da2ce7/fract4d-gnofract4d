@@ -93,7 +93,7 @@ class AutozoomDialog(gtk.Dialog):
         if status_val == 0:
             # done drawing current fractal.
             if self.zoombutton.get_active():
-                if self.f.params[self.f.MAGNITUDE] > self.minsize:
+                if self.f.get_param(self.f.MAGNITUDE) > self.minsize:
                     self.select_quadrant_and_zoom()
                 else:
                     self.zoombutton.set_active(False)

@@ -389,6 +389,7 @@ class T(gobject.GObject):
         
     def onButtonRelease(self,widget,event):
         self.redraw_rect(0,0,self.width,self.height)
+        self.freeze()
         if event.button == 1:
             if self.x == self.newx or self.y == self.newy:
                 zoom=0.5
@@ -408,7 +409,9 @@ class T(gobject.GObject):
             zoom = 2.0
             
         self.recenter(x,y,zoom)
-
+        if self.thaw():
+            self.changed()
+            
     def recenter(self,x,y,zoom):
         dx = (x - self.width/2.0)/self.width
         dy = (y - self.height/2.0)/self.width
