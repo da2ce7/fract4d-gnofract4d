@@ -80,7 +80,6 @@ def create_option_menu(items, cb):
 
 def create_color(r,g,b):
     # multiply up to match range expected by gtk
-    print "#%04X%04X%04X" % (r*65535,g*65535,b*65535)
     try:
         return gtk.gdk.color(r*65535,g*65535,b*65535)
     except:
@@ -116,7 +115,7 @@ class ColorButton:
     def set_color(self, rgb):
         self.color = create_color(rgb[0], rgb[1], rgb[2])
 
-        print "sc", self.area, rgb
+        #print "sc", self.area, rgb
         if self.area:
             self.area_expose(
                 self.area,
@@ -127,7 +126,9 @@ class ColorButton:
         r = event.area
         self.area_expose(widget, r.x, r.y, r.width, r.height)
         
-    def area_expose(self, widget, x, y, w, h):        
+    def area_expose(self, widget, x, y, w, h):
+        if not widget.window:
+            return
         gc = widget.window.new_gc(fill=gtk.gdk.SOLID)
         self.color = widget.get_colormap().alloc_color(
             self.color.red, self.color.green, self.color.blue)
@@ -142,6 +143,9 @@ class ColorButton:
             self.color = dlg.colorsel.get_current_color()
             self.color_changed(self.color)
         self.csel_dialog.hide()
+
+    def set_sensitive(self,x):
+        self.widget.set_sensitive(x)
         
     def color_changed(self,color):
         self.changed_cb(
