@@ -36,16 +36,15 @@ todo for 2.0
 	run $EDITOR, refresh
 	
 * W	i18n, gettext
-* BB	acos,acosh,asin,asinh,atan,atanh,cotan,cotanh give 'str not callable'
 * B	Reset changes antialiasing
 * W	keyboard shortcuts for all widgets
 * W	review human interface guidelines
 * B	shouldn't start drawing original before loading params on cmd-line
 * B	undo/redo cause recompilation
 * W	make default fractal more interesting
-* W	autosave/restore?
 
 done:
+* BB	acos,acosh,asin,asinh,atan,atanh,cotan,cotanh give 'str not callable'
 * B	selected func in fractal settings dlg not updated by undo/redo
 * B	change func then undo causes problems
 * W	compiler properties
@@ -64,6 +63,7 @@ done:
 * W	user parameter functions
 
 postponed
+* W	autosave/restore?
 * W	max size for .so cache
 * W	diff bailout for other types
 * W	logmap
