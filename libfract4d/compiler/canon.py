@@ -9,7 +9,7 @@ import symbol
 import fracttypes
 
 class T:
-    def __init__(self,symbols):
+    def __init__(self,symbols,dump=None):
         self.symbols = symbols
         # used to reverse cjumps
         self.flipTable = {
@@ -20,9 +20,38 @@ class T:
             '<'  : '>=',
             '<=' : '>'
             }
+        self.dumpLinear = 0
+        self.dumpBlocks = 0
+        self.dumpTrace = 0
+
+        if dump != None:
+            for k in dump.keys():
+                self.__dict__[k]=1
+            
     def stms(self, eseq):
         return eseq.children[:-1]
-    
+
+    def canonicalize(self, tree, startLabel, endLabel):
+        # top-level driver function
+        ltree = self.linearize(tree)
+        if self.dumpLinear != 0:
+            print ltree.pretty()
+
+        blocks = self.basic_blocks(ltree,startLabel,endLabel)
+
+        if self.dumpBlocks != 0:
+            for b in blocks:
+                for stm in b:
+                    print stm.pretty(),
+                print
+                
+        trace = self.schedule_trace(blocks,endLabel)
+
+        if self.dumpTrace != 0:
+            for stm in trace: print stm.pretty(),
+            
+        return trace
+                                   
     def linearize(self,tree):
         ''' remove all ESeq nodes and move Calls to top-level'''
         if tree == None:
@@ -196,10 +225,11 @@ class T:
         new_cjump.trueDest = cjump.falseDest
         return new_cjump
     
-    def add_block_to_trace(self, trace, block):
+    def add_block_to_trace(self, trace, in_block):
         # add block to trace. As a side-effect, tidy up last jump to
         # enforce condition that each cjump must be followed by its
         # false label
+        block = copy.copy(in_block) # avoid modifying block used by caller
         target = block[0].name
         if trace != []:
             lastjump = trace[-1]

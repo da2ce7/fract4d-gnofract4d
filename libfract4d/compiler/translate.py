@@ -12,9 +12,9 @@ import canon
 from fracttypes import *
     
 class T:
-    def __init__(self,f):
+    def __init__(self,f,dump=None):
         self.symbols = symbol.T()
-        self.canon = canon.T(self.symbols)
+        self.canon = canon.T(self.symbols,dump)
         self.errors = []
         self.warnings = []
         self.sections = {}
@@ -25,10 +25,14 @@ class T:
         self.dumpProbs = 0
         self.dumpTranslation = 0
         self.dumpVars = 0
-        
+
+        if dump != None:
+            for k in dump.keys():
+                self.__dict__[k]=1
+
         try:
             self.formula(f)
-            self.linearize()
+            self.canonicalize()
         except TranslationError, e:
             self.errors.append(e.msg)
 
@@ -79,9 +83,11 @@ class T:
         if s: self.bailout(s)
         #  ignore switch and builtin for now
 
-    def linearize(self):
+    def canonicalize(self):
         for (k,tree) in self.sections.items():
-            self.sections["l_" + k] = self.canon.linearize(tree)
+            startLabel = "t__start_" + k
+            endLabel = "t__end_" + k
+            self.sections["c_" + k] = self.canon.canonicalize(tree,startLabel,endLabel)
 
     def dupSectionWarning(self,sect):
         self.warning(
