@@ -1,5 +1,4 @@
 Compiler
-* W	tidy up #include files
 * W	max size for .so cache
 
 
@@ -7,7 +6,6 @@ Other
 * W	Julia preview by moving around while holding button3
 * B	why is Barnsley so slow?
 * B	interrupt takes too long on deep-zoomed fractals
-* W	"maintain aspect ratio" checkbox
 * W	signal tpool conds after releasing mutex?
 * B	./gnofract4d --nthreads=1 -p foo.fct ignored input file (popt?)
 * W	make antialiasing a pref, not a setting
@@ -35,7 +33,10 @@ Other
 * WW	preview .fcts in open dialog
 * B 	invalid bailfunc # = crash
 * W	parameterize buffalo
-
+* W	make sure inner function is sensible (itercount is pointless)
+* B	pause doesn't stop subfracts
+* B	refresh button on cmapbrowser is confusing
+* BB	stupid options dialog would be better as tabbed dialog
 
 Movies-
 * B	deadlock when render movie while image is being drawn
@@ -48,13 +49,17 @@ Movies-
 * W	move keyframes up/down 
 * B	lines are ugly
 
-
 Must do pre 1.7
-* W	make sure inner function is sensible (itercount is pointless)
-* B	inner/outer function (ejection dist) doesn't work with recolor
-* B	nova, quadratic (USE_COMPLEX?) doesn't work w gcc 2.96
+* B	nova, quadratic (options) doesn't work w gcc 2.96 unless -O0
+* W	compiler error dialog unusable
+* W	make interface to pointFunc extern "C"		
+* W	reduce number of installed headers
+* W	pass colorFuncs by value instead of enum
 
 Done:
+* W	speed up compilation - remove vectors.h dependency
+* W	"maintain aspect ratio" checkbox
+* B	inner/outer function (ejection dist) doesn't work with recolor
 * W	update docs
 * W	check inner/outer loads/saves correctly
 * B	odd artifacts on default Barnsley T2

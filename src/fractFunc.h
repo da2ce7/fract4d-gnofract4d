@@ -31,6 +31,7 @@ typedef struct _Gf4dFractal Gf4dFractal;
 #include "fract_callbacks.h"
 #include "fract.h"
 #include "image.h"
+#include "pointFunc.h"
 #include "colorizer.h"
 #include "threadpool.h"
 

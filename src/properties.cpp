@@ -1084,6 +1084,11 @@ create_propertybox_func_parameters_page(
         table);
 }
 
+void set_maintain_aspect_callback(GtkToggleButton *button, model_t *m)
+{
+    model_set_maintain_aspect(m,gtk_toggle_button_get_active(button));
+}
+
 void
 create_propertybox_image_page(
     GtkWidget *main_vbox,
@@ -1091,7 +1096,7 @@ create_propertybox_image_page(
     Gf4dFractal *shadow,
     model_t *m)
 {
-    GtkWidget *table = gtk_table_new (2, 2, FALSE);    
+    GtkWidget *table = gtk_table_new (2, 3, FALSE);    
     GtkWidget *image_page = create_page(table,_("Image Size"));
     
     gtk_box_pack_start( GTK_BOX (main_vbox), image_page, 1, 1, 0 );
@@ -1118,6 +1123,24 @@ create_propertybox_image_page(
         (GtkSignalFunc)set_height_callback,
         (GtkSignalFunc)refresh_height_callback,
         _("Image height (in pixels)"));
+
+    GtkWidget *aspect_check = 
+	gtk_check_button_new_with_label(_("Maintain Aspect Ratio"));
+
+    gtk_table_attach (GTK_TABLE (table), aspect_check, 0, 2, 2, 3,
+                      (GtkAttachOptions) (GTK_FILL),
+                      (GtkAttachOptions) (0), 0, 0);
+    gtk_toggle_button_set_active(
+	GTK_TOGGLE_BUTTON(aspect_check),
+	model_get_maintain_aspect(m));
+
+    gtk_signal_connect(
+        GTK_OBJECT(aspect_check),
+        "toggled",
+        GTK_SIGNAL_FUNC(set_maintain_aspect_callback),
+        m);
+
+    gtk_widget_show(aspect_check);
 }
 
 void

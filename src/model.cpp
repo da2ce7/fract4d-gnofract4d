@@ -74,6 +74,7 @@ struct _model {
     // image dimensions
     int width;
     int height;
+    bool maintain_aspect_ratio;
 
     Gf4dMovie *movie;
 };
@@ -98,6 +99,16 @@ static void model_resize_widget(model_t *m)
     }
 }
 
+bool model_get_maintain_aspect(model_t *m)
+{
+    return m->maintain_aspect_ratio;
+}
+
+void model_set_maintain_aspect(model_t *m, bool maintain_aspect)
+{
+    m->maintain_aspect_ratio = maintain_aspect;
+}
+
 void model_set_dimensions(model_t *m, int width, int height)
 {
     if(m->width == width && m->height == height) return;
@@ -110,6 +121,10 @@ void model_set_width(model_t *m, int width)
 {
     if(width == m->width) return;
 
+    if(m->maintain_aspect_ratio)
+    {
+	m->height = (width * m->height) / m->width;
+    }
     m->width = width;
     model_resize_widget(m);
 }
@@ -118,6 +133,10 @@ void model_set_height(model_t *m, int height)
 {
     if(height == m->height) return;
 
+    if(m->maintain_aspect_ratio)
+    {
+	m->width = (height * m->width) / m->height;
+    }
     m->height = height;
     model_resize_widget(m);
 }
@@ -327,6 +346,7 @@ model_new(void)
     m->topWidget=NULL;
     m->width = 640;
     m->height = 480;
+    m->maintain_aspect_ratio = true;
 
     m->movie = GF4D_MOVIE(gf4d_movie_new());
     gf4d_movie_set_output(m->movie, m->fract);

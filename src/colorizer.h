@@ -22,7 +22,6 @@
 #define _COLORIZER_H_
 
 #include "colorizer_public.h"
-#include "pointFunc.h"
 
 #include <iosfwd>
 #include <string>

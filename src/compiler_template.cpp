@@ -2,20 +2,16 @@
 #include "colorFunc.h"
 #include "colorizer.h"
 
-//#include "iterFunc.h"
-//#include "bailFunc.h"
-
 #include <math.h>
 #include <iostream>
 #include <complex>
+#include <algorithm>
 #if TRACE
 #include <fstream>
 #include <sstream>
 #include <iomanip>
 #endif
 #include <float.h>
-#include <stdio.h>
-#include <algorithm>
 
 typedef double T;
 

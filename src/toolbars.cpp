@@ -287,7 +287,7 @@ create_explore_widgets(GtkToolbar *toolbar, model_t *m)
         m);
 
     GtkObject *explore_adj = 
-        gtk_adjustment_new(0.5, 0.0, 1.0, 0.05, 0.05, 0.0);
+        gtk_adjustment_new(0.2, 0.0, 1.0, 0.05, 0.05, 0.0);
 
     GtkWidget *explore_weirdness = 
         gtk_hscale_new(GTK_ADJUSTMENT(explore_adj));

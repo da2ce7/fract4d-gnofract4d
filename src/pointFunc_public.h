@@ -18,8 +18,6 @@
  *
  */
 
-/* this header's little more than a shell of its former self & will
-   soon retire. */
 
 #ifndef _POINTFUNC_PUBLIC_H_
 #define _POINTFUNC_PUBLIC_H_
