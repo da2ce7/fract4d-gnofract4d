@@ -27,7 +27,6 @@
 #include "model.h"
 #include "callbacks.h"
 #include "interface.h"
-#include "support.h"
 #include "gf4d_fractal.h"
 
 int
@@ -55,7 +54,6 @@ main (int argc, char *argv[])
     gdk_threads_enter();
     app = create_app (m);
     gtk_widget_show (app);
-
 
     gtk_main ();
     gdk_threads_leave();

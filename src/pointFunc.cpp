@@ -1,6 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 1999 Aurelien Alleaume, Edwin Young
- *
+ * Copyright (C) 1999-2000 Edwin Young
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,21 +30,30 @@ private:
     iterFunc *m_pIter;
     bailFunc *m_pBail;
     const d& m_eject;
+    colorizer *m_pcf;
     double p[PARAM_SIZE];
+    bool m_potential;
 
 public:
     /* ctor */
     pointCalc(e_iterFunc iterType, 
               e_bailFunc bailType, 
-              const d& eject) : m_eject(eject)
+              const d& eject,
+              colorizer *pcf,
+              bool potential) 
+        : m_eject(eject), m_pcf(pcf), m_potential(potential)
         {
             m_pIter = iterFunc_new(iterType);
             m_pBail = bailFunc_new(bailType);
         }
-    virtual int operator()(const dvec4& params, double *p, int nIters)
+    virtual void operator()(
+        const dvec4& params, int nMaxIters,
+        struct rgb *color, int *pnIters
+        )
         {
             int flags = HAS_X2 | HAS_Y2; // FIXME get from iterFunc
 
+            scratch_space p;
             p[X] =  DOUBLE(params.n[VZ]); 
             p[Y] =  DOUBLE(params.n[VW]);
             p[CX] = DOUBLE(params.n[VX]);
@@ -56,11 +64,16 @@ public:
             do
             {
                 (*m_pIter)(p);                
-                if(iter++ == nIters) return -1; // ran out of iterations
+                if(iter++ == nMaxIters) 
+                {
+                    // ran out of iterations
+                    iter = -1; break; 
+                }
                 (*m_pBail)(p,flags);            
             }while(p[EJECT_VAL] < m_eject);
 
-            return iter;
+            *pnIters = iter;
+            *color = (*m_pcf)(iter, p, m_potential);
         }
 };
 
@@ -118,7 +131,9 @@ test_cube(const dvec4& params, const d& eject, int nIters)
 pointFunc *pointFunc_new(
     e_iterFunc iterFunc, 
     e_bailFunc bailFunc, 
-    const d& bailout)
+    const d& bailout,
+    colorizer *pcf,
+    bool potential)
 {
-    return new pointCalc(iterFunc, bailFunc, bailout);
+    return new pointCalc(iterFunc, bailFunc, bailout, pcf, potential);
 }

@@ -29,7 +29,6 @@
 #include "model.h"
 #include "callbacks.h"
 #include "interface.h"
-#include "support.h"
 #include "gf4d_fractal.h"
 #include "fract.h"
 #include "colorizer_public.h"
@@ -216,13 +215,10 @@ load_param_ok_cb(GtkButton       *button,
     model_cmd_load(p->m,name);
 }
 
-gchar *param_by_name(GtkWidget *pb, 
-                     gchar *name)
-{
-    GtkWidget *gtkentry = lookup_widget(pb,name);
-    return g_strdup(gtk_entry_get_text(GTK_ENTRY(gtkentry)));
-}
-		      
+/* all operations inside the property box have updated a "shadow"
+ * Gf4dFractal object. Now we apply those changes to the main object 
+ */
+
 void
 propertybox_apply(GnomePropertyBox *gnomepropertybox,
                   gint arg1,
@@ -270,7 +266,7 @@ propertybox_destroy (GtkObject *pb, gpointer user_data)
     global_propertybox=NULL;
 }
 
-
+/* copy a section of the fractal's image to the screen */
 static void 
 redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int height, int image_width)
 {
@@ -282,12 +278,14 @@ redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int h
                        3*image_width);
 }
 
+/* handle a click on a subfractal in explorer mode */
 void sub_mouse_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
     subfract_cb_data *pdata = (subfract_cb_data *)data;
     model_set_subfract(pdata->m, pdata->num);
 }
 
+/* handle a click (or other mouse fiddling) on the main fractal */
 void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
 {	
     model_t *m = (model_t *)data;
@@ -308,35 +306,39 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
         }else if (event->button.button == 2) {
             if(model_cmd_start(m))
             {
-                gf4d_fractal_flip2julia(f, 
-                                        (int)event->button.x,
-                                        (int)event->button.y);
+                gf4d_fractal_flip2julia(
+                    f, 
+                    (int)event->button.x,
+                    (int)event->button.y);
                 model_cmd_finish(m);
             }
         }else if (event->button.button == 3) {
             if(model_cmd_start(m))
             {
-                gf4d_fractal_relocate(f,
-                                      (int)event->button.x,
-                                      (int)event->button.y,
-                                      (1.0/zoom) );
+                gf4d_fractal_relocate(
+                    f,
+                    (int)event->button.x,
+                    (int)event->button.y,
+                    (1.0/zoom) );
                 model_cmd_finish(m);
             }
         }
         break;
 
     case GDK_MOTION_NOTIFY:
-        /* inefficiently erase old rectangle */
-        redraw_image_rect(widget,gf4d_fractal_get_image(f),
-                          0,0,
-                          gf4d_fractal_get_xres(f), 
-                          gf4d_fractal_get_yres(f),
-                          gf4d_fractal_get_xres(f));
+        /* inefficiently erase old rectangle by redrawing entire image */
+        redraw_image_rect(
+            widget,gf4d_fractal_get_image(f),
+            0,0,
+            gf4d_fractal_get_xres(f), 
+            gf4d_fractal_get_yres(f),
+            gf4d_fractal_get_xres(f));
+
         /* draw new one */
         gdk_window_get_pointer(widget->window,
                                &new_x, &new_y,NULL);
 
-        /* correct rectangle to screen aspect ratio */
+        /* correct rectangle to window aspect ratio */
         dy = (int)(abs(new_x - x) * gf4d_fractal_get_ratio(f));
         if(new_y < y) dy = -dy;
         new_y = y + dy;
@@ -351,17 +353,20 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
         if(event->button.button==1) {
             double this_zoom;
             /* inefficiently erase old rectangle */
-            redraw_image_rect(widget,gf4d_fractal_get_image(f),
-                              0,0,
-                              gf4d_fractal_get_xres(f),
-                              gf4d_fractal_get_yres(f),
-                              gf4d_fractal_get_xres(f));
+            redraw_image_rect(
+                widget,gf4d_fractal_get_image(f),
+                0,0,
+                gf4d_fractal_get_xres(f),
+                gf4d_fractal_get_yres(f),
+                gf4d_fractal_get_xres(f));
 
             /* zoom factor */
             if(x == new_x || y == new_y)
             {
+                // user just clicked without dragging mouse - default zoom
                 this_zoom=zoom;
             } else {
+                // zoom so selected rectangle fills screen
                 this_zoom=(double)gf4d_fractal_get_xres(f)/abs(x - new_x);
             }
 
@@ -371,10 +376,7 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
 
             if(model_cmd_start(m))
             {
-                gf4d_fractal_relocate(f,
-                                      x,
-                                      y,
-                                      this_zoom);
+                gf4d_fractal_relocate(f, x, y, this_zoom);
                 model_cmd_finish(m);
             }
         }
@@ -458,7 +460,7 @@ property_box_refresh(model_t *m)
     e_colorizer ctype;
     char *filename;
 
-
+    // property box is NULL if it's not currently displayed
     if (propertybox!=NULL) {
         GtkWidget *w;
 
@@ -615,7 +617,6 @@ refresh_param_callback(Gf4dFractal *f, gpointer user_data)
     gtk_entry_set_text(e,s);
     g_free(s);
 }
-
 
 void set_color_callback(GnomeColorPicker *picker, guint r, guint g, guint b, guint alpha, gpointer user_data)
 {

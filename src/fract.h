@@ -34,9 +34,9 @@ struct fractal
 
     // basic params
     d params[N_PARAMS];
-    int nbit_max;
+    int maxiter;
     int fractal_type;
-    int aa_profondeur;
+    bool antialias;
     int auto_deepen;
     int digits;
     bool running;
@@ -78,10 +78,10 @@ struct fractal
     char *get_param(param_t i);
     bool set_param(param_t i, const char *val);
     void set_max_iterations(int val);
-    void set_aa(int val);
+    void set_aa(bool val);
     void set_auto(int val);
     int get_max_iterations();
-    int get_aa();
+    bool get_aa();
     int get_auto();
     bool get_potential() { return potential; };
     void set_potential(bool p) { potential = p; };

@@ -355,9 +355,7 @@ double gf4d_fractal_get_b(Gf4dFractal *f)
 
 gboolean gf4d_fractal_get_aa(Gf4dFractal *f)
 {
-    int val = f->f->get_aa();
-    if(val > 1) return true;
-    else return false;
+    return f->f->get_aa();
 }
 
 int gf4d_fractal_get_auto(Gf4dFractal *f)
@@ -389,14 +387,7 @@ void gf4d_fractal_set_aa(Gf4dFractal *f, gboolean val)
 {
     kill_slave_threads(f);
 
-    if(val)
-    {
-        f->f->set_aa(2);
-    }
-    else
-    {
-        f->f->set_aa(0);
-    }		
+    f->f->set_aa(val);
 }
 
 void gf4d_fractal_set_auto(Gf4dFractal *f, int val)

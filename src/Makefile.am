@@ -8,7 +8,6 @@ bin_PROGRAMS = gnofract4d
 
 gnofract4d_SOURCES = \
 	main.cpp \
-	support.cpp support.h \
 	interface.cpp interface.h \
 	callbacks.cpp callbacks.h \
 	fract.cpp fract.h fract_public.h calc.h \

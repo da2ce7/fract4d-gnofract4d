@@ -22,24 +22,18 @@
 #  include <config.h>
 #endif
 
-#include <sys/stat.h>
-#include <unistd.h>
-#include <string.h>
-
 #include <gnome.h>
 #include <gtk/gtk.h>
 
 #include "model.h"
 #include "callbacks.h"
 #include "interface.h"
-#include "support.h"
 #include "gf4d_angle.h"
 
 #include "fract.h"
 #include "colorizer_public.h"
 
 GtkWidget *appbar1;
-//GtkWidget *toolbar_move;
 GtkWidget *propertybox=NULL;
   
 static GnomeUIInfo file1_menu_uiinfo[] =
@@ -562,7 +556,7 @@ create_entry_with_label(GtkWidget *propertybox,
 	GtkWidget *combo_entry=gtk_entry_new();
 
 	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1,
-			  (GtkAttachOptions) (0),
+			  (GtkAttachOptions) (GTK_FILL),
 			  (GtkAttachOptions) (0), 0, 0);
 	gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_RIGHT);
 	gtk_widget_show (label);
@@ -686,9 +680,9 @@ create_propertybox_color_page(GtkWidget *propertybox,
 	gtk_widget_show(label);
 
 	gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), 
-				    gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), 3), label);
+				    gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), 0), label);
 
-	table = gtk_table_new (6, 2, FALSE);
+	table = gtk_table_new (6, 3, FALSE);
 	gtk_widget_show (table);
 	gtk_box_pack_start (GTK_BOX (vbox), table, TRUE, TRUE, 0);
 
@@ -749,8 +743,6 @@ create_propertybox_color_page(GtkWidget *propertybox,
 			 (GtkAttachOptions)0, 
 			 0, 2);
 
-	// gtk_tooltips_set_tip (tooltips, cmaplabel, _("Use a predefined palette of colors loaded from a .map file"), NULL);
-
 	gtk_object_set_data(
 		GTK_OBJECT (cmaplabel), 
 		"type",
@@ -797,25 +789,6 @@ create_propertybox_color_page(GtkWidget *propertybox,
 			   GTK_SIGNAL_FUNC(refresh_cmap_callback),
 			   cmapselector);
 
-        // continuous potential
-	GtkWidget *potential = gtk_check_button_new_with_label(_("Continuous Potential"));
-	gtk_table_attach(GTK_TABLE(table), potential,0,1,3,4, 
-			 (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
-			 (GtkAttachOptions)0, 
-			 0, 2);
-
-	gtk_signal_connect(GTK_OBJECT(potential),
-			   "toggled",
-			   GTK_SIGNAL_FUNC(set_potential_callback),
-			   shadow);
-
-	gtk_signal_connect(GTK_OBJECT(shadow),
-			   "parameters_changed",
-			   GTK_SIGNAL_FUNC(refresh_potential_callback),
-			   potential);
-
-	gtk_widget_show(potential);
-
         // bailout type
         GtkWidget *bailout_label= gtk_label_new(_("Bailout Function"));
         gtk_widget_show(bailout_label);
@@ -833,6 +806,60 @@ create_propertybox_color_page(GtkWidget *propertybox,
 			 (GtkAttachOptions)0, 
 			 0, 2);
 
+	create_param_entry_with_label(
+            table, tooltips, 4,
+            _("Bailout Distance:"),
+            shadow,
+            BAILOUT,
+            _("Stop iterating points which get further from the origin than this"));
+
+	/* antialias */
+	GtkWidget *aa_button = gtk_check_button_new_with_label(_("Antialias"));
+	gtk_table_attach(GTK_TABLE(table), aa_button, 
+			 2,3,0,1,
+			 (GtkAttachOptions)GTK_FILL,
+			 (GtkAttachOptions)0,
+			 0,2);
+
+	gtk_tooltips_set_tip (tooltips, aa_button, 
+			      _("If you turn this on the image looks smoother but takes longer to draw"), NULL);
+
+        gtk_label_set_justify(
+            GTK_LABEL(GTK_BIN(aa_button)->child),GTK_JUSTIFY_LEFT);
+
+	gtk_widget_show(aa_button);
+
+	gtk_signal_connect (GTK_OBJECT(aa_button),"toggled",
+			    GTK_SIGNAL_FUNC(set_aa_callback),
+			    (gpointer) shadow);
+
+	gtk_signal_connect (GTK_OBJECT(shadow),"parameters_changed",
+			    GTK_SIGNAL_FUNC(refresh_aa_callback),
+			    (gpointer) aa_button);
+
+        // continuous potential
+	GtkWidget *potential = gtk_check_button_new_with_label(_("Continuous Potential"));
+	gtk_table_attach(GTK_TABLE(table), potential,
+                         2,3,1,2, 
+			 (GtkAttachOptions)0, 
+			 (GtkAttachOptions)0, 
+			 0, 2);
+
+	gtk_signal_connect(GTK_OBJECT(potential),
+			   "toggled",
+			   GTK_SIGNAL_FUNC(set_potential_callback),
+			   shadow);
+
+	gtk_signal_connect(GTK_OBJECT(shadow),
+			   "parameters_changed",
+			   GTK_SIGNAL_FUNC(refresh_potential_callback),
+			   potential);
+
+        gtk_label_set_justify(
+            GTK_LABEL(GTK_BIN(potential)->child),GTK_JUSTIFY_LEFT);
+
+	gtk_widget_show(potential);
+
 }
 
 
@@ -845,7 +872,6 @@ create_propertybox_general_page(GtkWidget *propertybox,
 	GtkWidget *vbox;
 	GtkWidget *table;
 	GtkWidget *label;
-	GtkWidget *aa_button;
 	GtkWidget *auto_deepen_button;
 
 	vbox = gtk_vbox_new (FALSE, 0);
@@ -853,7 +879,7 @@ create_propertybox_general_page(GtkWidget *propertybox,
 	gtk_widget_show (vbox);
 	gtk_container_add (GTK_CONTAINER (notebook), vbox);
 
-	table = gtk_table_new (6, 2, FALSE);
+	table = gtk_table_new (6, 3, FALSE);
 	gtk_widget_show (table);
 	gtk_box_pack_start (GTK_BOX (vbox), table, TRUE, TRUE, 0);
 
@@ -861,7 +887,7 @@ create_propertybox_general_page(GtkWidget *propertybox,
 	gtk_widget_show (label);
 
 	gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), 
-				    gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), 0), label);
+				    gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), 1), label);
 
 
 	create_entry_with_label(propertybox, 
@@ -889,39 +915,14 @@ create_propertybox_general_page(GtkWidget *propertybox,
 				(GtkSignalFunc)refresh_maxiter_callback,
 				_("The further you zoom in the larger this needs to be"));
 
-	create_param_entry_with_label(table, tooltips, 3,
-				      _("Bailout :"),
-				      shadow,
-				      BAILOUT,
-				      _("Stop iterating points which get further from the origin than this"));
-
-
-	/* antialias */
-	aa_button = gtk_check_button_new_with_label(_("Antialias"));
-	gtk_table_attach(GTK_TABLE(table), aa_button, 
-			 0,1,4,5,
-			 (GtkAttachOptions)0,
-			 (GtkAttachOptions)0,
-			 0,2);
-
-	gtk_tooltips_set_tip (tooltips, aa_button, 
-			      _("If you turn this on the image looks smoother but takes longer to draw"), NULL);
-
-	gtk_widget_show(aa_button);
-
-	gtk_signal_connect (GTK_OBJECT(aa_button),"toggled",
-			    GTK_SIGNAL_FUNC(set_aa_callback),
-			    (gpointer) shadow);
-
-	gtk_signal_connect (GTK_OBJECT(shadow),"parameters_changed",
-			    GTK_SIGNAL_FUNC(refresh_aa_callback),
-			    (gpointer) aa_button);
-
 	/* auto-deepen */
 	auto_deepen_button = gtk_check_button_new_with_label(_("Auto Deepening"));
+        gtk_label_set_justify(
+            GTK_LABEL(GTK_BIN(auto_deepen_button)->child),GTK_JUSTIFY_LEFT);
+
 	gtk_table_attach(GTK_TABLE(table), auto_deepen_button, 
-			 1,2,4,5,
-			 (GtkAttachOptions)0,
+			 2,3,1,2,
+			 (GtkAttachOptions)GTK_FILL,
 			 (GtkAttachOptions)0,
 			 0,2);
 
@@ -962,7 +963,7 @@ create_propertybox_location_page(GtkWidget *propertybox,
 	gtk_widget_show (label);
 
 	gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), 
-				    gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), 1), label);
+				    gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), 2), label);
 
 	create_param_entry_with_label(table, tooltips, 0,
 				      _("X (Re) :"),
@@ -1016,7 +1017,7 @@ create_propertybox_angles_page(GtkWidget *propertybox,
 	gtk_widget_show (label);
 
 	gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), 
-				    gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), 2), label);
+				    gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), 3), label);
 
 	create_param_entry_with_label(table, tooltips, 0,
 				      _("XY :"),
@@ -1053,38 +1054,39 @@ create_propertybox_angles_page(GtkWidget *propertybox,
 GtkWidget*
 create_propertybox (model_t *m)
 {
-	GtkWidget *notebook;
-	GtkWidget *propertybox;
-	GtkTooltips *tooltips;
-	Gf4dFractal *shadow = gf4d_fractal_copy(model_get_fract(m));
-	tooltips = gtk_tooltips_new ();
-
-	propertybox = gnome_property_box_new ();
-
-	notebook = GNOME_PROPERTY_BOX (propertybox)->notebook;
-	gtk_widget_show (notebook);
-	
-	create_propertybox_general_page(propertybox,notebook,tooltips, shadow);
-	create_propertybox_location_page(propertybox, notebook, tooltips, shadow);
-	create_propertybox_angles_page(propertybox, notebook, tooltips, shadow);
-	create_propertybox_color_page(propertybox, notebook, tooltips, shadow);
-
-	gtk_signal_connect (GTK_OBJECT (propertybox), "apply",
-			    GTK_SIGNAL_FUNC (propertybox_apply),
-			    m);
+    GtkWidget *notebook;
+    GtkWidget *propertybox;
+    GtkTooltips *tooltips;
+    Gf4dFractal *shadow = gf4d_fractal_copy(model_get_fract(m));
+    tooltips = gtk_tooltips_new ();
+    
+    propertybox = gnome_property_box_new ();
+    
+    notebook = GNOME_PROPERTY_BOX (propertybox)->notebook;
+    gtk_widget_show (notebook);
+    
+    create_propertybox_color_page(propertybox, notebook, tooltips, shadow);	
+    create_propertybox_general_page(propertybox,notebook,tooltips, shadow);
+    create_propertybox_location_page(propertybox, notebook, tooltips, shadow);
+    create_propertybox_angles_page(propertybox, notebook, tooltips, shadow);
+    
+    
+    gtk_signal_connect (GTK_OBJECT (propertybox), "apply",
+                        GTK_SIGNAL_FUNC (propertybox_apply),
+                        m);
   
-	gtk_signal_connect (GTK_OBJECT (propertybox), "help",
-			    GTK_SIGNAL_FUNC (propertybox_help),
-			    (char *)"preferences.html");
-
-	gtk_signal_connect_object (GTK_OBJECT (propertybox), "destroy",
-				   GTK_SIGNAL_FUNC (propertybox_destroy),
-				   NULL);
-
-	gtk_signal_connect_object (GTK_OBJECT(shadow),"parameters_changed",
-				   GTK_SIGNAL_FUNC(gnome_property_box_changed),
-				   GTK_OBJECT(propertybox));
-
-	gtk_object_set_data (GTK_OBJECT (propertybox), "shadow", shadow);
-	return propertybox;
+    gtk_signal_connect (GTK_OBJECT (propertybox), "help",
+                        GTK_SIGNAL_FUNC (propertybox_help),
+                        (char *)"preferences.html");
+    
+    gtk_signal_connect_object (GTK_OBJECT (propertybox), "destroy",
+                               GTK_SIGNAL_FUNC (propertybox_destroy),
+                               NULL);
+    
+    gtk_signal_connect_object (GTK_OBJECT(shadow),"parameters_changed",
+                               GTK_SIGNAL_FUNC(gnome_property_box_changed),
+                               GTK_OBJECT(propertybox));
+    
+    gtk_object_set_data (GTK_OBJECT (propertybox), "shadow", shadow);
+    return propertybox;
 }

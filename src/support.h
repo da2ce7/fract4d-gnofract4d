@@ -27,29 +27,9 @@
  * Public Functions.
  */
 
-/*
- * This function returns a widget in a component created by Glade.
- * Call it with the toplevel widget in the component (i.e. a window/dialog),
- * or alternatively any widget in the component, and the name of the widget
- * you want returned.
- */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-GtkWidget*  lookup_widget              (GtkWidget       *widget,
-                                        const gchar     *widget_name);
-
-/* get_widget() is deprecated. Use lookup_widget instead. */
-#define get_widget lookup_widget
-
-
-GtkWidget *
-create_parameter_widget(GtkWidget *propertybox, gchar *name, gchar *combo_name);
-
-void
-s_gnome_entry_set_text(GnomeNumberEntry *entry, const gchar *text);
 
 /*
  * Private Functions.

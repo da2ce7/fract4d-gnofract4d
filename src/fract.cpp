@@ -46,7 +46,7 @@ fractal::fractal()
     reset();
 
     // display params
-    aa_profondeur = 2;
+    antialias = true;
     auto_deepen = 1;
 
     digits = 0;
@@ -88,9 +88,9 @@ fractal::fractal(const fractal& f)
     {
         params[i] = f.params[i];
     }
-    nbit_max = f.nbit_max;
+    maxiter = f.maxiter;
     fractal_type = f.fractal_type;
-    aa_profondeur = f.aa_profondeur;
+    antialias = f.antialias;
     auto_deepen = f.auto_deepen;
     digits = f.digits;
     running = f.running;
@@ -111,9 +111,9 @@ fractal::operator=(const fractal& f)
     {
         params[i] = f.params[i];
     }
-    nbit_max = f.nbit_max;
+    maxiter = f.maxiter;
     fractal_type = f.fractal_type;
-    aa_profondeur = f.aa_profondeur;
+    antialias = f.antialias;
     auto_deepen = f.auto_deepen;
     digits = f.digits;
     running = f.running;
@@ -205,7 +205,7 @@ fractal::reset()
         params[i] = zero;
     }
 
-    nbit_max = 64;
+    maxiter = 64;
     fractal_type = 0;
     rot_by = M_PI/2.0;
 }
@@ -262,9 +262,9 @@ fractal::write_params(const char *filename)
         os << params[i] << "\n";
     }
 
-    os << nbit_max << "\n";
+    os << maxiter << "\n";
     os << fractal_type << "\n";
-    os << aa_profondeur << "\n";
+    os << antialias << "\n";
     os << *cizer << "\n";
     os << bailout_type << "\n";
 
@@ -283,9 +283,9 @@ fractal::load_params(const char *filename)
         is >> params[i];
     }
 
-    is >> nbit_max;
+    is >> maxiter;
     is >> fractal_type;
-    is >> aa_profondeur;
+    is >> antialias;
     colorizer *cizer_tmp = colorizer_read(is);
     if(cizer_tmp)
     {
@@ -302,25 +302,25 @@ fractal::load_params(const char *filename)
 void
 fractal::set_max_iterations(int val)
 {
-    nbit_max = val;
+    maxiter = val;
 }
 
 int 
 fractal::get_max_iterations()
 {
-    return nbit_max;
+    return maxiter;
 }
 
 void 
-fractal::set_aa(int val)
+fractal::set_aa(bool val)
 {
-    aa_profondeur = val;
+    antialias = val;
 }
 
-int 
+bool
 fractal::get_aa()
 {
-    return aa_profondeur;
+    return antialias;
 }
 
 void 
@@ -557,8 +557,14 @@ public:
         gf = _gf;
         im = _im;
         f = _f; 
-        pf = pointFunc_new(ITERFUNC_MAND, f->bailout_type, f->params[BAILOUT]);
-        depth = f->aa_profondeur ? f->aa_profondeur : 1; 
+        pf = pointFunc_new(
+            ITERFUNC_MAND, 
+            f->bailout_type, 
+            f->params[BAILOUT], 
+            f->cizer, 
+            f->potential);
+
+        depth = f->antialias ? 2 : 1; 
 
         f->update_matrix();
         rot = f->rot/D_LIKE(im->Xres,f->params[SIZE]);
@@ -622,16 +628,13 @@ fract_rot::antialias(const dvec4& cpos)
     struct rgb ptmp;
     unsigned int pixel_r_val=0, pixel_g_val=0, pixel_b_val=0;
     int i,j;
-    scratch_space scratch;
-
     dvec4 topleft = cpos;
 
-    colorizer *cf = f->cizer;		
     for(i=0;i<depth;i++) {
         dvec4 pos = topleft; 
         for(j=0;j<depth;j++) {
-            int p = (*pf)(pos, scratch, f->nbit_max); 
-            ptmp = (*cf)(p,scratch,f->potential);
+            int p;
+            (*pf)(pos, f->maxiter,&ptmp,&p); 
             pixel_r_val += ptmp.r;
             pixel_g_val += ptmp.g;
             pixel_b_val += ptmp.b;
@@ -649,41 +652,39 @@ inline void
 fract_rot::pixel(int x, int y,int w, int h)
 {
     int *ppos = p + y*im->Xres + x;
-
-    dvec4 pos = topleft + I2D_LIKE(x, f->params[SIZE]) * deltax + 
-        I2D_LIKE(y, f->params[SIZE]) * deltay;
-
     struct rgb pixel;
-    scratch_space scratch;
 
-    //debug_precision(pos[VX],"pixel");
     if(*ppos != -1) return;
+
+    // calculate coords of this point
+    dvec4 pos = topleft + 
+        I2D_LIKE(x, f->params[SIZE]) * deltax + 
+        I2D_LIKE(y, f->params[SIZE]) * deltay;
 		
-    *ppos = (*pf)(pos, scratch, f->nbit_max); 
-    colorizer *cf = f->cizer;
-    pixel=(*cf)(*ppos, scratch, f->potential);
+    (*pf)(pos, f->maxiter,&pixel,ppos); 
 
     rectangle(pixel,x,y,w,h);
 	
     // test for iteration depth
-    int i=0;
     if(f->auto_deepen && k++ % 30 == 0)
     {
-        i = (*pf)(pos, scratch, f->nbit_max*2);
-        if( (i > f->nbit_max/2) && (i < f->nbit_max))
+        int i;
+        (*pf)(pos, f->maxiter*2,&pixel,&i);
+
+        if( (i > f->maxiter/2) && (i < f->maxiter))
         {
             /* we would have got this wrong if we used 
              * half as many iterations */
             nhalfiters++;
         }
-        else if( (i > f->nbit_max) && (i < f->nbit_max*2))
+        else if( (i > f->maxiter) && (i < f->maxiter*2))
         {
             /* we would have got this right if we used
              * twice as many iterations */
             ndoubleiters++;
         }
     }
-};
+}
 
 inline void
 fract_rot::pixel_aa(int x, int y)
@@ -726,16 +727,16 @@ fract_rot::updateiters()
     {
         // more than 1% of pixels are the wrong colour! 
         // quelle horreur!
-        f->nbit_max *= 2;
+        f->maxiter *= 2;
         return true;
     }
 
     if(doublepercent == 0.0 && halfpercent < 0.5 && 
-       f->nbit_max > 32)
+       f->maxiter > 32)
     {
         // less than .5% would be wrong if we used half as many iters
         // therefore we are working too hard!
-        f->nbit_max /= 2;
+        f->maxiter /= 2;
     }
     return false;
 }
@@ -790,7 +791,7 @@ fract_rot::scan_rect(soidata_t& s)
             do
             {
                 mandelbrot_iter(scratch);
-                if(iter++ >= f->nbit_max) {
+                if(iter++ >= f->maxiter) {
                     iter=-1; break;
                 }
                 mag_bailout(scratch,HAS_X2 | HAS_Y2);
@@ -828,7 +829,7 @@ void fract_rot::soi()
         /* iterate until it splits or maxiter */
         do {
             s.iterate();
-            if(s.iter >= f->nbit_max) 
+            if(s.iter >= f->maxiter) 
             {
 				/* draw black box */
                 break;
@@ -838,7 +839,7 @@ void fract_rot::soi()
         colorizer_t *cf = f->cizer;
 
         // this rect is entirely within the set
-        if(s.iter >= f->nbit_max)
+        if(s.iter >= f->maxiter)
         {
             rgb_t pixel = (*cf)(-1,s.data[0],0);
             /* draw interior rect */
@@ -910,6 +911,9 @@ void fract_rot::draw(int rsize)
     nhalfiters=0;
 	
     // fill in gaps in the 4-blocks
+    // FIXME: should check that boundary of block (not just corners)
+    // is the same - the current method messes up fine detail
+    // between Mset filaments
     for ( y = 0; y < h - 4; y += 4) {
         check_update(y);
         for(x = 0; x < w - 4 ; x += 4) {
@@ -925,17 +929,20 @@ void fract_rot::draw(int rsize)
                     int pcol = RGB2INT(y,x);
                     if(pcol == RGB2INT(y,x+4) &&
                        pcol == RGB2INT(y+4,x) &&
-                       pcol == RGB2INT(y+4,x+4)) {
-						
+                       pcol == RGB2INT(y+4,x+4)) 
+                    {
+                        // don't bother drawing points in this block
                         continue;
                     }
                 }
                 else
                 {
+                    // don't bother drawing points in this block
                     continue;
                 }
             }
 			
+            // we do need to calculate the points individually
             pixel(x+1,y,1,1);
             pixel(x+2,y,1,1);
             pixel(x+3,y,1,1);
@@ -967,7 +974,7 @@ fractal::calc(Gf4dFractal *gf, image *im)
         pr.draw(1);
     }
 	
-    if(aa_profondeur > 1) {
+    if(antialias) {
         gf4d_fractal_status_changed(gf,GF4D_FRACTAL_ANTIALIASING);
         pr.draw_aa();
     }

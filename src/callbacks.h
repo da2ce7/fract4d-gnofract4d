@@ -124,9 +124,6 @@ void set_down_cb(GtkToggleButton *button, gpointer user_data);
 void position_set_cb (GtkWidget *widget, gpointer user_data);
 void angle_set_cb(GtkAdjustment *adj, gpointer user_data);
 
-gchar *param_by_name(GtkWidget *pb, 
-		     gchar *name);
-
 void hide_move_toolbar_cb(GtkMenuItem *widget, gpointer user_data);
 void hide_main_toolbar_cb(GtkMenuItem *widget, gpointer user_data);
 void hide_status_bar_cb(GtkMenuItem *widget, gpointer user_data);

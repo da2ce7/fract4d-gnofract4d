@@ -23,21 +23,28 @@
 
 #include "calc.h"
 #include "pointFunc_public.h"
+#include "colorizer.h"
 
-typedef double scratch_space[8];
 
 
 /* interface for function object which computes a single point */
 class pointFunc {
  public:
-    virtual int operator()(const dvec4& params, double *scratch, int nIters) = 0;
+    virtual void operator()(
+        // in params
+        const dvec4& params, int nIters,
+        // out params
+        struct rgb *color, int *nIters
+        ) = 0;
 };
 
 /* factory method for making new fractFuncs */
 pointFunc *pointFunc_new(
     e_iterFunc iterType, 
     e_bailFunc bailType,
-    const d& eject);
+    const d& eject,
+    colorizer *pcf,
+    bool potential);
 
 #endif
 
