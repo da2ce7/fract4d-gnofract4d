@@ -64,9 +64,3 @@ redo_cb(GtkMenuItem *menuitem, gpointer user_data)
     model_t *m = (model_t *)user_data;
     model_redo(m);
 }
-
-
-
-
-
-

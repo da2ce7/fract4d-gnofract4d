@@ -28,6 +28,7 @@
 #include "properties.h"
 #include "preferences.h"
 #include "cmapbrowser.h"
+#include "interface.h"
 //#include "movie_editor.h"
 #include "gf4d_fractal.h"
 
@@ -35,6 +36,29 @@ typedef struct {
     model_t *m;
     GtkWidget *f;
 } save_cb_data;
+
+
+bool check_overwrite(const gchar *fname)
+{
+    if(!g_file_test(fname, G_FILE_TEST_EXISTS))
+    {
+	return true;
+    }
+
+    gchar *msg = g_strdup_printf(_("File %s already exists : Overwrite it?"), 
+				 fname);
+    /* file exists, check with user */
+    GtkWidget *dialog = gtk_message_dialog_new (
+	GTK_WINDOW(main_app_window),
+	GTK_DIALOG_DESTROY_WITH_PARENT,
+	GTK_MESSAGE_WARNING,
+	GTK_BUTTONS_OK_CANCEL,
+	msg);
+    gint choice = gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
+    g_free(msg);    
+    return choice == GTK_RESPONSE_OK;
+}
 
 // invoked when OK clicked on save image file selector
 void 
@@ -45,7 +69,10 @@ save_image_ok_cb(GtkButton *button, gpointer user_data)
     GtkFileSelection *f = GTK_FILE_SELECTION(p->f);
     const gchar *name = gtk_file_selection_get_filename (f);
 
-    model_cmd_save_image(p->m,name);
+    if(check_overwrite(name))
+    {
+	model_cmd_save_image(p->m,name);
+    }
     g_free(user_data);
 }
 
@@ -57,7 +84,11 @@ save_param_ok_cb(GtkButton *button, gpointer user_data)
 
     GtkFileSelection *f = GTK_FILE_SELECTION(p->f);
     const gchar *name = gtk_file_selection_get_filename (f);
-    model_cmd_save(p->m,name);
+    if(check_overwrite(name))
+    {
+	g_print("saving\n");
+	model_cmd_save(p->m,name);
+    }
     g_free(user_data);
 }
 
@@ -72,6 +103,7 @@ load_param_ok_cb(GtkButton *button, gpointer user_data)
     model_cmd_load(p->m,name);
     g_free(user_data);
 }
+
 
 /* Ensure that the dialog box is destroyed when the user clicks a button. */
 void 
@@ -96,6 +128,7 @@ create_generic_file_dialog(
     model_t *m, 
     gchar *title, 
     gchar *default_name,
+    gchar *extension,
     GtkSignalFunc func)
 {
     GtkWidget *f;
@@ -103,6 +136,7 @@ create_generic_file_dialog(
     
     f = gtk_file_selection_new(title);
     
+    gtk_file_selection_complete(GTK_FILE_SELECTION(f), extension);
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(f), default_name);
     
     pdata->f = f;
@@ -119,27 +153,33 @@ create_generic_file_dialog(
 GtkWidget*
 create_save_image (model_t *m)
 {
-    return create_generic_file_dialog(m,
+    return create_generic_file_dialog(
+	m,
         _("Save Image as"), 
-        _("image.png"), 
+        _("image.png"),
+	".png",			      
         GTK_SIGNAL_FUNC(save_image_ok_cb));
 }
 
 GtkWidget*
 create_save_param (model_t *m)
 {    
-    return create_generic_file_dialog(m,
+    return create_generic_file_dialog(
+	m,
         _("Save Parameters as"), 
-        _("param.fct"), 
+        _("param.fct"),
+	"*.fct",			      
         GTK_SIGNAL_FUNC(save_param_ok_cb));
 }
 
 GtkWidget*
 create_load_param (model_t *m)
 {
-    return create_generic_file_dialog(m,
+    return create_generic_file_dialog(
+	m,
         _("Load Parameters"), 
-        _("param.fct"), 
+        _("param.fct"),
+	"*.fct",			      
         GTK_SIGNAL_FUNC(load_param_ok_cb));
 }
 
