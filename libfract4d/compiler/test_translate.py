@@ -84,12 +84,13 @@ class TranslateTest(unittest.TestCase):
         t12 = self.translate('t12 {\ninit: a = b}')
         self.assertWarning(t12, "Uninitialized variable b referenced on line 2")
 
-    def x_testBinops(self):
+    def testBinops(self):
         t13 = self.translate('''t13 {
         loop:
         complex a, complex b, complex c
         a = b + c
         }''')
+        #print t13.sections["loop"].pretty()
         self.assertNoProbs(t13)
         
     def testDecls(self):
@@ -111,12 +112,12 @@ class TranslateTest(unittest.TestCase):
         self.assertWarning(t1, "conversion from float to complex on line 4")
         self.assertWarning(t1, "conversion from int to complex on line 5")
 
-    def x_testMultiDecls(self):
+    def testMultiDecls(self):
         t1 = self.translate("t6 {\ninit:int a = int b = 2}")
         self.assertVar(t1, "a", fracttypes.Int)
         self.assertVar(t1, "b", fracttypes.Int)
         
-    def x_testBadDecls(self):
+    def testBadDecls(self):
         t1 = self.translate("t7 {\nglobal:int z\n}")
         self.assertError(t1,"symbol 'z' is predefined")
         t1 = self.translate("t8 {\nglobal:int a\nfloat A\n}")
