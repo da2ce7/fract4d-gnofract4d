@@ -156,9 +156,26 @@ class T(UserDict):
             raise KeyError, \
                   ("symbol '%s': only predefined symbols can begin with '#'" % key)
         
-        
         self.data[k] = value
-        
+
+    def parameters(self):
+        params = {}
+        for (name,sym) in self.data.items():
+            if self.is_param(name):
+                params[name] = sym
+        return params
+
+    def order_of_params(self):
+        # a hash which maps param name -> order in input list
+        p = self.parameters()
+        karray = p.keys()
+        karray.sort()
+        op = {}; i = 0
+        for k in karray:
+            op[k] = i
+            i = i + 1
+        return op
+            
     def __delitem__(self,key):
         del self.data[mangle(key)]
         
