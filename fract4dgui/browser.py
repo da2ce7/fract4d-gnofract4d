@@ -31,13 +31,14 @@ def update():
 class BrowserDialog(gtk.Dialog):
     RESPONSE_EDIT = 1
     RESPONSE_REFRESH = 2
+    RESPONSE_COMPILE = 3
     def __init__(self,main_window,f):
         gtk.Dialog.__init__(
             self,
             _("Formula Browser"),
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
-            (_("_Edit..."), BrowserDialog.RESPONSE_EDIT,
+            (_("Co_mpile"), BrowserDialog.RESPONSE_COMPILE,
              gtk.STOCK_REFRESH, BrowserDialog.RESPONSE_REFRESH,
              gtk.STOCK_APPLY, gtk.RESPONSE_APPLY,
              gtk.STOCK_OK, gtk.RESPONSE_OK,
@@ -60,8 +61,9 @@ class BrowserDialog(gtk.Dialog):
         
         self.set_size_request(600,500)
 
+        self.dirty_formula = False
         self.create_panes()
-        
+
         self.connect('response',self.onResponse)
 
     def onResponse(self,widget,id):
@@ -78,6 +80,8 @@ class BrowserDialog(gtk.Dialog):
             self.onEdit()
         elif id == BrowserDialog.RESPONSE_REFRESH:
             self.onRefresh()
+        elif id == BrowserDialog.RESPONSE_COMPILE:
+            self.onCompile()
         else:
             print "unexpected response %d" % id
 
@@ -89,7 +93,20 @@ class BrowserDialog(gtk.Dialog):
     def onRefresh(self):
         self.f.refresh()
         self.set_file(self.current_fname) # update text window
-        
+
+    def onCompile(self):
+        print "compile"
+        if self.current_fname:
+            print self.current_fname
+            buffer = self.sourcetext.get_buffer()
+            text = buffer.get_text(buffer.get_start_iter(),
+                                   buffer.get_end_iter(), False)
+            formulas = self.compiler.parse_file(text)
+            
+            ff = self.compiler.files.get(self.current_fname)
+            ff.override_buffer(text,formulas)
+            self.set_file(self.current_fname)
+                
     def onApply(self):
         self.f.freeze()
         if not self.current_formula or not self.current_fname:
@@ -211,11 +228,14 @@ class BrowserDialog(gtk.Dialog):
 
         textview = gtk.TextView()
         self.tooltips.set_tip(textview, tip)
-        textview.set_editable(False)
+        #textview.set_editable(False)
         
         sw.add(textview)
         return (textview,sw)
 
+    def onEditFormula(self,buffer):
+        self.dirty_formula = True
+        
     def create_panes(self):
         # option menu for choosing Inner/Outer/Fractal
         self.funcTypeMenu = gtk.OptionMenu()
@@ -266,6 +286,7 @@ class BrowserDialog(gtk.Dialog):
         # source
         (self.sourcetext,sw) = self.create_scrolled_textview(
             _("The contents of the currently selected formula file"))
+        self.sourcetext.get_buffer().connect('changed',self.onEditFormula)
         
         label = gtk.Label(_('_Source'))
         label.set_use_underline(True)
@@ -303,10 +324,14 @@ class BrowserDialog(gtk.Dialog):
         self.set_file(fname)
         
     def set_file(self,fname):
+        if self.dirty_formula:
+            print "Do you want to save changes?"
+            
         self.current_fname = fname
         text = self.compiler.files[self.current_fname].contents
         self.clear_selection()
         self.sourcetext.get_buffer().set_text(text,-1)
+        self.dirty_formula = False
         self.populate_formula_list(self.current_fname)
         self.set_edit_sensitivity()
         
