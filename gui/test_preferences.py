@@ -8,6 +8,12 @@ import os
 
 import preferences
 
+class CallCounter:
+    def __init__(self):
+        self.count = 0
+    def cb(self,*args):
+        self.count += 1
+
 class Test(unittest.TestCase):
     def setUp(self):
         self.config = preferences.Preferences("test.config")
@@ -26,7 +32,24 @@ class Test(unittest.TestCase):
 
         config2 = preferences.Preferences("config.tmp")
         self.assertEqual(config2.get("compiler","options"),"-foo")
-        #os.remove("config.tmp")
+        os.remove("config.tmp")
+
+    def testSignals(self):
+        counter = CallCounter()
+        
+        self.config.connect('preferences-changed',counter.cb)
+
+        # callback should happen
+        self.config.set('compiler','name','cc')
+        self.assertEqual(counter.count,1)
+
+        # no callback, value already set
+        self.config.set('compiler','name','cc')
+        self.assertEqual(counter.count,1)
+
+        # new option, callback called
+        self.config.set('compiler','foop','cc')
+        self.assertEqual(counter.count,2)
         
 def suite():
     return unittest.makeSuite(Test,'test')

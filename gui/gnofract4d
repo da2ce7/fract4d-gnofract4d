@@ -52,6 +52,11 @@ class MainWindow:
 
         self.f = gtkfractal.T(self.compiler)
         self.model = model.Model(self.f)
+
+        preferences.userPrefs.connect('preferences-changed',
+                                      self.on_prefs_changed)
+
+        self.update_compiler_prefs(preferences.userPrefs)
         
         self.create_menu()
         self.create_toolbar()
@@ -83,6 +88,22 @@ class MainWindow:
         
         self.vbox.pack_start(window)
 
+    def update_compiler_prefs(self,prefs):
+        # update compiler
+        self.compiler.compiler_name = prefs.get("compiler","name")
+        self.compiler.flags = prefs.get("compiler","options")
+        self.f.update_formula()
+
+    def update_image_prefs(self,prefs):
+        (w,h) = (prefs.getint("display","width"),
+                 prefs.getint("display","height"))
+        self.f.set_size(w,h)
+        
+    def on_prefs_changed(self,prefs):
+        self.update_compiler_prefs(prefs)
+        self.update_image_prefs(prefs)
+        self.f.draw_image()
+        
     def on_fractal_change(self,object):
         self.f.draw_image()
 

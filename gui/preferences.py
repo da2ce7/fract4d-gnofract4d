@@ -4,20 +4,30 @@ import ConfigParser
 import os
 
 import gtk
+import gobject
 
-class Preferences(ConfigParser.ConfigParser):
+class Preferences(ConfigParser.ConfigParser,gobject.GObject):
+    # This class holds the preference data
+    __gsignals__ = {
+        'preferences-changed' : (
+        (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
+        gobject.TYPE_NONE, ())
+        }
+
     def __init__(self, file='~/.gnofract4d'):
         _defaults = {
             "compiler" : {
               "name" : "gcc",
-              "options" : "-shared -O3 -ffast-math"
+              "options" : "-fPIC -DPIC -D_REENTRANT -O3 -shared -ffast-math"
             },
             "display" : {
               "width" : "640",
               "height" : "480"
             }
         }
-        
+
+        gobject.GObject.__init__(self) # MUST be called before threaded.init
+
         ConfigParser.ConfigParser.__init__(self)
 
         self.read(os.path.expanduser(file))
@@ -32,6 +42,30 @@ class Preferences(ConfigParser.ConfigParser):
                 if not self.has_option(section,key):
                     self.set(section,key,val)
 
+    def set(self,section,key,val):
+        if self.has_section(section) and \
+           self.has_option(section,key) and \
+           self.get(section,key) == val:
+            return
+
+        ConfigParser.ConfigParser.set(self,section,key,val)
+        self.changed()
+
+    def set_size(self,width,height):
+        if self.getint("display","height") == height and \
+           self.getint("display","width") == width:
+            return
+        
+        ConfigParser.ConfigParser.set(self,"display","height",str(height))
+        ConfigParser.ConfigParser.set(self,"display","width",str(width))
+        self.changed()
+        
+    def changed(self):
+        self.emit('preferences-changed')
+
+# explain our existence to GTK's object system
+gobject.type_register(Preferences)
+
 userPrefs = Preferences()
     
 _prefs = None
@@ -44,6 +78,7 @@ def show_preferences(parent,f):
 
 class PrefsDialog(gtk.Dialog):
     def __init__(self,main_window,f):
+        global userPrefs
         gtk.Dialog.__init__(
             self,
             "Preferences",
@@ -54,50 +89,74 @@ class PrefsDialog(gtk.Dialog):
         self.f = f
         self.notebook = gtk.Notebook()
         self.vbox.add(self.notebook)
+        self.prefs = userPrefs
         
         self.create_image_options_page()
+        self.create_compiler_options_page()
         
         self.connect('response',self.onResponse)
 
     def create_width_entry(self):
         entry = gtk.Entry()
-        def set_entry(f):
-            entry.set_text("%d" % f.width)
+        def set_entry(*args):
+            entry.set_text(self.prefs.get("display","width"))
 
-        def set_fractal(*args):
+        def set_prefs(*args):
             height = self.f.height
             width = int(entry.get_text())
             if self.fix_ratio.get_active():
                 height = int(width * float(height)/self.f.width)
-            self.f.set_size(width, height)
+            self.prefs.set_size(width, height)
             return False
         
-        set_entry(self.f)
-        self.f.connect('parameters-changed', set_entry)
-        entry.connect('focus-out-event', set_fractal)
+        set_entry()
+        self.prefs.connect('preferences-changed', set_entry)
+        entry.connect('focus-out-event', set_prefs)
         return entry
 
     def create_height_entry(self):
         entry = gtk.Entry()
-        def set_entry(f):
-            entry.set_text("%d" % f.height)
+        def set_entry(*args):
+            entry.set_text(self.prefs.get("display","height"))
 
-        def set_fractal(*args):
+        def set_prefs(*args):
             height = int(entry.get_text())
             width = self.f.width
             if self.fix_ratio.get_active():
                 width = int(height * float(self.f.width)/self.f.height)
-            self.f.set_size(width, height)
+            self.prefs.set_size(width, height)
             return False
         
-        set_entry(self.f)
-        self.f.connect('parameters-changed', set_entry)
-        entry.connect('focus-out-event', set_fractal)
+        set_entry()
+        self.prefs.connect('preferences-changed', set_entry)
+        entry.connect('focus-out-event', set_prefs)
         return entry
 
+    def create_compiler_entry(self):
+        entry = gtk.Entry()
+        def set_entry(*args):
+            entry.set_text(self.prefs.get("compiler","name"))
+
+        def set_prefs(*args):
+            self.prefs.set("compiler","name",entry.get_text())
+
+        set_entry()
+        self.prefs.connect('preferences-changed',set_entry)
+        entry.connect('focus-out-event', set_prefs)
+        return entry
+
+    def create_compiler_options_page(self):
+        table = gtk.Table(5,2,gtk.FALSE)
+        self.notebook.append_page(table,gtk.Label("Compiler"))
+
+        table.attach(gtk.Label("Compiler :"),0,1,0,1,0,0,2,2)
+
+        entry = self.create_compiler_entry()
+        table.attach(entry,1,2,0,1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        
     def create_image_options_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
-        self.notebook.append_page(table,gtk.Label("Image Options"))
+        self.notebook.append_page(table,gtk.Label("Image"))
 
         table.attach(gtk.Label("Width :"),0,1,0,1,0,0,2,2)
         table.attach(gtk.Label("Height :"),0,1,1,2,0,0,2,2)

@@ -82,6 +82,9 @@ class T(gobject.GObject):
         self.widget = drawing_area
         self.f.compile()
 
+    def update_formula(self):
+        self.f.dirtyFormula = True
+        
     def freeze(self):
         self.frozen = True
 
