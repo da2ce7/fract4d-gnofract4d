@@ -129,7 +129,7 @@ class FctTest(unittest.TestCase):
               "val2 (re)", "val2 (i)", "val2 (j)", "val2 (k)"])
 
     def testIntParamSetting(self):
-        self.f.set_formula("testx.frm","fn_with_intparam")
+        self.f.set_formula("test.frm","fn_with_intparam")
 
         table = self.f.populate_formula_settings(0)
         

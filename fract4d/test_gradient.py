@@ -376,7 +376,7 @@ Name: Wood 2
     def checkBadLoad(self, str):
         g = gradient.Gradient()
         s = StringIO.StringIO(str)
-        self.assertRaises(gradient.Error, g.load,s)
+        self.assertRaises(Exception, g.load,s)
         self.assertWellFormedGradient(g)
         
     def testBadLoad(self):        

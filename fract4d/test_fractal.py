@@ -297,7 +297,7 @@ colorlist=[
 
     def testIntParams(self):
         f = fractal.T(self.compiler)
-        f.set_formula("testx.frm", "fn_with_intparam")
+        f.set_formula("test.frm", "fn_with_intparam")
 
         p = f.formula.symbols.parameters()
         op = f.formula.symbols.order_of_params()
