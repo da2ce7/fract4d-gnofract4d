@@ -128,7 +128,7 @@ int main()
         double params[20]= {0.0, 0.0, 0.0, 0.0};
         pf_fake f;
         f.p = params;
-        pf_fake *pfo = &f;
+        pf_fake *t__pfo = &f;
         double z_re = 0.0, z_im = 0.0, pixel_re = 0.0, pixel_im = 0.0;
         '''
         decls = string.join(map(lambda x: x.format(),

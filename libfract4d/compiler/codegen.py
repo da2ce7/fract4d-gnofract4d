@@ -222,20 +222,20 @@ static void pf_init(
 
 static void pf_calc(
     // "object" pointer
-    struct s_pf_data *p_stub,
+    struct s_pf_data *t__p_stub,
     // in params
-    const double *params, int t__p_nMaxIters, int t__p_nNoPeriodIters,
+    const double *t__params, int t__p_nMaxIters, int t__p_nNoPeriodIters,
     // only used for debugging
     int t__p_x, int t__p_y, int t__p_aa,
     // out params
     int *t__p_pnIters, int *t__p_pFate, double *t__p_pDist)
 {
-    pf_real *pfo = (pf_real *)p_stub;
+    pf_real *t__pfo = (pf_real *)t__p_stub;
 
-double pixel_re = params[0];
-double pixel_im = params[1];
-double z_re = params[2];
-double z_im = params[3];
+double pixel_re = t__params[0];
+double pixel_im = t__params[1];
+double z_re = t__params[2];
+double z_im = t__params[3];
 double t__h_index = 0.0;
 
 /* variable declarations */
@@ -291,7 +291,8 @@ pf_obj *pf_new()
 %(main_inserts)s
 '''
 
-        self.pf_header= open("pf.h","r").read() # read in a whole file
+        # later we insert pf.h so C compiler doesn't have to find it
+        self.pf_header= open("pf.h","r").read() 
 
     def emit_binop(self,op,srcs,type,dst=None):
         if dst == None:
@@ -328,7 +329,11 @@ pf_obj *pf_new()
 
     def emit_label(self,name):
         self.out.append(Label(name))
-        
+
+    def make_cdecl(self,type,varname,format, re_val,im_val):
+        return [ Decl(("%s %s_re = " + format +";") % (type,varname,re_val)),
+                 Decl(("%s %s_im = " + format +";") % (type,varname,im_val))]
+    
     def output_symbols(self,user_overrides):
         overrides = {"z" : "",
                      "pixel" : "",
@@ -350,16 +355,14 @@ pf_obj *pf_new()
                     if sym.type == fracttypes.Complex:
                         ord = op.get(key)
                         if ord == None:
-                            out += [ Decl("%s %s_re = %.17f;" % (t,key,val[0])),
-                                     Decl("%s %s_im = %.17f;" % (t,key,val[1]))]
+                            out += self.make_cdecl(t,sym.cname,"%.17f",val[0],val[1])
                         else:
-                            out += [ Decl("%s %s_re = pfo->p[%d];" %(t,key,ord*2)),
-                                     Decl("%s %s_im = pfo->p[%d];"%(t,key,ord*2+1))]
+                            out += self.make_cdecl(t,sym.cname,"t__pfo->p[%d]",ord*2,ord*2+1)
                             
                     elif sym.type == fracttypes.Float:
-                        out.append(Decl("%s %s = %.17f;" % (t,key,val)))
+                        out.append(Decl("%s %s = %.17f;" % (t,sym.cname,val)))
                     else:
-                        out.append(Decl("%s %s = %d;" % (t,key,val)))
+                        out.append(Decl("%s %s = %d;" % (t,sym.cname,val)))
                 else:
                     #print "override %s for %s" % (override, key)
                     out.append(Decl(override))

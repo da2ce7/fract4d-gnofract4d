@@ -27,7 +27,7 @@ class TranslateTest(unittest.TestCase):
     def translatecf(self,s,dump=None):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
-        return translate.ColorFunc(pt.children[0], dump)
+        return translate.ColorFunc(pt.children[0], "inner", dump)
 
     def testCF(self):
         t1 = self.translatecf('''c1 {
@@ -40,6 +40,17 @@ class TranslateTest(unittest.TestCase):
         self.assertNoErrors(t1)
         self.assertNoErrors(t2)
         self.assertEquivalentTranslations(t1,t2)
+
+        t3 = self.translatecf('''
+        c2 {
+        init:
+        float d = |z|
+        loop:
+        d = d + |z|
+        final:
+        #index = log(d+1.0)
+        }''')
+        self.assertNoErrors(t3)
         
     def testFractintSections(self):
         t1 = self.translate("t1 {\na=1,a=2:\nb=2\nc=3}")

@@ -13,6 +13,12 @@ class SymbolTest(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def testPrefix(self):
+        t = symbol.T("boo")
+        v = Var(Int,1)
+        t["x"] = v
+        self.assertEqual(t["x"].cname,"boox")
+        
     def testSqr(self):
         sqr_c = self.t[("sqr")][2];
         sqr_i = self.t[("sqR")][0];
@@ -56,6 +62,15 @@ class SymbolTest(unittest.TestCase):
     def testAt(self):
         self.t["@foo"] = Var(Int, 1, 0)
         self.assertEqual(self.t.realName("@foo"), "t__a_foo")
+
+    def testCName(self):
+        self.t["bar"] = Var(Int,1,0)
+        self.assertEqual(self.t["bAr"].cname,"bar")
+        v = Var(Int,1,0)
+        v.cname = "fish"
+        self.t["var_with_name"] = v
+        self.assertEqual(self.t["var_with_name"].cname,"fish")
+        self.assertEqual(self.t["cos"][0].cname,"cos")
         
     def testZ(self):
         self.assertEqual(self.t["z"].type, Complex)
