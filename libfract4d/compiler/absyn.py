@@ -17,7 +17,10 @@ class Node:
         if self.children:
             str += "\n"
             for child in self.children:
-                str += child.pretty(depth+1) + "\n"
+                if isinstance(child,Node):
+                    str += child.pretty(depth+1) + "\n"
+                else:
+                    str += " " * (depth+1) + ("<<%s>>\n" % child)
             str += " " * depth + "]\n"
         else:
             str += "]"
@@ -52,8 +55,11 @@ def Decl(type, id, exp=None):
         l = [exp]
     return Node("decl", l , (id,type))
 
-def Stmlist(list):
-    return Node("stmlist", list, "")
+def Stmlist(id, list):
+    return Node("stmlist", list, id)
 
 def Empty():
     return Node("empty", None, "")
+
+def Formula(id, stmlist):
+    return Node("formula", stmlist, id)
