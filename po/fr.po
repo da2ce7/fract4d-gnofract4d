@@ -1,0 +1,213 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid	""
+msgstr	"Project-Id-Version: PACKAGE VERSION\n"
+	"POT-Creation-Date: 1999-09-30 15:54+0200\n"
+	"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+	"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+	"Language-Team: LANGUAGE <LL@li.org>\n"
+	"MIME-Version: 1.0\n"
+	"Content-Type: text/plain; charset=CHARSET\n"
+	"Content-Transfer-Encoding: ENCODING\n"
+
+#: src/interface.c:47
+msgid	"New image"
+msgstr	"Nouvelle image"
+
+#: src/interface.c:54 src/interface.c:279
+msgid	"Save image"
+msgstr	"Enregistrer l'image"
+
+#: src/interface.c:61
+msgid	"Save param"
+msgstr	"Enregistrer les paramètres"
+
+#: src/interface.c:68
+msgid	"Load param"
+msgstr	"Charger les paramètres"
+
+#: src/interface.c:75
+msgid	"Render to disk"
+msgstr	"Rendu sur le disque"
+
+#: src/interface.c:114
+msgid	"Gnofract"
+msgstr	"Gnofract"
+
+#: src/interface.c:259
+msgid	"web :  http://www.multimania.com/mason"
+msgstr	"web :  http://www.multimania.com/mason"
+
+#: src/interface.c:306 src/interface.c:636
+msgid	"image.png"
+msgstr	"image.png"
+
+#: src/interface.c:357
+msgid	"save param"
+msgstr	"Enregistrer les paramètres"
+
+#: src/interface.c:384 src/interface.c:462
+msgid	"param.fct"
+msgstr	"param.fct"
+
+#: src/interface.c:436
+msgid	"load param"
+msgstr	"Charger les paramètres"
+
+#: src/interface.c:529
+msgid	"render to disk"
+msgstr	"Rendu sur le disque"
+
+#: src/interface.c:549
+msgid	"Xres : "
+msgstr	"Xres : "
+
+#: src/interface.c:559
+msgid	"Yres : "
+msgstr	"Yres : "
+
+#: src/interface.c:569
+msgid	"name : "
+msgstr	"nom : "
+
+#: src/interface.c:597 src/interface.c:616
+msgid	"width"
+msgstr	"largeur"
+
+#: src/interface.c:598
+#, fuzzy
+msgid	"800"
+msgstr	"800"
+
+#: src/interface.c:623
+msgid "height"
+msgstr "hauteur"
+
+#: src/interface.c:617
+msgid	"600"
+msgstr	"600"
+
+#: src/interface.c:635
+msgid	"name.type"
+msgstr	"nom.type"
+
+#: src/interface.c:638 src/interface.c:923
+msgid	"Antialiasing : "
+msgstr	""
+
+#: src/interface.c:664
+msgid	"0 or 1 : none.\n"
+	"  > 10 : you are crazy.\n"
+	" 3 seems to be a good choice if you don't have a powerfull computer"
+msgstr	"0 ou 1 : aucun.\n"
+	"  >10 : c'est de la folie ! .\n"
+	" 3 semble être un bon choix ,si vous avez un ordinateur pas très puissant" 
+#: src/interface.c:665
+msgid	"0"
+msgstr	""
+
+#: src/interface.c:808
+msgid	"Width : "
+msgstr	"Largeur : "
+
+#: src/interface.c:819
+msgid	"Height : "
+msgstr	"Hauteur : "
+
+#: src/interface.c:830
+msgid	"Max Iterations : "
+msgstr	"Nombre max d'iteration : "
+
+#: src/interface.c:841
+msgid	"Baillout Value : "
+msgstr	"Baillout value : "
+
+#: src/interface.c:868
+msgid	"This is the width (in pixel) from the image displayed in the window"
+msgstr	"Entrez la largeur de l'image affichée dans la fenêtre (en pixel)"
+
+#: src/interface.c:886
+msgid	"This is the height (in pixel) from the image displayed in the window"
+msgstr	"Entrez la hauteur de l'image affichée dans la fenêtre (en pixel)"
+
+#: src/interface.c:904
+msgid	"Maximum number of Iteration"
+msgstr	"Nombre maximum d'itération"
+
+#: src/interface.c:949
+msgid	"0 or 1 : none.\n"
+	"  >10 : you are crazy.\n"
+	" 2 or 3 seems to be a good choice for browsing, if you have a "
+	"powerfull computer."
+msgstr	"0 ou 1 : aucun.\n"
+	"  >10 : c'est de la folie ! .\n"
+	" 2 ou 3 semble être un bon choix pour explorer la fractale, si vous avez" 
+	" un puissant ordinateur, sinon s'abstenir  "
+	
+
+#: src/interface.c:951
+msgid	"Image"
+msgstr	"Image"
+
+#: src/interface.c:975
+#, fuzzy
+msgid	"Upper left (Re) : "
+msgstr	"Coin supérieur gauche (Re) : "
+
+#: src/interface.c:985
+msgid	"Upper left  (Im) : "
+msgstr	"Coin supérieur gauche (Im) : "
+
+#: src/interface.c:995
+msgid	"Lower right (Re) : "
+msgstr	"Coin inférieur droit (Re) : "
+
+#: src/interface.c:1005
+msgid	"Lower right (Im) : "
+msgstr	"Coin inférieur droit (Im) : "
+
+#: src/interface.c:1015
+msgid	"Zoom factor + :"
+msgstr	"Facteur de zoom + :"
+
+#: src/interface.c:1025
+msgid	"Zoom factor - :"
+msgstr	"Facteur de zoom - :"
+
+#: src/interface.c:1137
+msgid	"Location"
+msgstr	"Position"
+
+#: src/interface.c:1149
+msgid	"3"
+msgstr	"3"
+
+#: src/interface.c:1161
+msgid	"4"
+msgstr	"4"
+
+#: src/callbacks.c:211
+msgid	"Saving ..."
+msgstr	"Sauvegarde en cours ..."
+
+#: src/callbacks.c:372 src/callbacks.c:473
+msgid	"Sorry, max precision was reached, the image will become horrible !"
+msgstr	"Désolé, la précision maximale a été atteinte, l'image va devenir "
+	"horrible !"
+
+#: src/callbacks.c:547
+msgid	" calculating ....  "
+msgstr	" calcul en cours ..."
+
+#: src/support.c:93 src/support.c:131
+#, c-format
+msgid	"Couldn't find pixmap file: %s"
+msgstr	""
+
+#: src/support.c:109
+#, c-format
+msgid	"Couldn't create pixmap from file: %s"
+msgstr	""
