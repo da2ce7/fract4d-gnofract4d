@@ -343,15 +343,19 @@ goto t__end_init;''')
             [ "fl = flip(y)", "fl", "(2,1)"],
             [ "ri = (imag(y),real(y))","ri", "(2,1)"],
             [ "m = |y|","m","(5,0)"],
+            [ "t = (4,2) * (2,-1)", "t", "(10,0)"],
             [ "d1 = y/(1,0)","d1","(1,2)"],
-            [ "d2 = y/y","d2","(1,0)"]
+            [ "d2 = y/y","d2","(1,0)"],
+            [ "d3 = (4,2)/y","d3","(1.6,-1.2)"],
+            [ "d4 = (2,1)/2","d4","(1,0.5)"],
             ]
 
         src = 't_c6{\ninit: y = (1,2)\n' + \
               string.join(map(lambda x : x[0], tests),"\n") + "\n}"
 
-        check = string.join(map(lambda x : self.inspect_complex(x[1]),tests),"\n");
-        
+        check = string.join(map(lambda x : self.inspect_complex(x[1]),tests),"\n")
+
+        #check = check + "printf(\"temp52 = %g\\\n\", t__temp52);"
         exp = string.join(map(lambda x : "%s = %s" % (x[1],x[2]), tests),"\n")
 
         self.assertCSays(src,"init",check,exp)
@@ -434,7 +438,7 @@ bailout:
     def assertCSays(self,source,section,check,result,dump=None):
         asm = self.sourceToAsm(source,section,dump)
         postamble = "t__end_%s:\n%s\n" % (section,check)
-        c_code = self.makeC("", postamble)
+        c_code = self.makeC("", postamble)        
         output = self.compileAndRun(c_code)
         self.assertEqual(output,result)
         
