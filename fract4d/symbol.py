@@ -381,11 +381,13 @@ class T(UserDict):
         # any clashes are won by self
         for k in other.data.keys():
             if self.data.get(k) == None:
-                self.data[k] = other.data[k]
+                if self.is_param(k):
+                    self.data[self.insert_prefix(other.prefix,k)] = other.data[k]
+                else:
+                    self.data[k] = other.data[k]
             elif hasattr(self.data[k],"cname") and \
                  hasattr(other.data[k],"cname") and \
                  self.data[k].cname != other.data[k].cname:
-                    # FIXME can cause new clashes
                     self.data[self.insert_prefix(other.prefix,k)] = other.data[k]
                 
     def has_key(self,key):
@@ -523,12 +525,18 @@ class T(UserDict):
                 pass
             
         return flist
+
+    def keysort(self,a,b):
+        'comparison fn for key sorting - ensures colorfuncs come at the end'
+        if a.startswith('t__a_cf') and not b.startswith('t__a_cf'):
+            return 1
+        return cmp(a,b)
     
     def order_of_params(self):
         # a hash which maps param name -> order in input list
         p = self.parameters(True)
         karray = p.keys()
-        karray.sort()
+        karray.sort(self.keysort)
         op = {}; i = 0
         for k in karray:
             op[k] = i
@@ -544,7 +552,7 @@ class T(UserDict):
         op = self.order_of_params()
         defaults = [0.0] * op["__SIZE__"]
         for (k,i) in op.items():
-            param = self.get(k,None)
+            param = self.get(k)
             if not param: continue
             defval = getattr(param,"default",None)
             if not defval: continue

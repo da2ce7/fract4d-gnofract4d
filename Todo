@@ -28,6 +28,8 @@ todo for 2.0
 	ValueError in set_prefs, set_initparam etc
 * B	click on GaussianInteger cfrm = print out some stuff
 * B	opening color browser sometimes applies 1st item
+* B	translationerror on load doesn't pop up
+* B	saving a fractal with a parameterized cfunc = index out of range
 
 differences from fractint:
 * B	3rdim05 - default params bulge with fractint. They use sin() as default

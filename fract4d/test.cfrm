@@ -1,0 +1,60 @@
+flat {
+final:
+#index = @val
+default:
+float param val
+	default = 0.4
+endparam
+} 
+
+Triangle {
+;
+; Variation on the Triangle Inequality Average coloring method 
+; from Kerry Mitchell. The smoothing used here is based on the
+; Smooth formula, which only works for z^n+c and derivates.
+;
+; Written by Damien M. Jones
+;
+init:
+  float sum = 0.0
+  float sum2 = 0.0
+  float ac = cabs(#pixel)
+  float il = 1/log(@power)
+  float lp = log(log(@bailout)/2.0)
+  float az2 = 0.0
+  float lowbound = 0.0
+  float f = 0.0
+  BOOL first = true
+loop:
+  sum2 = sum
+  IF (!first)
+    az2 = cabs(#z - #pixel)
+    lowbound = abs(az2 - ac)
+    sum = sum + ((cabs(#z) - lowbound) / (az2+ac - lowbound))
+  ELSE
+    first = false
+  ENDIF
+final:
+  sum = sum / (#numiter)
+  sum2 = sum2 / (#numiter-1)
+  f = il*lp - il*log(log(cabs(#z)))
+  #index = sum2 + (sum-sum2) * (f+1)  
+default:
+  title = "Triangle Inequality Average"
+  helpfile = "Uf3.chm"
+  helptopic = "Html/coloring/standard/triangleinequalityaverage.html"
+  param power
+    caption = "Exponent"
+    default = 2.0
+    hint = "This should be set to match the exponent of the \
+            formula you are using. For Mandelbrot, this is 2."
+  endparam
+  param bailout
+    caption = "Bailout"
+    default = 1e20
+    min = 1
+    hint = "This should be set to match the bail-out value in \
+            the Formula tab. Use a very high value for good results."
+  endparam
+}
+
