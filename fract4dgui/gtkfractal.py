@@ -238,14 +238,15 @@ class T(gobject.GObject):
     def add_formula_setting(
         self,table,i,name,part,param,order,formula,param_type):
         
-        label = gtk.Label(self.param_display_name(name,param)+part)
-        label.set_justify(gtk.JUSTIFY_RIGHT)
-        table.attach(label,0,1,i,i+1,0,0,2,2)
-
         if param.type == fracttypes.Int or \
                param.type == fracttypes.Float or \
                param.type == fracttypes.Complex or \
                param.type == fracttypes.Hyper:
+
+
+            label = gtk.Label(self.param_display_name(name,param)+part)
+            label.set_justify(gtk.JUSTIFY_RIGHT)
+            table.attach(label,0,1,i,i+1,0,0,2,2)
 
             if param.type == fracttypes.Int:
                 fmt = "%d"
@@ -258,8 +259,6 @@ class T(gobject.GObject):
             def set_entry(*args):
                 new_value = fmt % self.f.get_initparam(order,param_type)
                 if widget.get_text() != new_value:
-                    #print "updating %s from %s to %s" % \
-                    #      (name, widget.get_text(), new_value)
                     widget.set_text(new_value)
                     
             def set_fractal(entry,event,f,order,param_type):
@@ -280,10 +279,37 @@ class T(gobject.GObject):
             widget.f = self
             widget.connect('focus-out-event',
                            set_fractal,self,order,param_type)
+
+            label.set_mnemonic_widget(widget)
+            
+        elif param.type == fracttypes.Bool:
+            widget = gtk.ToggleButton(self.param_display_name(name,param)+part)
+
+            def set_toggle(*args):
+                is_set = self.f.get_initparam(order,param_type)
+                widget.set_active(is_set)
+                if widget.get_active() != is_set:
+                    widget.set_active(is_set)
+                    
+            def set_fractal(entry,event,f,order,param_type):
+                try:
+                    gtk.idle_add(f.set_initparam,order,
+                                 entry.get_active(),param_type)
+                except Exception, err:
+                    msg = "error setting bool param: %s" % str(err)
+                    print msg
+                    gtk.idle_add(f.warn,msg)
+                    
+                return False
+            
+            set_toggle(self)
+
+            widget.set_data("update_function", set_toggle)
+            widget.f = self
+            widget.connect('toggled', set_fractal, self, order, param_type)
         else:
             raise "Unsupported parameter type"
 
-        label.set_mnemonic_widget(widget)
         table.attach(widget,1,2,i,i+1,0,0,2,2)
             
     def construct_function_menu(self,param,formula):
