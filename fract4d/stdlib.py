@@ -366,6 +366,63 @@ def recip_c_c(gen,t,srcs):
     return div_cc_c(gen, None,
                     [ComplexArg(ConstFloatArg(1.0), ConstFloatArg(0.0)), srcs[0]])
 
+def recip_h_h(gen,t,srcs):
+    src = srcs[0]
+    re = src.parts[0]
+    i = src.parts[1]
+    j = src.parts[2]
+    k = src.parts[3]
+    
+    # det = ((re-k)^2 + (i+j)^2)*((re+k)^2 + (i-j)^2)
+    re_m_k = gen.emit_binop('-', [re, k], Float)
+    re_p_k = gen.emit_binop('+', [re, k], Float)
+    i_m_j =  gen.emit_binop('-', [i, j], Float)
+    i_p_j =  gen.emit_binop('+', [i, j], Float)
+    
+    det = gen.emit_binop('*',[
+        gen.emit_binop('+',[
+           gen.emit_binop('*', [re_m_k, re_m_k], Float),
+           gen.emit_binop('*', [i_p_j, i_p_j], Float),
+           ], Float),
+        gen.emit_binop('+',[
+           gen.emit_binop('*', [re_p_k, re_p_k], Float),
+           gen.emit_binop('*', [i_m_j, i_m_j], Float),
+           ], Float),
+        ], Float)
+
+    # could check if det == 0 but just allow division by zero instead
+
+    # |h|
+    mod = cmag_h_f(gen,t,srcs)
+
+    # 2 * re*k - i*j
+    re_k_minus_ij = gen.emit_binop('-', [
+        gen.emit_binop('*', [re, k], Float),
+        gen.emit_binop('*', [i, j], Float)], Float)
+    re_k_minus_ij = gen.emit_binop('+', [ re_k_minus_ij, re_k_minus_ij], Float)
+
+    return HyperArg(
+        gen.emit_binop('/', [
+           gen.emit_binop('-', [
+              gen.emit_binop('*', [re,mod], Float),
+              gen.emit_binop('*', [k, re_k_minus_ij], Float)], Float),
+           det], Float),
+        gen.emit_binop('/', [
+           gen.emit_binop('-', [
+              neg_f_f(gen,t, [gen.emit_binop('*', [i,mod], Float)]),
+              gen.emit_binop('*', [j, re_k_minus_ij], Float)], Float),
+           det], Float),
+        gen.emit_binop('/', [
+           gen.emit_binop('-', [
+              neg_f_f(gen,t, [gen.emit_binop('*', [j,mod], Float)]),
+              gen.emit_binop('*', [i, re_k_minus_ij], Float)], Float),
+           det], Float),
+        gen.emit_binop('/', [
+           gen.emit_binop('-', [
+              gen.emit_binop('*', [k,mod], Float),
+           gen.emit_binop('*', [re, re_k_minus_ij], Float)], Float),
+           det], Float))
+
 def abs_f_f(gen,t,srcs):
     return gen.emit_func('fabs',srcs, Float)
 

@@ -588,7 +588,7 @@ func fn1
         hyper k = (0,0,0,1)
         hyper i2 = i * i
         hyper j2 = j * j
-        hyper k2 = k * k        
+        hyper k2 = k * k
         }'''
         self.assertCSays(src,"init",
                          self.inspect_hyper("i2") +
@@ -603,6 +603,8 @@ func fn1
         hyper hm = x - (1,1,1,-1)
         hyper h2 = x * y
         hyper h3 = y * x ; check commutativity
+        hyper hr = recip(x)
+        hyper xnew = x * recip(x)
         float m = |x|
         }'''
         self.assertCSays(src,"init",
@@ -611,12 +613,16 @@ func fn1
                          self.inspect_hyper("h2") +
                          self.inspect_hyper("h3") +
                          self.inspect_hyper("hm") +
+                         self.inspect_hyper("hr") +
+                         self.inspect_hyper("xnew") +
                          self.inspect_float("m"),
                          "x = (1,2,-3,4)\n" +
                          "y = (5,3,-4,4)\n" +
                          "h2 = (3,41,-39,7)\n" +
                          "h3 = (3,41,-39,7)\n" +
                          "hm = (0,1,-4,5)\n" +
+                         "hr = (-0.1,0,0.1,0.2)\n" +
+                         "xnew = (1,0,0,0)\n" +
                          "m = 30")
         
         # access to parts
