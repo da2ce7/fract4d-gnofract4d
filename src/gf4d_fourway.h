@@ -63,7 +63,7 @@ extern "C" {
         void (* value_changed)(Gf4dFourway *fourway);
     };
 
-    GtkWidget* gf4d_fourway_new (gchar *label);
+    GtkWidget* gf4d_fourway_new (const gchar *label);
     guint gf4d_fourway_get_type (void);
     
 #ifdef __cplusplus

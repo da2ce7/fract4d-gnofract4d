@@ -5,7 +5,8 @@
 
 #include <cstddef>
 #include <iostream>
-#include <string>
+#include <iomanip> // setprecision
+#include <string>  // strstream
 #include <cmath>
 #include <complex>
 
@@ -30,13 +31,17 @@ operator>>(std::istream& s, iterFunc& iter)
     return iter.get(s);
 }
 
-/* This class eases the implementation of fractal types */
+/* This class eases the implementation of fractal types 
+   T is the type of the actual fractal subclass, used for boring things 
+   like cloning
+   NOPTIONS is the number of parameters the fractal has */
+
 template<class T, int NOPTIONS>
 class iterImpl : public iterFunc
 {
 protected:
     const char *m_type;
-    double a[NOPTIONS];
+    complex<double> a[NOPTIONS];
 public:
     iterImpl(const char *type) : m_type(type) {}
 
@@ -44,12 +49,13 @@ public:
         { 
             return NOPTIONS; 
         }
-    virtual void setOption(int n, double val) 
+    virtual void setOption(int n, complex<double> val) 
         {
             if(n < 0 || n >= NOPTIONS) return;
+            cout << "option " << n << " set to " << val << "\n";
             a[n] = val;
         }
-    virtual double getOption(int n) const
+    virtual complex<double> getOption(int n) const
         {
             if(n < 0 || n >= NOPTIONS) return 0.0; 
             return a[n];
@@ -65,6 +71,10 @@ public:
     int flags() const
         {
             return T::FLAGS;
+        }
+    virtual void reset()
+        {
+
         }
     /* utility functions */
 
@@ -100,6 +110,7 @@ operator<<(std::ostream& s, const iterImpl<T,NOPTIONS>& m)
 { 
     write_field(s,FIELD_FUNCTION);
     s << m.type() << "\n";
+    s << std::setprecision(20);
     for(int i = 0; i < NOPTIONS; ++i)
     {
         s << m.optionName(i) << "=" << m.getOption(i) << "\n";
@@ -126,7 +137,7 @@ operator>>(std::istream& s, iterImpl<T, NOPTIONS>& m)
             if(0 == strcmp(name.c_str(),m.optionName(i)))
             {
                 std::istrstream vs(val.c_str());
-                double opt;
+                complex<double> opt;
                 vs >> opt;
                 m.setOption(i,opt);
                 break;
@@ -168,6 +179,29 @@ operator>>(std::istream& s, iterImpl<T, NOPTIONS>& m)
             calc8<double>(p); \
         } 
 
+#define ITER_DECLS_RET(decl,func,ret) \
+    template<class T>inline void calc(T *p) const \
+        { \
+            decl; \
+            func; \
+            ret; \
+        }\
+    template<class T>inline void calc8(T *p) const \
+        { \
+            decl; \
+            func; func; func; func; func; func; func; func; \
+            ret; \
+        }\
+    void operator()(double *p) const \
+        {\
+            calc<double>(p);\
+        }\
+    GMP_FUNC_OP \
+    void iter8(double *p) const \
+        { \
+            calc8<double>(p); \
+        } 
+
 // z <- z^2 +c
 class mandFunc : public iterImpl<mandFunc,0>
 {
@@ -196,12 +230,13 @@ class novaFunc : public iterImpl<novaFunc,0>
 {
 #define NOVA_DECL complex<double> z(p[X],p[Y]), c(p[CX],p[CY])
 #define NOVA_ITER z = z - (z*z*z - 1.0)/(3.0 * z * z) + c
+#define NOVA_RET  p[X] = z.real(); p[Y] = z.imag()
 
 public:
     enum {  FLAGS = 0 };
     novaFunc() : iterImpl(name()) {};
 
-    ITER_DECLS(NOVA_DECL,NOVA_ITER)
+    ITER_DECLS_RET(NOVA_DECL,NOVA_ITER, NOVA_RET)
     static char *name()
         {
             return "Nova";
@@ -366,27 +401,22 @@ public:
 
 // generalised quadratic mandelbrot
 // computes a[0] * z^2 + a[1] * z + a[2] * c
-// a[] array should be an array of complex numbers, really
 class quadFunc : public iterImpl<quadFunc,3>
 {
-#define QUAD_DECL double atmp;
-#define QUAD_ITER \
-    p[X2] = p[X] * p[X]; \
-    p[Y2] = p[Y] * p[Y]; \
-    atmp = a[0] * (p[X2] - p[Y2]) + a[1] * p[X] + a[2] * p[CX]; \
-    p[Y] = a[0] * (2.0 * p[X] * p[Y]) + a[1] * p[Y] + a[2] * p[CY]; \
-    p[X] = atmp
+#define QUAD_DECL complex<double> z(p[X],p[Y]) , c(p[CX],p[CY]);
+#define QUAD_ITER z = (a[0] * z + a[1]) * z + a[2] * c
+#define QUAD_RET p[X] = z.real(); p[Y] = z.imag()
 
 public:
-    enum { FLAGS = HAS_X2 | HAS_Y2 };
+    enum { FLAGS = 0 };
     quadFunc() : iterImpl(name()) {
         // default is z^2 - z + c
-        a[0] = 1.0;
-        a[1] = 1.0;
-        a[2] = 1.0;
+        a[0] = complex<double>(1.0,0.0);
+        a[1] = complex<double>(1.0,0.0);
+        a[2] = complex<double>(1.0,0.0);
     }
 
-    ITER_DECLS(QUAD_DECL, QUAD_ITER)
+    ITER_DECLS_RET(QUAD_DECL, QUAD_ITER, QUAD_RET)
     static const char *name()
         {
             return "Quadratic";

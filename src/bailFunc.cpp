@@ -25,6 +25,11 @@ class and_bailout : public bailFunc {
 public:
     void operator()(double *p, int flags)
         {
+            if(!(flags & (HAS_X2 | HAS_Y2)))
+            {
+                p[X2] = p[X] * p[X];
+                p[Y2] = p[Y] * p[Y];
+            }            
             p[EJECT_VAL] = MIN(p[X2],p[Y2]);
         };
     bool iter8_ok() { return true; };
@@ -35,6 +40,11 @@ class or_bailout : public bailFunc {
 public:
     void operator()(double *p, int flags)
         {
+            if(!(flags & (HAS_X2 | HAS_Y2)))
+            {
+                p[X2] = p[X] * p[X];
+                p[Y2] = p[Y] * p[Y];
+            }            
             p[EJECT_VAL] = MAX(p[X2],p[Y2]);
         }
     bool iter8_ok() { return true; }
@@ -45,7 +55,12 @@ class manhattan2_bailout : public bailFunc {
 public:
     void operator()(double *p, int flags)
         {
-            double t = fabs(p[X2]) + fabs(p[Y]);
+            if(!(flags & (HAS_X2 | HAS_Y2)))
+            {
+                p[X2] = p[X] * p[X];
+                p[Y2] = p[Y] * p[Y];
+            }            
+            double t = fabs(p[X2]) + fabs(p[Y2]);
             p[EJECT_VAL] = t*t;
         }
     bool iter8_ok() { return false; }

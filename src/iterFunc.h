@@ -6,6 +6,7 @@
 #include "pointFunc_public.h"
 
 #include <iosfwd>
+#include <complex>
 
 // offsets into parameter array
 #define X 0
@@ -46,10 +47,12 @@ class iterFunc {
     // the number of options this fractal takes
     virtual int nOptions() const = 0;
 
-    virtual void setOption(int n, double val) = 0;
-    virtual double getOption(int n) const = 0;
-    virtual const char *optionName(int n) const = 0;
     // FIXME: no gmp options
+    virtual void setOption(int n, complex<double> val) = 0;
+    virtual complex<double> getOption(int n) const = 0;
+    virtual const char *optionName(int n) const = 0;
+    // reset all options to standard values
+    virtual void reset() = 0;
 };
 
 

@@ -25,6 +25,7 @@
 #include "properties.h"
 #include "calc.h"
 #include "callbacks.h"
+#include "toolbars.h"
 
 #include <gnome.h>
 #include "gf4d_fractal.h"
@@ -719,31 +720,208 @@ create_propertybox_function_page(
     /* iteration function */
     GtkWidget *func_label= gtk_label_new(_("Function"));
 
-    gtk_table_attach(GTK_TABLE(table), func_label, 0,1,0,1, 
-                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
-                     (GtkAttachOptions)0, 
-                     0, 2);
+    gtk_table_attach(
+        GTK_TABLE(table), func_label, 0,1,0,1, 
+        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+        (GtkAttachOptions)0, 
+        0, 2);
         
     GtkWidget *func_type = create_function_menu(shadow);
 
-    gtk_table_attach(GTK_TABLE(table), func_type ,1,2,0,1, 
-                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
-                     (GtkAttachOptions)0, 
-                     0, 2);
+    gtk_table_attach(
+        GTK_TABLE(table), func_type ,1,2,0,1, 
+        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+        (GtkAttachOptions)0, 
+        0, 2);
 }
 
 void
-set_func_parameter_cb(GtkWidget * entry, GdkEventFocus *, Gf4dFractal *f)
+set_func_parameter_cb(GtkWidget * entry, GdkEventFocus *, model_t *m)
 {
+    Gf4dFractal *f = model_get_fract(m);
     iterFunc *func = gf4d_fractal_get_func(f);
     int index = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(entry),"index"));
     const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
 
-    func->setOption(index,strtod(text,NULL));
+    double newPart = strtod(text,NULL);
+    complex<double> oldVal = func->getOption(index/2);
+    complex<double> newVal;
+
+    if(index % 2)
+    {
+        // odd index = imaginary part
+        newVal = complex<double>(oldVal.real(),newPart);
+    }
+    else
+    {
+        // real part
+        newVal = complex<double>(newPart,oldVal.imag());
+    }
+    
+    if(newVal != oldVal && model_cmd_start(m,"set_func_param"))
+    {
+        g_print("set_func_parameter_cb\n");
+        func->setOption(index,newVal);
+        model_cmd_finish(m,"set_func_param");
+    }        
+}
+
+void make_func_label(const char *name, const char *part_name, GtkWidget *table, int i)
+{
+    char *decorated_name = g_strdup_printf("%s.%s :",name, part_name);
+    GtkWidget *label = gtk_label_new(decorated_name);
+    g_free(decorated_name);
+    
+    gtk_table_attach(
+        GTK_TABLE(table), label, 0,1,i,i+1, 
+        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+        (GtkAttachOptions)0, 
+        0, 2);
+}
+
+void refresh_funcparam_cb(Gf4dFractal *f, GtkWidget *entry)
+{
+    int index = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(entry),"index"));
+    iterFunc *func = gf4d_fractal_get_func(f);
+    
+    complex<double> newVal = func->getOption(index/2);
+    double d;
+    if(index % 2)
+    {
+        d = newVal.imag();
+    }
+    else
+    {
+        d = newVal.real();
+    }
+    
+    char strOpt[30];
+    sprintf(strOpt,"%g",d);
+    
+    gtk_entry_set_text(GTK_ENTRY(entry),strOpt);
+}
+
+void make_func_entry(Gf4dFractal *shadow, double d, GtkWidget *table, int i)
+{
+    /* widget to enter new parameter value */
+    GtkWidget *entry = gtk_entry_new();
+
+    /* data for callbacks */
+    gtk_object_set_data(GTK_OBJECT(entry), "index", GINT_TO_POINTER(i));
+    
+    gtk_table_attach(
+        GTK_TABLE(table), entry, 1,2,i,i+1, 
+        (GtkAttachOptions)(0, GTK_EXPAND | GTK_FILL), 
+        (GtkAttachOptions)0, 
+        0, 2);
+    
+    model_t *m = (model_t *)gtk_object_get_data(GTK_OBJECT(table),"model");
+    assert(m);
+
+    gtk_signal_connect(
+        GTK_OBJECT(entry),"focus-out-event",
+        GTK_SIGNAL_FUNC(set_func_parameter_cb),
+        m);
+
+    gtk_signal_connect(
+        GTK_OBJECT(shadow), "parameters_changed",
+        GTK_SIGNAL_FUNC(refresh_funcparam_cb),
+        entry);
+
+    refresh_funcparam_cb(shadow,entry);
 }
 
 void
-refresh_parameters_callback(Gf4dFractal *f, GtkWidget *table)
+fourway_set_param_cb(
+    Gf4dFourway *fourway, 
+    gint deltax, 
+    gint deltay, 
+    model_t *m)
+{
+    if(model_cmd_start(m, "func_param"))
+    {
+        Gf4dFractal *f = model_get_fract(m);
+        iterFunc *func = gf4d_fractal_get_func(f);
+        int index = GPOINTER_TO_INT(
+            gtk_object_get_data(GTK_OBJECT(fourway),"index"));
+        
+        complex<double> oldVal = func->getOption(index);
+        complex<double> delta(deltax / 100.0 , deltay / 100.0);
+        complex<double> newVal = oldVal + delta;
+
+        g_print("fourway_set_cb\n");
+        
+        func->setOption(index,newVal);
+        model_cmd_finish(m, "func_param");
+    }
+
+}
+
+void
+fourway_preview_param_cb(
+    Gf4dFourway *fourway, 
+    gint deltax, 
+    gint deltay, 
+    model_t *m)
+{
+    Gf4dFractal *f = get_toolbar_preview_fract();
+    iterFunc *func = gf4d_fractal_get_func(f);
+    int index = GPOINTER_TO_INT(
+        gtk_object_get_data(GTK_OBJECT(fourway),"index"));
+    
+    complex<double> oldVal = func->getOption(index);
+    complex<double> delta(deltax / 100.0 , deltay / 100.0);
+    complex<double> newVal = oldVal + delta;
+
+    g_print("fourway_preview_cb\n");
+    
+    func->setOption(index,newVal);
+    gf4d_fractal_calc(f,1);
+}
+
+void
+make_func_edit_widgets(
+    Gf4dFractal *shadow, 
+    iterFunc *func, 
+    GtkWidget *table, 
+    int i)
+{
+    /* labels for parameter names */
+    const char *name = func->optionName(i);
+    make_func_label(name,_("real"),table,2*i);
+    make_func_label(name,_("imag"),table,2*i+1);
+    
+    /* entry widgets for changing params */
+    complex<double> opt = func->getOption(i);
+    
+    make_func_entry(shadow, opt.real(),table,2*i);
+    make_func_entry(shadow, opt.imag(),table,2*i+1);
+    
+    /* fourway widget for interactive twiddling */
+    GtkWidget *fourway = gf4d_fourway_new(name);
+
+    gtk_object_set_data(GTK_OBJECT(fourway), "index", GINT_TO_POINTER(i));
+    
+    gtk_table_attach(
+        GTK_TABLE(table), fourway, 2, 3, 2*i, 2*i+2,
+        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+        (GtkAttachOptions)0, 
+        0, 2);
+
+    model_t *m = (model_t *)gtk_object_get_data(GTK_OBJECT(table),"model");
+    assert(m);
+
+    gtk_signal_connect(GTK_OBJECT(fourway), "value_changed",
+                       (GtkSignalFunc)fourway_set_param_cb,
+                       (gpointer)m);
+
+    gtk_signal_connect(GTK_OBJECT(fourway), "value_slightly_changed",
+                       (GtkSignalFunc)fourway_preview_param_cb,
+                       (gpointer)m);
+}
+
+void
+refresh_func_parameters_callback(Gf4dFractal *f, GtkWidget *table)
 {
     /* has the function type changed? */
     const char *current_type = (const char *)
@@ -776,11 +954,14 @@ refresh_parameters_callback(Gf4dFractal *f, GtkWidget *table)
     if(nOptions == 0)
     {
         g_print("no options\n");
-        GtkWidget *label = gtk_label_new(_("This fractal type has no parameters"));
-        gtk_table_attach(GTK_TABLE(table), label, 0,2,0,1, 
-                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
-                     (GtkAttachOptions)0, 
-                     0, 2);
+        GtkWidget *label = 
+            gtk_label_new(_("This fractal type has no parameters"));
+
+        gtk_table_attach(
+            GTK_TABLE(table), label, 0,2,0,1, 
+            (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+            (GtkAttachOptions)0, 
+            0, 2);
     }        
     else
     {
@@ -788,61 +969,36 @@ refresh_parameters_callback(Gf4dFractal *f, GtkWidget *table)
         g_print("%d options\n",nOptions);
         for(int i = 0; i < nOptions; ++i)
         {
-            /* label for parameter name */
-            const char *name = func->optionName(i);
-            GtkWidget *label = gtk_label_new(name);
-            
-            gtk_table_attach(GTK_TABLE(table), label, 0,1,i,i+1, 
-                             (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
-                             (GtkAttachOptions)0, 
-                             0, 2);
-
-
-
-            /* widget to enter new parameter value */
-            GtkWidget *entry = gtk_entry_new();
-
-            /* data for callbacks */
-            gtk_object_set_data(GTK_OBJECT(entry), "index", GINT_TO_POINTER(i));
-
-            /* convert double -> string */
-            double d = func->getOption(i);
-            char strOpt[30];
-            sprintf(strOpt,"%20g",d);
-
-            gtk_entry_set_text(GTK_ENTRY(entry),strOpt);
-
-            gtk_table_attach(GTK_TABLE(table), entry, 1,2,i,i+1, 
-                             (GtkAttachOptions)(0, GTK_EXPAND | GTK_FILL), 
-                             (GtkAttachOptions)0, 
-                             0, 2);
-            
-            gtk_signal_connect(GTK_OBJECT(entry),"focus-out-event",
-                               GTK_SIGNAL_FUNC(set_func_parameter_cb),
-                               f);
+            make_func_edit_widgets(f,func, table, i);
         }
     }
-    gtk_widget_show_all(table);
+    /* table will be visible if this tab has been expanded */
+    if(GTK_WIDGET_VISIBLE(table))
+    {
+        gtk_widget_show_all(table);
+    }
 }
 
 void
-create_propertybox_parameters_page(
+create_propertybox_func_parameters_page(
     GtkWidget *vbox,
     GtkTooltips *tooltips,
-    Gf4dFractal *shadow)
+    Gf4dFractal *shadow,
+    model_t *m)
 {
-    GtkWidget *table = gtk_table_new (1, 2, FALSE);
+    GtkWidget *table = gtk_table_new (1, 3, FALSE);
     
     GtkWidget *general_page = create_page(table,_("Parameters"));
     
     gtk_box_pack_start( GTK_BOX (vbox), general_page, 1, 1, 0 );
 
     gtk_object_set_data(GTK_OBJECT(table), "type", "");
+    gtk_object_set_data(GTK_OBJECT(table), "model", (gpointer)m);
 
     gtk_signal_connect(
         GTK_OBJECT(shadow),
         "parameters_changed",
-        GTK_SIGNAL_FUNC(refresh_parameters_callback),
+        GTK_SIGNAL_FUNC(refresh_func_parameters_callback),
         table);
 }
 
@@ -989,7 +1145,7 @@ create_propertybox (model_t *m)
 
     gtk_box_set_spacing(GTK_BOX(vbox),0);
     create_propertybox_function_page(vbox, tooltips, shadow);
-    create_propertybox_parameters_page(vbox, tooltips, shadow);
+    create_propertybox_func_parameters_page(vbox, tooltips, shadow, m);
     create_propertybox_rendering_page(vbox, tooltips, shadow);
     create_propertybox_bailout_page(vbox, tooltips, shadow);
     create_propertybox_image_page(vbox,tooltips, shadow, m);

@@ -191,22 +191,29 @@ add_pause_widget(GtkWidget *toolbar, model_t *m)
     gtk_widget_show_all(pause_widget);
 }
 
+Gf4dFractal *preview_shadow = NULL;
+
+Gf4dFractal *get_toolbar_preview_fract()
+{
+    return preview_shadow;
+}
+
 GtkWidget*
 create_move_toolbar (model_t *m, GtkWidget *appbar)
 {
     GtkWidget *toolbar;
     toolbar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
 
-    Gf4dFractal *shadow = gf4d_fractal_copy(model_get_fract(m));
+    preview_shadow = gf4d_fractal_copy(model_get_fract(m));
     gtk_signal_connect(
         GTK_OBJECT(model_get_fract(m)),
         "parameters_changed",
         GTK_SIGNAL_FUNC(preview_refresh_callback),
-        shadow);
+        preview_shadow);
 
-    GtkWidget *preview_widget = create_preview(shadow);
+    GtkWidget *preview_widget = create_preview(preview_shadow);
 
-    Gf4dFractal *preview = preview_get_shadow(preview_widget);
+    //Gf4dFractal *preview = preview_get_shadow(preview_widget);
 
     gtk_toolbar_append_widget (
         GTK_TOOLBAR(toolbar),
@@ -216,37 +223,37 @@ create_move_toolbar (model_t *m, GtkWidget *appbar)
 
     gtk_toolbar_append_widget (
         GTK_TOOLBAR(toolbar),
-        create_angle_button(_("xy"), XYANGLE, m, appbar, preview),
+        create_angle_button(_("xy"), XYANGLE, m, appbar, preview_shadow),
         _("XY angle"),
         NULL);
 
     gtk_toolbar_append_widget (
         GTK_TOOLBAR(toolbar),
-        create_angle_button(_("xz"), XZANGLE, m, appbar, preview),
+        create_angle_button(_("xz"), XZANGLE, m, appbar, preview_shadow),
         _("XZ angle"),
         NULL);
 
     gtk_toolbar_append_widget (
         GTK_TOOLBAR(toolbar),
-        create_angle_button(_("xw"), XWANGLE, m, appbar, preview),
+        create_angle_button(_("xw"), XWANGLE, m, appbar, preview_shadow),
         _("XW angle"),
         NULL);
 
     gtk_toolbar_append_widget (
         GTK_TOOLBAR(toolbar),
-        create_angle_button(_("yz"), YZANGLE, m, appbar, preview),
+        create_angle_button(_("yz"), YZANGLE, m, appbar, preview_shadow),
         _("YZ angle"),
         NULL);
 
     gtk_toolbar_append_widget (
         GTK_TOOLBAR(toolbar),
-        create_angle_button(_("yw"), YWANGLE, m, appbar, preview),
+        create_angle_button(_("yw"), YWANGLE, m, appbar, preview_shadow),
         _("YW angle"),
         NULL);
 
     gtk_toolbar_append_widget (
         GTK_TOOLBAR(toolbar),
-        create_angle_button(_("zw"), ZWANGLE, m, appbar, preview),
+        create_angle_button(_("zw"), ZWANGLE, m, appbar, preview_shadow),
         _("ZW angle"),
         NULL);
 			     
@@ -254,13 +261,13 @@ create_move_toolbar (model_t *m, GtkWidget *appbar)
 
     gtk_toolbar_append_widget (
         GTK_TOOLBAR(toolbar),
-        create_param_button(_("xy"), XCENTER, YCENTER, m, preview),
+        create_param_button(_("xy"), XCENTER, YCENTER, m, preview_shadow),
         _("XY position"),
         NULL);
 
     gtk_toolbar_append_widget (
         GTK_TOOLBAR(toolbar),
-        create_param_button(_("zw"), ZCENTER, WCENTER, m, preview),
+        create_param_button(_("zw"), ZCENTER, WCENTER, m, preview_shadow),
         _("Y position"),
         NULL);
 

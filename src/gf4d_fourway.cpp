@@ -144,7 +144,7 @@ gf4d_fourway_init (Gf4dFourway *fourway)
 }
 
 GtkWidget*
-gf4d_fourway_new (gchar *label)
+gf4d_fourway_new (const gchar *label)
 {
     Gf4dFourway *fourway;
 

@@ -25,4 +25,6 @@
 #include "model.h"
 GtkWidget* create_move_toolbar (model_t *m, GtkWidget *appbar);
 
+Gf4dFractal *get_toolbar_preview_fract();
+
 #endif /* _TOOLBARS_H_ */
