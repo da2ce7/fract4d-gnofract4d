@@ -111,6 +111,11 @@ class PfTest(unittest.TestCase):
         
         f = self.compiler.get_formula("test.frm","test_simpleshape")
         outputfile = self.compiler.compile_all(f,cf1,cf2)
+
+        self.color_diagonal_params = f.symbols.default_params() + \
+                                     cf1.symbols.default_params() + \
+                                     cf2.symbols.default_params()
+
         return outputfile
     
     def setUp(self):
@@ -191,7 +196,7 @@ class PfTest(unittest.TestCase):
         file = self.compileColorDiagonal()
         handle = fract4dc.pf_load(file)
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,[0.0])
+        fract4dc.pf_init(pfunc,0.001,self.color_diagonal_params)
 
         fw = fract4dc.fw_create(1,pfunc,cmap,image,site)
         ff = fract4dc.ff_create(

@@ -8,23 +8,17 @@ import gobject
 import gtk
 
 import preferences
+import dialog
 
 FRACTAL = 0
 INNER = 1
 OUTER = 2
 
-_browser = None
-
 def stricmp(a,b):
     return cmp(a.lower(),b.lower())
 
 def show(parent, f,type):
-    global _browser
-    if not _browser:
-        _browser = BrowserDialog(parent,f)
-    _browser.set_type(type)
-    _browser.populate_file_list()
-    _browser.show_all()
+    BrowserDialog.show(parent,f,type)
 
 def update(file=None):
     global _browser
@@ -33,12 +27,12 @@ def update(file=None):
             _browser.current_fname=os.path.basename(file)
         _browser.populate_file_list()
     
-class BrowserDialog(gtk.Dialog):
+class BrowserDialog(dialog.T):
     RESPONSE_EDIT = 1
     RESPONSE_REFRESH = 2
     RESPONSE_COMPILE = 3
     def __init__(self,main_window,f):
-        gtk.Dialog.__init__(
+        dialog.T.__init__(
             self,
             _("Formula Browser"),
             main_window,
@@ -71,7 +65,12 @@ class BrowserDialog(gtk.Dialog):
         self.dirty_formula = False
         self.create_panes()
 
-        self.connect('response',self.onResponse)
+    def show(parent, f, type):
+        _browser = dialog.T.reveal(BrowserDialog,parent,f)
+        _browser.set_type(type)
+        _browser.populate_file_list()
+
+    show = staticmethod(show)
 
     def onResponse(self,widget,id):
         if id == gtk.RESPONSE_CLOSE or \

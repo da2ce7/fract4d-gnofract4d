@@ -217,6 +217,7 @@ class T(FctUtils):
         self.dirtyFormula = True # formula needs recompiling
         self.dirty = True # parameters have changed
         self.auto_deepen = True
+        self.clear_image = True
         
         self.reset()
 
@@ -382,6 +383,7 @@ class T(FctUtils):
         c.yflip = self.yflip
         c.periodicity = self.periodicity
         c.saved = self.saved
+        c.clear_image = self.clear_image
         return c
     
     def reset(self):
@@ -716,7 +718,8 @@ class T(FctUtils):
 
         fract4dc.calc(self.params,self.antialias,self.maxiter,
                       self.yflip,self.periodicity,
-                      pfunc,cmap,self.auto_deepen,1,image,self.site)
+                      pfunc,cmap,self.auto_deepen,
+                      1,image,self.site, self.clear_image)
 
     def clean(self):
         self.dirty = False

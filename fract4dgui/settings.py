@@ -2,28 +2,26 @@
 
 import gtk
 
+import dialog
 import browser
 
-_settings = None
-
 def show_settings(parent,f):
-    global _settings
-    if not _settings:
-        _settings = SettingsDialog(parent,f)
-    _settings.show_all()
-    _settings.present()
-    #_settings.window.raise()
+    SettingsDialog.show(parent,f)
 
-class SettingsDialog(gtk.Dialog):
+class SettingsDialog(dialog.T):
+    def show(parent, f):
+        dialog.T.reveal(SettingsDialog,parent,f)
+
+    show = staticmethod(show)
+    
     def __init__(self,main_window,f):
-        gtk.Dialog.__init__(
+        dialog.T.__init__(
             self,
             _("Fractal Settings"),
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
-        self.set_default_response(gtk.RESPONSE_CLOSE)
         self.main_window = main_window
         self.f = f
         self.tooltips = gtk.Tooltips()
@@ -37,9 +35,7 @@ class SettingsDialog(gtk.Dialog):
         self.create_general_page()
         self.create_location_page()
         self.create_angle_page()
-
-        self.connect('response',self.onResponse)
-
+        
     def create_location_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
         label = gtk.Label(_("_Location"))
@@ -135,8 +131,8 @@ class SettingsDialog(gtk.Dialog):
         button.set_use_underline(True)
         button.connect('clicked', self.show_browser, browser.OUTER)
         hbox.pack_start(button)
-        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
-
+        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)
+        
     def create_inner_page(self):
         vbox = gtk.VBox()
         table = gtk.Table(5,2,gtk.FALSE)
@@ -197,7 +193,8 @@ class SettingsDialog(gtk.Dialog):
         self.tables[param_type] = None
         
         def update_formula_parameters(*args):
-            if self.tables[param_type] != None:
+            widget = self.tables[param_type] 
+            if widget != None and widget.parent != None:
                 parent.remove(self.tables[param_type])
 
             self.tables[param_type] = \
@@ -253,10 +250,3 @@ class SettingsDialog(gtk.Dialog):
         self.f.connect('parameters-changed', set_entry)
         entry.connect('focus-out-event', set_fractal)
         
-    def onResponse(self,widget,id):
-        if id == gtk.RESPONSE_CLOSE or \
-               id == gtk.RESPONSE_NONE or \
-               id == gtk.RESPONSE_DELETE_EVENT:
-            self.hide()
-        else:
-            print "unexpected response %d" % id
