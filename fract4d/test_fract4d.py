@@ -237,14 +237,15 @@ class PfTest(unittest.TestCase):
                 continue
             r += color[0]; g += color[1]; b += color[2]
             nsubpixels += 1
-            findex = img.get_color_index(x,y,i)
-            self.assertEqual(
-                findex,index,
-                "unexpected index %f for subpixel %d" % (findex,i))
+            if fate != img.UNKNOWN:
+                findex = img.get_color_index(x,y,i)
+                self.assertEqual(
+                    findex,index,
+                    "unexpected index %.17f for subpixel %d" % (findex,i))
 
         color = [r//nsubpixels, g//nsubpixels, b//nsubpixels]
-        print "looking for", color
-        print "finding", img.get_color(x,y)
+        #print "looking for", color
+        #print "finding", img.get_color(x,y)
         
         self.assertEqual(img.get_color(x,y),color)
         
@@ -311,7 +312,7 @@ class PfTest(unittest.TestCase):
         fract4dc.fw_pixel(fw,2,2,1,1)
         self.assertPixelIs(
             iw,2,2, [iw.OUT, iw.OUT, iw.IN, iw.OUT],
-            [100,101,102], [79,88,41])
+            [79,88,41], [100,101,102])
         
     def testCalc(self):
         xsize = 64
