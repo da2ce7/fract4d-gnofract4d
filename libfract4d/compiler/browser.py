@@ -7,6 +7,7 @@ import gtk
 
 import fractparser
 import fractlexer
+import translate
 
 class MainWindow:
     def __init__(self):
@@ -74,6 +75,19 @@ class MainWindow:
         panes.add1(sw)
 
         # right-hand pane is details of current formula
+        notebook = gtk.Notebook()
+
+        # source
+        sw = gtk.ScrolledWindow ()
+        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
+        sw.set_policy (gtk.POLICY_AUTOMATIC,
+                       gtk.POLICY_AUTOMATIC)
+
+        self.sourcetext = gtk.TextView()
+        sw.add(self.sourcetext)
+        notebook.append_page(sw, gtk.Label('Source'))
+        
+        # parse tree
         sw = gtk.ScrolledWindow ()
         sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
         sw.set_policy (gtk.POLICY_AUTOMATIC,
@@ -81,15 +95,38 @@ class MainWindow:
 
         self.text = gtk.TextView()
         sw.add(self.text)
+        notebook.append_page(sw, gtk.Label('Parse Tree'))
+
+        # translated tree
+        sw = gtk.ScrolledWindow ()
+        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
+        sw.set_policy (gtk.POLICY_AUTOMATIC,
+                       gtk.POLICY_AUTOMATIC)
+
+        self.transtext = gtk.TextView()
+        sw.add(self.transtext)
+        notebook.append_page(sw, gtk.Label('IR Tree'))
         
-        panes.add2(sw)
+        panes.add2(notebook)
 
     def selection_changed(self,selection):
         (model,iter) = selection.get_selected()
         title = model.get_value(iter,0)
         formula = self.formulas[title]
+
+        # update parse tree
         buffer = self.text.get_buffer()
         buffer.set_text(formula.pretty(),-1)
+
+        #update location of source buffer
+        sourcebuffer = self.sourcetext.get_buffer()
+        iter = sourcebuffer.get_iter_at_line(formula.pos-1)
+        self.sourcetext.scroll_to_iter(iter,0.0,gtk.TRUE,0.0,0.0)
+
+        # update IR tree
+        self.ir = translate.T(formula)
+        irbuffer = self.transtext.get_buffer()
+        irbuffer.set_text(self.ir.pretty(),-1)
         
     def quit(self,action,widget=None):
         gtk.main_quit()
@@ -106,6 +143,8 @@ class MainWindow:
             iter = self.formula_list.append ()
             self.formula_list.set (iter, 0, formula.leaf)
             self.formulas[formula.leaf] = formula
+
+        self.sourcetext.get_buffer().set_text(s,-1)
         
     def about(self,action,widget):
         print "about"

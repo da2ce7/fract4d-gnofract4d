@@ -318,6 +318,10 @@ class TranslateTest(unittest.TestCase):
         self.assertError(t1,"symbol 'z' is predefined")
         t1 = self.translate("t8 {\nglobal:int a\nfloat A\n}")
         self.assertError(t1,"'A' was already defined on line 2")
+
+    def testMultiAssign(self):
+        t = self.translate("t_ma {\ninit:z = c = 1.0\n}")
+        self.assertNoErrors(t)
         
     def assertError(self,t,str):
         self.assertNotEqual(len(t.errors),0)

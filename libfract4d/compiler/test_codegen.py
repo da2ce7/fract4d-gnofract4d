@@ -326,6 +326,12 @@ goto t__end_init;''')
         self.assertCSays(src,"init","printf(\"(%g,%g)\\n\", z_re, z_im);",
                          "(0,0)")
 
+        src = 't_c6{\ninit: complex x = y = (2,1)\n}'
+        self.assertCSays(src,"init",
+                         self.inspect_complex("x") +
+                         self.inspect_complex("y"),
+                         "x = (2,1)\ny = (2,1)")
+
     def testParams(self):
         src = 't_cp0{\ninit: complex @p = (2,1)\n}'
         self.assertCSays(src,"init",self.inspect_complex("t__a_p"),

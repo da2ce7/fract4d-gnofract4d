@@ -57,7 +57,7 @@ class T:
                         print "Error \"%s\" dumping %s" %(err,name)
 
         if self.dumpTranslation:
-            self.dumpSections(f)
+            print self.dumpSections(f)
 
     def dumpSections(self,f):
         print f.leaf + "{"
@@ -75,7 +75,26 @@ class T:
             else:
                 print "Unknown tree %s in section %s" % (tree, name)
         print "}\n"
-        
+
+    def pretty(self):
+        if self.errors:
+            return string.join(self.errors,"\n")
+        out = []
+        for (name,tree) in self.sections.items():
+            if isinstance(tree,ir.T):
+                out.append( " " + name + "(")
+                out.append(tree.pretty(2) + " )")
+            elif isinstance(tree,types.ListType):
+                out.append(" " + name + "(")
+                for t in tree:
+                    out.append(t.pretty(2))
+                out.append(" )")
+            elif tree == None:
+                pass
+            else:
+                out.append("Unknown tree %s in section %s" % (tree, name))
+        return string.join(out,"\n")
+    
     def error(self,msg):
         self.errors.append(msg)
     def warning(self,msg):
@@ -306,6 +325,8 @@ class T:
             r = self.unop(node)
         elif node.type == "funcall":
             r = self.funcall(node)
+        elif node.type == "assign":
+            r = self.assign(node)
         else:
             self.badNode(node,"exp")
 
