@@ -183,7 +183,19 @@ def Empty(pos):
     return Node("empty", pos, None, "")
 
 def Formula(id, stmlist, pos):
-    return Node("formula", pos, stmlist, id)
+    # rather gruesome: we re-lex the formula ID to extract the symmetry spec
+    # if any. Then we smuggle it into the top-level node
+    m = re.match(".*?(\s*\(\s*(\w+)\s*\))", id)
+    if m:
+        symmetry = m.group(2)
+        id = id[:m.start(1)]
+    else:
+        symmetry = None
+        
+    n = Node("formula", pos, stmlist, id)
+    n.symmetry = symmetry
+    
+    return n
 
 def Param(id,settinglist,type,pos):
     return Node("param", pos, settinglist, id, fracttypes.typeOfStr(type))
