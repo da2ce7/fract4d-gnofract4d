@@ -156,7 +156,6 @@ class TBase:
 
         # create param
         v = Var(node.datatype, default_value(node.datatype), node.pos)
-        self.symbols["@" + node.leaf] = v
 
         # process settings
         for child in node.children:
@@ -167,6 +166,8 @@ class TBase:
 
         if hasattr(v,"default"):
             v.default = self.const_convert(v.default,v.type)
+
+        self.symbols["@" + node.leaf] = v
         
     def setting(self,node):
         if node.type == "param":
@@ -190,9 +191,9 @@ class TBase:
              node.leaf == "complex" and \
              node.children[0].type == "const" and \
              node.children[1].type == "const":
-            return [
-                self.const(node.children[0]),
-                self.const(node.children[1])]
+            return ir.Const(
+                [self.const(node.children[0]),self.const(node.children[1])],
+                node,fracttypes.Complex)        
         elif node.type == "string":
             return self.string(node)
         else:
@@ -220,7 +221,8 @@ class TBase:
             else:
                 raise Exception("ICE: Weird types in const_convert")
         elif type_out == fracttypes.Complex:
-            retval.value = [float(val.value),0.0]
+            retval.value = [ir.Const(float(val.value),val.node,fracttypes.Float),
+                            ir.Const(0.0,val.node,fracttypes.Float)]
         else:
             retval.value = float(val.value)
             

@@ -182,11 +182,11 @@ class T(FctUtils):
             if name == "maxiter":
                 self.maxiter = int(val.value)
             elif name == "center" or name == "xycenter":
-                self.params[self.XCENTER] = float(val[0].value)
-                self.params[self.YCENTER] = float(val[1].value)
+                self.params[self.XCENTER] = float(val.value[0].value)
+                self.params[self.YCENTER] = float(val.value[1].value)
             elif name == "zwcenter":
-                self.params[self.ZCENTER] = float(val[0].value)
-                self.params[self.WCENTER] = float(val[1].value)
+                self.params[self.ZCENTER] = float(val.value[0].value)
+                self.params[self.WCENTER] = float(val.value[1].value)
             elif name == "angle":
                 self.params[self.XYANGLE] = float(val.value)
             elif name == "magn":
@@ -197,7 +197,7 @@ class T(FctUtils):
                 if hasattr(self,name.upper()):
                     self.params[getattr(self,name.upper())] = float(val.value)
                 else:
-                    print "ignored parameter %s" % name
+                    print "ignored unknown parameter %s" % name
         
     def set_formula(self,formulafile,func):
         self.formula = self.compiler.get_formula(formulafile,func)

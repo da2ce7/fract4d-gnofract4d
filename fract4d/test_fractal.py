@@ -190,7 +190,8 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         self.assertEqual(f.params[f.XYANGLE],0.001)
         self.assertEqual(f.params[f.XZANGLE],0.789)
         self.assertEqual(f.title,"Hello World")
-        
+        self.assertEqual(f.initparams,[8.0,7.0,1.0])
+
     def failBuf(self,buf):
         self.failUnless(False)
         

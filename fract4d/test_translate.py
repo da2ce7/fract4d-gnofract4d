@@ -148,6 +148,19 @@ class TranslateTest(testbase.TestBase):
         endparam
         }''')
         self.assertError(t, "4: Cannot convert string (fish) to complex")
+
+    def testParamTypeConversion(self):
+        t = self.translate('''t_badparam {
+        default:
+        param foo
+            default = (1.0,2.0)
+        endparam
+        }''')
+
+        self.assertNoErrors(t)
+        foo = t.symbols["@foo"]
+        self.assertEqual(foo.default.value[0].value,1.0)
+        self.assertEqual(foo.default.value[1].value,2.0)
         
     def testDefaultSection(self):
         t = self.translate('''t_d1 {
@@ -171,8 +184,8 @@ class TranslateTest(testbase.TestBase):
         self.assertNoErrors(t)
         self.assertEqual(t.defaults["maxiter"].value,100)
         self.assertEqual(t.defaults["xyangle"].value,4.9)
-        self.assertEqual(t.defaults["center"][0].value,8.1)
-        self.assertEqual(t.defaults["center"][1].value,2.0)
+        self.assertEqual(t.defaults["center"].value[0].value,8.1)
+        self.assertEqual(t.defaults["center"].value[1].value,2.0)
         self.assertEqual(t.defaults["title"].value,"Hello World")
 
         k = t.symbols.parameters().keys()
@@ -183,7 +196,8 @@ class TranslateTest(testbase.TestBase):
 
         foo = t.symbols["@foo"]
         self.assertEqual(foo.caption.value, "Angle")
-        self.assertEqual(foo.default.value, [ 10.0, 0.0])
+        self.assertEqual(foo.default.value[0].value, 10.0)
+        self.assertEqual(foo.default.value[1].value, 0.0)
 
         t8 = t.symbols["@with_turnaround8"]
         self.assertEqual(t8.hint.value,"")
@@ -199,7 +213,7 @@ class TranslateTest(testbase.TestBase):
         self.assertEqual(op["__SIZE__"],5)
 
         defparams = t.symbols.default_params()
-        print defparams
+        self.assertEqual(defparams,[0.0,10.0,0.0,1.0,0.0])
         
     def testEnum(self):
         t = self.translate('''t_enum {

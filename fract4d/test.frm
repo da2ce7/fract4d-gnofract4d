@@ -11,6 +11,12 @@ zwcenter = (7.1,2.9)
 angle = 0.001
 magn = 8.0
 title = "Hello World"
+float param bailout
+	default = 8.0
+endparam
+param woggle
+	default = (7.0,1.0)
+endparam
 }
 
 ; a new-year's eve fractal - looks like a good torture test...
