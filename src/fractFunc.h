@@ -105,7 +105,7 @@ class fractFunc {
 
     // period guesser for when we have the last count to hand (as for antialias pass)
     inline int periodGuess(int last) {
-        return (last == -1 && f->maxiter > 4096) ? 0 : f->maxiter;
+        return (last == -1 /*&& f->maxiter > 4096*/) ? 0 : f->maxiter;
     }
 
     // update whether last pixel bailed

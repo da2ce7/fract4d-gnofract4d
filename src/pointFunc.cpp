@@ -29,6 +29,17 @@
 #include <unistd.h>
 #include <dlfcn.h>
 
+#define STATIC_FUNCTION
+
+#ifdef STATIC_FUNCTION
+#define ITER pTemp[X2] = pIter[X] * pIter[X];pTemp[Y2] = pIter[Y] * pIter[Y];atmp = pTemp[X2] - pTemp[Y2] + pInput[CX];pIter[Y] = 2.0 * pIter[X] * pIter[Y] + pInput[CY];pIter[X] = atmp
+#define DECL double atmp 
+#define RET 
+#define BAIL pTemp[EJECT_VAL] = pTemp[X2] + pTemp[Y2];
+
+#include "compiler_template.cpp"
+#endif
+
 pointFunc *pointFunc_new(
     iterFunc *iterType, 
     e_bailFunc bailType, 
@@ -37,6 +48,9 @@ pointFunc *pointFunc_new(
     e_colorFunc outerCfType,
     e_colorFunc innerCfType)
 {
+#ifdef STATIC_FUNCTION
+    return (pointFunc *)create_pointfunc(bailout,pcf,outerCfType,innerCfType);
+#else
     bailFunc *b = bailFunc_new(bailType);
 
     std::string iter = iterType->iter_code();
@@ -56,5 +70,6 @@ pointFunc *pointFunc_new(
     }
 
     return pFunc(bailout, pcf, outerCfType, innerCfType);
+#endif
 }
 

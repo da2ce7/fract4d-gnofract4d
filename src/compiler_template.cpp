@@ -52,7 +52,7 @@ public:
 
     /* do some iterations without periodicity */
     //template<class T>
-    inline bool calcNoPeriod(int& iter, int maxIter, T *pIter, T *pInput, T *pTemp)
+    bool calcNoPeriod(int& iter, int maxIter, T *pIter, T *pInput, T *pTemp)
         {
             while(iter + 8 < maxIter)
             {
@@ -61,8 +61,6 @@ public:
                 ITER; ITER; ITER; ITER; ITER; ITER; ITER; ITER; 
                 RET;
                 BAIL;
-                //iter8(pIter,pInput,pTemp);
-                //bail(pIter,pInput,pTemp);
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
                     // we bailed out somewhere in the last 8iters -
@@ -75,7 +73,6 @@ public:
             
             do
             {
-                //iter1(pIter,pInput,pTemp);
                 DECL;
                 ITER;
                 RET;
@@ -84,12 +81,9 @@ public:
                     return false;
                 }
                 BAIL;
-                //bail(pIter,pInput,pTemp);  
-                if(pTemp[EJECT_VAL] >= m_eject)
-                {
-                    return true;
-                }
-            }while(true);
+            }while(pTemp[EJECT_VAL] < m_eject);
+
+            return true;
         }
 
     void testFunc(T *pIter, T*pInput, T*pTemp)
@@ -98,7 +92,7 @@ public:
         }
 
     //template<class T>
-    inline bool calcWithPeriod(
+    bool calcWithPeriod(
         int &iter, int nMaxIters, 
         T *pIter, T *pInput, T *pTemp)
         {
@@ -109,14 +103,12 @@ public:
             // single iterations
             do
             {
-                //iter1(pIter,pInput,pTemp);
                 DECL; ITER; RET;
                 if(iter++ >= nMaxIters) 
                 {
                     // ran out of iterations
                     iter = -1; return false;
                 }
-                //bail(pIter,pInput,pTemp);            
                 BAIL;
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
@@ -167,7 +159,6 @@ public:
             *pnIters = iter;
             if(color)
             {
-                //iter = nNoPeriodIters;
                 *color = colorize(iter,pIter,pInput,pTemp);
             }
         };

@@ -220,7 +220,6 @@ fractFunc::pixel(int x, int y,int w, int h)
 
     if(*ppos != -1) return;
 
-    int pg = f->maxiter;
     // calculate coords of this point
     dvec4 pos = topleft + 
         I2D_LIKE(x, f->params[MAGNITUDE]) * deltax + 
