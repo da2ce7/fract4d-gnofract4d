@@ -98,6 +98,9 @@ def ID(id):
 def Mag(exp):
     return Node("unop", [exp], "mag")
 
+def String(s):
+    return Node("string", None, s)
+
 def Neg(exp):
     return Node("unop", [exp], "neg")
 

@@ -72,11 +72,14 @@ def p_setlist_2(t):
      'setlist : set NEWLINE setlist'
      t[0] = [t[1]] + t[3]
 
-def p_set_string(t):
-     '''set : ID ASSIGN STRING
-        set : ID ASSIGN exp'''     
+def p_set_exp(t):
+     '''set : ID ASSIGN exp'''     
      t[0] = absyn.Set(t[1],t[3])
 
+def p_set_string(t):
+     '''set : ID ASSIGN STRING'''
+     t[0] = absyn.Set(t[1],absyn.String(t[3]))
+     
 def p_set_empty(t):
      'set : empty'
      t[0] = t[1]
