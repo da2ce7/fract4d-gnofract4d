@@ -243,23 +243,25 @@ STFractWorker::pixel(int x, int y,int w, int h)
     // test for iteration depth
     if(ff->auto_deepen && k++ % ff->AUTO_DEEPEN_FREQUENCY == 0)
     {
-        int i=0;
-
-        pf->calc(pos.n, ff->maxiter*2,periodGuess(),x,y,-1,
-		 &pixel,&i, &index, &fate);
-
-        if( (i > ff->maxiter/2) && (i < ff->maxiter))
+        if( iter > ff->maxiter/2)
         {
             /* we would have got this wrong if we used 
              * half as many iterations */
             nhalfiters++;
         }
-        else if( (i > ff->maxiter) && (i < ff->maxiter*2))
-        {
-            /* we would have got this right if we used
-             * twice as many iterations */
-            ndoubleiters++;
-        }
+        else if(iter == -1)
+	{
+	    /* didn't bail out, try again with 2x as many iterations */
+	    pf->calc(pos.n, ff->maxiter*2,periodGuess(),x,y,-1,
+		     &pixel,&iter, &index, &fate);
+
+	    if(iter != -1)
+	    {
+		/* we would have got this right if we used
+		 * twice as many iterations */
+		ndoubleiters++;
+	    }
+	}
     }
 }
 
