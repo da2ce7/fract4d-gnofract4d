@@ -217,6 +217,7 @@ static void pf_init(
     for(i = 0; i < nparams; ++i)
     {
         pfo->p[i] = params[i];
+        /* printf("param %%d = %%.17g\n",i,params[i]); */
     }
 }
 
@@ -468,7 +469,12 @@ extern pf_obj *pf_new(void);
                             out += self.make_cdecl(t,sym.cname,"t__pfo->p[%d]",ord,ord+1)
                             
                     elif sym.type == fracttypes.Float:
-                        out.append(Decl("%s %s = %.17f;" % (t,sym.cname,val)))
+                        ord = op.get(key)
+                        if ord == None:
+                            out.append(Decl("%s %s = %.17f;" % (t,sym.cname,val)))
+                        else:
+                            out.append(Decl("%s %s = t__pfo->p[%d];" % \
+                                            (t, sym.cname, ord)))
                     else:
                         out.append(Decl("%s %s = %d;" % (t,sym.cname,val)))
                 else:
