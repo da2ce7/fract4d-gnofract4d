@@ -22,7 +22,11 @@
 #define _FRACT_H_
 
 #include "fract_public.h"
+#include "colorizer.h"
+
 #include "calc.h"
+
+class fract_rot;
 
 struct fractal
 {
@@ -33,15 +37,21 @@ private:
 	int fractal_type;
 	int aa_profondeur;
 	int auto_deepen;
-	double r;
-	double g;
-	double b;
 	int digits;
 	bool running;
 	bool finished;
 
+	// parameters which aren't saved
+
+	// direction to move in for flip2julia
+	double rot_by;
+
 	// rotated params
 	dmat4 rot;
+
+	// color params
+	colorizer *cizer;
+
 public:
 	fractal();
 	fractal(fractal& f); // copy ctor
@@ -61,12 +71,18 @@ public:
 	int get_aa();
 	int get_auto();
 	void finish();
+	bool check_precision();
+	bool set_precision(int digits); 
+
+	// color functions
+	e_colorizer get_color_type();
+	void set_color_type(e_colorizer);
+	void set_color(double r, double g, double b);
+	void set_cmap_file(const char *filename);
+	char *get_cmap_file();
 	double get_r();
 	double get_g();
 	double get_b();
-	bool check_precision();
-	bool set_precision(int digits); 
-	void set_color(double r, double g, double b);
 
 	void update_matrix();
 	dvec4 get_center();

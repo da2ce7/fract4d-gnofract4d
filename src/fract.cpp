@@ -48,20 +48,18 @@ fractal::fractal()
 	// display params
 	aa_profondeur = 2;
 	auto_deepen = 1;
-	r = 1.0;
-	g = 0.0;
-	b = 0.0;
 
 	digits = 0;
 	
 	running = false;
 	finished = false;
+	cizer = colorizer_new(COLORIZER_RGB);
 }
 
 /* dtor */
 fractal::~fractal()
 {
-
+	colorizer_delete(&cizer);
 }
 
 /* call destructor & set ptr to NULL */
@@ -92,12 +90,11 @@ fractal::fractal(fractal& f)
 	fractal_type = f.fractal_type;
 	aa_profondeur = f.aa_profondeur;
 	auto_deepen = f.auto_deepen;
-	r = f.r;
-	g = f.g;
-	b = f.b;
 	digits = f.digits;
 	running = f.running;
 	finished = f.finished;
+
+	cizer = f.cizer;
 }
 
 /* return to mandelbrot set */
@@ -120,9 +117,54 @@ fractal::reset()
 
 	nbit_max = 64;
 	fractal_type = 0;
+	rot_by = M_PI/2.0;
+
+	// FIXME doesn't copy cizer
 }
 
-bool fractal::write_params(const char *filename)
+e_colorizer
+fractal::get_color_type()
+{
+	return cizer->type();
+}
+
+void
+fractal::set_color_type(e_colorizer type)
+{
+	if(type == cizer->type()) return;
+
+	colorizer_delete(&cizer);
+	cizer = colorizer_new(type);
+}
+
+void
+fractal::set_cmap_file(const char *filename)
+{
+	cmap_colorizer *cmap_cizer = dynamic_cast<cmap_colorizer *>(cizer);
+	if(cmap_cizer)
+	{
+		if(strcmp(cmap_cizer->name.c_str(),filename)==0)
+		{
+			return; // already set to same file
+		}
+		cmap_cizer->set_cmap_file(filename);
+	}
+	else
+	{
+		g_warning("set_cmap_file on non-cmap colorizer");
+	}
+}
+
+char *
+fractal::get_cmap_file()
+{
+	cmap_colorizer *cmap_cizer = dynamic_cast<cmap_colorizer *>(cizer);
+	if(!cmap_cizer) return NULL;
+	return g_strdup(cmap_cizer->name.c_str());
+}
+
+bool 
+fractal::write_params(const char *filename)
 {
 	std::ofstream os(filename);
 
@@ -135,7 +177,7 @@ bool fractal::write_params(const char *filename)
 	os << nbit_max << "\n";
 	os << fractal_type << "\n";
 	os << aa_profondeur << "\n";
-	os << r << "\n" << g << "\n" << b << "\n";
+	os << *cizer << "\n";
 
 	if(!os) return false;
 	return true;
@@ -155,7 +197,12 @@ fractal::load_params(const char *filename)
 	is >> nbit_max;
 	is >> fractal_type;
 	is >> aa_profondeur;
-	is >> r >> g >> b;
+	colorizer *cizer_tmp = colorizer_read(is);
+	if(cizer_tmp)
+	{
+		colorizer_delete(&cizer);
+		cizer = cizer_tmp;
+	}
 	if(!is) return false;
 	return true;
 }
@@ -199,25 +246,33 @@ fractal::get_auto()
 void 
 fractal::set_color(double _r, double _g, double _b)
 {
-	r = _r; g = _g; b = _b;
+	rgb_colorizer *rgb_cizer = dynamic_cast<rgb_colorizer *>(cizer);
+	if(!rgb_cizer) return;
+	rgb_cizer->set_colors(_r,_g,_b);
 }
 
 double 
 fractal::get_r()
 {
-	return r;
+	rgb_colorizer *rgb_cizer = dynamic_cast<rgb_colorizer *>(cizer);
+	if(!rgb_cizer) return 0.0;
+	return rgb_cizer->r;
 }
 
 double 
 fractal::get_g()
 {
-	return g;
+	rgb_colorizer *rgb_cizer = dynamic_cast<rgb_colorizer *>(cizer);
+	if(!rgb_cizer) return 0.0;
+	return rgb_cizer->g;
 }
 
 double 
 fractal::get_b()
 {
-	return b;
+	rgb_colorizer *rgb_cizer = dynamic_cast<rgb_colorizer *>(cizer);
+	if(!rgb_cizer) return 0.0;
+	return rgb_cizer->b;
 }
 
 
@@ -328,7 +383,6 @@ fractal::recenter(const dvec4& delta)
 	params[ZCENTER] += delta.n[VZ];
 	params[WCENTER] += delta.n[VW];
 	debug_precision(params[XCENTER],"recenter 2:x");
-
 }
 
 void
@@ -359,7 +413,6 @@ fractal::relocate(double x, double y, double zoom)
 void
 fractal::flip2julia(double x, double y)
 {
-	static double rot_by=M_PI/2;
 	relocate(x,y,1.0);
 	
 	params[XZANGLE] += D_LIKE(rot_by,params[SIZE]);
@@ -385,14 +438,13 @@ public:
 	int k;	
 	int last_update_y;
 	fractal_t *f;
-	colorFunc cf;
 	fractFunc pf;
 	int *p;
 	image *im;
-	fract_rot(fractal_t *_f, image *_im, colorFunc _cf, fractFunc _pf, Gf4dFractal *_gf) {
+	fract_rot(fractal_t *_f, image *_im, fractFunc _pf, Gf4dFractal *_gf) {
 		gf = _gf;
 		im = _im;
-		f = _f; cf = _cf ; pf = _pf;
+		f = _f; pf = _pf;
 		depth = f->aa_profondeur ? f->aa_profondeur : 1; 
 
 		f->update_matrix();
@@ -460,8 +512,8 @@ fract_rot::antialias(const dvec4& cpos)
 	for(i=0;i<depth;i++) {
 		dvec4 pos = topleft; 
 		for(j=0;j<depth;j++) {
-			ptmp = cf(pf(pos, f->params[BAILOUT], f->nbit_max), 
-				  f->r, f->g, f->b);
+			colorizer *cf = f->cizer;
+			ptmp = (*cf)(pf(pos, f->params[BAILOUT], f->nbit_max)); 
 			pixel_r_val += ptmp.r;
 			pixel_g_val += ptmp.g;
 			pixel_b_val += ptmp.b;
@@ -490,7 +542,8 @@ fract_rot::pixel(int x, int y,int w, int h)
 	if(*ppos != -1) return;
 		
 	*ppos = pf(pos, f->params[BAILOUT], f->nbit_max); 
-	pixel=cf(*ppos,f->r, f->g, f->b);
+	colorizer *cf = f->cizer;
+	pixel=(*cf)(*ppos);
 
 	rectangle(pixel,x,y,w,h);
 	
@@ -674,7 +727,7 @@ fractal::calc(Gf4dFractal *gf, image *im)
 	do {
 		running = 1;
 		fractFunc pf= fractFuncTable[fractal_type];
-		fract_rot pr(this, im, colorize, pf,gf);
+		fract_rot pr(this, im, pf,gf);
 		
 		try {
 			gf4d_fractal_status_changed(gf,GF4D_FRACTAL_CALCULATING);

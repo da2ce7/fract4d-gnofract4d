@@ -516,6 +516,117 @@ create_entry_with_label(GtkWidget *propertybox,
 };
 
 void
+create_propertybox_color_page(GtkWidget *propertybox,
+			      GtkWidget *notebook,
+			      GtkTooltips *tooltips)
+{
+	GtkWidget *vbox;
+	GtkWidget *label;
+	GtkWidget *table;
+	GtkWidget *clabel, *cpicker;
+	GtkWidget *cmaplabel;
+	GtkWidget *cmapselector;
+
+	vbox = gtk_vbox_new (FALSE, 0);
+
+	gtk_widget_show (vbox);
+	gtk_container_add (GTK_CONTAINER (notebook), vbox);
+
+	/* create label for this page */
+	label = gtk_label_new(_("Color"));
+	gtk_widget_show(label);
+
+	gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), 
+				    gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), 3), label);
+
+	table = gtk_table_new (6, 2, FALSE);
+	gtk_widget_show (table);
+	gtk_box_pack_start (GTK_BOX (vbox), table, TRUE, TRUE, 0);
+
+	/* create label for color range */
+	clabel = gtk_radio_button_new_with_label(NULL,_("Color Range"));
+	gtk_widget_show(clabel);
+	gtk_tooltips_set_tip (tooltips, clabel, _("Use a range of colors. The effect is interesting but unpredictable."), NULL);
+
+	gtk_table_attach(GTK_TABLE(table), clabel,0,1,0,1, 
+			 GTK_EXPAND | GTK_FILL, 0, 0, 2);
+
+	gtk_signal_connect_object (GTK_OBJECT(clabel),"toggled",
+				   GTK_SIGNAL_FUNC(gnome_property_box_changed),
+				   GTK_OBJECT(propertybox));
+
+	gtk_object_set_data (
+		GTK_OBJECT (propertybox), 
+		"rgb_toggle",
+		clabel);
+
+	/* create color picker widget */
+	cpicker = gnome_color_picker_new();
+	gtk_widget_show(cpicker);
+	gtk_table_attach(GTK_TABLE(table), cpicker,1,2,0,1,
+			 GTK_EXPAND | GTK_FILL, 0, 0, 2);
+
+	gtk_object_set_data (
+		GTK_OBJECT (propertybox), 
+		"color_picker",
+		cpicker);
+
+	gtk_signal_connect (
+		GTK_OBJECT(cpicker),"color-set",
+		GTK_SIGNAL_FUNC(color_picker_cb),
+		propertybox);
+
+	/* connect clabel and cpicker widgets */
+	gtk_signal_connect(GTK_OBJECT(clabel),"toggled",
+			   GTK_SIGNAL_FUNC(color_type_changed),
+			   GTK_OBJECT(cpicker));
+	
+	/* create "color map" radiobutton */
+	cmaplabel = gtk_radio_button_new_with_label_from_widget (
+		GTK_RADIO_BUTTON(clabel),
+		_("Color Map"));
+	gtk_widget_show(cmaplabel);
+	gtk_table_attach(GTK_TABLE(table), cmaplabel,0,1,1,2, 
+			 GTK_EXPAND | GTK_FILL, 0, 0, 2);
+	gtk_tooltips_set_tip (tooltips, cmaplabel, _("Use a predefined palette of colors loaded from a .map file"), NULL);
+
+	gtk_object_set_data(
+		GTK_OBJECT (propertybox), 
+		"cmap_toggle",
+		cmaplabel);
+
+	/* a file selector for loading the .map files */
+	cmapselector = gnome_file_entry_new("cmaps",_("Select a color map file"));
+	
+	{
+		GtkWidget *entry = gnome_file_entry_gtk_entry(
+			GNOME_FILE_ENTRY(cmapselector));
+			
+		gtk_entry_set_text(GTK_ENTRY(entry), _("Default"));
+
+		/* set cmap selector name */
+		gtk_object_set_data(
+			GTK_OBJECT (propertybox), 
+			"cmap_entry",
+			entry);
+		gtk_signal_connect_object(GTK_OBJECT(entry),"changed",
+					  GTK_SIGNAL_FUNC(gnome_property_box_changed),
+					  GNOME_PROPERTY_BOX(propertybox));
+	}
+	gtk_widget_show(cmapselector);
+	gtk_table_attach(GTK_TABLE(table), cmapselector,1,2,1,2, 
+			 GTK_EXPAND | GTK_FILL, 0, 0, 2);
+
+	gtk_widget_set_sensitive(cmapselector,FALSE);
+
+
+	/* connect cmaplabel and cmapselector */
+	gtk_signal_connect(GTK_OBJECT(cmaplabel),"toggled",
+			   GTK_SIGNAL_FUNC(color_type_changed),
+			   GTK_OBJECT(cmapselector));
+}
+
+void
 create_propertybox_general_page(GtkWidget *propertybox, 
 				GtkWidget *notebook,
 				GtkTooltips *tooltips)
@@ -523,7 +634,6 @@ create_propertybox_general_page(GtkWidget *propertybox,
 	GtkWidget *vbox;
 	GtkWidget *table;
 	GtkWidget *label;
-	GtkWidget *clabel, *cpicker;
 	GtkWidget *aa_button;
 	GtkWidget *auto_deepen_button;
 
@@ -605,25 +715,6 @@ create_propertybox_general_page(GtkWidget *propertybox,
 				   GTK_SIGNAL_FUNC(gnome_property_box_changed),
 				   GTK_OBJECT(propertybox));
 
-	clabel = gtk_label_new(_("color"));
-	cpicker = gnome_color_picker_new();
-
-	gtk_widget_show(cpicker);
-	gtk_widget_show(clabel);
-
-	gtk_table_attach(GTK_TABLE(table), clabel,0,1,5,6, 
-			 GTK_EXPAND | GTK_FILL, 0, 0, 2);
-	gtk_table_attach(GTK_TABLE(table), cpicker,1,2,5,6,
-			 GTK_EXPAND | GTK_FILL, 0, 0, 2);
-	gtk_widget_set_name(cpicker, "color_picker");
-	gtk_widget_ref (cpicker);
-	gtk_object_set_data_full (GTK_OBJECT (propertybox), 
-				  "color_picker",
-				  cpicker,
-				  (GtkDestroyNotify) gtk_widget_unref);
-
-	gtk_signal_connect(GTK_OBJECT(cpicker),"color-set",
-			   GTK_SIGNAL_FUNC(color_picker_cb),propertybox);
 }
 
 void
@@ -740,6 +831,7 @@ create_propertybox (model_t *m)
 	create_propertybox_general_page(propertybox,notebook,tooltips);
 	create_propertybox_location_page(propertybox, notebook, tooltips);
 	create_propertybox_angles_page(propertybox, notebook, tooltips);
+	create_propertybox_color_page(propertybox, notebook, tooltips);
 
 	gtk_signal_connect (GTK_OBJECT (propertybox), "apply",
 			    GTK_SIGNAL_FUNC (propertybox_apply),

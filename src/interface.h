@@ -44,6 +44,11 @@ create_propertybox_angles_page(GtkWidget *propertybox,
 			       GtkTooltips *tooltips);
 
 void
+create_propertybox_color_page(GtkWidget *propertybox,
+			      GtkWidget *notebook,
+			      GtkTooltips *tooltips);
+
+void
 create_entry_with_label(GtkWidget *propertybox,
 			      GtkWidget *table,
 			      GtkTooltips *tooltips,

@@ -31,6 +31,7 @@
 #include "interface.h"
 #include "support.h"
 #include "gf4d_fractal.h"
+#include "colorizer_public.h"
 
 GtkWidget *global_propertybox=NULL;
 extern GtkWidget *app;
@@ -218,6 +219,7 @@ propertybox_apply(GnomePropertyBox *gnomepropertybox,
 	GnomeColorPicker *cpicker;
 	Gf4dFractal *f;
 	GtkWidget *aa, *auto_deepen;
+	GtkWidget *ctype;
 
 	GtkWidget *pb = GTK_WIDGET(gnomepropertybox);
 	if (arg1 != -1)
@@ -253,7 +255,20 @@ propertybox_apply(GnomePropertyBox *gnomepropertybox,
 	cpicker = (GnomeColorPicker *)lookup_widget(pb,"color_picker");
 	gnome_color_picker_get_d(cpicker,&r,&g, &b,&alpha);
 
-	gf4d_fractal_set_color(f,r,g,b);
+	ctype = lookup_widget(pb,"rgb_toggle");
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctype)))
+	{
+		gf4d_fractal_set_color_type(f,COLORIZER_RGB);
+		gf4d_fractal_set_color(f,r,g,b);
+	}
+	else
+	{
+		/* assume cmap for now */
+		char *file = param_by_name(pb, "cmap_entry");
+		gf4d_fractal_set_color_type(f,COLORIZER_CMAP);
+		gf4d_fractal_set_cmap_file(f,file);
+		g_free(file);
+	}
 	gf4d_fractal_thaw(f);
 	model_cmd_finish(m);
 }
@@ -575,6 +590,8 @@ property_box_refresh(model_t *m)
 
 	Gf4dFractal *f = model_get_fract(m);
 	int i;
+	e_colorizer ctype;
+	char *filename;
 
 	if (propertybox!=NULL) {
 		GtkWidget *w;
@@ -609,11 +626,28 @@ property_box_refresh(model_t *m)
 					   gf4d_fractal_get_param(f,i));
 		}
 
-		w = lookup_widget(propertybox,"color_picker");
-		gnome_color_picker_set_d(GNOME_COLOR_PICKER(w),
-					 gf4d_fractal_get_r(f), 
-					 gf4d_fractal_get_g(f), 
-					 gf4d_fractal_get_b(f), 0.0);
+		ctype = gf4d_fractal_get_color_type(f);
+		switch(ctype)
+		{
+		case COLORIZER_RGB:
+			w = lookup_widget(propertybox,"color_picker");
+			gnome_color_picker_set_d(GNOME_COLOR_PICKER(w),
+						 gf4d_fractal_get_r(f), 
+						 gf4d_fractal_get_g(f), 
+						 gf4d_fractal_get_b(f), 0.0);
+			w = lookup_widget(propertybox, "rgb_toggle");
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w),1);
+			break;
+		case COLORIZER_CMAP:
+			w = lookup_widget(propertybox, "cmap_toggle");
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w),1);
+			w = lookup_widget(propertybox, "cmap_entry");
+			filename = gf4d_fractal_get_cmap_file(f);
+			gtk_entry_set_text(GTK_ENTRY(w),filename);
+			g_free(filename);
+			break;
+		default:
+		}
 
 		gnome_property_box_set_state(GNOME_PROPERTY_BOX(propertybox),
 					     FALSE);
@@ -629,3 +663,10 @@ color_picker_cb(GnomeColorPicker *colorpicker,
 	gnome_property_box_changed (GNOME_PROPERTY_BOX(user_data));
 }
 
+void
+color_type_changed(GtkToggleButton *button, gpointer user_data)
+{
+	GtkWidget *widget = GTK_WIDGET(user_data); // 
+	gboolean b_is_set = gtk_toggle_button_get_active(button);
+	gtk_widget_set_sensitive(widget,b_is_set);
+}

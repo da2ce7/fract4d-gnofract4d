@@ -286,6 +286,25 @@ int  gf4d_fractal_set_resolution(Gf4dFractal *f, int xres, int yres)
 	return ret;
 }
 
+e_colorizer gf4d_fractal_get_color_type(Gf4dFractal *f)
+{
+	return f->f->get_color_type();
+}
+
+void gf4d_fractal_set_color_type(Gf4dFractal *f, e_colorizer type)
+{
+	f->f->set_color_type(type);
+}
+
+void gf4d_fractal_set_cmap_file(Gf4dFractal *f, const char *filename)
+{
+	f->f->set_cmap_file(filename);
+}
+
+gchar *gf4d_fractal_get_cmap_file(Gf4dFractal *f)
+{
+	return f->f->get_cmap_file();
+}
 void gf4d_fractal_freeze(Gf4dFractal *f)
 {
 

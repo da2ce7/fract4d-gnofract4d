@@ -21,12 +21,6 @@
 #ifndef _TEST_FONCTION_H_
 #define _TEST_FONCTION_H_
 
-struct rgb
-{
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-};
 
 
 #define	NFUNCS 2

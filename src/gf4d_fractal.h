@@ -25,6 +25,7 @@ typedef struct _Gf4dFractal Gf4dFractal;
 typedef struct _Gf4dFractalClass Gf4dFractalClass;
 
 #include "fract_public.h"
+#include "colorizer_public.h"
 
 struct _Gf4dFractal
 {
@@ -61,9 +62,6 @@ gboolean gf4d_fractal_load_params(Gf4dFractal *f, const gchar *filename);
 
 /* accessor functions */
 int gf4d_fractal_get_max_iterations(Gf4dFractal *f);
-double gf4d_fractal_get_r(Gf4dFractal *f);
-double gf4d_fractal_get_g(Gf4dFractal *f);
-double gf4d_fractal_get_b(Gf4dFractal *f);
 int gf4d_fractal_get_aa(Gf4dFractal *f);
 int gf4d_fractal_get_auto(Gf4dFractal *f);
 char *gf4d_fractal_get_param(Gf4dFractal *f, param_t i);
@@ -81,7 +79,22 @@ void gf4d_fractal_set_param(Gf4dFractal *f, param_t i, char *val);
 void gf4d_fractal_set_aa(Gf4dFractal *f, int val);
 void gf4d_fractal_set_auto(Gf4dFractal *f, int val);
 int gf4d_fractal_set_precision(Gf4dFractal *f, int digits);
+
+
+/* color functions */
+e_colorizer gf4d_fractal_get_color_type(Gf4dFractal *f);
+void gf4d_fractal_set_color_type(Gf4dFractal *f, e_colorizer type);
+
+/* color functions : only for COLORIZER_CMAP */
+void gf4d_fractal_set_cmap_file(Gf4dFractal *f, const char *filename);
+gchar *gf4d_fractal_get_cmap_file(Gf4dFractal *f);
+
+/* color functions : only for COLORIZER_RGB */
+double gf4d_fractal_get_r(Gf4dFractal *f);
+double gf4d_fractal_get_g(Gf4dFractal *f);
+double gf4d_fractal_get_b(Gf4dFractal *f);
 void gf4d_fractal_set_color(Gf4dFractal *f, double r, double g, double b);
+
 
 /* image-related functions: to be removed */
 int gf4d_fractal_get_xres(Gf4dFractal *f);

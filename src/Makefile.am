@@ -19,7 +19,8 @@ gnofract4d_SOURCES = \
 	gf4d_fractal.cpp gf4d_fractal.h \
 	gundo.c gundo.h \
 	gundo_ui.c gundo_ui.h \
-	image.cpp image.h
+	image.cpp image.h \
+	colorizer.cpp colorizer.h colorizer_public.h 
 
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GNOMEUI_LIBS) $(INTLLIBS)
 

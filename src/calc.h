@@ -44,6 +44,7 @@ typedef cl_F d;
 #define DOUBLE(_x) cl_double_approx(_x)
 #else
 typedef double d;
+
 #define D2ADECL 
 #define A2D(_x) atof(_x)
 #define D2A(_x) g_strdup_printf("%g",_x)
