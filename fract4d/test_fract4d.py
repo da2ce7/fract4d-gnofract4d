@@ -35,7 +35,38 @@ class FractalSite:
     def image_changed(self,x1,y1,x2,y2):
         #print "image: %d %d %d %d" %  (x1, x2, y1, y2)
         self.image_list.append((x1,y1,x2,y2))
-        
+
+class ImageWrapper:
+    FATE_SIZE = 4
+    COL_SIZE = 3
+    OUT=0
+    IN=1
+    UNKNOWN=255
+    def __init__(self,xsize,ysize,img):
+        self.xsize = xsize
+        self.ysize = ysize
+        self.fate_buf = fract4dc.image_fate_buffer(img,0,0)
+        self.image_buf = fract4dc.image_buffer(img,0,0)
+        self.img = img
+
+    def pos(self,x,y,size):
+        return size * (y * self.xsize + x)
+    
+    def get_fate(self,x,y):
+        return ord(self.fate_buf[self.pos(x,y,ImageWrapper.FATE_SIZE)])
+
+    def get_all_fates(self,x,y):
+        pos = self.pos(x,y,ImageWrapper.FATE_SIZE)
+        return map(ord,list(self.fate_buf[pos:pos+ImageWrapper.FATE_SIZE]))
+
+    def get_color(self,x,y):
+        return self.image_buf[self.pos(x,y,ImageWrapper.COL_SIZE)]
+
+    def get_all_colors(self,x,y):
+        pos = self.pos(x,y,ImageWrapper.COL_SIZE)
+        return self.image_buf[pos:pos+ImageWrapper.COL_SIZE]
+
+
 class PfTest(unittest.TestCase):
 
     def compileMandel(self):
@@ -64,6 +95,26 @@ class PfTest(unittest.TestCase):
         f.merge(cf2,"cf1")
 
         self.compiler.generate_code(f,cg,"test-pfc.so","cmandel.c")
+
+    def compileColorDiagonal(self):
+        self.compiler.file_path.append('../formulas')
+        self.compiler.load_formula_file("test.frm")
+        self.compiler.load_formula_file("gf4d.cfrm")
+        cf1 = self.compiler.get_colorfunc("gf4d.cfrm","default","cf0")
+        self.assertEqual(len(cf1.errors),0)
+        self.compiler.compile(cf1)
+        
+        cf2 = self.compiler.get_colorfunc("gf4d.cfrm","zero","cf1")
+        self.assertEqual(len(cf2.errors),0)
+        self.compiler.compile(cf2)
+        
+        f = self.compiler.get_formula("test.frm","test_simpleshape")
+        cg = self.compiler.compile(f)
+
+        f.merge(cf1,"cf0")
+        f.merge(cf2,"cf1")
+
+        self.compiler.generate_code(f,cg,"test-pfc2.so","cmandel.c")
 
     def setUp(self):
         compiler = fc.Compiler()
@@ -140,8 +191,8 @@ class PfTest(unittest.TestCase):
         siteobj = FractalSite()
         site = fract4dc.site_create(siteobj)
 
-        self.compileColorMandel()
-        handle = fract4dc.pf_load("./test-pfc.so")
+        self.compileColorDiagonal()
+        handle = fract4dc.pf_load("./test-pfc2.so")
         pfunc = fract4dc.pf_create(handle)
         fract4dc.pf_init(pfunc,0.001,[0.5])
 
@@ -183,17 +234,45 @@ class PfTest(unittest.TestCase):
 
         self.assertEqual(list(fate_buf), [chr(255)] * 4 * xsize * ysize)
 
+        iw = ImageWrapper(xsize,ysize,image)
+        
         # draw 1 pixel, check it's set properly
         fract4dc.fw_pixel(fw,0,0,1,1)
-        self.assertEqual(fate_buf[0],chr(0))
-        self.assertEqual(buf[0:3],"\x00\x00\x00")
-        self.assertEqual(fate_buf[1:4], "\xff\xff\xff")
+        self.assertEqual(iw.get_fate(0,0),iw.IN)
+        self.assertEqual(iw.get_all_colors(0,0),"\x00\x00\x00")
+        self.assertEqual(iw.get_all_fates(0,0),
+                         [iw.IN, iw.UNKNOWN, iw.UNKNOWN, iw.UNKNOWN])
         self.assertEqual(fract4dc.image_get_color_index(image,0,0),0.0)
 
         # draw it again, check no change.
         fract4dc.fw_pixel(fw,0,0,1,1)
-        self.assertEqual(fate_buf[0],chr(0))
+        self.assertEqual(fate_buf[0],chr(1))
         self.assertEqual(buf[0:3],"\x00\x00\x00")
+        self.assertEqual(fate_buf[1:4], "\xff\xff\xff")
+        self.assertEqual(fract4dc.image_get_color_index(image,0,0),0.0)
+
+
+        # draw & antialias another pixel
+        fract4dc.fw_pixel(fw,2,2,1,1)
+        fract4dc.fw_pixel_aa(fw,2,2)
+        fate_pos = 4 * (2 * xsize + 2)
+        col_pos = 3 * (2 * xsize + 2)
+        self.assertEqual(fate_buf[fate_pos],chr(1))
+        self.assertEqual(buf[col_pos:col_pos+3],"\x00\x00\x00")
+        self.assertEqual(fate_buf[fate_pos+1:fate_pos+4], "\x01\x01\x01")
+        self.assertEqual(fract4dc.image_get_color_index(image,0,0),0.0)
+
+        # change cmap, draw same pixel again, check color changes
+        cmap = fract4dc.cmap_create(
+            [(0.0,100,101,102,255),
+             (1/256.0,188,196,212,255),
+             (1.0, 79, 88, 41, 255)])
+
+        (fw,ff,site,handle,pfunc) = self.makeWorkerAndFunc(image,cmap)
+
+        fract4dc.fw_pixel(fw,0,0,1,1)
+        self.assertEqual(fate_buf[0],chr(1))
+        self.assertEqual(buf[0:3], "%c%c%c" % (100,101,102))
         self.assertEqual(fate_buf[1:4], "\xff\xff\xff")
         self.assertEqual(fract4dc.image_get_color_index(image,0,0),0.0)
 
@@ -461,8 +540,8 @@ class PfTest(unittest.TestCase):
             image,
             site, is_dirty)
 
-        print "1st pass %s" % is_dirty
-        self.print_fates(image,xsize,ysize)
+        #print "1st pass %s" % is_dirty
+        #self.print_fates(image,xsize,ysize)
         
         cmap = fract4dc.cmap_create(
             [(0.0,78,91,32,255),
@@ -485,8 +564,8 @@ class PfTest(unittest.TestCase):
             image,
             site, is_dirty)
 
-        print "2nd pass %s" % is_dirty
-        self.print_fates(image,xsize,ysize)
+        #print "2nd pass %s" % is_dirty
+        #self.print_fates(image,xsize,ysize)
         
         return fract4dc.image_buffer(image)
         
