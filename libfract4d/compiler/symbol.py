@@ -12,16 +12,8 @@ import stdlib
 def efl(fname, template, tlist):
     'short-hand for expandFuncList - just reduces the amount of finger-typing'
     list = []
-    for t in tlist:
-        typed_fname = fname + "_"
-        for ch in template:
-            if ch == "_":
-                typed_fname = typed_fname + strOfType(t)[0]
-        if stdlib.__dict__.get(typed_fname,None) == None:
-            typed_fname = None
-        else:
-            typed_fname = "stdlib." + typed_fname
-        f = "Func(%s,%s)" % (re.sub("_", str(t), template), typed_fname)
+    for t in tlist:            
+        f = "Func(%s,stdlib,\"%s\")" % (re.sub("_", str(t), template), fname)
         list.append(eval(f))
     return list
 
@@ -36,7 +28,7 @@ def createDefaultDict():
         
         "sqr": efl("sqr", "[_] , _",  [Int, Float, Complex]),
         "complex" : [ Func([Float, Float], Complex,
-                           stdlib.complex_ffc)],
+                           stdlib, "complex")],
         
         # standard operators
 
@@ -53,20 +45,20 @@ def createDefaultDict():
         # arithmetic
         "%":  efl("mod",   "[_,_] , _", [Int, Float]),
         "/":  efl("div",   "[_,_] , _", [Float, Complex]) + \
-              [ Func([Color, Float], Float, None)],
+              [ Func([Color, Float], Float, stdlib, "div")],
         "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex]) + \
-              [ Func([Color, Float], Float, None)],
+              [ Func([Color, Float], Float, stdlib, "mul")],
         "+":  efl("add",   "[_,_] , _", [Int, Float, Complex, Color]),
         "-":  efl("sub",   "[_,_] , _", [Int, Float, Complex, Color]),
         "^":  efl("pow",   "[_,_] , _", [Float, Complex]),
-        "mag":[ Func([Complex], Float, None)],
+        "mag":[ Func([Complex], Float, stdlib, "mag")],
         
         # unary negation already factored out
 
         # logical ops
-        "&&": [ Func([Bool, Bool], Bool, None) ],
-        "||": [ Func([Bool, Bool], Bool, None) ],
-        "!" : [ Func([Bool],Bool, None) ],
+        "&&": [ Func([Bool, Bool], Bool, stdlib, "booland") ],
+        "||": [ Func([Bool, Bool], Bool, stdlib, "boolor") ],
+        "!" : [ Func([Bool],Bool, stdlib, "boolnot") ],
         
         "#pixel": Alias("pixel"),
         "pixel" : Var(Complex), 

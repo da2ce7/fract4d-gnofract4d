@@ -86,11 +86,21 @@ def canBeCast(t1,t2):
         raise
     
 class Func:
-    def __init__(self,args,ret,genFunc,pos=-1):
+    def __init__(self,args,ret,module,fname,pos=-1):
         self.args = args
         self.ret = ret
-        self.genFunc = genFunc
         self.pos = pos
+
+        if fname == None:
+            self.genFunc = None
+        else:
+            typed_fname = fname + "_"
+            for arg in args:
+                typed_fname = typed_fname + strOfType(arg)[0]
+            typed_fname = typed_fname + "_" + strOfType(ret)[0]
+        
+            #print typed_fname
+            self.genFunc = module.__dict__.get(typed_fname,None)
         
     def matchesArgs(self, potentialArgs):
         if len(potentialArgs) != len(self.args):
