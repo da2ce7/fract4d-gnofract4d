@@ -58,6 +58,23 @@ class T:
                     newtree = self.linearize(newtree)
             else:
                 newtree = ir.Binop(tree.op,children,tree.node,tree.datatype)
+        elif isinstance(tree, ir.CJump):
+            if isinstance(children[0], ir.ESeq):
+                # cjump(eseq[stms,e1],e2) => seq([stms,cjump(e1,e2)])
+                eseq = children[0]
+                stms = self.stms(eseq)
+                e1 = eseq.children[-1]
+                assert(not isinstance(e1, ir.ESeq))
+                e2 = children[1]
+                newtree = ir.Seq(stms + [ir.CJump(tree.op,e1,e2,
+                                                 tree.trueDest, tree.falseDest,
+                                                 tree.node)], 
+                                 eseq.node)
+                newtree = self.linearize(newtree)
+            else:
+                newtree = copy.copy(tree)
+                newtree.children = children
+                
         elif isinstance(tree, ir.ESeq):
             # flatten eseq trees, eg:
             #eseq(stms,eseq(stms2,e1),stms3,e2) => eseq(stms,stms2,e1,stms3,e2)
