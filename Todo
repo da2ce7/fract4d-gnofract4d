@@ -35,6 +35,7 @@ todo for 2.0
 * BB	lattice.fct - 1.9 is wrong too!
 * B	browser pops up whenever click on fractal
 * WW	docs
+* B	deprecationwarning : gtkfractal.py:82, use rgb_get_colormap not get_cmap
 
 done:
 * W	formula browser : load formula file

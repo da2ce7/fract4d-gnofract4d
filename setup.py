@@ -24,7 +24,6 @@ module1 = Extension(
     'stdc++'
     ],
     extra_compile_args = [
-    '-O0'
     ],
     define_macros = [ ('_REENTRANT',1),
                       #('DEBUG_CREATION',1)
@@ -57,7 +56,7 @@ def strip_option(arg):
     return arg
 
 gtk_flags = call_package_config(gtk_pkg,"--cflags")
-gtk_libs = map(strip_option,call_package_config(gtk_pkg,"--libs"))
+gtk_libs =  call_package_config(gtk_pkg,"--libs")
 
 
 module2 = Extension(
@@ -71,15 +70,17 @@ module2 = Extension(
     ],
     libraries = [
     'stdc++'
-    ] + gtk_libs,
-    extra_compile_args = [
-    ] + gtk_flags,
-    
+    ],
+    extra_compile_args = gtk_flags,
+    extra_link_args = gtk_libs,    
     define_macros = [ ('_REENTRANT',1),
                       #('DEBUG_CREATION',1)
                       ],
     undef_macros = [ 'NDEBUG']    
     )
+
+def get_files(dir,ext):
+    return [ dir + x for x in os.listdir(dir) if x.endswith(ext)] 
 
 setup (name = 'gnofract4d',
        version = '2.0',
@@ -88,7 +89,31 @@ setup (name = 'gnofract4d',
        author_email = 'edwin@sourceforge.net',
        url = 'http://gnofract4d.sourceforge.net/',
        packages = ['fract4d', 'gui'],
-       ext_modules = [module1, module2])
+       ext_modules = [module1, module2],
+       scripts = ['gnofract4d'],
+       data_files = [
+           # color maps
+           ('share/maps/gnofract4d',
+            get_files("maps",".map")),
+
+           # formulas
+           ('share/formulas/gnofract4d',
+            ['fract4d/gf4d.frm', 'fract4d/gf4d.cfrm']),
+
+           # documentation
+           ('share/gnome/help/gnofract4d/C',
+            ['doc/gnofract4d-manual/C/gnofract4d-manual.xml'],
+            ['fract4d/stdlib.xml']),
+           ('share/gnome/help/gnofract4d/C/figures',
+            get_files("doc/gnofract4d-manual/C/figures",".png")),
+
+           #icons
+           ('share/pixmaps/gnofract4d', get_files('pixmaps','.png')),
+            
+           # GNOME .desktop file
+           ('/share/gnome/apps/Graphics/', ['gnofract4d.desktop']),           
+           ]
+       )
 
 # I need to find the file I just built and copy it up out of the build
 # location so it's possible to run without installing. Can't find a good
