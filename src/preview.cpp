@@ -56,7 +56,7 @@ preview_status_callback(Gf4dFractal *f, gint val, void *user_data)
 Gf4dFractal *
 preview_get_shadow(GtkWidget *preview)
 {
-    return GF4D_FRACTAL(gtk_object_get_data(GTK_OBJECT(preview), "shadow"));
+    return GF4D_FRACTAL(g_object_get_data(G_OBJECT(preview), "shadow"));
 }
 
 void 

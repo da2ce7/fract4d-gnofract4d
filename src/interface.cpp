@@ -91,7 +91,7 @@ create_app (model_t *m)
     gtk_widget_realize(app);
 
     gnome_app_create_menus_with_data (GNOME_APP (app), menubar1_uiinfo, m);
-    gtk_window_set_policy(GTK_WINDOW(app),true,true,false);
+    //gtk_window_set_policy(GTK_WINDOW(app),true,true,false);
     
     GtkWidget *appbar = gnome_appbar_new(TRUE,TRUE,GNOME_PREFERENCES_NEVER); 
     gtk_widget_show (appbar);
@@ -116,7 +116,7 @@ create_app (model_t *m)
     gtk_widget_show(scrolled_window);
 
     // terrible hack to get initial window size roughly right
-    gtk_widget_set_usize(scrolled_window,640+8,480+8);
+    gtk_widget_set_size_request(scrolled_window,640+8,480+8);
 
     table = gtk_table_new (4,4,false);
     

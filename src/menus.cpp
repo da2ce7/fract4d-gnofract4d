@@ -230,28 +230,28 @@ static GnomeUIInfo file1_menu_uiinfo[] =
         GNOME_APP_UI_ITEM, N_("_Open Parameter File"),
         NULL,
         (void *)load_param_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_OPEN,
+        GNOME_APP_PIXMAP_STOCK, GTK_STOCK_OPEN,
         'o', GDK_CONTROL_MASK, NULL
     },
     {
         GNOME_APP_UI_ITEM, N_("_Save Parameter File"),
         NULL,
         (void *)save_param_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE,
+        GNOME_APP_PIXMAP_STOCK, GTK_STOCK_SAVE,
         's', GDK_CONTROL_MASK, NULL
     },
     {
         GNOME_APP_UI_ITEM, N_("Save _Image"),
         NULL,
         (void *)save_image_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE,
+        GNOME_APP_PIXMAP_STOCK, GTK_STOCK_SAVE,
         'i', GDK_CONTROL_MASK, NULL
     },
     {
         GNOME_APP_UI_TOGGLEITEM, N_("_Pause"),
         NULL,
         (void *)pause_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
+        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_BLANK,
         'p', GDK_CONTROL_MASK, NULL
     },
     GNOMEUIINFO_SEPARATOR,
