@@ -38,7 +38,7 @@ class BrowserDialog(gtk.Dialog):
             _("Formula Browser"),
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
-            (_("Co_mpile"), BrowserDialog.RESPONSE_COMPILE,
+            (#_("Co_mpile"), BrowserDialog.RESPONSE_COMPILE,
              gtk.STOCK_REFRESH, BrowserDialog.RESPONSE_REFRESH,
              gtk.STOCK_APPLY, gtk.RESPONSE_APPLY,
              gtk.STOCK_OK, gtk.RESPONSE_OK,
@@ -56,9 +56,11 @@ class BrowserDialog(gtk.Dialog):
         self.f = f
         self.compiler = f.compiler
         self.current_fname = None
+        self.current_formula = None
+        self.ir = None
         self.func_type = FRACTAL
         self.tooltips = gtk.Tooltips()
-        
+        self.main_window = main_window
         self.set_size_request(600,500)
 
         self.dirty_formula = False
@@ -94,19 +96,24 @@ class BrowserDialog(gtk.Dialog):
         self.f.refresh()
         self.set_file(self.current_fname) # update text window
 
+    def get_current_text(self):
+        buffer = self.sourcetext.get_buffer()
+        text = buffer.get_text(buffer.get_start_iter(),
+                               buffer.get_end_iter(), False)
+        return text
+    
     def onCompile(self):
-        print "compile"
         if self.current_fname:
-            print self.current_fname
-            buffer = self.sourcetext.get_buffer()
-            text = buffer.get_text(buffer.get_start_iter(),
-                                   buffer.get_end_iter(), False)
+            text = self.get_current_text()
             formulas = self.compiler.parse_file(text)
-            
+
             ff = self.compiler.files.get(self.current_fname)
             ff.override_buffer(text,formulas)
             self.set_file(self.current_fname)
-                
+            frm = formulas.get(self.current_formula)
+            if self.ir and self.ir.errors == []:
+                self.onApply()
+            
     def onApply(self):
         self.f.freeze()
         if not self.current_formula or not self.current_fname:
@@ -126,7 +133,8 @@ class BrowserDialog(gtk.Dialog):
             self.f.changed()
 
     def set_type_cb(self,optmenu):
-        self.set_type(optmenu.get_history())
+        if self.confirm():
+            self.set_type(optmenu.get_history())
             
     def set_type(self,type):
         if self.func_type == type:
@@ -198,7 +206,10 @@ class BrowserDialog(gtk.Dialog):
         for formula_name in form_names:
             iter = self.formula_list.append()
             self.formula_list.set(iter,0,formula_name)
-        
+            if formula_name == self.current_formula:
+                self.treeview.get_selection().select_iter(iter)
+                self.set_formula(formula_name)
+                
     def create_formula_list(self):
         sw = gtk.ScrolledWindow ()
         sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
@@ -228,7 +239,7 @@ class BrowserDialog(gtk.Dialog):
 
         textview = gtk.TextView()
         self.tooltips.set_tip(textview, tip)
-        #textview.set_editable(False)
+        textview.set_editable(False)
         
         sw.add(textview)
         return (textview,sw)
@@ -322,11 +333,37 @@ class BrowserDialog(gtk.Dialog):
         
         fname = model.get_value(iter,0)
         self.set_file(fname)
+
+    def confirm(self):
+        msg = _("Do you want to save changes to formula file '%s'?")
+        carry_on = True
+        if self.dirty_formula:
+            d = gtk.MessageDialog(None,
+                                  gtk.DIALOG_MODAL,
+                                  gtk.MESSAGE_QUESTION,
+                                  gtk.BUTTONS_YES_NO,
+                                  msg % self.current_fname)
+            response = d.run()                
+            d.destroy()
+            carry_on = (response == gtk.RESPONSE_NO) 
+            if response == gtk.RESPONSE_YES:
+                self.save()
+                carry_on = True
+
+        return carry_on
+        
+    def save(self):
+        text = self.get_current_text()
+        f = open(self.compiler.find_file(self.current_fname),"w")
+        f.write(text)
+        f.close()
+        self.dirty_formula = False
         
     def set_file(self,fname):
-        if self.dirty_formula:
-            print "Do you want to save changes?"
-            
+        if self.dirty_formula and self.current_fname != fname:
+            if not self.confirm():
+                return
+        
         self.current_fname = fname
         text = self.compiler.files[self.current_fname].contents
         self.clear_selection()
@@ -352,6 +389,9 @@ class BrowserDialog(gtk.Dialog):
             return
         
         form_name = model.get_value(iter,0)
+        self.set_formula(form_name)
+        
+    def set_formula(self,form_name):
         self.current_formula = form_name
         file = self.current_fname
         formula = self.compiler.get_parsetree(file,form_name)
