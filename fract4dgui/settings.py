@@ -187,7 +187,7 @@ class SettingsDialog(dialog.T):
         self.tooltips.set_tip(button,_("Browse available fractal functions"))
         button.connect('clicked', self.show_browser, browser.FRACTAL)
         hbox.pack_start(button)
-        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
+        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)
 
     def create_formula_widget_table(self,parent,param_type): 
         self.tables[param_type] = None
@@ -238,9 +238,9 @@ class SettingsDialog(dialog.T):
             try:
                 current = float(entry.get_text())
                 if current != f.get_param(param):
-                    entry.set_text("%.17f" % f.get_param(param)) 
+                    entry.set_text("%.17f" % f.get_param(param))
             except ValueError, err:
-                # set to something that isn't a float
+                # current was set to something that isn't a float
                 entry.set_text("%.17f" % f.get_param(param))
 
         def set_fractal(*args):
