@@ -29,7 +29,8 @@ gnofract4d_SOURCES = \
 	cmapbrowser.h cmapbrowser.cpp \
 	movie_editor.h movie_editor.cpp \
 	tls.h tls.cpp \
-	preferences.h preferences.cpp
+	preferences.h preferences.cpp \
+	image.cpp image.h
 
 
 gnofract4d_LDADD = ../libfract4d/libfract4d.la $(GNOME_LIBDIR) $(GTK_LIBS) \

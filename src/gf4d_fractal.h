@@ -46,12 +46,13 @@ typedef struct _Gf4dFractalClass Gf4dFractalClass;
 #include "fract_public.h"
 #include "colorizer_public.h"
 #include "pointFunc_public.h"
+#include "image.h"
 
 struct _Gf4dFractal
 {
     GtkObject object;	
     IFractal *f;
-    image_t *im;
+    image *im;
     pthread_t tid;
     pthread_mutex_t lock;
     pthread_mutex_t cond_lock;
