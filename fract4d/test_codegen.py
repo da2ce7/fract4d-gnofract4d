@@ -613,7 +613,25 @@ func fn1
                          "h2 = (3,41,-39,7)\n" +
                          "h3 = (3,41,-39,7)")
 
-
+        # access to parts
+        src = '''t_hyper3 {
+        init:
+        hyper x = (1,2,3,4)
+        float a=real(x), float b=imag(x), float c=imag_j(x), float d=imag_k(x)
+        real(x) = 4
+        imag(x) = 3
+        imag_j(x) = 2
+        imag_k(x) = 1
+        }'''
+        self.assertCSays(src,"init",
+                         self.inspect_float("a") +
+                         self.inspect_float("b") +
+                         self.inspect_float("c") +
+                         self.inspect_float("d") +
+                         self.inspect_hyper("x"),
+                         "a = 1\nb = 2\nc = 3\nd = 4\n" +
+                         "x = (4,3,2,1)")
+        
     def testC(self):
         # basic end-to-end testing. Compile a code fragment + instrumentation,
         # run it and check output

@@ -314,6 +314,18 @@ def real_c_f(gen,t,srcs):
 def real2_c_f(gen,t,srcs):
     return gen.emit_binop('*', [srcs[0].re, srcs[0].re], Float)
 
+def real_h_f(gen,t,srcs):
+    return srcs[0].parts[0]
+
+def imag_h_f(gen,t,srcs):
+    return srcs[0].parts[1]
+
+def imag_j_h_f(gen,t,srcs):
+    return srcs[0].parts[2]
+
+def imag_k_h_f(gen,t,srcs):
+    return srcs[0].parts[3]
+
 def ident_i_i(gen,t,srcs):
     return srcs[0]
 
