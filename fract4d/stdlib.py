@@ -136,6 +136,54 @@ def add_hh_h(gen,t,srcs):
         gen.emit_binop('+',parts(2,srcs), Float),
         gen.emit_binop('+',parts(3,srcs), Float))
     return dst
+
+def clamp_f_f(gen,t,srcs):
+    # ensure f is in the range [0,1.0]
+    smaller_than_one = gen.symbols.newLabel()
+    done = gen.symbols.newLabel()
+
+    one= ConstFloatArg(1.0)
+    zero = ConstFloatArg(0.0)
+    src = srcs[0]
+    dst = TempArg(gen.symbols.newTemp(Float))
+
+    gen.emit_move(src,dst)
+    
+    lte1 = gen.emit_binop('<=',[src,one], Float)
+    gen.emit_cjump(lte1,smaller_than_one)
+
+    # larger than 1: use one instead
+    gen.emit_move(one, dst)
+    gen.emit_jump(done)
+    
+    gen.emit_label(smaller_than_one)
+    gte0 = gen.emit_binop('>=', [src, zero], Float)
+    gen.emit_cjump(gte0, done)
+    
+    # smaller than 0: use 0 instead
+    gen.emit_move(zero, dst)
+    
+    gen.emit_label(done)
+
+    return dst
+
+def clamp_C_C(gen,t,srcs):
+    # ensure color C is in the range [0.0,1.0]
+    dst = ColorArg(
+        clamp_f_f(gen,t,parts(0,srcs)),
+        clamp_f_f(gen,t,parts(1,srcs)),
+        clamp_f_f(gen,t,parts(2,srcs)),
+        clamp_f_f(gen,t,parts(3,srcs)))
+    return dst
+
+def add_CC_C(gen,t,srcs):
+    # add 2 colors, piecewise
+    dst = clamp_C_C(gen,t, [ColorArg(
+        gen.emit_binop('+',parts(0,srcs), Float),
+        gen.emit_binop('+',parts(1,srcs), Float),
+        gen.emit_binop('+',parts(2,srcs), Float),
+        gen.emit_binop('+',parts(3,srcs), Float))])
+    return dst
     
 def sub_cc_c(gen,t,srcs):
     # subtract 2 complex numbers
@@ -151,6 +199,14 @@ def sub_hh_h(gen,t,srcs):
         gen.emit_binop('-',parts(1,srcs), Float),
         gen.emit_binop('-',parts(2,srcs), Float),
         gen.emit_binop('-',parts(3,srcs), Float))
+    return dst
+
+def sub_CC_C(gen,t,srcs):
+    dst = clamp_C_C(gen,t, [ColorArg(
+        gen.emit_binop('-',parts(0,srcs), Float),
+        gen.emit_binop('-',parts(1,srcs), Float),
+        gen.emit_binop('-',parts(2,srcs), Float),
+        gen.emit_binop('-',parts(3,srcs), Float))])
     return dst
     
 def div_cc_c(gen,t,srcs):
@@ -814,4 +870,9 @@ conj_h_h = make_hyper_func(conj_c_c)
 sqr_h_h = make_hyper_func(sqr_c_c)
 
 def rgb_fff_C(gen,t,srcs):
-    return ColorArg(srcs[0], srcs[1], srcs[2], ConstFloatArg(1.0))
+    return clamp_C_C(
+        gen,t,
+        [ColorArg(srcs[0], srcs[1], srcs[2], ConstFloatArg(1.0))])
+
+def rgba_ffff_C(gen,t,srcs):
+    return clamp_C_C(gen,t,[ColorArg(srcs[0], srcs[1], srcs[2], srcs[3])])
