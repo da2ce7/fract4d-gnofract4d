@@ -164,17 +164,26 @@ class MainWindow:
         self.filename = name
         self.set_window_title()
 
+    def nudge(self,x,y,state):
+        axis = 0
+        if state & gtk.gdk.SHIFT_MASK:
+            axis = 2
+        if state & gtk.gdk.CONTROL_MASK:
+            x *= 10.0
+            y *= 10.0
+        self.f.nudge(x,y,axis)
+        
     def on_key_left(self,state):
-        self.f.nudge(-1, 0)
+        self.nudge(-1, 0,state)
 
     def on_key_right(self,state):
-        self.f.nudge(1, 0)
+        self.nudge(1, 0,state)
 
     def on_key_up(self,state):
-        self.f.nudge(0, -1)
+        self.nudge(0, -1,state)
 
     def on_key_down(self,state):
-        self.f.nudge(0, 1)
+        self.nudge(0, 1,state)
         
     def on_key_release(self, widget, event):
         fn = self.keymap.get(event.keyval)
