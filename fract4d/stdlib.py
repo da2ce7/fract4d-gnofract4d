@@ -169,6 +169,18 @@ def cmag_c_f(gen,t,srcs):
     im_2 = gen.emit_binop('*',[src.im,src.im],Float)
     return gen.emit_binop('+',[re_2,im_2],Float)
 
+def cmag_h_f(gen,t,srcs):
+    # |x| = x_re * x_re + x_i * x_i + x_j * x_j + x_k * x_k
+    src = srcs[0]
+    re_2 = gen.emit_binop('*',[src.parts[0],src.parts[0]],Float)
+    i_2 = gen.emit_binop('*',[src.parts[1],src.parts[1]],Float)
+    j_2 = gen.emit_binop('*',[src.parts[2],src.parts[2]],Float)
+    k_2 = gen.emit_binop('*',[src.parts[3],src.parts[3]],Float)
+    ret = gen.emit_binop('+',[re_2,i_2],Float)
+    ret = gen.emit_binop('+',[ret,j_2], Float)
+    ret = gen.emit_binop('+',[ret,k_2], Float)
+    return ret
+    
 def log_f_f(gen,t,srcs):
     return gen.emit_func('log', srcs, Float)
 

@@ -13,6 +13,15 @@ float param bailout
 endparam
 }
 
+test_noz {
+init:
+	complex x
+loop:
+	x = x*x + #zwpixel
+bailout:
+	|x| < 4.0
+}
+
 test_defaults {
 default:
 maxiter = 200
