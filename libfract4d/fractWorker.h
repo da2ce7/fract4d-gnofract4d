@@ -153,7 +153,7 @@ class MTFractWorker : public IFractWorker
     tpool<job_info_t,STFractWorker> *ptp;
     int nWorkers;
     bool ok;
-// private:
+private:
 
     /* wait for a ready thread then give it some work */
     void send_cmd(job_type_t job, int x, int y, int param);

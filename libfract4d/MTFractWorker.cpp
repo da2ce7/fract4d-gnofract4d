@@ -45,36 +45,54 @@ MTFractWorker::~MTFractWorker()
 void
 MTFractWorker::row_aa(int x, int y, int n)
 {
-    if(nWorkers > 1)
+    if(nWorkers > 1 && n > 8)
     {
-	send_row_aa(0,y,n);
+	send_row_aa(x,y,n);
     }
     else
     {
-	ptf->row_aa(0,y,n);
+	ptf->row_aa(x,y,n);
     }
 }
 
 void
 MTFractWorker::row(int x, int y, int n)
 {
-
+    if(nWorkers > 1 && n > 8)
+    {
+	send_row(x,y,n);
+    }
+    else
+    {
+	ptf->row(x,y,n);
+    }
 }
+
 void
 MTFractWorker::box(int x, int y, int rsize)
 {
-
+    ptf->box(x,y,rsize);
 }
+
 void
 MTFractWorker::box_row(int w, int y, int rsize)
 {
-
+    if(nWorkers > 1)
+    {
+	send_box_row(w,y,rsize);
+    }
+    else
+    {
+	ptf->box_row(w,y,rsize);
+    }
 }
+
 void
-MTFractWorker::pixel(int x, int y, int h, int w)
+MTFractWorker::pixel(int x, int y, int w, int h)
 {
-
+    ptf->pixel(x,y,w,h);
 }
+
 void
 MTFractWorker::pixel_aa(int x, int y)
 {
@@ -84,7 +102,10 @@ MTFractWorker::pixel_aa(int x, int y)
 void
 MTFractWorker::reset_counts()
 {
-
+    for(int i = 0; i < nWorkers ; ++i)
+    {
+        ptf[i].reset_counts();
+    }
 }
 
 void
