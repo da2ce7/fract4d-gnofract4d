@@ -42,7 +42,12 @@ class GradientDialog(dialog.T):
 		self.gradarea.set_size_request(self.grad.num+8, 64)
 		self.gradarea.connect('realize', self.gradarea_realized)
 		self.gradarea.connect('expose_event', self.gradarea_expose)
-		self.gradarea.add_events(gtk.gdk.BUTTON_RELEASE_MASK | gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.POINTER_MOTION_MASK)
+
+		self.gradarea.add_events(
+            gtk.gdk.BUTTON_RELEASE_MASK |
+            gtk.gdk.BUTTON_PRESS_MASK |
+            gtk.gdk.POINTER_MOTION_MASK)
+        
 		self.gradarea.connect('button-press-event', self.gradarea_mousedown)
 		self.gradarea.connect('button-release-event', self.gradarea_clicked)
 		self.gradarea.connect('motion-notify-event', self.gradarea_mousemoved)
@@ -53,7 +58,7 @@ class GradientDialog(dialog.T):
 		self.csel.set_has_palette(True)
 		
 		###OFFSET CONTROL###
-		lblOffset = gtk.Label("Offset:")
+		lblOffset = gtk.Label(_("Offset:"))
 		lblOffsetBox = gtk.HBox(False, 0)
 		
 		offset=gtk.HScale(gtk.Adjustment(self.grad.getOffset(), 0, 1, 0.001, 0.01, 0.0))
