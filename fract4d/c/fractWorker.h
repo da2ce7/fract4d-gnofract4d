@@ -108,6 +108,9 @@ class STFractWorker : public IFractWorker {
     int k;	// number of pixels calculated    
     int lastIter; // how many iterations did last pixel take?
 
+    // return true if this pixel needs recalc in AA pass
+    bool needs_aa_calc(int x, int y);
+
     bool m_ok;
 };
 

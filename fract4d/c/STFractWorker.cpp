@@ -227,21 +227,23 @@ STFractWorker::antialias(int x, int y)
 void 
 STFractWorker::pixel(int x, int y,int w, int h)
 {
-    int iter = im->getIter(x,y);
-    rgba_t pixel;
-    float index;
-    fate_t fate;
-
-    // calculate coords of this point
-    dvec4 pos = ff->topleft + x * ff->deltax + y * ff->deltay;
-
-    //printf("(%g,%g,%g,%g)\n",pos[VX],pos[VY],pos[VZ],pos[VW]);
 
     assert(pf != NULL && m_ok == true);
 
-    fate = im->getFate(x,y,0);
+    rgba_t pixel;
+    float index;
+
+    fate_t fate = im->getFate(x,y,0);
     if(fate == FATE_UNKNOWN)
     {
+
+	int iter = im->getIter(x,y);
+	
+	// calculate coords of this point
+	dvec4 pos = ff->topleft + x * ff->deltax + y * ff->deltay;
+
+	//printf("(%g,%g,%g,%g)\n",pos[VX],pos[VY],pos[VZ],pos[VW]);
+
 	pf->calc(pos.n, ff->maxiter,periodGuess(),x,y,0,
 		 &pixel,&iter,&index,&fate); 
 	
@@ -291,12 +293,32 @@ STFractWorker::box_row(int w, int y, int rsize)
     }		
 }
 
+bool
+STFractWorker::needs_aa_calc(int x, int y)
+{
+    for(int i = 0; i < im->getNSubPixels(); ++i)
+    {
+	if(im->getFate(x,y,i) == FATE_UNKNOWN)
+	{
+	    return true;
+	}
+    }
+    return false;
+}
+
 void
 STFractWorker::pixel_aa(int x, int y)
 {
     rgba_t pixel;
 
+    if(! needs_aa_calc(x,y))
+    {
+	return;
+    }
+
     int iter = im->getIter(x,y);
+
+    
     // if aa type is fast, short-circuit some points
     if(ff->eaa == AA_FAST &&
        x > 0 && x < im->Xres()-1 && y > 0 && y < im->Yres()-1)
@@ -392,6 +414,7 @@ STFractWorker::rectangle(
 		fate = im->getFate(j,i,1);
 		if(FATE_UNKNOWN != fate)
 		{
+		    // either we should know all subpixels or none
 		    assert(im->getFate(j,i,2) != FATE_UNKNOWN);
 		    assert(im->getFate(j,i,3) != FATE_UNKNOWN);
 

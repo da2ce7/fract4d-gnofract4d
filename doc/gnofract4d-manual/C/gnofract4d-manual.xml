@@ -15,10 +15,15 @@
 
 <sect1 id="introduction">
 <title>Introduction</title>
-<epigraph><attribution>Francis Bacon</attribution>
+
+<epigraph>
+
+<attribution>Francis Bacon</attribution>
+
 <para>
-There is no excellent beauty which hath not some strangeness in the proportion.
-</para>
+There is no excellent beauty which hath not some strangeness in the
+proportion.  </para> 
+
 </epigraph>
 
 <para>&gf4d; is a program which draws complex mathematical
@@ -224,7 +229,6 @@ and see what it's found when you return, or guide it by clicking on
 parts you like as it goes. It'll stop when the image reaches the
 minimum size, which is set by default to stop just before you get to
 the limits of the precision &gf4d; offers.
-
   </para>
 
 </sect3>
@@ -298,12 +302,13 @@ idea of what the fractal will look like when you release the button.
 
 <para>
 The first eight toolbar buttons correspond to the ten parameters which
-define the view. The circular angle buttons, labelled <emphasis>xy</emphasis> to
-<emphasis>zw</emphasis>, can changed by dragging the dot around. When you let
-go, the fractal will update. By the way, the <emphasis>zw</emphasis> angle does
-work, you just can't see its effects until you rotate in some other
-dimensions first.
-</para>
+define the view. The circular angle buttons, labelled
+<emphasis>xy</emphasis> to <emphasis>zw</emphasis>, correspond to
+rotation around the principal planes in four dimensions. They can
+changed by dragging the dot around. When you let go, the fractal will
+update. By the way, the <emphasis>zw</emphasis> angle does work, you
+just can't see its effects until you rotate in some other dimensions
+first.  </para>
 
 <para>
 The square position buttons, <emphasis>pan</emphasis> and
