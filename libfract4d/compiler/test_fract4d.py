@@ -9,21 +9,22 @@ import os.path
 sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4d
 
-def status_cb(val):
-    print "status: %d" % val
+class FractalSite:
+    def status_changed(self,val):
+        print "status: %d" % val
 
-def progress_cb(d):
-    print "progress:", d
-    #print "progress: %g" % d
+    def progress_changed(self,d):
+        print "progress:", d
+        #print "progress: %g" % d
 
-def is_interrupted_cb():
-    return False
+    def is_interrupted(self):
+        return False
 
-def param_cb():
-    print "params changed"
+    def parameters_changed(self):
+        print "params changed"
 
-def image_cb(x1,x2,y1,y2):
-    print "image: %d %d %d %d" %  (x1, x2, y1, y2)
+    def image_changed(self,x1,x2,y1,y2):
+        print "image: %d %d %d %d" %  (x1, x2, y1, y2)
 
 class PfTest(unittest.TestCase):
 
@@ -73,14 +74,10 @@ class PfTest(unittest.TestCase):
         image = fract4d.image_create(40,30)
         fract4d.image_resize(image,80,60)
 
-    def testSite(self):
-        site = fract4d.site_create(
-            param_cb,image_cb,progress_cb,status_cb,is_interrupted_cb)
-
     def testCalc(self):
         image = fract4d.image_create(40,30)
-        site = fract4d.site_create(
-            param_cb,image_cb,progress_cb,status_cb,is_interrupted_cb)
+        siteobj = FractalSite()
+        site = fract4d.site_create(siteobj)
 
         self.compileMandel()
         handle = fract4d.pf_load("./test-pf.so")
