@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 2000 Edwin Young
+ * Copyright (C) 1999-2001 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify

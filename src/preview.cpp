@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 2000 Edwin Young
+ * Copyright (C) 1999-2001 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -59,6 +59,13 @@ preview_get_shadow(GtkWidget *preview)
     return GF4D_FRACTAL(gtk_object_get_data(GTK_OBJECT(preview), "shadow"));
 }
 
+void 
+preview_disconnect(GtkWidget *preview, Gf4dFractal *f)
+{
+    g_print("disconnecting from fractal prior to deletion\n");
+    gtk_signal_disconnect_by_data(GTK_OBJECT(f), preview);
+}
+
 GtkWidget*
 create_preview_drawing_area(Gf4dFractal *f)
 {
@@ -86,6 +93,15 @@ create_preview_drawing_area(Gf4dFractal *f)
                        GTK_SIGNAL_FUNC (preview_status_callback), 
                        drawing_area);
 
+    /* register disconnection - could use _while_alive stuff instead */
+    gtk_signal_connect(GTK_OBJECT(drawing_area), "destroy",
+                       GTK_SIGNAL_FUNC (preview_disconnect), f);
+
+    gtk_object_set_data (GTK_OBJECT (drawing_area), "shadow", f);
+
+    gf4d_fractal_set_aa(f, (e_antialias)0);
+    gf4d_fractal_calc(f,1 );
+
     return drawing_area;
 }
 
@@ -98,26 +114,13 @@ preview_refresh_callback(Gf4dFractal *f, Gf4dFractal *shadow)
 }
 
 GtkWidget *
-create_preview (model_t *m)
+create_preview (Gf4dFractal *f)
 {
-    Gf4dFractal *shadow = gf4d_fractal_copy(model_get_fract(m));
+    gf4d_fractal_set_resolution(f,PREVIEW_SIZE, PREVIEW_SIZE);
 
-    gf4d_fractal_set_resolution(shadow,PREVIEW_SIZE, PREVIEW_SIZE);
-
-    GtkWidget *preview = create_preview_drawing_area(shadow);
-
-    gtk_object_set_data (GTK_OBJECT (preview), "shadow", shadow);
-
-    gf4d_fractal_set_aa(shadow, (e_antialias)0);
-    gf4d_fractal_calc(shadow,1 );
+    GtkWidget *preview = create_preview_drawing_area(f);
 
     gtk_widget_show_all(preview);
-
-    gtk_signal_connect(
-        GTK_OBJECT(model_get_fract(m)),
-        "parameters_changed",
-        GTK_SIGNAL_FUNC(preview_refresh_callback),
-        shadow);
 
     return preview;
 }

@@ -55,6 +55,7 @@ class iterFunc {
 const char * const *iterFunc_names();
 
 iterFunc *iterFunc_new(const char *name);
+//iterFunc *iterFunc_mix(iterFunc *a, iterFunc *b);
 iterFunc *iterFunc_read(std::istream& s);
 
 std::ostream& operator<<(std::ostream& s, const iterFunc& iter);

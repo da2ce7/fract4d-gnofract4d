@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 1999 Aurelien Alleaume, Edwin Young
+ * Copyright (C) 1999-2001 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -231,6 +231,18 @@ fractal::set_inexact(const fractal& f, double weirdness)
     if(drand48() < weirdness * 0.75)
     {
         params[MAGNITUDE] *= 1.0 + (0.5 - drand48());
+    }
+}
+
+void 
+fractal::set_mixed(const fractal& f1, const fractal& f2, double lambda)
+{
+    *this = f1; // FIXME - doesn't deal with mixed types etc
+
+    double nl = 1.0 - lambda;
+    for(int i = 0 ; i < N_PARAMS; ++i)
+    {
+        params[i] = lambda * f1.params[i] + nl * f2.params[i];
     }
 }
 

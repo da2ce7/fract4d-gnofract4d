@@ -385,9 +385,19 @@ void fractFunc::draw(int rsize, int drawsize)
 
     reset_counts();
 
+    // calculate the first row
+    row(0,0,w);
+
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
         update_image(y);
+
+        // calculate left edge of the row
+        for(int y2 = y+1; y2 < y + rsize; ++y2)
+        {
+            pixel(0,y2,1,1);
+        }
+        
         for(x = 0; x < w - rsize ; x += rsize) {
             // calculate edges of box to see if they're all the same colour
             // if they are, we assume that the box is a solid colour and
@@ -396,33 +406,39 @@ void fractFunc::draw(int rsize, int drawsize)
             int iter = im->iter_buf[y * w + x];
             int pcol = RGB2INT(y,x);
 
-            for(int x2 = x; x2 < x + rsize; ++x2)
+            // calc top of next box down & check for flatness
+            for(int x2 = x+1; x2 <= x + rsize; ++x2)
             {
-                pixel(x2,y,1,1);
+                //pixel(x2,y,1,1);
                 bFlat = isTheSame(bFlat,iter,pcol,x2,y);
-                pixel(x2,y+rsize-1,1,1);
-                bFlat = isTheSame(bFlat,iter,pcol,x2,y+rsize-1);
+                pixel(x2,y+rsize,1,1);
+                bFlat = isTheSame(bFlat,iter,pcol,x2,y+rsize);
             }
-            for(int y2 = y+1; y2 < y + rsize; ++y2)
+            // calc left of next box over & check for flatness
+            for(int y2 = y+1; y2 <= y + rsize; ++y2)
             {
-                pixel(x,y2,1,1);
-                bFlat = isTheSame(bFlat, iter, pcol, x+rsize-1, y2);
-                pixel(x+rsize-1,y2,1,1);
-                bFlat = isTheSame(bFlat,iter,pcol,x+rsize-1,y2);
+                //pixel(x,y2,1,1);
+                bFlat = isTheSame(bFlat, iter, pcol, x, y2);
+                pixel(x+rsize,y2,1,1);
+                bFlat = isTheSame(bFlat,iter,pcol,x+rsize,y2);
             }
 
             if(!bFlat)
             {
                 // we do need to calculate the interior 
                 // points individually
-                for(int y2 = y + 1 ; y2 < y + rsize - 1; ++y2)
+                for(int y2 = y + 1 ; y2 < y + rsize; ++y2)
                 {
-                    row(x+1,y2,rsize-2);
+                    row(x+1,y2,rsize-1);
                 }		
             }		
+            else
+            {
+            }
         }		
     }
 
     gf4d_fractal_image_changed(gf,0,0,im->Xres,im->Yres);	
     gf4d_fractal_progress_changed(gf,1.0);	
 }
+

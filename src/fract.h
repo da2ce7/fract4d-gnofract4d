@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 1999 Aurelien Alleaume, Edwin Young
+ * Copyright (C) 1999-2001 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -75,6 +75,10 @@ struct fractal
 
     // make this fractal like f but weirder
     void set_inexact(const fractal& f, double weirdness); 
+    // make this fractal into a mixture of f1 and f2, 
+    // in the proportion lambda of f1 : 1-lambda of f2
+    void set_mixed(const fractal& f1, const fractal& f2, double lambda);
+
     void reset();
     void calc(Gf4dFractal *gf4d, image *im);
     void recolor(image *im);

@@ -92,6 +92,7 @@ class fractFunc {
     // does the point at (x,y) have the same colour & iteration count
     // as the target?
     inline bool isTheSame(bool bFlat, int targetIter, int targetCol, int x, int y);
+
 };
 
 #endif /* _FRACTFUNC_H_ */

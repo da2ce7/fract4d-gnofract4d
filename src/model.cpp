@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 1999 Aurelien Alleaume, Edwin Young
+ * Copyright (C) 1999-2001 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -74,6 +74,8 @@ struct _model {
     // image dimensions
     int width;
     int height;
+
+    Gf4dMovie *movie;
 };
 
 void model_get_dimensions(model_t *m, int *pWidth, int *pHeight)
@@ -223,7 +225,9 @@ model_guess_calc_threads()
             nCPUs++; 
         }
     }
-    return (nCPUs ? nCPUs : 1); // convert 0 to 1 if no CPUs found
+
+    // convert 0 to 1 if no CPUs found (maybe some fscker changed /proc)
+    return (nCPUs ? nCPUs : 1); 
 }
 
 model_t *
@@ -256,6 +260,9 @@ model_new(void)
     m->topWidget=NULL;
     m->width = 640;
     m->height = 480;
+
+    m->movie = GF4D_MOVIE(gf4d_movie_new());
+    gf4d_movie_set_output(m->movie, m->fract);
     return m;
 }
 
@@ -271,10 +278,14 @@ model_delete(model_t **pm)
     *pm = NULL;
 }
 
+static gchar *autosave_filename()
+{
+    return g_concat_dir_and_file(g_get_home_dir(), ".gnome/" PACKAGE "-autosave.fct");
+}
+
 int model_write_autosave_file(model_t *m)
 {
-    gchar *filename = g_concat_dir_and_file(g_get_home_dir(), ".gnome/" PACKAGE "-autosave.fct");
-    
+    gchar *filename = autosave_filename();
     int ret = model_cmd_save(m,filename);
     g_free(filename);
 
@@ -283,12 +294,17 @@ int model_write_autosave_file(model_t *m)
 
 int model_load_autosave_file(model_t *m)
 {
-    gchar *filename = g_concat_dir_and_file(g_get_home_dir(), ".gnome/" PACKAGE "-autosave.fct");
-    
+    gchar *filename = autosave_filename();
     int ret = model_nocmd_load(m,filename);
     g_free(filename);
 
     return ret;
+}
+
+void
+model_add_fract_to_movie(model_t *m, Gf4dFractal *f_after)
+{
+    gf4d_movie_add(m->movie, m->fract, f_after);
 }
 
 int
@@ -365,6 +381,12 @@ Gf4dFractal *
 model_get_fract(model_t *m)
 {
     return m->fract;
+}
+
+Gf4dMovie   *
+model_get_movie(model_t *m)
+{
+    return m->movie;
 }
 
 Gf4dFractal *

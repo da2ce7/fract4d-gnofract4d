@@ -18,14 +18,11 @@
  *
  */
 
-#ifndef _PROPERTIES_H_
-#define _PROPERTIES_H_
+#ifndef _MOVIE_EDITOR_H_
+#define _MOVIE_EDITOR_H_
 
-#include <gtk/gtk.h>
 #include "model.h"
 
-void create_propertybox (model_t *m);
-void propertybox_destroy (GtkObject *pb, gpointer user_data);
-void propertybox_refresh (model_t *m);
+void create_movie_editor(GtkWidget *menuitem, model_t *m);
 
-#endif /* _PROPERTIES_H_ */
+#endif /* _MOVIE_EDITOR_H_ */

@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 2000 Edwin Young
+ * Copyright (C) 1999-2001 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -197,7 +197,15 @@ create_move_toolbar (model_t *m, GtkWidget *appbar)
     GtkWidget *toolbar;
     toolbar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
 
-    GtkWidget *preview_widget = create_preview(m);
+    Gf4dFractal *shadow = gf4d_fractal_copy(model_get_fract(m));
+    gtk_signal_connect(
+        GTK_OBJECT(model_get_fract(m)),
+        "parameters_changed",
+        GTK_SIGNAL_FUNC(preview_refresh_callback),
+        shadow);
+
+    GtkWidget *preview_widget = create_preview(shadow);
+
     Gf4dFractal *preview = preview_get_shadow(preview_widget);
 
     gtk_toolbar_append_widget (

@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 1999 Aurelien Alleaume, Edwin Young
+ * Copyright (C) 1999-2001 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,8 +25,10 @@
 /* opaque definition */
 typedef struct _model model_t;
 
-#include "gf4d_fractal.h"
+#include <gnome.h>
 
+#include "gf4d_fractal.h"
+#include "gf4d_movie.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,7 +73,11 @@ extern "C" {
 
     /* retrieve things */
     Gf4dFractal *model_get_fract(model_t *m);
+    Gf4dMovie   *model_get_movie(model_t *m);
     Gf4dFractal *model_get_subfract(model_t *m, int num);
+
+    /* add current fractal to movie after f (can be NULL) */
+    void model_add_fract_to_movie(model_t *m, Gf4dFractal *f);
 
     /* copy subfract n onto main fract */
     void model_set_subfract(model_t *m, int num);

@@ -88,13 +88,17 @@ class mandFunc : public noOptions
 public:
     mandFunc() : noOptions(name()) {}
 
+#define ITER \
+            p[X2] = p[X] * p[X]; \
+            p[Y2] = p[Y] * p[Y]; \
+            atmp = p[X2] - p[Y2] + p[CX]; \
+            p[Y] = 2.0 * p[X] * p[Y] + p[CY]; \
+            p[X] = atmp
+
     template<class T>inline void calc(T *p) const
         {
-            p[X2] = p[X] * p[X];
-            p[Y2] = p[Y] * p[Y];
-            T atmp = p[X2] - p[Y2] + p[CX];
-            p[Y] = 2.0 * p[X] * p[Y] + p[CY];
-            p[X] = atmp;
+            T atmp;
+            ITER;
         }
     void operator()(double *p) const
         {
@@ -104,13 +108,6 @@ public:
         {
             double atmp;
 
-#define ITER \
-            p[X2] = p[X] * p[X]; \
-            p[Y2] = p[Y] * p[Y]; \
-            atmp = p[X2] - p[Y2] + p[CX]; \
-            p[Y] = 2.0 * p[X] * p[Y] + p[CY]; \
-            p[X] = atmp
-
             ITER;
             ITER;
             ITER;
@@ -119,7 +116,7 @@ public:
             ITER;
             ITER;
             ITER;                
-
+#undef ITER
         }
 #ifdef HAVE_GMP
     void operator()(gmp::f *p) const
@@ -154,23 +151,31 @@ public:
     barnsleyFunc() : noOptions(name()) {};
     void operator()(double *p) const
         {
-            double x_cy = p[X] * p[CY], x_cx = p[X] * p[CX],
-                y_cy = p[Y] * p[CY], y_cx = p[Y] * p[CX];
-            
-            if(p[X] >= 0)
-            {
-                p[X] = (x_cx - p[CX] - y_cy );
-                p[Y] = (y_cx - p[CY] + x_cy );
+            double x_cy, x_cx, y_cy, y_cx;
+
+#define ITER \
+            x_cy = p[X] * p[CY]; x_cx = p[X] * p[CX];\
+            y_cy = p[Y] * p[CY]; y_cx = p[Y] * p[CX];\
+            \
+            if(p[X] >= 0) \
+            { \
+                p[X] = (x_cx - p[CX] - y_cy ); \
+                p[Y] = (y_cx - p[CY] + x_cy ); \
+            } \
+            else \
+            { \
+                p[X] = (x_cx + p[CX] - y_cy); \
+                p[Y] = (y_cx + p[CY] + x_cy); \
             }
-            else
-            {
-                p[X] = (x_cx + p[CX] - y_cy);
-                p[Y] = (y_cx + p[CY] + x_cy);
-            }
+
+            ITER;
         }
     void iter8(double *p) const 
         {
-            ;
+            double x_cy, x_cx, y_cy, y_cx;
+
+            ITER; ITER; ITER; ITER;
+            ITER; ITER; ITER; ITER;
         }
     int flags() const
         {
@@ -192,30 +197,40 @@ public:
         }
 };
 
+#undef ITER
+
 // 
 class barnsley2Func: public noOptions
 {
+#define ITER \
+            x_cy = p[X] * p[CY]; x_cx = p[X] * p[CX]; \
+            y_cy = p[Y] * p[CY]; y_cx = p[Y] * p[CX]; \
+            \
+            if(p[X]*p[CY] + p[Y]*p[CX] >= 0) \
+            { \
+                p[X] = (x_cx - p[CX] - y_cy ); \
+                p[Y] = (y_cx - p[CY] + x_cy ); \
+            } \
+            else \
+            { \
+                p[X] = (x_cx + p[CX] - y_cy);\
+                p[Y] = (y_cx + p[CY] + x_cy); \
+            }
+
 public:
     barnsley2Func() : noOptions(name()) {};
     void operator()(double *p) const
         {
-            double x_cy = p[X] * p[CY], x_cx = p[X] * p[CX],
-                y_cy = p[Y] * p[CY], y_cx = p[Y] * p[CX];
-            
-            if(p[X]*p[CY] + p[Y]*p[CX] >= 0)
-            {
-                p[X] = (x_cx - p[CX] - y_cy );
-                p[Y] = (y_cx - p[CY] + x_cy );
-            }
-            else
-            {
-                p[X] = (x_cx + p[CX] - y_cy);
-                p[Y] = (y_cx + p[CY] + x_cy);
-            }
+            double x_cy, x_cx, y_cy, y_cx;
+
+            ITER;
         }
     void iter8(double *p) const 
         {
-            ;
+            double x_cy, x_cx, y_cy, y_cx;
+
+            ITER; ITER; ITER; ITER;
+            ITER; ITER; ITER; ITER;
         }
     int flags() const
         {
@@ -235,27 +250,34 @@ public:
             if(!p) return false;
             return true;
         }
+#undef ITER
 };
 
 // z <- lambda * z * ( 1 - z)
 class lambdaFunc: public noOptions
 {
+#define ITER \
+    p[X2] = p[X] * p[X]; p[Y2] = p[Y] * p[Y]; \
+    \
+    /* t <- z * (1 - z) */ \
+    tx = p[X] - p[X2] + p[Y2]; \
+    ty = p[Y] - 2.0 * p[X] * p[Y]; \
+    \
+    p[X] = p[CX] * tx - p[CY] * ty; \
+    p[Y] = p[CX] * ty + p[CY] * tx
+
 public:
     lambdaFunc() : noOptions(name()) {};
     void operator()(double *p) const
         {
-            p[X2] = p[X] * p[X]; p[Y2] = p[Y] * p[Y];
-
-            /* t <- z * (1 - z) */
-            double tx = p[X] - p[X2] + p[Y2];
-            double ty = p[Y] - 2.0 * p[X] * p[Y];
-
-            p[X] = p[CX] * tx - p[CY] * ty;
-            p[Y] = p[CX] * ty + p[CY] * tx;
+            double tx, ty;
+            ITER;
         }
     void iter8(double *p) const 
         {
-            ;
+            double tx, ty;
+            ITER; ITER; ITER; ITER;
+            ITER; ITER; ITER; ITER;
         }
     int flags() const
         {
@@ -275,27 +297,34 @@ public:
             if(!p) return false;
             return true;
         }
+#undef ITER
 };
 
 // z <- (|x| + i |y|)^2 + c
 class shipFunc: public noOptions
 {
+#define ITER \
+            p[X] = fabs(p[X]); \
+            p[Y] = fabs(p[Y]); \
+            /* same as mbrot from here */ \
+            p[X2] = p[X] * p[X]; \
+            p[Y2] = p[Y] * p[Y]; \
+            atmp = p[X2] - p[Y2] + p[CX]; \
+            p[Y] = 2.0 * p[X] * p[Y] + p[CY]; \
+            p[X] = atmp
+
 public:
     shipFunc() : noOptions(name()) {};
     void operator()(double *p) const 
         {
-            p[X] = fabs(p[X]);
-            p[Y] = fabs(p[Y]);
-            // same as mbrot from here
-            p[X2] = p[X] * p[X];
-            p[Y2] = p[Y] * p[Y];
-            double atmp = p[X2] - p[Y2] + p[CX];
-            p[Y] = 2.0 * p[X] * p[Y] + p[CY];
-            p[X] = atmp;
+            double atmp;
+            ITER;
         }
     void iter8(double *p) const 
         {
-            ;
+            double atmp;
+            ITER; ITER; ITER; ITER;
+            ITER; ITER; ITER; ITER;
         }
     static const char *name()
         {
@@ -315,27 +344,34 @@ public:
             if(!p) return false;
             return true;
         }
+#undef ITER
 };
 
 // z <- (|x| + i |y|)^2 + (|x| + i|y|) + c
 class buffaloFunc: public noOptions
 {
+#define ITER \
+    p[X] = fabs(p[X]); \
+    p[Y] = fabs(p[Y]); \
+    \
+    p[X2] = p[X] * p[X]; \
+    p[Y2] = p[Y] * p[Y]; \
+    atmp = p[X2] - p[Y2] - p[X] + p[CX]; \
+    p[Y] = 2.0 * p[X] * p[Y] - p[Y] + p[CY]; \
+    p[X] = atmp
+
 public:
     buffaloFunc() : noOptions(name()) {}
     virtual void operator()(double *p) const
         {
-            p[X] = fabs(p[X]);
-            p[Y] = fabs(p[Y]);
-
-            p[X2] = p[X] * p[X];
-            p[Y2] = p[Y] * p[Y];
-            double atmp = p[X2] - p[Y2] - p[X] + p[CX];
-            p[Y] = 2.0 * p[X] * p[Y] - p[Y] + p[CY];
-            p[X] = atmp;
+            double atmp;
+            ITER;
         }
     void iter8(double *p) const 
         {
-            ;
+            double atmp;
+            ITER; ITER; ITER; ITER;
+            ITER; ITER; ITER; ITER;
         }
     virtual int flags() const
         {
@@ -355,24 +391,31 @@ public:
             if(!p) return false;
             return true;
         }
+#undef ITER
 };
 
 // z <- z^3 + c
 class cubeFunc : public noOptions
 {
+#define ITER  \
+    p[X2] = p[X] * p[X]; \
+    p[Y2] = p[Y] * p[Y]; \
+    atmp = p[X2] * p[X] - 3.0 * p[X] * p[Y2] + p[CX]; \
+    p[Y] = 3.0 * p[X2] * p[Y] - p[Y2] * p[Y] + p[CY]; \
+    p[X] = atmp
+
 public:
     cubeFunc() : noOptions(name()) {}
     virtual void operator()(double *p) const
         {
-            p[X2] = p[X] * p[X];
-            p[Y2] = p[Y] * p[Y];
-            double atmp = p[X2] * p[X] - 3.0 * p[X] * p[Y2] + p[CX];
-            p[Y] = 3.0 * p[X2] * p[Y] - p[Y2] * p[Y] + p[CY];
-            p[X] = atmp;
+            double atmp;
+            ITER;
         }    
     void iter8(double *p) const 
         {
-            ;
+            double atmp;
+            ITER;ITER;ITER;ITER;
+            ITER;ITER;ITER;ITER;
         }
     virtual int flags() const 
         {
@@ -392,6 +435,7 @@ public:
             if(!p) return false;
             return true;
         }
+#undef ITER
 };
 
 // generalised quadratic mandelbrot
@@ -399,6 +443,13 @@ public:
 // a[] array should be an array of complex numbers, really
 class quadFunc : public iterFunc
 {
+#define ITER \
+    p[X2] = p[X] * p[X]; \
+    p[Y2] = p[Y] * p[Y]; \
+    atmp = a[0] * (p[X2] - p[Y2]) + a[1] * p[X] + a[2] * p[CX]; \
+    p[Y] = a[0] * (2.0 * p[X] * p[Y]) + a[1] * p[Y] + a[2] * p[CY]; \
+    p[X] = atmp
+
 private:
     double a[3];
 public:
@@ -410,15 +461,14 @@ public:
     }
     virtual void operator()(double *p) const
         {
-            p[X2] = p[X] * p[X];
-            p[Y2] = p[Y] * p[Y];
-            double atmp = a[0] * (p[X2] - p[Y2]) + a[1] * p[X] + a[2] * p[CX];
-            p[Y] = a[0] * (2.0 * p[X] * p[Y]) + a[1] * p[Y] + a[2] * p[CY];
-            p[X] = atmp;
+            double atmp;
+            ITER; 
         }
     void iter8(double *p) const 
         {
-            ;
+            double atmp;
+            ITER; ITER; ITER; ITER; 
+            ITER; ITER; ITER; ITER; 
         }
     virtual int flags() const
         {

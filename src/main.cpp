@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 1999 Aurelien Alleaume, Edwin Young
+ * Copyright (C) 1999-2001 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 #include "callbacks.h"
 #include "interface.h"
 #include "gf4d_fractal.h"
+#include "movie_editor.h"
 
 static char *g_param_file = NULL;
 static char *g_params[N_PARAMS] = { NULL };
@@ -290,6 +291,8 @@ main (int argc, char *argv[])
     gdk_threads_enter();
     app = create_app (m);
     gtk_widget_show (app);
+
+    create_movie_editor(NULL,m);
 
     gtk_main ();
     gdk_threads_leave();

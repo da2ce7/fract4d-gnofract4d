@@ -3,6 +3,7 @@
 #include "fract.h"
 #include <gtk/gtkmain.h>
 #include <gtk/gtksignal.h>
+#include "gf4d_utils.h"
 
 static void gf4d_fractal_class_init               (Gf4dFractalClass    *klass);
 static void gf4d_fractal_init                     (Gf4dFractal         *dial);
@@ -19,12 +20,6 @@ enum {
 static guint fractal_signals[LAST_SIGNAL] = {0};
 
 static GtkObjectClass *parent_class = NULL;
-
-/* local prototypes */
-void marshal_NONE__FLOAT(GtkObject*    object,
-			 GtkSignalFunc func,
-			 gpointer      func_data,
-			 GtkArg*       args);
 
 GtkType
 gf4d_fractal_get_type ()
@@ -168,20 +163,6 @@ gf4d_fractal_destroy (GtkObject *object)
         (* GTK_OBJECT_CLASS (parent_class)->destroy) (object);
 }
 
-typedef int (*GtkSignal_NONE__FLOAT)(GtkObject* object, gfloat, gpointer user_data);
-
-void marshal_NONE__FLOAT(GtkObject*    object,
-			 GtkSignalFunc func,
-			 gpointer      func_data,
-			 GtkArg*       args)
-{
-    GtkSignal_NONE__FLOAT rfunc;
-    rfunc = (GtkSignal_NONE__FLOAT)func;
-    (*rfunc)(object,
-             GTK_VALUE_FLOAT(args[0]),
-             func_data);
-}
-
 static void
 gf4d_fractal_class_init (Gf4dFractalClass *klass)
 {
@@ -318,19 +299,26 @@ void gf4d_fractal_calc(Gf4dFractal *f, int nThreads)
         gf4d_fractal_pause(f,TRUE);
     }
 
-    if(pthread_create(&f->tid,NULL,calculation_thread,(void *)f))
+    if(nThreads)
     {
-        g_warning("Error, couldn't start thread\n");
-        return;
-    }
+        if(pthread_create(&f->tid,NULL,calculation_thread,(void *)f))
+        {
+            g_warning("Error, couldn't start thread\n");
+            return;
+        }
 	
-    // check that it really has started (and set workers) before returning
-    gf4d_fractal_cond_lock(f);
-    while(f->workers_running==0)
-    {
-        pthread_cond_wait(&f->running_cond,&f->cond_lock);
+        // check that it really has started (and set workers) before returning
+        gf4d_fractal_cond_lock(f);
+        while(f->workers_running==0)
+        {
+            pthread_cond_wait(&f->running_cond,&f->cond_lock);
+        }
+        gf4d_fractal_cond_unlock(f);
     }
-    gf4d_fractal_cond_unlock(f);
+    else
+    {
+        calculation_thread((void *)f);
+    }
 }
 
 void gf4d_fractal_recolor(Gf4dFractal *f)
@@ -576,6 +564,16 @@ void gf4d_fractal_set_potential(Gf4dFractal *f, gboolean potential)
 {
     kill_slave_threads(f);
     f->f->set_potential(potential);
+}
+
+void gf4d_fractal_set_mixed(
+    Gf4dFractal *f_dst, 
+    Gf4dFractal *f_src1, 
+    Gf4dFractal *f_src2, 
+    double lambda)
+{
+    kill_slave_threads(f_dst);
+    f_dst->f->set_mixed(*f_src1->f, *f_src2->f, lambda);
 }
 
 void gf4d_fractal_set_inexact(Gf4dFractal *gf_dst, Gf4dFractal *gf_src, double weirdness)

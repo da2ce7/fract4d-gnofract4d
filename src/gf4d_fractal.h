@@ -133,6 +133,8 @@ void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f);
 void gf4d_fractal_update_fract(Gf4dFractal *gf, Gf4dFractal *gf2);
 
 void gf4d_fractal_set_inexact(Gf4dFractal *gf_dst, Gf4dFractal *gf_src, double weirdness);
+void gf4d_fractal_set_mixed(Gf4dFractal *f_dst, Gf4dFractal *f_src1, Gf4dFractal *f_src2, 
+    double lambda);
 
 #include "fract_callbacks.h"
 

@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 2000 Edwin Young
+ * Copyright (C) 1999-2001 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,8 +25,10 @@
 #include "model.h"
 
 #define PREVIEW_SIZE 40
-GtkWidget *create_preview (model_t *m);
+GtkWidget *create_preview (Gf4dFractal *f);
 Gf4dFractal *preview_get_shadow(GtkWidget *preview);
+
+void preview_refresh_callback(Gf4dFractal *f, Gf4dFractal *shadow);
 
 
 #endif /* _PREVIEW_H_ */

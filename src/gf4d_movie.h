@@ -1,0 +1,85 @@
+/* an object to hold a movie in the process of being rendered. As with
+ * gf4d_fractal, this is an object rather than a widget. 
+ */
+
+#ifndef _GF4D_MOVIE_H_
+#define _GF4D_MOVIE_H_
+
+#include <stdio.h>
+#include <gtk/gtkobject.h>
+#include <pthread.h>
+
+#include "gf4d_fractal.h"
+
+#ifdef __cplusplus
+extern "C" {
+#else if 0
+} // just to keep emacs indenter happy!
+#endif
+
+#define GF4D_TYPE_MOVIE                 (gf4d_movie_get_type())
+#define GF4D_MOVIE(obj)                 GTK_CHECK_CAST (obj, GF4D_TYPE_MOVIE, Gf4dMovie)
+#define GF4D_MOVIE_CLASS(klass)         GTK_CHECK_CLASS_CAST (klass, GF4D_TYPE_MOVIE, Gf4dMovieClass)
+#define GF4D_IS_MOVIE(obj)              GTK_CHECK_TYPE (obj, GF4D_TYPE_MOVIE)
+#define GF4D_IS_MOVIE_CLASS(klass)      GTK_CHECK_CLASS_TYPE((klass), GF4D_TYPE_MOVIE)
+
+typedef struct _Gf4dMovie Gf4dMovie;
+typedef struct _Gf4dMovieClass Gf4dMovieClass;
+
+enum {
+    GF4D_MOVIE_CALCULATING,
+    GF4D_MOVIE_DONE
+};
+
+struct _Gf4dMovie
+{
+    GtkObject object;	
+
+    GList *keyframes;
+
+    pthread_t tid;
+    pthread_mutex_t lock;
+
+    // is the calculation thread running?
+    pthread_mutex_t cond_lock;
+    pthread_cond_t running_cond;
+
+    // are any workers going?
+    int workers_running;
+    int status;
+
+    Gf4dFractal *output;
+};
+
+struct _Gf4dMovieClass
+{
+    GtkObjectClass parent_class;
+    void (* list_changed)       (Gf4dFractal *fract);
+    void (* progress_changed)   (Gf4dFractal *fract);
+    void (* status_changed)     (Gf4dFractal *fract); // equiv to message
+};
+
+// basic functions
+GtkObject*    gf4d_movie_new(void);
+GtkType       gf4d_movie_get_type(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+void gf4d_movie_set_output(Gf4dMovie *mov, Gf4dFractal *f);
+
+void gf4d_movie_calc(Gf4dMovie *mov, int nThreads);
+
+gboolean gf4d_movie_write_params(Gf4dMovie *mov, const gchar *filename);
+gboolean gf4d_movie_load_params(Gf4dMovie *mov, const gchar *filename);
+
+/* stop calculating now! */
+void gf4d_movie_interrupt(Gf4dMovie *mov);
+
+/* add f to the list after "f_after", or at the end if f_after is NULL */
+void gf4d_movie_add(Gf4dMovie *mov, Gf4dFractal *f, Gf4dFractal *f_after);
+/* remove "f" */
+void gf4d_movie_remove(Gf4dMovie *mov, Gf4dFractal *f);
+
+#endif /* _GF4D_MOVIE_H_ */

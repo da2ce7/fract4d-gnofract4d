@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 2000 Edwin Young
+ * Copyright (C) 1999-2001 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,7 @@
 #include "model.h"
 #include "properties.h"
 #include "cmapbrowser.h"
+#include "movie_editor.h"
 
 typedef struct {
     model_t *m;
@@ -236,6 +237,13 @@ static GnomeUIInfo parameters1_menu_uiinfo[] =
         create_cmap_browser, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
         0, (enum GdkModifierType) 'c', NULL
+    },
+    {
+        GNOME_APP_UI_ITEM, N_("_Movie Editor..."),
+        NULL,
+        create_movie_editor, NULL, NULL,
+        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
+        0, (enum GdkModifierType)'m', NULL
     },
     GNOMEUIINFO_END
 };
