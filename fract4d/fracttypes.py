@@ -74,12 +74,13 @@ def default_value(t):
 
 _canBeCast = [
     # rows are from, columns are to
-    # Bool Int Float Complex Color
-    [ 1,   1,  1,    1,      0], # Bool
-    [ 1,   1,  1,    1,      0], # Int
-    [ 1,   0,  1,    1,      0], # Float
-    [ 1,   0,  0,    1,      0], # Complex
-    [ 0,   0,  0,    0,      1]  # Color
+    # Bool Int Float Complex Color String
+    [ 1,   1,  1,    1,      0,    0], # Bool
+    [ 1,   1,  1,    1,      0,    0], # Int
+    [ 1,   0,  1,    1,      0,    0], # Float
+    [ 1,   0,  0,    1,      0,    0], # Complex
+    [ 0,   0,  0,    0,      1,    0], # Color
+    [ 0,   0,  0,    0,      0,    1]  # String
     ]
 
 def canBeCast(t1,t2):
