@@ -296,6 +296,77 @@ cmap_create(PyObject *self, PyObject *args)
     return pyret;
 }
 
+void *
+get_double_field(PyObject *pyitem, char *name, double *pVal)
+{
+    PyObject *pyfield = PyObject_GetAttrString(pyitem,name);
+    if(pyfield == NULL)
+    {
+	PyErr_SetString(PyExc_ValueError, "Bad segment object");
+	return NULL;
+    }
+    *pVal = PyFloat_AsDouble(pyfield);
+    Py_DECREF(pyfield);
+
+    return pVal;
+}
+
+/* member 'name' of pyitem is a N-element list of doubles */
+void *
+get_double_array(PyObject *pyitem, char *name, double *pVal, int n)
+{
+    PyObject *pyfield = PyObject_GetAttrString(pyitem,name);
+    if(pyfield == NULL)
+    {
+	PyErr_SetString(PyExc_ValueError, "Bad segment object");
+	return NULL;
+    }
+
+    if(!PySequence_Check(pyfield))
+    {
+	PyErr_SetString(PyExc_ValueError, "Bad segment object");
+	return NULL;
+    }
+
+    if(!(PySequence_Size(pyfield) == n))
+    {
+	PyErr_SetString(PyExc_ValueError, "Bad segment object");
+	return NULL;
+    }
+
+    for(int i = 0; i < n; ++i)
+    {
+	PyObject *py_subitem = PySequence_GetItem(pyfield,i);
+	if(!py_subitem)
+	{
+	    PyErr_SetString(PyExc_ValueError, "Bad segment object");
+	    return NULL; 
+	}
+	*(pVal+i)=PyFloat_AsDouble(py_subitem);
+
+	Py_DECREF(py_subitem);
+    }
+
+    Py_DECREF(pyfield);
+
+    return pVal;
+}
+
+void *
+get_int_field(PyObject *pyitem, char *name, int *pVal)
+{
+    PyObject *pyfield = PyObject_GetAttrString(pyitem,name);
+    if(pyfield == NULL)
+    {
+	PyErr_SetString(PyExc_ValueError, "Bad segment object");
+	return NULL;
+    }
+    *pVal = PyInt_AsLong(pyfield);
+    Py_DECREF(pyfield);
+
+    return pVal;
+}
+
 static PyObject *
 cmap_create_gradient(PyObject *self, PyObject *args)
 {
@@ -334,22 +405,31 @@ cmap_create_gradient(PyObject *self, PyObject *args)
 	delete cmap;
 	return NULL;
     }
+
     for(i = 0; i < len; ++i)
     {
-	double d;
-	int r, g, b, a;
+	double left, right, left_col[4], right_col[4];
+	int bmode, cmode;
 	PyObject *pyitem = PySequence_GetItem(pyarray,i);
 	if(!pyitem)
 	{
 	    return NULL; 
 	}
-	/*
-	if(!PyArg_ParseTuple(pyitem,"diiii",&d,&r,&g,&b,&a))
+
+	if(!get_double_field(pyitem, "left", &left) ||
+	   !get_double_field(pyitem, "right", &right) ||
+	   !get_int_field(pyitem, "cmode", &cmode) ||
+	   !get_int_field(pyitem, "bmode", &bmode) ||
+	   !get_double_array(pyitem, "left_color", left_col, 4) ||
+	   !get_double_array(pyitem, "right_color", right_col, 4))
 	{
 	    return NULL;
 	}
-	cmap->set(i,d,r,g,b,a);
-	*/
+	
+	cmap->set(left,right,
+		  left_col,right_col,
+		  (e_blendType)bmode, (e_colorType)cmode);
+
 	Py_DECREF(pyitem);
     }
     pyret = PyCObject_FromVoidPtr(cmap,(void (*)(void *))cmap_delete);
