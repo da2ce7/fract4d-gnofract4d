@@ -59,6 +59,8 @@ class CodegenTest(unittest.TestCase):
         self.assertNoErrors(ir)
         self.codegen = codegen.T(ir.symbols,dump)
         self.codegen.generate_all_code(ir.sections["c_" + section])
+        if dump != None and dump["dumpAsm"] == 1:
+            self.printAsm()
         return self.codegen.out
 
     def printAsm(self):
@@ -128,7 +130,7 @@ class CodegenTest(unittest.TestCase):
         
     def testWhichMatch(self):
         tree = self.binop([self.const(),self.const()])
-        self.assertEqual(self.codegen.match(tree).__name__,"binop_exp_exp")
+        self.assertEqual(self.codegen.match(tree).__name__,"binop")
 
     def testGen(self):
         tree = self.binop([self.const(),self.var()])
@@ -242,6 +244,10 @@ z = z + a
 
         src = 't_c3{\ninit: b = 1 + 3 * 7\n}'
         self.assertCSays(src,"init","printf(\"%g\\n\",b_re);","22")
+
+        src = 't_c4{\ninit: bool x = |z| < 4.0\n}'
+        self.assertCSays(src,"init","printf(\"%d\\n\",x);","1",
+                         {"dumpAsm" : 1} )
         
     # assertions
     def assertCSays(self,source,section,check,result,dump=None):

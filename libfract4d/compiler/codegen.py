@@ -95,13 +95,14 @@ class T:
         # this must be ordered with largest, most efficient templates first
         # thus performing a crude 'maximal munch' instruction generation
         self.templates = self.expand_templates([
-            [ "[Binop, Exp, Exp]" , T.binop_exp_exp],
+            [ "[Binop]" , T.binop],
             [ "[Var]" , T.var],
             [ "[Const]", T.const],
             [ "[Label]", T.label],
             [ "[Move]", T.move],
             [ "[Jump]", T.jump],
-            [ "[Cast]", T.cast]
+            [ "[Cast]", T.cast],
+            [ "[Unop]", T.unop]
             ])
 
 
@@ -141,17 +142,43 @@ class T:
     def cast(self,t):
         child = t.children[0]
         src = self.generate_code(child)
-        
+
+        dst = None
         if t.datatype == Complex:
             (d0,d1) = (self.symbols.newTemp(Float), self.symbols.newTemp(Float))
-            if child.datatype == Int:
+            if child.datatype == Int or child.datatype == Bool:
                 (f1,pos) = format_string(child,-1,0)
                 assem = "%%(d0)s = ((double)%s);" % f1
                 self.out.append(Oper(assem,src, [d0]))
                 assem = "%(d0)s = 0.0;"
                 self.out.append(Oper(assem,src, [d1]))
                 dst = [d0, d1]
-
+            elif child.datatype == Float:
+                (f1,pos) = format_string(child,-1,0)
+                assem = "%%(d0)s = %s;" % f1
+                self.out.append(Oper(assem,src, [d0]))
+                assem = "%(d0)s = 0.0;"
+                self.out.append(Oper(assem,src, [d1]))
+                dst = [d0, d1]
+        elif t.datatype == Float:
+            d0 = self.symbols.newTemp(Float)
+            if child.datatype == Int or child.datatype == Bool:
+                (f1,pos) = format_string(child,-1,0)
+                assem = "%%(d0)s = ((double)%s);" % f1
+                self.out.append(Oper(assem,src, [d0]))
+                dst = [d0]
+        elif t.datatype == Int:
+            if child.datatype == Bool:
+                # needn't do anything
+                dst = src
+        elif t.datatype == Bool:            
+            # FIXME implement these
+            pass
+        
+        if dst == None:
+            msg = "Invalid Cast from %s to %s" % (child.datatype, t.datatype)
+            raise TranslationError(msg)
+        
         return dst
                 
     def move(self,t):
@@ -171,8 +198,22 @@ class T:
     def jump(self,t):
         assem = "goto %s;" % t.dest
         self.out.append(Oper(assem,[],[],[t.dest]))
-        
-    def binop_exp_exp(self,t):
+
+    def unop(self,t):
+        s0 = t.children[0]
+        src = self.generate_code(s0)
+        if t.op == "mag":
+            # x_re * x_re + x_im * x_im
+            re_2 = self.emit_binop('*',s0,0,s0,0,[src[0],src[0]],Float)
+            im_2 = self.emit_binop('*',s0,1,s0,1,[src[1],src[1]],Float)
+            dst = [ self.emit_binop('+',re_2,-1,im_2,-1,[re_2,im_2],Float)]
+        else:
+            msg = "Unsupported unary operation %s" % t.op
+            raise TranslationError(msg)
+
+        return dst
+    
+    def binop(self,t):
         s0 = t.children[0]
         s1 = t.children[1]
         srcs = [self.generate_code(s0), self.generate_code(s1)]
