@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
+import absyn
 import ir
 import symbol
 from fracttypes import *
@@ -8,13 +9,53 @@ import codegen
 
 class CodegenTest(unittest.TestCase):
     def setUp(self):
+        self.fakeNode = absyn.Empty(0)
         pass
     def tearDown(self):
         pass
 
-    def testStub(self):
-        pass
-    
+    # convenience methods to make quick trees for testing
+    def eseq(self,stms, exp):
+        return ir.ESeq(stms, exp, self.fakeNode, Int)
+    def seq(self,stms):
+        return ir.Seq(stms,self.fakeNode)
+    def var(self,name="a"):
+        return ir.Var(name,self.fakeNode, Int)
+    def const(self,value=0):
+        return ir.Const(value, self.fakeNode, Int)
+    def binop(self,stms,op="+"):
+        return ir.Binop(op,stms,self.fakeNode, Int)
+    def move(self,dest,exp):
+        return ir.Move(dest, exp, self.fakeNode, Int)
+    def cjump(self,e1,e2,trueDest="trueDest",falseDest="falseDest"):
+        return ir.CJump(">", e1, e2, trueDest, falseDest, self.fakeNode)
+    def jump(self,dest):
+        return ir.Jump(dest,self.fakeNode)
+    def cast(self, e, type):
+        return ir.Cast(e,self.fakeNode, type)
+    def label(self,name):
+        return ir.Label(name,self.fakeNode)
+
+    def testMatching(self):
+        template = "[Binop, Const, Const]"
+
+        tree = self.binop([self.const(),self.const()])
+        self.assertMatchResult(tree,template,1)
+
+        tree = self.const()
+        self.assertMatchResult(tree,template,0)
+        
+        tree = self.binop([self.const(), self.var()])
+        self.assertMatchResult(tree, template,0)
+
+        template = "[Binop, Exp, Exp]"
+        self.assertMatchResult(tree, template,1)
+        
+    def assertMatchResult(self, tree, template,result):
+        template = eval(codegen.expand(template))
+        self.assertEqual(codegen.match(tree,template),result,
+                         "%s mismatches %s" % (tree.pretty(),template))
+        
 def suite():
     return unittest.makeSuite(CodegenTest,'test')
 
