@@ -33,7 +33,11 @@ class T(gobject.GObject):
         gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'progress-changed' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
-        gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),        
+        gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
+        'pointer-moved' : (
+        (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
+        gobject.TYPE_NONE, (gobject.TYPE_INT,
+                            gobject.TYPE_FLOAT, gobject.TYPE_FLOAT))
         }
 
     def __init__(self,comp,parent=None,width=640,height=480):
@@ -458,10 +462,10 @@ class T(gobject.GObject):
         self.redraw_rect(r.x,r.y,r.width,r.height)
 
     def onMotionNotify(self,widget,event):
+        self.redraw_rect(0,0,self.width,self.height)
         (self.newx,self.newy) = (event.x, event.y)
 
         dummy = widget.window.get_pointer()
-        self.redraw_rect(0,0,self.width,self.height)
 
         dy = int(abs(self.newx - self.x) * float(self.height)/self.width)
         if(self.newy < self.y or (self.newy == self.y and self.newx < self.x)):
@@ -476,11 +480,15 @@ class T(gobject.GObject):
             int(abs(self.newx-self.x)),
             int(abs(self.newy-self.y)));
 
+        (x,y) = self.float_coords(self.newx,self.newy)
+        self.emit('pointer-moved', self.button, x, y)
+
     def onButtonPress(self,widget,event):
         self.x = event.x
         self.y = event.y
         self.newx = self.x
         self.newy = self.y
+        self.button = event.button
         
     def onButtonRelease(self,widget,event):
         self.redraw_rect(0,0,self.width,self.height)
@@ -509,7 +517,11 @@ class T(gobject.GObject):
 
         if self.thaw():
             self.changed()
-        
+
+    def float_coords(self,x,y):
+        return ((x - self.width/2.0)/self.width,
+                (y - self.height/2.0)/self.width)
+    
     def recenter(self,x,y,zoom):
         dx = (x - self.width/2.0)/self.width
         dy = (y - self.height/2.0)/self.width                
