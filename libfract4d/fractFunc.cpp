@@ -3,11 +3,6 @@
 #include "iterFunc.h"
 #include <stdio.h>
 
-/* redirect back to a member function */
-void worker(job_info_t& tdata, STFractWorker *pFunc)
-{
-    pFunc->work(tdata);
-}
 
 fractFunc::fractFunc(
     fractal_t *f_, 
@@ -129,14 +124,7 @@ int
 fractFunc::updateiters()
 {
     // add up all the subtotals
-    for(int i = 0; i < ptm->nWorkers; ++i)
-    {
-	int nd, nh, k;
-	ptm->ptf[i].stats(&nd,&nh,&k);
-        nTotalDoubleIters += nd;
-        nTotalHalfIters += nh;
-        nTotalK += k;
-    }
+    ptm->stats(&nTotalDoubleIters,&nTotalHalfIters,&nTotalK);
 
     double doublepercent = ((double)nTotalDoubleIters*AUTO_DEEPEN_FREQUENCY*100)/nTotalK;
     double halfpercent = ((double)nTotalHalfIters*AUTO_DEEPEN_FREQUENCY*100)/nTotalK;
@@ -171,18 +159,11 @@ void fractFunc::draw_aa()
     {
         last_update_y = 0;
         for(int y = i; y < h ; y+= f->nThreads) {
-            if(f->nThreads > 1)
-            {
-                send_row_aa(0,y,w);
-            }
-            else
-            {
-                ptm->ptf->row_aa(0,y,w);
-                if(update_image(y))
-                {
-                    break;
-                }
-            }
+	    ptm->row_aa(0,y,w);
+	    if(update_image(y))
+	    {
+		break;
+	    }
         }
         reset_progress(1.0);
     }

@@ -15,6 +15,8 @@ typedef struct {
     int x, y, param;
 } job_info_t;
 
+void worker(job_info_t& tdata, STFractWorker *pFunc);
+
 class IFractWorker {
 public:
     // calculate a row of antialiased pixels
@@ -149,7 +151,21 @@ class MTFractWorker : public IFractWorker
     virtual void stats(int *pnDoubleIters, int *pnHalfIters, int *pk);
 
     tpool<job_info_t,STFractWorker> *ptp;
-    STFractWorker *ptf;
     int nWorkers;
     bool ok;
+// private:
+
+    /* wait for a ready thread then give it some work */
+    void send_cmd(job_type_t job, int x, int y, int param);
+    void send_quit();
+
+    // MEMBER FUNCTIONS
+
+    void send_box(int x, int y, int rsize);
+    void send_row(int x, int y, int n);
+    void send_row_aa(int x, int y, int n);
+    // ... in a worker thread
+    void send_box_row(int w, int y, int rsize);
+
+    STFractWorker *ptf;
 };
