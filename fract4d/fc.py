@@ -28,6 +28,7 @@ import commands
 import os.path
 import random
 import md5
+import re
 
 import fractparser
 import fractlexer
@@ -41,8 +42,22 @@ class FormulaFile:
         self.contents = contents
     def get_formula(self,formula):
         return self.formulas.get(formula)
-                                    
+    def get_formula_names(self, skip_type=None):
+        '''return all the coloring funcs except those marked as only suitable
+        for the OTHER kind (inside vs outside)'''
+        names = []
+        for name in self.formulas.keys():
+            if type:
+                sym = self.formulas[name].symmetry
+                if sym == None  or sym == "BOTH" or sym != skip_type:
+                   names.append(name)
+            else:
+                names.append(name)
+        return names
+    
 class Compiler:
+    isFRM = re.compile(r'\.frm\Z', re.IGNORECASE)
+    isCFRM = re.compile(r'\.cfrm\Z', re.IGNORECASE)
     def __init__(self):
         self.parser = fractparser.parser
         self.lexer = fractlexer.lexer
@@ -54,6 +69,14 @@ class Compiler:
         self.compiler_name = "gcc"
         self.flags = "-fPIC -DPIC -g -O3 -shared"
         self.libs = "-lm"
+
+    def formula_files(self):
+        return [ (x,y) for (x,y) in self.files.items() 
+                 if Compiler.isFRM.search(x)]
+
+    def colorfunc_files(self):
+        return [ (x,y) for (x,y) in self.files.items() 
+                 if Compiler.isCFRM.search(x)]
         
     def init_cache(self):
         if not os.path.exists(self.cache_dir):

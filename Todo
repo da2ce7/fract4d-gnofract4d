@@ -40,6 +40,11 @@ todo for 2.0
 	(gtk_container_foreach): assertion `GTK_IS_CONTAINER (container)' failed
 * B	3damand01.fct gives "list index out of range" when loaded. It tries 
 	to set parameters which don't exist
+* B	ejection_distance broken (Errors:
+	invalid type complex for / on line 51, expecting float
+	Warnings:
+	Uninitialized variable @bailout referenced on line 51)
+* B	setting inner func has no effect
 
 * differences from fractint
 * B	3rdim05 - default params bulge with fractint. They use sin() as default

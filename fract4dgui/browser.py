@@ -6,12 +6,18 @@ import string
 import gobject
 import gtk
 
+FRACTAL = 0
+INNER = 1
+OUTER = 2
+
 _browser = None
 
-def show(parent, f):
+def show(parent, f,type):
     global _browser
     if not _browser:
         _browser = BrowserDialog(parent,f)
+    _browser.set_type(type)
+    _browser.populate_file_list()
     _browser.show_all()
 
 def update():
@@ -40,7 +46,8 @@ class BrowserDialog(gtk.Dialog):
         self.f = f
         self.compiler = f.compiler
         self.current_fname = None
-
+        self.func_type = FRACTAL
+        
         self.set_size_request(750,500)
         #self.accelgroup = gtk.AccelGroup()
         #self.window.add_accel_group(self.accelgroup)
@@ -55,14 +62,34 @@ class BrowserDialog(gtk.Dialog):
                id == gtk.RESPONSE_DELETE_EVENT:
             self.hide()
         elif id == gtk.RESPONSE_APPLY:
-            self.f.freeze()
-            self.f.set_formula(self.current_fname,self.current_formula)
-            self.f.reset()
-            if self.f.thaw():
-                self.f.changed()
+            self.onApply()
         else:
             print "unexpected response %d" % id
 
+    def onApply(self):
+        self.f.freeze()
+        if self.func_type == FRACTAL:
+            self.f.set_formula(self.current_fname,self.current_formula)
+        elif self.func_type == INNER:
+            self.f.set_inner(self.current_fname,self.current_formula)
+        elif self.func_type == OUTER:
+            self.f.set_outer(self.current_fname,self.current_formula)
+        else:
+            assert(False)
+        self.f.reset()
+        if self.f.thaw():
+            self.f.changed()
+
+    def set_type_cb(self,optmenu):
+        self.set_type(optmenu.get_history())
+            
+    def set_type(self,type):
+        if self.func_type == type:
+            return
+        self.func_type = type
+        self.funcTypeMenu.set_history(type)
+        self.populate_file_list()
+        
     def disable_apply(self):
         self.set_response_sensitive(gtk.RESPONSE_APPLY,False)
 
@@ -84,22 +111,30 @@ class BrowserDialog(gtk.Dialog):
 
         selection = self.treeview.get_selection()
         selection.connect('changed',self.file_selection_changed)
-
-        self.populate_file_list()
         return sw
 
     def populate_file_list(self):
         self.file_list.clear()
-        for (fname,formulalist) in self.compiler.files.items():
+        if self.func_type == FRACTAL:
+            files = self.compiler.formula_files()
+        else:
+            files = self.compiler.colorfunc_files()
+            
+        for (fname,formulalist) in files:
             iter = self.file_list.append ()
             self.file_list.set (iter, 0, fname)
 
+        self.formula_list.clear()
+        self.formula_selection_changed(None)
+        
     def populate_formula_list(self,fname):
         self.formula_list.clear()
         
         ff = self.compiler.files[fname]
 
-        form_names = ff.formulas.keys()
+        exclude = [None, "OUTSIDE", "INSIDE"]
+        
+        form_names = ff.get_formula_names(exclude[self.func_type])
         form_names.sort()        
         for formula_name in form_names:
             iter = self.formula_list.append()
@@ -131,13 +166,13 @@ class BrowserDialog(gtk.Dialog):
         textview = gtk.TextView()
         sw.add(textview)
         return (textview,sw)
-    
+
     def create_panes(self):
         # option menu for choosing Inner/Outer/Fractal
         hbox = gtk.HBox()
         hbox.pack_start(gtk.Label("Function to Modify : "), gtk.FALSE, gtk.FALSE)
         
-        funcTypeMenu = gtk.OptionMenu()
+        self.funcTypeMenu = gtk.OptionMenu()
         menu = gtk.Menu()
         for item in [
             "Fractal Function",
@@ -145,8 +180,11 @@ class BrowserDialog(gtk.Dialog):
             "Outer Coloring Function"]:
             mi = gtk.MenuItem(item)
             menu.append(mi)
-        funcTypeMenu.set_menu(menu)
-        hbox.pack_start(funcTypeMenu,gtk.TRUE, gtk.TRUE)
+        self.funcTypeMenu.set_menu(menu)
+
+        self.funcTypeMenu.connect('changed',self.set_type_cb)
+        
+        hbox.pack_start(self.funcTypeMenu,gtk.TRUE, gtk.TRUE)
         self.vbox.pack_start(hbox,gtk.FALSE, gtk.FALSE)
         
         # 3 panes: files, formulas, formula contents
@@ -199,10 +237,21 @@ class BrowserDialog(gtk.Dialog):
         self.sourcetext.get_buffer().set_text(text,-1)
         self.populate_formula_list(self.current_fname)
 
+    def clear_selection(self):
+        self.text.get_buffer().set_text("",-1)
+        self.transtext.get_buffer().set_text("",-1)
+        self.sourcetext.get_buffer().set_text("",-1)
+        self.msgtext.get_buffer().set_text("",-1)
+        self.disable_apply()
+        
     def formula_selection_changed(self,selection):
+        if not selection:
+            self.clear_selection()
+            return
+        
         (model,iter) = selection.get_selected()
         if iter == None:
-            self.disable_apply()
+            self.clear_selection()
             return
         
         form_name = model.get_value(iter,0)

@@ -72,7 +72,7 @@ class SettingsDialog(gtk.Dialog):
         hbox = gtk.HBox(False,1)
         hbox.pack_start(label)
         button = gtk.Button("Browse...")
-        button.connect('clicked', self.show_browser)
+        button.connect('clicked', self.show_browser, browser.OUTER)
         hbox.pack_start(button)
         table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
 
@@ -119,12 +119,12 @@ class SettingsDialog(gtk.Dialog):
         
         hbox.pack_start(label)
         button = gtk.Button("Browse...")
-        button.connect('clicked', self.show_browser)
+        button.connect('clicked', self.show_browser, browser.FRACTAL)
         hbox.pack_start(button)
         table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
         
-    def show_browser(self,*args):
-        browser.show(self.main_window, self.f)
+    def show_browser(self,button,type):
+        browser.show(self.main_window, self.f, type)
         
     def create_param_entry(self,table, row, text, param):
         label = gtk.Label(text)
