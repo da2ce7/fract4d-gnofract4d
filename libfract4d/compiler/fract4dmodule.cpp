@@ -5,6 +5,7 @@
 #include "Python.h"
 
 #include <dlfcn.h>
+#include <pthread.h>
 
 #include "pf.h"
 #include "cmap.h"
@@ -16,6 +17,7 @@
 #define PyMODINIT_FUNC void
 #endif
 
+#define DEBUG_CREATION
 
 /* 
  * pointfuncs
@@ -411,6 +413,20 @@ public:
 		RELEASE_LOCK;
 	    }
 	};
+    virtual void interrupt() 
+	{
+	    // FIXME? interrupted = true;
+	}
+    
+    virtual void start(pthread_t tid_) 
+	{
+	    tid = tid_;
+	}
+
+    virtual void wait()
+	{
+	    pthread_join(tid,NULL);
+	}
 
     ~PySite()
 	{
@@ -422,6 +438,7 @@ public:
 private:
     PyObject *site;
     bool has_pixel_changed_method;
+    pthread_t tid;
 };
 
 typedef enum
@@ -443,7 +460,7 @@ typedef struct
 class FDSite :public IFractalSite
 {
 public:
-    FDSite(int fd_) : fd(fd_)
+    FDSite(int fd_) : fd(fd_), tid((pthread_t)-1), interrupted(false) 
 	{
 
 	}
@@ -481,7 +498,7 @@ public:
     // return true if we've been interrupted and are supposed to stop
     virtual bool is_interrupted()
 	{
-	    return false; // FIXME
+	    return interrupted;
 	}
 
     // pixel changed
@@ -494,12 +511,38 @@ public:
 	    return; // FIXME
 	};
 
+    virtual void interrupt() 
+	{
+	    interrupted = true;
+	}
+    
+    virtual void start(void *params_) 
+	{
+	    interrupted = false;
+	    params = params_;
+	}
+
+    virtual void set_tid(int tid_) 
+	{
+	    tid = tid_;
+	}
+
+    virtual void wait()
+	{
+	    if(tid != -1)
+	    {
+		pthread_join(tid,NULL);
+	    }
+	}
     ~FDSite()
 	{
 	    close(fd);
 	}
 private:
     int fd;
+    int tid;
+    bool interrupted;
+    void *params;
 };
 
 static void
@@ -583,6 +626,73 @@ pycalc(PyObject *self, PyObject *args)
     //((PySite *)site)->state = PyEval_SaveThread();
     calc(params,eaa,maxiter,nThreads,pfo,cmap,auto_deepen,im,site);
     //PyEval_RestoreThread(((PySite *)site)->state);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+typedef struct 
+{
+    double params[N_PARAMS];
+    int eaa, maxiter, nThreads;
+    bool auto_deepen;
+    pf_obj *pfo;
+    cmap_t *cmap;
+    IImage *im;
+    IFractalSite *site;
+} calc_args;
+
+static void *
+calculation_thread(void *vdata) 
+{
+    calc_args *args = (calc_args *)vdata;
+
+    calc(args->params,args->eaa,args->maxiter,
+	 args->nThreads,args->pfo,args->cmap,
+	 args->auto_deepen,args->im,args->site);
+    return NULL;
+}
+
+static PyObject *
+pycalc_async(PyObject *self, PyObject *args)
+{
+    PyObject *pypfo, *pycmap, *pyim, *pysite;
+    calc_args *cargs = new calc_args();
+ 
+    double *p = cargs->params;
+    if(!PyArg_ParseTuple(
+	   args,
+	   "(ddddddddddd)iiiOOiOO",
+	   &p[0],&p[1],&p[2],&p[3],
+	   &p[4],&p[5],&p[6],&p[7],
+	   &p[8],&p[9],&p[10],
+	   &cargs->eaa,&cargs->maxiter,&cargs->nThreads,
+	   &pypfo,&pycmap,
+	   &cargs->auto_deepen,
+	   &pyim, &pysite
+	   ))
+    {
+	return NULL;
+    }
+
+    cargs->cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+    cargs->pfo = ((pfHandle *)PyCObject_AsVoidPtr(pypfo))->pfo;
+    cargs->im = (IImage *)PyCObject_AsVoidPtr(pyim);
+    cargs->site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);
+    if(!cargs->cmap || !cargs->pfo || !cargs->im || !cargs->site)
+    {
+	return NULL;
+    }
+
+    cargs->site->interrupt();
+    cargs->site->wait();
+
+    cargs->site->start((void *)cargs);
+
+    pthread_t tid;
+    pthread_create(&tid,NULL,calculation_thread,(void *)cargs);
+
+    cargs->site->set_tid(tid);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -696,6 +806,9 @@ static PyMethodDef PfMethods[] = {
 
     { "calc", pycalc, METH_VARARGS,
       "Calculate a fractal image"},
+
+    { "async_calc", pycalc_async, METH_VARARGS,
+      "Calculate a fractal image in another thread"},
 
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
