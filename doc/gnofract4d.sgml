@@ -1,0 +1,227 @@
+<!doctype article PUBLIC "-//Davenport//DTD DocBook V3.0//EN" [
+
+<!entity gf4 "Gnofract4D">
+]>
+<article id="gnofract4d">
+<artheader>
+<author><firstname>Edwin</><surname>Young</></author>
+<date>1999-12-12</date>
+<title>&gf4;</title>
+<subtitle><emphasis>For when 2D fractals just aren't weird enough</emphasis></subtitle>
+</artheader>
+
+<sect1 id="introduction">
+<title>Introduction</title>
+
+<para>&gf4; is a fractal generation program which can draw some unusual hybrids between the mandelbrot and julia sets. It treats both fractals as views of the same four-dimensional object and allows you to explore other views of the same object. </para>
+
+</sect1>
+
+<sect1 id="maths">
+<title> About the maths</title>
+
+<caution>
+<title>Warning: Dubious mathematics ahead</title>
+<para>I'm not a mathematician. You may find this discussion
+insultingly oversimplified or just plain wrong.
+</para>
+</caution>
+
+<sect2 id="mset" >
+<title>The Mandelbrot Set</title>
+<para> The Mandelbrot is defined as the set of all complex numbers
+which, when you repeatedly square them and add them again, never
+become infinite. In pseudocode, the procedure is:
+</para>
+<programlisting>
+z = 0
+while( magnitude(z) &lt; 4.0 )
+     z = z^2 + c
+</programlisting>
+
+<para>
+Here, <emphasis>c</> is determined by the position on screen. This
+gives rise to the familiar Mandelbrot set:
+<graphic align="center" format="GIF" fileref="mandelbrot_standard"></graphic>
+
+All the points inside the set are (as is traditional) coloured
+black. The points outside the set are different colours depending on
+how long it takes them to escape from the set. These colours aren't
+very mathematically significant, but they look nice.
+</para>
+
+<para>
+So what happens if <emphasis>z</> is initially set to a complex value
+other than zero? Well, you get a rather odd-looking, deformed M-set.
+This initial value, which we'll call <emphasis>z0</>, is called the
+intial perturbation, and sets which have a non-zero <emphasis>z0</> are
+known as <emphasis>perturbed</> sets:
+<graphic align="center" format="GIF" fileref="mandelbrot_perturbed"></graphic>
+</para>
+</sect2>
+
+<sect2 id="julia">
+<title>The Julia Set</title>
+<para>
+The Julia set is actually drawn by the same procedure as the
+Mandelbrot set. But instead of changing the value of <emphasis>c</>
+for each pixel, we keep <emphasis>c</> constant and change
+<emphasis>z0</>. There is a different Julia set for each value of 
+<emphasis>c</>; here's the one for <emphasis>c</>=0.
+<graphic align="center" format="GIF" fileref="julia_standard"></graphic>
+</para>
+
+<para>
+Boring, isn't it? That's because we're just squaring the value at each
+iteration without adding anything to it. So any value which starts
+with a magnitude less than 1 will shrink forever (and hence is a
+member of the set). All other values will grow forever, and so we've
+just discovered a rather inefficient way of drawing perfect circles.
+If we use a different value of <emphasis>c</> we get something more
+interesting: 
+<graphic align="center" format="GIF" fileref="julia_perturbed"></graphic>
+</para>
+</sect2>
+
+<sect2 id="julibrot">
+<title>The Julibrot</title> 
+<para>
+
+Here we come to the heart of the matter. I said above that both the
+Julia and Mandelbrot sets are drawn with the <emphasis>same
+function</emphasis>. 
+<programlisting>
+julibrot(z0,c)
+z = z0
+iterations = 0
+while( magnitude(z) &lt; 4.0 and iterations < max_iterations )
+     z = z^2 + c
+     iterations = iterations + 1
+</programlisting>
+
+The Julibrot function has two complex parameters, or four real
+ones. In &gf4; I refer to the real parameters as x, y, z, and w: these
+are c.re , c.im, z0.re and z0.im respectively.
+
+The only difference is which points we choose to draw. To draw the
+Mandelbrot set, we keep <emphasis>z0</> constant and change
+<emphasis>c</> with each pixel. To draw the Julia set, we keep
+<emphasis>c</> constant and change <emphasis>z0</>. If you squint with
+your brain a bit, you can imagine both sets as orthogonal "slices"
+through the same four-dimensional object. In &gf4; terms, the
+Mandelbrot set is the <emphasis>xy</> plane, and the Julia set is the
+<emphasis>zw</> plane. We can also look at other planes: here's an
+image of the <emphasis>xw</> plane:
+<graphic align="center" format="GIF" fileref="xw_plane"></graphic>
+</para>
+</sect2>
+
+<sect2 id="viewing">
+<title>Viewing in Four Dimensions</title>
+<para>
+However, we can draw any 2D slice we like, not just those which are
+parallel to the Julibrot axes. To do this we'll need to describe our
+scene by four things. First, the (<emphasis>x,y,z,w</>) coordinates of
+the center of the screen. Second, a vector for the x-axis of the
+screen. This tells us how to change the parameters to the Julibrot
+function as we proceed across the screen. Third, a vector for the
+y-axis. Fourth and finally, the size of the image. For the Mandelbrot
+set, our "default" view, the screen is centered at [0,0,0,0], the
+x-vector is [1,0,0,0] and the y-vector is [0,1,0,0]. The initial size
+is 4, because the whole Mandelbrot set fits inside the 2x2 square. We
+can zoom into the set by changing <emphasis>x</> and <emphasis>y</>
+and the zoom factor.
+</para>
+<para>
+If we want to draw other slices, we need to rotate our view through
+four dimensions. In 3D, we can rotate in 3 directions: around the
+<emphasis>x</>, <emphasis>y</>, and <emphasis>z</> axes. In 4D, we
+rotate around a <emphasis> plane </> rather than a line, and we can
+rotate in 6 directions: around the <emphasis>xy, xz, xw, yz, yw</> and
+<emphasis>zw</> planes. For example, if we rotate through 90 degrees
+in the xz and yw directions, our screen vectors become [0,0,1,0] and
+[0,0,0,1]: in other words, the Julia set. If we rotate through only 45
+degrees, we get a "hybrid" between the two sets, which looks decidedly
+odd. In fact, we can rotate to any angle in each of the planes,
+creating a whole world of bizarre pictures.
+</para>
+
+</sect2>
+</sect1>
+<sect1 id="mouse">
+<title>Mouse Functions</title> 
+
+<para>
+Clicking with the left mouse button zooms in, making the picture twice
+as large as before. The new image is centered on the point where you
+clicked the mouse. If you click and drag with the left button, you can
+draw a white box around an area. When you let go, the image zooms in
+so that the area inside that box fills the window. 
+</para>
+
+<para>
+Clicking with the right mouse button zooms out, making the picture
+twice as small as before. There isn't a click and drag feature for the
+right button.
+</para>
+
+<para>
+Clicking with the middle button rotates by 90 degrees in the
+<emphasis>xz</> and <emphasis>yw</> axes. If you're currently looking
+at the Mandelbrot set, you'll get a Julia set, and vice versa. If
+you're looking at something else, you'll get something weird. Note
+that clicking this twice doesn't take you back to where you started:
+the screen gets recentered on the point you clicked.
+</para> 
+
+</sect1>
+
+<sect1 id="toolbar">
+<title>Toolbar buttons</title>
+<para>
+The ten toolbar buttons correspond to the ten parameters which define
+the view. Each can be moved up or down to alter the view. Note that if
+you're looking at the Mandelbrot set, the x and y buttons scroll
+around the picture, but if you're looking at some other view, this
+won't necessarily happen.
+</para>
+</sect1>
+
+<sect1 id="filemenu">
+<title>File Menu</title> 
+<para>
+The (poorly named) <guimenuitem>New Image</guimenuitem> button returns
+you to the Mandelbrot set. <guimenuitem>Save Image</guimenuitem>
+writes the current image to disk. I recommend using .png images; jpegs
+look horrible, and GIFs can only manage 256 colors.  <guimenuitem>Save
+Parameters</guimenuitem> and <guimenuitem>Load
+Parameters</guimenuitem> save and load plain-text paramter description
+files, so you can return to images in the future.
+</para>
+</sect1>
+
+<sect1 id="preferences">
+<title>Preferences Dialog</title>
+<para>
+You can change all the fractal's parameters from
+here.<guilabel>Width</> and <guilabel>Height</> set the size of the
+image in pixels. <guilabel>Max Iterations</> sets the number of
+iterations a point will go through before we give up and assume it's a
+member of the Julibrot. This is set automatically by &gf4; but you can
+change it by hand if you like. If a point's magnitude ever exceeds the
+<guilabel>Bailout</> value, we stop iterating. Set <guilabel>
+antialias</> to 0 or 1 to make drawing much faster, but less
+pretty. There doesn't seem to be any visible improvement in setting
+antialias above 3. The <guilabel> color </> allows you to set the base
+color: all sorts of other colors get generated as well. Unfortunately
+there's currently no way to set a palette explicitly. The <guilabel>
+location</> entryboxes allow you to change the coordinates of the
+screen center and the image size. The <guilabel>angles</> tab allows
+you to set the rotation angles. Only values between 0 and 2 * pi are
+different; values outside this range "wrap" to points inside that
+range.
+
+</para>
+</sect1>
+</article>
+

@@ -1,0 +1,21 @@
+Gnofract4D: a little fractal generator/browser
+--------------------------------------------
+
+Gnofract4D is a descendant of gnofract, by Aurélien Alleaume, 
+(mason@multimania.com). Unfortunately, I haven't been able to
+contact Aurélien, so I've decided to make the changed program
+available separately.  
+
+Gnofract4D's home page is at
+
+	http://gnofract4d.sourceforge.org/
+	
+Mouse functions:
+Click the left mouse button to zoom in, Right button to zoom out, 
+and Middle button to flip to the corresponding (quasi-)Julia set.
+You can also draw a rectangle with the left mouse button; when you
+release the button gnofract4d will zoom into that rectangle. 
+
+Have fun,
+
+Edwin Young 
