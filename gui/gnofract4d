@@ -28,18 +28,16 @@ import colors
 # without thread support. Grrr.
 #gtk.gdk.threads_init()
 
-# create global fractal compiler and load standard formula and
-# coloring algorithm files
-g_comp = fc.Compiler()
-g_comp.file_path.append("../fract4d")
-g_comp.load_formula_file("gf4d.frm")
-g_comp.load_formula_file("gf4d.cfrm")
-
 
 class MainWindow:
     def __init__(self):
-        global g_comp
-        self.compiler = g_comp
+        # create global fractal compiler and load standard formula and
+        # coloring algorithm files
+        self.compiler = fc.Compiler()
+        self.compiler.file_path.append("../fract4d")
+        self.compiler.load_formula_file("gf4d.frm")
+        self.compiler.load_formula_file("gf4d.cfrm")
+
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
         
@@ -331,7 +329,7 @@ class MainWindow:
     def quit(self,action,widget=None):
         try:
             preferences.userPrefs.save()
-            g_comp.clear_cache()
+            self.compiler.clear_cache()
         finally:
             gtk.main_quit()
 
