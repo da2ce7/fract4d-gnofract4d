@@ -67,8 +67,9 @@ function=Mandelbrot
 @bailout=1e20
 [endsection]
 [inner]
-formulafile=gf4d.cfrm
-function=zero
+formulafile=test.cfrm
+function=flat
+@myfunc=sqrt
 [endsection]
 [outer]
 formulafile=test.cfrm
@@ -259,13 +260,12 @@ blue=0
         f1.compile()
         
         self.assertEqual(f1.cfunc_params[0],[1.0e12,3.0])
-        # FIXME self.assertEqual(f1.get_func_value("@myfunc",f1.cfuncs[0]),"abs")
+        self.assertEqual(f1.get_func_value("@myfunc",f1.cfuncs[1]),"sqrt")
         
         # save again
         file2 = StringIO.StringIO()
         f1.save(file2)
         saved = file2.getvalue()
-        #print saved
         self.failUnless(saved.startswith("gnofract4d parameter file"))
         self.assertNotEqual(saved.find("@power=3.0"),-1)
         
@@ -275,7 +275,7 @@ blue=0
         f3.loadFctFile(file3)
 
         self.assertFractalsEqual(f1,f3)
-        self.assertEqual(f3.cfunc_params[0][1],3.0)
+        self.assertEqual(f3.get_func_value("@myfunc",f3.cfuncs[1]),"sqrt")
             
     def assertFractalsEqual(self,f1,f2):
         # check that they are equivalent
@@ -299,7 +299,7 @@ blue=0
         f1.save(file2)
         saved = file2.getvalue()
         self.failUnless(saved.startswith("gnofract4d parameter file"))
-
+        
         # load it into another instance
         file3 = StringIO.StringIO(saved)
         f2 = fractal.T(self.compiler)

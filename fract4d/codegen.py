@@ -450,7 +450,7 @@ extern pf_obj *pf_new(void);
         return [ Decl(("%s %s_re = " + format +";") % (type,varname,re_val)),
                  Decl(("%s %s_im = " + format +";") % (type,varname,im_val))]
     
-    def output_symbols(self,user_overrides):
+    def output_symbols(self,ir,user_overrides):
         overrides = {
                      "t__h_zwpixel" : "",
                      "pixel" : "",
@@ -466,8 +466,8 @@ extern pf_obj *pf_new(void);
             overrides[k] = v
             
         out = []
-        op = self.symbols.order_of_params()
-        for (key,sym) in self.symbols.items():
+        op = ir.symbols.order_of_params()
+        for (key,sym) in ir.symbols.items():
             if isinstance(sym,fracttypes.Var):
                 t = fracttypes.ctype(sym.type)
                 val = sym.value
@@ -508,7 +508,7 @@ extern pf_obj *pf_new(void);
 
     def output_decls(self,t,overrides={}):
         # must be done after other sections or temps are missing
-        t.output_sections["decls"] = self.output_symbols(overrides)
+        t.output_sections["decls"] = self.output_symbols(t,overrides)
     
     def output_c(self,t,inserts={},output_template=None):
         # find bailout variable
