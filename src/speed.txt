@@ -125,3 +125,8 @@ stubbed-out periodicity: about 45 secs
 revert to all iters in same memory loc (incorrect): 
 59.02user 0.04system 0:30.40elapsed 194%CPU (0text+0data 0max)k
 
+compiled, 8x iterations, no vcalls: (why does this suck so much?)
+89.06user 0.30system 0:47.80elapsed 186%CPU (0text+0data 0max)k
+
+disabled periodicity, 8x iterations:
+55.16user 0.18system 0:30.49elapsed 181%CPU (0text+0data 0max)k

@@ -53,13 +53,34 @@ public:
     template<class T>
     bool calcNoPeriod(int& iter, int maxIter, T *pIter, T *pInput, T *pTemp)
         {
+            while(iter + 8 < maxIter)
+            {
+                T lastx = pIter[X]; T lasty = pIter[Y];
+                //DECL;
+                //ITER; ITER; ITER; ITER; ITER; ITER; ITER; ITER; 
+                //BAIL;
+                iter8(pIter,pInput,pTemp);
+                bail(pIter,pInput,pTemp);
+                if(pTemp[EJECT_VAL] >= m_eject)
+                {
+                    // we bailed out somewhere in the last 8iters -
+                    // go back to beginning and look one-by-one
+                    pIter[X] = lastx; pIter[Y] = lasty;
+                    break;
+                }
+                iter += 8;
+            }
+
             do
             {
                 iter1(pIter,pInput,pTemp);
+                //DECL;
+                //ITER;
                 if((iter++) >= maxIter)
                 {   
                     return false;
-                }                    
+                }
+                //BAIL;
                 bail(pIter,pInput,pTemp);  
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
@@ -76,7 +97,8 @@ public:
             /* periodicity vars */
             d lastx = pIter[X], lasty=pIter[Y];
             int k =1, m = 1;
-
+            
+            // single iterations
             do
             {
                 iter1(pIter,pInput,pTemp);
@@ -122,7 +144,7 @@ public:
             int iter = 0;
             bool done = false;
 
-            assert(nNoPeriodIters <= nMaxIters);
+            //assert(nNoPeriodIters <= nMaxIters);
 
             if(nNoPeriodIters > 0)
             {
@@ -176,6 +198,16 @@ public:
             ITER;
             RET;
         }
+    inline void iter8(
+        double *pIter, 
+        double *pInput, 
+        double *pTemp) const 
+        {
+            DECL;
+            ITER; ITER; ITER; ITER; ITER; ITER; ITER; ITER;
+            RET;
+        }
+
     inline void bail(
         double *pIter, double *pInput, double *pTemp)
         {
