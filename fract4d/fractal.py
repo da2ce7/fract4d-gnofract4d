@@ -199,7 +199,7 @@ class T(FctUtils):
     def __init__(self,compiler,site=None):
         FctUtils.__init__(self)
         
-        self.format_version = 2.5
+        self.format_version = 2.7
         
         # formula support
         self.formula = None
@@ -266,7 +266,7 @@ class T(FctUtils):
         
     def save(self,file,update_saved_flag=True):
         print >>file, "gnofract4d parameter file"
-        print >>file, "version=2.0"
+        print >>file, "version=2.7"
 
         paramnames = ["x","y","z","w","size","xy","xz","xw","yz","yw","zw"]
         for pair in zip(paramnames,self.params):
@@ -793,7 +793,7 @@ class T(FctUtils):
             # a version that used auto-tolerance for Nova and Newton
             self.auto_tolerance = True
             
-        if self.format_version > 2.0:
+        if self.format_version > 2.7:
             warning = \
 '''This file was created by a newer version of Gnofract 4D.
 The image may not display correctly. Please upgrade to version %.1f.''' 

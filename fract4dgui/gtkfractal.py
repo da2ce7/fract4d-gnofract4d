@@ -380,7 +380,6 @@ class T(gobject.GObject):
     def construct_enum_menu(self,enum):
         menu = gtk.Menu()
         for val in enum.value:
-            print val
             mi = gtk.MenuItem(val)
             menu.append(mi)
 
