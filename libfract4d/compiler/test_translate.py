@@ -142,6 +142,27 @@ class TranslateTest(unittest.TestCase):
                         ifseq.children[1].children[-1].dest == "label2" and \
                         ifseq.children[2].children[0].name == "label1" and \
                         ifseq.children[3].name == "label2")
+
+        t = self.translate('''t_if_2 {
+        loop:
+        if a
+        a = 2
+        endif
+        }''')
+
+        self.assertNoErrors(t)
+        ifseq = t.sections["loop"].children[0]
+        self.failUnless(ifseq.children[0].op == "!=")
+        
+        self.failUnless(ifseq.children[1].children[0].name == "label0" and \
+                        ifseq.children[1].children[-1].dest == "label2" and \
+                        ifseq.children[2].children[0].name == "label1" and \
+                        ifseq.children[3].name == "label2")
+
+        self.failUnless(len(ifseq.children[2].children)==1)
+        
+        #print t.sections["loop"].pretty()
+
         
     def testDecls(self):
         t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")

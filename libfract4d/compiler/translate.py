@@ -126,12 +126,13 @@ class T:
         self.sections["global"] = self.stmlist(node)
 
     def stmlist(self, node):
-        seq = ir.Seq(map(lambda c: self.stm(c), node.children), node, None)
+        children = filter(lambda c : c.type != "empty", node.children)
+        seq = ir.Seq(map(lambda c: self.stm(c), children), node, None)
         return seq
 
-    def stmlist_with_label(self,node, label):        
-        seq = ir.Seq([label] + map(lambda c: self.stm(c), node.children), \
-                     node, None)
+    def stmlist_with_label(self, node, label):        
+        seq = self.stmlist(node)
+        seq.children.insert(0, label)
         return seq
     
     def stm(self,node):
@@ -169,7 +170,7 @@ class T:
         
         if not self.isCompare(node.children[0]):
             # insert a "fake" comparison to zero
-            node.children[0] = absyn.Binop('!=',node.children[0], absyn.Const(0,node.pos), node.pos)
+            node.children[0] = Binop('!=',node.children[0], Const(0,node.pos), node.pos)
 
         # convert boolean operation
         children = map(lambda n : self.exp(n) , node.children[0].children)
