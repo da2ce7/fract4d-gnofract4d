@@ -145,8 +145,12 @@ class T(gobject.GObject):
 
         initparams = self.all_params()
 
-        fract4dc.pf_init(self.f.pfunc,t,initparams)
-
+        try:
+            fract4dc.pf_init(self.f.pfunc,t,initparams)
+        except ValueError:
+            print initparams
+            raise
+            
         self.running = True
         fract4dc.async_calc(self.f.params,self.f.antialias,self.f.maxiter,
                             self.f.yflip,nthreads,

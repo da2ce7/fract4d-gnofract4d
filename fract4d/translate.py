@@ -219,11 +219,14 @@ class TBase:
         # FIXME should compute full constant expressions
         if node.type == "const":
             return self.const(node)
-        elif node.type == "binop" and node.leaf == "complex": 
-            return ir.Const(
-                [self.const_exp(node.children[0]),
-                 self.const_exp(node.children[1])],
-                node,fracttypes.Complex)
+        elif node.type == "binop" and node.leaf == "complex":
+            re = self.const_convert(self.const_exp(node.children[0]),
+                                    fracttypes.Float)
+            im = self.const_convert(self.const_exp(node.children[1]),
+                                    fracttypes.Float)
+
+            return ir.Const([re, im],node,fracttypes.Complex)
+        
         elif node.type == "unop" and node.leaf == "t__neg":
             val = self.const_exp(node.children[0])
             val.value = -val.value

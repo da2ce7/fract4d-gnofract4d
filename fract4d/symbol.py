@@ -531,6 +531,8 @@ class T(UserDict):
         'comparison fn for key sorting - ensures colorfuncs come at the end'
         if a.startswith('t__a_cf') and not b.startswith('t__a_cf'):
             return 1
+        if b.startswith('t__a_cf') and not a.startswith('t__a_cf'):
+            return -1
         return cmp(a,b)
     
     def order_of_params(self):

@@ -13,6 +13,12 @@ class SymbolTest(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def testKeySort(self):
+        list = ["t__a_cf1val", "t__a_fangle", "t__a_cf0val"]
+        list.sort(self.t.keysort)
+
+        self.assertEqual(list, ["t__a_fangle", "t__a_cf0val", "t__a_cf1val"])
+                         
     def testPrefix(self):
         t = symbol.T("boo")
         v = Var(Int,1)

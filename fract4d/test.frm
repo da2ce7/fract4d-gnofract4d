@@ -33,10 +33,13 @@ endparam
 test_simpleshape {
 default:
 maxiter = 1
+float param angle
+    default = 0.0
+endparam	
 init:
 	z = pixel
 bailout:
-	real(z) + imag(z) < 0.0
+	real(z) + imag(z) < @angle
 }
 
 
