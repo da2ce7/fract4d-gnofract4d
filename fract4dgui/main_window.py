@@ -41,7 +41,7 @@ class MainWindow:
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
         
-        self.f = gtkfractal.T(self.compiler)
+        self.f = gtkfractal.T(self.compiler,self)
         self.create_subfracts(self.f)
         
         self.set_filename(None)

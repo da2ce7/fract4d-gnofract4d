@@ -36,11 +36,13 @@ class T(gobject.GObject):
         gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),        
         }
 
-    def __init__(self,comp,width=640,height=480):
+    def __init__(self,comp,parent=None,width=640,height=480):
         gobject.GObject.__init__(self) # MUST be called before threaded.init
 
         (self.readfd,self.writefd) = os.pipe()
         self.nthreads = 1        
+
+        self.parent = parent
         
         self.site = fract4dc.fdsite_create(self.writefd)
         f = fractal.T(comp,self.site)
@@ -242,9 +244,16 @@ class T(gobject.GObject):
             # take over fractal's changed function
             f.changed = self.changed
             f.formula_changed = self.formula_changed
+            f.warn = self.warn
             self.formula_changed()
             self.changed()
 
+    def warn(self,msg):
+        if self.parent:
+            self.parent.show_warning(msg)
+        else:
+            print "Warning: ", msg
+            
     def changed(self):
         self.f.dirty = True
         if not self.frozen:
@@ -377,6 +386,7 @@ class T(gobject.GObject):
 
     def loadFctFile(self,file):
         new_f = fractal.T(self.compiler,self.site)
+        new_f.warn = self.warn
         new_f.loadFctFile(file)
         self.set_fractal(new_f)
         
