@@ -484,6 +484,14 @@ def acos_c_c(gen,t,srcs):
 def atan_f_f(gen,t,srcs):
     return gen.emit_func('atan', srcs, Float)
 
+def atan_c_c(gen,t,srcs):
+    # atan(z) = i/2 * log(i+x/i-x)
+    i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(1.0))
+    iby2 = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(0.5))
+    ratio = div_cc_c(gen,t,[add_cc_c(gen,t,[i,srcs[0]]),
+                            sub_cc_c(gen,t,[i,srcs[0]])])
+    return mul_cc_c(gen,t,[iby2,log_c_c(gen,t,[ratio])])
+
 def atan2_c_f(gen,t,srcs):
     return gen.emit_func2('atan2', [srcs[0].im, srcs[0].re], Float)
 

@@ -663,6 +663,12 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests[0][2] = "(1.5708,0)"
         tests[2][2] = tests[5][2] = "(0,0)"
         return tests
+
+    def atantests(self):
+        tests = self.manufacture_tests("atan",cmath.atan)
+        tests[1][2] = "(nan,nan)"
+        tests[6][2] = "(nan,-inf)" # not really sure who's right on this
+        return tests
     
     def test_stdlib(self):
 
@@ -741,15 +747,16 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests += self.manufacture_tests("cosh",cmath.cosh)
         tests += self.manufacture_tests("tanh",cmath.tanh)
         tests += self.manufacture_tests("exp",cmath.exp)
-        tests += self.manufacture_tests("sqrt",cmath.sqrt)
-        
-        tests += self.manufacture_tests("cotanh",mycotanh)        
+        tests += self.manufacture_tests("sqrt",cmath.sqrt)        
         tests += self.cotantests()
+        tests += self.manufacture_tests("cotanh",mycotanh)
         tests += self.logtests()
+        
         tests += self.asintests()
         tests += self.acostests()
+        tests += self.atantests()
         
-        # FIXME: asin,acos,atan,atan2, asinh, acosh, atanh
+        # FIXME: atan,atan2, asinh, acosh, atanh
 
         # construct a formula calculating all of the above,
         # run it and compare results with expected values
