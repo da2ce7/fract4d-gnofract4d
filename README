@@ -1,3 +1,13 @@
+About this Program
+==================
+
+Gnofract 4D is a program for drawing beautiful mathematically-based
+known as Fractals. See the manual for more details.
+
+This is version 2.0. The most recent version may be obtained from
+http://gnofract4d.sourceforge.net/
+
+
 Basic Installation
 ==================
 
@@ -20,11 +30,12 @@ gnofract4d
 Requirements
 ============
 
-Gnofract 4D requires:
+Gnofract 4D requires these packages to run:
 
 o Python version 2.2 or higher
 o PyGTK version 1.99 or higher
 o GTK+ version 2.0 or higher
+o A C compiler
 
 If you're not sure if you have these or not, just try running
 "./setup.py build" and see if it complains.
