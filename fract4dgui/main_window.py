@@ -321,6 +321,9 @@ class MainWindow:
     def create_toolbar(self):
         self.toolbar = gtk.Toolbar()
 
+        self.vbox.pack_start(self.toolbar,expand=gtk.FALSE)
+
+        # preview
         self.preview = gtkfractal.SubFract(self.compiler)
         self.preview.set_size(40,40)
         self.update_preview(self.f)
@@ -336,6 +339,35 @@ class MainWindow:
             None,
             None
             )
+
+        self.toolbar.append_space()
+
+        self.create_angle_widget(
+            _("xy"), _("Angle in the XY plane"), self.f.XYANGLE)
+
+        self.create_angle_widget(
+            _("xz"), _("Angle in the XZ plane"), self.f.XZANGLE)
+
+        self.create_angle_widget(
+            _("xw"), _("Angle in the XW plane"), self.f.XWANGLE)
+
+        self.create_angle_widget(
+            _("yz"), _("Angle in the YZ plane"), self.f.YZANGLE)
+
+        self.create_angle_widget(
+            _("yw"), _("Angle in the YW plane"), self.f.YWANGLE)
+
+        self.create_angle_widget(
+            _("zw"), _("Angle in the ZW plane"), self.f.ZWANGLE)
+
+        self.toolbar.append_space()
+        
+        self.add_fourway(_("pan"), _("Pan around the image"), 0)
+        self.add_fourway(
+            _("warp"),
+            _("Mutate the image by moving along the other 2 axes"), 2)
+
+        self.toolbar.append_space()
         
         self.toolbar.insert_stock(
             gtk.STOCK_UNDO,
@@ -355,9 +387,9 @@ class MainWindow:
             None,
             -1)
 
+        self.toolbar.append_space()
+        
         self.model.seq.make_redo_sensitive(self.toolbar.get_children()[-1])
-
-        self.vbox.pack_start(self.toolbar,expand=gtk.FALSE)
 
         self.weirdness_adjustment = gtk.Adjustment(
             20.0, 0.0, 100.0, 5.0, 5.0, 0.0)
@@ -384,24 +416,39 @@ class MainWindow:
             None
             )
 
-        self.add_fourway(_("pan"), _("Pan around the image"), 0)
-        self.add_fourway(
-            _("warp"),
-            _("Mutate the image by moving along the other 2 axes"), 2)
+    def create_angle_widget(self,name,tip,axis):
+        my_angle = angle.T(name)
+        my_angle.connect('value-slightly-changed',
+                         self.on_angle_slightly_changed)
+        my_angle.connect('value-changed',
+                         self.on_angle_changed)
 
-        xy_angle = angle.T(_("xy"))
+        self.f.connect('parameters-changed',
+                       self.update_angle_widget,my_angle)
+        
+        my_angle.axis = axis
 
         self.toolbar.append_element(
             gtk.TOOLBAR_CHILD_WIDGET,            
-            xy_angle.widget,
-            _("Angle in the XY plane"),
-            None,
+            my_angle.widget,
+            tip,
+            tip,
             None,
             None,
             None,
             None
             )
-                           
+
+    def update_angle_widget(self,f,widget):
+        widget.set_value(f.get_param(widget.axis))
+        
+    def on_angle_slightly_changed(self,widget,val):
+        self.preview.set_param(widget.axis, val)
+        self.draw_preview()
+
+    def on_angle_changed(self,widget,val):
+        self.f.set_param(widget.axis,val)
+        
     def on_drag_fourway(self,widget,dx,dy):
         self.preview.nudge(dx/10.0,dy/10.0, widget.axis)
         self.draw_preview()
