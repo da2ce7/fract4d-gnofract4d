@@ -29,16 +29,25 @@
 // TODO: replace all this with a fork/exec thingy so I can get exit status etc
 compiler::compiler()
 {
-    commandLine = "g++ -shared compiler_template.cpp -o fract.so 2>&1";
     flags = "-O3 -ffast-math";
-    in = "x.cpp";
+    in = "compiler_template.cpp";
     out = "fract.so";
 }
 
+std::string
+compiler::Dstring(std::string iter, std::string decl)
+{
+    return "-DITER=\"" + iter + "\" -DDECL=\"" + decl + "\"";
+}
+
 int 
-compiler::run()
+compiler::run(std::string iter, std::string decl)
 {
     char buf[1000];
+
+    std::string dflags = Dstring(iter, decl);
+    std::string commandLine = 
+        "g++ -shared " + flags + " " + dflags + " " + in + " -o " + out + " 2>&1";
 
     FILE *compiler_output = popen(commandLine.c_str(),"r");
     if(NULL == compiler_output)

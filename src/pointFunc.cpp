@@ -45,8 +45,12 @@ pointFunc *pointFunc_new(
 {
 
     compiler *c = new compiler();
-    
-    c->run();
+
+    std::string iter = iterType->iter_code();
+    std::string decl = iterType->decl_code();
+
+    c->run(iter,decl);
+
     char buf[PATH_MAX];
     getcwd(buf,sizeof(buf));
     std::string out = buf + ("/" + c->out);

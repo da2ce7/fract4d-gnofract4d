@@ -199,9 +199,6 @@ operator>>(std::istream& s, iterImpl<T, NOPTIONS>& m)
         { \
             calc8<double>(pIterState,pInputState,pTempState); \
         } \
-    std::string decl_code() const { return #decl; } \
-    std::string iter_code() const { return #func; } \
-    std::string ret_code()  const { return ""; }
 
 
 #define ITER_DECLS_RET(decl,func,ret) \
@@ -249,6 +246,22 @@ public:
         {
             return "Mandelbrot";
         }
+
+    std::string decl_code() const 
+        { 
+            return "double atmp;"; 
+        }
+    std::string iter_code() const 
+        { 
+            return "pTemp[X2] = pIter[X] * pIter[X];"
+                   "pTemp[Y2] = pIter[Y] * pIter[Y];"
+                   "atmp = pTemp[X2] - pTemp[Y2] + pInput[CX];"
+                   "pIter[Y+ITER_SPACE] = 2.0 * pIter[X] * pIter[Y] + pInput[CY];"
+                   "pIter[X+ITER_SPACE] = atmp;"
+                "pIter += 2;";
+        }
+    std::string ret_code()  const { return ""; }
+
 };
 
 #if 0

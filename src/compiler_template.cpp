@@ -268,20 +268,24 @@ public:
             return colorize(iter, &inputSpace[0], &iterSpace[0], &tempSpace[0]);
         }
 
+    //template<class T>
     void iter1(
-        double *pIterState, 
-        double *pInputState, 
-        double *pTempState) const 
+        double *pIter, 
+        double *pInput, 
+        double *pTemp) const 
         {
-            m_pIter->_iter1(pIterState,pInputState,pTempState);
+            DECL;
+            ITER;
         }
 
+    //template<class T>
     void iter8(
-        double *pIterState, 
-        double *pInputState, 
-        double *pTempState) const
+        double *pIter, 
+        double *pInput, 
+        double *pTemp) const
         {
-            m_pIter->_iter8(pIterState,pInputState,pTempState);
+            DECL;
+            ITER; ITER; ITER; ITER; ITER; ITER; ITER; ITER;
         }
 };
 

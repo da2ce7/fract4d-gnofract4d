@@ -22,21 +22,21 @@
 #define COMPILER_H_
 
 #include <string>
+#include <vector>
 
 class compiler
 {
 public:
-    std::string commandLine;
     std::string flags; 
     std::string in;
     std::string out;
 
     compiler();
 
-    int run();
+    int run(std::string iter, std::string decl);
 
 private:
-
+    std::string Dstring(std::string iter, std::string decl);
 };
 
 #endif /* COMPILER_H_ */
