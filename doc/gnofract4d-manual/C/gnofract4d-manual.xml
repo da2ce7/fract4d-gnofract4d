@@ -174,6 +174,28 @@ reverse is not true. See <xref linkend="formula_compat"/> for details.
 
 </entry>
 </row>
+
+<row>
+<entry>
+Coloring Algorithm File
+</entry>
+<entry>
+<filename class="extension">.cfrm</filename>,
+<filename class="extension">.ucl</filename>
+</entry>
+<entry>
+
+A coloring algorithm file is a collection of formulas used to assign
+colors to a fractal. &gf4d; combines a coloring algorithm with a
+formula to produce the final image (this approach is shared with
+&ultrafractal; - &fractint; restricts you to built-in coloring
+algorithms).  Coloring algorithms are written in the same language as
+fractal formulas. &ultrafractal; uses the extension .ucl for its
+coloring algorithm files. Some of these are compatible with &gf4d; but
+so far not very many.
+</entry>
+</row>
+
 </tbody>
 </tgroup>
 </informaltable>
@@ -191,7 +213,18 @@ viewing.
 <title>Tools</title>
 
 <sect3 id="autozoom">
-<title>Autozoom</title>
+<title>Autozoom</title> 
+
+<para> Autozoom automatically searches for interesting parts of the
+fractal by zooming in repeatedly, each time choosing the quadrant of
+the screen which has the largest number of different colors (with some
+randomization as well). You can start it going, go off for a coffee,
+and see what it's found when you return, or guide it by clicking on
+parts you like as it goes. It'll stop when the image reaches the
+minimum size, which is set by default to stop just before you get to
+the limits of the precision &gf4d; offers.
+
+  </para>
 
 </sect3>
 

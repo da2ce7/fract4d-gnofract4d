@@ -18,14 +18,14 @@ class SettingsDialog(gtk.Dialog):
     def __init__(self,main_window,f):
         gtk.Dialog.__init__(
             self,
-            "Fractal Settings",
+            _("Fractal Settings"),
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
         self.main_window = main_window
         self.f = f
-
+        self.tooltips = gtk.Tooltips()
         self.notebook = gtk.Notebook()
         self.vbox.add(self.notebook)
 
@@ -39,28 +39,34 @@ class SettingsDialog(gtk.Dialog):
 
     def create_location_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
-        self.notebook.append_page(table,gtk.Label("Location"))
-        self.create_param_entry(table,0,"X (Re) :", self.f.XCENTER)
-        self.create_param_entry(table,1,"Y (Im) :", self.f.YCENTER)
-        self.create_param_entry(table,2,"Z (Re) :", self.f.ZCENTER)
-        self.create_param_entry(table,3,"W (Im) :", self.f.WCENTER)
-        self.create_param_entry(table,4,"Size :", self.f.MAGNITUDE)
+        label = gtk.Label(_("_Location"))
+        label.set_use_underline(True)
+        self.notebook.append_page(table,label)
+        self.create_param_entry(table,0,_("_X :"), self.f.XCENTER)
+        self.create_param_entry(table,1,_("_Y :"), self.f.YCENTER)
+        self.create_param_entry(table,2,_("_Z :"), self.f.ZCENTER)
+        self.create_param_entry(table,3,_("_W :"), self.f.WCENTER)
+        self.create_param_entry(table,4,_("_Size :"), self.f.MAGNITUDE)
         yflip_widget = self.create_yflip_widget()
         table.attach(yflip_widget,0,2,5,6, gtk.EXPAND | gtk.FILL, 0, 2, 2)
         
     def create_angle_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
-        self.notebook.append_page(table,gtk.Label("Angles"))
-        self.create_param_entry(table,0,"XY :", self.f.XYANGLE)
-        self.create_param_entry(table,1,"XZ :", self.f.XZANGLE)
-        self.create_param_entry(table,2,"XW :", self.f.XWANGLE)
-        self.create_param_entry(table,3,"YZ :", self.f.YZANGLE)
-        self.create_param_entry(table,4,"YW :", self.f.YWANGLE)
-        self.create_param_entry(table,5,"ZW :", self.f.ZWANGLE)
+        label = gtk.Label("_Angles")
+        label.set_use_underline(True)
+        self.notebook.append_page(table,label)
+        self.create_param_entry(table,0,_("XY (_1):"), self.f.XYANGLE)
+        self.create_param_entry(table,1,_("XZ (_2):"), self.f.XZANGLE)
+        self.create_param_entry(table,2,_("XW (_3):"), self.f.XWANGLE)
+        self.create_param_entry(table,3,_("YZ (_4):"), self.f.YZANGLE)
+        self.create_param_entry(table,4,_("YW (_5):"), self.f.YWANGLE)
+        self.create_param_entry(table,5,_("ZW (_6):"), self.f.ZWANGLE)
 
     def create_yflip_widget(self):
-        widget = gtk.CheckButton("Flip Y Axis")
-
+        widget = gtk.CheckButton(_("Flip Y Axis"))
+        widget.set_use_underline(True)
+        self.tooltips.set_tip(widget,_("If set, Y axis increases down the screen, otherwise up the screen"))
+        
         def set_widget(*args):
             widget.set_active(self.f.yflip)
 
@@ -78,9 +84,12 @@ class SettingsDialog(gtk.Dialog):
         table = gtk.Table(5,2,gtk.FALSE)
         vbox.pack_start(table)
 
-        self.notebook.append_page(vbox,gtk.Label("Outer"))
+        label = gtk.Label("_Outer")
+        label.set_use_underline(True)
+        self.notebook.append_page(vbox,label)
 
-        table.attach(gtk.Label("Colorfunc :"), 0,1,0,1,0,0,2,2)
+        cflabel = gtk.Label(_("Colorfunc :"))
+        table.attach(cflabel, 0,1,0,1,0,0,2,2)
         label = gtk.Label(self.f.cfunc_names[0])
 
         def set_label(*args):
@@ -90,7 +99,9 @@ class SettingsDialog(gtk.Dialog):
 
         hbox = gtk.HBox(False,1)
         hbox.pack_start(label)
-        button = gtk.Button("Browse...")
+        button = gtk.Button(_("_Browse..."))
+        self.tooltips.set_tip(button,_("Browse available coloring functions"))
+        button.set_use_underline(True)
         button.connect('clicked', self.show_browser, browser.OUTER)
         hbox.pack_start(button)
         table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
@@ -100,9 +111,11 @@ class SettingsDialog(gtk.Dialog):
         table = gtk.Table(5,2,gtk.FALSE)
         vbox.pack_start(table)
 
-        self.notebook.append_page(vbox,gtk.Label("Inner"))
+        label = gtk.Label(_("_Inner"))
+        label.set_use_underline(True)
+        self.notebook.append_page(vbox,label)
 
-        table.attach(gtk.Label("Colorfunc :"), 0,1,0,1,0,0,2,2)
+        table.attach(gtk.Label(_("Colorfunc :")), 0,1,0,1,0,0,2,2)
         label = gtk.Label(self.f.cfunc_names[1])
 
         def set_label(*args):
@@ -112,7 +125,9 @@ class SettingsDialog(gtk.Dialog):
 
         hbox = gtk.HBox(False,1)
         hbox.pack_start(label)
-        button = gtk.Button("Browse...")
+        button = gtk.Button(_("_Browse..."))
+        button.set_use_underline(True)
+        self.tooltips.set_tip(button,_("Browse available coloring functions"))
         button.connect('clicked', self.show_browser, browser.INNER)
         hbox.pack_start(button)
         table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
@@ -147,9 +162,11 @@ class SettingsDialog(gtk.Dialog):
         self.f.connect('formula-changed', update_formula_parameters)
         self.f.connect('parameters-changed', update_all_widgets)
 
-        self.notebook.append_page(vbox,gtk.Label("Formula"))
+        pagelabel = gtk.Label(_("_Formula"))
+        pagelabel.set_use_underline(True)
+        self.notebook.append_page(vbox,pagelabel)
 
-        table.attach(gtk.Label("Formula :"), 0,1,0,1,0,0,2,2)
+        table.attach(gtk.Label(_("Formula :")), 0,1,0,1,0,0,2,2)
         hbox = gtk.HBox(False,1)
         label = gtk.Label(self.f.funcName)
 
@@ -159,7 +176,9 @@ class SettingsDialog(gtk.Dialog):
         self.f.connect('parameters-changed',set_label)
         
         hbox.pack_start(label)
-        button = gtk.Button("Browse...")
+        button = gtk.Button(_("_Browse..."))
+        button.set_use_underline(True)
+        self.tooltips.set_tip(button,_("Browse available fractal functions"))
         button.connect('clicked', self.show_browser, browser.FRACTAL)
         hbox.pack_start(button)
         table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
@@ -169,12 +188,15 @@ class SettingsDialog(gtk.Dialog):
         
     def create_param_entry(self,table, row, text, param):
         label = gtk.Label(text)
+        label.set_use_underline(True)
+        
         label.set_justify(gtk.JUSTIFY_RIGHT)
         table.attach(label,0,1,row,row+1,0,0,2,2)
         
         entry = gtk.Entry()
         table.attach(entry,1,2,row,row+1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
-
+        label.set_mnemonic_widget(entry)
+        
         def set_entry(f):
             entry.set_text("%.17f" % f.get_param(param))
 
