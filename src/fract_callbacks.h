@@ -14,6 +14,9 @@ extern "C" {
     void gf4d_fractal_progress_changed(Gf4dFractal *f, float progress);
     void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val);
 
+    // throws if we're supposed to stop
+    void gf4d_fractal_try_finished_cond(Gf4dFractal *f);
+
 #ifdef __cplusplus
 }
 #endif

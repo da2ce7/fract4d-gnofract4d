@@ -103,6 +103,17 @@ tpool::add_work(void (*routine)(void *), void *arg)
 }
 
 void
+tpool::flush()
+{
+    pthread_mutex_lock(&queue_lock);
+    while(cur_queue_size != 0)
+    {
+        pthread_cond_wait(&queue_empty,&queue_lock);
+    }
+    pthread_mutex_unlock(&queue_lock);
+}
+
+void
 tpool::work()
 {
     while(1)
@@ -142,9 +153,16 @@ tpool::work()
 
         pthread_mutex_unlock(&queue_lock);
 
-        /* actually do the work */
-        ((*my_workp->routine))(my_workp->arg);
-        
+        try
+        {
+            /* actually do the work */
+            ((*my_workp->routine))(my_workp->arg);
+        }
+        catch(...)
+        {
+            /* abort this task, but don't do anything else - 
+               main thread will notice soon */
+        }
         delete my_workp;
     }
 }

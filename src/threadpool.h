@@ -19,7 +19,8 @@ class tpool {
     ~tpool();
     int add_work(void (*routine)(void *), void *arg);
     void work();
-
+    // block until all currently scheduled work is done
+    void flush();
  private:
     worker();
     /* pool characteristics */

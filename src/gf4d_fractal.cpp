@@ -90,8 +90,8 @@ set_finished_cond(Gf4dFractal *f)
     f->workers_running=0;
 }
 
-static void
-try_finished_cond(Gf4dFractal *f)
+void
+gf4d_fractal_try_finished_cond(Gf4dFractal *f)
 {
     // this doesn't do any locking, but is safe:
     // if we miss it this time, we'll catch it next
@@ -495,7 +495,7 @@ static void
 gf4d_fractal_enter_callback(Gf4dFractal *f)
 {
     try_paused_cond(f);
-    try_finished_cond(f);
+    gf4d_fractal_try_finished_cond(f);
     gdk_threads_enter();
 }
 

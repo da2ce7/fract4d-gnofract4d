@@ -18,6 +18,7 @@ typedef struct _Gf4dFractal Gf4dFractal;
 typedef enum {
     JOB_NONE,
     JOB_BOX,
+    JOB_BOX_ROW,
     JOB_ROW,
     JOB_ROW_AA
 } job_type_t;
@@ -106,11 +107,18 @@ class fractFunc {
     // ... in a worker thread
     void send_row_aa(int x, int y, int n);
 
+    // calculate a row of boxes
+    void box_row(int w, int y, int rsize);
+
+    // ... in a worker thread
+    void send_box_row(int w, int y, int rsize);
+
     // redraw the image to this line
     void update_image(int i);
 
     // clear auto-deepen and last_update
     void reset_counts();
+    void reset_progress(float progress);
 
     // draw a rectangle of this colour
     void rectangle(struct rgb pixel, int x, int y, int w, int h);

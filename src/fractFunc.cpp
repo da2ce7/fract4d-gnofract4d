@@ -45,7 +45,7 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     /* threading */
     if(f->nThreads > 1)
     {
-        ptp = new tpool(2,2);
+        ptp = new tpool(2,200);
     }
     else
     {
@@ -65,35 +65,47 @@ fractFunc::clear()
     im->clear();    
 }
 
-/* we're in a worker thread - nID is our serial number */
+/* we're in a worker thread */
 void
 fractFunc::work(thread_data_t *jobdata)
 {
+    int nRows;
+
+    gf4d_fractal_try_finished_cond(gf);
+
     /* carry them out */
     switch(jobdata->job)
     {
     case JOB_BOX:
         //cout << "box on thread " << pthread_self() << "\n";
         box(jobdata->x,jobdata->y,jobdata->param);
+        nRows = jobdata->param;
         break;
     case JOB_ROW:
         //cout << "row on thread " << pthread_self() << "\n";
         row(jobdata->x,jobdata->y,jobdata->param);
+        nRows=1;
+        break;
+    case JOB_BOX_ROW:
+        box_row(jobdata->x, jobdata->y, jobdata->param);
+        nRows = jobdata->param;
         break;
     case JOB_ROW_AA:
         //cout << "aa row on thread " << pthread_self() << "\n";        
         row_aa(jobdata->x,jobdata->y,jobdata->param);
+        nRows=1;
         break;
     default:
         cerr << "Unknown job id" << jobdata->job << "\n";
     }
+    gf4d_fractal_image_changed(gf,0,jobdata->y,im->Xres,jobdata->y+ nRows);
+    gf4d_fractal_progress_changed(gf,(float)jobdata->y/(float)im->Yres);
 }
 
 void
 fractFunc::send_cmd(job_type_t job, int x, int y, int param)
 {
-    // cout << "SEND :" << x << " " << y << " " << param << endl;
-
+    gf4d_fractal_try_finished_cond(gf);
     thread_data_t *work = new thread_data_t;
 
     work->job = job; work->ff = this;
@@ -106,6 +118,12 @@ void
 fractFunc::send_row(int x, int y, int w)
 {
     send_cmd(JOB_ROW,x,y,w);
+}
+
+void
+fractFunc::send_box_row(int w, int y, int rsize)
+{
+    send_cmd(JOB_BOX_ROW, w, y, rsize);
 }
 
 void
@@ -285,8 +303,7 @@ void fractFunc::draw_aa()
 
     reset_counts();
 
-    gf4d_fractal_image_changed(gf,0,0,w,h);
-    gf4d_fractal_progress_changed(gf,0.0);
+    reset_progress(0.0);
 
     for(int y = 0; y < h ; y++) {
         if(f->nThreads > 1)
@@ -296,11 +313,11 @@ void fractFunc::draw_aa()
         else
         {
             row_aa(0,y,w);
+            update_image(y);
         }
-        update_image(y);
     }
-    gf4d_fractal_image_changed(gf,0,0,w,h);		     
-    gf4d_fractal_progress_changed(gf,1.0);	
+
+    reset_progress(1.0);
 }
 
 inline int fractFunc::RGB2INT(int y, int x)
@@ -329,6 +346,16 @@ void fractFunc::reset_counts()
     last_update_y=0;
     ndoubleiters=0;
     nhalfiters=0;
+}
+
+void fractFunc::reset_progress(float progress)
+{
+    if(ptp)
+    {
+        ptp->flush();
+    }
+    gf4d_fractal_image_changed(gf,0,0,im->Xres,im->Yres);
+    gf4d_fractal_progress_changed(gf,progress);
 }
 
 void fractFunc::box(int x, int y, int rsize)
@@ -385,8 +412,8 @@ void fractFunc::draw(int rsize, int drawsize)
 
     /* reset progress indicator & clear screen */
     reset_counts();
-    gf4d_fractal_image_changed(gf,0,0,w,h);
-    gf4d_fractal_progress_changed(gf,0.0);
+
+    reset_progress(0.0);
 
     // first pass - big blocks and edges
     for (y = 0 ; y < h - rsize ; y += rsize) 
@@ -443,8 +470,7 @@ void fractFunc::draw(int rsize, int drawsize)
     }
 
     /* refresh entire image & reset progress bar */
-    gf4d_fractal_image_changed(gf,0,0,im->Xres,im->Yres);	
-    gf4d_fractal_progress_changed(gf,1.0);	
+    reset_progress(1.0);
 }
 
 void fractFunc::draw_threads(int rsize, int drawsize)
@@ -453,12 +479,11 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     int w = im->Xres;
     int h = im->Yres;
 
-    /* reset progress indicator & clear screen */
     reset_counts();
-    gf4d_fractal_image_changed(gf,0,0,w,h);
-    gf4d_fractal_progress_changed(gf,0.0);
+    reset_progress(0.0);
 
     // first pass - big blocks and edges
+    // do this in current thread - it's fast anyway
     for (y = 0 ; y < h - rsize ; y += rsize) 
     {
         // main large blocks 
@@ -477,7 +502,7 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     for ( ; y < h ; y++)
     {
         send_row(0,y,w);
-        update_image(y);
+        //update_image(y);
     }
 
     reset_counts();
@@ -487,14 +512,14 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     // calculate tops of boxes for future cross-reference
     for ( y = 0; y < h - rsize; y += rsize) {
         send_row(0,y,w);
-        update_image(y);
+        //update_image(y);
     }
 
     reset_counts();
 
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
-        update_image(y);
+        //update_image(y);
 
         // calculate left edge of the row
         for(int y2 = y+1; y2 < y + rsize; ++y2)
@@ -502,14 +527,18 @@ void fractFunc::draw_threads(int rsize, int drawsize)
             pixel(0,y2,1,1);
         }
 
-        for(x = 0; x < w - rsize ; x += rsize) {
-            send_box(x,y,rsize);
-        }		
+        send_box_row(w,y,rsize);
     }
 
-    /* refresh entire image & reset progress bar */
-    gf4d_fractal_image_changed(gf,0,0,im->Xres,im->Yres);	
-    gf4d_fractal_progress_changed(gf,1.0);	
+    reset_progress(1.0);
+}
+
+void 
+fractFunc::box_row(int w, int y, int rsize)
+{
+    for(int x = 0; x < w - rsize ; x += rsize) {
+        box(x,y,rsize);            
+    }		
 }
 
 void
