@@ -38,7 +38,6 @@ GtkWidget *image_widget_from_file(const gchar *filename)
 	FALSE,
 	NULL);
     
-    g_print("%s\n",full_filename);
     GtkWidget *image = gtk_image_new_from_file(full_filename);
 
     return image;
