@@ -120,6 +120,19 @@ class TranslateTest(unittest.TestCase):
                               [x for x in plus],
                               ["Move","Name","Cast","Binop","Var","Cast","Var"])
 
+
+    def testIf(self):
+        t = self.translate('''t_if_1 {
+        loop:
+        if a > b
+        a = 2
+        else
+        a = 3
+        endif
+        }''')
+
+        self.assertNoErrors(t)
+        print t.sections["loop"].pretty()
         
     def testDecls(self):
         t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")

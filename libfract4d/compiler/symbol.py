@@ -67,7 +67,8 @@ class T(UserDict):
     def __init__(self):
         UserDict.__init__(self)
         self.reset()
-
+        self.nextlabel = 0
+        
     def has_key(self,key):
         return self.data.has_key(mangle(key))
 
@@ -94,3 +95,9 @@ class T(UserDict):
     def reset(self):
         self.data = copy.deepcopy(T.default_dict)
 
+    def newLabel(self):
+        label = "label%d" % self.nextlabel
+        self.nextlabel += 1
+        return label
+
+    

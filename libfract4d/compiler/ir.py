@@ -130,15 +130,15 @@ class Jump(Stm):
         return d(depth) + "Jump(" + self.dest + d(depth,")\n")
     
 class CJump(Stm):
-    def __init__(self,op,exp1,exp2,trueDest, falseDest, node, datatype):
-        Stm.__init__(self, node, datatype)
+    def __init__(self,op,exp1,exp2,trueDest, falseDest, node):
+        Stm.__init__(self, node, None)
         self.op = op
         self.children = [ exp1, exp2]
         self.trueDest = trueDest
         self.falseDest = falseDest
         
     def pretty(self, depth=0):
-        return d(depth) + "CJump(" + self.op + "\n" + \
+        return d(depth) + "CJump(op='" + self.op + "'\n" + \
                self.pretty_children(depth) + \
                self.trueDest.pretty(depth+1) + \
                self.falseDest.pretty(depth+1) + d(depth,")\n")
@@ -149,8 +149,8 @@ class Seq(Stm):
         self.children = stms
 
 class Label(Stm):
-    def __init__(self,name, node, datatype):
-        Stm.__init__(self, node, datatype)
+    def __init__(self,name, node):
+        Stm.__init__(self, node, None)
         self.name = name
     def pretty(self, depth=0):
-        r = d(depth) + "Label(" + self.name + ")\n"
+        return d(depth) + "Label(" + self.name + ")\n"

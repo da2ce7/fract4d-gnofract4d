@@ -134,10 +134,39 @@ class T:
             r = self.decl(node)
         elif node.type == "assign":
             r = self.assign(node)
+        elif node.type == "if":
+            r = self.if_(node)
         else:
             r = self.exp(node)
         return r
+
+    def isCompare(self,node):
+        op = node.leaf
+        return node.type == "binop" and \
+               (op == ">" or op == ">=" or op == "<" or op == "<=" or \
+                op == "==" or op == "!=")
+
+    def newLabel(self,node):
+        return ir.Label(self.symbols.newLabel(),node)
     
+    def if_(self,node):
+        trueDest = self.newLabel(node)
+        falseDest = self.newLabel(node)
+
+        if self.isCompare(node.children[0]):
+            ifstm = ir.CJump(node.children[0].leaf,
+                             self.coerce(self.exp(node.children[0].children[0]),Bool),
+                             node.children[0].children[1],
+                             trueDest, falseDest, node)
+        else:
+            # insert a stm to compare the expression to false
+            ifstm = ir.CJump("!=",
+                             self.coerce(children[0],Bool),
+                             ir.Const(0, node, Bool),
+                             trueDest,falseDest, node)
+        
+        return ifstm
+        
     def assign(self, node):
         '''assign a new value to a variable, creating it if required'''
         if not self.symbols.has_key(node.leaf):
