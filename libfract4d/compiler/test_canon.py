@@ -322,30 +322,7 @@ class CanonTest(testbase.TestBase):
 #             elif isinstance(stm, ir.CJump):
 #                 expecting = stm.falseDest
                 
-#     def assertBlocksAreWellFormed(self,blocks):
-#         for b in blocks:
-#             self.assertBlockIsWellFormed(b)
-            
-#     def assertBlockIsWellFormed(self,block,startLabel=None, endLabel=None):
-#         self.assertStartsWithLabel(block,startLabel)
-#         self.assertEndsWithJump(block,endLabel)
-#         for stm in block[1:-1]:
-#             if isinstance(stm,ir.Jump) or \
-#                isinstance(stm,ir.CJump) or \
-#                isinstance(stm,ir.Label):
-#                 self.fail("%s not allowed mid-basic-block", stm.pretty())
-    
-#     def assertStartsWithLabel(self, block, name=None):
-#         self.failUnless(isinstance(block[0], ir.Label))
-#         if name != None:
-#             self.assertEqual(block[0].name, name)
-
-#     def assertEndsWithJump(self,block, name=None):
-#         self.failUnless(isinstance(block[-1], ir.Jump) or \
-#                         isinstance(block[-1], ir.CJump))
-#         if name != None:
-#             self.assertEqual(block[-1].dest, name)
-        
+                    
 #     def assertESeqsNotNested(self,t,parentAllowsESeq):
 #         'check that no ESeqs are left below other nodes'
 #         if isinstance(t,ir.ESeq):
