@@ -110,10 +110,23 @@ class SymbolTest(unittest.TestCase):
 
     def testAllSymbolsWork(self):
         for (name,val) in self.t.default_dict.items():
-            if isinstance(val,types.ListType):
+            try:
                 for item in val:
                     self.assertIsValidFunc(item)
+            except TypeError:
+                self.assertIsValidVar(val)
 
+    def assertIsValidVar(self, val):
+        if isinstance(val,Var):
+            # ok
+            pass
+        elif isinstance(val,symbol.Alias):
+            realvar = self.t[val.realName]
+            self.assertEqual(isinstance(realvar, Var) or
+                             isinstance(realvar, symbol.OverloadList), True)
+        else:
+            self.fail("weird variable")
+        
     def assertIsValidFunc(self,val):
         specialFuncs = [ "noteq", "eq" ]
         self.failUnless(callable(val.genFunc) or

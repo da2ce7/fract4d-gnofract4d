@@ -374,8 +374,8 @@ class TBase:
             if func[0] == "@":
                 # an attempt to call an undeclared parameter function,
                 # create it now. Point to ident by default
-                overloadList = self.symbols[func] = [
-                    Func([Complex],Complex,stdlib,"ident")]
+                overloadList = self.symbols[func] = symbol.OverloadList([
+                    Func([Complex],Complex,stdlib,"ident")])
             else:
                 raise
         
