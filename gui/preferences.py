@@ -38,7 +38,8 @@ class PrefsDialog(gtk.Dialog):
             if self.fix_ratio.get_active():
                 height = int(width * float(height)/self.f.width)
             self.f.set_size(width, height)
-
+            return False
+        
         set_entry(self.f)
         self.f.connect('parameters-changed', set_entry)
         entry.connect('focus-out-event', set_fractal)
@@ -55,7 +56,8 @@ class PrefsDialog(gtk.Dialog):
             if self.fix_ratio.get_active():
                 width = int(height * float(self.f.width)/self.f.height)
             self.f.set_size(width, height)
-
+            return False
+        
         set_entry(self.f)
         self.f.connect('parameters-changed', set_entry)
         entry.connect('focus-out-event', set_fractal)

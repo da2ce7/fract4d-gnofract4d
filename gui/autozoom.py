@@ -46,7 +46,8 @@ class AutozoomDialog(gtk.Dialog):
             if m != 0.0 and m != self.minsize:
                 self.minsize = m
                 set_entry()
-
+            return False
+        
         self.connect('focus-out-event',change_entry)
         set_entry()
 

@@ -153,10 +153,11 @@ class T(Threaded,gobject.GObject):
 
             def set_entry(*args):
                 widget.set_text("%.17f" % self.initparams[order])
-
+            
             def set_fractal(*args):
                 self.set_initparam(order,widget.get_text())
-
+                return False
+            
             set_entry(self)
             self.connect('parameters-changed',set_entry)
             widget.connect('focus-out-event',set_fractal)
@@ -223,7 +224,7 @@ class T(Threaded,gobject.GObject):
         self.connect('parameters-changed',set_selected_function)
         widget.connect('changed',set_fractal_function)
         
-        table.attach(widget,1,2,i,i+1,0,0,2,2)
+        table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL,0,2,2)
 
     def create_maxiter_widget(self,table,i):
         label = gtk.Label("Max Iterations :")
@@ -237,7 +238,8 @@ class T(Threaded,gobject.GObject):
 
         def set_fractal(*args):
             self.set_maxiter(int(widget.get_text()))
-
+            return False
+        
         set_entry(self)
         self.connect('parameters-changed',set_entry)
         widget.connect('focus-out-event',set_fractal)
