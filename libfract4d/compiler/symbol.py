@@ -5,6 +5,7 @@ from fracttypes import *
 import copy
 from UserDict import UserDict
 import string
+import types
 
 def createDefaultDict():
     d = {
@@ -15,9 +16,12 @@ def createDefaultDict():
     return d
 
 
-def mangle((name,types)):
-    s = string.lower(name) + "_"
-    for t in types:
+def mangle(k):
+    if isinstance(k,types.StringType):
+        return string.lower(k)
+    
+    s = string.lower(k[0]) + "_"
+    for t in k[1]:
         s += strOfType[t]
     return s
            
@@ -29,6 +33,9 @@ class T(UserDict):
     def __getitem__(self,key):
         return self.data[mangle(key)]
     def __setitem__(self,key,value):
+        k = mangle(key)
+        if self.data.has_key(k):
+            raise KeyError, ("can't override existing key %s" % k)
         self.data[mangle(key)] = value
     def __delitem__(self,key):
         del self.data[mangle(key)]
