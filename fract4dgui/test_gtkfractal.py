@@ -103,10 +103,13 @@ class FctTest(unittest.TestCase):
 
         children = table.get_children()
         list.reverse(children)
-        
-        self.assertEqual(children[2].get_text(),"bailout")
-        self.assertEqual(children[3].get_text(),"4.00000000000000000")
-        self.assertEqual(children[4].get_text(),"myfunc")
+
+        names = [x.get_text() for x in children if isinstance(x,gtk.Label)]
+
+        self.assertEqual(names[0],"Max Iterations :")
+        self.assertEqual(names[1],"bailfunc")
+        self.assertEqual(names[2],"bailout")
+        self.assertEqual(names[3],"myfunc")
         
     def testButton1(self):
         f = self.f
