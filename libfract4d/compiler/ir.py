@@ -123,11 +123,11 @@ class SExp(Stm):
         self.exp = exp
     
 class Jump(Stm):
-    def __init__(self,dest, node, datatype):
-        Stm.__init__(self, node, datatype)
+    def __init__(self,dest, node):
+        Stm.__init__(self, node, None)
         self.dest = dest
     def pretty(self, depth=0):
-        return d(depth) + "Jump(" + self.dest + d(depth,")\n")
+        return d(depth) + "Jump(" + self.dest + ")\n"
     
 class CJump(Stm):
     def __init__(self,op,exp1,exp2,trueDest, falseDest, node):
@@ -140,8 +140,8 @@ class CJump(Stm):
     def pretty(self, depth=0):
         return d(depth) + "CJump(op='" + self.op + "'\n" + \
                self.pretty_children(depth) + \
-               self.trueDest.pretty(depth+1) + \
-               self.falseDest.pretty(depth+1) + d(depth,")\n")
+               d(depth+1,self.trueDest) + "," + \
+               self.falseDest + ")\n"
         
 class Seq(Stm):
     def __init__(self,stms, node, datatype):

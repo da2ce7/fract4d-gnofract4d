@@ -128,7 +128,12 @@ class T:
     def stmlist(self, node):
         seq = ir.Seq(map(lambda c: self.stm(c), node.children), node, None)
         return seq
-        
+
+    def stmlist_with_label(self,node, label):        
+        seq = ir.Seq([label] + map(lambda c: self.stm(c), node.children), \
+                     node, None)
+        return seq
+    
     def stm(self,node):
         if node.type == "decl":
             r = self.decl(node)
@@ -150,21 +155,41 @@ class T:
         return ir.Label(self.symbols.newLabel(),node)
     
     def if_(self,node):
+        '''the result of an if is:
+        seq(
+            cjump(test,falseDest,trueDest)
+            seq(label(trueDest), trueCode, jump end)
+            seq(label(falseDest), falseCode)
+            label(end)
+        )'''
+        
         trueDest = self.newLabel(node)
         falseDest = self.newLabel(node)
-
-        if self.isCompare(node.children[0]):
-            ifstm = ir.CJump(node.children[0].leaf,
-                             self.coerce(self.exp(node.children[0].children[0]),Bool),
-                             node.children[0].children[1],
-                             trueDest, falseDest, node)
-        else:
-            # insert a stm to compare the expression to false
-            ifstm = ir.CJump("!=",
-                             self.coerce(children[0],Bool),
-                             ir.Const(0, node, Bool),
-                             trueDest,falseDest, node)
+        doneDest = self.newLabel(node)
         
+        if not self.isCompare(node.children[0]):
+            # insert a "fake" comparison to zero
+            node.children[0] = absyn.Binop('!=',node.children[0], absyn.Const(0,node.pos), node.pos)
+
+        # convert boolean operation
+        children = map(lambda n : self.exp(n) , node.children[0].children)
+        op = self.findOp(node.children[0],children)
+        convertedChildren = self.coerceList(op.args,children)
+
+        # convert blocks of code we jump to
+        trueBlock = self.stmlist_with_label(node.children[1],trueDest)
+        trueBlock.children.append(ir.Jump(doneDest.name, node))
+
+        falseBlock = self.stmlist_with_label(node.children[2], falseDest)
+        
+        # construct actual if operation
+        test = ir.CJump(node.children[0].leaf,
+                         convertedChildren[0],
+                         convertedChildren[1],
+                         trueDest.name, falseDest.name, node)
+
+        # overall code
+        ifstm = ir.Seq([test,trueBlock,falseBlock,doneDest],node, node.datatype)
         return ifstm
         
     def assign(self, node):
