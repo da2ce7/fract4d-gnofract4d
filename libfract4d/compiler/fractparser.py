@@ -17,12 +17,33 @@ precedence = (
     ('right', 'BOOL_NEG', 'UMINUS', 'POWER')
 )
 
-def p_section(t):
-    'section : stmlist'
-    t[0] = absyn.Stmlist(t[1])
+def p_formula(t):
+     'formula : FORM_ID sectlist FORM_END NEWLINE'
+     t[0] = absyn.Formula(t[1],t[2])
+
+def p_sectlist(t):
+     'sectlist : section'
+     t[0] = [ t[1] ]
+
+def p_sectlist_2(t):
+     'sectlist : section NEWLINE sectlist'
+     t[0] = [ t[1] ] + t[3]
     
+def p_section(t):
+     'section : secthead stmlist'
+     t[0] = absyn.Stmlist(t[1],t[2])
+
+def p_section_nl(t):
+    'section : empty'
+    t[0] = absyn.Empty()
+    
+def p_secthead(t):
+     '''secthead : ID COLON
+        secthead : ID COLON NEWLINE'''
+     t[0] = t[1]
+
 def p_stmlist_stm(t):
-    'stmlist : stm NEWLINE'
+    'stmlist : stm'
     t[0] = [ t[1] ]
 
 def p_stmlist_2(t):
@@ -33,9 +54,12 @@ def p_stm_exp(t):
     'stm : exp'
     t[0] = t[1]
 
-# ignore blank or comment-only lines
-def p_stm_nl(t):
-    'stm : NEWLINE'
+def p_stm_empty(t):
+    'stm : empty'
+    t[0] = t[1]
+    
+def p_empty(t):
+    'empty :'
     t[0] = absyn.Empty()
     
 def p_stm_decl(t):
@@ -111,7 +135,7 @@ def p_arglist_2(t):
     
 # Error rule for syntax errors
 def p_error(t):
-    print "Syntax error in input!"
+    print "Syntax error in input!" + t.type
 
 
 # debugging
