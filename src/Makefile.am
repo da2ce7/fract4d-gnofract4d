@@ -4,7 +4,8 @@ INCLUDES = \
 	-I$(top_srcdir)/intl \
 	$(GNOME_INCLUDEDIR)
 
-bin_PROGRAMS = gnofract4d
+bin_PROGRAMS = gnofract4d 
+# itertest
 
 gnofract4d_SOURCES = \
 	main.cpp \
@@ -40,6 +41,16 @@ gnofract4d_SOURCES = \
 	tls.h tls.cpp \
 	compiler.h compiler.cpp \
 	preferences.h preferences.cpp
+
+#itertest_SOURCES = \
+#	io.h io.cpp \
+#	colorizer.cpp colorizer.h colorizer_public.h \
+#	colorFunc.h colorFunc.cpp \
+#	iter_harness.cpp \
+#	compiler_output.cpp
+
+#itertest_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) \
+#	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)
 
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) \
 	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)

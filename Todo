@@ -2,22 +2,15 @@ Compiler
 * W	tidy up #include files
 * W	max size for .so cache
 
-Must do pre 1.7
-* BB 	weird graphical errors for some fractal types - fixed?
-* BB	fix old fractal types
-* BB 	fractal parameters don't work
-* B	Newton doesn't work
-* B	diff_bailout produces weird squares - like isTheSame doesn't work?
-* W	periodicity tolerance should be based on pixel size
-* W	update docs
 
 Other
+* W	"compiling" progress message
 * W	Julia preview by moving around while holding button3
 * B	why is Barnsley so slow?
 * B	interrupt takes too long on deep-zoomed fractals
 * W	"maintain aspect ratio" checkbox
 * W	signal tpool conds after releasing mutex?
-* B	./gnofract4d --nthreads=1 -p foo.fct ignored input file
+* B	./gnofract4d --nthreads=1 -p foo.fct ignored input file (popt?)
 * W	make antialiasing a pref, not a setting
 * W	libgf4d
 * WW	visible history/undo buffer
@@ -45,9 +38,9 @@ Other
 * WW	preview .fcts in open dialog
 * B 	invalid bailfunc # = crash
 * W	parameterize buffalo
+* W	profile number of threads: is > 2 better?
 
 Movies-
-* B	moving weirdness slider causes too many restarts - unusable
 * B	deadlock when render movie while image is being drawn
 * B	movies turn off AA
 * W	implement frames/image
@@ -56,10 +49,32 @@ Movies-
 * B	antialiasing/auto-deepen broken for movies
 * W 	actually save movie images -> disk
 * W	move keyframes up/down 
-* W	profile number of threads: is > 2 better?
 * B	lines are ugly
 
+Must do pre 1.7
+* BB 	weird graphical errors for some fractal types - fixed?
+* B	horrible_drawing_error has been observed to do weird shit - sometimes
+* B	diff_bailout produces weird squares - like isTheSame doesn't work?
+* W	update docs
+* B	odd artifacts on default Barnsley T2
+* W	parameterize newton 
+* B	periodicity + newton doesn't work : see newt_bug.fct
+* B	why periodicity being used for skipped squares antialiasing?
+
+Mysteriously gone:
+* B	nova crash
+* B	nova doesn't display correctly unless TRACE defined - weird!
+
 Done:
+* B	default params of newton are all black
+* B	Newton doesn't work
+* B	real(), imag() bailouts broken for quadratic - see quad_deepen_bug.fct. 
+	Works when ALLPERIOD=1
+* B	quadratic broken
+* B	passing opts on command line changes saved params
+* B	moving weirdness slider causes too many restarts - unusable
+* BB 	fractal parameters don't work
+* W	periodicity tolerance should be based on pixel size
 * B	quadratic horribly slow too
 * B	can't interrupt 8x8 squares, plus they don't multi-thread
 * BBB	random glitches (usually horizontal lines). single-threaded is ok

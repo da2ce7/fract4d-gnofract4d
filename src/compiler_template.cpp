@@ -88,7 +88,14 @@ public:
             while(iter + 8 < maxIter)
             {
                 SAVE_ITER;
-                ITER; ITER; ITER; ITER; ITER; ITER; ITER; ITER; 
+                ITER; 
+                ITER; 
+                ITER; 
+                ITER; 
+                ITER; 
+                ITER; 
+                ITER; 
+                ITER; 
 #if TRACE
                 (*out) << "8:" << XPOS << "," << YPOS << "\n";
 #endif 

@@ -227,11 +227,11 @@ public:
 
 
 // Newton's method for a quadratic complex polynomial
-// z <- (z^2 + A)/2z
+// z <- (z^2 + c)/2z
 class newtFunc : public iterImpl<newtFunc,0>
 {
  public:
-    enum { FLAGS = 0 };
+    enum { FLAGS = USE_COMPLEX };
     newtFunc() : iterImpl<newtFunc,0>(name()){};
     static const char *name() 
         {
@@ -247,11 +247,19 @@ class newtFunc : public iterImpl<newtFunc,0>
         }
     std::string iter_code() const 
         { 
-            return "z = (2.0 *z*z*z + c)/ 3.0 * z * z";
+            return "z = (2.0 *z*z*z + c)/ (3.0 * z * z)";
         }
     std::string ret_code()  const 
         { 
             return "pIter[X] = z.real(); pIter[Y] = z.imag()"; 
+        }
+    virtual void reset(double *params)
+        {
+            iterImpl<newtFunc,0>::reset(params);
+            // start at Julia
+            params[XZANGLE] = params[YWANGLE] = M_PI/2.0;
+            //offset from zero to give it something to work on
+            params[XCENTER] = 0.1;
         }
 };
 
