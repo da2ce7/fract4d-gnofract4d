@@ -196,8 +196,8 @@ static void pf_calc(
 
 double z_re = params[0];
 double z_im = params[1];
-double c_re = params[2];
-double c_im = params[3];
+double pixel_re = params[2];
+double pixel_im = params[3];
 
 /* variable declarations */
 %(decls)s
