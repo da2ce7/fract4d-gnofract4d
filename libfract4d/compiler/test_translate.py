@@ -242,7 +242,7 @@ class TranslateTest(unittest.TestCase):
         }''')
         self.assertNoErrors(t)
         self.assertJumpsMatchLabs(t.sections["init"])
-
+        
     def testMandel(self):
         t = self.translate('''t_mandel_1 {
         loop:
