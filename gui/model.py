@@ -14,7 +14,7 @@ class Model:
         # used to prevent undo/redo from triggering new commands
         self.callback_in_progress = False
         self.f = f
-        self.old_f = self.f.copy_f()
+        self.old_f = self.f.serialize()
         self.f.connect('parameters-changed',self.onParametersChanged)
 
     def block_callbacks(self):
@@ -30,10 +30,10 @@ class Model:
         if not self.callbacks_allowed():
             return
         
-        current = self.f.copy_f()
+        current = self.f.serialize()
         def redo():
             self.f.freeze()
-            self.f.set_fractal(current)
+            self.f.deserialize(current)
             if self.f.thaw():
                 self.block_callbacks()
                 self.f.changed()
@@ -42,7 +42,7 @@ class Model:
         previous = self.old_f        
         def undo():
             self.f.freeze()
-            self.f.set_fractal(previous)
+            self.f.deserialize(previous)
             if self.f.thaw():
                 self.block_callbacks()
                 self.f.changed()

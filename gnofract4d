@@ -207,8 +207,11 @@ class MainWindow:
         self.model.seq.make_undo_sensitive(undo)
         redo = item_factory.get_item("/Edit/Redo")
         self.model.seq.make_redo_sensitive(redo)
-        
-        self.vbox.pack_start(menubar, expand=gtk.FALSE)
+
+        # need to reference the item factory or the menus
+        # later disappear randomly - some sort of bug in pygtk, python, or gtk
+        self.save_factory = item_factory
+        self.vbox.pack_start(menubar, gtk.FALSE, gtk.TRUE, 0)
         
     def create_status_bar(self):
         self.bar = gtk.ProgressBar()
