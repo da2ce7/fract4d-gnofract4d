@@ -137,7 +137,7 @@ class T(gobject.GObject):
         bytes = os.read(fd,self.msgsize)
         if len(bytes) < self.msgsize:
             print "bad message: %s" % list(bytes)
-            return
+            return True
 
         (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
         m = self.name_of_msg[t] 
@@ -157,8 +157,10 @@ class T(gobject.GObject):
             # FIXME pixel_changed
             pass
         else:
-            raise Exception("Unknown message from fractal thread")
-
+            print "Unknown message from fractal thread; %s" % list(bytes)
+            
+        return True
+    
     def __getattr__(self,name):
         return getattr(self.f,name)
 
@@ -441,6 +443,9 @@ class T(gobject.GObject):
         self.relocate(dx,dy,zoom)        
         
     def redraw_rect(self,x,y,w,h):
+        if w < 1 or h < 1:
+            return
+        
         gc = self.widget.get_style().white_gc
 
         buf = fract4dc.image_buffer(self.image,x,y)
