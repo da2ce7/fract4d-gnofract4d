@@ -12,7 +12,7 @@ def efl(template, tlist):
     'short-hand for expandFuncList - just reduces the amount of finger-typing'
     list = []
     for t in tlist:
-        f = "Func(%s)" % re.sub("_", str(t), template)
+        f = "Func(%s,None)" % re.sub("_", str(t), template)
         list.append(eval(f))
     return list
     
@@ -37,20 +37,20 @@ def createDefaultDict():
         # arithmetic
         "%":  efl("[_,_] , _", [Int, Float]),
         "/":  efl("[_,_] , _", [Float, Complex]) + \
-              [ Func([Color, Float], Float)],
+              [ Func([Color, Float], Float, None)],
         "*":  efl("[_,_] , _", [Int, Float, Complex]) + \
-              [ Func([Color, Float], Float)],
+              [ Func([Color, Float], Float, None)],
         "+":  efl("[_,_] , _", [Int, Float, Complex, Color]),
         "-":  efl("[_,_] , _", [Int, Float, Complex, Color]),
         "^":  efl("[_,_] , _", [Float, Complex]),
-        "mag":[ Func([Complex], Float)],
+        "mag":[ Func([Complex], Float, None)],
         
         # unary negation already factored out
 
         # logical ops
-        "&&": [ Func([Bool, Bool], Bool) ],
-        "||": [ Func([Bool, Bool], Bool) ],
-        "!" : [ Func([Bool],Bool) ],
+        "&&": [ Func([Bool, Bool], Bool, None) ],
+        "||": [ Func([Bool, Bool], Bool, None) ],
+        "!" : [ Func([Bool],Bool, None) ],
         
         "#pixel": Var(Complex), 
         "#z" : Var(Complex),

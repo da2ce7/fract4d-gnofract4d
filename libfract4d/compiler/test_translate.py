@@ -36,7 +36,6 @@ class TranslateTest(unittest.TestCase):
                  bailout:
                  c=3
                  }''')
-        #for stm in t2.sections["c_loop"]: print stm.pretty()
         
         self.assertEquivalentTranslations(t1,t2)
         self.assertNoErrors(t1)
@@ -138,7 +137,7 @@ class TranslateTest(unittest.TestCase):
 
         self.assertFuncOnList(lambda x,y : x.__class__.__name__ == y,
                               [x for x in plus],
-                              ["Move","Name","Cast","Binop","Var","Cast","Var"])
+                              ["Move","Var","Cast","Binop","Var","Cast","Var"])
 
 
     def testIf(self):
