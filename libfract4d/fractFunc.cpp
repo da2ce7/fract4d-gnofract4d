@@ -43,11 +43,11 @@ fractFunc::fractFunc(
     clear();
 
     /* 0'th ftf is in this thread for calculations we don't want to offload */
-    nThreadFuncs = f->nThreads > 1 ? f->nThreads + 1 : 1;
+    int nThreadFuncs = f->nThreads > 1 ? f->nThreads + 1 : 1;
 
     status_changed(GF4D_FRACTAL_COMPILING);
 
-    ptf = new STFractWorker[nThreadFuncs];
+    STFractWorker *ptf = new STFractWorker[nThreadFuncs];
     for(int i = 0; i < nThreadFuncs; ++i)
     {
         if(!ptf[i].init(this,f,im))
@@ -67,24 +67,14 @@ fractFunc::fractFunc(
     }
 
     /* threading */
-    ptm = new MTFractWorker();
-    if(f->nThreads > 1)
-    {
-        ptm->ptp = new tpool<job_info_t,STFractWorker>(f->nThreads,100,ptf);
-    }
-    else
-    {
-        ptm->ptp = NULL;
-    }
+    ptm = new MTFractWorker(f->nThreads,ptf);
 
     last_update_y = 0;
 };
 
 fractFunc::~fractFunc()
 {
-    delete ptm->ptp;
     delete ptm;
-    delete[] ptf;
 }
 
 void 
@@ -151,10 +141,10 @@ int
 fractFunc::updateiters()
 {
     // add up all the subtotals
-    for(int i = 0; i < nThreadFuncs; ++i)
+    for(int i = 0; i < ptm->nWorkers; ++i)
     {
 	int nd, nh, k;
-	ptf[i].stats(&nd,&nh,&k);
+	ptm->ptf[i].stats(&nd,&nh,&k);
         nTotalDoubleIters += nd;
         nTotalHalfIters += nh;
         nTotalK += k;
@@ -199,7 +189,7 @@ void fractFunc::draw_aa()
             }
             else
             {
-                ptf->row_aa(0,y,w);
+                ptm->ptf->row_aa(0,y,w);
                 if(update_image(y))
                 {
                     break;
@@ -213,9 +203,9 @@ void fractFunc::draw_aa()
 
 void fractFunc::reset_counts()
 {
-    for(int i = 0; i < nThreadFuncs ; ++i)
+    for(int i = 0; i < ptm->nWorkers ; ++i)
     {
-        ptf[i].reset_counts();
+        ptm->ptf[i].reset_counts();
     }
 
     
@@ -285,12 +275,12 @@ void fractFunc::draw(int rsize, int drawsize)
         // main large blocks 
         for ( x = 0 ; x< w - rsize ; x += rsize) 
         {
-            ptf->pixel ( x, y, drawsize, drawsize);
+            ptm->ptf->pixel ( x, y, drawsize, drawsize);
         }
         // extra pixels at end of lines
         for(int y2 = y; y2 < y + rsize; ++y2)
         {
-            ptf->row (x, y2, w-x);
+            ptm->ptf->row (x, y2, w-x);
         }
         if(update_image(y)) 
         {
@@ -300,7 +290,7 @@ void fractFunc::draw(int rsize, int drawsize)
     // remaining lines
     for ( ; y < h ; y++)
     {
-        ptf->row(0,y,w);
+        ptm->ptf->row(0,y,w);
         if(update_image(y)) 
         {
             goto done;
@@ -313,7 +303,7 @@ void fractFunc::draw(int rsize, int drawsize)
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
         for(x = 0; x < w - rsize ; x += rsize) {
-            ptf->box(x,y,rsize);
+            ptm->ptf->box(x,y,rsize);
         }
         if(update_image(y))
         {
@@ -342,12 +332,12 @@ void fractFunc::draw_threads(int rsize, int drawsize)
         // main large blocks 
         for ( x = 0 ; x< w - rsize ; x += rsize) 
         {
-            ptf->pixel ( x, y, drawsize, drawsize);
+            ptm->ptf->pixel ( x, y, drawsize, drawsize);
         }
         // extra pixels at end of lines
         for(int y2 = y; y2 < y + rsize; ++y2)
         {
-            ptf->row (x, y2, w-x);
+            ptm->ptf->row (x, y2, w-x);
         }
         if(update_image(y))
         {

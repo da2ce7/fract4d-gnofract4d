@@ -110,8 +110,6 @@ class fractFunc {
     IImage *im;    // pointer to image passed in to ctor
     pointFunc *pf; // function for calculating 1 point
 
-    int nThreadFuncs;
-    STFractWorker *ptf;
     MTFractWorker *ptm;
 
     /* wait for a ready thread then give it some work */
