@@ -127,7 +127,7 @@ class T:
 
     def stmlist(self, node):
         children = filter(lambda c : c.type != "empty", node.children)
-        seq = ir.Seq(map(lambda c: self.stm(c), children), node, None)
+        seq = ir.Seq(map(lambda c: self.stm(c), children), node)
         return seq
 
     def stmlist_with_label(self, node, label):        
@@ -152,8 +152,22 @@ class T:
                (op == ">" or op == ">=" or op == "<" or op == "<=" or \
                 op == "==" or op == "!=")
 
+    def isShortcut(self,node):
+        op = node.leaf
+        return node.type == "binop" and (op == '&&' or op == '||')
+
     def newLabel(self,node):
         return ir.Label(self.symbols.newLabel(),node)
+
+    def newTemp(self, node):
+        return ir.Var(self.symbols.newTemp(node.datatype),node, node.datatype)
+    
+    def makeCompare(self,node):
+        'convert a node into a comparison op'
+        if not self.isCompare(node):
+            # insert a "fake" comparison to zero
+            node = Binop('!=', node, Const(0,node.pos), node.pos)
+        return node
     
     def if_(self,node):
         '''the result of an if is:
@@ -167,11 +181,9 @@ class T:
         trueDest = self.newLabel(node)
         falseDest = self.newLabel(node)
         doneDest = self.newLabel(node)
-        
-        if not self.isCompare(node.children[0]):
-            # insert a "fake" comparison to zero
-            node.children[0] = Binop('!=',node.children[0], Const(0,node.pos), node.pos)
 
+        node.children[0] = self.makeCompare(node.children[0])
+        
         # convert boolean operation
         children = map(lambda n : self.exp(n) , node.children[0].children)
         op = self.findOp(node.children[0],children)
@@ -190,7 +202,7 @@ class T:
                          trueDest.name, falseDest.name, node)
 
         # overall code
-        ifstm = ir.Seq([test,trueBlock,falseBlock,doneDest],node, node.datatype)
+        ifstm = ir.Seq([test,trueBlock,falseBlock,doneDest],node)
         return ifstm
         
     def assign(self, node):
@@ -246,13 +258,69 @@ class T:
 
         return r
 
+    def seq_with_label(self,stm,label, node):
+        return ir.Seq([label, stm], node)
+    
     def binop(self, node):
-        # todo - detect and special-case logical operations
-        children = map(lambda n : self.exp(n) , node.children)        
-        op = self.findOp(node,children)
-        return ir.Binop(node.leaf,
-                        self.coerceList(op.args,children),
-                        node,op.ret)
+
+        if self.isShortcut(node):            
+            # convert into an if-expression
+            trueDest = self.newLabel(node)
+            falseDest = self.newLabel(node)
+            doneDest = self.newLabel(node)
+            temp = self.newTemp(node)
+            
+            node.children[0] = self.makeCompare(node.children[0])
+
+            children = map(lambda n : self.exp(n) , node.children)        
+            op = self.findOp(node,children)
+            children = self.coerceList(op.args,children)
+
+
+            
+            # a && b = eseq(if(a) then t = (bool)b else t = false; t)
+            if node.leaf == "&&":
+                # construct block of code to calc B and store in temp
+                calcBBlock = ir.Seq(
+                    [trueDest, ir.Move(temp, children[1],node, node.datatype),
+                     ir.Jump(doneDest.name, node)], node)
+
+                # code to set temp to false
+                falseBlock = self.seq_with_label(
+                    ir.Move(temp, ir.Const(0,Bool,node),node, node.datatype),
+                    falseDest, node)
+
+                # construct actual if operation
+                test = ir.CJump(node.children[0].leaf,
+                                calcBBlock,
+                                falseBlock,
+                                trueDest.name, falseDest.name, node)
+            else:
+                # a || b = eseq(if(a) then t = true else t = (bool)b; t)
+                # construct block of code to calc B and store in temp
+                calcBBlock = ir.Seq(
+                    [falseDest, ir.Move(temp, children[1],node, node.datatype),],
+                    node)
+
+                # code to set temp to true
+                trueBlock = self.seq_with_label(
+                    ir.Move(temp, ir.Const(1,Bool,node),node, node.datatype),
+                    trueDest, node)
+                
+                test = ir.CJump(node.children[0].leaf,
+                                trueBlock,
+                                calcBBlock,
+                                trueDest.name, falseDest.name, node)
+            r = ir.ESeq([test, doneDest], temp, node, op.ret)
+            return r
+        else:
+            children = map(lambda n : self.exp(n) , node.children)        
+            op = self.findOp(node,children)
+            children = self.coerceList(op.args,children)
+
+            return ir.Binop(node.leaf,
+                            children,
+                            node,op.ret)
     
     def id(self, node):
         try:

@@ -174,7 +174,8 @@ class TranslateTest(unittest.TestCase):
         endif
         }''')
 
-        self.assertNoErrors(t)        
+        self.assertNoErrors(t)
+        self.assertJumpsMatchLabs(t.sections["loop"])
         self.assertJumpsAndLabs(t, expectedLabs)
 
         t = self.translate('''t_if_4 {
@@ -188,7 +189,29 @@ class TranslateTest(unittest.TestCase):
         }''')
 
         self.assertNoErrors(t)
+        self.assertJumpsMatchLabs(t.sections["loop"])
         self.assertJumpsAndLabs(t, expectedLabs)
+
+    def testBooleans(self):
+        t = self.translate('''t_bool_1 {
+        init:
+        if a == 1 && b == 2
+           a = 2
+        endif
+        }''')
+        self.assertNoErrors(t)
+        #print t.sections["init"].pretty()
+        self.assertJumpsMatchLabs(t.sections["init"])
+
+        t = self.translate('''t_bool_ {
+        init:
+        if a == 1 || b == 2
+           a = 2
+        endif
+        }''')
+        self.assertNoErrors(t)
+        print t.sections["init"].pretty()
+        self.assertJumpsMatchLabs(t.sections["init"])
         
     def assertJumpsAndLabs(self,t,expected):
         jumps_and_labs = []
@@ -202,7 +225,22 @@ class TranslateTest(unittest.TestCase):
 
         self.assertEqual(jumps_and_labs, expected)
 
-        
+    def assertJumpsMatchLabs(self,t):
+        'check that each jump has a corresponding label somewhere'
+        jumpTargets = {}
+        jumpLabels = {}
+        for n in t:
+            if isinstance(n,ir.Jump):
+                jumpTargets[n.dest] = 1
+            elif isinstance(n,ir.CJump):
+                jumpTargets[n.trueDest] = jumpTargets[n.falseDest] = 1
+            elif isinstance(n,ir.Label):                
+                jumpLabels[n.name] = 1
+
+        for target in jumpTargets.keys():
+            self.failUnless(jumpLabels.has_key(target),
+                            "jump to unknown target %s" % target )
+            
     def testDecls(self):
         t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")
         self.assertNoProbs(t1)

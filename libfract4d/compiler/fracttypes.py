@@ -55,8 +55,12 @@ _canBeCast = [
 
 def canBeCast(t1,t2):
     ' can t1 be cast to t2?'
-    return _canBeCast[t1][t2]
-
+    try:
+        return _canBeCast[t1][t2]
+    except Exception, e:
+        print t1,t2
+        raise
+    
 class Func:
     def __init__(self,args,ret,pos=-1):
         self.ret = ret
