@@ -50,7 +50,7 @@ GtkWidget *create_frames_entry(Gf4dMovieFrame *fr)
     gtk_entry_set_text(GTK_ENTRY(frames_entry),text);
 
     /*
-    gtk_signal_connect(GTK_OBJECT(frames_entry), "changed",
+    g_signal_connect(GTK_OBJECT(frames_entry), "changed",
                        (GtkSignalFunc)update_frames_entry, fr);
                        
     */
@@ -170,17 +170,17 @@ GtkWidget *create_film_strip(model_t *m)
 
     gtk_widget_show_all(strip);
     
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(movie), "list_changed", 
         (GtkSignalFunc) list_update_callback,
         strip);
 
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(strip), "selection_changed",
         (GtkSignalFunc) list_clear_selection, 
         NULL);
 
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(strip), "select-child", 
         (GtkSignalFunc) list_set_selection,
         NULL);
@@ -254,31 +254,31 @@ GtkWidget *create_movie_commands(GtkWidget *strip, model_t *m)
     GtkWidget *add_button = gtk_button_new_with_label(_("Add"));
     gtk_box_pack_start(GTK_BOX(hbox), add_button, TRUE, TRUE, 0);
 
-    gtk_signal_connect(GTK_OBJECT(add_button), "clicked", 
+    g_signal_connect(GTK_OBJECT(add_button), "clicked", 
                        (GtkSignalFunc)add_button_callback, m);
 
     // Remove
     GtkWidget *remove_button = gtk_button_new_with_label(_("Remove"));
     gtk_box_pack_start(GTK_BOX(hbox), remove_button, TRUE, TRUE, 0);
 
-    gtk_signal_connect(GTK_OBJECT(remove_button), "clicked", 
+    g_signal_connect(GTK_OBJECT(remove_button), "clicked", 
                        (GtkSignalFunc)remove_button_callback, m);
 
     // Render
     GtkWidget *render_button = gtk_button_new_with_label(_("Render"));
     gtk_box_pack_start(GTK_BOX(hbox), render_button, TRUE, TRUE, 0);
 
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(render_button), 
         "clicked", 
         (GtkSignalFunc)render_button_callback, 
         m);
 
     Gf4dMovie *mov = model_get_movie(m);
-    gtk_signal_connect(GTK_OBJECT(mov), "status_changed",
+    g_signal_connect(GTK_OBJECT(mov), "status_changed",
                        (GtkSignalFunc)update_movie_button_text,render_button);
 
-    gtk_signal_connect(GTK_OBJECT(mov), "image_complete",
+    g_signal_connect(GTK_OBJECT(mov), "image_complete",
 		       (GtkSignalFunc)save_image_callback, m);
 
     gtk_widget_show_all(hbox);
@@ -337,13 +337,13 @@ void create_movie_editor(GtkWidget *menuitem, model_t *m)
     GtkWidget *progress_bar = gtk_progress_bar_new();
     GtkWidget *status_text = gtk_label_new("");
 
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(model_get_movie(m)), 
         "progress_changed",
         (GtkSignalFunc) update_movie_progress_bar, 
         progress_bar);
 
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(model_get_movie(m)), 
         "status_changed",
         (GtkSignalFunc) update_movie_status_text,

@@ -119,11 +119,11 @@ create_entry_with_label(
     gtk_tooltips_set_tip (tooltips, combo_entry, tip, NULL);
     gtk_widget_show (combo_entry);
     
-    gtk_signal_connect(GTK_OBJECT(combo_entry),"focus-out-event",
+    g_signal_connect(GTK_OBJECT(combo_entry),"focus-out-event",
                        set_cb,
                        shadow);
     
-    gtk_signal_connect(GTK_OBJECT(shadow), "parameters_changed",
+    g_signal_connect(GTK_OBJECT(shadow), "parameters_changed",
                        refresh_cb,
                        combo_entry);
 
@@ -163,11 +163,11 @@ create_image_entry(
     gtk_tooltips_set_tip (tooltips, combo_entry, tip, NULL);
     gtk_widget_show (combo_entry);
     
-    gtk_signal_connect(GTK_OBJECT(combo_entry),"focus-out-event",
+    g_signal_connect(GTK_OBJECT(combo_entry),"focus-out-event",
                        set_cb,
                        m);
     
-    gtk_signal_connect(GTK_OBJECT(f), "parameters_changed",
+    g_signal_connect(GTK_OBJECT(f), "parameters_changed",
                        refresh_cb,
                        combo_entry);
 };
@@ -231,11 +231,11 @@ create_param_entry_with_label(
     gtk_tooltips_set_tip (tooltips, combo_entry, tip, NULL);
     gtk_widget_show (combo_entry);
     
-    gtk_signal_connect(GTK_OBJECT(combo_entry),"focus-out-event",
+    g_signal_connect(GTK_OBJECT(combo_entry),"focus-out-event",
                        (GtkSignalFunc)set_param_callback,
                        shadow);
     
-    gtk_signal_connect(GTK_OBJECT(shadow), "parameters_changed",
+    g_signal_connect(GTK_OBJECT(shadow), "parameters_changed",
                        (GtkSignalFunc)refresh_param_callback,
                        combo_entry);
     
@@ -310,7 +310,7 @@ GtkWidget *create_bailout_menu(Gf4dFractal *shadow)
             "type",
             GINT_TO_POINTER((e_bailFunc)i));
     
-        gtk_signal_connect(
+        g_signal_connect(
             GTK_OBJECT(menu_item),
             "activate",
             GTK_SIGNAL_FUNC(set_bailout_callback),
@@ -322,7 +322,7 @@ GtkWidget *create_bailout_menu(Gf4dFractal *shadow)
     }    
 
     // refresh when shadow changes
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(shadow),
         "parameters_changed",
         GTK_SIGNAL_FUNC(refresh_bailout_callback),
@@ -446,7 +446,7 @@ GtkWidget *create_aa_menu(Gf4dFractal *shadow)
             "type",
             GINT_TO_POINTER(i));
     
-        gtk_signal_connect(
+        g_signal_connect(
             GTK_OBJECT(menu_item),
             "activate",
             GTK_SIGNAL_FUNC(set_aa_callback),
@@ -458,7 +458,7 @@ GtkWidget *create_aa_menu(Gf4dFractal *shadow)
     }    
 
     // refresh when shadow changes
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(shadow),
         "parameters_changed",
         GTK_SIGNAL_FUNC(refresh_aa_callback),
@@ -531,7 +531,7 @@ GtkWidget *create_page(GtkWidget *notebook, GtkWidget *child, gchar *title)
     gtk_widget_hide_all(child);
 
     /*
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(arrowbut), 
         "clicked", 
         GTK_SIGNAL_FUNC(show_page_child_callback), 
@@ -605,7 +605,7 @@ create_cf_menu(Gf4dFractal *shadow, int whichCf)
             "type",
             GINT_TO_POINTER(i));
     
-        gtk_signal_connect(
+        g_signal_connect(
             GTK_OBJECT(menu_item),
             "activate",
             GTK_SIGNAL_FUNC(set_cf_callback),
@@ -619,7 +619,7 @@ create_cf_menu(Gf4dFractal *shadow, int whichCf)
 
     // refresh when shadow changes
 
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(shadow),
         "parameters_changed",
         GTK_SIGNAL_FUNC(refresh_cf_callback),
@@ -679,11 +679,11 @@ create_propertybox_rendering_page(
 
     gtk_widget_show(auto_deepen_button);
 
-    gtk_signal_connect (GTK_OBJECT(auto_deepen_button),"toggled",
+    g_signal_connect (GTK_OBJECT(auto_deepen_button),"toggled",
                         GTK_SIGNAL_FUNC(set_autodeepen_callback),
                         (gpointer) shadow);
 
-    gtk_signal_connect (GTK_OBJECT(shadow),"parameters_changed",
+    g_signal_connect (GTK_OBJECT(shadow),"parameters_changed",
                         GTK_SIGNAL_FUNC(refresh_autodeepen_callback),
                         (gpointer) auto_deepen_button);
 
@@ -779,7 +779,7 @@ GtkWidget *create_function_menu(Gf4dFractal *shadow)
             "type",
             const_cast<char *>(name));
     
-        gtk_signal_connect(
+        g_signal_connect(
             GTK_OBJECT(menu_item),
             "activate",
             GTK_SIGNAL_FUNC(set_func_callback),
@@ -792,7 +792,7 @@ GtkWidget *create_function_menu(Gf4dFractal *shadow)
     };
 
     // refresh when shadow changes
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(shadow),
         "parameters_changed",
         GTK_SIGNAL_FUNC(refresh_func_callback),
@@ -911,7 +911,7 @@ void make_func_entry(Gf4dFractal *shadow, double d, GtkWidget *table, int i)
     model_t *m = (model_t *)gtk_object_get_data(GTK_OBJECT(table),"model");
     assert(m);
 
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(entry),"focus-out-event",
         GTK_SIGNAL_FUNC(set_func_parameter_cb),
         m);
@@ -1000,11 +1000,11 @@ make_func_edit_widgets(
     model_t *m = (model_t *)gtk_object_get_data(GTK_OBJECT(table),"model");
     assert(m);
 
-    gtk_signal_connect(GTK_OBJECT(fourway), "value_changed",
+    g_signal_connect(GTK_OBJECT(fourway), "value_changed",
                        (GtkSignalFunc)fourway_set_param_cb,
                        (gpointer)m);
 
-    gtk_signal_connect(GTK_OBJECT(fourway), "value_slightly_changed",
+    g_signal_connect(GTK_OBJECT(fourway), "value_slightly_changed",
                        (GtkSignalFunc)fourway_preview_param_cb,
                        (gpointer)m);
 }
@@ -1078,7 +1078,7 @@ create_propertybox_func_parameters_page(
     gtk_object_set_data(GTK_OBJECT(table), "type", (gpointer)"");
     gtk_object_set_data(GTK_OBJECT(table), "model", (gpointer)m);
 
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(shadow),
         "parameters_changed",
         GTK_SIGNAL_FUNC(refresh_func_parameters_callback),
@@ -1133,7 +1133,7 @@ create_propertybox_image_page(
 	GTK_TOGGLE_BUTTON(aspect_check),
 	model_get_maintain_aspect(m));
 
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(aspect_check),
         "toggled",
         GTK_SIGNAL_FUNC(set_maintain_aspect_callback),
@@ -1260,7 +1260,7 @@ create_propertybox (model_t *m)
     gnome_dialog_close_hides(GNOME_DIALOG(propertybox), TRUE);
     
     /* whenever the shadow fractal changes, update the main one */
-    gtk_signal_connect (
+    g_signal_connect (
         GTK_OBJECT(shadow), "parameters_changed",
         GTK_SIGNAL_FUNC(update_main_fractal), (gpointer) m);
     

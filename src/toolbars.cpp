@@ -113,10 +113,10 @@ create_param_button(
     pdata->shadow = preview;
     pdata->fourway = GF4D_FOURWAY(fourway);
 
-    gtk_signal_connect(GTK_OBJECT(fourway),"value_slightly_changed",
+    g_signal_connect(GTK_OBJECT(fourway),"value_slightly_changed",
                        (GtkSignalFunc)fourway_set_preview_cb, pdata );
 
-    gtk_signal_connect(GTK_OBJECT(fourway),"value_changed",
+    g_signal_connect(GTK_OBJECT(fourway),"value_changed",
                        (GtkSignalFunc)fourway_set_cb, pdata );
 
     gtk_widget_show_all(fourway);
@@ -281,7 +281,7 @@ create_explore_widgets(GtkToolbar *toolbar, model_t *m)
         gtk_hscale_new(GTK_ADJUSTMENT(explore_adj));
 
     gtk_range_set_update_policy(GTK_RANGE(explore_weirdness), GTK_UPDATE_DISCONTINUOUS);
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(explore_adj),
         "value-changed",
         (GtkSignalFunc)weirdness_cb, 
@@ -320,7 +320,7 @@ create_move_toolbar (model_t *m, GtkWidget *appbar)
     GtkToolbar *toolbar = GTK_TOOLBAR(toolbar_widget);
 
     preview_shadow = gf4d_fractal_copy(model_get_fract(m));
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(model_get_fract(m)),
         "parameters_changed",
         GTK_SIGNAL_FUNC(preview_refresh_callback),

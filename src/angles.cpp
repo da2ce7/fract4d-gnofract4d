@@ -77,17 +77,17 @@ create_angle_button(
 
 	gtk_widget_show(angle);
 	
-	gtk_signal_connect(GTK_OBJECT(adjustment),"value_changed",
+	g_signal_connect(GTK_OBJECT(adjustment),"value_changed",
 			   (GtkSignalFunc)angle_set_cb, pdata );
 
-	gtk_signal_connect(GTK_OBJECT(angle),"value_slightly_changed",
+	g_signal_connect(GTK_OBJECT(angle),"value_slightly_changed",
 			   (GtkSignalFunc)angle_update_cb, appbar );
 
-        gtk_signal_connect(GTK_OBJECT(angle), "value_slightly_changed",
+        g_signal_connect(GTK_OBJECT(angle), "value_slightly_changed",
                            (GtkSignalFunc)angle_update_preview_cb, 
                            pdata);
 	
-	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)),"parameters_changed",
+	g_signal_connect(GTK_OBJECT(model_get_fract(m)),"parameters_changed",
 			   (GtkSignalFunc)adjustment_update_callback, pdata);
 
 	return angle;

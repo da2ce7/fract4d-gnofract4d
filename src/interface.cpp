@@ -161,17 +161,17 @@ create_app (model_t *m)
     // turn explore mode *off*
     model_toggle_explore_mode(m);
     
-    gtk_signal_connect (
+    g_signal_connect (
         GTK_OBJECT (app), "delete_event",
         GTK_SIGNAL_FUNC (quit_cb),
         m);
     
-    gtk_signal_connect (
+    g_signal_connect (
         GTK_OBJECT (app), "destroy_event",
         GTK_SIGNAL_FUNC (quit_cb),
         m);
 
-    gtk_signal_connect (GTK_OBJECT(app), "key_press_event",
+    g_signal_connect (GTK_OBJECT(app), "key_press_event",
 			(GtkSignalFunc) key_event, m);
     
     return app;
