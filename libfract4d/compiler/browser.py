@@ -128,7 +128,7 @@ class MainWindow:
 
         self.asmtext = gtk.TextView()
         sw.add(self.asmtext)
-        notebook.append_page(sw, gtk.Label('Code Sections'))
+        notebook.append_page(sw, gtk.Label('Generated Code'))
         
         panes.add2(notebook)
 
