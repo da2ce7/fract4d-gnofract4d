@@ -381,6 +381,10 @@ default:
             hint = ""
         endparam
         float param f1
+            default = 1.2
+        endparam
+        hyper param h1
+            default = (4,5,6,7)
         endparam
         }''')
         self.assertNoErrors(t)
@@ -392,7 +396,7 @@ default:
 
         k = t.symbols.parameters().keys()
         k.sort()
-        exp_k = ["t__a_f1", "t__a_foo","t__a_with_turnaround8"]
+        exp_k = ["t__a_f1", "t__a_foo","t__a_with_turnaround8", "t__a_h1"]
         exp_k.sort()
         self.assertEqual(k,exp_k)        
 
@@ -411,11 +415,17 @@ default:
         op = t.symbols.order_of_params()
         self.assertEqual(op["t__a_f1"],0)
         self.assertEqual(op["t__a_foo"],1)
-        self.assertEqual(op["t__a_with_turnaround8"],3)
-        self.assertEqual(op["__SIZE__"],5)
+        self.assertEqual(op["t__a_h1"],3)
+        self.assertEqual(op["t__a_with_turnaround8"],7)
+        self.assertEqual(op["__SIZE__"],9)
 
         defparams = t.symbols.default_params()
-        self.assertEqual(defparams,[0.0,10.0,0.0,1.0,0.0])
+        self.assertEqual(defparams,[
+            1.2, #f1
+            10.0,0.0, #foo
+            4.0,5.0,6.0,7.0, #h1
+            1.0,0.0 # turnaround
+            ])
         
     def testEnum(self):
         t = self.translate('''t_enum {

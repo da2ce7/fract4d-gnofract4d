@@ -221,7 +221,7 @@ class TBase:
         elif node.type == "func":
             self.func(node)
         elif node.type == "heading":
-            print "heading"
+            #print "heading"
             pass
         elif node.type == "set":
             self.set(node)
@@ -246,8 +246,14 @@ class TBase:
             return val
         elif node.type == "string":
             return self.string(node)
+        elif node.type == "funcall" and node.leaf == "hyper":
+            parts = []
+            for i in xrange(4):
+                parts.append(self.const_convert(
+                    self.const_exp(node.children[i]), fracttypes.Float))
+            return ir.Const(parts, node, fracttypes.Hyper)        
         else:
-            print node.pretty()
+            #print node.pretty()
             self.error("%d: only constants can be used in default sections" %
                        node.pos)
 

@@ -15,6 +15,7 @@ import fracttypes
 
 rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
 cmplx_re = re.compile(r'\((.*?),(.*?)\)')
+hyper_re = re.compile(r'\((.*?),(.*?),(.*?),(.*?)\)')
 
 # generally useful funcs for reading in .fct files
 class FctUtils:
@@ -197,7 +198,7 @@ class T(FctUtils):
     def __init__(self,compiler,site=None):
         FctUtils.__init__(self)
         
-        self.format_version = 2.1
+        self.format_version = 2.5
         
         # formula support
         self.formula = None
@@ -309,6 +310,9 @@ class T(FctUtils):
         
         if type == fracttypes.Complex:
             return "(%.17f,%.17f)"%(params[ord],params[ord+1])
+        elif type == fracttypes.Hyper:
+            return "(%.17f,%.17f,%.17f,%.17f)"% \
+                   (params[ord],params[ord+1],params[ord+2],params[ord+3])
         else:
             return "%.17f" % params[ord]
 
@@ -805,6 +809,14 @@ The image may not display correctly. Please upgrade to version %.1f.'''
                 if params[ord+1] != im:                
                     params[ord+1] = im
                     self.changed()
+        if t == fracttypes.Hyper:
+            m = hyper_re.match(val)
+            if m!= None:
+                for i in xrange(4):
+                    val = float(m.group(i+1))
+                    if params[ord+i] != val:
+                        params[ord+i] = val
+                        self.changed()
         elif t == fracttypes.Float:
             params[ord] = float(val)
         

@@ -236,7 +236,9 @@ class T(gobject.GObject):
         label.set_justify(gtk.JUSTIFY_RIGHT)
         table.attach(label,0,1,i,i+1,0,0,2,2)
 
-        if param.type == fracttypes.Float or param.type == fracttypes.Complex:
+        if param.type == fracttypes.Float or \
+               param.type == fracttypes.Complex or \
+               param.type == fracttypes.Hyper:
             widget = gtk.Entry()
             widget.set_activates_default(True)
             
@@ -437,6 +439,13 @@ class T(gobject.GObject):
                         table,i+1,name, " (im)",param,op[name]+1,
                         formula, param_type)
                     i+= 1
+                elif param.type == fracttypes.Hyper:
+                    suffixes = [" (re)", " (i)", " (j)", " (k)"]
+                    for j in xrange(4):
+                        self.add_formula_setting(
+                            table,i+j,name,suffixes[j],
+                            param,op[name]+j,formula,param_type)
+                    i += 3
                 else:
                     self.add_formula_setting(
                         table,i,name,"",param,op[name], formula, param_type)

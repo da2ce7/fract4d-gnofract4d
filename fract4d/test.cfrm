@@ -1,6 +1,6 @@
 flat {
 final:
-#index = real(@myfunc(@val))
+#index = real(@myfunc(@val)) + |@val2|*0.0
 default:
 float param val
 	default = 0.4
@@ -8,6 +8,9 @@ endparam
 func myfunc
 	default = abs()
 endfunc
+hyper param val2
+	default = (0.7,0.8,0.9,1)
+endparam
 } 
 
 flat2 {

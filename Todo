@@ -6,6 +6,7 @@ preferences.py: 251
 
 done in 2.5:
 * BB	if formula didn't mention z, compilation failed
+* W	hypercomplex mandelbrot set
 
 todo:
 * B	if you declare a function called fn1, you can't change what it is
