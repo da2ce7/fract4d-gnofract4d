@@ -182,18 +182,22 @@ goto t__end_loop;''')
         self.failUnless("double z_re = 0.00000000000000000;" in out)
 
     def testC(self):
-        asm = self.sourceToAsm('''t_s2a {
+        src = '''t_s2a {
 loop:
 int a = 1
 z = z + a
-}''', "loop")
-        output = self.compileAndRun("", "t__end_loop:\nprintf(\"%g,%g\\n\",z_re,z_im);")
-        self.assertEqual(output,"1,0")
+}'''
+        self.assertCSays(src,"loop","printf(\"%g,%g\\n\",z_re,z_im);","1,0")
+
+    def assertCSays(self,source,section,check,result):
+        asm = self.sourceToAsm(source,section)
+        postamble = "t__end_%s:\n%s\n" % (section,check)
+        output = self.compileAndRun("", postamble)
+        self.assertEqual(output,result)
         
     def assertOutputMatch(self,exp):
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
         self.assertEqual(str_output,exp)
-
     
     def printAsm(self):
         for i in self.codegen.out:
