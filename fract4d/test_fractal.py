@@ -553,6 +553,8 @@ blue=0
 
         buf = fract4dc.image_buffer(image,0,0)
 
+        fract4dc.image_save(image,"def.tga")
+        
         # corners must be white
         self.assertWhite(buf,0,0,w)
         self.assertWhite(buf,w-1,0,w)

@@ -165,6 +165,20 @@ class FctTest(unittest.TestCase):
         f.onButtonRelease(f.widget,FakeEvent(button=1))
         self.assertEqual(f.params(),tparams)
 
+    def testCtrlButton1(self):
+        f = self.f
+
+        # ctrl + click on center should have no effect
+        (xp,yp) = (f.width/2,f.height/2)
+        f.onButtonPress(f.widget,FakeEvent(x=xp,y=yp,button=1))
+        self.assertEqual((f.x,f.y,f.newx,f.newy),(xp,yp,xp,yp))
+        tparams = copy.copy(f.params())
+
+        f.onButtonRelease(f.widget,
+                          FakeEvent(button=1,state=gtk.gdk.SHIFT_MASK))
+        self.assertEqual(f.params(),tparams)
+
+        
     def testZooms(self):
         self.doTestZooms(1)
 

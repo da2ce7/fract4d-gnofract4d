@@ -12,6 +12,7 @@ import test_fract4d
 import test_colormap
 import test_parfile
 import test_fractal
+import test_3d
 
 def suite():
     s1 = test_fractlexer.suite()
@@ -25,8 +26,10 @@ def suite():
     s9 = test_colormap.suite()
     s10 = test_parfile.suite()
     s11 = test_fractal.suite()
+    s12 = test_3d.suite()
     
-    return unittest.TestSuite((s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11))
+    return unittest.TestSuite(
+        (s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12))
 
 def main():
     unittest.main(defaultTest='suite')

@@ -97,7 +97,9 @@ The cursor keys pan around the image. Hold down
 <keycap>Control</keycap>+ <keycap>&lt;cursor&gt;</keycap> to move more
 quickly. Hold down <keycap>Shift</keycap> +
 <keycap>&lt;cursor&gt;</keycap> to move around in the other two
-dimensions, mutating the image.  </para> 
+dimensions, mutating the image. You can recenter the image on a point
+by left-clicking on that point while holding down
+<keycap>Shift</keycap>.  </para>
 
 </sect2>
 
