@@ -234,6 +234,12 @@ class TranslateTest(unittest.TestCase):
         }''')
 
         self.assertNoErrors(t)
+
+        t = self.translate('''t_mandel_2 {
+        z = #pixel : z = z * z + c, |z| < 4.0
+        }''')
+
+        self.assertNoErrors(t)
         
     def assertJumpsAndLabs(self,t,expected):
         jumps_and_labs = []
