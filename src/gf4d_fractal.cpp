@@ -63,7 +63,10 @@ gf4d_fractal_init (Gf4dFractal *f)
 	f->change_pending=FALSE;
 	f->sensitive=TRUE;
 	f->tid=0;
+	f->finished=0;
 	pthread_mutex_init(&f->lock,NULL);
+	pthread_cond_init(&f->finish_cond,NULL);
+	pthread_cond_init(&f->start_cond,NULL);
 }
 
 GtkObject*
@@ -95,16 +98,20 @@ kill_slave_threads(Gf4dFractal *f)
 	if(f->tid)
 	{
 		int err = pthread_cancel(f->tid);
-		g_print("> %d\n",f->tid);
+		g_print("< %d\n",f->tid);
 		if(err)
 		{
-			g_warning("error in cancel\n");
+			// the error is ok, it just means the thread
+			// has already exited
+			//g_warning("error in cancel\n");
 		}
 		else
 		{
-			//g_print("cancelled %d\n", f->tid);
-			g_print("< %d\n",f->tid);
-			pthread_join(f->tid,NULL);
+			while(!f->finished)
+			{
+				pthread_cond_wait(&f->finish_cond,&f->lock);
+			}
+			f->finished=0;
 		}
 	}
 	f->tid = 0;
@@ -115,8 +122,6 @@ static void
 gf4d_fractal_destroy (GtkObject *object)
 {
 	Gf4dFractal *f;
-
-
 
 	g_return_if_fail (object != NULL);
 	g_return_if_fail (GF4D_IS_FRACTAL (object));
@@ -227,12 +232,42 @@ void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f)
 	*(gf->f) = *f;
 }
 
+/* signal parent thread that we have indeed finished: 
+ * a kind of homegrown pthread_join because I can't get
+ * the fscking real thing to work */
+
+static void 
+set_finished_cond(Gf4dFractal *f)
+{
+	gf4d_fractal_lock(f);
+	f->finished=1;
+	pthread_cond_signal(&f->finish_cond);
+	g_print("signalled finish condition\n");
+	gf4d_fractal_unlock(f);
+}
+
+static void
+set_started_cond(Gf4dFractal *f)
+{
+	gf4d_fractal_lock(f);
+	f->started=1;
+	pthread_cond_signal(&f->start_cond);
+	gf4d_fractal_unlock(f);
+}
+
 static void *
-calculation_thread(void *vdata)
+calculation_thread(void *vdata) 
 {
 	Gf4dFractal *f = (Gf4dFractal *)vdata;
 
+	pthread_cleanup_push(set_finished_cond,f);
+	g_print("ready\n");
+	set_started_cond(f);
 	f->f->calc(f,f->im);	
+
+	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,NULL);
+	pthread_cleanup_pop(0);
+	set_finished_cond(f);
 	return NULL;
 }
 
@@ -243,11 +278,21 @@ void gf4d_fractal_calc(Gf4dFractal *f)
 	kill_slave_threads(f);
 
 	gf4d_fractal_lock(f);
+	f->started=0;
 	if(pthread_create(&f->tid,NULL,calculation_thread,(void *)f))
 	{
 		g_print("Error, couldn't start thread\n");
 	}
-	//g_print("created thread %d\n",f->tid);
+	// avoids zombies
+	pthread_detach(f->tid);
+
+	// wait until thread has completed init
+	while(!f->started)
+	{
+		pthread_cond_wait(&f->start_cond,&f->lock);
+	}
+	g_print("> %d",f->tid);
+
 	gf4d_fractal_unlock(f);
 }
 

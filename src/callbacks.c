@@ -241,11 +241,7 @@ propertybox_apply(GnomePropertyBox *gnomepropertybox,
 	}
 	
 	aa = lookup_widget(pb,"checkbutton_antialias");
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(aa))) {
-		gf4d_fractal_set_aa(f,2);
-	} else {
-		gf4d_fractal_set_aa(f,0);
-	}
+	gf4d_fractal_set_aa(f,(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(aa))));
 
 	auto_deepen = lookup_widget(pb,"checkbutton_auto_deepen");
 	gf4d_fractal_set_auto(f,gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auto_deepen)));
@@ -416,34 +412,8 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
 	return TRUE;
 }
 
-static int 
-do_redraw_callback(model_t *m)
-{
-	Gf4dFractal *f;
-
-	gdk_threads_enter();
-	f = model_get_fract(m);
-
-	property_box_refresh(m);
-
-	gf4d_fractal_calc(f);
-
-	gdk_threads_leave();
-	return FALSE;
-}
-
 void redraw_callback(Gf4dFractal *f, gpointer m)
 {
-/*
-	static guint idle_id = 0;
-
-	if(idle_id) {
-		g_print("removing idle %d\n",idle_id);
-		gtk_idle_remove(idle_id);
-	}
-	idle_id = gtk_idle_add((GtkFunction)do_redraw_callback,m);
-	g_print("added idle %d\n",idle_id);
-*/
 	f = model_get_fract(m);
 	property_box_refresh(m);
 	gf4d_fractal_calc(f);
@@ -604,11 +574,7 @@ property_box_refresh(model_t *m)
 				   g_strdup_printf("%d",gf4d_fractal_get_max_iterations(f)));
 
 		w = lookup_widget(propertybox,"checkbutton_antialias");
-		if(gf4d_fractal_get_aa(f) > 1) {
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w),1);
-		} else {
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w),0);
-		}
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w),gf4d_fractal_get_aa(f));
 
 		w = lookup_widget(propertybox,"checkbutton_auto_deepen");
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w),
