@@ -22,7 +22,7 @@
 
 <para>
 There is no excellent beauty which hath not some strangeness in the
-proportion.  </para> 
+proportion.</para> 
 
 </epigraph>
 
@@ -76,9 +76,10 @@ so that the area inside that box fills the window.
 
 <para>
 To zoom back out, click with the right button. You can also press
-<keycap>Home</keycap> to return to the starting point for this
-fractal, or use <guibutton>Undo</guibutton> to go back one step.
-There isn't a click and drag feature for the right button.
+<keycap>Home</keycap> to return all parameters to the starting point
+for this fractal, <keycap>Control</keycap>+<keycap>Home</keycap> to
+reset the zoom only, or use <guibutton>Undo</guibutton> to go back one
+step.  There isn't a click and drag feature for the right button.
 </para>
 
 <para>
@@ -217,6 +218,25 @@ so far not very many.
 </entry>
 </row>
 
+<row>
+<entry>
+Gradient File
+</entry>
+<entry>
+<filename class="extension">.map</filename>,
+<filename class="extension">.ggr</filename>
+</entry>
+<entry>
+
+A gradient file is a list of colors which is used to translate the
+purely numerical output of the formula into something pretty to look
+at. Gradients are currently saved only inside the fractal itself, not
+as separate files. The GIMP uses the extension .ggr for its gradient
+files; &fractint; uses .map for its own, simpler files.
+
+</entry>
+</row>
+
 </tbody>
 </tgroup>
 </informaltable>
@@ -299,6 +319,29 @@ are. </para></listitem>
 </itemizedlist>
 </para>
 </sect3>
+
+<sect3 id="randomizecolors">
+<title>Randomize Colors</title>
+<para>
+Replaces the current gradient with a randomly-generated new one.
+</para>
+</sect3>
+
+<sect3 id="painter">
+<title>Painter</title>
+<para>
+
+The painter dialog allows you to change the colors of your fractal by
+clicking on the place where you want the color to be different. First,
+select the color you want in the color selector. Then click on the
+image - the part of the gradient most responsible for the color of
+that pixel will be updated with the color you chose. Toggle the
+"painting" button off if you want to interact with the fractal while
+the painter dialog is up.
+
+</para>
+</sect3>
+
 </sect2>
 
 <sect2 id="toolbar">
@@ -331,12 +374,14 @@ update, then release the mouse when you like the results.  </para>
 <para>
 The weird black and white button (OK, so I can't draw) allows you to
 increase the current iteration count, for those occasions when the
-auto-deepening doesn't get it right.  </para> <para> The
-<emphasis>Undo</emphasis> and <emphasis>Redo</emphasis> buttons should
-be fairly obvious. You can undo as many times as you like. Note that
-undo also affects parameters such as color, not just position on
-screen.  Lastly, the <emphasis>Explore</emphasis> button toggles
-Explorer Mode. See <xref linkend="explorer"/>.</para>
+auto-deepening doesn't get it right. The image size list should be
+self-explanatory. If you want a size not listed here, use the
+Preferences dialog. </para> <para> The <emphasis>Undo</emphasis> and
+<emphasis>Redo</emphasis> buttons should be fairly obvious. You can
+undo as many times as you like. Note that undo also affects parameters
+such as color, not just position on screen.  Lastly, the
+<emphasis>Explore</emphasis> button toggles Explorer Mode. See <xref
+linkend="explorer"/>.</para>
   
 </sect2>
 
@@ -344,13 +389,14 @@ Explorer Mode. See <xref linkend="explorer"/>.</para>
 <title>Changing Fractal Settings</title> 
 
 <para> In &gf4d;, settings are divided into <emphasis>Fractal
-Settings</emphasis> and
+Settings</emphasis>, <emphasis>Gradients</emphasis> and
 <emphasis>Preferences</emphasis>. <emphasis>Fractal
-Settings</emphasis> are saved in the fractal's .fct file - they are
-properties of the fractal itself. By contrast, <emphasis>
-Preferences</emphasis> are your preferences for &gf4d;'s general
-behavior and are saved in &gf4d;'s config file (~/.gnome/gnofract4d),
-so they will still be active next time you start &gf4d; </para>
+Settings</emphasis> and <emphasis>Gradients</emphasis> are saved in the
+fractal's .fct file - they are properties of the fractal itself. By
+contrast, <emphasis> Preferences</emphasis> are your preferences for
+&gf4d;'s general behavior and are saved in &gf4d;'s config file
+(~/.gnome/gnofract4d), so they will still be active next time you
+start &gf4d; </para>
 
 <sect3 id="settingsdialog">
 <title>Fractal Settings</title>
@@ -382,6 +428,18 @@ angles. Only values between 0 and 2 * pi are different; values outside
 this range "wrap" to points inside that range.
 </para>
 
+</sect3>
+
+<sect3 id="gradientsdialog">
+<title>Gradients</title>
+<para>
+
+The gradient editor allows you to edit the list of colors used to
+display your fractal. You can choose a canned one from the list on the
+left, then <guibutton>Apply</guibutton> it to the fractal, or edit it
+first. 
+
+</para>
 </sect3>
 
 <sect3 id="prefsdialog">
@@ -934,13 +992,22 @@ Gnofract could once be obtained from
 <ulink url="http://www.multimania.com/mason/">
 http://www.multimania.com/mason/</ulink> but this no longer appears to
 work. 
+</para>
+
+<para>
 &gf4d; is by Edwin Young <ulink
 url="mailto:edwin@users.sourceforge.net">(edwin@users.sourceforge.net)
-</ulink>.
+</ulink>. Chris Le Sueur provided parts of the gradient editing feature.
+</para>
+
+<para>
 The &gf4d; distribution contains palette (.map) files by a number of
 authors which were originally distributed with <ulink
 url="http://spanky.triumf.ca/">&fractint;</ulink> under somewhat murky
-licensing conditions.
+licensing conditions. It also contains a copy of "standard.ucl",
+originally distributed with <ulink
+url="http://www.ultrafractal.com/">&ultrafractal;</ulink>, by kind
+permission of Frederik Slijkerman, Damien Jones, and Kerry Mitchell.
 </para>
 
 <para>
