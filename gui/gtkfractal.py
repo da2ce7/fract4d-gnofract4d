@@ -246,7 +246,8 @@ class T(gobject.GObject):
 
         def set_selected_function(*args):
             try:
-                index = menu.funclist.index(param.cname)
+                selected_func_name = self.f.get_func_value(name)
+                index = menu.funclist.index(selected_func_name)
             except ValueError, err:
                 # func.cname not in list
                 print "bad cname"

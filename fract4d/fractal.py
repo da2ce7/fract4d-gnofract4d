@@ -258,12 +258,14 @@ class T(FctUtils):
     def func_names(self):
         return self.formula.symbols.func_names()
     
-    def set_named_func(self,func_to_set,fname):
-        func = self.formula.symbols.get("@" + func_to_set)
-        self.set_func(func[0],fname)            
+    def set_named_func(self,func_to_set,val):
+        fname = self.formula.symbols.demangle(func_to_set)
+        func = self.formula.symbols.get(fname)
+        self.set_func(func[0],val)            
 
     def get_func_value(self,func_to_get):
-        func = self.formula.symbols.get("@" + func_to_get)
+        fname = self.formula.symbols.demangle(func_to_get)
+        func = self.formula.symbols.get(fname)
         return func[0].cname
     
     def changed(self):
