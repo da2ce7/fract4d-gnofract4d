@@ -27,7 +27,8 @@ class ParTest(unittest.TestCase):
         self.assertRaises(RuntimeError,parfile.colorRange, "00")
         self.assertRaises(RuntimeError,parfile.colorRange, "000<0>000")
         self.assertRaises(RuntimeError,parfile.colorRange, "<1>000")
-        
+        self.assertRaises(RuntimeError,parfile.colorRange, "<nootherangle")
+        self.assertRaises(ValueError,parfile.colorRange, "<>")
 def suite():
     return unittest.makeSuite(ParTest,'test')
 

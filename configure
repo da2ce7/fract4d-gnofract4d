@@ -11781,7 +11781,7 @@ PACKAGE_PIXMAPS_DIR="`gnome-config --datadir`/pixmaps/${PACKAGE}"
 PACKAGE_MAPS_DIR="`gnome-config --datadir`/maps/${PACKAGE}"
 
 
-ac_config_files="$ac_config_files m4/Makefile Makefile macros/Makefile libfract4d/Makefile fract4d/Makefile src/Makefile po/Makefile.in doc/Makefile"
+ac_config_files="$ac_config_files m4/Makefile Makefile macros/Makefile libfract4d/Makefile fract4d/Makefile src/Makefile po/Makefile.in doc/Makefile pixmaps/Makefile maps/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -12306,6 +12306,8 @@ do
   "src/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
   "po/Makefile.in" ) CONFIG_FILES="$CONFIG_FILES po/Makefile.in" ;;
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
+  "pixmaps/Makefile" ) CONFIG_FILES="$CONFIG_FILES pixmaps/Makefile" ;;
+  "maps/Makefile" ) CONFIG_FILES="$CONFIG_FILES maps/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "default-1" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default-1" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;

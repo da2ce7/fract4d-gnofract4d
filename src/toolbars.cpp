@@ -262,9 +262,9 @@ create_preview_widget(GtkToolbar *toolbar, Gf4dFractal *shadow)
 void
 create_explore_widgets(GtkToolbar *toolbar, model_t *m)
 {
-    GtkWidget *explore_widget = 
-        gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_SEARCH);
-    
+    GtkWidget *explore_widget = gnome_pixmap_new_from_file(
+        gnome_pixmap_file(PACKAGE "/explorer_mode.png"));
+
     gtk_toolbar_append_item (
         toolbar,
         _("Explore"),
