@@ -34,7 +34,7 @@ cmap_new(int ncolors)
 	goto cleanup;
     }
 
-    cmap = malloc(sizeof(cmap_t));
+    cmap = new cmap_t;
     if(!cmap) 
     {  
 	goto cleanup;
@@ -59,7 +59,7 @@ cmap_new(int ncolors)
     {
 	free(cmap->items);
     }
-    free(cmap);
+    delete cmap;
     return NULL;
 }
 
@@ -145,7 +145,7 @@ cmap_delete(cmap_t *cmap)
     {
 	free(cmap->items);
     }
-    free(cmap);
+    delete cmap;
 }
 
 /* finds the indices in t of the largest item which is <= key 
