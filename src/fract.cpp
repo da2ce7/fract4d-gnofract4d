@@ -36,6 +36,7 @@
 
 #include <queue>
 #include <cmath>
+#include <iomanip>
 
 #ifdef _WIN32
 #include "win_drand.h"
@@ -283,6 +284,8 @@ fractal::write_params(const char *filename)
 {
     std::ofstream os(filename);
 
+    os << std::setprecision(20);
+
     if(!os) return false;
 
     os << PACKAGE << " parameter file\n";
@@ -440,26 +443,13 @@ fractal::set_precision(int digits)
 bool
 fractal::check_precision()
 {
-    // assume image < 1024 pixels wide
-    d delta = (params[MAGNITUDE])/D_LIKE(1024.0,params[MAGNITUDE]);
+#ifdef HAVE_GMP
 
-    debug_precision(params[MAGNITUDE],"check precision");
+    gmp::f delta(params[MAGNITUDE]);
 
-#ifdef HAVE_CLN
-    if (delta < float_epsilon(cl_float_format(params[MAGNITUDE]))*D_LIKE(10.0,params[MAGNITUDE])) { 
-        g_print("increasing precision from %d\n",float_digits(delta)); 
-        // float_digits gives bits of precision,
-        // cl_float takes decimal digits. / by 3 should be safe?
-        set_precision(float_digits(delta)/3 +4);
-        return false;
-    }
-#else
+    int bits = delta.prec();
 
-    if ( delta < 1.0e-15)
-    {
-        // precision lost, but don't do anything - user will notice anyway
-        return false;
-    }	
+    g_print("precision: %d\n",bits);
 #endif
     return true;
 }
@@ -484,8 +474,8 @@ void
 fractal::update_matrix()
 {
     debug_precision(params[XYANGLE],"xyangle");
-    d one = D_LIKE(1.0,params[MAGNITUDE]);
-    d zero = D_LIKE(0.0, params[MAGNITUDE]);
+    d one = D(1.0);
+    d zero = D(0.0);
     dmat4 id = identity3D<d>(params[MAGNITUDE],zero);
 
     debug_precision(id[VX][VY],"id 1");
@@ -525,8 +515,8 @@ fractal::relocate(double x, double y, double zoom)
     dvec4 deltax,deltay;
 
     // offset to clicked point from center
-    d dx = D_LIKE(x,params[MAGNITUDE]);
-    d dy = D_LIKE(y,params[MAGNITUDE]);  
+    d dx(x);
+    d dy(y);
 
     update_matrix();
     deltax=rot[VX];
@@ -537,7 +527,7 @@ fractal::relocate(double x, double y, double zoom)
 
     debug_precision(params[MAGNITUDE],"relocate 1");
 
-    params[MAGNITUDE] /= D_LIKE(zoom,params[MAGNITUDE]);
+    params[MAGNITUDE] /= D(zoom);
 
     debug_precision(params[MAGNITUDE],"relocate 2");
 
@@ -550,14 +540,14 @@ fractal::flip2julia(double x, double y)
 {
     relocate(x,y,1.0);
 	
-    params[XZANGLE] += D_LIKE(rot_by,params[MAGNITUDE]);
-    params[YWANGLE] += D_LIKE(rot_by,params[MAGNITUDE]);
+    params[XZANGLE] += rot_by;
+    params[YWANGLE] += rot_by;
 
     rot_by = -rot_by;
 }
 
 void
-fractal::move(param_t i, double d)
+fractal::move(param_t i, double dist)
 {
     int axis;
 
@@ -565,12 +555,12 @@ fractal::move(param_t i, double d)
     case XCENTER: axis = VX; break;
     case YCENTER: axis = VY; break;
 	/* z & w axes have a more dramatic visual effect */
-    case ZCENTER: axis = VZ; d *= 0.5; break;
-    case WCENTER: axis = VW; d *= 0.5; break;
+    case ZCENTER: axis = VZ; dist *= 0.5; break;
+    case WCENTER: axis = VW; dist *= 0.5; break;
     default: return;
     }
     update_matrix();
-    dvec4 delta = d * rot[axis];
+    dvec4 delta = D(dist) * rot[axis];
     recenter(delta);
 }
 
@@ -583,9 +573,11 @@ fractal::calc(Gf4dFractal *gf, image *im)
 
     pr.draw(8,8);
 
-    while(pr.updateiters())
+    int deepen;
+    while((deepen = pr.updateiters()) > 0)
     {
         gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DEEPENING);
+        maxiter *= 2;
         pr.draw(8,1);
     }
 	
@@ -594,6 +586,12 @@ fractal::calc(Gf4dFractal *gf, image *im)
         pr.draw_aa();
     }
 	
+    // we do this after antialiasing because otherwise sometimes the
+    // aa pass makes the image shallower, which is distracting
+    if(deepen < 0)
+    {
+        maxiter /= 2;
+    }
     gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DONE);
     gf4d_fractal_progress_changed(gf,0.0);
 }
@@ -608,7 +606,7 @@ fractal::recolor(image *im)
         for( int j = 0; j < width; ++j)
         {
             // fake scratch space
-            scratch_space s= { 0.0 };
+            d s[SCRATCH_SPACE]= { 0.0 };
             rgb_t result = (*cizer)(im->iter_buf[i * width + j ], s, false);
             im->put(j,i,result);
         }

@@ -31,17 +31,18 @@
 #endif
 
 #ifdef HAVE_GMP
-#include "gmp.h"
+#include "gmpwrap.h"
+
 typedef gmp::f d;
 
 #define D2ADECL std::ostrstream os
 
 #define A2D(_x) d(_x);
 #define D2A(_x) (os << _x << std::ends, os.str())
-#define D(_x) (cl_float(_x,cl_float_format (digits)))
+#define D(_x) (gmp::f(_x))
 #define D_LIKE(_x,_y) cl_float(_x,_y)
 #define I2D_LIKE(_x,_y) cl_float(((double)(_x)),_y)
-#define DOUBLE(_x) cl_double_approx(_x)
+#define DOUBLE(_x) mpf_get_d(_x)
 #else
 typedef double d;
 
@@ -56,7 +57,6 @@ typedef double d;
 
 typedef vec4<d> dvec4;
 typedef mat4<d> dmat4;
-
 
 void debug_precision(const d& s, char *location);
 

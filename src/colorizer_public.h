@@ -16,12 +16,12 @@ typedef enum {
     COLORIZER_CMAP
 } e_colorizer;
 
-
-typedef double scratch_space[8];
+#define SCRATCH_SPACE 8
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 colorizer_t *colorizer_new(e_colorizer);
 void colorizer_delete(colorizer_t **);

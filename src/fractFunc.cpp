@@ -178,7 +178,11 @@ fractFunc::update_image(int i)
 }
 
 // see if the image needs more (or less) iterations to display properly
-bool
+// returns +ve if more are required, -ve if less are required, 0 if 
+// it's correct. This is very heuristic - a histogram approach would
+// be better
+
+int
 fractFunc::updateiters()
 {
     double doublepercent = ((double)ndoubleiters*AUTO_DEEPEN_FREQUENCY*100)/k;
@@ -188,8 +192,7 @@ fractFunc::updateiters()
     {
         // more than 1% of pixels are the wrong colour! 
         // quelle horreur!
-        f->maxiter *= 2;
-        return true;
+        return 1;
     }
 
     if(doublepercent == 0.0 && halfpercent < 0.5 && 
@@ -198,8 +201,9 @@ fractFunc::updateiters()
         // less than .5% would be wrong if we used half as many iters
         // therefore we are working too hard!
         f->maxiter /= 2;
+        return -1;
     }
-    return false;
+    return 0;
 }
 
 void fractFunc::draw_aa()

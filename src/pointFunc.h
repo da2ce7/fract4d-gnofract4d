@@ -32,17 +32,25 @@ class pointFunc {
  public:
     virtual void operator()(
         // in params
-        const dvec4& params, int nIters,
+        const vec4<double>& params, int nIters,
         // out params
         struct rgb *color, int *pnIters
         ) = 0;
+#ifdef HAVE_GMP
+    virtual void operator()(
+        // in params
+        const vec4<gmp::f>& params, int nIters,
+        // out params
+        struct rgb *color, int *pnIters
+        ) = 0;
+#endif
 };
 
 /* factory method for making new fractFuncs */
 pointFunc *pointFunc_new(
     iterFunc *iterType, 
     e_bailFunc bailType,
-    const d& eject,
+    double eject,
     colorizer *pcf,
     bool potential);
 

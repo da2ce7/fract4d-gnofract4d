@@ -10,6 +10,9 @@ class bailFunc {
  public:
     /* sets the value of p[EJECT_VAL] */
     virtual void operator()(double *p, int flags)= 0;
+#ifdef HAVE_GMP
+    virtual void operator()(gmp::f *p, int flags)= 0;
+#endif
 };
 
 // factory method to construct bailout function objects 

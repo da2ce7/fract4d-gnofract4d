@@ -23,6 +23,7 @@
 #endif
 
 #include "properties.h"
+#include "calc.h"
 #include "callbacks.h"
 
 #include <gnome.h>

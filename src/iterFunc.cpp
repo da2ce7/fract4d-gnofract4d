@@ -87,14 +87,46 @@ class mandFunc : public noOptions
 {
 public:
     mandFunc() : noOptions(name()) {}
-    void operator()(double *p) const
+
+    template<class T>inline void calc(T *p) const
         {
             p[X2] = p[X] * p[X];
             p[Y2] = p[Y] * p[Y];
-            double atmp = p[X2] - p[Y2] + p[CX];
+            T atmp = p[X2] - p[Y2] + p[CX];
             p[Y] = 2.0 * p[X] * p[Y] + p[CY];
             p[X] = atmp;
         }
+    void operator()(double *p) const
+        {
+            calc<double>(p);
+        }
+    void iter8(double *p) const
+        {
+            double atmp;
+
+#define ITER \
+            p[X2] = p[X] * p[X]; \
+            p[Y2] = p[Y] * p[Y]; \
+            atmp = p[X2] - p[Y2] + p[CX]; \
+            p[Y] = 2.0 * p[X] * p[Y] + p[CY]; \
+            p[X] = atmp
+
+            ITER;
+            ITER;
+            ITER;
+            ITER;
+            ITER;
+            ITER;
+            ITER;
+            ITER;                
+
+        }
+#ifdef HAVE_GMP
+    void operator()(gmp::f *p) const
+        {
+            calc<gmp::f>(p);        
+        }
+#endif
     int flags() const
         {
             return HAS_X2 | HAS_Y2;
@@ -135,6 +167,10 @@ public:
                 p[X] = (x_cx + p[CX] - y_cy);
                 p[Y] = (y_cx + p[CY] + x_cy);
             }
+        }
+    void iter8(double *p) const 
+        {
+            ;
         }
     int flags() const
         {
@@ -177,6 +213,10 @@ public:
                 p[Y] = (y_cx + p[CY] + x_cy);
             }
         }
+    void iter8(double *p) const 
+        {
+            ;
+        }
     int flags() const
         {
             return 0;
@@ -212,6 +252,10 @@ public:
 
             p[X] = p[CX] * tx - p[CY] * ty;
             p[Y] = p[CX] * ty + p[CY] * tx;
+        }
+    void iter8(double *p) const 
+        {
+            ;
         }
     int flags() const
         {
@@ -249,6 +293,10 @@ public:
             p[Y] = 2.0 * p[X] * p[Y] + p[CY];
             p[X] = atmp;
         }
+    void iter8(double *p) const 
+        {
+            ;
+        }
     static const char *name()
         {
             return "Burning Ship";
@@ -285,6 +333,10 @@ public:
             p[Y] = 2.0 * p[X] * p[Y] - p[Y] + p[CY];
             p[X] = atmp;
         }
+    void iter8(double *p) const 
+        {
+            ;
+        }
     virtual int flags() const
         {
             return HAS_X2 | HAS_Y2;
@@ -318,6 +370,10 @@ public:
             p[Y] = 3.0 * p[X2] * p[Y] - p[Y2] * p[Y] + p[CY];
             p[X] = atmp;
         }    
+    void iter8(double *p) const 
+        {
+            ;
+        }
     virtual int flags() const 
         {
             return 0;
@@ -359,6 +415,10 @@ public:
             double atmp = a[0] * (p[X2] - p[Y2]) + a[1] * p[X] + a[2] * p[CX];
             p[Y] = a[0] * (2.0 * p[X] * p[Y]) + a[1] * p[Y] + a[2] * p[CY];
             p[X] = atmp;
+        }
+    void iter8(double *p) const 
+        {
+            ;
         }
     virtual int flags() const
         {

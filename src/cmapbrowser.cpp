@@ -36,7 +36,7 @@
 #include "cmapbrowser.h"
 #include "drawingareas.h"
 #include "colorizer.h"
-#include "popup_preview.h"
+#include "preview.h"
 
 #include <dirent.h>
 

@@ -24,9 +24,14 @@
 
 /* a function which performs a single fractal iteration 
    on the scratch space in p */
+
 class iterFunc {
  public:
     virtual void operator()(double *p) const = 0;
+    virtual void iter8(double *p) const = 0;
+#ifdef HAVE_GMP
+    virtual void operator()(gmp::f *p) const = 0;
+#endif
     virtual int flags() const = 0;
     virtual const char *type() const = 0;
 
@@ -40,8 +45,10 @@ class iterFunc {
 
     // the number of options this fractal takes
     virtual int nOptions() const = 0;
+
     virtual void setOption(int n, double val) = 0;
     virtual double getOption(int n) const = 0;
+    // FIXME: no gmp options
 };
 
 // return a NULL-terminated array of the available names

@@ -25,7 +25,7 @@ class fractFunc {
     }
     void draw(int rsize, int drawsize);
     void draw_aa();
-    bool updateiters();
+    int updateiters();
 
  private:
     // MEMBER VARS

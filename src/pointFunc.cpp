@@ -17,6 +17,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include "pointFunc.h"
 #include "iterFunc.h"
 #include "bailFunc.h"
@@ -29,16 +33,15 @@ private:
     /* members */
     iterFunc *m_pIter;
     bailFunc *m_pBail;
-    const d& m_eject;
+    double m_eject;
     colorizer *m_pcf;
-    double p[PARAM_SIZE];
     bool m_potential;
 
 public:
     /* ctor */
     pointCalc(iterFunc *iterType, 
               e_bailFunc bailType, 
-              const d& eject,
+              double eject,
               colorizer *pcf,
               bool potential) 
         : m_pIter(iterType), m_eject(eject), m_pcf(pcf), m_potential(potential)
@@ -50,50 +53,50 @@ public:
             delete m_pBail;
         }
 
-    virtual void operator()(
-        const dvec4& params, int nMaxIters,
+    template<class T>inline void calc(
+        const vec4<T>& params, int nMaxIters,
         struct rgb *color, int *pnIters
         )
         {
             int flags = m_pIter->flags();
 
-            scratch_space p;
-            p[X] =  DOUBLE(params.n[VZ]); 
-            p[Y] =  DOUBLE(params.n[VW]);
-            p[CX] = DOUBLE(params.n[VX]);
-            p[CY] = DOUBLE(params.n[VY]);
-            p[EJECT] = DOUBLE(m_eject);
-
-// I've found simple periodicity checking makes even 
-// fairly complex fractals draw more slowly - YMMV.
-
-#ifdef periodicity
-            d Xold = p[X], Yold = p[Y];
-            int k = 1, m = 1;
-#endif
+            T p[SCRATCH_SPACE], save[SCRATCH_SPACE];
+            p[X] =  params.n[VZ]; 
+            p[Y] =  params.n[VW];
+            p[CX] = params.n[VX];
+            p[CY] = params.n[VY];
+            p[EJECT] = m_eject;
 
             int iter = 0;
+            int nMax8Iters = (nMaxIters/8) * 8;
+
+            do
+            {
+                save[X] = p[X];
+                save[Y] = p[Y];
+                m_pIter->iter8(p);
+                if((iter+= 8) >= nMax8Iters)
+                {
+                    goto finished8;
+                }
+                (*m_pBail)(p,flags);            
+            }while(p[EJECT_VAL] < m_eject);
+
+            // we bailed out - need to go back to saved position & 
+            // recalculate
+            p[X] = save[X]; p[Y] = save[Y];
+            iter -= 8;
+
+        finished8:
+            // we finished the 8some iterations without bailing out
             do
             {
                 (*m_pIter)(p);                
-                if(iter++ == nMaxIters) 
+                if(iter++ >= nMaxIters) 
                 {
                     // ran out of iterations
                     iter = -1; break; 
                 }
-#ifdef periodicity
-                // periodicity check
-                if(p[X] == Xold && p[Y] == Yold)
-                {
-                    iter = -1; break;
-                }
-                // periodicity housekeeping
-                if(!--k)
-                {
-                    Xold = p[X] ; Yold = p[Y];
-                    m *= 2; k = m;
-                }
-#endif
                 (*m_pBail)(p,flags);            
             }while(p[EJECT_VAL] < m_eject);
 
@@ -102,33 +105,31 @@ public:
             {
                 *color = (*m_pcf)(iter, p, m_potential);
             }
+        };
+
+    virtual void operator()(
+        const vec4<double>& params, int nMaxIters,
+        struct rgb *color, int *pnIters
+        )
+        {
+            calc<double>(params, nMaxIters, color, pnIters);
         }
+#ifdef HAVE_GMP
+    virtual void operator()(
+        const vec4<gmp::f>& params, int nMaxIters,
+        struct rgb *color, int *pnIters
+        )
+        {
+            calc<gmp::f>(params, nMaxIters, color, pnIters);
+        }
+#endif
 };
 
-
-int test_mandelbrot_cln(const dvec4& params, const d& eject, int nIters)
-{
-    d a = params.n[VZ], b = params.n[VW], 
-        px = params.n[VX], py = params.n[VY], 
-        atmp = D_LIKE(0.0,a), 
-        a2 = a*a, b2=b*b;
-
-    //debug_precision(a,"a");
-    int n = 0;
-    while ((a2 + b2) <= eject) {
-        atmp = a2 - b2 + px;
-        b = (a + a) * b + py;
-        a = atmp;
-        if(n++ == nIters) return -1; // ran out of iterations
-        a2 = a*a; b2 = b*b;
-    }
-    return n;
-}
 
 pointFunc *pointFunc_new(
     iterFunc *iterType, 
     e_bailFunc bailFunc, 
-    const d& bailout,
+    double bailout,
     colorizer *pcf,
     bool potential)
 {

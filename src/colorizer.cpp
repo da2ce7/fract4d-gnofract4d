@@ -119,7 +119,7 @@ rgb_colorizer::set_colors(double _r, double _g, double _b)
 }
 
 rgb_t
-rgb_colorizer::operator()(int n, scratch_space scratch, bool potential) const
+rgb_colorizer::operator()(int n, double *scratch, bool potential) const
 {
     struct rgb pixel={0,0,0};
     double dn;
@@ -239,7 +239,7 @@ cmap_colorizer::operator==(const colorizer& c) const
 }
 
 rgb_t
-cmap_colorizer::operator()(int n, scratch_space scratch, bool potential) const
+cmap_colorizer::operator()(int n, double *scratch, bool potential) const
 {
     if(n == -1)
     {

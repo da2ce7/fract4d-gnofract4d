@@ -473,14 +473,16 @@ gboolean gf4d_fractal_pause(Gf4dFractal *f, gboolean pause)
     }
     else
     {
-        // restore previous status
-        gtk_signal_emit(
-            GTK_OBJECT(f),
-            fractal_signals[STATUS_CHANGED],
-            f->status);
-
-        pthread_mutex_unlock(&f->pause_lock);
-        f->paused = FALSE;
+        if(previous_pause_state)
+        {
+            // restore previous status
+            gtk_signal_emit(
+                GTK_OBJECT(f),
+                fractal_signals[STATUS_CHANGED],
+                f->status);
+            pthread_mutex_unlock(&f->pause_lock);
+            f->paused = FALSE;
+        }
     }
     return previous_pause_state;
 }
