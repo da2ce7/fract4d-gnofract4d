@@ -12,6 +12,7 @@ import test_browser
 import test_main_window
 import test_settings
 import test_painter
+import test_colors
 
 def suite():
     tests = (
@@ -25,6 +26,7 @@ def suite():
         test_browser.suite(),
         test_settings.suite(),
         test_painter.suite(),
+        test_colors.suite(),
         test_main_window.suite())
     return unittest.TestSuite(tests)
 

@@ -67,7 +67,7 @@ class ColorDialog(dialog.T):
         dialog.T.__init__(
             self,
             _("Color Maps"),
-            main_window.window,
+            main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (#gtk.STOCK_REFRESH, ColorDialog.RESPONSE_REFRESH,
              gtk.STOCK_APPLY, gtk.RESPONSE_APPLY,
@@ -116,7 +116,7 @@ class ColorDialog(dialog.T):
         self.gradarea.connect('button-release-event', self.gradarea_clicked)
         self.gradarea.connect('motion-notify-event', self.gradarea_mousemoved)
 
-        buttonbox = gtk.HBox()
+        buttonbox = gtk.HButtonBox()
         self.left_color_button = utils.ColorButton(
             self.grad.segments[0].left_color, self.color_changed, True)
         buttonbox.add(self.left_color_button.widget)

@@ -740,7 +740,7 @@ class MainWindow:
         settings.show_settings(self.window,self.f)
         
     def colors(self,action,widget):
-        colors.show_colors(self,self.f)
+        colors.show_colors(self.window,self.f)
         
     def preferences(self,action,widget):
         preferences.show_preferences(self.window, self.f)
