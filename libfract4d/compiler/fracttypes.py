@@ -2,12 +2,13 @@
 
 import string
 
-Int = 0
-Float = 1
-Complex = 2
-Bool = 3
+# order is significant - we use X > Y on types
+Bool = 0
+Int = 1
+Float = 2
+Complex = 3
+
 Color = 4
-NoType = 5
 
 suffixOfType = {
     Int : "i",
@@ -44,9 +45,10 @@ def default(t):
     return 0.0
 
 class Func:
-    def __init__(self,ret,pos=-1):
+    def __init__(self,args,ret,pos=-1):
         self.ret = ret
         self.pos = pos
+        self.args = args
 
 class Var:
     def __init__(self,type,value,pos=-1):

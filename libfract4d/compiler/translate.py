@@ -165,7 +165,8 @@ class T:
                            node.pos, node.datatype)
 
         try:
-            self.symbols[node.leaf] = Var(node.datatype, 0.0,node.pos) # fixme exp
+            # fixme - get exp right instead of 0.0
+            self.symbols[node.leaf] = Var(node.datatype, 0.0, node.pos) 
             return self.coerce(
                 ir.Name(node.leaf, node.pos, node.datatype),
                 exp, node)
@@ -201,10 +202,7 @@ class T:
             self.symbols[node.leaf] = Var(fracttypes.Complex, 0.0, node.pos)
             node.datatype = fracttypes.Complex
 
-        if expectedType == node.datatype:
-            return ir.Var(node.leaf, node.pos, node.datatype)
-        else:
-            return self.coerce(node, node.pos, expectedType)
+        return ir.Var(node.leaf, node.pos, node.datatype)
         
     def const(self,node,expectedType):
         return ir.Const(node.leaf, node.pos, node.datatype)        
@@ -220,33 +218,21 @@ class T:
             ok = 1
             
         elif rhs.datatype == Bool:
-            if lhs.datatype == Int or lhs.datatype == Float: 
+            if lhs.datatype == Int or lhs.datatype == Float or \
+               lhs.datatype == Complex: 
                 self.warnCast(rhs,lhs.datatype)
                 rhs = ir.Cast(rhs,lhs.datatype,rhs.pos)
-                ok = 1
-            elif lhs.datatype == Complex:
-                self.warnCast(rhs,lhs.datatype)
-                lhs = ir.Real(lhs,lhs.pos)
-                rhs = ir.Cast(rhs,Float,rhs.pos)
                 ok = 1
         elif rhs.datatype == Int:
-            if lhs.datatype == Bool or lhs.datatype == Float:
+            if lhs.datatype == Bool or lhs.datatype == Float or \
+            lhs.datatype == Complex:
                 self.warnCast(rhs,lhs.datatype)
                 rhs = ir.Cast(rhs,lhs.datatype,rhs.pos)
                 ok = 1
-            elif lhs.datatype == Complex:
-                self.warnCast(rhs,lhs.datatype)
-                rhs = ir.Cast(rhs,Float,rhs.pos)
-                lhs = ir.Real(lhs,lhs.pos)
-                ok = 1
         elif rhs.datatype == Float:
-            if lhs.datatype == Bool:
+            if lhs.datatype == Bool or lhs.datatype == Complex:
                 self.warnCast(rhs, lhs.datatype)
                 rhs = ir.Cast(rhs, lhs.datatype, rhs.pos)
-                ok = 1
-            elif lhs.datatype == Complex:
-                self.warnCast(rhs, lhs.datatype)
-                lhs = ir.Real(lhs, lhs.pos)
                 ok = 1
         elif rhs.datatype == Complex:
             if lhs.datatype == Bool:
