@@ -388,7 +388,10 @@ def createDefaultDict():
       doc='''Equality operator. Compare two values and return true if they are
       the same.''')
 
-
+    f("rgb",
+      [ [Float, Float, Float], Color],
+      doc='''Create an rgb color from three color components. The alpha channel is set to to 1.0 (=100%).''')
+    
     # predefined parameters
     for p in xrange(1,7):
         name = "p%d" % p
