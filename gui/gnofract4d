@@ -80,7 +80,6 @@ class MainWindow:
         self.vbox.pack_start(window)
 
     def on_fractal_change(self,object):
-        print "parameters changed"
         self.f.draw_image()
 
     def on_key_press(self, event, *args):

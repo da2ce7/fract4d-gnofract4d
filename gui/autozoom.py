@@ -75,14 +75,17 @@ class AutozoomDialog(gtk.Dialog):
         m = max(counts)
         i = counts.index(m)
 
-        print "counts: %s max %d i %d" % (counts,m,i)
+        # some level of randomness
+        j = random.randrange(0,4)
+        if float(counts[j]) / counts[i] > 0.75:
+            i = j
+            
+        #print "counts: %s max %d i %d" % (counts,m,i)
         
         # centers of each quadrant
         coords = [(1,1),(3,1),(1,3),(3,3)]
 
         (x,y) = coords[i]
-        #w = random.randrange(1,4,2) # 1 or 3
-        #h = random.randrange(1,4,2)
         self.f.recenter(x * self.f.width/4, y * self.f.height/4, 0.75)
             
     def onStatusChanged(self,f,status_val):
