@@ -45,7 +45,11 @@ class ColorMode:
 class Error(Exception):
     def __init__(self, msg):
         Exception.__init__(self, msg)
-    
+
+class HsvError(Exception):
+    def __init__(self, msg):
+        Exception.__init__(self, msg)
+
 class Segment:
     EPSILON=1.0E-7
     def __init__(self, left, left_color, right, right_color, mid=None,
@@ -209,6 +213,8 @@ class Gradient:
                  rr, rg, rb, ra,
                  bmode, cmode] = line.split()
 
+                if int(cmode) != ColorMode.RGB:
+                    raise HsvError("This gradient file requires HSV support, which is not yet implemented")
                 seg = Segment(
                     float(left), [float(lr), float(lg), float(lb), float(la)],
                     float(right),[float(rr), float(rg), float(rb), float(ra)],
@@ -216,7 +222,7 @@ class Gradient:
                     int(bmode), int(cmode))
                 new_segments.append(seg)
         except Exception, err:
-            raise Error("Invalid gradient file: %s" % str(err))
+            raise err
         
         self.segments = new_segments
         self.name = name

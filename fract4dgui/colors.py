@@ -9,6 +9,7 @@ import gobject
 
 import dialog
 import utils
+import hig
 
 from fract4d import gradient, fractal
 
@@ -389,9 +390,14 @@ class ColorDialog(dialog.T):
         
         mapfile = model.get_value(iter,0)
         self.set_map_file(self.model.maps[mapfile])
-        
+
+    def warn(self, msg):
+        d = hig.ErrorAlert(msg,"",None)
+        d.run()
+        d.destroy()
+
     def set_map_file(self, name):
-        c = fractal.Colorizer()
+        c = fractal.Colorizer(self)
         file = open(name)
         c.parse_map_file(file, self.fudge_factor)
         self.grad = c.gradient
