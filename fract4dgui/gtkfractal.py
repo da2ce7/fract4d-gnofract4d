@@ -352,6 +352,7 @@ class T(gobject.GObject):
             self.changed()
         
     def set_size(self, new_width, new_height):
+        self.interrupt()
         if self.width == new_width and self.height == new_height :
             return
         self.width = new_width
