@@ -216,7 +216,7 @@ class T(FctUtils):
         self.outputfile = None
         self.set_formula("gf4d.frm",self.funcName)
         self.set_inner("gf4d.cfrm","zero")
-        self.set_outer("gf4d.cfrm","default")
+        self.set_outer("gf4d.cfrm","continuous_potential")
         self.dirtyFormula = True # formula needs recompiling
         self.dirty = True # parameters have changed
         self.auto_deepen = True

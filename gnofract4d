@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # the main GUI program. Relies on fract4d libs to do the real work
+version = '2.6'
 
 # python stdlib
 import sys
@@ -47,7 +48,7 @@ except distutils.errors.DistutilsPlatformError, err:
 
 try:
     # we install our libs privately instead of to site-packages
-    sys.path.append(os.path.join(libdir, 'gnofract4d-2.6'))
+    sys.path.append(os.path.join(libdir, 'gnofract4d-%s' % version))
     # gui modules
     from fract4dgui import main_window, preferences
     
@@ -62,15 +63,32 @@ Error was: '%s' ''') % err
 # without thread support. Grrr.
 #gtk.gdk.threads_init()
 
+def help():
+    print """Gnofract 4D %s
+Usage: gnofract4d [flags] [paramfile]
+
+Flags:
+-h --help\t\tShow this message
+-p --params FILE\tUse FILE as a parameter file
+-q --quit\t\tExit as soon as the image is finished
+-s --save IMAGEFILE\tSave image to IMAGEFILE
+-i --width N\t\tMake image N pixels wide
+-j --height N\t\tMake image N pixels tall
+
+To generate an image non-interactively, use:
+gnofract4d -s myimage.png -q myfractal.fct
+""" % version
+
 def main():
     mainWindow = main_window.MainWindow()
     (opts, args) = getopt.getopt(
         sys.argv[1:],
-        "p:i:j:s:q",
+        "p:i:j:s:qh",
         [ "params=",
           "width=",
           "height=",
           "save=",
+          "help",
           "quit"])
 
     width = preferences.userPrefs.getint("display","width")
@@ -87,6 +105,9 @@ def main():
             width = int(val)
         elif name=="-j" or name=="--height":
             height = int(val)
+        elif name=="-h" or name=="--help":
+            help()
+            return
         else:
             print "Unknown argument", name, val
 

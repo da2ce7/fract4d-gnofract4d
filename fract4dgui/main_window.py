@@ -210,10 +210,10 @@ class MainWindow:
         self.f.set_size(w,h)
         self.f.set_nthreads(prefs.getint("general","threads"))
                             
-    def on_prefs_changed(self,prefs):
-        gtk.idle_add(self.deferred_prefs_changed, prefs)
-
     def deferred_prefs_changed(self,prefs):
+        gtk.idle_add(self.on_prefs_changed, prefs)
+
+    def on_prefs_changed(self,prefs):
         self.f.freeze()
         self.update_compiler_prefs(prefs)
         self.update_image_prefs(prefs)
