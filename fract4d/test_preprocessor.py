@@ -16,6 +16,9 @@ class Test(unittest.TestCase):
         ''')
 
         self.assertEqual(pp.out(), '''
+
+
+
         wobble
         ''')
 
@@ -56,7 +59,7 @@ class Test(unittest.TestCase):
     def testDefine(self):
         pp = preprocessor.T('$define foo\nbar')
 
-        self.assertEqual(pp.out(), "bar")
+        self.assertEqual(pp.out(), "\nbar")
 
     def testDefineWithoutVar(self):
         try:
@@ -75,7 +78,10 @@ class Test(unittest.TestCase):
         ''')
 
         self.assertEqual(pp.out(), '''
+
+
         >>><<<
+
         wobble
         ''')
 
@@ -97,7 +103,19 @@ class Test(unittest.TestCase):
         ''')
 
         self.assertEqual(pp.out(), '''
+
+
+
+
+
+
+
+
            bar
+
+
+
+
         ''')
 
     def testNestedDefine(self):
@@ -112,6 +130,13 @@ class Test(unittest.TestCase):
         ''')
 
         self.assertEqual(pp.out(), '''
+
+
+
+
+
+
+
         ''')
 
     def testElse(self):
@@ -130,8 +155,17 @@ class Test(unittest.TestCase):
         ''')
 
         self.assertEqual(pp.out(), '''
+
+
+
+
            not foo
+
                notfoo,bar
+
+
+
+
         ''')
         
 def suite():
