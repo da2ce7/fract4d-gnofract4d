@@ -22,6 +22,7 @@ import fract4d
 # e_bailFunc;
 
 rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
+cmplx_re = re.compile(r'\((.*?),(.*?)\)')
 
 # generally useful funcs for reading in .fct files
 class FctUtils:
@@ -106,6 +107,7 @@ class T(FctUtils):
             4.0, # size
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0 # angles
             ]
+        self.initparams = []
         i = 0
         self.bailout = 4.0
         self.funcName = "Mandelbrot"
@@ -209,7 +211,7 @@ class T(FctUtils):
         pfunc = fract4d.pf_create(handle)
         cmap = fract4d.cmap_create(self.colorlist)
         
-        fract4d.pf_init(pfunc,0.001,[])
+        fract4d.pf_init(pfunc,0.001,self.initparams)
 
         fract4d.calc(self.params,self.antialias,self.maxiter,1,
                      pfunc,cmap,1,image,self.site)
@@ -231,6 +233,14 @@ class T(FctUtils):
         self.funcName = val
         self.set_formula("gf4d.frm",self.funcName)
 
+    def parse_func_a(self,val,f):
+        # a complex arg in the form (x,y)
+        m = cmplx_re.match(val)
+        if m != None:
+            re = float(m.group(1)); im = float(m.group(2))
+            print "%g,%g" % (re,im)
+            self.initparams += [re,im]
+        
     def parse__colors_(self,val,f):
         cf = Colorizer()
         cf.load(f)        

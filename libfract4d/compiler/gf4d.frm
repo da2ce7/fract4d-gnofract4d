@@ -131,3 +131,42 @@ loop:
 bailout: 
 	|z| < 4.0
 }
+
+Lambda {
+loop:
+	t = z * (1.0 - z)
+	z = t * #pixel
+bailout:
+	|z| < 4.0
+}
+
+Magnet {
+loop:
+	z = (z * z + #pixel - 1.0)/(2.0 * z + #pixel - 2.0)
+	z = z *z
+bailout:
+	|z| < 4.0
+}
+
+Magnet 2 {
+loop:
+	cm1 = #pixel - 1.0, cm2 = #pixel - 2.0
+	z = (z * z * z + 3.0 * cm1 * z + cm1 * cm2)/ \
+	     (3.0 * z * z + 3.0 * cm2 * cm2 + cm1 * cm2 + 1.0)
+	z = z*z
+
+bailout:
+	|z| < 4.0
+}
+
+Newton {
+init:
+	nm1 = @p1 - 1.0
+loop:
+	last = z
+	;z = z - (pow(z,@p1) - 1.0)/ (@p1 * pow(z,nm1))
+	z = z - (z*z*z - 1.0)/(3.0 * z * z)
+bailout:
+	|z - last| > 1.0e9
+}
+
