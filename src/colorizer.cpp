@@ -3,6 +3,8 @@
 #include "io.h"
 
 #include <cstdlib>
+#include <iostream>
+#include <iomanip>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -10,6 +12,7 @@
 #include <cmath>
 
 #define FIELD_COLORIZER "colorizer"
+#define FIELD_COLORDATA "colordata"
 
 /* factory functions */
 colorizer_t *
@@ -258,9 +261,41 @@ std::ostream&
 operator<<(std::ostream& s, const cmap_colorizer& cizer)
 {
     s << FIELD_COLORIZER << "=" << (int) cizer.type()<< "\n";
-    s << FIELD_FILENAME << "=" << cizer.name << "\n";
+    //s << FIELD_FILENAME << "=" << cizer.name << "\n";
+    s << FIELD_COLORDATA << "=" << cizer.encode_color_data() << "\n";
     s << SECTION_STOP << "\n";
     return s;
+}
+
+std::string 
+cmap_colorizer::encode_color_data(void) const
+{
+    std::ostringstream os;
+
+    os << std::hex << std::setfill('0');
+    for(int i = 0; i < 256; ++i)
+    {
+	os << std::setw(2) << (int)cmap[i].r;
+	os << std::setw(2) << (int)cmap[i].g;
+	os << std::setw(2) << (int)cmap[i].b;
+    }
+    return os.str();
+}
+
+void
+cmap_colorizer::decode_color_data(const std::string& data)
+{
+    for(int i = 0; i < 256; ++i)
+    {
+	std::string s = data.substr(i*6,6);
+	std::istringstream is(s);
+	is >> std::hex;
+	int val;
+	is >> val;
+	cmap[i].r = val >> 16;
+	cmap[i].g = val >> 8 & 0xFF;
+	cmap[i].b = val & 0xFF;
+    }
 }
 
 void
@@ -280,7 +315,6 @@ cmap_colorizer::set_cmap_file(const char *filename)
         std::string line;
         std::getline(cmapfile,line);
 		
-        // use old class 'cos g++ *still* doesn't have <sstream>
         std::istringstream ss(line.c_str());
 
         // the 'val' int is so that the val is read as an int,
@@ -302,6 +336,8 @@ operator>>(std::istream& is, cmap_colorizer& cizer)
 
         if(FIELD_FILENAME==name)
             cizer.set_cmap_file(value.c_str());
+	else if(FIELD_COLORDATA==name)
+	    cizer.decode_color_data(value);
         else if(SECTION_STOP==name)
             break;
     }

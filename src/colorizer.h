@@ -101,6 +101,9 @@ class cmap_colorizer : public colorizer {
     // not shared with colorizer
     // FIXME: should return a status indication or throw
     void set_cmap_file(const char *filename);
+    std::string encode_color_data(void) const;
+    void decode_color_data(const std::string& data);
+
 };
 
 #endif /*_COLORIZER_H_*/
