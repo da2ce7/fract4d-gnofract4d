@@ -246,6 +246,7 @@ class T(FctUtils):
         self.funcName = func
         self.funcFile = formulafile
         self.initparams = self.formula.symbols.default_params()
+        
         self.set_bailfunc()
         self.dirtyFormula = True
         self.dirty = True
@@ -425,7 +426,7 @@ class T(FctUtils):
     def parse_func_function(self,val,f):
         self.funcName = val
         self.set_formula(self.funcFile,self.funcName)
-
+        
     def set_named_param(self,name,val):
         #print "named param %s : %s" % (name, val)
         op = self.formula.symbols.order_of_params()

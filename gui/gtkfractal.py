@@ -180,6 +180,8 @@ class T(gobject.GObject):
             widget = gtk.Entry()
 
             def set_entry(*args):
+                print self.initparams
+                print label.get_text(), order
                 widget.set_text("%.17f" % self.initparams[order])
             
             def set_fractal(*args):
@@ -289,12 +291,15 @@ class T(gobject.GObject):
         table.attach(widget,1,2,i,i+1,0,0,2,2)
         return i+1
         
-    def populate_formula_settings(self,table,i):
+    def populate_formula_settings(self):
         # create widget to fiddle with this fractal's settings
+        table = gtk.Table(5,2,gtk.FALSE)
+        i = 0
         i = self.create_maxiter_widget(table,i)
         params = self.formula.symbols.parameters()
         op = self.formula.symbols.order_of_params()
-
+        print op
+        
         for (name,param) in params.items():
             if isinstance(param,fracttypes.Func):
                 self.add_formula_function(table,i,name,param)                
@@ -308,7 +313,8 @@ class T(gobject.GObject):
                 else:
                     self.add_formula_setting(table,i,name,param,op[name])
             i += 1
-
+        return table
+    
     def set_maxiter(self,new_iter):
         if self.f.maxiter != new_iter:
             self.f.maxiter = new_iter

@@ -397,6 +397,13 @@ blue=0.5543108971162746
         f.clean()
         f.set_named_func("@bailfunc","real2")
         self.assertDirty(f)
+
+    def testLoadGivesCorrectParameters(self):
+        f = fractal.T(self.compiler)
+        self.assertEqual(len(f.formula.symbols.parameters()),2)
+        f.loadFctFile(open("../src/paramfiles/elfglow.fct"))
+        self.assertEqual(len(f.formula.symbols.parameters()),3)
+        
         
     def testFractalBadness(self):
         f = fractal.T(self.compiler)

@@ -23,6 +23,7 @@ class SettingsDialog(gtk.Dialog):
             (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
         self.f = f
+
         self.notebook = gtk.Notebook()
         self.vbox.add(self.notebook)
 
@@ -50,10 +51,26 @@ class SettingsDialog(gtk.Dialog):
         self.create_param_entry(table,3,"YZ :", self.f.YZANGLE)
         self.create_param_entry(table,4,"YW :", self.f.YWANGLE)
         self.create_param_entry(table,5,"ZW :", self.f.ZWANGLE)
-                
+
     def create_formula_parameters_page(self):
+        vbox = gtk.VBox()
         table = gtk.Table(5,2,gtk.FALSE)
-        self.notebook.append_page(table,gtk.Label("Formula"))
+        vbox.pack_start(table)
+        
+        self.table2 = None
+        def add_current_formula_parameters(*args):
+            if self.table2 != None:
+                self.table2.destroy()
+                
+            self.table2 = self.f.populate_formula_settings()
+            self.table2.show_all()
+            vbox.pack_start(self.table2)
+
+        add_current_formula_parameters()
+
+        self.f.connect('parameters-changed',add_current_formula_parameters)
+        
+        self.notebook.append_page(vbox,gtk.Label("Formula"))
 
         table.attach(gtk.Label("Formula :"), 0,1,0,1,0,0,2,2)
         hbox = gtk.HBox(False,1)
@@ -68,9 +85,8 @@ class SettingsDialog(gtk.Dialog):
         button = gtk.Button("Browse...")
         button.connect('clicked', self.show_browser)
         hbox.pack_start(button)
-        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)
-        self.f.populate_formula_settings(table,1)
-
+        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
+        
     def show_browser(self,*args):
         browser.show(self, self.f)
         

@@ -294,9 +294,9 @@ class T(UserDict):
             if p[k].type == Complex:
                 i += 2
             else:
-                i = i + 1
+                i += 1
         op["__SIZE__"]=i
-        
+
         return op
 
     def default_params(self):
