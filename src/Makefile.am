@@ -50,9 +50,7 @@ Code_DATA= compiler_template.cpp \
 	colorizer_public.h \
 	pointFunc.h \
 	pointFunc_public.h \
-	fract_public.h \
-	colorFunc.h \
-	bailFunc.h
+	colorFunc.h
 
 #itertest_SOURCES = \
 #	io.h io.cpp \

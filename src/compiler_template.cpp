@@ -1,6 +1,9 @@
 #include "pointFunc.h"
+#include "colorFunc.h"
+#include "colorizer.h"
+
 //#include "iterFunc.h"
-#include "bailFunc.h"
+//#include "bailFunc.h"
 
 #include <math.h>
 #include <iostream>

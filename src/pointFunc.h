@@ -21,10 +21,8 @@
 #ifndef _POINTFUNC_H_
 #define _POINTFUNC_H_
 
-//#include "calc.h"
 #include "pointFunc_public.h"
-#include "colorizer.h"
-#include "colorFunc.h"
+#include "colorizer_public.h"
 
 class iterFunc;
 
