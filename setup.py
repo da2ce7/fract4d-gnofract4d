@@ -133,7 +133,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
 
            # formulas
            ('share/formulas/gnofract4d',
-            get_files("formulas","frm")),
+            get_files("formulas","frm") + get_files("formulas", "ucl")),
 
            # documentation
            ('share/gnome/help/gnofract4d/C',
