@@ -175,9 +175,16 @@ class T(FctUtils):
         for (name,val) in self.formula.defaults.items():
             if name == "maxiter":
                 self.maxiter = int(val.value)
-            elif name == "center":
+            elif name == "center" or name == "xycenter":
                 self.params[self.XCENTER] = float(val[0].value)
                 self.params[self.YCENTER] = float(val[1].value)
+            elif name == "zwcenter":
+                self.params[self.ZCENTER] = float(val[0].value)
+                self.params[self.WCENTER] = float(val[1].value)
+            elif name == "angle":
+                self.params[self.XYANGLE] = float(val.value)
+            elif name == "magn":
+                self.params[self.MAGNITUDE] = float(val.value)
             else:
                 if hasattr(self,name.upper()):
                     self.params[getattr(self,name.upper())] = float(val.value)

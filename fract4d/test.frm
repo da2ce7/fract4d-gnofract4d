@@ -7,6 +7,9 @@ default:
 maxiter = 200
 xzangle = 0.789
 center = (1.0,2.0)
+zwcenter = (7.1,2.9)
+angle = 0.001
+magn = 8.0
 }
 
 ; a new-year's eve fractal - looks like a good torture test...
