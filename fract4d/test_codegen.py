@@ -656,6 +656,13 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests[2][2] = tests[5][2] = "(1.5708,0)"
 
         return tests
+
+    def acostests(self):
+        # work around buggy python acos 
+        tests = self.manufacture_tests("acos",cmath.acos)
+        tests[0][2] = "(1.5708,0)"
+        tests[2][2] = tests[5][2] = "(0,0)"
+        return tests
     
     def test_stdlib(self):
 
@@ -740,6 +747,8 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests += self.cotantests()
         tests += self.logtests()
         tests += self.asintests()
+        tests += self.acostests()
+        
         # FIXME: asin,acos,atan,atan2, asinh, acosh, atanh
 
         # construct a formula calculating all of the above,
