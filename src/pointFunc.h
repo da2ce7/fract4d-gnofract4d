@@ -25,6 +25,7 @@
 #include "pointFunc_public.h"
 #include "colorizer.h"
 #include "colorFunc.h"
+#include "compiler.h"
 
 class iterFunc;
 

@@ -187,10 +187,9 @@ public:
         {
             return "Mandelbrot";
         }
-
     std::string decl_code() const 
         { 
-            return "double atmp;"; 
+            return "double atmp"; 
         }
     std::string iter_code() const 
         { 
@@ -199,21 +198,17 @@ public:
                 "pTemp[Y2] = pIter[Y] * pIter[Y];"
                 "atmp = pTemp[X2] - pTemp[Y2] + pInput[CX];"
                 "pIter[Y] = 2.0 * pIter[X] * pIter[Y] + pInput[CY];"
-                "pIter[X] = atmp;";
+                "pIter[X] = atmp";
         }
     std::string ret_code()  const { return ""; }
 
 };
 
-#if 0
+
 // Newton's method for a quadratic complex polynomial
 // z <- (z^2 + A)/2z
 class newtFunc : public iterImpl<newtFunc,0>
 {
-#define NEWT_DECL std::complex<double> z(p[X],p[Y]) , c(p[CX],p[CY])
-#define NEWT_ITER z = (2.0 *z*z*z + c)/ 3.0 * z * z
-#define NEWT_RET  p[X] = z.real(); p[Y] = z.imag()
-
  public:
     enum { FLAGS = 0 };
     newtFunc() : iterImpl<newtFunc,0>(name()){};
@@ -225,9 +220,18 @@ class newtFunc : public iterImpl<newtFunc,0>
         {
             return BAILOUT_DIFF;
         }
-    ITER_DECLS_RET(NEWT_DECL,NEWT_ITER, NEWT_RET)    
+    std::string decl_code() const 
+        { 
+            return "std::complex<double> z(pIter[X],pIter[Y]) , c(pInput[CX],pInput[CY])";
+        }
+    std::string iter_code() const 
+        { 
+            return "z = (2.0 *z*z*z + c)/ 3.0 * z * z";
+        }
+    std::string ret_code()  const { return "pIter[X] = z.real(); pIter[Y] = z.imag()"; }    
 };
 
+#if 0
 // z <- (Az^3-B)/C z^2 + c
 class novaFunc : public iterImpl<novaFunc,3>
 {
@@ -335,26 +339,18 @@ public:
             return "Barnsley Type 2";
         }
 };
+#endif 
 
 // z <- lambda * z * ( 1 - z)
 class lambdaFunc: public iterImpl<lambdaFunc,0>
 {
 #define LAMBDA_DECL double tx, ty;
 #define LAMBDA_ITER \
-    p[X2] = p[X] * p[X]; p[Y2] = p[Y] * p[Y]; \
-    \
-    /* t <- z * (1 - z) */ \
-    tx = p[X] - p[X2] + p[Y2]; \
-    ty = p[Y] - 2.0 * p[X] * p[Y]; \
-    \
-    p[X] = p[CX] * tx - p[CY] * ty; \
-    p[Y] = p[CX] * ty + p[CY] * tx
 
 public:
     enum {  FLAGS = HAS_X2 | HAS_Y2 };
     lambdaFunc() : iterImpl<lambdaFunc,0>(name()) {};
 
-    ITER_DECLS(LAMBDA_DECL, LAMBDA_ITER)
     static const char *name()
         {
             return "Lambda";
@@ -367,8 +363,26 @@ public:
             params[ZCENTER] = 0.5;
             params[MAGNITUDE] = 8.0;
         }
+    std::string decl_code() const 
+        { 
+            return "double tx, ty";
+        }
+    std::string iter_code() const 
+        { 
+            return
+                "pTemp[X2] = pIter[X] * pIter[X]; pTemp[Y2] = pIter[Y] * pIter[Y];"
+    
+                /* t <- z * (1 - z) */
+                "tx = pIter[X] - pTemp[X2] + pTemp[Y2];"
+                "ty = pIter[Y] - 2.0 * pIter[X] * pIter[Y];"
+    
+                "pIter[X] = pInput[CX] * tx - pInput[CY] * ty;"
+                "pIter[Y] = pInput[CX] * ty + pInput[CY] * tx";
+        }
+    std::string ret_code()  const { return ""; }        
 };
 
+#if 0
 // z <- (|x| + i |y|)^2 + c
 class shipFunc: public iterImpl<shipFunc,0>
 {
@@ -535,10 +549,12 @@ ctorInfo ctorTable[] = {
     CTOR_TABLE_ENTRY(quadFunc),
     CTOR_TABLE_ENTRY(barnsleyFunc),
     CTOR_TABLE_ENTRY(barnsley2Func),
-    CTOR_TABLE_ENTRY(lambdaFunc),
-    CTOR_TABLE_ENTRY(novaFunc),
-    //CTOR_TABLE_ENTRY(newtFunc),
 */
+    CTOR_TABLE_ENTRY(lambdaFunc),
+/*
+    CTOR_TABLE_ENTRY(novaFunc),
+*/
+    CTOR_TABLE_ENTRY(newtFunc),
     { NULL, NULL}
 };
 

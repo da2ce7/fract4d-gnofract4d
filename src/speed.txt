@@ -130,3 +130,6 @@ compiled, 8x iterations, no vcalls: (why does this suck so much?)
 
 disabled periodicity, 8x iterations:
 55.16user 0.18system 0:30.49elapsed 181%CPU (0text+0data 0max)k
+
+periodicity back on:
+60.44user 0.31system 0:33.42elapsed 181%CPU (0text+0data 0max)k

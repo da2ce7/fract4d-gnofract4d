@@ -34,6 +34,7 @@
 #include "gf4d_fractal.h"
 #include "movie_editor.h"
 #include "tls.h"
+#include "compiler.h"
 
 static int guess_calc_threads(void);
 
@@ -322,6 +323,7 @@ main (int argc, char *argv[])
 
     apply_arguments(m);
 
+    g_pCompiler = new compiler();
     if(!g_param_file)
     {
         // no filename specified - try to open autosave file

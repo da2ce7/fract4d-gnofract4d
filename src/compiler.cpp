@@ -26,12 +26,24 @@
 
 #include <cstdio>
 
+#include <unistd.h>
+#include <dlfcn.h>
+
+#include <iostream>
+#include <sstream>
+
+// global compiler instance
+compiler *g_pCompiler;
+
 // TODO: replace all this with a fork/exec thingy so I can get exit status etc
 compiler::compiler()
 {
-    flags = "-O3 -ffast-math";
+    pthread_mutex_init(&cache_lock,NULL);
+    cc = "g++";
+    flags = "-shared -O3 -ffast-math";
     in = "compiler_template.cpp";
     out = "fract.so";
+    next_so = 0;
 }
 
 std::string
@@ -39,23 +51,19 @@ compiler::Dstring(std::string iter, std::string decl, std::string ret, std::stri
 {
     return "-DITER=\"" + iter + 
         "\" -DDECL=\"" + decl + 
-        "\" -DRET=\"" + ret + 
+        "\" -DRET=\""  + ret  + 
         "\" -DBAIL=\"" + bail + "\"";
 }
 
-int 
-compiler::run(std::string iter, std::string decl, std::string ret, std::string bail)
+void *
+compiler::compile(std::string commandLine)
 {
-    char buf[1000];
-
-    std::string dflags = Dstring(iter, decl, ret, bail);
-    std::string commandLine = 
-        "g++ -shared " + flags + " " + dflags + " " + in + " -o " + out + " 2>&1";
+    char buf[PATH_MAX];
 
     FILE *compiler_output = popen(commandLine.c_str(),"r");
     if(NULL == compiler_output)
     {
-        return 1;
+        return NULL;
     }
     else
     {
@@ -65,6 +73,48 @@ compiler::run(std::string iter, std::string decl, std::string ret, std::string b
         }
         pclose(compiler_output);
     }
-    return 0;
+    
+    // get absolute path of file
+
+    getcwd(buf,sizeof(buf));
+    std::string abs_out = buf + ("/" + out);
+    
+    void *dlHandle = dlopen(abs_out.c_str(), RTLD_NOW);
+    return dlHandle;
 }
+
+void * 
+compiler::getHandle(std::string iter, std::string decl, std::string ret, std::string bail)
+{
+    std::string dflags = Dstring(iter, decl, ret, bail);
+    std::string find = flags + dflags;
+
+    void *handle = NULL;
+    pthread_mutex_lock(&cache_lock);
+
+    t_cache::iterator i = cache.find(find);
+    if(i == cache.end())
+    {
+        ostringstream os;
+        os << "fract" << (next_so++) << ".so";
+        out = os.str();
+        cout << out << endl;
+        std::string commandLine = 
+            cc + " " + flags + " " + dflags + " " + in + " -o " + out + " 2>&1";
+
+        handle = compile(commandLine);
+        if(NULL != handle)
+        {
+            cache[find] = handle;
+        }
+    }
+    else
+    {
+        handle = i->second;
+    }
+    pthread_mutex_unlock(&cache_lock);
+
+    return handle;
+}
+
 

@@ -24,13 +24,6 @@
 #include "pointFunc.h"
 #include "iterFunc.h"
 #include "bailFunc.h"
-#include "compiler.h"
-
-#include <math.h>
-#include <iostream>
-#include <float.h>
-#include <stdio.h>
-#include <algorithm>
 
 #include <unistd.h>
 #include <dlfcn.h>
@@ -43,26 +36,14 @@ pointFunc *pointFunc_new(
     e_colorFunc outerCfType,
     e_colorFunc innerCfType)
 {
-
-    compiler *c = new compiler();
-
     bailFunc *b = bailFunc_new(bailType);
 
     std::string iter = iterType->iter_code();
     std::string decl = iterType->decl_code();
     std::string ret  = iterType->ret_code();
     std::string bail = b->bail_code(iterType->flags());
-    c->run(iter,decl,ret,bail);
+    void *dlHandle = g_pCompiler->getHandle(iter,decl,ret,bail);
 
-    char buf[PATH_MAX];
-    getcwd(buf,sizeof(buf));
-    std::string out = buf + ("/" + c->out);
-
-    void *dlHandle = dlopen(out.c_str(), RTLD_NOW);
-    if(NULL == dlHandle)
-    {
-        return NULL;
-    }
     pointFunc *(*pFunc)(
         double, colorizer *, e_colorFunc, e_colorFunc) = 
         (pointFunc *(*)(double, colorizer *, e_colorFunc, e_colorFunc)) 

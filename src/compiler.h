@@ -23,20 +23,32 @@
 
 #include <string>
 #include <vector>
+#include <map>
+
+#include "pthread.h"
 
 class compiler
 {
 public:
+    std::string cc;
     std::string flags; 
     std::string in;
     std::string out;
 
     compiler();
 
-    int run(std::string iter, std::string decl, std::string ret, std::string bail);
+    void *getHandle(std::string iter, std::string decl, std::string ret, std::string bail);
 
+    typedef std::map<std::string,void *> t_cache;
+    t_cache cache;
+    int next_so;
+    pthread_mutex_t cache_lock;
 private:
+    void *compile(std::string commandLine);
     std::string Dstring(std::string iter, std::string decl, std::string ret, std::string bail);
 };
+
+// pointer to global compiler instance
+extern compiler *g_pCompiler;
 
 #endif /* COMPILER_H_ */

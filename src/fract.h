@@ -26,6 +26,7 @@
 #include "colorizer_public.h"
 
 #include "calc.h"
+#include "compiler.h"
 
 class fractFunc;
 class iterFunc;
