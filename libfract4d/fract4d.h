@@ -7,6 +7,7 @@
 #include "image_public.h"
 #include "colorizer_public.h"
 #include "pointFunc_public.h"
+#include "compiler.h"
 //#include "iterFunc.h"
 
 #endif /* FRACT4D_H_ */
