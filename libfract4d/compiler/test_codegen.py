@@ -402,8 +402,11 @@ goto t__end_init;''')
             [ "t_atanh = (atanh(0),atanh(0.5))","t_atanh", "(0,0.549306)" ],
 
             # trig functions on complex args
-            [ "ct_cos1 = cos((0,0))","ct_cos1", "(1,-0)"], 
-             
+            [ "ct_cos1 = cos((0,0))","ct_cos1", self.cpredict(cmath.cos,0+0j) ],
+            [ "ct_cos2 = cos((1,2))","ct_cos2", self.cpredict(cmath.cos,1+2j) ],
+
+            [ "ct_sin1 = sin((0,0))","ct_sin1", self.cpredict(cmath.sin,0+0j) ],
+            [ "ct_sin2 = sin((1,2))","ct_sin2", self.cpredict(cmath.sin,1+2j) ],
             ]
 
         src = 't_c6{\ninit: y = (1,2)\n' + \
