@@ -280,8 +280,9 @@ class T(FctUtils):
         for name in self.func_names(formula):
             print >>file, "%s=%s" % (name, self.get_func_value(name,formula))
         for name in formula.symbols.param_names():
-            print >>file, "%s=%s" % \
-                  (name, self.initvalue(name, formula.symbols,params))
+            if formula.symbols.is_local_param(name):
+                print >>file, "%s=%s" % \
+                      (name, self.initvalue(name, formula.symbols,params))
         
     def initvalue(self,name,symbol_table,params):
         ord = self.order_of_name(name,symbol_table)
@@ -335,7 +336,18 @@ class T(FctUtils):
 
         c.initparams = copy.copy(self.initparams) # must be after set_formula
 
-        # FIXME copy colorfunc params too
+        c.set_outer(self.cfunc_files[0], self.cfunc_names[0])
+        c.set_inner(self.cfunc_files[1], self.cfunc_names[1])
+        
+        for i in range(2):
+            frm = self.cfuncs[i]
+            for name in self.func_names(frm):
+                c.set_named_func(name,
+                                 self.get_func_value(name,frm),
+                                 frm)
+
+            c.cfunc_params[i] = copy.copy(self.cfunc_params[i]) 
+            
         c.bailfunc = self.bailfunc
         c.cfuncs = copy.copy(self.cfuncs)
         c.cfunc_names = copy.copy(self.cfunc_names)
@@ -447,8 +459,8 @@ class T(FctUtils):
         self.set_func(func[0],val,formula)            
 
     def get_func_value(self,func_to_get,formula):
-        fname = formula.symbols.demangle(func_to_get)        
-        func = formula.symbols.get(fname)
+        fname = formula.symbols.demangle(func_to_get)
+        func = formula.symbols[fname]
         return func[0].cname
     
     def changed(self):
@@ -493,7 +505,9 @@ class T(FctUtils):
 
         self.formula.merge(self.cfuncs[0],"cf0_")        
         self.formula.merge(self.cfuncs[1],"cf1_")        
-        outputfile = os.path.abspath(self.compiler.generate_code(self.formula, cg))
+        outputfile = os.path.abspath(
+            self.compiler.generate_code(self.formula, cg))
+        
         #print "compiled %s" % outputfile
         if outputfile != None:
             if self.outputfile != outputfile:
