@@ -193,8 +193,9 @@ class CanonTest(unittest.TestCase):
         # no jumps or labels
         seq = self.seq([self.var(), self.var("b"), self.var("c")])
         blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
-
         self.assertBlockIsWellFormed(blocks[0],"t__start","t__end")
+        trace = self.canon.schedule_trace(blocks)
+        for stm in trace: print stm.pretty(),
 
         # starts with a label
         seq = self.seq([self.label("t__1"),self.var()])
@@ -246,7 +247,9 @@ class CanonTest(unittest.TestCase):
         self.assertBlocksAreWellFormed(blocks)
         self.assertEqual(len(blocks),2)        
 
-        
+    def testTraceScheduling(self):
+        pass
+    
     def printAllBlocks(self,blocks):
         for b in blocks:
             for stm in b: print stm.pretty(),
