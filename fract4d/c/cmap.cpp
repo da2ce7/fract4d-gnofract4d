@@ -221,7 +221,7 @@ grad_find(double index, gradient_item_t *items, int ncolors)
 {
     for(int i = 0; i < ncolors; ++i)
     {
-	if(index < items[i].right)
+	if(index <= items[i].right)
 	{
 	    return i;
 	} 
@@ -305,7 +305,7 @@ GradientColorMap::lookup(double index) const
     else
     {
 	middle = (seg->mid - seg->left) / seg_len;
-	pos    = (pos - seg->left) / seg_len;
+	pos    = (index - seg->left) / seg_len;
     }
     
     double factor;
@@ -335,7 +335,6 @@ GradientColorMap::lookup(double index) const
 	assert(0 && "Unknown gradient type");
 	return black;
     }
-
 
     /* Calculate color components */
     rgba_t result;

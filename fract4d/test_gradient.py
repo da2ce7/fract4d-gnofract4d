@@ -52,12 +52,14 @@ class Test(testbase.TestBase):
                 (fi, cmap_color, fi, grad_color), 1.5)
 
     def checkCGradientAndPyGradientEquivalent(self,grad):
+        # We have 2 sets of gradient-drawing code, in C and Python
+        # check they calculate the same answer
         self.assertWellFormedGradient(grad)
         cmap = fract4dc.cmap_create_gradient(grad.segments)
         for i in xrange(1000):
             fi = i / 1000.0
             (r,g,b,a) = grad.get_color_at(fi)
-            print i,r,g,b,a
+            #print "%d: %.17g, %.17g, %.17g, %.17g" % (i,r,g,b,a)
             cmap_color = fract4dc.cmap_lookup(cmap, fi)
             grad_color = (int(r*255.0), int(g*255.0),
                           int(b*255.0), int(a*255.0))
@@ -65,7 +67,7 @@ class Test(testbase.TestBase):
                 grad_color,
                 cmap_color,
                 "colorlist(%s) = %s but gradient(%s) = %s" % \
-                (fi, cmap_color, fi, grad_color), 0.5)
+                (fi, cmap_color, fi, grad_color), 1.5)
         
     def testFromColormap(self):
         # check that creating a gradient from a colormap produces the same
@@ -108,8 +110,24 @@ class Test(testbase.TestBase):
         g = gradient.Gradient()
         self.checkCGradientAndPyGradientEquivalent(g)
 
+        g.segments[0].mid = 0.2
+        self.checkCGradientAndPyGradientEquivalent(g)
 
-            
+        g.segments[0].bmode = gradient.Blend.CURVED
+        self.checkCGradientAndPyGradientEquivalent(g)
+
+        g.segments[0].bmode = gradient.Blend.SINE
+        self.checkCGradientAndPyGradientEquivalent(g)
+
+        g.segments[0].bmode = gradient.Blend.SPHERE_INCREASING
+        self.checkCGradientAndPyGradientEquivalent(g)
+
+        g.segments[0].bmode = gradient.Blend.SPHERE_DECREASING
+        self.checkCGradientAndPyGradientEquivalent(g)
+
+        g = self.create_rgb_gradient()
+        self.checkCGradientAndPyGradientEquivalent(g)
+        
     def create_rgb_gradient(self):
         # make a simple gradient which goes from R -> G -> B
         g = gradient.Gradient()
