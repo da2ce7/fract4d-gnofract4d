@@ -25,6 +25,8 @@
 #include "colorizer_public.h"
 #include "state.h"
 
+#include <complex>
+
 /* an enumeration of the available bailout functions */
 // update table in properties.cpp:create_bailout_menu if this changes
 typedef enum 
@@ -60,7 +62,7 @@ class pointFunc {
     /* factory method for making new pointFuncs */
     static pointFunc *create(
 	void *dlHandle, // library containing compiled code
-	iterFunc *iterType,
+	std::complex<double> *opts,
 	double eject,
 	double periodicity_tolerance,
 	colorizer **ppcf,

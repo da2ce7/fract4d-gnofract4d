@@ -745,7 +745,7 @@ fractal::recolor(IImage *im)
     void *handle = g_pCompiler->compile(this);
     pointFunc *p = pointFunc::create(
 	handle,
-	pIterFunc,
+	pIterFunc->opts(),
         params[BAILOUT],
         tolerance(im),
         cizers,

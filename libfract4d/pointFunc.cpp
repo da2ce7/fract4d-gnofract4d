@@ -164,7 +164,7 @@ public:
 
 pointFunc *pointFunc::create(
     void *dlHandle,
-    iterFunc *iterType,
+    std::complex<double> *opts,
     double bailout,
     double periodicity_tolerance,
     colorizer **ppcf,
@@ -193,7 +193,7 @@ pointFunc *pointFunc::create(
 	p,
 	bailout,
 	periodicity_tolerance,
-	iterType->opts(),
+	opts,
 	ppcf, dlHandle, 
 	outerCfType, innerCfType,
 	outerCtfType, innerCtfType);

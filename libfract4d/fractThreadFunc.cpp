@@ -33,7 +33,7 @@ STFractWorker::init(fractal_t *f_, IImage *im_)
     void *handle = g_pCompiler->compile(f_);
     pf = pointFunc::create(
 	handle,
-	f->pIterFunc,
+	f->pIterFunc->opts(),
         f->params[BAILOUT], 
         f->tolerance(im),
         f->cizers, 

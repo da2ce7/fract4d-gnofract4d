@@ -708,13 +708,63 @@ operator>>(std::istream& s, iterImpl& m)
     }
     return s; 
 }
+static
+void delete_array(const char**& array)
+{
+    if(array == NULL) return;
+    int i=0;
+    while(array[i]!= NULL)
+    {
+	free(const_cast<char *>(array[i]));
+    }
+    delete[] array;
+    array = NULL;
+}
+
+/* point "array" to a new NULL-terminated C array of strings 
+   equal to the contents of pArray */ 
+
+static 
+const char **construct_array(PyObject *pArray, const char**& array)
+{
+    if(array != NULL)
+    {
+	delete_array(array);
+    }
+    int len;
+
+    len = PySequence_Size(pArray);
+    if(len==-1) return NULL;
+    array = const_cast<const char **>(new char *[len+1]);
+    array[len] = NULL;
+    for(int i = 0; i < len; ++i)
+    {
+	PyObject *pObj = PySequence_GetItem(pArray,i);
+	if(pObj)
+	{
+	    const char *s = PyString_AsString(pObj);
+	    if(s == NULL) goto error;
+	    array[0] = strdup(s);
+	    Py_DECREF(pObj);
+	}
+	else
+	    ; //ignore errors for now 
+    }
+
+    return (array);
+
+ error:
+    delete[] array;
+    array = NULL;
+    return NULL;
+}
 
 
 class formula : public IFormula
 {
 private:
     PyObject *pFormula;
-    mutable char** earray;
+    mutable const char** earray;
 public:
     formula(PyObject *form);
     const char** errors() const;
@@ -731,51 +781,19 @@ formula::formula(PyObject *form)
 formula::~formula()
 {
     Py_DECREF(pFormula);
-    if(earray)
-    {
-	int i=0;
-	while(earray[i]!= NULL)
-	{
-	    free(const_cast<char *>(earray[i]));
-	}
-	delete[] earray;
-    }
+    delete_array(earray);
 }
+
 
 const char**
 formula::errors() const
 {
-    if(earray != NULL)
-    {
-	return const_cast<const char**>(earray);
-    }
-    int len;
-
     PyObject *pErrors = PyObject_GetAttrString(pFormula,"errors");
-    if(!pErrors) goto error;
+    if(!pErrors) return NULL;
 
-    len = PySequence_Size(pErrors);
-    if(len==-1) goto error;
-    earray = new char *[len+1];
-    earray[len] = NULL;
-    for(int i = 0; i < len; ++i)
-    {
-	PyObject *pError = PySequence_GetItem(pErrors,i);
-	if(pError)
-	{
-	    const char *s = PyString_AsString(pError);
-	    if(s == NULL) goto error;
-	    earray[0] = strdup(s);
-	}
-    }
-
-    return const_cast<const char **>(earray);
-
- error:
+    earray = construct_array(pErrors,earray);
     Py_XDECREF(pErrors);
-    delete[] earray;
-    earray = NULL;
-    return NULL;
+    return earray;
 }
 
 class iterFuncFactory : public IFuncFactory
@@ -785,11 +803,18 @@ private:
     PyObject *pClass;
     PyObject *pCompiler;
     PyObject *pModule;
-
+    
 public:
     bool ok() const { return m_ok; };
     bool load_file(const char *filename);
-    IFormula *get_formula(const char *filename, const char *formula); 
+    
+    IFormula *get_formula(const char *filename, const char *formula);
+
+    // const because caller should not modify
+    const char **get_formula_list(const char *filename);
+    // obviously, this deletes its argument
+    void delete_formula_list(const char **& list);
+
     iterFuncFactory();
     ~iterFuncFactory();
 };
