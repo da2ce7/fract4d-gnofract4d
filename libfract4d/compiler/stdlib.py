@@ -159,8 +159,21 @@ def abs_f_f(gen,t,srcs):
 def abs_c_c(gen,t,srcs):
     return ComplexArg(abs_f_f(gen,t,[srcs[0].re]), abs_f_f(gen,t,[srcs[0].im]))
 
+def cabs_c_f(gen,t,srcs):
+    # FIXME: per std_complex.h,should divide numbers first to avoid overflow
+    return sqrt_f_f(gen,t,[mag_c_f(gen,t,srcs)])
+
 def sqrt_f_f(gen,t,srcs):
     return gen.emit_func('sqrt', srcs, Float)
+
+def sqrt_c_c(gen,t,srcs):
+    # t = sqrt(2 * (|a+ib| + abs(a)))
+    # u = t/2
+    # sqrt(a+ib) when a == 0 : t = sqrt(abs(b)/2), (t, b < 0 ? -t : t)
+    #            when a > 0  : (u,b/t)
+    #            when a < 0  : (abs(b)/t, b < 0 ? -t : t)
+    #t = sqrt_f_f(gen.emit_binop('*', [ConstFloatArg(2.0)
+    pass
 
 def sin_f_f(gen,t,srcs):
     return gen.emit_func('sin', srcs, Float)
@@ -188,6 +201,7 @@ def tan_f_f(gen,t,srcs):
     return gen.emit_func('tan', srcs, Float)
 
 def tan_c_c(gen,t,srcs):
+    # tan = sin/cos
     return div_cc_c(gen,t, [sin_c_c(gen,t, [srcs[0]]), cos_c_c(gen,t,[srcs[0]])])
 
 def cosh_f_f(gen,t,srcs):
@@ -214,6 +228,7 @@ def tanh_f_f(gen,t,srcs):
     return gen.emit_func('tanh', srcs, Float)
 
 def tanh_c_c(gen,t,srcs):
+    # tanh = sinh / cosh
     return div_cc_c(gen,t, [sinh_c_c(gen,t, [srcs[0]]), cosh_c_c(gen,t,[srcs[0]])])
 
 def asin_f_f(gen,t,srcs):
