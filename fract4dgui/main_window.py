@@ -254,6 +254,7 @@ class MainWindow:
             if self.save_filename:
                 self.f.save_image(self.save_filename)
             if self.quit_when_done:
+                self.f.set_saved(True)
                 self.quit(None,None)
             
         self.bar.set_text(text)

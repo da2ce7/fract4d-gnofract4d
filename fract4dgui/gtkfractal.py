@@ -266,10 +266,13 @@ class T(gobject.GObject):
             self.parent.show_warning(msg)
         else:
             print "Warning: ", msg
-            
+
+    def set_saved(self,val):
+        self.f.saved = val
+        
     def changed(self):
         self.f.dirty = True
-        self.f.saved = False
+        self.set_saved(False)
         if not self.frozen:
             self.emit('parameters-changed')
 
@@ -421,7 +424,7 @@ class T(gobject.GObject):
         new_f.warn = self.warn
         new_f.loadFctFile(file)
         self.set_fractal(new_f)
-        self.f.saved = True
+        self.set_saved(True)
 
     def is_saved(self):
         return self.f.saved
