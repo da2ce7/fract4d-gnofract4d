@@ -243,7 +243,7 @@ cmap_create(PyObject *self, PyObject *args)
     /* args = an array of (index,r,g,b,a) tuples */
     PyObject *pyarray, *pyret;
     int len, i;
-    ColorMap *cmap;
+    ListColorMap *cmap;
 
     if(!PyArg_ParseTuple(args,"O",&pyarray))
     {
@@ -262,7 +262,7 @@ cmap_create(PyObject *self, PyObject *args)
 	return NULL;
     }
     
-    cmap = new(std::nothrow)ColorMap();
+    cmap = new(std::nothrow)ListColorMap();
     if(!cmap)
     {
 	PyErr_SetString(PyExc_MemoryError,"Can't allocate colormap");
