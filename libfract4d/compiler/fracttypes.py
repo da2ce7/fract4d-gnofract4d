@@ -67,6 +67,7 @@ def default_value(t):
     return _defaultOfType[t]
 
 _canBeCast = [
+    # rows are from, columns are to
     # Bool Int Float Complex Color
     [ 1,   1,  1,    1,      0], # Bool
     [ 1,   1,  1,    1,      0], # Int
