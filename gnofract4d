@@ -31,6 +31,8 @@ class MainWindow:
         # coloring algorithm files
         self.compiler = fc.Compiler()
         self.compiler.file_path.append("fract4d")
+        self.compiler.file_path.append(
+            os.path.join(sys.exec_prefix, "share/formulas/gnofract4d"))
         self.compiler.load_formula_file("gf4d.frm")
         self.compiler.load_formula_file("gf4d.cfrm")
 
