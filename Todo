@@ -10,8 +10,11 @@ Done in 2.7:
 * B	painter shouldn't paint on click&drag
 * B	crash when allocate too large an image
 * B	should disable flip2julia if not is4D()
+* WW	enum, int, bool parameters
+* W	initial gradient stuff (chris le sueur)
 
 todo:
+* W	copy & paste to text or image
 * B	collapsar preview different color from main image?
 * B	should start drawing straight away when image returns to normal size
 * B	weird behavior when using explorer mode & oversized image
@@ -52,7 +55,6 @@ todo:
 * B	coolness.fct - need direct coloring algorithm
 * BB	deeper.fct, hive.fct, image.fct doesn't load properly - old format
 * BB	daisychain.fct - bailFunc != diff for newton
-* W 	enums, int parameters
 * W	autosave/restore?
 * W	max size for .so cache
 * W	diff bailout for other types
@@ -76,8 +78,6 @@ todo:
 * WW	import .upr files
 * W	import ultrafractal gradient files
 * WW	gimp gradient files:
-
-
 
 UF Incompatibilities
 * W	boolean, int, enum params 

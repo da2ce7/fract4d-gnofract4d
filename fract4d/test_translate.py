@@ -72,9 +72,6 @@ final:
   float d2r = #pi/180; degrees to radians conversion factor
 
   ; create vector for light direction
-  float t1a = (270.0-@angle)
-  float t1 = t1a*d2r
-  float t1b = cos(t1)
   float t2 = cos(@elevation*d2r)
   float lx = cos((270-@angle)*d2r) * cos(@elevation*d2r)
 default:
@@ -847,7 +844,23 @@ default:
             }''')
         
         self.assertNoErrors(t)
-    
+
+    def testVisible(self):
+        t = self.translate('''t {
+            default:
+            param foo
+                default = 2.0
+                visible = bar == 2.0 && 1.7 == "hello"
+            endparam
+            func normfunc
+                caption=" Function"
+                default=ident()
+                hint = "Normalization function."
+                visible = @norm == "f(z)"
+            endfunc
+            }''')
+
+        self.assertNoErrors(t)
 
 def suite():
     return unittest.makeSuite(TranslateTest,'test')
