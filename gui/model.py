@@ -3,6 +3,9 @@
 import gtkfractal
 import undo
 
+# We eavesdrop on parameter-changed notifications from the gtkfractal
+# and use those to compile the history
+
 class Model:
     def __init__(self,f):
         # undo history
@@ -34,7 +37,7 @@ class Model:
             if self.f.thaw():
                 self.block_callbacks()
                 self.f.changed()
-                self.f.unblock_callbacks()
+                self.unblock_callbacks()
                 
         previous = self.old_f        
         def undo():
