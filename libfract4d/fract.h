@@ -72,14 +72,14 @@ public:
     fractal(const fractal& f); // copy ctor
     fractal& operator=(const fractal& f); // assignment op
     IFractal& operator=(const IFractal& f);
-    bool operator==(const fractal& f); // equality 
-    bool operator==(const IFractal& f); 
+    bool operator==(const fractal& f) const; // equality 
+    bool operator==(const IFractal& f) const; 
     ~fractal();
 
     // change the function type
     void set_fractal_type(const char *type);
     iterFunc *get_iterFunc() const;
-    void set_iterFunc(iterFunc *);
+    void set_iterFunc(const iterFunc *);
 
     // make this fractal like f but weirder
     void set_inexact(const IFractal& f, double weirdness); 
@@ -94,7 +94,7 @@ public:
     void relocate(double x, double y, double zoom);
     void flip2julia(double x, double y);
     void move(param_t i, double distance);
-    bool write_params(const char *filename);
+    bool write_params(const char *filename) const;
     bool load_params(const char *filename);
     char *get_param(param_t i) const;
     bool set_param(param_t i, const char *val);

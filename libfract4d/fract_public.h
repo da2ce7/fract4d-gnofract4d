@@ -59,12 +59,10 @@ public:
     // equivalent to copy ctor
     static IFractal *clone(const IFractal *f); 
 
-
     virtual IFractal& operator=(const IFractal& f) =0; // assignment op
-    virtual bool operator==(const IFractal& f) =0; // equality 
+    virtual bool operator==(const IFractal& f) const =0; // equality 
 
     virtual ~IFractal();
-
 
     // make this fractal like f but weirder
     virtual void set_inexact(const IFractal& f, double weirdness) = 0; 
@@ -80,7 +78,7 @@ public:
     virtual void flip2julia(double x, double y) = 0;
     virtual void move(param_t i, double distance) = 0;
 
-    virtual bool write_params(const char *filename) = 0;
+    virtual bool write_params(const char *filename) const = 0;
     virtual bool load_params(const char *filename) = 0;
 
     // accessors
@@ -89,7 +87,7 @@ public:
     virtual void set_fractal_type(const char *type) = 0;
     // get fractal type
     virtual iterFunc *get_iterFunc() const = 0;
-    virtual void set_iterFunc(iterFunc *) = 0;
+    virtual void set_iterFunc(const iterFunc *) = 0;
 
     virtual bool set_param(param_t i, const char *val) = 0;
     virtual char *get_param(param_t i) const = 0;

@@ -190,14 +190,14 @@ fractal::operator=(const IFractal& f)
 }
 
 bool
-fractal::operator==(const IFractal& f)
+fractal::operator==(const IFractal& f) const
 {
     return *this == (fractal&)f;
 }
 
 // equality 
 bool 
-fractal::operator==(const fractal& f) 
+fractal::operator==(const fractal& f) const
 {
     for(int i = 0 ; i < N_PARAMS ; i++)
     {
@@ -352,7 +352,7 @@ static const char *param_names[] = {
 };
 
 bool 
-fractal::write_params(const char *filename)
+fractal::write_params(const char *filename) const
 {
     std::ofstream os(filename);
 
@@ -758,7 +758,7 @@ fractal::get_iterFunc() const
 }
 
 void 
-fractal::set_iterFunc(iterFunc *f)
+fractal::set_iterFunc(const iterFunc *f)
 {
     assert(f != NULL);
     if(f == pIterFunc) return;
