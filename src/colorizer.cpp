@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <string>
 #include <fstream>
-#include <strstream>
+#include <sstream>
 
 #include <cmath>
 
@@ -36,7 +36,7 @@ colorizer_read(std::istream& is)
     {
         read_field(is,name,value);
 
-        std::istrstream vs(value.c_str());
+        std::istringstream vs(value.c_str());
 
         if(FIELD_COLORIZER == name)
         {
@@ -155,7 +155,7 @@ operator>>(std::istream& is, rgb_colorizer& cizer)
         std::string name, value;
 
         read_field(is,name,value);
-        std::istrstream vs(value.c_str());
+        std::istringstream vs(value.c_str());
 
         if(FIELD_RED == name)
             vs >> r;
@@ -281,7 +281,7 @@ cmap_colorizer::set_cmap_file(const char *filename)
         std::getline(cmapfile,line);
 		
         // use old class 'cos g++ *still* doesn't have <sstream>
-        std::istrstream ss(line.c_str());
+        std::istringstream ss(line.c_str());
 
         // the 'val' int is so that the val is read as an int,
         // rather than a char

@@ -283,7 +283,6 @@ create_current_maps_page(GtkWidget *notebook, model_t *m)
         scrolledwindow, 
         gtk_label_new(_("Color Maps")));
 
-    g_free(mapdir);
     return table;
 }
 
@@ -319,7 +318,8 @@ create_new_color_page(GtkWidget *notebook, model_t *m)
     gtk_table_attach(GTK_TABLE(table), colorsel, 0, 2, 0, 1, 
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
-    GtkWidget *tab_label = gtk_label_new(_("Colorz Range"));
+
+    GtkWidget *tab_label = gtk_label_new(_("Color Range"));
     gtk_notebook_append_page(
         GTK_NOTEBOOK(notebook),
         table,
@@ -395,17 +395,17 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
     GtkWidget *table2 = create_new_color_page(notebook, m);
 
     // setup callbacks from fract's calculations
-
+    
     gtk_signal_connect(
         GTK_OBJECT(f), "status_changed", 
         GTK_SIGNAL_FUNC(preview_status_callback),
         table);
-
+    
     gtk_signal_connect(
         GTK_OBJECT(f), "status_changed", 
         GTK_SIGNAL_FUNC(preview_status_callback),
         table2);
-
+    
     /* kick off async update */
     gf4d_fractal_calc(f,1);
 
