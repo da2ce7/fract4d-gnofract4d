@@ -184,6 +184,7 @@ class T:
             [ "[Label]", T.label],
             [ "[Move]", T.move],
             [ "[Jump]", T.jump],
+            [ "[CJump]", T.cjump],
             [ "[Cast]", T.cast],
             ])
         
@@ -254,7 +255,11 @@ return;
     
     def emit_move(self, src, dst):
         self.out.append(Move([src],[dst]))
-        
+
+    def emit_cjump(self, test,dst):
+        assem = "if(%(s0)s) goto " + dst + ";"
+        self.out.append(Oper(assem, [test], []))
+
     def output_symbols(self,overrides):
         out = []
         op = self.symbols.order_of_params()
@@ -374,6 +379,13 @@ return;
         assert(t.children == [])
         self.out.append(Label(t.name))
 
+    def cjump(self,t):
+        # canonicalize has ensured we fall through to false branch,
+        # so we can just deal with true case
+        binop = ir.Binop(t.op,t.children,t.node,Bool)
+        result = self.binop(binop)
+        self.emit_cjump(result,t.trueDest)
+        
     def jump(self,t):
         assem = "goto %s;" % t.dest
         self.out.append(Oper(assem,[],[],[t.dest]))

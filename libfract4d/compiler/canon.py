@@ -35,11 +35,13 @@ class T:
         # top-level driver function
         ltree = self.linearize(tree)
         if self.dumpLinear != 0:
+            print "Linearized Tree"
             print ltree.pretty()
 
         blocks = self.basic_blocks(ltree,startLabel,endLabel)
 
         if self.dumpBlocks != 0:
+            print "Basic Blocks"
             for b in blocks:
                 for stm in b:
                     print stm.pretty(),
@@ -48,6 +50,7 @@ class T:
         trace = self.schedule_trace(blocks,endLabel)
 
         if self.dumpTrace != 0:
+            print "Scheduled Trace"
             for stm in trace: print stm.pretty(),
             
         return trace
@@ -237,7 +240,6 @@ class T:
                 if lastjump.dest == target:
                     # remove jumps to the next stm
                     del trace[-1]
-                    del block[0]
             else:
                 assert(isinstance(lastjump, ir.CJump))
                 if lastjump.falseDest == target:

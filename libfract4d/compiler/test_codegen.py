@@ -66,7 +66,7 @@ class CodegenTest(unittest.TestCase):
     def sourceToAsm(self,s,section,dump=None):
         t = self.translate(s,dump)
         self.codegen.generate_all_code(t.canon_sections[section])
-        if dump != None and dump["dumpAsm"] == 1:
+        if dump != None and dump.get("dumpAsm") == 1:
             self.printAsm()
         return self.codegen.out
 
@@ -332,6 +332,23 @@ goto t__end_init;''')
                          self.inspect_complex("y"),
                          "x = (2,1)\ny = (3,1)")
 
+        src = '''t_c_if{
+        init:
+        int x = 1
+        int y = 0
+        if x == 1
+            y = 2
+        else
+            y = 3
+        endif
+        }'''
+        self.assertCSays(src,"init","printf(\"%d\\n\",y);","2",
+                         {"dumpTranslation" : 1,
+                          "dumpPreCanon" : 1,
+                          "dumpLinear" : 1,
+                          "dumpBlocks" : 1,
+                          "dumpTrace" : 1})
+        
     def testParams(self):
         src = 't_cp0{\ninit: complex @p = (2,1)\n}'
         self.assertCSays(src,"init",self.inspect_complex("t__a_p"),
