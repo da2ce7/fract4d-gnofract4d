@@ -5,6 +5,7 @@
 # python stdlib
 import sys
 import os
+import getopt
 
 # gettext
 import gettext
@@ -26,7 +27,7 @@ try:
     # we install our libs privately instead of to site-packages
     sys.path.append('/usr/lib/gnofract4d-2.0')
     # gui modules
-    from fract4dgui import main_window
+    from fract4dgui import main_window, preferences
     
 except ImportError, err:
     print _('''
@@ -41,8 +42,36 @@ Error was: '%s' ''') % err
 
 def main():
     mainWindow = main_window.MainWindow()
-    if len(sys.argv) > 1:
-        mainWindow.load(sys.argv[1])
+    (opts, args) = getopt.getopt(
+        sys.argv[1:],
+        "p:i:j:s:q",
+        [ "params=",
+          "width=",
+          "height=",
+          "save=",
+          "quit"])
+
+    width = preferences.userPrefs.getint("display","width")
+    height = preferences.userPrefs.getint("display","height")
+    
+    for (name, val) in opts:
+        if name=="-p" or name=="--params":
+            args.insert(0,val)
+        elif name=="-q" or name=="--quit":
+            mainWindow.quit_when_done = True
+        elif name=="-s" or name=="--save":
+            mainWindow.save_filename = val
+        elif name=="-i" or name=="--width":
+            width = int(val)
+        elif name=="-j" or name=="--height":
+            height = int(val)
+        else:
+            print "Unknown argument", name, val
+
+    mainWindow.f.set_size(width,height)
+    
+    if len(args) > 0:
+        mainWindow.load(args[0])
     else:
         mainWindow.on_fractal_change()
         

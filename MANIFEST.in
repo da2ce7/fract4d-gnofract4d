@@ -2,6 +2,7 @@ include fract4d/c/*.h
 include maps/*.map
 include formulas/gf4d.frm
 include formulas/gf4d.cfrm
+include formulas/fractint-g4.frm
 include doc/gnofract4d-manual/C/*.xml
 include doc/gnofract4d-manual/C/figures/*.png
 include pixmaps/*.png
