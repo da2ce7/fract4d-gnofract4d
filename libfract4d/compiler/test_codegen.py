@@ -491,10 +491,12 @@ goto t__end_init;''')
             [ "t_sin = (sin(0),sin(1))","t_sin", self.predict(math.sin)],
             [ "t_cos = (cos(0),cos(1))","t_cos", self.predict(math.cos)],
             [ "t_tan = (tan(0),tan(1))","t_tan", self.predict(math.tan)],
+            #[ "t_cotan
             [ "t_sinh = (sinh(0),sinh(1))","t_sinh", self.predict(math.sinh)],
             [ "t_cosh = (cosh(0),cosh(1))","t_cosh", self.predict(math.cosh)],
             [ "t_tanh = (tanh(0),tanh(1))","t_tanh", self.predict(math.tanh)],
-
+            #[ "t_cotanh
+              
             # inverse trig functions
             [ "t_asin = (asin(0),asin(1))","t_asin", self.predict(math.asin)],
             [ "t_acos = (acos(0),acos(1))","t_acos", self.predict(math.acos)],
@@ -514,16 +516,15 @@ goto t__end_init;''')
         tests += self.manufacture_tests("tanh",cmath.tanh)
         tests += self.manufacture_tests("exp",cmath.exp)
         logtests = self.manufacture_tests("log",cmath.log)
-        
+        # asin,acos,atan,atan2, asinh, acosh, atanh, cotan, cotanh
+            
         logtests[0][2] = "(-inf,0)" # log(0+0j) is overflow in python
         tests += logtests
-
-        
         
         src = 't_c6{\ninit: y = (1,2)\n' + \
               string.join(map(lambda x : x[0], tests),"\n") + "\n}"
 
-        check = string.join(map(lambda x : self.inspect_complex(x[1]),tests),"\n")
+        check = string.join(map(lambda x :self.inspect_complex(x[1]),tests),"\n")
 
         #check = check + "printf(\"temp52 = %g\\\n\", t__temp52);"
         exp = map(lambda x : "%s = %s" % (x[1],x[2]), tests)

@@ -16,7 +16,9 @@
 static void
 pf_unload(void *p)
 {
-    /* printf("Unloading %p\n",p); */
+#ifdef DEBUG_CREATION
+    printf("Unloading %p\n",p);
+#endif
     dlclose(p);
 }
 
@@ -30,6 +32,9 @@ pf_load(PyObject *self, PyObject *args)
     }
 
     void *dlHandle = dlopen(so_filename, RTLD_NOW);
+#ifdef DEBUG_CREATION
+    printf("Loading %p\n",dlHandle);
+#endif
     if(NULL == dlHandle)
     {
 	/* an error */
@@ -49,7 +54,9 @@ static void
 pf_delete(void *p)
 {
     struct pfHandle *pfh = (struct pfHandle *)p;
-    /* printf("deleting %p\n",pfh); */
+#ifdef DEBUG_CREATION
+    printf("deleting %p\n",pfh);
+#endif
     pfh->pfo->vtbl->kill(pfh->pfo);
     Py_DECREF(pfh->pyhandle);
 }
@@ -81,6 +88,9 @@ pf_create(PyObject *self, PyObject *args)
     pf_obj *p = pfn();
     pfh->pfo = p;
     pfh->pyhandle = pyobj;
+#ifdef DEBUG_CREATION
+    printf("created %p(%p)\n",pfh,pfh->pfo);
+#endif
     // refcount module so it can't be unloaded before all funcs are gone
     Py_INCREF(pyobj); 
     return PyCObject_FromVoidPtr(pfh,pf_delete);
