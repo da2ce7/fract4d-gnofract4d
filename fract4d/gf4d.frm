@@ -32,11 +32,14 @@ init:
 loop:
 	z = conj(z)^@a + #pixel
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 Quadratic {
@@ -45,11 +48,14 @@ init:
 loop:
 	z = (@a * z + @b) * z + @c * #pixel
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 Cubic Mandelbrot {
@@ -58,22 +64,28 @@ init:
 loop:
 	z = z * z * (z - 3.0 * @a) + #pixel
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 ManZPower {
 loop:
 	z = z^@a + #pixel
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 Barnsley Type 1 {
@@ -89,11 +101,14 @@ loop:
 		z = (x_cx + real(#pixel) - y_cy, y_cx + imag(#pixel) + x_cy)
 	endif
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 Barnsley Type 2 {
@@ -109,11 +124,14 @@ loop:
 		z = (x_cx + real(#pixel) - y_cy, y_cx + imag(#pixel) + x_cy)
 	endif
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 Barnsley Type 3 {
@@ -129,11 +147,14 @@ loop:
 		     xy * 2.0 + imag(#pixel) * real(z))
 	endif
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 Buffalo {
@@ -141,11 +162,14 @@ loop:
 	z = (abs(real(z)),abs(imag(z)))
 	z = (z - 1.0) * z + #pixel
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }     
 		
 Burning Ship {
@@ -153,11 +177,14 @@ loop:
 	z = (abs(real(z)),abs(imag(z)))
 	z = z*z + #pixel
 bailout: 
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 Cubic Burning Ship {
@@ -165,7 +192,14 @@ loop:
 	z = (abs(real(z)),abs(imag(z)))
 	z = z*z*z + #pixel
 bailout: 
-	|z| < @bailout
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 Lambda {
@@ -173,11 +207,14 @@ loop:
 	t = z * (1.0 - z)
 	z = t * #pixel
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 Magnet {
@@ -185,11 +222,14 @@ loop:
 	z = (z * z + #pixel - 1.0)/(2.0 * z + #pixel - 2.0)
 	z = z *z
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 Magnet 2 {
@@ -200,11 +240,14 @@ loop:
 	z = z*z
 
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 Newton {
@@ -231,11 +274,14 @@ Tetrate {
 loop:
 	z = #pixel^z
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 

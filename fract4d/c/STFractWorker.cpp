@@ -179,11 +179,7 @@ STFractWorker::antialias(int x, int y)
 
     int single_iters = im->getIter(x,y);
     int nNoPeriodIters = periodGuess(single_iters); 
-    
-    if(x == 1 && y == 25)
-    {
-        pixel_r_val = 99;
-    }
+
     // top left
     pf->calc(pos.n, ff->maxiter,nNoPeriodIters,x,y,1,&ptmp,&p); 
     pixel_r_val += ptmp.r;
@@ -291,7 +287,7 @@ STFractWorker::pixel_aa(int x, int y)
         bFlat = isTheSame(bFlat,iter,pcol,x-1,y+1);
         bFlat = isTheSame(bFlat,iter,pcol,x,y+1);
         bFlat = isTheSame(bFlat,iter,pcol,x+1,y+1);
-        if(bFlat) 
+        if(bFlat) 	    
         {
             return;
         }

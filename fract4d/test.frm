@@ -30,6 +30,16 @@ param woggle
 endparam
 }
 
+test_simpleshape {
+default:
+maxiter = 1
+init:
+	z = pixel
+bailout:
+	real(z) - imag(z) < 0.0
+}
+
+
 test_func {
 loop:
 z = sqr(@myfunc(z)) + #pixel
