@@ -5,6 +5,7 @@ import tempfile
 import os
 import commands
 import math
+import cmath
 
 import absyn
 import ir
@@ -359,6 +360,10 @@ goto t__end_init;''')
     def predict(self,f,arg1=0,arg2=1):
         # compare our compiler results to Python stdlib
         return "(%.6g,%.6g)" % (f(arg1),f(arg2))
+
+    def cpredict(self,f,arg=(1+0j)):
+        z = f(arg)
+        return "(%.6g,%.6g)" % (z.real,z.imag) 
     
     def test_stdlib(self):
         tests = [
@@ -396,7 +401,12 @@ goto t__end_init;''')
             [ "t_asinh = (asinh(0),asinh(1))","t_asinh", "(0,0.881374)" ],
             [ "t_acosh = (acosh(10),acosh(1))","t_acosh", "(2.99322,0)" ],
             [ "t_atanh = (atanh(0),atanh(0.5))","t_atanh", "(0,0.549306)" ],
-            
+
+            # trig functions on complex args
+            #[ "ct_ss = -(sin(0) * sinh(0),0)", "ct_ss", "(0,0)"],
+            # FIXME: Python and C++ say (1,-0), but C says (1,0)
+            [ "ct_cos1 = cos((0,0))","ct_cos1", "(1,0)"], 
+             
             ]
 
         src = 't_c6{\ninit: y = (1,2)\n' + \
