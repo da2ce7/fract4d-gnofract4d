@@ -16,6 +16,7 @@ STYLESHEET_GIFS=gnofract4d/stylesheet-images/caution.gif
 EXTRA_DIST = \
 	$(SGML_FILES) \
 	topic.dat \
+	docbook.css \
 	$(GIFS) \
 	$(STYLESHEET_GIFS)
 

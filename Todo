@@ -50,12 +50,13 @@ Movies-
 
 
 Must do pre 1.7
-* W	update docs
-* W	check inner/outer loads/saves correctly
 * W	make sure inner function is sensible (itercount is pointless)
-
+* B	inner/outer function (ejection dist) doesn't work with recolor
+* B	nova, quadratic (USE_COMPLEX?) doesn't work w gcc 2.96
 
 Done:
+* W	update docs
+* W	check inner/outer loads/saves correctly
 * B	odd artifacts on default Barnsley T2
 * B	caduceus.fct broken
 * W	parameterize + fix newton 
