@@ -54,12 +54,13 @@ class Threaded(fractal.T):
             gtk.main_iteration(True)
 
         self.skip_updates = False
-        
+
     def draw(self,image):
         self.cmap = fract4dc.cmap_create(self.colorlist)
 
         #print "draw: init with %s" % self.initparams
-        fract4dc.pf_init(self.pfunc,0.001,self.initparams)
+        t = self.tolerance(self.width,self.height)
+        fract4dc.pf_init(self.pfunc,t,self.initparams)
 
         self.running = True
         fract4dc.async_calc(self.params,self.antialias,self.maxiter,

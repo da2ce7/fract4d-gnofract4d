@@ -121,7 +121,8 @@ def createDefaultDict():
         "t__h_numiter": Var(Int),
         "t__h_maxiter": Alias("maxiter"),
         "maxiter" : Var(Int),
-        "t__h_pi" : Var(Float,math.pi)
+        "t__h_pi" : Var(Float,math.pi),
+        "t__h_tolerance" : Var(Float)
         }
     
     # predefined parameters

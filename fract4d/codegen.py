@@ -199,6 +199,7 @@ class T:
 typedef struct {
     pf_obj parent;
     double p[PF_MAXPARAMS];
+    double period_tolerance;
 } pf_real ;
 
 static void pf_init(
@@ -219,6 +220,7 @@ static void pf_init(
         pfo->p[i] = params[i];
         /* printf("param %%d = %%.17g\\n",i,params[i]); */
     }
+    pfo->period_tolerance = period_tolerance;
 }
 
 static void pf_calc(
@@ -448,6 +450,9 @@ extern pf_obj *pf_new(void);
                      "t__h_numiter" : "",
                      "t__h_index" : "",
                      "maxiter" : "",
+                     "t__h_tolerance" :
+                         "double t__h_tolerance = t__pfo->period_tolerance;",
+                     
                      }
         for (k,v) in user_overrides.items():
             #print "%s = %s" % (k,v)

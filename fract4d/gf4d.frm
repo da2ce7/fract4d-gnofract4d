@@ -258,7 +258,7 @@ loop:
 	;z = z - (pow(z,@a) - 1.0)/ (@a * pow(z,nm1))
 	z = z - (z*z*z - 1.0)/(3.0 * z * z)
 bailout:
-	|z - last| > 1.0e-9
+	|z - last| > #tolerance
 }
 
 Nova {
@@ -266,7 +266,17 @@ loop:
 	last = z
 	z = z - (@a * z * z * z - @b)/(@c * z * z) + #pixel
 bailout:
-	|z - last| > 1.0e-9
+	|z - last| > #tolerance
+default:
+param a
+	default = (1.0, 0.0)
+endparam
+param b
+	default = (1.0, 0.0)
+endparam
+param c
+	default = (3.0, 0.0)
+endparam
 }
 
 
