@@ -7,8 +7,6 @@ import gtk
 import gobject
 
 import dialog
-import gtkfractal
-import preferences
 
 _color_model = None
 
@@ -51,7 +49,6 @@ def stricmp(a,b):
     return cmp(a.lower(),b.lower())
 
 class ColorDialog(dialog.T):
-    RESPONSE_REFRESH = 2
     def __init__(self,main_window,f):
         global userPrefs
         dialog.T.__init__(
@@ -59,35 +56,16 @@ class ColorDialog(dialog.T):
             _("Color Maps"),
             main_window.window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
-            (gtk.STOCK_REFRESH, ColorDialog.RESPONSE_REFRESH,
-             gtk.STOCK_APPLY, gtk.RESPONSE_APPLY,
-             gtk.STOCK_OK, gtk.RESPONSE_OK,
-             gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+            (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
-        #self.set_size_request(200,350)
-        self.main_f = f
-        self.f = f.copy_f()
+        self.set_size_request(200,500)
+        
+        self.f = f
         self.model = _get_model()
-        maplist = self.create_map_file_list()
+        sw = self.create_map_file_list()
 
-        hbox = gtk.HBox(False, 2)
-        hbox.add(maplist)
-        self.vbox.add(hbox)
-        
-        self.preview = gtkfractal.SubFract(main_window.compiler)
-        self.preview.set_size(96,96)
-        self.preview.set_fractal(self.f)
-        self.update_preview()
-        
-        hbox.add(self.preview.widget)
+        self.vbox.add(sw)
         self.treeview.get_selection().unselect_all()
-
-    def update_preview(self):
-        self.draw_preview()
-
-    def draw_preview(self):
-        auto_deepen = preferences.userPrefs.getboolean("display","autodeepen")
-        self.preview.draw_image(False,auto_deepen)
 
     def show(parent, f):
         dialog.T.reveal(ColorDialog,parent,f)
@@ -102,8 +80,7 @@ class ColorDialog(dialog.T):
         
         mapfile = model.get_value(iter,0)
         self.f.set_cmap(self.model.maps[mapfile])
-        self.update_preview()
-        
+    
     def create_map_file_list(self):
         sw = gtk.ScrolledWindow ()
         sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
@@ -128,14 +105,6 @@ class ColorDialog(dialog.T):
         self.update_list()
         return sw
 
-    def onApply(self):
-        self.main_f.copy_colors(self.f)
-
-    def onRefresh(self):
-        self.f = self.main_f.copy_f()
-        self.f.changed()
-        self.update_preview()
-        
     def update_list(self):
         self.map_list.clear()
         keys = self.model.maps.keys()
@@ -148,11 +117,4 @@ class ColorDialog(dialog.T):
         if id == gtk.RESPONSE_CLOSE or \
                id == gtk.RESPONSE_NONE or \
                id == gtk.RESPONSE_DELETE_EVENT:
-            self.hide()
-        elif id == ColorDialog.RESPONSE_REFRESH:
-            self.onRefresh()
-        elif id == gtk.RESPONSE_APPLY:
-            self.onApply()
-        elif id == gtk.RESPONSE_OK:
-            self.onApply()
             self.hide()

@@ -14,7 +14,7 @@ done in 2.4:
 * B 	(also introduced in 2.4) - yelp not run in background
 
 todo for 2.4
-* BB	settings dialog doesn't update
+* BB	settings dialog doesn't update - can't repro
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
 
