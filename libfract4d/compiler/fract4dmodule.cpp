@@ -657,6 +657,30 @@ pyfdsite_create(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+pystop_calc(PyObject *self, PyObject *args)
+{
+    PyObject *pysite;
+    if(!PyArg_ParseTuple(
+	   args,
+	   "O",
+	   &pysite))
+    {
+	return NULL;
+    }
+
+    IFractalSite *site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);
+    if(!site)
+    {
+	return NULL;
+    }
+
+    site->interrupt();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 pycalc(PyObject *self, PyObject *args)
 {
     PyObject *pypfo, *pycmap, *pyim, *pysite;
@@ -755,7 +779,7 @@ pycalc_async(PyObject *self, PyObject *args)
     printf("called start\n");
 
     pthread_t tid;
-    printf("create thread %d for %p\n",tid,cargs);
+    //printf("create thread %d for %p\n",tid,cargs);
     pthread_create(&tid,NULL,calculation_thread,(void *)cargs);
 
     cargs->site->set_tid(tid);
@@ -875,6 +899,9 @@ static PyMethodDef PfMethods[] = {
 
     { "async_calc", pycalc_async, METH_VARARGS,
       "Calculate a fractal image in another thread"},
+
+    { "interrupt", pystop_calc, METH_VARARGS,
+      "Stop an async calculation" },
 
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };

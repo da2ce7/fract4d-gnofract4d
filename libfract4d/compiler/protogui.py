@@ -61,6 +61,7 @@ class GuiFractal(fractal.Threaded):
     def onButtonRelease(self,widget,event):
         print "button release"
         print "click (%d,%d)" % (event.x, event.y)
+        fract4d.interrupt(self.site)
         self.params[self.XCENTER] += 0.3
         gtk.idle_add(self.draw_image,self)
         

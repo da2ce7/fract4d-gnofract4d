@@ -181,6 +181,10 @@ class T(FctUtils):
         self.formula.merge(self.cfuncs[0],"cf0_")        
         self.formula.merge(self.cfuncs[1],"cf1_")        
         self.outputfile = os.path.abspath(self.compiler.generate_code(self.formula, cg))
+        if self.outputfile != None:
+            self.handle = fract4d.pf_load(self.outputfile)
+            self.pfunc = fract4d.pf_create(self.handle)
+
         return self.outputfile
 
     # status callbacks
@@ -353,8 +357,6 @@ class Threaded(T):
             ]
 
     def draw(self,image):
-        self.handle = fract4d.pf_load(self.outputfile)
-        self.pfunc = fract4d.pf_create(self.handle)
         self.cmap = fract4d.cmap_create(self.colorlist)
         
         fract4d.pf_init(self.pfunc,0.001,self.initparams)
