@@ -47,8 +47,6 @@ fractal::fractal()
 
     digits = 0;
 	
-    running = false;
-    finished = false;
     cizer = colorizer_new(COLORIZER_RGB);
     potential=1;
     bailout_type=BAILOUT_MAG;
@@ -69,60 +67,41 @@ fract_delete(fractal_t **fp)
     *fp = NULL;
 }
 
-/* the program wants to exit: stop calculating */
-void 
-fractal::finish()
+void
+fractal::copy(const fractal& f)
 {
-    running = 0;
-    finished = 1;
+    for(int i = 0 ; i < N_PARAMS ; i++)
+    {
+        params[i] = f.params[i];
+    }
+    maxiter = f.maxiter;
+    fractal_type = f.fractal_type;
+    antialias = f.antialias;
+    auto_deepen = f.auto_deepen;
+    digits = f.digits;
+    rot_by = f.rot_by;
+
+    rot = f.rot;
+
+    cizer = f.cizer->clone();
+    potential = f.potential;
+    bailout_type = f.bailout_type;
 }
 
 /* copy ctor */
 fractal::fractal(const fractal& f)
 {	
-    for(int i = 0 ; i < N_PARAMS ; i++)
-    {
-        params[i] = f.params[i];
-    }
-    maxiter = f.maxiter;
-    fractal_type = f.fractal_type;
-    antialias = f.antialias;
-    auto_deepen = f.auto_deepen;
-    digits = f.digits;
-    running = f.running;
-    finished = f.finished;
-    rot_by = f.rot_by;
-
-    rot = f.rot;
-
-    cizer = f.cizer->clone();
-    potential = f.potential;
-    bailout_type = f.bailout_type;
+    copy(f);
 }
 
 fractal&
 fractal::operator=(const fractal& f)
 {
-    for(int i = 0 ; i < N_PARAMS ; i++)
+    if(&f != this)
     {
-        params[i] = f.params[i];
+        colorizer_delete(&cizer);
+        copy(f);
     }
-    maxiter = f.maxiter;
-    fractal_type = f.fractal_type;
-    antialias = f.antialias;
-    auto_deepen = f.auto_deepen;
-    digits = f.digits;
-    running = f.running;
-    finished = f.finished;
-    rot_by = f.rot_by;
-
-    rot = f.rot;
-
-    colorizer_delete(&cizer);
-    cizer = f.cizer->clone();
-    potential = f.potential;
-    bailout_type = f.bailout_type;
-
     return *this;
 }
 
@@ -166,7 +145,7 @@ void
 fractal::set_inexact(const fractal& f, double weirdness)
 {
     *this = f; // invoke op=
-
+    
     params[XCENTER] += xy_random(weirdness, params[SIZE]);
     params[YCENTER] += xy_random(weirdness, params[SIZE]);
     params[ZCENTER] += zw_random(weirdness, params[SIZE]);
@@ -292,6 +271,7 @@ fractal::load_params(const char *filename)
     // cast is to quiet a curious compiler warning
     is >> (int&)bailout_type;
 
+
     return true;
 }
 
@@ -310,6 +290,7 @@ fractal::get_max_iterations()
 void 
 fractal::set_aa(bool val)
 {
+
     antialias = val;
 }
 
@@ -495,6 +476,7 @@ fractal::relocate(double x, double y, double zoom)
     debug_precision(params[SIZE],"relocate 2");
 
     check_precision();
+
 }	
 
 void

@@ -79,6 +79,9 @@ class fractFunc {
 
     void soi(); // broken
 
+    // reset image
+    void clear();
+
     // make an int corresponding to an RGB triple
     inline int RGB2INT(int y, int x);
 

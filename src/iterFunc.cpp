@@ -15,6 +15,17 @@ public:
             p[Y] = 2.0 * p[X] * p[Y] + p[CY];
             p[X] = atmp;
         }
+    virtual void iter8(double *p)
+        {
+            for(int i = 8; i > 0; --i)
+            {
+                p[X2] = p[X] * p[X];
+                p[Y2] = p[Y] * p[Y];
+                double atmp = p[X2] - p[Y2] + p[CX];
+                p[Y] = 2.0 * p[X] * p[Y] + p[CY];
+                p[X] = atmp;
+            }            
+        }
     virtual int flags()
         {
             return HAS_X2 | HAS_Y2;

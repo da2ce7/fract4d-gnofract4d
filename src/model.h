@@ -35,12 +35,15 @@ extern "C" {
     /* ctor */
     model_t *model_new(void);	
 	
-
     /* dtor */
     void model_delete(model_t **pm);
 
-    /* apply changes */	
-    //void model_update(model_t *m);
+    /* flags */
+
+    // quit after drawing current image
+    void model_set_quit(model_t *m, int quit);
+    // save image to this file when it's finished
+    void model_set_save_file(model_t *m, char *filename);
 
     /* commands */
     bool model_cmd_start(model_t *m);
@@ -53,6 +56,9 @@ extern "C" {
 
     int model_cmd_save(model_t *m, char *filename);
     int model_cmd_load(model_t *m, char *filename);
+
+    /* called by the fractal to tell us what it's up to */
+    void model_status_callback(Gf4dFractal *f, gint val, model_t *m);
 
     /* retrieve things */
     Gf4dFractal *model_get_fract(model_t *m);

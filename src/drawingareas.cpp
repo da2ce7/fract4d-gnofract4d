@@ -269,6 +269,11 @@ create_drawing_area(model_t *m, GtkWidget *appbar)
         GTK_SIGNAL_FUNC(message_callback),
         appbar);
 
+    gtk_signal_connect(
+        GTK_OBJECT(model_get_fract(m)),"status_changed",
+        GTK_SIGNAL_FUNC(model_status_callback),
+        m);
+
     return drawing_area;
 }
 

@@ -333,8 +333,6 @@ refresh_autodeepen_callback(Gf4dFractal *f, gpointer user_data)
     gtk_toggle_button_set_active(b,gf4d_fractal_get_auto(f));
 }
 
-
-
 void set_color_callback(GnomeColorPicker *picker, guint r, guint g, guint b, guint alpha, gpointer user_data)
 {
     Gf4dFractal *f = GF4D_FRACTAL(user_data);

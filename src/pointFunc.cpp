@@ -79,7 +79,10 @@ public:
             }while(p[EJECT_VAL] < m_eject);
 
             *pnIters = iter;
-            *color = (*m_pcf)(iter, p, m_potential);
+            if(color)
+            {
+                *color = (*m_pcf)(iter, p, m_potential);
+            }
         }
 };
 

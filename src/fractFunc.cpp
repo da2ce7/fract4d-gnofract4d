@@ -35,9 +35,17 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     debug_precision(topleft[VX],"topleft");
     nhalfiters = ndoubleiters = k = 0;
     //p = im->iter_buf;
-    im->clear();
+    clear();
+
     last_update_y = 0;
 };
+
+void 
+fractFunc::clear()
+{
+    im->clear();    
+}
+
 
 inline void
 fractFunc::rectangle(struct rgb pixel, int x, int y, int w, int h)
@@ -93,14 +101,13 @@ fractFunc::pixel(int x, int y,int w, int h)
         I2D_LIKE(y, f->params[SIZE]) * deltay;
 		
     (*pf)(pos, f->maxiter,&pixel,ppos); 
-
-    rectangle(pixel,x,y,w,h);
 	
     // test for iteration depth
     if(f->auto_deepen && k++ % AUTO_DEEPEN_FREQUENCY == 0)
     {
         int i;
-        (*pf)(pos, f->maxiter*2,&pixel,&i);
+
+        (*pf)(pos, f->maxiter*2,NULL,&i);
 
         if( (i > f->maxiter/2) && (i < f->maxiter))
         {
@@ -115,6 +122,8 @@ fractFunc::pixel(int x, int y,int w, int h)
             ndoubleiters++;
         }
     }
+
+    rectangle(pixel,x,y,w,h);
 }
 
 inline void
@@ -125,6 +134,28 @@ fractFunc::pixel_aa(int x, int y)
 
     struct rgb pixel;
 
+    if(x > 0 && x < im->Xres-1 && y > 0 && y < im->Yres-1)
+    {
+        // check to see if this point is surrounded by others of the same colour
+        // if so, don't bother recalculating
+        int iter = im->iter_buf[y * im->Xres + x];
+        int pcol = RGB2INT(y,x);
+        bool bFlat = true;
+
+        // this could go a lot faster if we cached some of this info
+        bFlat = isTheSame(bFlat,iter,pcol,x-1,y-1);
+        bFlat = isTheSame(bFlat,iter,pcol,x,y-1);
+        bFlat = isTheSame(bFlat,iter,pcol,x+1,y-1);
+        bFlat = isTheSame(bFlat,iter,pcol,x-1,y);
+        bFlat = isTheSame(bFlat,iter,pcol,x+1,y);
+        bFlat = isTheSame(bFlat,iter,pcol,x-1,y+1);
+        bFlat = isTheSame(bFlat,iter,pcol,x,y+1);
+        bFlat = isTheSame(bFlat,iter,pcol,x+1,y+1);
+        if(bFlat) 
+        {
+            //return;
+        }
+    }
     pixel = antialias(pos);
 
     rectangle(pixel,x,y,1,1);

@@ -24,6 +24,7 @@
 class iterFunc {
  public:
     virtual void operator()(double *p) = 0;
+    virtual void iter8(double *p) = 0;
     virtual int flags() = 0;
 };
 

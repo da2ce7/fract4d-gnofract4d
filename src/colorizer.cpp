@@ -6,6 +6,8 @@
 #include <fstream>
 #include <strstream>
 
+#include <cmath>
+
 /* factory functions */
 colorizer_t *
 colorizer_new(e_colorizer type)
@@ -106,12 +108,13 @@ rgb_colorizer::operator()(int n, scratch_space scratch, bool potential) const
 {
     struct rgb pixel={0,0,0};
     double dn;
-
+    
     if (n != -1){
         if(potential) 
             dn = (double)n + scratch[EJECT]/scratch[EJECT_VAL];
         else
             dn = (double)n;
+
         pixel.r = (char)(dn * cr);
         pixel.g = (char)(dn * cg);
         pixel.b = (char)(dn * cb);
@@ -201,12 +204,12 @@ cmap_colorizer::operator()(int n, scratch_space scratch, bool potential) const
         return cmap[0];
     }
     rgb_t mix;
+    
     n %= 255;
     double pos = potential ? scratch[EJECT]/scratch[EJECT_VAL] : 0.0;
     mix.r = (unsigned char)(cmap[n].r * (1.0 - pos) + cmap[n+1].r * pos);
     mix.g = (unsigned char)(cmap[n].g * (1.0 - pos) + cmap[n+1].g * pos);
     mix.b = (unsigned char)(cmap[n].b * (1.0 - pos) + cmap[n+1].b * pos);
-    //return cmap[n % 255 +1];
     return mix;
 }
 

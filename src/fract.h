@@ -40,8 +40,6 @@ struct fractal
     bool antialias;
     bool auto_deepen;
     int digits;
-    bool running;
-    bool finished;
     bool potential;
 
     // parameters which aren't saved
@@ -85,7 +83,6 @@ struct fractal
     bool get_auto();
     bool get_potential() { return potential; };
     void set_potential(bool p) { potential = p; };
-    void finish();
     bool check_precision();
     bool set_precision(int digits); 
 
@@ -105,6 +102,8 @@ struct fractal
 
     private:
     void recenter(const dvec4& delta);
+    // used by copy ctor and op=
+    void copy(const fractal& f);
 };
 
 void fract_delete(fractal_t **f);

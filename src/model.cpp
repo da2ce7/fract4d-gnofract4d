@@ -56,7 +56,40 @@ struct _model {
     double weirdness;
 
     bool commandInProgress;
+
+    char *saveFileName;
+    bool quitWhenDone;
 };
+
+void model_status_callback(Gf4dFractal *f, gint val, model_t *m)
+{
+    /* we're only interesting in DONE events at the moment */
+    switch(val)
+    {
+    case GF4D_FRACTAL_DONE: 
+        if(m->saveFileName) {
+            model_cmd_save_image(m, m->saveFileName);
+        }
+        if(m->quitWhenDone) {
+            exit(0);
+        }
+        break;
+    default:
+        // do nothing
+        ;
+    }
+
+}
+
+void model_set_quit(model_t *m, int quit)
+{
+    m->quitWhenDone = (bool)quit;
+}
+
+void model_set_save_file(model_t *m, char *filename)
+{
+    m->saveFileName = g_strdup(filename);
+}
 
 static void 
 model_restore_old_fractal(gpointer undo_data)
@@ -112,6 +145,8 @@ model_new(void)
     model_update_subfracts(m);
     m->undo_seq = gundo_sequence_new();
     m->commandInProgress = false;
+    m->saveFileName = NULL;
+    m->quitWhenDone = false;
 
     m->undo_action.undo = model_restore_old_fractal;
     m->undo_action.redo = model_restore_new_fractal;
@@ -126,7 +161,10 @@ model_delete(model_t **pm)
 {
     model_t *m = *pm;
     gtk_object_destroy(GTK_OBJECT(&m->fract));
+
+    free(m->saveFileName);
     delete m;
+
     *pm = NULL;
 }
 
@@ -295,4 +333,3 @@ model_set_weirdness_factor(model_t *m, gfloat weirdness)
 {
     m->weirdness = weirdness;
 }
-
