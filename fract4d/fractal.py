@@ -503,7 +503,6 @@ class T(FctUtils):
                              (func, "\n".join(formula.errors)))
 
         self.formula = formula
-        self.formula.symbols = copy.copy(formula.symbols)
         self.funcName = func
         self.funcFile = formulafile
 

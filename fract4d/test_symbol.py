@@ -105,7 +105,9 @@ class SymbolTest(unittest.TestCase):
         self.assertEqual(self.t["z"].type, Complex)
 
     def testAlias(self):
-        self.assertEqual(self.t["#z"], self.t["z"])
+        self.assertEqual(self.t["#z"].cname, self.t["z"].cname)
+        self.t["#z"].value = [47.0, 12.0]
+        self.assertEqual(self.t["z"].value,[47.0, 12.0])
 
     def testParams(self):
         self.assertEqual(self.t["@p6"].type, Complex)

@@ -3,6 +3,7 @@ include maps/*.map
 include formulas/gf4d.frm
 include formulas/gf4d.cfrm
 include formulas/fractint-g4.frm
+include formulas/fractint-builtin.frm
 include formulas/fractint.cfrm
 include doc/gnofract4d-manual/C/*.xml
 include doc/gnofract4d-manual/C/figures/*.png
