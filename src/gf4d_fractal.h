@@ -95,7 +95,7 @@ int gf4d_fractal_set_precision(Gf4dFractal *f, int digits);
 
 /* iteration functions */
 iterFunc *gf4d_fractal_get_func(Gf4dFractal *f);
-void gf4d_fractal_set_func(Gf4dFractal *f, int type);
+void gf4d_fractal_set_func(Gf4dFractal *f, const char *type);
 
 /* color functions */
 colorizer_t *gf4d_fractal_get_colorizer(Gf4dFractal *f);

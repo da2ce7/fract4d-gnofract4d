@@ -32,9 +32,9 @@ operator>>(std::istream& s, iterFunc& iter)
 class noOptions : public iterFunc
 {
 private:
-    int m_type;
+    const char *m_type;
 public:
-    noOptions(int type) : m_type(type) {}
+    noOptions(const char *type) : m_type(type) {}
 
     int nOptions() const
         { 
@@ -49,7 +49,7 @@ public:
             // no real options
             return 0.0; 
         }
-    int type() const
+    const char *type() const
         {
             return m_type;
         }
@@ -74,7 +74,7 @@ operator>>(std::istream& s, noOptions& m)
 class mandFunc : public noOptions
 {
 public:
-    mandFunc() : noOptions(0) {}
+    mandFunc() : noOptions(name()) {}
     void operator()(double *p) const
         {
             p[X2] = p[X] * p[X];
@@ -87,7 +87,7 @@ public:
         {
             return HAS_X2 | HAS_Y2;
         }
-    char *name() const
+    static char *name()
         {
             return "Mandelbrot";
         }
@@ -107,7 +107,7 @@ public:
 class barnsleyFunc: public noOptions
 {
 public:
-    barnsleyFunc() : noOptions(5) {};
+    barnsleyFunc() : noOptions(name()) {};
     void operator()(double *p) const
         {
             double x_cy = p[X] * p[CY], x_cx = p[X] * p[CX],
@@ -128,7 +128,7 @@ public:
         {
             return 0;
         }
-    char *name() const
+    static char *name()
         {
             return "Barnsley Type 1";
         }
@@ -144,11 +144,11 @@ public:
         }
 };
 
-// z <- ( re(z) > 0 ? (z - 1) * c : (z + 1) * c)
+// 
 class barnsley2Func: public noOptions
 {
 public:
-    barnsley2Func() : noOptions(7) {};
+    barnsley2Func() : noOptions(name()) {};
     void operator()(double *p) const
         {
             double x_cy = p[X] * p[CY], x_cx = p[X] * p[CX],
@@ -169,7 +169,7 @@ public:
         {
             return 0;
         }
-    char *name() const
+    static const char *name()
         {
             return "Barnsley Type 2";
         }
@@ -189,7 +189,7 @@ public:
 class lambdaFunc: public noOptions
 {
 public:
-    lambdaFunc() : noOptions(6) {};
+    lambdaFunc() : noOptions(name()) {};
     void operator()(double *p) const
         {
             p[X2] = p[X] * p[X]; p[Y2] = p[Y] * p[Y];
@@ -205,7 +205,7 @@ public:
         {
             return HAS_X2 | HAS_Y2;
         }
-    char *name() const
+    static const char *name()
         {
             return "Lambda";
         }
@@ -225,7 +225,7 @@ public:
 class shipFunc: public noOptions
 {
 public:
-    shipFunc() : noOptions(1) {};
+    shipFunc() : noOptions(name()) {};
     void operator()(double *p) const 
         {
             p[X] = fabs(p[X]);
@@ -237,7 +237,7 @@ public:
             p[Y] = 2.0 * p[X] * p[Y] + p[CY];
             p[X] = atmp;
         }
-    char *name() const
+    static const char *name()
         {
             return "Burning Ship";
         }
@@ -261,7 +261,7 @@ public:
 class buffaloFunc: public noOptions
 {
 public:
-    buffaloFunc() : noOptions(2) {}
+    buffaloFunc() : noOptions(name()) {}
     virtual void operator()(double *p) const
         {
             p[X] = fabs(p[X]);
@@ -277,7 +277,7 @@ public:
         {
             return HAS_X2 | HAS_Y2;
         }
-    virtual char *name() const 
+    static const char *name()
         {
             return "Buffalo";
         }
@@ -297,7 +297,7 @@ public:
 class cubeFunc : public noOptions
 {
 public:
-    cubeFunc() : noOptions(3) {}
+    cubeFunc() : noOptions(name()) {}
     virtual void operator()(double *p) const
         {
             p[X2] = p[X] * p[X];
@@ -310,7 +310,7 @@ public:
         {
             return 0;
         }
-    virtual char *name() const 
+    static const char *name()
         {
             return "Cubic Mandelbrot";
         }
@@ -352,7 +352,7 @@ public:
         {
             return HAS_X2 | HAS_Y2;
         }
-    virtual char *name() const
+    static char *name()
         {
             return "Quadratic";
         }
@@ -370,9 +370,9 @@ public:
             if(n < 0 || n > 2) return 0.0; 
             return a[n];
         }
-    int type() const 
+    const char *type() const 
         {
-            return 4;
+            return name();
         }
     iterFunc *clone() const
         {
@@ -404,39 +404,56 @@ operator>>(std::istream& s, quadFunc& f)
     return s;
 }
 
-// factory method to make new iterFuncs
-iterFunc *iterFunc_new(int nFunc)
+const char * const *iterFunc_names()
 {
-    switch(nFunc){
-    case 0:
+    static const char *names[] =
+    {
+        mandFunc::name(),
+        shipFunc::name(),
+        buffaloFunc::name(),
+        cubeFunc::name(),
+        quadFunc::name(),
+        barnsleyFunc::name(),
+        barnsley2Func::name(),
+        lambdaFunc::name(),
+        NULL
+    };
+
+    return names;
+}
+
+// factory method to make new iterFuncs
+iterFunc *iterFunc_new(const char *name)
+{
+    if(0 == strcmp(name,mandFunc::name()))
         return new mandFunc;
-    case 1:
+    if(0 == strcmp(name,shipFunc::name()))
         return new shipFunc;
-    case 2:
+    if(0 == strcmp(name,buffaloFunc::name()))
         return new buffaloFunc;
-    case 3:
+    if(0 == strcmp(name,cubeFunc::name()))
         return new cubeFunc;
-    case 4:
+    if(0 == strcmp(name,quadFunc::name()))
         return new quadFunc;
-    case 5:
+    if(0 == strcmp(name,barnsleyFunc::name()))
         return new barnsleyFunc;
-    case 6:
+    if(0 == strcmp(name,lambdaFunc::name()))
         return new lambdaFunc;
-    case 7:
+    if(0 == strcmp(name,barnsley2Func::name()))
         return new barnsley2Func;
-    default:
-        return NULL;
-    }
+
+    // unknown type
+    return NULL;
 }
 
 // deserialize an iterFunc from a stream
 
 iterFunc *iterFunc_read(std::istream& s)
 {
-    int type;
+    std::string type;
     s >> type;
     
-    iterFunc *f = iterFunc_new(type);
+    iterFunc *f = iterFunc_new(type.c_str());
     
     s >> *f;
 

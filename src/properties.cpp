@@ -626,10 +626,10 @@ set_func_callback(GtkWidget *widget, gpointer user_data)
 {
     Gf4dFractal *f = GF4D_FRACTAL(user_data);
 
-    int func_type = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"type"));
+    const char *func_type = (const char *)gtk_object_get_data(GTK_OBJECT(widget),"type");
 
     iterFunc *old_func = gf4d_fractal_get_func(f);
-    if(func_type != old_func->type())
+    if(strcmp(func_type, old_func->type()))
     {
         gf4d_fractal_set_func(f,func_type);
         gf4d_fractal_parameters_changed(f);
@@ -645,15 +645,15 @@ refresh_func_callback(Gf4dFractal *f, gpointer user_data)
     GList *list = gtk_container_children(GTK_CONTAINER(m));
     int index=0;
     iterFunc *func = gf4d_fractal_get_func(f);
-    int func_val = func->type();
+    const char *func_val = func->type();
 
     // find an element with the same antialias value as the one the fractal has
     while(list)
     {
         GtkMenuItem *mi = GTK_MENU_ITEM(list->data);
-        int func = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(mi),"type"));
+        const char *func = (const char *)(gtk_object_get_data(GTK_OBJECT(mi),"type"));
         
-        if(func == func_val)
+        if(0 == strcmp(func,func_val))
         {
             gtk_option_menu_set_history(om,index);
             return;
@@ -669,16 +669,17 @@ GtkWidget *create_function_menu(Gf4dFractal *shadow)
     GtkWidget *func_type = gtk_option_menu_new();
     GtkWidget *func_menu = gtk_menu_new();
 
-    int i=0;
-    while(iterFunc *f = iterFunc_new(i))
+    const char * const *names = iterFunc_names();
+    int i = 0;
+    while(names[i])
     {
-        char *name = f->name();
+        const char *name = names[i];
         GtkWidget *menu_item = gtk_menu_item_new_with_label(name);
     
         gtk_object_set_data(
             GTK_OBJECT (menu_item), 
             "type",
-            GINT_TO_POINTER(i));
+            const_cast<char *>(name));
     
         gtk_signal_connect(
             GTK_OBJECT(menu_item),
@@ -689,7 +690,6 @@ GtkWidget *create_function_menu(Gf4dFractal *shadow)
         gtk_menu_append(GTK_MENU(func_menu), menu_item);
         gtk_widget_show(menu_item);
         gtk_option_menu_set_menu(GTK_OPTION_MENU(func_type), func_menu);
-        delete f;
         ++i;
     };
 

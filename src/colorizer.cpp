@@ -255,7 +255,7 @@ cmap_colorizer::set_cmap_file(const char *filename)
         // the standard "is >>" because there may be junk at the
         // end of lines
         std::string line;
-		std::getline(cmapfile,line);
+        std::getline(cmapfile,line);
 		
         // use old class 'cos g++ *still* doesn't have <sstream>
         std::istrstream ss(line.c_str());

@@ -309,8 +309,7 @@ create_sub_drawing_area(model_t *m, GtkWidget *table, int num, int x, int y)
     pdata->m = m;
     pdata->num = num;
 
-    /* connect to model - fatuous */
-    model_set_subfract_widget(m,drawing_area,num);
+    model_add_subfract_widget(m,drawing_area);
 
     Gf4dFractal *f = model_get_subfract(m,num);
     /* connect widget signals */

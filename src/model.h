@@ -79,8 +79,7 @@ extern "C" {
     int model_get_calcthreads(model_t *m);
     void model_set_calcthreads(model_t *m, int n);
 
-    // this is crap - lose it
-    void model_set_subfract_widget(model_t *m, GtkWidget *widget, int num);
+    void model_add_subfract_widget(model_t *m, GtkWidget *widget);
     void model_set_top_widget(model_t *m, GtkWidget *widget, GtkWidget *app);
     GtkWidget *model_get_app(model_t *m);
 
@@ -90,7 +89,11 @@ extern "C" {
 
     // explorer stuff
     void model_set_weirdness_factor(model_t *m, gfloat weirdness);
-    
+
+    // designate a widget as visible only in explorer mode
+    void model_make_explore_visible(model_t *m, GtkWidget *widget);
+    void model_make_explore_sensitive(model_t *m, GtkWidget *widget);
+
     // image dimensions
     void model_get_dimensions(model_t *m, int *pWidth, int *pHeight);
     void model_set_dimensions(model_t *m, int width, int height);

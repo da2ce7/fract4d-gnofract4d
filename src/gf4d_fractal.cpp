@@ -531,7 +531,7 @@ iterFunc *gf4d_fractal_get_func(Gf4dFractal *f)
     return f->f->pIterFunc;
 }
 
-void gf4d_fractal_set_func(Gf4dFractal *f, int type)
+void gf4d_fractal_set_func(Gf4dFractal *f, const char *type)
 {
     kill_slave_threads(f);
     f->f->set_fractal_type(type);

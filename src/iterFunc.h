@@ -27,8 +27,7 @@ class iterFunc {
  public:
     virtual void operator()(double *p) const = 0;
     virtual int flags() const = 0;
-    virtual char *name() const = 0;
-    virtual int type() const = 0;
+    virtual const char *type() const = 0;
 
     // make a new one Just Like This
     virtual iterFunc *clone() const = 0;
@@ -44,7 +43,10 @@ class iterFunc {
     virtual double getOption(int n) const = 0;
 };
 
-iterFunc *iterFunc_new(int nFunc);
+// return a NULL-terminated array of the available names
+const char * const *iterFunc_names();
+
+iterFunc *iterFunc_new(const char *name);
 iterFunc *iterFunc_read(std::istream& s);
 
 std::ostream& operator<<(std::ostream& s, const iterFunc& iter);

@@ -52,8 +52,9 @@ fractal::fractal()
 {
     reset();
 
-    // set fractal type to Mset
-    pIterFunc = iterFunc_new(0);
+    // set fractal type to first type in list
+    const char * const * names = iterFunc_names();
+    pIterFunc = iterFunc_new(names[0]);
 
     // display params
     antialias = AA_FAST;
@@ -144,10 +145,10 @@ fractal::operator==(const fractal& f)
 }
 
 void 
-fractal::set_fractal_type(int type)
+fractal::set_fractal_type(const char *name)
 {
     delete pIterFunc;
-    pIterFunc = iterFunc_new(type);
+    pIterFunc = iterFunc_new(name);
 }
 
 /* x & y vary by up to 50% of the MAGNITUDE */
@@ -251,6 +252,7 @@ fractal::write_params(const char *filename)
 
     if(!os) return false;
 
+    os << PACKAGE << " parameter file\n" << VERSION << "\n";
     for(int i = 0; i < N_PARAMS; i++) {
         os << params[i] << "\n";
     }
@@ -272,6 +274,11 @@ fractal::load_params(const char *filename)
 
     if(!is) return false;
 
+    std::string name_line;
+    std::getline(is,name_line);
+
+    std::string version;
+    is >> version;
     for(int i = 0; i < N_PARAMS; i++) {
         is >> params[i];
     }

@@ -52,7 +52,8 @@ struct _model {
     GundoActionType undo_action;
     Gf4dFractal *fract;
     Gf4dFractal *subfracts[8];
-    GtkWidget *sub_drawing_areas[8];
+    GSList *explore_only_widgets;
+    GSList *explore_sensitive_widgets;
     GtkWidget *topWidget;
     GtkWidget *app;
     fractal *old_fract;
@@ -234,6 +235,8 @@ model_new(void)
     }
     m->explore_mode = true;
     m->weirdness = 0.5;
+    m->explore_only_widgets = NULL;
+    m->explore_sensitive_widgets = NULL;
     model_update_subfracts(m);
     m->undo_seq = gundo_sequence_new();
     m->commandInProgress = false;
@@ -384,9 +387,11 @@ model_cmd_finish(model_t *m, char *msg)
 }
 
 void
-model_set_subfract_widget(model_t *m, GtkWidget *widget, int num)
+model_add_subfract_widget(model_t *m, GtkWidget *widget)
 {
-    m->sub_drawing_areas[num] = widget;
+    // all we need to do is add it to the list of widgets 
+    // which are shown in explore mode
+    model_make_explore_visible(m,widget);
 }
 
 void
@@ -404,22 +409,47 @@ model_update_subfracts(model_t *m)
 void 
 model_toggle_explore_mode(model_t *m)
 {
-    if(m->explore_mode)
-    {
-        for(int i = 0; i < 8; i++)
-        {
-            gtk_widget_hide(m->sub_drawing_areas[i]);
-        }
-    }
-    else
-    {
-        for(int i = 0; i < 8; i++)
-        {
-            gtk_widget_show(m->sub_drawing_areas[i]);
-        }
-    }
     m->explore_mode = !m->explore_mode;
+
+    // update explore-only widgets
+    GSList *pWidget = m->explore_only_widgets;
+
+    while(pWidget)
+    {
+        if(m->explore_mode)
+        {
+            gtk_widget_show_all(GTK_WIDGET(pWidget->data));
+        }
+        else
+        {
+            gtk_widget_hide_all(GTK_WIDGET(pWidget->data));
+        }
+        pWidget = pWidget->next;
+    }
     model_update_subfracts(m);
+
+    // update explore-only widgets
+    pWidget = m->explore_sensitive_widgets;
+
+    while(pWidget)
+    {
+        gtk_widget_set_sensitive(pWidget->data, m->explore_mode);
+        pWidget = pWidget->next;
+    }
+    model_update_subfracts(m);
+
+}
+
+void
+model_make_explore_visible(model_t *m, GtkWidget *widget)
+{
+    m->explore_only_widgets = g_slist_prepend(m->explore_only_widgets, widget);
+}
+
+void
+model_make_explore_sensitive(model_t *m, GtkWidget *widget)
+{
+    m->explore_sensitive_widgets = g_slist_prepend(m->explore_sensitive_widgets, widget);
 }
 
 void
@@ -439,4 +469,5 @@ void
 model_set_weirdness_factor(model_t *m, gfloat weirdness)
 {
     m->weirdness = weirdness;
+    model_update_subfracts(m);
 }

@@ -71,7 +71,7 @@ struct fractal
     ~fractal();
 
     // change the function type
-    void set_fractal_type(int type);
+    void set_fractal_type(const char *type);
 
     // make this fractal like f but weirder
     void set_inexact(const fractal& f, double weirdness); 

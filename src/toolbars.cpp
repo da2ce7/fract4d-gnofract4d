@@ -53,6 +53,12 @@ void explore_cb(GtkWidget *widget, gpointer user_data)
     model_toggle_explore_mode(m);
 }
 
+void explore_refresh_cb(GtkWidget *widget, gpointer user_data)
+{
+    model_t *m = (model_t *)user_data;
+    model_update_subfracts(m);
+}
+
 void weirdness_callback(GtkAdjustment *adj, gpointer user_data)
 {
     model_t *m = (model_t *)user_data;
@@ -215,11 +221,28 @@ create_move_toolbar (model_t *m, GtkWidget *appbar)
                        (GtkSignalFunc)weirdness_callback, 
                        m);
 
+    gtk_toolbar_append_widget(
+        GTK_TOOLBAR(toolbar),
+        explore_weirdness,
+        _("How different the mutants are in Explore Mode"),
+        NULL);
+
     gtk_widget_show(explore_weirdness);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(toolbar),
-                              explore_weirdness,
-                              _("How different the mutants are in Explore Mode"),
-                              NULL);
+    model_make_explore_sensitive(m, explore_weirdness);
+
+    GtkWidget *explore_refresh = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_REFRESH);
+
+    gtk_toolbar_append_item (
+        GTK_TOOLBAR(toolbar),
+        NULL,
+        _("Generate a new set of mutants"),
+        NULL,
+        explore_refresh,
+        (GtkSignalFunc)explore_refresh_cb,
+        m);
+
+    gtk_widget_show(explore_refresh);
+    model_make_explore_sensitive(m, explore_refresh);
 
     return toolbar;
 }
