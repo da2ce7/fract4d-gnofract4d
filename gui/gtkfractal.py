@@ -16,6 +16,7 @@ import gobject
 sys.path.append("..")
 
 from fract4d import fractal,fract4dc,fracttypes
+import fract4dguic
 
 import undo
 
@@ -338,14 +339,7 @@ class T(gobject.GObject):
         self.set_fractal(new_f)
         
     def save_image(self,filename):
-        # FIXME need to get hold of a pixbuf
-        pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,None,8,self.width,self.height)
-        pixbuf.get_from_drawable(self.widget.window,None,0,0,0,0,self.width,self.height)
-        if pixbuf == None:
-            # FIXME a bad thing happened,complain
-            return
-        
-        pixbuf.save(filename,"png")
+        fract4dguic.image_save(self.image,filename)
         
     def draw_image(self):
         self.interrupt()
