@@ -172,11 +172,7 @@ void fractFunc::draw_aa()
 
 void fractFunc::reset_counts()
 {
-    for(int i = 0; i < ptm->nWorkers ; ++i)
-    {
-        ptm->ptf[i].reset_counts();
-    }
-
+    ptm->reset_counts();
     
     nTotalHalfIters = nTotalDoubleIters = nTotalK = 0;
 }
@@ -244,12 +240,12 @@ void fractFunc::draw(int rsize, int drawsize)
         // main large blocks 
         for ( x = 0 ; x< w - rsize ; x += rsize) 
         {
-            ptm->ptf->pixel ( x, y, drawsize, drawsize);
+            ptm->pixel ( x, y, drawsize, drawsize);
         }
         // extra pixels at end of lines
         for(int y2 = y; y2 < y + rsize; ++y2)
         {
-            ptm->ptf->row (x, y2, w-x);
+            ptm->row (x, y2, w-x);
         }
         if(update_image(y)) 
         {
@@ -259,7 +255,7 @@ void fractFunc::draw(int rsize, int drawsize)
     // remaining lines
     for ( ; y < h ; y++)
     {
-        ptm->ptf->row(0,y,w);
+        ptm->row(0,y,w);
         if(update_image(y)) 
         {
             goto done;
@@ -272,7 +268,7 @@ void fractFunc::draw(int rsize, int drawsize)
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
         for(x = 0; x < w - rsize ; x += rsize) {
-            ptm->ptf->box(x,y,rsize);
+            ptm->box(x,y,rsize);
         }
         if(update_image(y))
         {
@@ -301,12 +297,12 @@ void fractFunc::draw_threads(int rsize, int drawsize)
         // main large blocks 
         for ( x = 0 ; x< w - rsize ; x += rsize) 
         {
-            ptm->ptf->pixel ( x, y, drawsize, drawsize);
+            ptm->pixel ( x, y, drawsize, drawsize);
         }
         // extra pixels at end of lines
         for(int y2 = y; y2 < y + rsize; ++y2)
         {
-            ptm->ptf->row (x, y2, w-x);
+            ptm->row (x, y2, w-x);
         }
         if(update_image(y))
         {
@@ -317,7 +313,7 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     // remaining lines
     for ( y = h > rsize ? h - rsize : 0 ; y < h ; y++)
     {
-        send_row(0,y,w);
+        ptm->row(0,y,w);
         if(update_image(y)) goto done;
     }
 
@@ -326,7 +322,7 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     last_update_y = 0;
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
-        send_box_row(w,y,rsize);
+        ptm->box_row(w,y,rsize);
         if(update_image(y)) goto done;
     }
     
