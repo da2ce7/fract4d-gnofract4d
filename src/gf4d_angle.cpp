@@ -113,15 +113,12 @@ gf4d_angle_class_init (Gf4dAngleClass *klass)
     angle_signals[VALUE_SLIGHTLY_CHANGED] = 
         gtk_signal_new("value_slightly_changed",
                        GtkSignalRunType(GTK_RUN_FIRST | GTK_RUN_NO_RECURSE),
-                       object_klass->type,
+                       GTK_CLASS_TYPE(object_klass),
                        GTK_SIGNAL_OFFSET(Gf4dAngleClass, value_slightly_changed),
                        gtk_marshal_NONE__NONE,
                        GTK_TYPE_NONE, 0);
 
     klass->value_slightly_changed = NULL;
-
-    gtk_object_class_add_signals(object_klass, angle_signals, LAST_SIGNAL);
-
 }
 
 static void
@@ -326,7 +323,8 @@ gf4d_angle_expose (GtkWidget      *widget,
     /* Draw text (rather badly - should perhaps use label widget) */
     if(dial->text)
     {
-        gint l = gdk_string_width(widget->style->font,dial->text);
+/* FIXME replace with pango nonsense once I figure it out
+        gint l = gdk_string_width(widget->style->font_desc,dial->text);
         gint h = gdk_string_height(widget->style->font, dial->text);
 		
         gtk_draw_string(widget->style,
@@ -335,6 +333,7 @@ gf4d_angle_expose (GtkWidget      *widget,
                         xc - l/2,
                         yc - h/2,
                         dial->text);
+*/
     }
 
     /* Draw circle */

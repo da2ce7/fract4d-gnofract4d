@@ -2,7 +2,7 @@
 #include "image.h"
 #include <gtk/gtkmain.h>
 #include <gtk/gtksignal.h>
-#include "gf4d_utils.h"
+#include "marshallers.h"
 #include "tls.h"
 #include <cassert>
 
@@ -206,7 +206,7 @@ gf4d_fractal_class_init (Gf4dFractalClass *klass)
     fractal_signals[PARAMETERS_CHANGED] = 
         gtk_signal_new("parameters_changed",
                        GtkSignalRunType(GTK_RUN_FIRST | GTK_RUN_NO_RECURSE),
-                       object_class->type,
+                       GTK_CLASS_TYPE(object_class),
                        GTK_SIGNAL_OFFSET(Gf4dFractalClass, parameters_changed),
                        gtk_marshal_NONE__NONE,
                        GTK_TYPE_NONE, 0);
@@ -214,25 +214,25 @@ gf4d_fractal_class_init (Gf4dFractalClass *klass)
     fractal_signals[IMAGE_CHANGED] = 
         gtk_signal_new("image_changed",
                        GTK_RUN_FIRST,
-                       object_class->type,
+                       GTK_CLASS_TYPE(object_class),
                        GTK_SIGNAL_OFFSET(Gf4dFractalClass, image_changed),
                        gtk_marshal_NONE__POINTER,
                        GTK_TYPE_NONE, 1,
-                       GTK_TYPE_GDK_EVENT);
+                       GTK_TYPE_POINTER);
 
     fractal_signals[PROGRESS_CHANGED] = 
         gtk_signal_new("progress_changed",
                        GTK_RUN_FIRST,
-                       object_class->type,
+                       GTK_CLASS_TYPE(object_class),
                        GTK_SIGNAL_OFFSET(Gf4dFractalClass, progress_changed),
-                       marshal_NONE__FLOAT,
+                       gf4d_marshal_VOID__FLOAT,
                        GTK_TYPE_NONE, 1,
                        GTK_TYPE_FLOAT);
 
     fractal_signals[STATUS_CHANGED] = 
         gtk_signal_new("status_changed",
                        GTK_RUN_FIRST,
-                       object_class->type,
+                       GTK_CLASS_TYPE(object_class),
                        GTK_SIGNAL_OFFSET(Gf4dFractalClass, status_changed),
                        gtk_marshal_NONE__ENUM,
                        GTK_TYPE_NONE, 1,
@@ -243,7 +243,6 @@ gf4d_fractal_class_init (Gf4dFractalClass *klass)
     klass->image_changed=NULL;
     klass->progress_changed=NULL;
     klass->status_changed=NULL;
-    gtk_object_class_add_signals(object_class, fractal_signals, LAST_SIGNAL);
 }
 
 void gf4d_fractal_relocate(Gf4dFractal *f, int x, int y, double zoom)
@@ -408,7 +407,7 @@ void gf4d_fractal_set_max_iterations(Gf4dFractal *f, int val)
     f->f->set_max_iterations(val);
 }
 
-void gf4d_fractal_set_param(Gf4dFractal *f, param_t i, char *val)
+void gf4d_fractal_set_param(Gf4dFractal *f, param_t i, const char *val)
 {
     kill_slave_threads(f);
 

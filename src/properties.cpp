@@ -37,7 +37,7 @@ GtkWidget *global_propertybox=NULL;
 gboolean 
 set_width_callback(GtkEntry *e, GdkEventFocus *, model_t *m)
 {
-    char *s = gtk_entry_get_text(e);
+    const gchar *s = gtk_entry_get_text(e);
     int width=0;
     sscanf(s,"%d",&width);
     model_set_width(m,width);
@@ -55,7 +55,7 @@ refresh_width_callback(Gf4dFractal *f, GtkEntry *e)
 gboolean
 set_height_callback(GtkEntry *e, GdkEventFocus *, model_t *m)
 {
-    char *s = gtk_entry_get_text(e);
+    const gchar *s = gtk_entry_get_text(e);
     int height=0;
     sscanf(s,"%d",&height);
     model_set_height(m,height);
@@ -73,10 +73,10 @@ refresh_height_callback(Gf4dFractal *f, GtkEntry *e)
 gboolean
 set_maxiter_callback(GtkEntry *e, GdkEventFocus *, Gf4dFractal *f)
 {
-    gchar *s = gtk_entry_get_text(e);
+    const gchar *s = gtk_entry_get_text(e);
     int niters=0;
     sscanf(s,"%d",&niters);
-    g_free(s);
+
     if(niters==gf4d_fractal_get_max_iterations(f)) return TRUE;
 
     gf4d_fractal_set_max_iterations(f,niters);
@@ -184,7 +184,7 @@ set_param_callback(GtkEntry *e, GdkEventFocus *, gpointer user_data)
 {
     Gf4dFractal *f = GF4D_FRACTAL(user_data);
     param_t param = get_param(e);
-    char *text = gtk_entry_get_text(e);
+    const gchar *text = gtk_entry_get_text(e);
     char *current = gf4d_fractal_get_param(f,param);
     if(strcmp(text,current)) 
     {		

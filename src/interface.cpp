@@ -23,6 +23,7 @@
 #endif
 
 #include <gnome.h>
+#include <bonobo.h>
 
 #include "model.h"
 #include "callbacks.h"
@@ -102,8 +103,8 @@ create_app (model_t *m)
         GNOME_APP (app), 
         GTK_TOOLBAR(toolbar_move),
         "move",
-        GNOME_DOCK_ITEM_BEH_NORMAL,
-        GNOME_DOCK_TOP,
+        BONOBO_DOCK_ITEM_BEH_NORMAL,
+        BONOBO_DOCK_TOP,
         1,0,0);
     
     GtkWidget *scrolled_window = NULL;

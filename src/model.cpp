@@ -308,12 +308,11 @@ model_display_pending_errors(model_t *m)
 					GTK_POLICY_AUTOMATIC,
 					GTK_POLICY_AUTOMATIC);
 
-	GtkWidget *text = gtk_text_new(NULL,NULL);
 	gtk_widget_set_usize(scrolled,320,400);
-	int pos=0;
-
-	gtk_editable_insert_text(GTK_EDITABLE(text),
-				 m->extra_info,strlen(m->extra_info),&pos);
+ 
+	GtkWidget *text = gtk_text_view_new();
+	GtkTextBuffer *buffer = gtk_text_view_get_buffer( GTK_TEXT_VIEW(text));
+	gtk_text_buffer_set_text(buffer, m->extra_info, -1);
     
 	gtk_container_add(GTK_CONTAINER(scrolled),text);
     
@@ -342,7 +341,7 @@ model_on_error(model_t *m, const char *message, const char *extra_info)
 }
 
 void
-model_set_compiler_location(model_t *m, char *location)
+model_set_compiler_location(model_t *m, const char *location)
 {
     g_pCompiler->set_cc(location);
     gnome_config_set_string(PACKAGE "/Compiler/path", location);
@@ -355,7 +354,7 @@ model_get_compiler_location(model_t *m)
 }
 
 void
-model_set_compiler_flags(model_t *m, char *flags, bool save)
+model_set_compiler_flags(model_t *m, const char *flags, bool save)
 {
     g_pCompiler->flags = flags;
     if(save)
@@ -451,28 +450,34 @@ int model_load_autosave_file(model_t *m)
 }
 
 int
-model_cmd_save_image(model_t *m, char *filename)
+model_cmd_save_image(model_t *m, const char *filename)
 {
-    GdkImlibImage *image;
-    image = gdk_imlib_create_image_from_data(
+    GdkPixbuf * image = gdk_pixbuf_new_from_data(
         (unsigned char *)gf4d_fractal_get_image(m->fract),
-        NULL,
+        GDK_COLORSPACE_RGB,
+	FALSE,
+	8,
         gf4d_fractal_get_xres(m->fract),
-        gf4d_fractal_get_yres(m->fract));
-    gdk_imlib_save_image(image,filename, NULL);
-    gdk_imlib_destroy_image(image);
+        gf4d_fractal_get_yres(m->fract),
+	gf4d_fractal_get_xres(m->fract),
+	NULL, // no destroynotify fn - is this correct?
+	NULL);
+
+    // FIXME: deal with errors, get filetype from extension
+    gdk_pixbuf_save(image, filename, "png", NULL, NULL); 
+    gdk_pixbuf_unref(image);
 
     return 1;
 }
 
 int 
-model_cmd_save(model_t *m, char *filename)
+model_cmd_save(model_t *m, const char *filename)
 {
     return gf4d_fractal_write_params(m->fract,filename);
 }
 	
 int 
-model_cmd_load(model_t *m, char *filename)
+model_cmd_load(model_t *m, const char *filename)
 {
     int ret = 0;
     if(model_cmd_start(m,"load"))
@@ -484,7 +489,7 @@ model_cmd_load(model_t *m, char *filename)
 }
 
 int
-model_nocmd_load(model_t *m, char *filename)
+model_nocmd_load(model_t *m, const char *filename)
 {
     return gf4d_fractal_load_params(m->fract,filename);
 }

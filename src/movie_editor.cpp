@@ -34,7 +34,7 @@ void update_frames_entry(GtkEntry *entry, gpointer user_data)
 {
     Gf4dMovieFrame *fr = (Gf4dMovieFrame *)user_data;
 
-    gchar *text = gtk_entry_get_text(entry);
+    const gchar *text = gtk_entry_get_text(entry);
     int nFrames = 0;
     sscanf(text,"%d",&nFrames);
     

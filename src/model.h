@@ -54,13 +54,13 @@ extern "C" {
     void model_redo(model_t *m);
 
     int model_cmd_reset(model_t *m);
-    int model_cmd_save_image(model_t *m, char *filename);
+    int model_cmd_save_image(model_t *m, const char *filename);
 
-    int model_cmd_save(model_t *m, char *filename);
-    int model_cmd_load(model_t *m, char *filename);
+    int model_cmd_save(model_t *m, const char *filename);
+    int model_cmd_load(model_t *m, const char *filename);
 
     // load without updating undo history - used by cmd-line parameters
-    int model_nocmd_load(model_t *m, char *filename);
+    int model_nocmd_load(model_t *m, const char *filename);
 
     int model_write_autosave_file(model_t *m);
     int model_load_autosave_file(model_t *m);
@@ -113,10 +113,10 @@ extern "C" {
 
      
     // compiler properties
-    void model_set_compiler_location(model_t *m, char *location);
+    void model_set_compiler_location(model_t *m, const char *location);
     const char *model_get_compiler_location(model_t *m);
 
-    void model_set_compiler_flags(model_t *m, char *location, bool save);
+    void model_set_compiler_flags(model_t *m, const char *location, bool save);
     const char *model_get_compiler_flags(model_t *m);
 
     // report an error

@@ -95,9 +95,6 @@ static void gundo_sequence_class_init( GundoSequenceClass *klass ) {
                         gtk_marshal_NONE__BOOL,
                         GTK_TYPE_NONE, 1, GTK_TYPE_BOOL );
     
-    gtk_object_class_add_signals( base, gundo_sequence_signals,
-                                  UNDO_SEQUENCE_SIGNAL_LAST+1 );
-    
     klass->can_undo = NULL;
     klass->can_redo = NULL;
     

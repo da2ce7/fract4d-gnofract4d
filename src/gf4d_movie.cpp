@@ -3,7 +3,7 @@
 
 #include <gtk/gtkmain.h>
 #include <gtk/gtksignal.h>
-#include "gf4d_utils.h"
+#include "marshallers.h"
 #include "tls.h"
 
 static void gf4d_movie_class_init               (Gf4dMovieClass    *klass);
@@ -167,7 +167,7 @@ gf4d_movie_class_init (Gf4dMovieClass *klass)
     movie_signals[LIST_CHANGED] = 
         gtk_signal_new("list_changed",
                        GtkSignalRunType(GTK_RUN_FIRST | GTK_RUN_NO_RECURSE),
-                       object_class->type,
+                       GTK_CLASS_TYPE(object_class),
                        GTK_SIGNAL_OFFSET(Gf4dMovieClass, list_changed),
                        gtk_marshal_NONE__NONE,
                        GTK_TYPE_NONE, 0);
@@ -175,25 +175,25 @@ gf4d_movie_class_init (Gf4dMovieClass *klass)
     movie_signals[PROGRESS_CHANGED] = 
         gtk_signal_new("progress_changed",
                        GTK_RUN_FIRST,
-                       object_class->type,
+                       GTK_CLASS_TYPE(object_class),
                        GTK_SIGNAL_OFFSET(Gf4dMovieClass, progress_changed),
-                       marshal_NONE__FLOAT,
+                       gf4d_marshal_VOID__FLOAT,
                        GTK_TYPE_NONE, 1,
                        GTK_TYPE_FLOAT);
 
     movie_signals[IMAGE_COMPLETE] =
 	gtk_signal_new("image_complete",
 		       GTK_RUN_FIRST,
-		       object_class->type,
+		       GTK_CLASS_TYPE(object_class),
 		       GTK_SIGNAL_OFFSET(Gf4dMovieClass, image_complete),
-		       marshal_NONE__INT,
+		       gf4d_marshal_VOID__INT,
 		       GTK_TYPE_NONE, 1,
 		       GTK_TYPE_INT);
 
     movie_signals[STATUS_CHANGED] = 
         gtk_signal_new("status_changed",
                        GTK_RUN_FIRST,
-                       object_class->type,
+                       GTK_CLASS_TYPE(object_class),
                        GTK_SIGNAL_OFFSET(Gf4dMovieClass, status_changed),
                        gtk_marshal_NONE__ENUM,
                        GTK_TYPE_NONE, 1,
@@ -204,8 +204,6 @@ gf4d_movie_class_init (Gf4dMovieClass *klass)
     klass->progress_changed=NULL;
     klass->status_changed=NULL;
     klass->image_complete=NULL;
-
-    gtk_object_class_add_signals(object_class, movie_signals, LAST_SIGNAL);
 }
 
 
