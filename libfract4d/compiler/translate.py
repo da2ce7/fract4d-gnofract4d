@@ -264,14 +264,26 @@ class T:
         
     def assign(self, node):
         '''assign a new value to a variable, creating it if required'''
-        if not self.symbols.has_key(node.leaf):
-            # implicitly create a new var - a warning?
-            self.symbols[node.leaf] = Var(Complex,default_value(Complex),node.pos)
+        lvalue = node.children[0]
+        lhs = expectedType = None
+        if lvalue.type == "id":
+            name = lvalue.leaf
+            if not self.symbols.has_key(name):
+                # implicitly create a new var - a warning?
+                self.symbols[name] = \
+                    Var(Complex,default_value(Complex),lvalue.pos)
 
-        expectedType = self.symbols[node.leaf].type
-        rhs = self.exp(node.children[0])
-        
-        lhs = ir.Var(node.leaf, node, expectedType)
+            expectedType = self.symbols[name].type
+            lhs = ir.Var(name, node, expectedType)
+            
+        elif lvalue.type == "funcall":
+            lhs = self.funcall(lvalue)
+            expectedType = lhs.datatype
+        else:
+            self.error("Internal Compiler Error: bad lvalue %s for assign on %d:"\
+                       % (lvalue.type, node.pos))
+        rhs = self.exp(node.children[1])
+
         return ir.Move(lhs,self.coerce(rhs,expectedType),node,expectedType)
 
     def findOp(self, opnode, list):

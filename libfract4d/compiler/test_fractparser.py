@@ -253,10 +253,10 @@ class ParserTest(unittest.TestCase):
             [n for n in t1.children[0].children[0].children[0]],
             ["while", "binop", "const", "const",
              "stmlist",
-                 "assign", "binop", "id", "const",
+                 "assign", "id", "binop", "id", "const",
                  "while", "binop", "id", "id",
                  "stmlist",
-                     "assign", "id"              
+                     "assign", "id", "id"              
             ])
 
     # this comes from anon.ufm, which appears broken -UF doesn't

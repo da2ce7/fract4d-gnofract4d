@@ -194,8 +194,16 @@ def p_exp_binop(t):
     t[0] = absyn.Binop(t[2],t[1],t[3], t.lineno(2))
 
 def p_exp_assign(t):
-    'exp : ID ASSIGN exp'
+    'exp : lval ASSIGN exp'
     t[0] = absyn.Assign(t[1],t[3], t.lineno(2))
+
+def p_lval_id(t):
+    'lval : ID'
+    t[0] = absyn.ID(t[1],t.lineno(1))
+
+def p_lval_funcall(t):
+    'lval : ID LPAREN arglist RPAREN'
+    t[0] = absyn.Funcall(t[1],t[3],t.lineno(1))
     
 def p_exp_uminus(t):
     'exp : MINUS exp %prec UMINUS'
