@@ -482,9 +482,7 @@ class T(gobject.GObject):
         gtk.idle_add(self.changed)
         
     def reset(self):
-        print "start reset"
         self.f.reset()
-        print "reset"
         self.changed()
 
     def loadFctFile(self,file):

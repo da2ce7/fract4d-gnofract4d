@@ -19,7 +19,7 @@ Done in 2.6:
 
 todo:
 * B	each fractal gets compiled twice, 2nd time with extra vars:
-
+* B	compile whenever resolution changes - pointless
 * W	don't allocate memory for recoloring buffer when image very large
 * B	opening browser should select current fractfile and formula
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
