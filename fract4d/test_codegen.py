@@ -630,34 +630,28 @@ func fn1
         color green = rgba(0,1,0,1)
         color blue = rgba(0,0,1,1)
         color alpha = rgba(0,0,0,1)
-        color yellow = red + green
-        color cyan = blue + green
-        color white = red + blue + green
-        color black = white - red - blue - green - green
+        color yellow = (red + green) / 2
+        color cyan = (blue + green) / 2
+        color white = (red + blue + green)
+        color black = white - red - blue - green
         color yellow2 = yellow * 0.5
-        color bigyellow = yellow * 37.6
-        color yellow3 = yellow / 2.0
-        color black2 = yellow / -1.0
+        color yellow3 = yellow2 / 0.5
         }'''
 
         exp = "\n".join([
-            "yellow = (1,1,0,1)",
-            "cyan = (0,1,1,1)",
-            "white = (1,1,1,1)",
+            "yellow = (0.5,0.5,0,1)",
+            "cyan = (0,0.5,0.5,1)",
+            "white = (1,1,1,3)",
             "black = (0,0,0,0)",
-            "yellow2 = (0.5,0.5,0,0.5)",
-            "bigyellow = (1,1,0,1)",
-            "yellow3 = (0.5,0.5,0,0.5)",
-            "black2 = (0,0,-0,0)"])
+            "yellow2 = (0.25,0.25,0,0.5)",
+            "yellow3 = (0.5,0.5,0,1)"])
         self.assertCSays(src,"init",
                          self.inspect_color("yellow") +
                          self.inspect_color("cyan") +
                          self.inspect_color("white") +
                          self.inspect_color("black") +
                          self.inspect_color("yellow2") +
-                         self.inspect_color("bigyellow") +
-                         self.inspect_color("yellow3") +
-                         self.inspect_color("black2"),
+                         self.inspect_color("yellow3"),
                          exp)
         
     def testCHyper(self):
