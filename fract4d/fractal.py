@@ -551,6 +551,11 @@ class T(FctUtils):
         func = formula.symbols[fname]
         #print "got %s" % func
         return func[0].cname
+
+    def get_named_param_value(self,name):
+        op = self.formula.symbols.order_of_params()
+        ord = op.get(self.formula.symbols.mangled_name(name))
+        return self.initparams[ord]
     
     def changed(self,clear_image=True):
         self.dirty = True

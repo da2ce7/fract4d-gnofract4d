@@ -262,7 +262,8 @@ class T(gobject.GObject):
             
             set_entry(self)
 
-            widget.update = set_entry
+            widget.set_data("update_function", set_entry)
+            
             widget.f = self
             widget.connect('focus-out-event',
                            set_fractal,self,order,param_type)
@@ -271,7 +272,7 @@ class T(gobject.GObject):
 
         label.set_mnemonic_widget(widget)
         table.attach(widget,1,2,i,i+1,0,0,2,2)
-
+            
     def construct_function_menu(self,param,formula):
         funclist = formula.symbols.available_param_functions(
             param.ret,param.args)
@@ -326,7 +327,7 @@ class T(gobject.GObject):
         self.set_saved(False)
         if not self.frozen:
             self.emit('parameters-changed')
-
+            
     def formula_changed(self):
         self.f.dirtyFormula = True
         #if not self.frozen:
@@ -389,8 +390,9 @@ class T(gobject.GObject):
         table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL,0,2,2)
 
     def create_maxiter_widget(self,table,i):
-        label = gtk.Label("Max Iterations :")
+        label = gtk.Label("_Max Iterations :")
         label.set_justify(gtk.JUSTIFY_RIGHT)
+        label.set_use_underline(True)
         table.attach(label,0,1,i,i+1,0,0,2,2)
 
         widget = gtk.Entry()
@@ -416,6 +418,7 @@ class T(gobject.GObject):
         self.connect('iters-changed', set_entry)
         widget.connect('focus-out-event',set_fractal)
 
+        label.set_mnemonic_widget(widget)
         table.attach(widget,1,2,i,i+1,0,0,2,2)
         return i+1
         
@@ -479,7 +482,9 @@ class T(gobject.GObject):
         gtk.idle_add(self.changed)
         
     def reset(self):
+        print "start reset"
         self.f.reset()
+        print "reset"
         self.changed()
 
     def loadFctFile(self,file):
