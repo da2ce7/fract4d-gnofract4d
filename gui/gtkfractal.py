@@ -55,13 +55,13 @@ class Threaded(fractal.T):
 
         self.skip_updates = False
 
-    def draw(self,image):
+    def draw(self,image,width,height):
         self.cmap = fract4dc.cmap_create(self.colorlist)
         (r,g,b,a) = self.solids[0]
         fract4dc.cmap_set_solid(self.cmap,0,r,g,b,a)
 
         #print "draw: init with %s" % self.initparams
-        t = self.tolerance(self.width,self.height)
+        t = self.tolerance(width,height)
         fract4dc.pf_init(self.pfunc,t,self.initparams)
 
         self.running = True
@@ -95,7 +95,7 @@ class Threaded(fractal.T):
         else:
             raise Exception("Unknown message from fractal thread")
 
-class T(Threaded,gobject.GObject):
+class T(gobject.GObject):
     __gsignals__ = {
         'parameters-changed' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
@@ -111,8 +111,13 @@ class T(Threaded,gobject.GObject):
     def __init__(self,comp):
         gobject.GObject.__init__(self) # MUST be called before threaded.init
 
-        Threaded.__init__(self,comp)
-        gtk.input_add(self.readfd, gtk.gdk.INPUT_READ, self.onData)
+        f = self.f = Threaded(comp)
+        f.iters_changed = self.iters_changed
+        f.image_changed = self.image_changed
+        f.progress_changed = self.progress_changed
+        f.status_changed = self.status_changed
+        
+        gtk.input_add(self.f.readfd, gtk.gdk.INPUT_READ, self.f.onData)
         
         self.width = 640
         self.height = 480
@@ -134,8 +139,17 @@ class T(Threaded,gobject.GObject):
         drawing_area.set_size_request(self.width,self.height)
 
         self.widget = drawing_area
-        self.compile()
+        self.f.compile()
 
+    def __getattr__(self,name):
+        return getattr(self.f,name)
+
+    def params(self):
+        return self.f.params
+    
+    def get_param(self,n):
+        return self.f.get_param(n)
+    
     def param_display_name(self,name,param):
         if hasattr(param,"title"):
             return param.title
@@ -167,7 +181,7 @@ class T(Threaded,gobject.GObject):
         table.attach(widget,1,2,i,i+1,0,0,2,2)
 
     def construct_function_menu(self,param):
-        funclist = self.formula.symbols.available_param_functions(
+        funclist = self.f.formula.symbols.available_param_functions(
             param.ret,param.args)
         funclist.sort()
 
@@ -180,18 +194,18 @@ class T(Threaded,gobject.GObject):
         return menu
 
     def set_auto_deepen(self,deepen):
-        if self.auto_deepen != deepen:
-            self.auto_deepen = deepen
+        if self.f.auto_deepen != deepen:
+            self.f.auto_deepen = deepen
             self.emit('parameters-changed')
             
     def set_antialias(self,aa_type):
-        if self.antialias != aa_type:
-            self.antialias = aa_type
+        if self.f.antialias != aa_type:
+            self.f.antialias = aa_type
             self.emit('parameters-changed')
         
     def set_func(self,func,fname):
         if func.cname != fname:
-            fractal.T.set_func(self,func,fname)
+            self.f.set_func(func,fname)
             self.emit('parameters-changed')
         
     def add_formula_function(self,table,i,name,param):
@@ -237,7 +251,7 @@ class T(Threaded,gobject.GObject):
             widget.set_text("%d" % self.maxiter)
 
         def set_fractal(*args):
-            self.set_maxiter(int(widget.get_text()))
+            self.f.set_maxiter(int(widget.get_text()))
             return False
         
         set_entry(self)
@@ -268,8 +282,8 @@ class T(Threaded,gobject.GObject):
             i += 1
 
     def set_maxiter(self,new_iter):
-        if self.maxiter != new_iter:
-            self.maxiter = new_iter
+        if self.f.maxiter != new_iter:
+            self.f.maxiter = new_iter
             self.emit('parameters_changed')
         
     def set_size(self, new_width, new_height):
@@ -282,11 +296,11 @@ class T(Threaded,gobject.GObject):
         self.emit('parameters-changed')
         
     def reset(self):
-        fractal.T.reset(self)
+        self.f.reset()
         self.emit('parameters-changed')
 
     def loadFctFile(self,file):
-        fractal.T.loadFctFile(self,file)
+        self.f.loadFctFile(file)
         self.emit('parameters-changed')
         
     def save_image(self,filename):
@@ -300,34 +314,32 @@ class T(Threaded,gobject.GObject):
         pixbuf.save(filename,"png")
         
     def draw_image(self):
-        self.interrupt()
-        self.compile()
-        self.draw(self.image)
+        self.f.interrupt()
+        self.f.compile()
+        self.f.draw(self.image,self.width,self.height)
         return gtk.FALSE
 
     def set_initparam(self,n,val):
         val = float(val)
-        if self.initparams[n] != val:
-            self.initparams[n] = val
+        if self.f.initparams[n] != val:
+            self.f.initparams[n] = val
             self.emit('parameters-changed')
     
     def set_param(self,n,val):
         #print "set param: %s %s" % (n, val)
         val = float(val)
-        if self.params[n] != val:
-            self.params[n] = val
+        if self.f.params[n] != val:
+            self.f.params[n] = val
             self.emit('parameters-changed')
 
     def progress_changed(self,progress):
-        fractal.T.progress_changed(self,progress)
         self.emit('progress-changed',progress)
         
     def status_changed(self,status):
-        fractal.T.status_changed(self,status)
         self.emit('status-changed',status)
         
     def iters_changed(self,n):
-        fractal.T.iters_changed(self,n)
+        self.maxiter = n
         # don't emit a parameters-changed here to avoid deadlock
         
     def image_changed(self,x1,y1,x2,y2):
