@@ -68,25 +68,31 @@ static gfloat max_angle = 3 * M_PI/2.0; // ( 7.0 * M_PI/6.0);
 guint
 gf4d_angle_get_type ()
 {
-    static guint dial_type = 0;
+    static GType angle_type = 0;
 
-    if (!dial_type)
+    if (!angle_type)
     {
-        GtkTypeInfo dial_info =
+        static const GTypeInfo angle_info =
         {
-            "Gf4dAngle",
-            sizeof (Gf4dAngle),
             sizeof (Gf4dAngleClass),
-            (GtkClassInitFunc) gf4d_angle_class_init,
-            (GtkObjectInitFunc) gf4d_angle_init,
-            NULL,
-            NULL,
+	    NULL,
+	    NULL,
+            (GClassInitFunc) gf4d_angle_class_init,
+	    NULL,
+	    NULL,
+            sizeof (Gf4dAngle),
+	    0,
+            (GInstanceInitFunc) gf4d_angle_init
         };
 
-        dial_type = gtk_type_unique (gtk_widget_get_type (), &dial_info);
+        angle_type = g_type_register_static(
+	    GTK_TYPE_WIDGET,
+            "Gf4dAngle",
+	    &angle_info,
+	    (GTypeFlags)0);
     }
 
-    return dial_type;
+    return angle_type;
 }
 
 static void
@@ -111,12 +117,14 @@ gf4d_angle_class_init (Gf4dAngleClass *klass)
     widget_klass->motion_notify_event = gf4d_angle_motion_notify;
 
     angle_signals[VALUE_SLIGHTLY_CHANGED] = 
-        gtk_signal_new("value_slightly_changed",
-                       GtkSignalRunType(GTK_RUN_FIRST | GTK_RUN_NO_RECURSE),
-                       GTK_CLASS_TYPE(object_klass),
-                       GTK_SIGNAL_OFFSET(Gf4dAngleClass, value_slightly_changed),
-                       gtk_marshal_NONE__NONE,
-                       GTK_TYPE_NONE, 0);
+        g_signal_new("value_slightly_changed",
+		     G_TYPE_FROM_CLASS(klass),
+		     (GSignalFlags)(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
+		     G_STRUCT_OFFSET(Gf4dAngleClass, value_slightly_changed),
+		     NULL, NULL,
+		     g_cclosure_marshal_VOID__VOID,
+		     G_TYPE_NONE,
+		     0);
 
     klass->value_slightly_changed = NULL;
 }
@@ -140,16 +148,16 @@ gf4d_angle_init (Gf4dAngle *dial)
 GtkWidget*
 gf4d_angle_new (GtkAdjustment *adjustment)
 {
-    Gf4dAngle *dial;
+    Gf4dAngle *angle;
 
-    dial = GF4D_ANGLE(gtk_type_new (gf4d_angle_get_type ()));
+    angle = GF4D_ANGLE(g_object_new (gf4d_angle_get_type (), NULL));
 
     if (!adjustment)
         adjustment = (GtkAdjustment*) gtk_adjustment_new (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-    gf4d_angle_set_adjustment (dial, adjustment);
+    gf4d_angle_set_adjustment (angle, adjustment);
 
-    return GTK_WIDGET (dial);
+    return GTK_WIDGET (angle);
 }
 
 static void
@@ -163,7 +171,7 @@ gf4d_angle_destroy (GtkObject *object)
     dial = GF4D_ANGLE (object);
 
     if (dial->adjustment)
-        gtk_object_unref (GTK_OBJECT (dial->adjustment));
+        g_object_unref (GTK_OBJECT (dial->adjustment));
 
     if (GTK_OBJECT_CLASS (parent_klass)->destroy)
         (* GTK_OBJECT_CLASS (parent_klass)->destroy) (object);
@@ -205,17 +213,20 @@ gf4d_angle_set_adjustment (Gf4dAngle      *dial,
 
     if (dial->adjustment)
     {
-        gtk_signal_disconnect_by_data (GTK_OBJECT (dial->adjustment), (gpointer) dial);
-        gtk_object_unref (GTK_OBJECT (dial->adjustment));
+        g_signal_handlers_disconnect_matched (
+	    G_OBJECT (dial->adjustment), 
+	    G_SIGNAL_MATCH_DATA,
+	    0, 0, NULL, NULL, (gpointer) dial);
+        g_object_unref (G_OBJECT (dial->adjustment));
     }
 
     dial->adjustment = adjustment;
-    gtk_object_ref (GTK_OBJECT (dial->adjustment));
+    g_object_ref (G_OBJECT (dial->adjustment));
 
-    g_signal_connect (GTK_OBJECT (adjustment), "changed",
+    g_signal_connect (G_OBJECT (adjustment), "changed",
                         (GtkSignalFunc) gf4d_angle_adjustment_changed,
                         (gpointer) dial);
-    g_signal_connect (GTK_OBJECT (adjustment), "value_changed",
+    g_signal_connect (G_OBJECT (adjustment), "value_changed",
                         (GtkSignalFunc) gf4d_angle_adjustment_value_changed,
                         (gpointer) dial);
 
@@ -417,7 +428,7 @@ gf4d_angle_button_release (GtkWidget      *widget,
       
         if ((dial->policy != GTK_UPDATE_CONTINUOUS) &&
             (dial->old_value != dial->adjustment->value))
-            gtk_signal_emit_by_name (GTK_OBJECT (dial->adjustment), "value_changed");
+            g_signal_emit_by_name (GTK_OBJECT (dial->adjustment), "value_changed");
     }
 
     return FALSE;
@@ -475,7 +486,7 @@ gf4d_angle_timer (Gf4dAngle *dial)
     g_return_val_if_fail (GF4D_IS_ANGLE (dial), FALSE);
 
     if (dial->policy == GTK_UPDATE_DELAYED)
-        gtk_signal_emit_by_name (GTK_OBJECT (dial->adjustment), "value_changed");
+        g_signal_emit_by_name (G_OBJECT (dial->adjustment), "value_changed");
 
     return FALSE;
 }
@@ -516,12 +527,12 @@ gf4d_angle_update_mouse (Gf4dAngle *dial, gint x, gint y)
     {
         if (dial->policy == GTK_UPDATE_CONTINUOUS)
         {
-            gtk_signal_emit_by_name (GTK_OBJECT (dial->adjustment), "value_changed");
+            g_signal_emit_by_name (G_OBJECT (dial->adjustment), "value_changed");
         }
         else
         {
-            gtk_widget_draw (GTK_WIDGET(dial), NULL);
-            gtk_signal_emit_by_name (GTK_OBJECT (dial), "value_slightly_changed");
+            gtk_widget_queue_draw (GTK_WIDGET(dial));
+            g_signal_emit_by_name (G_OBJECT (dial), "value_slightly_changed");
 
             if (dial->policy == GTK_UPDATE_DELAYED)
             {
@@ -555,13 +566,13 @@ gf4d_angle_update (Gf4dAngle *dial)
     if (new_value != dial->adjustment->value)
     {
         dial->adjustment->value = new_value;
-        gtk_signal_emit_by_name (GTK_OBJECT (dial->adjustment), "value_changed");
+        g_signal_emit_by_name (G_OBJECT (dial->adjustment), "value_changed");
     }
 
     dial->angle = max_angle - (new_value - dial->adjustment->lower) * (max_angle - min_angle) /
         (dial->adjustment->upper - dial->adjustment->lower);
 
-    gtk_widget_draw (GTK_WIDGET(dial), NULL);
+    gtk_widget_queue_draw (GTK_WIDGET(dial));
 }
 
 static void
