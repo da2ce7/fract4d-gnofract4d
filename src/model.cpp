@@ -259,7 +259,8 @@ model_init_compiler(model_t *m,compiler *pc)
         gnome_config_get_string(PACKAGE "/Compiler/path");
     if(NULL == compiler_location)
     {
-        compiler_location = g_strdup(CXX); // value set by flag set in Makefile.am
+        // could be value set by flag set in Makefile.am
+        compiler_location = g_strdup("g++"); 
     }
     model_set_compiler_location(m,compiler_location);
     g_free(compiler_location);

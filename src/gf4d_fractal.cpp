@@ -275,6 +275,15 @@ e_bailFunc gf4d_fractal_get_bailout_type(Gf4dFractal *gf)
     return gf->f->bailout_type;
 }
 
+static fract_callbacks gf4d_callbacks = 
+{
+    gf4d_fractal_parameters_changed,
+    gf4d_fractal_image_changed,
+    gf4d_fractal_progress_changed,
+    gf4d_fractal_status_changed,
+    gf4d_fractal_try_finished_cond
+};
+
 static void *
 calculation_thread(void *vdata) 
 {
@@ -283,7 +292,7 @@ calculation_thread(void *vdata)
     set_started_cond(f);
 
     try {
-        f->f->calc(f,f->im);	
+        f->f->calc(f,f->im,&gf4d_callbacks);	
     }
     catch(...)
     {

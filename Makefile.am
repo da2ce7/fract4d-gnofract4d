@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = m4  po macros src doc 
+SUBDIRS = m4  po macros libfract4d fract4d src doc 
 
 install-data-local:
 	@$(NORMAL_INSTALL)

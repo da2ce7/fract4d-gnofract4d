@@ -11,7 +11,7 @@ Group: Applications/Graphics
 Source: ftp://gnofract4d.sourceforge.net/gnofract4d-%{PACKAGE_VERSION}.tar.gz
 BuildRoot: /var/tmp/gnofract4d-%{PACKAGE_VERSION}-root
 URL: http://gnofract4d.sourceforge.net/
-Requires: gnome-libs >= 1.0.12  gcc-c++ >= 3.0
+Requires: gnome-libs >= 1.0.12  gcc-c++ >= 2.95
 Docdir: %{prefix}/doc
 Prefix: %prefix
 

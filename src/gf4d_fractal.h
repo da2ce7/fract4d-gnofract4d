@@ -170,6 +170,14 @@ void gf4d_fractal_set_mixed(Gf4dFractal *f_dst, Gf4dFractal *f_src1, Gf4dFractal
     double lambda);
 
 void gf4d_fractal_set_keep_data(Gf4dFractal *f, gboolean keep_data); 
-#include "fract_callbacks.h"
+
+
+void gf4d_fractal_parameters_changed(Gf4dFractal *f);
+void gf4d_fractal_image_changed(Gf4dFractal *f, int x1, int x2, int y1, int y2);
+void gf4d_fractal_progress_changed(Gf4dFractal *f, float progress);
+void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val);
+
+// returns true if we've been interrupted and are supposed to stop
+bool gf4d_fractal_try_finished_cond(Gf4dFractal *f);
 
 #endif /* _GF4D_FRACTAL_H_ */

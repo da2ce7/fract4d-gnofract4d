@@ -38,10 +38,10 @@ pkglibdir = $(libdir)/gnofract4d
 pkgincludedir = $(includedir)/gnofract4d
 top_builddir = ..
 
-ACLOCAL = ${SHELL} /home/edwin/gnofract4d/missing --run aclocal-1.6 -I macros
-AUTOCONF = ${SHELL} /home/edwin/gnofract4d/missing --run autoconf
-AUTOMAKE = ${SHELL} /home/edwin/gnofract4d/missing --run automake-1.6
-AUTOHEADER = ${SHELL} /home/edwin/gnofract4d/missing --run autoheader
+ACLOCAL = ${SHELL} /home/edwin/gnofract4d-ng/missing --run aclocal-1.6 -I macros
+AUTOCONF = ${SHELL} /home/edwin/gnofract4d-ng/missing --run autoconf
+AUTOMAKE = ${SHELL} /home/edwin/gnofract4d-ng/missing --run automake-1.6
+AUTOHEADER = ${SHELL} /home/edwin/gnofract4d-ng/missing --run autoheader
 
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = /usr/bin/install -c
@@ -65,7 +65,8 @@ host_triplet = i686-pc-linux-gnu
 EXEEXT = 
 OBJEXT = o
 PATH_SEPARATOR = :
-AMTAR = ${SHELL} /home/edwin/gnofract4d/missing --run tar
+AMTAR = ${SHELL} /home/edwin/gnofract4d-ng/missing --run tar
+AS = @AS@
 AWK = gawk
 BUILD_INCLUDED_LIBINTL = @BUILD_INCLUDED_LIBINTL@
 CATOBJEXT = @CATOBJEXT@
@@ -73,6 +74,8 @@ CC = gcc
 CXX = g++
 DATADIRNAME = @DATADIRNAME@
 DEPDIR = .deps
+DLLTOOL = @DLLTOOL@
+ECHO = echo
 GENCAT = @GENCAT@
 GLIBC21 = @GLIBC21@
 GMSGFMT = /usr/bin/msgfmt
@@ -100,10 +103,13 @@ INTL_LIBTOOL_SUFFIX_PREFIX = @INTL_LIBTOOL_SUFFIX_PREFIX@
 LIB = @LIB@
 LIBICONV = -liconv
 LIBINTL = 
+LIBTOOL = $(SHELL) $(top_builddir)/libtool
+LN_S = ln -s
 LTLIB = @LTLIB@
 LTLIBICONV = -liconv
 LTLIBINTL = 
 MKINSTALLDIRS = ./mkinstalldirs
+OBJDUMP = @OBJDUMP@
 ORBIT_CFLAGS = -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/include/orbit-1.0
 ORBIT_CONFIG = /usr/bin/orbit-config
 ORBIT_IDL = /usr/bin/orbit-idl
@@ -113,8 +119,8 @@ PACKAGE_MAPS_DIR = /usr/share/maps/gnofract4d
 PACKAGE_PIXMAPS_DIR = /usr/share/pixmaps/gnofract4d
 POSUB = po
 PTHREAD_LIB = -lpthread
-RANLIB = @RANLIB@
-STRIP = 
+RANLIB = ranlib
+STRIP = strip
 USE_INCLUDED_LIBINTL = @USE_INCLUDED_LIBINTL@
 USE_NLS = yes
 VERSION = 1.7
@@ -124,7 +130,7 @@ am__include = include
 am__quote = 
 cflags_set = yes
 cxxflags_set = @cxxflags_set@
-install_sh = /home/edwin/gnofract4d/install-sh
+install_sh = /home/edwin/gnofract4d-ng/install-sh
 MACROS = \
   aclocal-include.m4				\
   compiler-flags.m4				\
@@ -172,6 +178,15 @@ $(srcdir)/Makefile.in:  Makefile.am  $(top_srcdir)/configure.in $(ACLOCAL_M4)
 	  $(AUTOMAKE) --gnu  macros/Makefile
 Makefile:  $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+	-rm -f libtool
 uninstall-info-am:
 gnome_aclocalDATA_INSTALL = $(INSTALL_DATA)
 install-gnome_aclocalDATA: $(gnome_aclocal_DATA)
@@ -254,11 +269,11 @@ maintainer-clean-generic:
 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-am
 
-clean-am: clean-generic mostlyclean-am
+clean-am: clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-am
 
-distclean-am: clean-am distclean-generic
+distclean-am: clean-am distclean-generic distclean-libtool
 
 dvi: dvi-am
 
@@ -284,19 +299,19 @@ maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-am
 
-mostlyclean-am: mostlyclean-generic
+mostlyclean-am: mostlyclean-generic mostlyclean-libtool
 
 uninstall-am: uninstall-gnome_aclocalDATA uninstall-info-am
 
-.PHONY: all all-am check check-am clean clean-generic distclean \
-	distclean-generic distdir dvi dvi-am info info-am install \
-	install-am install-data install-data-am install-exec \
-	install-exec-am install-gnome_aclocalDATA install-info \
-	install-info-am install-man install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	uninstall uninstall-am uninstall-gnome_aclocalDATA \
-	uninstall-info-am
+.PHONY: all all-am check check-am clean clean-generic clean-libtool \
+	distclean distclean-generic distclean-libtool distdir dvi \
+	dvi-am info info-am install install-am install-data \
+	install-data-am install-exec install-exec-am \
+	install-gnome_aclocalDATA install-info install-info-am \
+	install-man install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool uninstall \
+	uninstall-am uninstall-gnome_aclocalDATA uninstall-info-am
 
 
 macros.dep: Makefile.am

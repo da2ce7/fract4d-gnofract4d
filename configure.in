@@ -4,6 +4,7 @@ AC_INIT(configure.in)
 AC_PREFIX_DEFAULT(/usr)
 AM_INIT_AUTOMAKE(gnofract4d, 1.7)
 AM_CONFIG_HEADER(config.h)
+AM_PROG_LIBTOOL
 
 dnl Pick up the Gnome macros.
 AM_ACLOCAL_INCLUDE(macros)
@@ -47,6 +48,8 @@ AC_SUBST(PACKAGE_MAPS_DIR)
 AC_OUTPUT([ m4/Makefile 
 Makefile
 macros/Makefile
+libfract4d/Makefile
+fract4d/Makefile
 src/Makefile
 po/Makefile.in
 doc/Makefile
