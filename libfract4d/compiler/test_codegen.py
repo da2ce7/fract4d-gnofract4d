@@ -127,9 +127,9 @@ int main()
 
         int main(){
         double params[20]= {0.0, 0.0, 0.0, 0.0};
-        pf_fake f;
-        f.p = params;
-        pf_fake *t__pfo = &f;
+        pf_fake t__f;
+        t__f.p = params;
+        pf_fake *t__pfo = &t__f;
         double z_re = 0.0, z_im = 0.0, pixel_re = 0.0, pixel_im = 0.0;
         '''
         decls = string.join(map(lambda x: x.format(),
@@ -387,7 +387,65 @@ goto t__end_init;''')
         endif
         }'''
         self.assertCSays(src,"init","printf(\"%d\\n\",y);","2")
+
+        # casts to & from bool
+        src = '''t_c7{
+        init:
+        bool t = 1
+        bool f = 0
+        bool temp
+        int i7 = 7
+        int i0 = 0
+        float f0 = 0.0
+        float f7 = 7.0
+        complex c0 = (0.0,0.0)
+        complex c1 = (1.0,0.0)
+        complex ci1 = (0.0,1.0)
+        complex c7 = (7,7)
+
+        ; now check for casts by round-tripping
+        temp = c7
+        complex c_from_bt = temp
+        temp = c0
+        complex c_from_bf = temp
+        temp = ci1
+        complex c_from_bt2 = temp
+        temp = i7
+        int i_from_bt = temp
+        temp = i0
+        int i_from_bf = temp
+        temp = f7
+        float f_from_bt = temp
+        temp = f0
+        float f_from_bf = temp
         
+        }'''
+
+        tests = string.join([
+            self.inspect_bool("t"),
+            self.inspect_bool("f"),
+            self.inspect_complex("c_from_bt"),
+            self.inspect_complex("c_from_bt2"),
+            self.inspect_complex("c_from_bf"),
+            self.inspect_int("i_from_bt"),
+            self.inspect_int("i_from_bf"),
+            self.inspect_float("f_from_bt"),
+            self.inspect_float("f_from_bf"),
+            ])
+        
+        results = string.join([
+            "t = 1",
+            "f = 0",
+            "c_from_bt = (1,0)",
+            "c_from_bt2 = (1,0)",
+            "c_from_bf = (0,0)",
+            "i_from_bt = 1",
+            "i_from_bf = 0",
+            "f_from_bt = 1",
+            "f_from_bf = 0",
+            ],"\n")
+        self.assertCSays(src,"init",tests,results)
+
     def testParams(self):
         src = 't_cp0{\ninit: complex @p = (2,1)\n}'
         self.assertCSays(src,"init",self.inspect_complex("t__a_p"),
@@ -437,7 +495,16 @@ goto t__end_init;''')
         src = 't_uba0{\ninit: z = z - x\n}'
         self.assertCSays(src,"init",self.inspect_complex("z"),
                          "z = (0,0)")
-        
+
+    def inspect_bool(self,name):
+        return "printf(\"%s = %%d\\n\", %s);" % (name,name)
+
+    def inspect_float(self,name):
+        return "printf(\"%s = %%g\\n\", %s);" % (name,name)
+
+    def inspect_int(self,name):
+        return "printf(\"%s = %%d\\n\", %s);" % (name,name)
+
     def inspect_complex(self,name):
         return "printf(\"%s = (%%g,%%g)\\n\", %s_re, %s_im);" % (name,name,name)
 

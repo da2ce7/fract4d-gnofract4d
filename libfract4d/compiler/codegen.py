@@ -443,18 +443,28 @@ pf_obj *pf_new()
                 assem = "%(d0)s = 0.0;"
                 self.out.append(Oper(assem,[src], [dst.im]))
         elif t.datatype == Float:
-            dst = TempArg(self.symbols.newTemp(Float))
             if child.datatype == Int or child.datatype == Bool:
+                dst = TempArg(self.symbols.newTemp(Float))
                 assem = "%(d0)s = ((double)%(s0)s);" 
                 self.out.append(Oper(assem,[src], [dst]))
         elif t.datatype == Int:
             if child.datatype == Bool:
                 # needn't do anything
                 dst = src
-        elif t.datatype == Bool:            
-            # FIXME implement these
-            pass
-        
+        elif t.datatype == Bool:
+            dst = TempArg(self.symbols.newTemp(Bool))
+            if child.datatype == Int or child.datatype == Bool:
+                assem = "%(d0)s = (%(s0)s != 0);"
+                self.out.append(Oper(assem,[src], [dst]))
+            elif child.datatype == Float:
+                assem = "%(d0)s = (%(s0)s != 0.0);"
+                self.out.append(Oper(assem,[src], [dst]))
+            elif child.datatype == Complex:
+                assem = "%(d0)s = ((%(s0)s != 0.0) || (%(s1)s != 0.0));"
+                self.out.append(Oper(assem,[src.re, src.im], [dst]))
+            else:
+                dst = None
+                
         if dst == None:
             msg = "%d: Invalid Cast from %s to %s" % \
                   (t.node.pos,fracttypes.strOfType(child.datatype),
