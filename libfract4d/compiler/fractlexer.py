@@ -46,12 +46,15 @@ tokens = (
    'COMMENT',
    'NEWLINE',
    'ESCAPED_NL',
-   'COLON',
    'COMMA',
    'STRING',
 
    'FORM_ID',
-   'FORM_END'
+   'FORM_END',
+   'SECT_SET',
+   'SECT_STM',
+   'PARAM',
+   'ENDPARAM'
 )
 
 # Regular expression rules for simple tokens
@@ -76,7 +79,6 @@ t_LTE     = r'<='
 t_GT      = r'>'
 t_GTE     = r'>='
 t_ASSIGN  = r'='
-t_COLON   = r':'
 t_COMMA   = r','
 t_FORM_END= r'\}'
 
@@ -87,6 +89,23 @@ def t_NUMBER(t):
     except ValueError:
         print "Line %d: Real number %s is too large!" % (t.lineno, t.value)
         t.value = 0
+    return t
+
+# these have to be functions to give them higher precedence than ID
+def t_SECT_SET(t):
+    r'((default)|(switch))\s*:'
+    return t
+
+def t_SECT_STM(t):
+    r'((global)|(transform)|(builtin)|(init)|(loop)|(final)|(bailout))\s*:'
+    return t
+
+def t_PARAM(t):
+    "param"
+    return t
+
+def t_ENDPARAM(t):
+    "endparam"
     return t
 
 # may seem weird, but this includes the starting {
