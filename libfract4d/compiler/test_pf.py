@@ -30,6 +30,10 @@ class PfTest(unittest.TestCase):
         # one which does
         result = pf.calc(pfunc,[17.5,14.0,0.0,0.0],100,100,0,0,0)
         self.assertEqual(result,(1,0,0.0)) 
+
+        # without optional args
+        result = pf.calc(pfunc,[17.5,14.0,0.0,0.0],100,100)
+        self.assertEqual(result,(1,0,0.0)) 
         
         pfunc = None
         handle = None
@@ -54,7 +58,22 @@ class PfTest(unittest.TestCase):
         self.assertRaises(ValueError,pf.init,pfunc,0.001,[0.0]*21)
         pfunc = None
         handle = None
-        
+
+    def testBadCalc(self):
+        handle = pf.load("./test-out.so")
+        pfunc = pf.create(handle)
+        pf.init(pfunc,0.001,[])
+        self.assertRaises(ValueError,pf.calc,0,[1.0,2.0,3.0,4.0],100,100)
+        self.assertRaises(TypeError,pf.calc,pfunc,[1.0,2.0,3.0],100,100)
+        pfunc = None
+
+    def testShutdownOrder(self):
+        handle = pf.load("./test-out.so")
+        pfunc = pf.create(handle)
+        pfunc2 = pf.create(handle)
+        handle = None
+        pfunc = None
+        pfunc2 = None
 def suite():
     return unittest.makeSuite(PfTest,'test')
 
