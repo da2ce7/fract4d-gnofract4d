@@ -187,10 +187,9 @@ class T:
 
     def binop(self, node, expectedType):
         # todo - detect and special-case logical operations
-        for child in node.children:
-            self.exp(child,expectedType)
-        self.datatype = expectedType
-
+        lhs = self.exp(node.children[0],expectedType)
+        rhs = self.exp(node.children[1],expectedType)
+        return ir.Binop(node.leaf,lhs,rhs,node.pos,expectedType)
         
     def id(self, node, expectedType):
         try:

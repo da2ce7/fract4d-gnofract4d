@@ -51,8 +51,8 @@ class Binop(Exp):
         (self.op, self.left, self.right) = (op,left,right)
     def pretty(self, depth=0):
         return d(depth) + "Binop(" + self.op + "\n" + \
-               left.pretty(depth+1) + \
-               right.pretty(depth+1) + d(depth) + ")\n"
+               self.left.pretty(depth+1) + \
+               self.right.pretty(depth+1) + d(depth,")\n")
     
 class Var(Exp):
     def __init__(self, name, pos, datatype):
