@@ -56,12 +56,16 @@ def complex_ff_c(gen,t,srcs):
 def add_cc_c(gen,t,srcs):
     # add 2 complex numbers
     dst = ComplexArg(
-        gen.emit_binop(t.op,reals(srcs), Float),
-        gen.emit_binop(t.op,imags(srcs), Float))
+        gen.emit_binop('+',reals(srcs), Float),
+        gen.emit_binop('+',imags(srcs), Float))
     return dst
 
-# sub implemented same way as add
-sub_cc_c = add_cc_c
+def sub_cc_c(gen,t,srcs):
+    # subtract 2 complex numbers
+    dst = ComplexArg(
+        gen.emit_binop('-',reals(srcs), Float),
+        gen.emit_binop('-',imags(srcs), Float))
+    return dst
 
 def div_cc_c(gen,t,srcs):
     # (a+ib)/(c+id) = (a+ib)*(c-id) / (c+id)*(c-id)
@@ -455,6 +459,31 @@ def tanh_c_c(gen,t,srcs):
 def asin_f_f(gen,t,srcs):
     return gen.emit_func('asin', srcs, Float)
 
+def asin_c_c(gen,t,srcs):
+    # asin(z) = -i * log(i*z + sqrt(1-z*z))
+     one = ComplexArg(ConstFloatArg(1.0),ConstFloatArg(0.0))
+     i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(1.0))
+     minus_i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(-1.0))
+   
+     one_minus_z2 = sub_cc_c(gen,t,[one,sqr_c_c(gen,t,srcs)])
+     sq = sqrt_c_c(gen,t,[one_minus_z2])
+     arg = add_cc_c(gen,t,[mul_cc_c(gen,t,[i,srcs[0]]), sq])
+
+     l = log_c_c(gen,t,[arg])
+     return mul_cc_c(gen,t,[minus_i,l])
+
+     # one = ComplexArg(ConstFloatArg(1.0),ConstFloatArg(0.0))
+#      i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(1.0))
+#      minus_i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(-1.0))
+    
+#      one_minus_z2 = sub_cc_c(gen,t,[one,sqr_c_c(gen,t,srcs)])
+#      sq = sqrt_c_c(gen,t,[one_minus_z2])
+#      arg = add_cc_c(gen,t,[mul_cc_c(gen,t,[i,srcs[0]]), one_minus_z2])
+
+#      l = log_c_c(gen,t,[arg])
+#      return neg_c_c(gen,t,[mul_cc_c(gen,t,[i,l])])
+                         
+    
 def acos_f_f(gen,t,srcs):
     return gen.emit_func('acos', srcs, Float)
 

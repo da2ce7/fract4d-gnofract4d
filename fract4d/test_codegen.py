@@ -21,6 +21,7 @@ import fractlexer
 import stdlib
 
 g_exp = None
+g_x = None
 
 class CodegenTest(testbase.TestBase):
     def setUp(self):
@@ -648,6 +649,14 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests[0][2] = "(-inf,0)" # log(0+0j) is overflow in python
         return tests
 
+    def asintests(self):
+        tests = self.manufacture_tests("asin",cmath.asin)
+        # asin(x+0j) = (?,-0) in python, which is wrong
+        tests[0][2] = "(0,0)" 
+        tests[2][2] = tests[5][2] = "(1.5708,0)"
+
+        return tests
+    
     def test_stdlib(self):
 
         # additions to python math stdlib
@@ -726,11 +735,11 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests += self.manufacture_tests("tanh",cmath.tanh)
         tests += self.manufacture_tests("exp",cmath.exp)
         tests += self.manufacture_tests("sqrt",cmath.sqrt)
-
+        
         tests += self.manufacture_tests("cotanh",mycotanh)        
         tests += self.cotantests()
         tests += self.logtests()
-        
+        tests += self.asintests()
         # FIXME: asin,acos,atan,atan2, asinh, acosh, atanh
 
         # construct a formula calculating all of the above,
@@ -744,14 +753,14 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
 
     def testExpression(self):
         # this is for quick manual experiments - skip if input var not set
-        global g_exp
+        global g_exp,g_x
         if g_exp == None:
             return
-        
-        src = 't_test {\ninit:\nresult = %s\n}' % g_exp
+        x = g_x or "(1,0)"        
+        src = 't_test {\ninit:\nx = %s\nresult = %s\n}' % (x,g_exp)
         asm = self.sourceToAsm(src,"init",{})
         postamble = "t__end_init:\nprintf(\"(%g,%g)\\n\",result_re,result_im);"
-        c_code = self.makeC("", postamble)        
+        c_code = self.makeC("", postamble)
         output = self.compileAndRun(c_code)
         print output
 
@@ -900,15 +909,24 @@ def suite():
     return unittest.makeSuite(CodegenTest,'test')
 
 if __name__ == '__main__':
+    # special cases for manual experiments.
+    # ./test_codegen.py --x "(1,2)" --exp "1+2+x" compiles and runs 1+2+x
+    # and prints the result
+
     try:
-        # special case for manual experiments.
-        # ./test_codegen.py --exp "1+2" compiles and runs 1+2 and prints
-        # the result
         index = sys.argv.index("--exp")
         g_exp = sys.argv[index+1]
         sys.argv[index] = "CodegenTest.testExpression"
         del sys.argv[index+1]
     except ValueError:
         pass
+    
+    try:
+        index = sys.argv.index("--x")
+        g_x = sys.argv[index+1]
+        del sys.argv[index:index+2]
+    except ValueError:
+        pass
+    
     unittest.main(defaultTest='suite')
 
