@@ -426,7 +426,7 @@ cmap_create_gradient(PyObject *self, PyObject *args)
 	    return NULL;
 	}
 	
-	cmap->set(left,right,
+	cmap->set(i, left,right,
 		  left_col,right_col,
 		  (e_blendType)bmode, (e_colorType)cmode);
 

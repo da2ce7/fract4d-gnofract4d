@@ -188,11 +188,22 @@ GradientColorMap::init(int ncolors_)
 
 void 
 GradientColorMap::set(
+    int i,
     double left, double right,
     double *left_col,
     double *right_col,
     e_blendType bmode, e_colorType cmode)
 {
+    items[i].left = left;
+    items[i].right = right;
+    for(int j = 0; j < 4 ; ++j)
+    {
+	items[i].left_color[j] = left_col[j];
+	items[i].right_color[j] = right_col[j];
+    }
+    items[i].bmode = bmode;
+    items[i].cmode = cmode;
+	
 /*
     printf("left: %g [%g,%g,%g,%g]\nright: %g [%g,%g,%g,%g]\n%d %d\n",
 	   left, left_col[0], left_col[1], left_col[2], left_col[3],
@@ -202,9 +213,40 @@ GradientColorMap::set(
 
 }
 
+int 
+grad_find(double index, gradient_item_t *items, int ncolors)
+{
+    for(int i = 0; i < ncolors; ++i)
+    {
+	if(index < items[i].right)
+	{
+	    return i;
+	} 
+    }
+    assert(0 && "Didn't find an entry");
+    return -1;
+}
+
 rgba_t 
 GradientColorMap::lookup(double index) const
 {
+    int i,j;
+    rgba_t mix, left, right;
+    double dist, r;
+
+    index = index == 1.0 ? 1.0 : fmod(index,1.0);
+    i = grad_find(index, items, ncolors); 
+    assert(i >= 0 && i < ncolors);
+
+    /*
+    if(index <= items[i].left)
+    {
+	return items[i].left_color;
+    }
+    if(i == ncolors-1)
+    {
+	return items
+    */
     return black;
 }
 
