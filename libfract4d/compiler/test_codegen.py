@@ -78,7 +78,7 @@ class CodegenTest(unittest.TestCase):
 
     def testWhichMatch(self):
         tree = self.binop([self.const(),self.const()])
-        self.assertEqual(self.codegen.match(tree).__name__,"binop_const_exp")
+        self.assertEqual(self.codegen.match(tree).__name__,"binop_exp_exp")
 
     def testGen(self):
         tree = self.binop([self.const(),self.var()])
@@ -128,18 +128,18 @@ t__temp5 = t__temp2 + t__temp3'''
 
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],">",Complex)
         self.generate_code(tree)
-        self.assertOutputMatch("t__temp0 = 1 > a_re")
+        self.assertOutputMatch("t__temp0 = 1.00000000000000000 > a_re")
 
         tree.op = "=="
         self.generate_code(tree)
-        self.assertOutputMatch('''t__temp0 = 1 == a_re
-t__temp1 = 3 == a_im
+        self.assertOutputMatch('''t__temp0 = 1.00000000000000000 == a_re
+t__temp1 = 3.00000000000000000 == a_im
 t__temp2 = t__temp0 && t__temp1''')
 
         tree.op = "!="
         self.generate_code(tree)
-        self.assertOutputMatch('''t__temp0 = 1 != a_re
-t__temp1 = 3 != a_im
+        self.assertOutputMatch('''t__temp0 = 1.00000000000000000 != a_re
+t__temp1 = 3.00000000000000000 != a_im
 t__temp2 = t__temp0 || t__temp1''')
 
     def testS2A(self):
@@ -149,7 +149,7 @@ int a = 1
 loop:
 z = z + a
 }''', "loop")
-        self.printAsm()
+        #self.printAsm()
 
 
     def testFormatString(self):
@@ -174,6 +174,7 @@ z = z + a
     def printAsm(self):
         for i in self.codegen.out:
             try:
+                print i
                 print i.format()
             except Exception, e:
                 print "Can't format %s:%s" % (i,e)
