@@ -101,7 +101,7 @@ static void model_resize_widget(model_t *m)
     // resize widget if it exists (we won't have one if
     // we're being called by the arg-parsing stuff)
     if(m->topWidget)
-    {        
+    {
         // +2 to account for padding in table
         gtk_widget_set_size_request(m->topWidget,m->width+2,m->height+2);
     }
