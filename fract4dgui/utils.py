@@ -49,13 +49,37 @@ def get_rgb_colormap():
 def get_file_save_chooser(title, parent):
     try:
         return gtk.FileChooserDialog(
-            title, parent, gtk.FILE_CHOOSER_ACTION_SAVE, (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+            title, parent, gtk.FILE_CHOOSER_ACTION_SAVE,
+            (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
     except:
         return gtk.FileSelection(title)
 
 def get_file_open_chooser(title, parent):
     try:
         return gtk.FileChooserDialog(
-            title, parent, gtk.FILE_CHOOSER_ACTION_OPEN, (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+            title, parent, gtk.FILE_CHOOSER_ACTION_OPEN,
+            (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
     except:
         return gtk.FileSelection(title)
+
+def create_option_menu(items, cb):
+    try:
+        widget = gtk.combo_box_new_text()
+        for item in items:
+            widget.append_text(item)
+        
+    except:
+        widget = gtk.OptionMenu()
+        menu = gtk.Menu()
+        for item in items:
+            mi = gtk.MenuItem(val)
+            menu.append(mi)
+        widget.set_menu(menu)
+        
+    return widget
+
+def create_color(r,g,b):
+    try:
+        return gtk.gdk.color(r*256,g*256,b*256)
+    except:
+        return gtk.gdk.color_parse("#%4x%4x%4x" % (r*256,g*256,b*256))
