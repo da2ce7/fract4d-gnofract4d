@@ -1,16 +1,13 @@
 # translation of gnofract4d-1.8_it.po to Italiano
 # This file is distributed under the same license as the gnofract4d package.
-
 # Kostantino <inverness1ATvirgilio.it>, 2003.
 # Copyright (C) 2003 Edwin Young
 # Kostantino <inverness1ATvirgilio.it>, 2003.
-
 #
-
 msgid ""
 msgstr ""
 "Project-Id-Version: gnofract4d-1.8_it\n"
-"POT-Creation-Date: 2003-10-26 19:37-0800\n"
+"POT-Creation-Date: 2003-12-06 21:53-0800\n"
 "PO-Revision-Date: 2003-12-04 06:25-0800\n"
 "Last-Translator: Kostantino <inverness1ATvirgilio.it>\n"
 "Language-Team: Italiano <it@li.org>\n"
@@ -40,8 +37,9 @@ msgid "Color Range"
 msgstr "Intervallo colore"
 
 #: src/cmapbrowser.cpp:660
-msgid "Choose a color map"
-msgstr "Scegli una mappa colore"
+#, fuzzy
+msgid " Colors"
+msgstr "Mappe colore"
 
 #: src/cmapbrowser.cpp:663
 msgid "Update Previews"
@@ -302,7 +300,8 @@ msgstr "Reimposta"
 
 #: src/model.cpp:265
 msgid "Can't find compiler_template.cpp. Please reinstall."
-msgstr "Non riesco a trovare il file compiler_template.cpp. Per favore, reinstallarlo"
+msgstr ""
+"Non riesco a trovare il file compiler_template.cpp. Per favore, reinstallarlo"
 
 #: src/model.cpp:306
 msgid "Gnofract4D Error"
@@ -398,8 +397,7 @@ msgstr "Distanza"
 #: src/properties.cpp:586
 msgid "Stop iterating points which get further from the origin than this"
 msgstr ""
-"Blocca i punti iteragenti che stanno "
-"più lontano di questo dall'origine"
+"Blocca i punti iteragenti che stanno più lontano di questo dall'origine"
 
 #: src/properties.cpp:597
 msgid "Iteration Count"
@@ -583,7 +581,8 @@ msgid "ZW :"
 msgstr "ZW:"
 
 #: src/properties.cpp:1256
-msgid "Fractal Settings"
+#, fuzzy
+msgid " Fractal Settings"
 msgstr "Impostazioni del frattale"
 
 #: src/toolbars.cpp:158
@@ -686,4 +685,5 @@ msgstr "Come sono differenti i mutanti in Modalité Esplora"
 msgid "Generate a new set of mutants"
 msgstr "Genera un nuovo gruppo di mutanti"
 
-
+#~ msgid "Choose a color map"
+#~ msgstr "Scegli una mappa colore"
