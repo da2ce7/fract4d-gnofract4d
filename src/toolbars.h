@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 1999 Aurelien Alleaume, Edwin Young
+ * Copyright (C) 2000 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,39 +18,11 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
+#ifndef _TOOLBARS_H_
+#define _TOOLBARS_H_
 
-#include <gnome.h>
+#include <gtk/gtk.h>
+#include "model.h"
+GtkWidget* create_move_toolbar (model_t *m, GtkWidget *appbar);
 
-#include "callbacks.h"
-#include "menus.h"
-
-gint
-quit_session_cb(GnomeClient* client, gpointer client_data)
-{
-    gtk_main_quit();
-    return TRUE;
-}
-
-gint
-save_session_cb(GnomeClient* client, gint phase, GnomeSaveStyle save_style,
-		gint is_shutdown, GnomeInteractStyle interact_style,
-		gint is_fast, gpointer client_data)
-{
-    g_print("saving session\n");
-    return TRUE;
-}
-
-gint
-quit_cb(GtkWidget *widget, GdkEventAny *event, gpointer user_data)
-{
-    return menu_quit_cb(widget,user_data);
-}
-
-
-
-
-
-
+#endif /* _TOOLBARS_H_ */

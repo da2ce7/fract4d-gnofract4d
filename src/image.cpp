@@ -39,3 +39,10 @@ double image::ratio()
 {
     return ((double)Yres / Xres);
 }
+
+void image::clear()
+{
+    for(int i = 0; i < Xres * Yres; i++) {
+        iter_buf[i]=-1;
+    }
+}

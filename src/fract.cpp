@@ -20,13 +20,9 @@
 
 #include <stdlib.h>
 
-#include <gnome.h>
+#include <gnome.h> // g_warning, mostly
 #include "calc.h"
-
-#include "gf4d_fractal.h"
-#include "fract.h"
-#include "image.h"
-#include "pointFunc.h"
+#include "fractFunc.h"
 #include <fstream>
 #include <queue>
 
@@ -47,7 +43,7 @@ fractal::fractal()
 
     // display params
     antialias = true;
-    auto_deepen = 1;
+    auto_deepen = true;
 
     digits = 0;
 	
@@ -324,12 +320,12 @@ fractal::get_aa()
 }
 
 void 
-fractal::set_auto(int val)
+fractal::set_auto(bool val)
 {
     auto_deepen = val;
 }
 
-int 
+bool 
 fractal::get_auto()
 {
     return auto_deepen;
@@ -532,446 +528,19 @@ fractal::move(param_t i, int direction)
     recenter(delta);
 }
 
-class fract_rot {
-public:
-    Gf4dFractal *gf;
-    dmat4 rot;
-    dvec4 deltax, deltay;
-    dvec4 delta_aa_x, delta_aa_y;
-    dvec4 topleft;
-    dvec4 aa_topleft; // topleft - offset to 1st subpixel to draw
-    int depth;
-    d ddepth;
-    // n pixels correctly classified that would be wrong if we halved iterations
-    int nhalfiters;
-    // n pixels misclassified that would be correct if we doubled the iterations
-    int ndoubleiters; 
-    int k;	
-    int last_update_y;
-    fractal_t *f;
-    pointFunc *pf;
-    int *p;
-    image *im;
-    //std::queue<soidata_t> soi_queue;
-    fract_rot(fractal_t *_f, image *_im, Gf4dFractal *_gf) {
-        gf = _gf;
-        im = _im;
-        f = _f; 
-        pf = pointFunc_new(
-            ITERFUNC_MAND, 
-            f->bailout_type, 
-            f->params[BAILOUT], 
-            f->cizer, 
-            f->potential);
-
-        depth = f->antialias ? 2 : 1; 
-
-        f->update_matrix();
-        rot = f->rot/D_LIKE(im->Xres,f->params[SIZE]);
-        deltax = rot[VX];
-        deltay = rot[VY];
-        ddepth = D_LIKE((double)(depth*2),f->params[SIZE]);
-        delta_aa_x = deltax / ddepth;
-        delta_aa_y = deltay / ddepth;
-
-        debug_precision(deltax[VX],"deltax");
-        debug_precision(f->params[XCENTER],"center");
-        topleft = f->get_center() -
-            deltax * D_LIKE(im->Xres / 2.0, f->params[SIZE])  -
-            deltay * D_LIKE(im->Yres / 2.0, f->params[SIZE]);
-
-        d depthby2 = ddepth/D_LIKE(2.0,ddepth);
-        aa_topleft = topleft - (delta_aa_y + delta_aa_x) * depthby2;
-
-        debug_precision(topleft[VX],"topleft");
-        nhalfiters = ndoubleiters = k = 0;
-        p = im->iter_buf;
-        for(int i = 0; i < im->Xres * im->Yres; i++) {
-            p[i]=-1;
-        }
-        last_update_y = 0;
-    };
-    ~fract_rot() {
-		
-    }
-    void pixel(int x, int y, int h, int w);
-    void check_update(int i);
-    void rectangle(struct rgb pixel, int x, int y, int w, int h);
-    void fourpixel(int x, int y);
-    struct rgb antialias(const dvec4& pos);
-    bool updateiters();
-    void draw(int rsize);
-    void soi();
-    void draw_aa();
-    void pixel_aa(int x, int y);
-    inline int RGB2INT(int y, int x);
-    //void scan_rect(soidata_t& s);
-};
-
-inline void
-fract_rot::rectangle(struct rgb pixel, int x, int y, int w, int h)
-{
-    for(int i = y ; i < y+h; i++)
-    {
-        char *tmp = im->buffer  + (i * im->Xres + x )*3;
-        for(int j = x; j < x+w; j++) {
-            *tmp++=pixel.r;
-            *tmp++=pixel.g;
-            *tmp++=pixel.b;
-        }
-    }
-}
-
-inline struct rgb
-fract_rot::antialias(const dvec4& cpos)
-{
-    struct rgb ptmp;
-    unsigned int pixel_r_val=0, pixel_g_val=0, pixel_b_val=0;
-    int i,j;
-    dvec4 topleft = cpos;
-
-    for(i=0;i<depth;i++) {
-        dvec4 pos = topleft; 
-        for(j=0;j<depth;j++) {
-            int p;
-            (*pf)(pos, f->maxiter,&ptmp,&p); 
-            pixel_r_val += ptmp.r;
-            pixel_g_val += ptmp.g;
-            pixel_b_val += ptmp.b;
-            pos+=delta_aa_x;
-        }
-        topleft += delta_aa_y;
-    }
-    ptmp.r = pixel_r_val / (depth * depth);
-    ptmp.g = pixel_g_val / (depth * depth);
-    ptmp.b = pixel_b_val / (depth * depth);
-    return ptmp;
-}
-
-inline void 
-fract_rot::pixel(int x, int y,int w, int h)
-{
-    int *ppos = p + y*im->Xres + x;
-    struct rgb pixel;
-
-    if(*ppos != -1) return;
-
-    // calculate coords of this point
-    dvec4 pos = topleft + 
-        I2D_LIKE(x, f->params[SIZE]) * deltax + 
-        I2D_LIKE(y, f->params[SIZE]) * deltay;
-		
-    (*pf)(pos, f->maxiter,&pixel,ppos); 
-
-    rectangle(pixel,x,y,w,h);
-	
-    // test for iteration depth
-    if(f->auto_deepen && k++ % 30 == 0)
-    {
-        int i;
-        (*pf)(pos, f->maxiter*2,&pixel,&i);
-
-        if( (i > f->maxiter/2) && (i < f->maxiter))
-        {
-            /* we would have got this wrong if we used 
-             * half as many iterations */
-            nhalfiters++;
-        }
-        else if( (i > f->maxiter) && (i < f->maxiter*2))
-        {
-            /* we would have got this right if we used
-             * twice as many iterations */
-            ndoubleiters++;
-        }
-    }
-}
-
-inline void
-fract_rot::pixel_aa(int x, int y)
-{
-    dvec4 pos = aa_topleft + I2D_LIKE(x, f->params[SIZE]) * deltax + 
-        I2D_LIKE(y, f->params[SIZE]) * deltay;
-
-    struct rgb pixel;
-
-    pixel = antialias(pos);
-
-    rectangle(pixel,x,y,1,1);
-}
-
-inline void
-fract_rot::fourpixel(int x, int y)
-{
-    pixel(x,y,1,1);
-    pixel(x+1,y,1,1);
-    pixel(x+2,y,1,1);
-    pixel(x+3,y,1,1);
-}
-
-void
-fract_rot::check_update(int i)
-{
-    gf4d_fractal_image_changed(gf,0,last_update_y,im->Xres,i);
-    gf4d_fractal_progress_changed(gf,(gfloat)i/(gfloat)im->Yres);
-    last_update_y = i;
-}
-
-// see if the image needs more (or less) iterations to display properly
-bool
-fract_rot::updateiters()
-{
-    double doublepercent = ((double)ndoubleiters*30*100)/k;
-    double halfpercent = ((double)nhalfiters*30*100)/k;
-		
-    if(doublepercent > 1.0) 
-    {
-        // more than 1% of pixels are the wrong colour! 
-        // quelle horreur!
-        f->maxiter *= 2;
-        return true;
-    }
-
-    if(doublepercent == 0.0 && halfpercent < 0.5 && 
-       f->maxiter > 32)
-    {
-        // less than .5% would be wrong if we used half as many iters
-        // therefore we are working too hard!
-        f->maxiter /= 2;
-    }
-    return false;
-}
-
-void fract_rot::draw_aa()
-{
-    int w = im->Xres;
-    int h = im->Yres;
-
-    last_update_y=0;
-    ndoubleiters=0;
-    nhalfiters=0;
-
-    gf4d_fractal_image_changed(gf,0,0,w,h);
-    gf4d_fractal_progress_changed(gf,0.0);
-
-    for(int y = 0; y < h ; y++) {
-        check_update(y);
-        for(int x = 0; x < w ; x++) {
-            pixel_aa ( x, y);
-        }
-    }
-    gf4d_fractal_image_changed(gf,0,0,w,h);		     
-    gf4d_fractal_progress_changed(gf,1.0);	
-}
-
-inline int fract_rot::RGB2INT(int y, int x)
-{
-    char *p = im->buffer + (y*im->Xres + x)*3;
-    int ret = *p++ << 16;
-    ret |= *p++ << 8;
-    ret |= *p;
-    return ret;
-}
-
-/*
-void
-fract_rot::scan_rect(soidata_t& s)
-{
-    int w = s.x2 - s.x1;
-    int h = s.y2 - s.y1;
-
-    colorizer_t *cf = f->cizer;
-
-    for(int y = 0; y < h ; ++y)
-    {
-        for(int x = 0; x < w; ++x)
-        {			
-            scratch_space scratch;
-            s.interp_both(scratch,(double)x/w,(double)y/h);
-            int iter = s.iter;
-            do
-            {
-                mandelbrot_iter(scratch);
-                if(iter++ >= f->maxiter) {
-                    iter=-1; break;
-                }
-                mag_bailout(scratch,HAS_X2 | HAS_Y2);
-            }while(scratch[EJECT_VAL] < 4.0);
-			
-            rgb_t pixel = (*cf)(iter,scratch,0);
-            rectangle(pixel,s.x1+x,s.y1+y,1,1);		       
-        } 
-    }
-    gf4d_fractal_image_changed(gf,s.x1,s.y1,s.x2,s.y2);
-}
-*/
-#if 0
-void fract_rot::soi()
-{
-    /* create first chunk of data, describing whole screen */
-    soidata_t soi_init(0,0,im->Xres,im->Yres,0,topleft,deltax,deltay);
-    soi_queue.push(soi_init);
-
-    /* insert into queue */
-	
-    do
-    {
-        soidata_t s = soi_queue.front();
-        /* remove element */
-        soi_queue.pop();
-		
-        /* if too small, draw by scanning */
-        if(s.x2 - s.x1 < 8) 
-        {
-            scan_rect(s);
-            continue;
-        }
-        int old_iter = s.iter;
-        /* iterate until it splits or maxiter */
-        do {
-            s.iterate();
-            if(s.iter >= f->maxiter) 
-            {
-				/* draw black box */
-                break;
-            }
-        }while(! s.needs_split());
-
-        colorizer_t *cf = f->cizer;
-
-        // this rect is entirely within the set
-        if(s.iter >= f->maxiter)
-        {
-            rgb_t pixel = (*cf)(-1,s.data[0],0);
-            /* draw interior rect */
-            rectangle(pixel,s.x1,s.y1,s.x2-s.x1,s.y2-s.y1);
-            gf4d_fractal_image_changed(gf,s.x1,s.y1,s.x2,s.y2);
-        }
-        else
-        {
-            // undo the last iteration, which broke tolerance
-            s.revert(); 
-			
-            //printf("progress: %d\n",s.iter - old_iter);
-            rgb_t pixel = (*cf)(s.iter,s.data[0],0);
-			
-            /* draw with split number of iterations */
-            rectangle(pixel,s.x1,s.y1,s.x2-s.x1,s.y2-s.y1);
-            gf4d_fractal_image_changed(gf,s.x1,s.y1,s.x2,s.y2);
-			
-            /* create 4 new rectangles & add to front of queue */
-            soi_queue.push(s.topleft());
-            soi_queue.push(s.topright());
-            soi_queue.push(s.botleft());
-            soi_queue.push(s.botright());			
-        }
-    }while(!(soi_queue.empty()));
-
-    gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DONE);
-}
-#endif
-
-void fract_rot::draw(int rsize)
-{
-    int x,y;
-    int w = im->Xres;
-    int h = im->Yres;
-
-    last_update_y=0;
-    ndoubleiters=0;
-    nhalfiters=0;
-
-    gf4d_fractal_image_changed(gf,0,0,w,h);
-    gf4d_fractal_progress_changed(gf,0.0);
-
-    // size-4 blocks & extra pixels at end of lines
-    for (y = 0 ; y < h - 4 ; y += 4) {
-        check_update(y);
-        for ( x = 0 ; x< w - 4 ; x += 4) {
-            pixel ( x, y, rsize, rsize);
-        }
-        for(; x< w ; x++) {
-            pixel (x, y,  1, 1);
-            pixel (x, y+1,1, 1);
-            pixel (x, y+2,1, 1);
-            pixel (x, y+3,1, 1);
-        }
-    }
-    // remaining lines
-    for ( ; y < h ; y++)
-    {
-        check_update(y);
-        for (x = 0 ; x < w ; x++) {
-            pixel (x, y, 1, 1);
-        }
-
-    }
-
-    last_update_y=0;
-    ndoubleiters=0;
-    nhalfiters=0;
-	
-    // fill in gaps in the 4-blocks
-    // FIXME: should check that boundary of block (not just corners)
-    // is the same - the current method messes up fine detail
-    // between Mset filaments
-    for ( y = 0; y < h - 4; y += 4) {
-        check_update(y);
-        for(x = 0; x < w - 4 ; x += 4) {
-            /* need to do comparison in both iteration space
-             * and (if potential is on) color space */
-            int piter = im->iter_buf[y * w + x];
-            if(piter == im->iter_buf[y * w + x + 4] &&
-               piter == im->iter_buf[(y+4) * w + x] &&
-               piter == im->iter_buf[(y+4) * w + x + 4])
-            {
-                if(f->potential)
-                {
-                    int pcol = RGB2INT(y,x);
-                    if(pcol == RGB2INT(y,x+4) &&
-                       pcol == RGB2INT(y+4,x) &&
-                       pcol == RGB2INT(y+4,x+4)) 
-                    {
-                        // don't bother drawing points in this block
-                        continue;
-                    }
-                }
-                else
-                {
-                    // don't bother drawing points in this block
-                    continue;
-                }
-            }
-			
-            // we do need to calculate the points individually
-            pixel(x+1,y,1,1);
-            pixel(x+2,y,1,1);
-            pixel(x+3,y,1,1);
-            fourpixel(x,y+1);
-            fourpixel(x,y+2);
-            fourpixel(x,y+3);
-				
-        }		
-    }
-
-    gf4d_fractal_image_changed(gf,0,0,im->Xres,im->Yres);	
-    gf4d_fractal_progress_changed(gf,1.0);	
-}
-
 void
 fractal::calc(Gf4dFractal *gf, image *im)
 {
-    fract_rot pr(this, im, gf);
+    fractFunc pr(this, im, gf);
 
     gf4d_fractal_status_changed(gf,GF4D_FRACTAL_CALCULATING);
 
-    //pr.soi();
-    //return;
-    pr.draw(4);
+    pr.draw(8,8);
 
     while(pr.updateiters())
     {
         gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DEEPENING);
-        pr.draw(1);
+        pr.draw(8,1);
     }
 	
     if(antialias) {
@@ -982,5 +551,3 @@ fractal::calc(Gf4dFractal *gf, image *im)
     gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DONE);
     gf4d_fractal_progress_changed(gf,0.0);
 }
-
-

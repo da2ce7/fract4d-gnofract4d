@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 1999 Aurelien Alleaume, Edwin Young
+ * Copyright (C) 2000 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,39 +18,14 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
+#ifndef _MENUS_H_
+#define _MENUS_H_
 
 #include <gnome.h>
 
-#include "callbacks.h"
-#include "menus.h"
+extern GnomeUIInfo menubar1_uiinfo[];
 
-gint
-quit_session_cb(GnomeClient* client, gpointer client_data)
-{
-    gtk_main_quit();
-    return TRUE;
-}
+// called by general quit_cb
+gint menu_quit_cb(GtkWidget *widget, gpointer user_data);
 
-gint
-save_session_cb(GnomeClient* client, gint phase, GnomeSaveStyle save_style,
-		gint is_shutdown, GnomeInteractStyle interact_style,
-		gint is_fast, gpointer client_data)
-{
-    g_print("saving session\n");
-    return TRUE;
-}
-
-gint
-quit_cb(GtkWidget *widget, GdkEventAny *event, gpointer user_data)
-{
-    return menu_quit_cb(widget,user_data);
-}
-
-
-
-
-
-
+#endif /* _MENUS_H_ */

@@ -54,6 +54,15 @@ static void gf4d_angle_adjustment_value_changed (GtkAdjustment    *adjustment,
 						 gpointer          data);
 
 /* Local data */
+enum {
+    VALUE_SLIGHTLY_CHANGED,
+    IMAGE_CHANGED,
+    PROGRESS_CHANGED,
+    STATUS_CHANGED,
+    LAST_SIGNAL
+};
+
+static guint angle_signals[LAST_SIGNAL] = {0};
 
 static GtkWidgetClass *parent_klass = NULL;
 static gfloat min_angle = -M_PI/2.0; // (-1.0 * M_PI/6.0);
@@ -103,6 +112,19 @@ gf4d_angle_class_init (Gf4dAngleClass *klass)
     widget_klass->button_press_event = gf4d_angle_button_press;
     widget_klass->button_release_event = gf4d_angle_button_release;
     widget_klass->motion_notify_event = gf4d_angle_motion_notify;
+
+    angle_signals[VALUE_SLIGHTLY_CHANGED] = 
+        gtk_signal_new("value_slightly_changed",
+                       GtkSignalRunType(GTK_RUN_FIRST | GTK_RUN_NO_RECURSE),
+                       object_klass->type,
+                       GTK_SIGNAL_OFFSET(Gf4dAngleClass, value_slightly_changed),
+                       gtk_marshal_NONE__NONE,
+                       GTK_TYPE_NONE, 0);
+
+    klass->value_slightly_changed = NULL;
+
+    gtk_object_class_add_signals(object_klass, angle_signals, LAST_SIGNAL);
+
 }
 
 static void
@@ -503,6 +525,7 @@ gf4d_angle_update_mouse (Gf4dAngle *dial, gint x, gint y)
         else
         {
             gtk_widget_draw (GTK_WIDGET(dial), NULL);
+            gtk_signal_emit_by_name (GTK_OBJECT (dial), "value_slightly_changed");
 
             if (dial->policy == GTK_UPDATE_DELAYED)
             {

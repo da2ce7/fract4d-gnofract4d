@@ -46,6 +46,12 @@ public:
             m_pIter = iterFunc_new(iterType);
             m_pBail = bailFunc_new(bailType);
         }
+    ~pointCalc()
+        {
+            delete m_pBail;
+            delete m_pIter;
+        }
+
     virtual void operator()(
         const dvec4& params, int nMaxIters,
         struct rgb *color, int *pnIters

@@ -1,6 +1,7 @@
 #ifndef _FRACT_PUBLIC_H_
 #define _FRACT_PUBLIC_H_
 
+// current state of calculation
 enum {
     GF4D_FRACTAL_DONE,
     GF4D_FRACTAL_CALCULATING,

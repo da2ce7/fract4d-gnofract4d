@@ -264,6 +264,12 @@ void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f)
     *(gf->f) = *f;
 }
 
+void gf4d_fractal_update_fract(Gf4dFractal *gf, Gf4dFractal *gf2)
+{
+    kill_slave_threads(gf);
+    *(gf->f) = *(gf2->f);
+}
+
 void gf4d_fractal_set_bailout_type(Gf4dFractal *gf, e_bailFunc bailType)
 {
     kill_slave_threads(gf);
@@ -358,7 +364,7 @@ gboolean gf4d_fractal_get_aa(Gf4dFractal *f)
     return f->f->get_aa();
 }
 
-int gf4d_fractal_get_auto(Gf4dFractal *f)
+gboolean gf4d_fractal_get_auto(Gf4dFractal *f)
 {
     return f->f->get_auto();
 }
@@ -390,7 +396,7 @@ void gf4d_fractal_set_aa(Gf4dFractal *f, gboolean val)
     f->f->set_aa(val);
 }
 
-void gf4d_fractal_set_auto(Gf4dFractal *f, int val)
+void gf4d_fractal_set_auto(Gf4dFractal *f, gboolean val)
 {
     kill_slave_threads(f);
 

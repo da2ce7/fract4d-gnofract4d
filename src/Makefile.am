@@ -9,8 +9,13 @@ bin_PROGRAMS = gnofract4d
 gnofract4d_SOURCES = \
 	main.cpp \
 	interface.cpp interface.h \
+	angles.h angles.cpp \
+	properties.h properties.cpp \
+	menus.h menus.cpp \
+	toolbars.h toolbars.cpp \
+	drawingareas.h drawingareas.cpp \
 	callbacks.cpp callbacks.h \
-	fract.cpp fract.h fract_public.h calc.h \
+	fract.cpp fract.h fract_public.h fract_callbacks.h calc.h \
 	pointFunc.cpp pointFunc.h \
 	vectors.h \
 	model.cpp model.h \
@@ -21,7 +26,8 @@ gnofract4d_SOURCES = \
 	image.cpp image.h \
 	colorizer.cpp colorizer.h colorizer_public.h \
 	iterFunc.h iterFunc.cpp \
-	bailFunc.h bailFunc.cpp
+	bailFunc.h bailFunc.cpp \
+	fractFunc.h fractFunc.cpp 
 
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) \
 	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)

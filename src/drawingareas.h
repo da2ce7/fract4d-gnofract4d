@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 1999 Aurelien Alleaume, Edwin Young
+ * Copyright (C) 2000 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,37 +18,13 @@
  *
  */
 
-#ifndef _SUPPORT_H_
-#define _SUPPORT_H_
+#ifndef _DRAWINGAREAS_H_
+#define _DRAWINGAREAS_H_
 
-#include <gnome.h>
+#include <gtk/gtk.h>
+#include "model.h"
 
-/*
- * Public Functions.
- */
+GtkWidget* create_drawing_area(model_t *, GtkWidget *);
+GtkWidget *create_sub_drawing_area(model_t *m, GtkWidget *table, int num, int x, int y);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/*
- * Private Functions.
- */
-
-/* This is used to create the pixmaps in the interface. */
-GtkWidget*  create_pixmap              (GtkWidget       *widget,
-                                        const gchar     *filename,
-                                        gboolean         gnome_pixmap);
-
-GdkImlibImage* create_image            (const gchar     *filename);
-
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* _SUPPORT_H_ */
-
-
-
-
+#endif /* _DRAWINGAREAS_H_ */

@@ -78,6 +78,7 @@ extern "C" {
     struct _Gf4dAngleClass
     {
         GtkWidgetClass parent_klass;
+        void (* value_slightly_changed)(Gf4dAngle *angle); 
     };
 
 

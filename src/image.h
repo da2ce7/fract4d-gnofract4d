@@ -10,9 +10,11 @@ struct image
 
     image();
     ~image();
+
     image(const image& im);
     bool set_resolution(int x, int y);
     double ratio();
+    void clear();
 };
 
 #endif /* _IMAGE_H_ */

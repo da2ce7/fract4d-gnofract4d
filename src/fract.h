@@ -22,11 +22,12 @@
 #define _FRACT_H_
 
 #include "fract_public.h"
-#include "colorizer.h"
+#include "pointFunc_public.h"
+#include "colorizer_public.h"
 
 #include "calc.h"
 
-class fract_rot;
+class fractFunc;
 
 struct fractal
 {
@@ -37,23 +38,22 @@ struct fractal
     int maxiter;
     int fractal_type;
     bool antialias;
-    int auto_deepen;
+    bool auto_deepen;
     int digits;
     bool running;
     bool finished;
+    bool potential;
 
     // parameters which aren't saved
 
     // direction to move in for flip2julia
     double rot_by;
 
-    // rotated params
-    dmat4 rot;
-
     // color params
     colorizer *cizer;
-    //colorfunc cfunc;
-    bool potential;
+
+    // rotated params
+    dmat4 rot;
 
     public:
     
@@ -66,8 +66,8 @@ struct fractal
     fractal& operator=(const fractal& f); // assignment op
     ~fractal();
 
-    void set_inexact(const fractal& f, double weirdness); // assign & mess about
-
+    // make this fractal like f but weirder
+    void set_inexact(const fractal& f, double weirdness); 
     void reset();
     void calc(Gf4dFractal *gf4d, image *im);
     void relocate(double x, double y, double zoom);
@@ -79,10 +79,10 @@ struct fractal
     bool set_param(param_t i, const char *val);
     void set_max_iterations(int val);
     void set_aa(bool val);
-    void set_auto(int val);
+    void set_auto(bool val);
     int get_max_iterations();
     bool get_aa();
-    int get_auto();
+    bool get_auto();
     bool get_potential() { return potential; };
     void set_potential(bool p) { potential = p; };
     void finish();
@@ -101,30 +101,12 @@ struct fractal
 
     void update_matrix();
     dvec4 get_center();
-    friend class fract_rot;
+    friend class fractFunc;
 
     private:
     void recenter(const dvec4& delta);
 };
 
 void fract_delete(fractal_t **f);
-void fract_set(fractal_t *dst, fractal_t *src);
-
-/* accessor functions */
-int fract_get_xres(fractal_t *f);
-int fract_get_yres(fractal_t *f);
-
-char *fract_get_tmp_img(fractal_t *f);
-double fract_get_ratio(fractal_t *f);
-
-/* update functions */
-
-int  fract_set_resolution(fractal_t *f, int xres, int yres);
-
-void fract_realloc_image(fractal_t *f);
-void fract_delete_image(fractal_t *f);
-
-
-
 
 #endif /* _FRACT_H_ */

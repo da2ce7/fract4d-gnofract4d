@@ -68,7 +68,7 @@ extern "C" {
 /* accessor functions */
     int gf4d_fractal_get_max_iterations(Gf4dFractal *f);
     gboolean gf4d_fractal_get_aa(Gf4dFractal *f);
-    int gf4d_fractal_get_auto(Gf4dFractal *f);
+    gboolean gf4d_fractal_get_auto(Gf4dFractal *f);
     char *gf4d_fractal_get_param(Gf4dFractal *f, param_t i);
 
 /* stop calculating now! */
@@ -78,7 +78,7 @@ extern "C" {
     void gf4d_fractal_set_max_iterations(Gf4dFractal *f, int val);
     void gf4d_fractal_set_param(Gf4dFractal *f, param_t i, char *val);
     void gf4d_fractal_set_aa(Gf4dFractal *f, gboolean val);
-    void gf4d_fractal_set_auto(Gf4dFractal *f, int val);
+    void gf4d_fractal_set_auto(Gf4dFractal *f, gboolean val);
     int gf4d_fractal_set_precision(Gf4dFractal *f, int digits);
 
 
@@ -110,21 +110,19 @@ extern "C" {
     double gf4d_fractal_get_ratio(Gf4dFractal *f);
     int  gf4d_fractal_set_resolution(Gf4dFractal *f, int xres, int yres);
 
-/* functions used only by calc.cpp : to be removed */
-    void gf4d_fractal_parameters_changed(Gf4dFractal *f);
-    void gf4d_fractal_image_changed(Gf4dFractal *f, int x1, int x2, int y1, int y2);
-    void gf4d_fractal_progress_changed(Gf4dFractal *f, float progress);
-    void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val);
-
 /* sneaky functions */
     Gf4dFractal *gf4d_fractal_copy(Gf4dFractal *f);
 
     fractal_t *gf4d_fractal_copy_fract(Gf4dFractal *f);
     void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f);
+    void gf4d_fractal_update_fract(Gf4dFractal *gf, Gf4dFractal *gf2);
+
     void gf4d_fractal_set_inexact(Gf4dFractal *gf_dst, Gf4dFractal *gf_src, double weirdness);
 
 #ifdef __cplusplus
 }
 #endif
+
+#include "fract_callbacks.h"
 
 #endif /* _GF4D_FRACTAL_H_ */
