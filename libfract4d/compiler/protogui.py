@@ -18,13 +18,18 @@ g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")
 
 f = fractal.Threaded(g_comp)
+
+gtk.input_add(f.readfd, gtk.gdk.INPUT_READ, f.onData)
+
 file = open(sys.argv[1])
 f.loadFctFile(file)
 f.compile()
 
 image = fract4d.image_create(640,480)
 
+print "draw start"
 f.draw(image)
+print "draw return"
 
 buf = fract4d.image_buffer(image)
 

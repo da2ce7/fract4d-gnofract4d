@@ -73,8 +73,22 @@ class IFractalSite
 	double dist, int fate, int nIters,
 	int r, int g, int b, int a) {};
  
+    // async support
+
     // return true if we've been interrupted and are supposed to stop
     virtual bool is_interrupted() { return false; };
+
+    // tell an async fractal to stop calculating
+    virtual void interrupt() { };
+
+    // set things up before starting a new calc thread
+    virtual void start(void *params) {};
+
+    // having started it, set the thread id of the calc thread to wait for
+    virtual void set_tid(int tid) {};
+
+    // wait for it to finish
+    virtual void wait() {};
 };
 
 

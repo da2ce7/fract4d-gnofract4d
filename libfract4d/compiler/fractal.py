@@ -5,9 +5,7 @@ import string
 import re
 import os
 import sys
-import thread
-import threading
-import Queue
+import struct
 
 sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4d
@@ -102,7 +100,7 @@ class Colorizer(FctUtils):
 
         
 class T(FctUtils):
-    def __init__(self,compiler):
+    def __init__(self,compiler,site=None):
         FctUtils.__init__(self)
         # set up defaults
         self.params = [
@@ -136,7 +134,7 @@ class T(FctUtils):
         self.set_outer("gf4d.cfrm","default")
 
         # interaction with fract4d library
-        self.site = fract4d.site_create(self)
+        self.site = site or fract4d.site_create(self)
 
         # default 
         self.colorlist = [
@@ -339,33 +337,54 @@ class T(FctUtils):
 
 class Threaded(T):
     def __init__(self,comp):
-        T.__init__(self,comp)
-        self.worker = threading.Thread(
-            name="worker",target=self.threadStart,args=(self,1))
-        self.worker.setDaemon(True)
-        self.q = Queue.Queue(1)
-        self.worker.start()
-        
-    def is_interrupted(self):
-        return self.interrupted
-    
-    def threadStart(*args):
-        try:
-            print "thread started"
-            self = args[0]
-            while True:
-                print "enter loop"
-                image = self.q.get()
-                print "something to do"
-                self.interrupted = False
-                T.draw(self,image)
-        except Exception, err:
-            print "oops", err
-            
+        (r,w) = os.pipe()
+        self.readfd = r
+        s = fract4d.fdsite_create(w)
+        T.__init__(self,comp,s)
+        self.msgformat = "5i"
+        self.msgsize = struct.calcsize(self.msgformat)
+
+        self.name_of_msg = [
+            "PARAMS",
+            "IMAGE",
+            "PROGRESS",
+            "STATUS",
+            "PIXEL"
+            ]
+
     def draw(self,image):
-        self.interrupted = True
-        self.q.put(image)
-        print "put image in queue"
+        self.handle = fract4d.pf_load(self.outputfile)
+        self.pfunc = fract4d.pf_create(self.handle)
+        self.cmap = fract4d.cmap_create(self.colorlist)
+        
+        fract4d.pf_init(self.pfunc,0.001,self.initparams)
+
+        fract4d.async_calc(self.params,self.antialias,self.maxiter,1,
+                          self.pfunc,self.cmap,1,image,self.site)
+
+    def onData(self,fd,condition):
+        #print "data!"
+        bytes = os.read(fd,self.msgsize)
+        if len(bytes) < self.msgsize:
+            print "bad message"
+            return
+
+        (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
+        m = self.name_of_msg[t] 
+        #print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
+        if t == 0:
+            self.parameters_changed()
+        elif t == 1:
+            self.image_changed(p1,p2,p3,p4)
+        elif t == 2:
+            self.progress_changed(float(p1))
+        elif t == 3:
+            self.status_changed(p1)
+        elif t == 4:
+            # FIXME pixel_changed
+            pass
+        else:
+            raise Exception("Unknown message from fractal thread")
         
 if __name__ == '__main__':
     import sys
