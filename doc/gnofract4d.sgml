@@ -164,13 +164,28 @@ vanilla mandelbrot set. These have been pillaged from a variety of
 sources, notably <emphasis>Fractint</>. I've tried to keep the names
 consistent.
 </para>
- 
-<sect2 id="Barnsley Fractals">
 <para>
-The Barnsley fractals originally came from  
+The <emphasis>Cubic Mandelbrot</> function calculates z^3 + c, rather
+than the standard z^2 +c. The <emphasis>Quadratic</> function
+calculates z^2 - z + c.
 </para>
-</sect2>
-
+<para>
+The <emphasis>Lambda</> function calculates lambda * z * ( 1 -
+z). Because lambda is zero in the default view, all you'll see is a
+blank screen when you first switch to this fractal. Simply change z or
+w to get a more interesting image.
+</para>
+<para>
+The <emphasis>Barnsley</> fractals originally come from Michael Barnsley's book
+<emphasis>Fractals Everywhere</>, though I haven't seen the book and
+have copied the implementation from Fractint. 
+</para>
+<para>
+The <emphasis>Burning Ship</> and <emphasis>Buffalo</>
+fractals are described on the web page <ulink
+url="http://www.theory.org/">http://www.theory.org/</ulink>. They are
+closely related functions.
+</para>
 </sect1>
 
 <sect1 id="mouse">
@@ -204,23 +219,20 @@ the screen gets recentered on the point you clicked.
 <sect1 id="toolbar">
 <title>Toolbar buttons</title>
 <para>
-The ten toolbar buttons correspond to the ten parameters which define
+The first ten toolbar buttons correspond to the ten parameters which define
 the view. The angle buttons, labelled <emphasis>xy</> to
 <emphasis>zw</>, can changed by dragging the dot around. When you let
-go, the fractal will update. By the way, the <emphasis>zw</> angle does
+go, the fractal will update. You can see the angle's current value in
+degrees in the status bar. By the way, the <emphasis>zw</> angle does
 work, you just can't see its effects until you rotate in some other
 dimensions first.
 </para>
 <para>
 The four position buttons, <emphasis>x,y,z</> and <emphasis>w</>, can
 be clicked up or down to alter the view. They move the center of the
-screen by one third of the current image size with each click.  Note
-that if you're looking at the Mandelbrot set, the <emphasis>x</> and
-<emphasis>y</> buttons scroll around the picture, but if you're
-looking at some other view, this won't necessarily happen. For
-example, if you're looking at the Julia set, the <emphasis>z</> and
-<emphasis>w</> buttons scroll, while <emphasis>x</> and <emphasis>y</>
-mutate the fractal.
+screen by one third of the current image size with each click. Note
+that these don't actually move the view along the standard axes, but
+along axes rotated relative to the current view.
 </para>
 <para>
 The <emphasis>Undo</> and <emphasis>Redo</> buttons should be
@@ -243,18 +255,20 @@ button again.
 <para>
 The "weirdness slider" determines how different the mutants are from
 the standard image. If it's set to 1.0, they're almost unrecognizable
-- if it's 0.0, they're exactly the same.
+- if it's 0.0, they're exactly the same. You can also generate more
+mutants with the refresh button.
 </para>
 </sect1>
 
 <sect1 id="filemenu">
 <title>File Menu</title> 
 <para>
-<guimenuitem>Back To Mandelbrot</guimenuitem> returns you to the
-Mandelbrot set, in case you get lost.
+<guimenuitem>Reset Parameters</guimenuitem> returns you to the
+standard view, in case you get lost.
 
 <guimenuitem>Save Image</guimenuitem> writes the current image to
-disk. I recommend using .png images; jpegs look horrible, and GIFs can
+disk. I recommend using .png images for high quality output, or JPEGs
+when image size is important. GIFs are not recommended, since they can
 only manage 256 colors.
 
 <guimenuitem>Save Parameters</guimenuitem> and
@@ -265,13 +279,19 @@ future.
 </sect1>
 
 <sect1 id="preferences">
+<title>Settings Menu</title>
+<para> You can set all the fractal's parameters from here.</para>
+<sect2 id="prefdialog">
 <title>Preferences Dialog</title>
+<sect3 id="rendering">
+<title>Rendering Section</title>
 <para>
-You can change all the fractal's parameters from
-here.
+This has various options to trade off image quality against rendering time.
 
-<emphasis>Width</> and <emphasis>Height</> should set the size of
-the image in pixels, but don't actually do anything at the moment.
+<emphasis>Antialiasing</> makes the image smoother and nice looking,
+but takes a lot longer to draw (up to five times
+longer). <emphasis>Default</> antialiasing is quite a lot faster than
+<emphasis>Best</> mode, but can miss some small details.
 
 <emphasis>Max Iterations</> sets the number of iterations a point will
 go through before we give up and assume it's a member of the Julibrot.
@@ -280,21 +300,30 @@ If <emphasis>Auto Deepening</> is on, the maximum number of iterations
 is set automatically by &gf4; but you can change it by hand whenever
 you like.
 
-If a point's magnitude ever exceeds the <guilabel>Bailout</> value, we
-stop iterating. If you set this less than 4, the results won't be
-mathematically correct, but can look interesting.
-
-If <emphasis>Antialias</> is on, the image takes about five times as
-long to draw, but looks smoother and nicer.
-
-The fractal can be drawn using either a <emphasis>Color Range</> or a
-<emphasis>Color Map</>. Color Ranges are based on a single base color,
-but produce a whole rainbow of other colors as well. You'll need to
-experiment a bit to get a feel for how it works. Color Maps are
-pregenerated palette files taken from <emphasis>Fractint</>.
 <emphasis> Continuous Potential </> gives a much smoother image, by
 basing the color not only on how many iterations the point took to
 escape, but on how far away from the origin it ended up on its last iteration.
+</para>
+</sect3>
+
+<sect3 id="bailout">
+<title>Bailout Section</title>
+<para>
+The <emphasis>Bailout Function</> is used to decide whether a point
+has left the set. If <emphasis>function(z)</> is greater than the
+<emphasis>Distance</>, the point has left the set. A few functions
+don't work very well with some fractal types, for example Barnsley
+fractals don't mix well with the <emphasis>Or</> bailout function.
+
+</para>
+</sect3>
+
+<sect3 id="image">
+<title>Other Sections</title>
+<para>
+<emphasis>Width</> and <emphasis>Height</> should set the size of the
+image in pixels, but for annoying reasons can only
+<emphasis>increase</> the size of the image, not shrink it.
 
 The <emphasis>Location</> entryboxes allow you to
 change the coordinates of the screen center and the image size. 
@@ -302,9 +331,21 @@ change the coordinates of the screen center and the image size.
 The <emphasis>Angles</> tab allows you to set the rotation
 angles. Only values between 0 and 2 * pi are different; values outside
 this range "wrap" to points inside that range.
-
 </para>
+</sect3>
+</sect2>
+<sect2 id="colors">
+<title>Color Browser</title>
+<para>
+The Color Browser is designed to let you quickly choose a color scheme
+which suits the current fractal, by generating a set of previews to
+choose between. To update the previews to match the current fractal,
+click <emphasis> Refresh</>. To apply a colormap to the main image,
+click the map.
+</para>
+</sect2>
 </sect1>
+
 <sect1 id="about">
 <title>About &gf4;</title>
 <para>
