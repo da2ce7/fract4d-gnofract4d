@@ -95,7 +95,7 @@ int find(double key, item_t *array, int n)
 	int middle;
 	if(left > right)
 	{
-	    return left-1;
+	    return left-1 < 0 ? 0 : left-1 ;
 	}
 	middle = (left + right) / 2;
 	if(array[middle].index < key)
@@ -117,11 +117,12 @@ rgba_t cmap_lookup(cmap_t *cmap, double index)
 {
     int i = find(index, cmap->items, cmap->ncolors),j; 
     rgba_t mix, left, right;
-    
+    double dist, r;
+
     assert(i >= 0 && i < cmap->ncolors);
 
     /* printf("%g->%d\n",index,i); */
-    if(index == cmap->items[i].index || i == cmap->ncolors-1) 
+    if(index <= cmap->items[i].index || i == cmap->ncolors-1) 
     {
 	return cmap->items[i].color;
     }
@@ -129,14 +130,15 @@ rgba_t cmap_lookup(cmap_t *cmap, double index)
     j = i+1;
 
     /* mix colors i & j in proportion to the distance between them */
-    double dist = cmap->items[j].index - cmap->items[i].index;
+    dist = cmap->items[j].index - cmap->items[i].index;
 
     /* printf("dist: %g\n",dist); */
     if(dist == 0.0)
     {
 	return cmap->items[i].color;
     }
-    double r = (index - cmap->items[i].index)/dist;
+    
+    r = (index - cmap->items[i].index)/dist;
     /* printf("r:%g\n",r); */
 
     left = cmap->items[i].color;

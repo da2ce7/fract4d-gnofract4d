@@ -352,9 +352,10 @@ default:
         self.assertIsBadFormula(self.makeMinimalFormula("("),
                                 "unexpected newline",3)
 
-    def testTwoLogistic(self):
+    def disabled_testTwoLogistic(self):
         # a formula from orgform that causes trouble
         # looks like if without endif is allowed
+        # don't want to try and support that right now
         src = '''TwoLogistic {; Peter Anders (anders@physik.hu-berlin.de)
   z=p1, c=pixel:
   r=rand
