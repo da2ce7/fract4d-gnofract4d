@@ -1,4 +1,5 @@
 # The fractal standard library, including operators
+import math
 
 from codegen import ComplexArg, ConstFloatArg, ConstIntArg, TempArg
 from fracttypes import *
@@ -470,22 +471,15 @@ def asin_c_c(gen,t,srcs):
      arg = add_cc_c(gen,t,[mul_cc_c(gen,t,[i,srcs[0]]), sq])
 
      l = log_c_c(gen,t,[arg])
-     return mul_cc_c(gen,t,[minus_i,l])
+     return mul_cc_c(gen,t,[minus_i,l])                         
 
-     # one = ComplexArg(ConstFloatArg(1.0),ConstFloatArg(0.0))
-#      i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(1.0))
-#      minus_i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(-1.0))
-    
-#      one_minus_z2 = sub_cc_c(gen,t,[one,sqr_c_c(gen,t,srcs)])
-#      sq = sqrt_c_c(gen,t,[one_minus_z2])
-#      arg = add_cc_c(gen,t,[mul_cc_c(gen,t,[i,srcs[0]]), one_minus_z2])
-
-#      l = log_c_c(gen,t,[arg])
-#      return neg_c_c(gen,t,[mul_cc_c(gen,t,[i,l])])
-                         
-    
 def acos_f_f(gen,t,srcs):
     return gen.emit_func('acos', srcs, Float)
+
+def acos_c_c(gen,t,srcs):
+    # acos(z) = pi/2 - asin(z)
+    pi_by_2 = ComplexArg(ConstFloatArg(math.pi/2.0),ConstFloatArg(0.0))
+    return sub_cc_c(gen,t,[pi_by_2, asin_c_c(gen,t,srcs)])
 
 def atan_f_f(gen,t,srcs):
     return gen.emit_func('atan', srcs, Float)
