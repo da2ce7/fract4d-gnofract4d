@@ -189,7 +189,7 @@ class TBase:
             else:
                 self.error("%d: invalid statement in func block" % node.pos)
             
-        self.symbols[name] = [f]
+        self.symbols[name] = symbol.OverloadList([f])
         
     def setting(self,node):
         if node.type == "param":
