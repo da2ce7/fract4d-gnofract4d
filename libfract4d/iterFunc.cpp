@@ -52,6 +52,16 @@ const double newtonOptDefaults[] = {
 const param_t newtonOverrides[] = { XZANGLE, YWANGLE, XCENTER };
 const double newtonOverrideValues[] = { M_PI/2.0, M_PI/2.0, 0.1};
 
+const char *novaOptNames[] = { "a", "b", "c" };
+const double novaOptDefaults[] = {
+    1.0, 0.0, // a
+    1.0, 0.0, // b
+    3.0, 0.0  // c
+};
+
+const param_t novaOverrides[] = { ZCENTER, MAGNITUDE };
+const double novaOverrideValues[] = { 1.0, 3.0};
+
 #define NO_OPTIONS 0, NULL, NULL
 #define NO_OVERRIDES 0, NULL, NULL
 
@@ -62,6 +72,15 @@ const double newtonOverrideValues[] = { M_PI/2.0, M_PI/2.0, 0.1};
     DEFAULT_COMPLEX_RET_CODE, \
     DEFAULT_COMPLEX_SAVE_CODE, \
     DEFAULT_COMPLEX_RESTORE_CODE
+
+#define DEFAULT_SIMPLE_RET_CODE ""
+#define DEFAULT_SIMPLE_SAVE_CODE "T lastx = p[X]; T lasty = p[Y]"
+#define DEFAULT_SIMPLE_RESTORE_CODE "p[X] = lastx; p[Y] = lasty"
+#define DEFAULT_SIMPLE_CODE \
+    DEFAULT_SIMPLE_RET_CODE, \
+    DEFAULT_SIMPLE_SAVE_CODE, \
+    DEFAULT_SIMPLE_RESTORE_CODE
+
 
 iterFunc_data infoTable[] = {
     /* mandFunc */
@@ -79,9 +98,27 @@ iterFunc_data infoTable[] = {
 	"atmp = p[X2] - p[Y2] + p[CX];"
 	"p[Y] = 2.0 * p[X] * p[Y] + p[CY];"
 	"p[X] = atmp",
-	"", // ret_code
-	"T lastx = p[X]; T lasty = p[Y]", // save_iter_code
-	"p[X] = lastx; p[Y] = lasty", // restore_iter_code
+	DEFAULT_SIMPLE_CODE,
+	NO_OPTIONS,
+	NO_OVERRIDES
+    },
+    /* mandelBarFunc : z <- conj(z)^2 + c */
+    { 
+	"Mandelbar",
+	// flags
+	HAS_X2 | HAS_Y2,
+	// bailFunc
+	BAILOUT_MAG,
+	// decl code
+	"double atmp",
+	// iter code
+	"p[Y] = -p[Y];"
+	"p[X2] = p[X] * p[X];"
+	"p[Y2] = p[Y] * p[Y];"
+	"atmp = p[X2] - p[Y2] + p[CX];"
+	"p[Y] = 2.0 * p[X] * p[Y] + p[CY];"
+	"p[X] = atmp",
+	DEFAULT_SIMPLE_CODE,
 	NO_OPTIONS,
 	NO_OVERRIDES
     },
@@ -104,6 +141,25 @@ iterFunc_data infoTable[] = {
 	3,
 	newtonOverrides,
 	newtonOverrideValues
+    },
+    /* novaFunc: z <- (Az^3-B)/C z^2 + c */
+    {
+	"Nova",
+	// flags
+	USE_COMPLEX | NO_UNROLL,
+	// bailFunc
+	BAILOUT_DIFF,
+	// decl code
+	"std::complex<double> z(p[X],p[Y]), c(p[CX],p[CY])",
+	// iter code
+	"z = z - (a[0] * z*z*z - a[1])/(a[2] * z * z) + c",
+	DEFAULT_COMPLEX_CODE,
+	3,
+	novaOptNames,
+	novaOptDefaults,
+	2,
+	novaOverrides,
+	novaOverrideValues
     },
     /* sentinel value */
     {
@@ -344,201 +400,8 @@ operator>>(std::istream& s, iterImpl& m)
     return s; 
 }
 
-#ifdef HAVE_GMP
-#define GMP_FUNC_OP \
-    void operator()(gmp::f *p) const \
-        { \
-            calc<gmp::f>(p);\
-        }
-#else
-#define GMP_FUNC_OP
-#endif
-
 #if 0
-// z <- z^2 +c
-class mandFunc : public iterImpl<mandFunc,0>
-{
-public:
-    enum { FLAGS = HAS_X2 | HAS_Y2 };
-    mandFunc() : iterImpl<mandFunc,0>(name()) {} 
 
-    static const char *name()
-        {
-            return "Mandelbrot";
-        }
-    std::string decl_code() const 
-        { 
-            return "double atmp"; 
-        }
-    std::string iter_code() const 
-        { 
-            return 
-                "p[X2] = p[X] * p[X];"
-                "p[Y2] = p[Y] * p[Y];"
-                "atmp = p[X2] - p[Y2] + p[CX];"
-                "p[Y] = 2.0 * p[X] * p[Y] + p[CY];"
-                "p[X] = atmp";
-        }
-};
-
-// z <- conj(z)^2 + c
-class mandelBarFunc : public iterImpl<mandelBarFunc,0>
-{
- public:
-    enum { FLAGS = HAS_X2 | HAS_Y2 };
-    mandelBarFunc() : iterImpl<mandelBarFunc,0>(name()) {} 
-
-    static const char *name()
-        {
-            return "Mandelbar";
-        }
-    std::string decl_code() const 
-        { 
-            return "double atmp"; 
-        }
-    std::string iter_code() const 
-        { 
-            return 
-		"p[Y] = -p[Y];"
-                "p[X2] = p[X] * p[X];"
-                "p[Y2] = p[Y] * p[Y];"
-                "atmp = p[X2] - p[Y2] + p[CX];"
-                "p[Y] = 2.0 * p[X] * p[Y] + p[CY];"
-                "p[X] = atmp";
-        }    
-};
-
-// Newton's method for a quadratic complex polynomial
-// z <- z - (z^2 - 1)/2z
-class newtFunc : public iterImpl<newtFunc,1>
-{
- public:
-    enum { FLAGS = USE_COMPLEX };
-    newtFunc() : iterImpl<newtFunc,1>(name()){             
-        reset_opts(); 
-    };
-    static const char *name() 
-        {
-            return "Newton";
-        }
-    virtual e_bailFunc preferred_bailfunc(void)
-        {
-            return BAILOUT_DIFF;
-        }
-    std::string decl_code() const 
-        { 
-            return "std::complex<double> z(p[X],p[Y]) , c(p[CX],p[CY]), n_minus_one(a[0] - 1.0)";
-        }
-    std::string iter_code() const 
-        { 
-            return "z = z - (pow(z,a[0]) - 1.0)/ (a[0] * pow(z,n_minus_one))";
-        }
-    std::string ret_code()  const 
-        { 
-            return "p[X] = z.real(); p[Y] = z.imag()"; 
-        }
-    std::string save_iter_code() const
-        {
-            return "std::complex<double> last_z = z";
-        }
-    std::string restore_iter_code() const
-        {
-            return "z = last_z";
-        }
-
-    const char *optionName(int i) const
-        {
-            static const char *optNames[] =
-            {
-                "a"
-            };
-            if(i < 0 || i >= 1) return NULL;
-            return optNames[i];
-        }
-    virtual void reset(double *params)
-        {
-            reset_opts();
-            iterImpl<newtFunc,1>::reset(params);
-            // start at Julia
-            params[XZANGLE] = params[YWANGLE] = M_PI/2.0;
-            //offset from zero to give it something to work on
-            params[XCENTER] = 0.1;
-        }
- private:
-    void reset_opts()
-        {
-            // default is z - (z^3 - 1) / 3z^2 + c
-            a[0] = std::complex<double>(3.0,0.0);
-        }
-
-};
-
-
-// z <- (Az^3-B)/C z^2 + c
-class novaFunc : public iterImpl<novaFunc,3>
-{
-public:
-    enum {  FLAGS = USE_COMPLEX | NO_UNROLL};
-    novaFunc() : iterImpl<novaFunc,3>(name()) 
-        { 
-            reset_opts(); 
-        };
-
-    static char *name()
-        {
-            return "Nova";
-        }
-    std::string decl_code() const 
-        { 
-            return "std::complex<double> z(p[X],p[Y]), c(p[CX],p[CY])";
-        }
-    std::string iter_code() const 
-        { 
-            return "z = z - (a[0] * z*z*z - a[1])/(a[2] * z * z) + c";
-        }
-    std::string ret_code() const
-        {
-            return "p[X] = z.real(); p[Y] = z.imag()";
-        }
-    std::string save_iter_code() const
-        {
-            return "std::complex<double> last_z = z";
-        }
-    std::string restore_iter_code() const
-        {
-            return "z = last_z";
-        }
-
-    const char *optionName(int i) const
-        {
-            static const char *optNames[] =
-            {
-                "a", "b", "c"
-            };
-            if(i < 0 || i >= 3) return NULL;
-            return optNames[i];
-        }
-    virtual void reset(double *params)
-        {
-            reset_opts();
-            iterImpl<novaFunc,3>::reset(params);
-            // start at Julia
-            params[ZCENTER] = 1.0;
-	    params[MAGNITUDE] = 3.0;
-        }
-    virtual e_bailFunc preferred_bailfunc(void)
-        {
-            return BAILOUT_DIFF;
-        }
- private:
-    void reset_opts()
-        {
-            // default is z - (z^3 - 1) / 3z^2 + c
-            a[0] = std::complex<double>(1.0,0.0);
-            a[1] = std::complex<double>(1.0,0.0);
-            a[2] = std::complex<double>(3.0,0.0);
-        }
-};
 
 
 // z <- ( re(z) > 0 ? (z - 1) * c : (z + 1) * c)
