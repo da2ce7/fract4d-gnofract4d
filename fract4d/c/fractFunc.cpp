@@ -53,6 +53,9 @@ fractFunc::fractFunc(
         deltax * im->Xres() / 2.0 -
         deltay * im->Yres() / 2.0;
 
+    // offset to center of pixel
+    topleft += deltax / 2.0 + deltay / 2.0;
+
     d depthby2 = ddepth/2.0;
     aa_topleft = topleft - (delta_aa_y + delta_aa_x) * depthby2;
     

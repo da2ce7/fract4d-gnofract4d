@@ -196,8 +196,31 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         f = fractal.T(self.compiler)
 
         f.set_formula("test.frm","test_circle")
+        f.set_outer("gf4d.cfrm","continuous_potential")
+        f.compile()
         f.reset()
         self.assertEqual(f.initparams,[4.0])
+        (w,h) = (40,30)
+        im = fract4dc.image_create(w,h)
+        f.draw(im)
+
+        # check that result is horizontally symmetrical
+        buf = fract4dc.image_buffer(im,0,0)
+        for y in xrange(h):
+            line = list(buf[y*w*3:(y*w+w)*3])
+            line.reverse()
+            revline = "".join(line)
+            self.assertEqual(buf[y*w*3:(y*w+w)*3],revline)
+
+        # and vertically symmetrical
+        for x in xrange(w):
+            for y in xrange(h/2):
+                apos = (y*w+x)*3
+                bpos = ((h-y)*w+x)*3
+                a = buf[apos:apos+3]
+                b = buf[apos:apos+3]
+                self.assertEqual(a,b)
+        
         
     def failBuf(self,buf):
         self.failUnless(False)
