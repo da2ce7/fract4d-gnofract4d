@@ -1,4 +1,4 @@
-DeprecationWarnings:
+,DeprecationWarnings:
 main_window:344 (use gtk.UIManager), 545 (use combobox)
 browser.py: 269 (use ComboBox)
 gtkfractal.py: 307

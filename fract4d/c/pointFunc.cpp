@@ -45,7 +45,7 @@ public:
 	    int fate = 0;
 	    int solid = 0;
 	    int fUseColors = 0;
-	    double colors[4];
+	    double colors[4] = {0.0};
 
 	    if (checkPeriod)
 	    {
