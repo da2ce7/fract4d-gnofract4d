@@ -2027,7 +2027,7 @@ P02-01 {; V.1.1 - earlier versions may be discarded
         ; P(1)  = x
         ;
         ; = (3zP01-P00)/2
-  t=p1, bailout=4, z=pixel:
+  t=#zwpixel, bailout=4, z=pixel:
   x=real(z), y=imag(z)
   Tx=(3*x*x-1)/2
   Ty=(3*y*y-1)/2
@@ -2040,7 +2040,7 @@ P02-01 {; V.1.1 - earlier versions may be discarded
 P03-01 {; V.1.1 - earlier versions may be discarded
         ; Copyright (c)1998,1999 Morgan L. Owens        
         ; = (5zP02-2P01)/3
-  t=p1, bailout=4, z=pixel:
+  t=#zwpixel, bailout=4, z=pixel:
   x=real(z), y=imag(z)
   Tx=x*(5*x*x-3)/2
   Ty=y*(5*y*y-3)/2
@@ -2053,7 +2053,7 @@ P03-01 {; V.1.1 - earlier versions may be discarded
 P04-01 {; V.1.1 - earlier versions may be discarded
         ; Copyright (c)1998,1999 Morgan L. Owens        
         ; = (7zP03-3P02)/4
-  t=p1, bailout=4, z=pixel:
+  t=#zwpixel, bailout=4, z=pixel:
   x=real(z), y=imag(z)
   xx=x*x, yy=y*y
   Tx=(5*xx*(7*xx-6)+3)/8
@@ -2067,7 +2067,7 @@ P04-01 {; V.1.1 - earlier versions may be discarded
 P05-01 {; V.1.1 - earlier versions may be discarded
         ; Copyright (c)1998,1999 Morgan L. Owens        
         ; = (9zP04-4P03)/5
-  t=p1, bailout=4, z=pixel:
+  t=#zwpixel, bailout=4, z=pixel:
   x=real(z), y=imag(z)
   xx=x*x, yy=y*y
   Tx=x*(7*xx*(9*xx-10)+15)/8
@@ -2081,7 +2081,7 @@ P05-01 {; V.1.1 - earlier versions may be discarded
 P06-01 {; V.1.1 - earlier versions may be discarded
         ; Copyright (c)1998,1999 Morgan L. Owens        
         ; = (11zP05-5P04)/6
-  t=p1, bailout=4, z=pixel:
+  t=#zwpixel, bailout=4, z=pixel:
   x=real(z), y=imag(z)
   xx=x*x, yy=y*y
   Tx=(21*xx*(xx*(11*xx-15)+5)-5)/16
@@ -2095,7 +2095,7 @@ P06-01 {; V.1.1 - earlier versions may be discarded
 P07-01 {; V.1.1 - earlier versions may be discarded
         ; Copyright (c)1998,1999 Morgan L. Owens        
         ; = (13zP06-6P05)/7
-  t=p1, bailout=4, z=pixel:
+  t=#zwpixel, bailout=4, z=pixel:
   x=real(z), y=imag(z)
   xx=x*x, yy=y*y
   Tx=x*(3*xx*(11*xx*(13*xx-21)+105)-35)/16
@@ -2109,7 +2109,7 @@ P07-01 {; V.1.1 - earlier versions may be discarded
 P08-01 {; V.1.1 - earlier versions may be discarded
         ; Copyright (c)1998,1999 Morgan L. Owens        
         ; = (15zP07-7P06)/8
-  t=p1, bailout=4, z=pixel:
+  t=#zwpixel, bailout=4, z=pixel:
   x=real(z), y=imag(z)
   xx=x*x, yy=y*y
   Tx=(3*xx*(11*xx*(13*xx*(15*xx-28)+210)-420)+35)/128
@@ -2123,7 +2123,7 @@ P08-01 {; V.1.1 - earlier versions may be discarded
 P09-01 {; V.1.1 - earlier versions may be discarded
         ; Copyright (c)1998,1999 Morgan L. Owens        
         ; = (17zP08-8P07)/9
-  t=p1, bailout=4, z=pixel:
+  t=#zwpixel, bailout=4, z=pixel:
   x=real(z), y=imag(z)
   xx=x*x, yy=y*y
   Tx=x*(11*xx*(13*xx*(5*xx*(17*xx-36)+126)-420)+315)/128
@@ -2137,7 +2137,7 @@ P09-01 {; V.1.1 - earlier versions may be discarded
 P10-01 {; V.1.1 - earlier versions may be discarded
         ; Copyright (c)1998,1999 Morgan L. Owens        
         ; = (19zP09-9P08)/10
-  t=p1, bailout=4, z=pixel:
+  t=#zwpixel, bailout=4, z=pixel:
   x=real(z), y=imag(z)
   xx=x*x, yy=y*y
   Tx=(11*xx*(13*xx*(xx*(17*xx*(19*xx-45)+630)-210)+315)-63)/128
