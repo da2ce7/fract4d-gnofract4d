@@ -710,6 +710,31 @@ func fn1
         self.assertCSays(src,"init",
                          self.inspect_hyper("s"),
                          "s = (-5.9761,-36.897,-36.5636,4.49641)")
+
+    def testMultipleDeclare(self):
+        'Declare a var in both branches of an if. Check for correct answer'
+
+        src = '''t_ifdecl {
+        init:
+        int a = 1
+        if a == 1
+            int b = 2
+        else
+            int b = 3
+        endif
+
+        if a == 77
+            int c = 3
+        else
+            int c = 2
+        endif
+        }'''
+        self.assertCSays(src,"init",
+                         self.inspect_int("b") +
+                         self.inspect_int("c"),
+                         "b = 2\nc = 2")
+
+        
     def testC(self):
         '''basic end-to-end testing. Compile a code fragment + instrumentation,
         run it and check output'''

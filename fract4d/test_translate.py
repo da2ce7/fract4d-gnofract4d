@@ -815,15 +815,22 @@ default:
         self.assertNoErrors(t1)
 
     def testRedeclare(self):
-        'For better uf-compat, allow redeclaring builtin vars -ick'
-        t1 = self.translate("t {\ninit:complex z = (3,1)}")
+        'For better uf-compat, allow redeclaring vars -ick'
+        t1 = self.translate('''
+        t {
+        init:
+        complex z = (3,1)
+        int x = 2
+        int x = 3
+        }
+        ''')
         self.assertNoErrors(t1)
         
     def testBadDecls(self):
         t1 = self.translate("t7 {\nglobal:int z\n}")
         self.assertError(t1,"symbol 'z' is predefined as complex")
         t1 = self.translate("t8 {\nglobal:int a\nfloat A\n}")
-        self.assertError(t1,"'A' was already defined on line 2")
+        self.assertError(t1,"'A' was already defined as int on line 2")
         t1 = self.translate("t8 {\nglobal:int sin\n}")
         self.assertError(t1,"symbol 'sin' is predefined as a function")
 
