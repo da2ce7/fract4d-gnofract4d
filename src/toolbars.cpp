@@ -157,7 +157,7 @@ pause_toggled_callback(GtkToggleButton *button, gpointer user_data)
 }
 
 void
-add_pause_widget(GtkWidget *toolbar, model_t *m)
+add_pause_widget(GtkToolbar *toolbar, model_t *m)
 {
     GtkWidget *pause_pixmap = gnome_pixmap_new_from_file(
         gnome_pixmap_file(PACKAGE "/pause.png"));
@@ -165,25 +165,28 @@ add_pause_widget(GtkWidget *toolbar, model_t *m)
     GtkWidget *pause_widget = gtk_toggle_button_new();
     gtk_container_add(GTK_CONTAINER(pause_widget),pause_pixmap);
 
-    gtk_toolbar_append_widget (GTK_TOOLBAR(toolbar),
-                               pause_widget,
-                               _("Pause"),
-                               _("Pause the current calculation"));
+    gtk_toolbar_append_widget (
+        toolbar,
+        pause_widget,
+        _("Pause"),
+        _("Pause the current calculation"));
 
     // connect the fractal's stop/start calculation callbacks to 
     // the pause button's sensitivity
     Gf4dFractal *f = model_get_fract(m);
 
-    gtk_signal_connect(GTK_OBJECT(f),
-                       "status_changed",
-                       (GtkSignalFunc)pause_status_callback,
-                       pause_widget);
+    gtk_signal_connect(
+        GTK_OBJECT(f),
+        "status_changed",
+        (GtkSignalFunc)pause_status_callback,
+        pause_widget);
 
     // connect the pause button's signal to the fractal
-    gtk_signal_connect(GTK_OBJECT(pause_widget),
-                       "toggled",
-                       (GtkSignalFunc)pause_toggled_callback,
-                       f);
+    gtk_signal_connect(
+        GTK_OBJECT(pause_widget),
+        "toggled",
+        (GtkSignalFunc)pause_toggled_callback,
+        f);
 
     // initially insensitive
     gtk_widget_set_sensitive(pause_widget, FALSE);
@@ -198,136 +201,134 @@ Gf4dFractal *get_toolbar_preview_fract()
     return preview_shadow;
 }
 
-GtkWidget*
-create_move_toolbar (model_t *m, GtkWidget *appbar)
+void
+create_angle_widgets(
+    GtkToolbar *toolbar,
+    GtkWidget *appbar,
+    model_t *m,
+    Gf4dFractal *shadow)
 {
-    GtkWidget *toolbar;
-    toolbar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
-
-    preview_shadow = gf4d_fractal_copy(model_get_fract(m));
-    gtk_signal_connect(
-        GTK_OBJECT(model_get_fract(m)),
-        "parameters_changed",
-        GTK_SIGNAL_FUNC(preview_refresh_callback),
-        preview_shadow);
-
-    GtkWidget *preview_widget = create_preview(preview_shadow);
-
-    //Gf4dFractal *preview = preview_get_shadow(preview_widget);
+    gtk_toolbar_append_widget (
+        toolbar,
+        create_angle_button(_("xy"), XYANGLE, m, appbar, shadow),
+        _("XY angle"), NULL);
 
     gtk_toolbar_append_widget (
-        GTK_TOOLBAR(toolbar),
-        preview_widget,
-        _("Preview"),
-        NULL);
+        toolbar,
+        create_angle_button(_("xz"), XZANGLE, m, appbar, shadow),
+        _("XZ angle"), NULL);
 
     gtk_toolbar_append_widget (
-        GTK_TOOLBAR(toolbar),
-        create_angle_button(_("xy"), XYANGLE, m, appbar, preview_shadow),
-        _("XY angle"),
-        NULL);
+        toolbar,
+        create_angle_button(_("xw"), XWANGLE, m, appbar, shadow),
+        _("XW angle"), NULL);
 
     gtk_toolbar_append_widget (
-        GTK_TOOLBAR(toolbar),
-        create_angle_button(_("xz"), XZANGLE, m, appbar, preview_shadow),
-        _("XZ angle"),
-        NULL);
+        toolbar,
+        create_angle_button(_("yz"), YZANGLE, m, appbar, shadow),
+        _("YZ angle"), NULL);
 
     gtk_toolbar_append_widget (
-        GTK_TOOLBAR(toolbar),
-        create_angle_button(_("xw"), XWANGLE, m, appbar, preview_shadow),
-        _("XW angle"),
-        NULL);
+        toolbar,
+        create_angle_button(_("yw"), YWANGLE, m, appbar, shadow),
+        _("YW angle"), NULL);
 
     gtk_toolbar_append_widget (
-        GTK_TOOLBAR(toolbar),
-        create_angle_button(_("yz"), YZANGLE, m, appbar, preview_shadow),
-        _("YZ angle"),
-        NULL);
+        toolbar,
+        create_angle_button(_("zw"), ZWANGLE, m, appbar, shadow),
+        _("ZW angle"), NULL);
+}
 
-    gtk_toolbar_append_widget (
-        GTK_TOOLBAR(toolbar),
-        create_angle_button(_("yw"), YWANGLE, m, appbar, preview_shadow),
-        _("YW angle"),
-        NULL);
-
-    gtk_toolbar_append_widget (
-        GTK_TOOLBAR(toolbar),
-        create_angle_button(_("zw"), ZWANGLE, m, appbar, preview_shadow),
-        _("ZW angle"),
-        NULL);
-			     
-    gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
-
-    gtk_toolbar_append_widget (
-        GTK_TOOLBAR(toolbar),
-        create_param_button(_("xy"), XCENTER, YCENTER, m, preview_shadow),
-        _("XY position"),
-        NULL);
-
-    gtk_toolbar_append_widget (
-        GTK_TOOLBAR(toolbar),
-        create_param_button(_("zw"), ZCENTER, WCENTER, m, preview_shadow),
-        _("Y position"),
-        NULL);
-
-    gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
-
+void
+create_undo_widgets(GtkToolbar *toolbar, model_t *m)
+{
     /* UNDO */
     GtkWidget *undo_widget = gnome_stock_new_with_icon(
         GNOME_STOCK_PIXMAP_UNDO);
 
     model_make_undo_sensitive(m,undo_widget);
 
-    gtk_toolbar_append_item (GTK_TOOLBAR(toolbar), 
-                             _("Undo"),
-                             _("Undo the last action"),
-                             NULL,
-                             undo_widget,
-                             (GtkSignalFunc)undo_cb,
-                             m);
+    gtk_toolbar_append_item (
+        toolbar, 
+        _("Undo"),
+        _("Undo the last action"),
+        NULL,
+        undo_widget,
+        (GtkSignalFunc)undo_cb,
+        m);
 
     /* REDO */
     GtkWidget *redo_widget = gnome_stock_new_with_icon(
         GNOME_STOCK_PIXMAP_REDO);
 
-
-    gtk_toolbar_append_item (GTK_TOOLBAR(toolbar), 
-                             _("Redo"),
-                             _("Redo the last action"),
-                             NULL,
-                             redo_widget,
-                             (GtkSignalFunc)redo_cb,
-                             m);
+    gtk_toolbar_append_item (
+        toolbar, 
+        _("Redo"),
+        _("Redo the last action"),
+        NULL,
+        redo_widget,
+        (GtkSignalFunc)redo_cb,
+        m);
 
     model_make_redo_sensitive(m,redo_widget);
+}
 
-    /* PAUSE */
-    add_pause_widget(toolbar, m);
+void
+create_fourway_widgets(GtkToolbar *toolbar, model_t *m, Gf4dFractal *shadow)
+{
+    gtk_toolbar_append_widget (
+        toolbar,
+        create_param_button(_("xy"), XCENTER, YCENTER, m, shadow),
+        _("XY position"),
+        NULL);
 
-    gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+    gtk_toolbar_append_widget (
+        toolbar,
+        create_param_button(_("zw"), ZCENTER, WCENTER, m, shadow),
+        _("Y position"),
+        NULL);
+}
 
+void
+create_preview_widget(GtkToolbar *toolbar, Gf4dFractal *shadow)
+{
+    GtkWidget *preview_widget = create_preview(shadow);
+
+    gtk_toolbar_append_widget (
+        toolbar,
+        preview_widget,
+        _("Preview"),
+        NULL);
+}
+
+void
+create_explore_widgets(GtkToolbar *toolbar, model_t *m)
+{
     GtkWidget *explore_widget = 
         gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_SEARCH);
     
-    gtk_toolbar_append_item (GTK_TOOLBAR(toolbar),
-                             _("Explore"),
-                             _("Toggle Explorer mode"),
-                             NULL,
-                             explore_widget,
-                             (GtkSignalFunc)explore_cb,
-                             m);
+    gtk_toolbar_append_item (
+        toolbar,
+        _("Explore"),
+        _("Toggle Explorer mode"),
+        NULL,
+        explore_widget,
+        (GtkSignalFunc)explore_cb,
+        m);
 
-    GtkObject *explore_adj = gtk_adjustment_new(0.5, 0.0, 1.0, 0.05, 0.05, 0.0);
-    GtkWidget *explore_weirdness = gtk_hscale_new(GTK_ADJUSTMENT(explore_adj));
+    GtkObject *explore_adj = 
+        gtk_adjustment_new(0.5, 0.0, 1.0, 0.05, 0.05, 0.0);
+    GtkWidget *explore_weirdness = 
+        gtk_hscale_new(GTK_ADJUSTMENT(explore_adj));
 
-    gtk_signal_connect(GTK_OBJECT(explore_adj),
-                       "value-changed",
-                       (GtkSignalFunc)weirdness_callback, 
-                       m);
+    gtk_signal_connect(
+        GTK_OBJECT(explore_adj),
+        "value-changed",
+        (GtkSignalFunc)weirdness_callback, 
+        m);
 
     gtk_toolbar_append_widget(
-        GTK_TOOLBAR(toolbar),
+        toolbar,
         explore_weirdness,
         _("How different the mutants are in Explore Mode"),
         NULL);
@@ -335,7 +336,8 @@ create_move_toolbar (model_t *m, GtkWidget *appbar)
     gtk_widget_show(explore_weirdness);
     model_make_explore_sensitive(m, explore_weirdness);
 
-    GtkWidget *explore_refresh = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_REFRESH);
+    GtkWidget *explore_refresh = 
+        gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_REFRESH);
 
     gtk_toolbar_append_item (
         GTK_TOOLBAR(toolbar),
@@ -348,6 +350,39 @@ create_move_toolbar (model_t *m, GtkWidget *appbar)
 
     gtk_widget_show(explore_refresh);
     model_make_explore_sensitive(m, explore_refresh);
+}
 
-    return toolbar;
+GtkWidget*
+create_move_toolbar (model_t *m, GtkWidget *appbar)
+{
+    GtkWidget *toolbar_widget = 
+        gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
+    GtkToolbar *toolbar = GTK_TOOLBAR(toolbar_widget);
+
+    preview_shadow = gf4d_fractal_copy(model_get_fract(m));
+    gtk_signal_connect(
+        GTK_OBJECT(model_get_fract(m)),
+        "parameters_changed",
+        GTK_SIGNAL_FUNC(preview_refresh_callback),
+        preview_shadow);
+
+    create_preview_widget(toolbar, preview_shadow);
+    gtk_toolbar_append_space(toolbar);
+
+    create_angle_widgets(toolbar, appbar, m, preview_shadow);
+    gtk_toolbar_append_space(toolbar);
+
+    create_fourway_widgets(toolbar, m, preview_shadow);
+    gtk_toolbar_append_space(toolbar);
+
+    create_undo_widgets(toolbar, m);
+    gtk_toolbar_append_space(toolbar);
+
+    /* PAUSE */
+    add_pause_widget(toolbar, m);
+    gtk_toolbar_append_space(toolbar);
+
+    create_explore_widgets(toolbar, m);
+
+    return toolbar_widget;
 }

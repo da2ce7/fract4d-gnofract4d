@@ -33,7 +33,7 @@ operator>>(std::istream& s, iterFunc& iter)
 
 /* This class eases the implementation of fractal types 
    T is the type of the actual fractal subclass, used for boring things 
-   like cloning
+       like cloning
    NOPTIONS is the number of parameters the fractal has */
 
 template<class T, int NOPTIONS>
@@ -52,7 +52,7 @@ public:
     virtual void setOption(int n, complex<double> val) 
         {
             if(n < 0 || n >= NOPTIONS) return;
-            cout << "option " << n << " set to " << val << "\n";
+            //cout << "option " << n << " set to " << val << "\n";
             a[n] = val;
         }
     virtual complex<double> getOption(int n) const
@@ -74,7 +74,7 @@ public:
         }
     virtual void reset()
         {
-
+            
         }
     /* utility functions */
 
@@ -389,7 +389,7 @@ class cubeFunc : public iterImpl<cubeFunc,0>
     p[X] = atmp
 
 public:
-    enum {  FLAGS = 0 };
+    enum {  FLAGS = HAS_X2 | HAS_Y2 };
     cubeFunc() : iterImpl(name()) {}
 
     ITER_DECLS(CUBE_DECL, CUBE_ITER)
@@ -410,10 +410,7 @@ class quadFunc : public iterImpl<quadFunc,3>
 public:
     enum { FLAGS = 0 };
     quadFunc() : iterImpl(name()) {
-        // default is z^2 - z + c
-        a[0] = complex<double>(1.0,0.0);
-        a[1] = complex<double>(1.0,0.0);
-        a[2] = complex<double>(1.0,0.0);
+        reset();
     }
 
     ITER_DECLS_RET(QUAD_DECL, QUAD_ITER, QUAD_RET)
@@ -429,6 +426,13 @@ public:
             };
             if(i < 0 || i >= 3) return NULL;
             return optNames[i];
+        }
+    virtual void reset()
+        {
+            // default is z^2 - z + c
+            a[0] = complex<double>(1.0,0.0);
+            a[1] = complex<double>(1.0,0.0);
+            a[2] = complex<double>(1.0,0.0);
         }
 };
 
@@ -473,6 +477,7 @@ iterFunc *iterFunc_new(const char *name)
 }
 
 // deserialize an iterFunc from a stream
+// without knowing its type
 
 iterFunc *iterFunc_read(std::istream& s)
 {

@@ -35,9 +35,8 @@
 GtkWidget *global_propertybox=NULL;
 
 gboolean 
-set_width_callback(GtkEntry *e, GdkEventFocus *, gpointer user_data)
+set_width_callback(GtkEntry *e, GdkEventFocus *, model_t *m)
 {
-    model_t *m = (model_t *)user_data;
     char *s = gtk_entry_get_text(e);
     int width=0;
     sscanf(s,"%d",&width);
@@ -46,18 +45,16 @@ set_width_callback(GtkEntry *e, GdkEventFocus *, gpointer user_data)
 }
 
 void 
-refresh_width_callback(Gf4dFractal *f, gpointer user_data)
+refresh_width_callback(Gf4dFractal *f, GtkEntry *e)
 {
     char buf[80];
-    GtkEntry *e = GTK_ENTRY(user_data);
     sprintf(buf,"%d",gf4d_fractal_get_xres(f));
     gtk_entry_set_text(e,buf);
 }
 
 gboolean
-set_height_callback(GtkEntry *e, GdkEventFocus *, gpointer user_data)
+set_height_callback(GtkEntry *e, GdkEventFocus *, model_t *m)
 {
-    model_t *m = (model_t *)user_data;
     char *s = gtk_entry_get_text(e);
     int height=0;
     sscanf(s,"%d",&height);
@@ -66,18 +63,16 @@ set_height_callback(GtkEntry *e, GdkEventFocus *, gpointer user_data)
 }
 
 void 
-refresh_height_callback(Gf4dFractal *f, gpointer user_data)
+refresh_height_callback(Gf4dFractal *f, GtkEntry *e)
 {
     char buf[80];
-    GtkEntry *e = GTK_ENTRY(user_data);
     sprintf(buf,"%d",gf4d_fractal_get_yres(f));
     gtk_entry_set_text(e,buf);
 }
 
 gboolean
-set_maxiter_callback(GtkEntry *e, GdkEventFocus *, gpointer user_data)
+set_maxiter_callback(GtkEntry *e, GdkEventFocus *, Gf4dFractal *f)
 {
-    Gf4dFractal *f = GF4D_FRACTAL(user_data);
     gchar *s = gtk_entry_get_text(e);
     int niters=0;
     sscanf(s,"%d",&niters);
@@ -90,10 +85,9 @@ set_maxiter_callback(GtkEntry *e, GdkEventFocus *, gpointer user_data)
 }
 
 void 
-refresh_maxiter_callback(Gf4dFractal *f, gpointer user_data)
+refresh_maxiter_callback(Gf4dFractal *f, GtkEntry *e)
 {
     char buf[80];
-    GtkEntry *e = GTK_ENTRY(user_data);
     sprintf(buf,"%d",gf4d_fractal_get_max_iterations(f));
     gtk_entry_set_text(e,buf);
 }
@@ -760,7 +754,6 @@ set_func_parameter_cb(GtkWidget * entry, GdkEventFocus *, model_t *m)
     
     if(newVal != oldVal && model_cmd_start(m,"set_func_param"))
     {
-        g_print("set_func_parameter_cb\n");
         func->setOption(index,newVal);
         model_cmd_finish(m,"set_func_param");
     }        
@@ -823,10 +816,10 @@ void make_func_entry(Gf4dFractal *shadow, double d, GtkWidget *table, int i)
         GTK_SIGNAL_FUNC(set_func_parameter_cb),
         m);
 
-    gtk_signal_connect(
+    gtk_signal_connect_while_alive(
         GTK_OBJECT(shadow), "parameters_changed",
         GTK_SIGNAL_FUNC(refresh_funcparam_cb),
-        entry);
+        entry, GTK_OBJECT(entry));
 
     refresh_funcparam_cb(shadow,entry);
 }
@@ -849,8 +842,6 @@ fourway_set_param_cb(
         complex<double> delta(deltax / 100.0 , deltay / 100.0);
         complex<double> newVal = oldVal + delta;
 
-        g_print("fourway_set_cb\n");
-        
         func->setOption(index,newVal);
         model_cmd_finish(m, "func_param");
     }
@@ -873,8 +864,6 @@ fourway_preview_param_cb(
     complex<double> delta(deltax / 100.0 , deltay / 100.0);
     complex<double> newVal = oldVal + delta;
 
-    g_print("fourway_preview_cb\n");
-    
     func->setOption(index,newVal);
     gf4d_fractal_calc(f,1);
 }
@@ -929,12 +918,10 @@ refresh_func_parameters_callback(Gf4dFractal *f, GtkWidget *table)
 
     iterFunc *func = gf4d_fractal_get_func(f);
     const char *new_type = func->type();
-    g_print("last was %s, this is %s\n",current_type,new_type);
 
     if(0 == strcmp(current_type, new_type))
     {
         // type hasn't changed - do nothing
-        g_print("same type\n");
         return;
     }
 
@@ -953,7 +940,6 @@ refresh_func_parameters_callback(Gf4dFractal *f, GtkWidget *table)
     int nOptions = func->nOptions();
     if(nOptions == 0)
     {
-        g_print("no options\n");
         GtkWidget *label = 
             gtk_label_new(_("This fractal type has no parameters"));
 
@@ -966,7 +952,6 @@ refresh_func_parameters_callback(Gf4dFractal *f, GtkWidget *table)
     else
     {
         /* fractal has parameters */
-        g_print("%d options\n",nOptions);
         for(int i = 0; i < nOptions; ++i)
         {
             make_func_edit_widgets(f,func, table, i);

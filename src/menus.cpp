@@ -199,6 +199,13 @@ load_param_cb(GtkMenuItem     *menuitem,
 }
 
 void
+pause_cb(GtkMenuItem     *menuitem,
+         gpointer         user_data)
+{
+    // FIXME
+}
+
+void
 preferences_cb(GtkMenuItem     *menuitem,
                gpointer         user_data)
 {
@@ -242,6 +249,13 @@ static GnomeUIInfo file1_menu_uiinfo[] =
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_OPEN,
         0, (enum GdkModifierType)'l', NULL
     },
+    {
+        GNOME_APP_UI_ITEM, N_("P_ause"),
+        NULL,
+        pause_cb, NULL, NULL,
+        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
+        0, (enum GdkModifierType)'a', NULL
+    },
     GNOMEUIINFO_SEPARATOR,
     GNOMEUIINFO_MENU_EXIT_ITEM (menu_quit_cb, NULL),
     GNOMEUIINFO_END
@@ -257,6 +271,7 @@ static GnomeUIInfo parameters1_menu_uiinfo[] =
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
         0, (enum GdkModifierType) 'c', NULL
     },
+    /*
     {
         GNOME_APP_UI_ITEM, N_("_Movie Editor..."),
         NULL,
@@ -264,6 +279,7 @@ static GnomeUIInfo parameters1_menu_uiinfo[] =
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
         0, (enum GdkModifierType)'m', NULL
     },
+    */
     GNOMEUIINFO_END
 };
 

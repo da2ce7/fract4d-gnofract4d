@@ -62,7 +62,7 @@ preview_get_shadow(GtkWidget *preview)
 void 
 preview_disconnect(GtkWidget *preview, Gf4dFractal *f)
 {
-    g_print("disconnecting from fractal prior to deletion\n");
+    //g_print("disconnecting from fractal prior to deletion\n");
     gtk_signal_disconnect_by_data(GTK_OBJECT(f), preview);
 }
 

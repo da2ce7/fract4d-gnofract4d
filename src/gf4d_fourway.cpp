@@ -454,7 +454,6 @@ gf4d_fourway_update_mouse (Gf4dFourway *fourway, gint x, gint y)
     gint dx = fourway->last_x - x;
     gint dy = fourway->last_y - y;
 
-    g_print("%d,%d\n", dx, dy);
 
     if (dx || dy)
     {

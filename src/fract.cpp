@@ -76,11 +76,11 @@ debug_precision(const d& s, char *location)
 /* ctor */
 fractal::fractal()
 {
-    reset();
-
     // set fractal type to first type in list
     const ctorInfo *names = iterFunc_names();
     pIterFunc = names[0].ctor();
+
+    reset();
 
     // display params
     antialias = AA_FAST;
@@ -266,6 +266,11 @@ fractal::reset()
 
     maxiter = 256;
     rot_by = M_PI/2.0;
+    
+    if(pIterFunc)
+    {
+        pIterFunc->reset();
+    }
 }
 
 colorizer_t *
