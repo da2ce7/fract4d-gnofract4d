@@ -9,9 +9,19 @@ import sys
 
 if float(sys.version[:3]) < 2.2:
     print "Sorry, you need python 2.2 or higher to run Gnofract 4D."
-    print "You have version %s." % sys.version
+    print "You have version %s. Please upgrade." % sys.version
     sys.exit(1)
 
+# hack to use a different Python for building if an env var is set
+# I use this to build python-2.3 RPMs.
+build_version = os.environ.get("BUILD_PYTHON_VERSION")
+build_python = os.environ.get("BUILD_PYTHON")
+
+if build_version and build_python and sys.version[:3] != build_version:
+    args = ["/usr/bin/python"] + sys.argv
+    print "running other Python version %s with args: %s" % (build_python,args)
+    os.execv(build_python, args)
+    
 def create_stdlib_docs():
     'Autogenerate docs for standard library'
     try:
@@ -105,12 +115,13 @@ setup (name = 'gnofract4d',
        description = 'A program to draw fractals',
        long_description = \
 '''Gnofract 4D is a fractal browser. It can generate many different fractals, 
-including some which are hybrids between the Mandelbrot and Julia sets.''',
+including some which are hybrids between the Mandelbrot and Julia sets,
+and includes a Fractint-compatible parser for your own fractal formulas.''',
        author = 'Edwin Young',
        author_email = 'edwin@sourceforge.net',
        maintainer = 'Edwin Young',
        maintainer_email = 'edwin@sourceforge.net',
-       keywords = "fractal mandelbrot julia fractint",
+       keywords = "fractal Mandelbrot Julia fractint",
        url = 'http://gnofract4d.sourceforge.net/',
        packages = ['fract4d', 'fract4dgui'],
        ext_modules = [module1, module2],
@@ -128,7 +139,7 @@ including some which are hybrids between the Mandelbrot and Julia sets.''',
            # documentation
            ('share/gnome/help/gnofract4d/C',
             ['doc/gnofract4d-manual/C/gnofract4d-manual.xml',
-             'fract4d/stdlib.xml']),
+             'doc/gnofract4d-manual/C/stdlib.xml']),
            ('share/gnome/help/gnofract4d/C/figures',
             get_files("doc/gnofract4d-manual/C/figures",".png")),
 

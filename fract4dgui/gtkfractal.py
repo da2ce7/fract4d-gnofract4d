@@ -94,7 +94,7 @@ class T(gobject.GObject):
 
     def get_rgb_colormap(self):
         # work around a difference between pygtk versions
-        if hasattr(gtk.gdk,'get_colormap'):
+        if hasattr(gtk.gdk,'rgb_get_colormap'):
             c = gtk.gdk.rgb_get_colormap()
         else:
             c = gtk.gdk.rgb_get_cmap()
@@ -380,9 +380,14 @@ class T(gobject.GObject):
                         table,i,name,"",param,op[name], formula, param_type)
             i += 1
         return table
-    
+
+    def double_maxiter(self):
+        self.set_maxiter(self.f.maxiter*2)
+        
     def set_maxiter(self,new_iter):
+        print "try deepen(%d,%d)"% (self.f.maxiter, new_iter)
         if self.f.maxiter != new_iter:
+            print "deepen"
             self.f.maxiter = new_iter
             self.changed()
         
@@ -448,9 +453,10 @@ class T(gobject.GObject):
         widget.window.draw_rectangle(
             self.widget.get_style().white_gc,
             gtk.FALSE,
-            min(self.x,self.newx),
-            min(self.y,self.newy),
-            abs(self.newx-self.x), abs(self.newy-self.y));
+            int(min(self.x,self.newx)),
+            int(min(self.y,self.newy)),
+            int(abs(self.newx-self.x)),
+            int(abs(self.newy-self.y)));
 
     def onButtonPress(self,widget,event):
         self.x = event.x
