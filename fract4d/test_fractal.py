@@ -4,6 +4,7 @@ import string
 import unittest
 import StringIO
 import sys
+import math
 
 import fc
 import fractal
@@ -89,6 +90,56 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         sofile = f.compile()
         image = fract4dc.image_create(40,30)
         f.draw(image)
+
+    def assertNearlyEqual(self,a,b):
+        # check that each element is within epsilon of expected value
+        epsilon = 1.0e-12
+        for (ra,rb) in zip(a,b):
+            d = abs(ra-rb)
+            self.failUnless(d < epsilon,"%f != %f (by %f)" % (ra,rb,d))
+
+    def testRelocation(self):
+        f = fractal.T(self.compiler)
+        
+        f.compile()
+        (w,h) = (40,30)
+        image = fract4dc.image_create(w,h)
+
+        # zoom
+        f.relocate(0.0,0.0,2.0)
+        tparams = [0.0] * 11
+        tparams[f.MAGNITUDE] = 8.0
+        self.assertNearlyEqual(f.params,tparams)
+
+        # relocate
+        f.relocate(1.0,2.0,1.0)
+        tparams[f.XCENTER] = 8.0
+        tparams[f.YCENTER] = 16.0
+        self.assertNearlyEqual(f.params,tparams)
+
+        # rotated relocation
+        f.relocate(-1.0,-2.0,1.0)
+        f.params[f.XYANGLE]= -math.pi/2.0
+        f.relocate(1.0,2.0,1.0)
+        tparams[f.XCENTER] = -16.0
+        tparams[f.YCENTER] = 8.0
+        tparams[f.XYANGLE] = -math.pi/2.0
+        
+        self.assertNearlyEqual(f.params,tparams)
+
+        # Julia relocation
+        f.relocate(-1.0,-2.0,1.0)
+        f.params[f.XYANGLE]= 0
+        f.params[f.XZANGLE] = f.params[f.YWANGLE] = math.pi/2.0
+        f.relocate(1.0,2.0,1.0)
+
+        tparams = [0.0] * 11
+        tparams[f.MAGNITUDE] = 8.0
+        tparams[f.ZCENTER] = 8.0
+        tparams[f.WCENTER] = 16.0
+        tparams[f.XZANGLE] = tparams[f.YWANGLE] = math.pi/2.0
+        
+        self.assertNearlyEqual(f.params,tparams)
         
     def testDefaultFractal(self):
         f = fractal.T(self.compiler)

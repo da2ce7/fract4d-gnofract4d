@@ -138,7 +138,17 @@ class TranslateTest(testbase.TestBase):
         i = 1.0 ; downcast - error
         }''')
         self.assertWarning(t10,"conversion from int to float on line 4")
-        self.assertError(t10, "invalid type float for 1.0 on line 5, expecting int")        
+        self.assertError(t10, "invalid type float for 1.0 on line 5, expecting int")
+
+    def testDefaultSection(self):
+        t = self.translate('''t_d1 {
+        default:
+        maxiter = 100
+        }''')
+        self.assertNoErrors(t)
+        defsect = t.sections["default"]
+        print defsect.pretty()
+        
     def testParams(self):
         t12 = self.translate('''t_params {
         init: complex x = @p1 + p2 + @my_param

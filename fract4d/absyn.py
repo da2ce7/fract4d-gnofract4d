@@ -119,7 +119,7 @@ def Formlist(list, pos):
     return Node("formlist", pos, list, "")
 
 def Set(id, s, pos):
-    return Node("set", pos, s,id)
+    return Node("set", pos, [id,s], None)
 
 def Number(n,pos):
     if re.search('[.eE]',n):

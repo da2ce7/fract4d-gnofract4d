@@ -224,7 +224,7 @@ static void pf_calc(
     // "object" pointer
     struct s_pf_data *t__p_stub,
     // in params
-    const double *t__params, int t__p_nMaxIters, int t__p_nNoPeriodIters,
+    const double *t__params, int maxiter, int t__p_nNoPeriodIters,
     // only used for debugging
     int t__p_x, int t__p_y, int t__p_aa,
     // out params
@@ -261,7 +261,7 @@ do
     %(cf1_loop)s
     t__end_cf1loop:
     t__h_numiter++;
-}while(t__h_numiter < t__p_nMaxIters);
+}while(t__h_numiter < maxiter);
 
 %(pre_final_inserts)s
 %(final)s
@@ -269,7 +269,7 @@ t__end_final:
 %(done_inserts)s
 
 /* fate of 0 = escaped, 1 = trapped */
-*t__p_pFate = (t__h_numiter >= t__p_nMaxIters);
+*t__p_pFate = (t__h_numiter >= maxiter);
 *t__p_pnIters = t__h_numiter;
 if(*t__p_pFate == 0)
 {
@@ -446,6 +446,7 @@ extern pf_obj *pf_new(void);
                      "pixel" : "",
                      "t__h_numiter" : "",
                      "t__h_index" : "",
+                     "maxiter" : "",
                      }
         for (k,v) in user_overrides.items():
             #print "%s = %s" % (k,v)

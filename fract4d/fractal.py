@@ -6,6 +6,7 @@ import re
 import os
 import sys
 import struct
+import math
 
 import fract4dc
 
@@ -116,7 +117,8 @@ class T(FctUtils):
         self.funcName = "Mandelbrot"
         self.maxiter = 256
         self.antialias = 1
-
+        self.rot_by = math.pi/2
+        
         # utilities - this fakes a C-style enum
         paramnames = [ "XCENTER", "YCENTER", "ZCENTER", "WCENTER",
                       "MAGNITUDE",
@@ -201,11 +203,18 @@ class T(FctUtils):
         deltax = self.mul_vs(m[0],dx)        
         deltay = self.mul_vs(m[1],dy)
 
+        #print "dx: %s dy: %s" % (deltax,deltay)
+        
         self.params[self.XCENTER] += deltax[0] + deltay[0]
         self.params[self.YCENTER] += deltax[1] + deltay[1]
         self.params[self.ZCENTER] += deltax[2] + deltay[2]
         self.params[self.WCENTER] += deltax[3] + deltay[3]
         self.params[self.MAGNITUDE] *= zoom
+
+    def flip_to_julia(self):
+        self.params[self.XZANGLE] += self.rot_by
+        self.params[self.YWANGLE] += self.rot_by
+        self.rot_by = - self.rot_by
         
     # status callbacks
     def status_changed(self,val):

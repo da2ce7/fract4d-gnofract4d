@@ -105,7 +105,8 @@ class Compiler:
             outputfile = self.makefilename(hash,".so")
             if os.path.exists(outputfile):
                 # skip compilation - we already have this code
-                return outputfile
+                #return outputfile
+                pass
         
         if cfile == None:
             cfile = self.makefilename(hash,".c")
