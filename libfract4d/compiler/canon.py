@@ -172,6 +172,32 @@ class T:
             else:
                 newtree = copy.copy(tree)
                 newtree.children = children
+        elif isinstance(tree, ir.Call) or isinstance(tree,ir.Unop):
+            eseq_in_children=False
+            
+            for child in children:
+                if(isinstance(child,ir.ESeq)):
+                    eseq_in_children = True
+
+            if eseq_in_children:
+                # FIXME: assumes arguments & eseq contents commute
+                stms = []; i = 0
+                for i in range(0,len(children)):
+                    child = children[i]
+                    if(isinstance(child,ir.ESeq)):
+                        stms = stms + self.stms(child)
+                        children[i] = child.children[-1]
+                        
+                calltree = copy.copy(tree)
+                calltree.children = children
+                       
+                newtree = ir.ESeq(stms,
+                                  calltree,
+                                  calltree.node,calltree.datatype)
+            else:
+                newtree = copy.copy(tree)
+                newtree.children = children
+                    
         else:
             newtree = copy.copy(tree)
             newtree.children = children

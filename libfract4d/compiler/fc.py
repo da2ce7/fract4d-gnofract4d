@@ -153,6 +153,6 @@ def main():
             except Exception, err:
                 print err
     else:
-        generate(fc,formulafile,formula,coutputfile,cfile)
+        generate(fc,formulafile,formula,outputfile,cfile)
             
 if __name__ =='__main__': main()

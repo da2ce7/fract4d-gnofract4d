@@ -585,6 +585,7 @@ goto t__end_init;''')
         tests += self.manufacture_tests("cosh",cmath.cosh)
         tests += self.manufacture_tests("tanh",cmath.tanh)
         tests += self.manufacture_tests("exp",cmath.exp)
+        tests += self.manufacture_tests("sqrt",cmath.sqrt)
         logtests = self.manufacture_tests("log",cmath.log)
         # asin,acos,atan,atan2, asinh, acosh, atanh, cotan, cotanh
             
