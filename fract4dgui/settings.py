@@ -28,7 +28,8 @@ class SettingsDialog(gtk.Dialog):
         self.tooltips = gtk.Tooltips()
         self.notebook = gtk.Notebook()
         self.vbox.add(self.notebook)
-
+        self.tables = [None,None,None]
+        
         self.create_formula_parameters_page()
         self.create_outer_page()
         self.create_inner_page()
@@ -84,6 +85,8 @@ class SettingsDialog(gtk.Dialog):
         table = gtk.Table(5,2,gtk.FALSE)
         vbox.pack_start(table)
 
+        self.create_formula_widget_table(vbox,1)
+        
         label = gtk.Label("_Outer")
         label.set_use_underline(True)
         self.notebook.append_page(vbox,label)
@@ -111,6 +114,8 @@ class SettingsDialog(gtk.Dialog):
         table = gtk.Table(5,2,gtk.FALSE)
         vbox.pack_start(table)
 
+        self.create_formula_widget_table(vbox,2)
+        
         label = gtk.Label(_("_Inner"))
         label.set_use_underline(True)
         self.notebook.append_page(vbox,label)
@@ -136,33 +141,9 @@ class SettingsDialog(gtk.Dialog):
         vbox = gtk.VBox()
         table = gtk.Table(5,2,gtk.FALSE)
         vbox.pack_start(table)
+
+        self.create_formula_widget_table(vbox,0)
         
-        self.table2 = None
-        def update_formula_parameters(*args):
-            if self.table2 != None:
-                vbox.remove(self.table2)
-
-            self.table2 = self.f.populate_formula_settings(
-                self.f.formula, 0)
-            self.table2.show_all()
-            vbox.pack_start(self.table2)
-            
-        update_formula_parameters()
-
-        # weird hack. We need to change the set of widgets when
-        # the formula changes and change the values of the widgets
-        # when the parameters change. When I connected the widgets
-        # directly to the fractal's parameters-changed signal they
-        # would still get signalled even after they were obsolete.
-        # This works around that problem
-        def update_all_widgets(*args):
-            for widget in self.table2.get_children():
-                if hasattr(widget,"update"):
-                    widget.update()
-        
-        self.f.connect('formula-changed', update_formula_parameters)
-        self.f.connect('parameters-changed', update_all_widgets)
-
         pagelabel = gtk.Label(_("_Formula"))
         pagelabel.set_use_underline(True)
         self.notebook.append_page(vbox,pagelabel)
@@ -183,6 +164,34 @@ class SettingsDialog(gtk.Dialog):
         button.connect('clicked', self.show_browser, browser.FRACTAL)
         hbox.pack_start(button)
         table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
+
+    def create_formula_widget_table(self,parent,param_type): 
+        self.tables[param_type] = None
+        
+        def update_formula_parameters(*args):
+            if self.tables[param_type] != None:
+                parent.remove(self.tables[param_type])
+
+            self.tables[param_type] = \
+                                    self.f.populate_formula_settings(param_type)
+            self.tables[param_type].show_all()
+            parent.pack_start(self.tables[param_type])
+            
+        update_formula_parameters()
+
+        # weird hack. We need to change the set of widgets when
+        # the formula changes and change the values of the widgets
+        # when the parameters change. When I connected the widgets
+        # directly to the fractal's parameters-changed signal they
+        # would still get signalled even after they were obsolete.
+        # This works around that problem
+        def update_all_widgets(*args):
+            for widget in self.tables[param_type].get_children():
+                if hasattr(widget,"update"):
+                    widget.update()
+        
+        self.f.connect('formula-changed', update_formula_parameters)
+        self.f.connect('parameters-changed', update_all_widgets)
         
     def show_browser(self,button,type):
         browser.show(self.main_window, self.f, type)

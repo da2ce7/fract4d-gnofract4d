@@ -7,8 +7,8 @@ todo for 2.0
 
 * B	untitled_5 displays weirdly - 
 	so do some combinations of bailout+colorfunc
-* W	UI for parameters for colorfuncs
-* B	max iterations widget is fucked
+* BB	setting val for inner=flat changes bailout for formula 
+	(but not visibly in GUI)
 
 * W	exact SMP equality test
 * W	end-to-end regression test vs V1.9
@@ -43,6 +43,7 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* W	UI for parameters for colorfuncs
 * BB	tower_of_thorns doesn't load 
 * B	rest doesn't change colorfunc paramsx
 * B	saving a fractal with a parameterized cfunc = index out of range

@@ -330,7 +330,7 @@ class T(FctUtils):
 
         c = T(self.compiler,self.site)
 
-        
+        c.maxiter = self.maxiter
         c.params = copy.copy(self.params)
 
         c.bailfunc = self.bailfunc
@@ -509,6 +509,7 @@ class T(FctUtils):
         self.cfunc_params[index] = func.symbols.default_params()
         
         self.dirtyFormula = True
+        self.formula_changed()
         self.changed()
         
     def set_outer(self,funcfile,funcname):
@@ -794,7 +795,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
 
     def parse_maxiter(self,val,f):
         self.maxiter = int(val)
-
+        
     def parse_antialias(self,val,f):
         # antialias now a user pref, not saved in file
         #self.antialias = int(val)

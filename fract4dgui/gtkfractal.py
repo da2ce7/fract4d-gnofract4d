@@ -343,11 +343,17 @@ class T(gobject.GObject):
         table.attach(widget,1,2,i,i+1,0,0,2,2)
         return i+1
         
-    def populate_formula_settings(self, formula, param_type):
+    def populate_formula_settings(self, param_type):
         # create widget to fiddle with this fractal's settings
+        if param_type == 0:
+            formula = self.f.formula
+        else:
+            formula = self.f.cfuncs[param_type-1]
+        
         table = gtk.Table(5,2,gtk.FALSE)
         i = 0
-        i = self.create_maxiter_widget(table,i)
+        if param_type == 0:
+            i = self.create_maxiter_widget(table,i)
         params = formula.symbols.parameters()
         op = formula.symbols.order_of_params()
 
