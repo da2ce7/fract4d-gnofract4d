@@ -35,6 +35,27 @@ def efl(fname, template, tlist,**kwds):
         list.append(eval(f))
     return OverloadList(list,**kwds)
 
+def cfl(template, tlist):
+    list = []
+    for t in tlist:            
+        f = re.sub("_", str(t), template)
+        realf = eval(f)
+        list.append(eval(f))
+    return list
+
+def mkf(args, ret, fname, module=stdlib):
+    # create a function
+    return Func(args,ret,module,fname)
+
+def mkfl(dict, name, list, **kwds):
+    "make a list of functions"
+    fname = kwds.get("fname",name) # fname overrides name if present
+    # avoid having to provide list of one element
+    if not isinstance(list[0][0],types.ListType):
+        list = [list]
+    funclist = map(lambda x : mkf(x[0],x[1],fname), list)
+    dict[name] = OverloadList(funclist,**kwds)
+        
 class Alias:
     def __init__(self,realName):
         self.realName = realName
@@ -44,34 +65,6 @@ class Alias:
     
 def createDefaultDict():
     d = {
-        # standard library functions
-        
-        "sqr": efl("sqr", "[_] , _",  [Int, Float, Complex],
-                   doc="Square the argument. sqr(x) is equivalent to x*x."),
-        
-        "ident": efl("ident", "[_] , _",  [Int, Float, Complex, Bool],
-                     doc='''Do nothing. ident(x) is equivalent to x.
-                     This function is useless in normal formulas but
-                     comes in useful as a value for a function parameter
-                     to a formula.'''),
-        
-        "complex" : OverloadList(
-        [ Func([Float, Float], Complex, stdlib, "complex")],
-        doc='''Construct a complex number from two real parts.
-        complex(a,b) is equivalent to (a,b).'''),
-        
-        "conj" : OverloadList([ Func([Complex], Complex, stdlib, "conj")],
-                              doc="The complex conjugate. conj(a,b) is equivalent to (a,-b)"),
-        
-        "flip" : OverloadList([ Func([Complex], Complex, stdlib, "flip")]),
-        "real" : OverloadList([ Func([Complex], Float, stdlib, "real")]),
-        "real2" : OverloadList([ Func([Complex], Float, stdlib, "real2")]),        
-        "imag" : OverloadList([ Func([Complex], Float, stdlib, "imag")]),
-        "imag2" : OverloadList([ Func([Complex], Float, stdlib, "imag2")]),
-        "recip": efl("recip", "[_] , _", [ Float, Complex]),
-        "abs" :  efl("abs", "[_], _", [Float, Complex]),
-        "cabs":  OverloadList([ Func([Complex], Float, stdlib, "cabs")]),
-
         "log" :  efl("log",  "[_], _", [Float, Complex]),
         "sqrt" : efl("sqrt", "[_], _", [Float, Complex]),
         "exp" :  efl("exp",  "[_], _", [Float, Complex]),
@@ -127,7 +120,6 @@ def createDefaultDict():
         "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex]), #+ \
               #[ Func([Color, Float], Float, stdlib, "mul")],
 
-        "+":  efl("add",   "[_,_] , _", [Int, Float, Complex, Color]),
         "-":  efl("sub",   "[_,_] , _", [Int, Float, Complex, Color]),
 
         "^": OverloadList([ Func([Float, Float], Float, stdlib, "pow"),
@@ -137,7 +129,7 @@ def createDefaultDict():
         "cmag": OverloadList([ Func([Complex], Float, stdlib, "cmag")]),
         "t__neg": efl("neg", "[_], _", [Int, Float, Complex]),
         
-        # un,ary negation already factored out
+        # unary negation already factored out
 
         # logical ops
         "&&": OverloadList([ Func([Bool, Bool], Bool, stdlib, None) ]),
@@ -156,15 +148,97 @@ def createDefaultDict():
         "t__h_pi" : Var(Float,math.pi),
         "t__h_tolerance" : Var(Float)
         }
+
+    # extra shorthand to make things as short as possible
+    def f(name, list, **kwds):
+        mkfl(d,name,list,**kwds)
+        
+    f("complex",
+      [[Float, Float], Complex],
+      doc='''Construct a complex number from two real parts.
+      complex(a,b) is equivalent to (a,b).''')
+
+    f("sqr",
+      cfl("[_] , _",  [Int, Float, Complex]),
+      doc="Square the argument. sqr(x) is equivalent to x*x or x^2.")
+
+    f("ident",
+      cfl("[_] , _",  [Int, Float, Complex, Bool]),
+      doc='''Do nothing. ident(x) is equivalent to x.
+      This function is useless in normal formulas but
+      comes in useful as a value for a function parameter
+      to a formula. For example, a general formula like z = @fn1(z*z)+c
+      can be set back to a plain Mandelbrot by setting fn1 to ident.
+      Note: ident() is compiled out so there\'s no speed penalty involved.''')
     
+    f("conj",
+      [[Complex], Complex],
+      doc="The complex conjugate. conj(a,b) is equivalent to (a,-b).")
+
+    f("+", 
+      cfl("[_,_] , _", [Int, Float, Complex]),
+      fname="add",
+      operator=True,
+      doc='Adds two numbers together.')
+
+    f("flip",
+      [[Complex], Complex],
+      doc='''Swap the real and imaginary parts of a complex number.
+      flip(a,b) = (b,a).''')
+
+    f("real",
+      [[Complex], Float],
+      doc='''Extract the real part of a complex number. real(a,b) = a.
+      real() is unusual in that it can be assigned to: real(z) = 7 changes
+      the real part of z.''')
+
+    f("real2",
+      [[Complex], Float],
+      doc='''The square of the real part of a complex number.
+      real2(a,b) = a*a.
+      While not a generally useful function, this is provided to ease porting
+      of files from older Gnofract 4D versions.''')
+
+    f("imag",
+      [[Complex], Float],
+      doc='''Extract the imaginary part of a complex number. imag(a,b) = b.
+      imag() is unusual in that it can be assigned to: imag(z) = 7 changes
+      the imag part of z.''')
+
+    f("imag2",
+      [[Complex], Float],
+      doc='''The square of the imaginary part of a complex number.
+      real2(a,b) = b*b.
+      While not a generally useful function, this is provided to ease porting
+      of files from older Gnofract 4D versions.''')
+
+    f("recip",
+      cfl("[_] , _", [ Float, Complex]),
+      doc='''The reciprocal of a number. recip(x) is equivalent to 1/x.''')
+
+    f("abs",
+      cfl("[_], _", [Float, Complex]),
+      doc='''The absolute value of a number. abs(3) = abs(-3) = 3.
+      abs() of a complex number is a complex number consisting of
+      the absolute values of the real and imaginary parts, i.e.
+      abs(a,b) = (abs(a),abs(b)).''')
+
+    f("cabs",
+      [[Complex], Float],
+      doc='''The complex modulus of a complex number z.
+      cabs(a,b) is equivalent to sqrt(a*a+b*b).
+      This is also the same as sqrt(|z|)''')
+
+
     # predefined parameters
-    for f in xrange(1,7):
-        name = "p%d" % f
+    for p in xrange(1,7):
+        name = "p%d" % p
         d[name] = Alias("t__a_" + name)
         d["t__a_" + name]  = Var(Complex)
+        
     # predefined functions
-    for f in xrange(1,5):
-        name = "fn%d" % f
+    for p in xrange(1,5):
+        name = "fn%d" % p
         d[name] = Alias("t__a_" + name)
         d["t__a_" + name ] = OverloadList([Func([Complex],Complex, stdlib, "ident") ])
 
@@ -271,8 +345,12 @@ class T(UserDict):
         for (name,sym) in self.data.items():
             if self.is_param(name):
                 if not varOnly or isinstance(sym,Var):
-                    params[name] = sym.first()
-
+                    try:
+                        params[name] = sym.first()
+                    except AttributeError:
+                        print sym, name
+                        raise
+                        
         return params
 
     def demangle(self,name):
