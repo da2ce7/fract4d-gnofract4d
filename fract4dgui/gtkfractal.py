@@ -505,6 +505,17 @@ class T(gobject.GObject):
                 col = buf[offset:offset+3]
                 colors[col] = 1 + colors.get(col,0)
         return len(colors)
-    
+
+class SubFract(T):
+    def __init__(self,comp,width=640,height=480):
+        T.__init__(self,comp,width,height)
+        self.master = None
+        
+    def set_master(self,master):
+        self.master = master
+        
+    def onButtonRelease(self,widget,event):
+        self.master.set_fractal(self.copy_f())
+
 # explain our existence to GTK's object system
 gobject.type_register(T)

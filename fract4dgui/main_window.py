@@ -61,7 +61,7 @@ class MainWindow:
                                       self.on_prefs_changed)
 
         self.create_menu()
-        self.create_toolbar()
+        #self.create_toolbar()
         self.create_fractal(self.f)
         self.create_status_bar()
         
@@ -96,6 +96,7 @@ class MainWindow:
         
         for f in self.subfracts:
             f.set_fractal(self.f.copy_f())
+            f.mutate(0.5)
             aa = preferences.userPrefs.getint("display","antialias")
             auto_deepen = preferences.userPrefs.getint("display","autodeepen")
             f.draw_image(aa,auto_deepen)
@@ -103,16 +104,17 @@ class MainWindow:
     def create_subfracts(self,f):
         self.subfracts = [ None ] * 12
         for i in xrange(12):
-            self.subfracts[i] = gtkfractal.T(
-                self.compiler,self.f.width//4,self.f.height//4)
-        
+            self.subfracts[i] = gtkfractal.SubFract(
+                self.compiler,f.width//4,f.height//4)
+            self.subfracts[i].set_master(f)
+            
     def attach_subfract(self,i,x,y):
         self.ftable.attach(
             self.subfracts[i].widget,
             x, x+1, y, y+1,
             gtk.EXPAND | gtk.FILL,
             gtk.EXPAND | gtk.FILL,
-            0,0)
+            1,1)
             
     def create_fractal(self,f):
         window = gtk.ScrolledWindow()
@@ -120,15 +122,17 @@ class MainWindow:
         
         f.connect('parameters-changed', self.on_fractal_change)
         
-        window.set_size_request(640+2,480+2)
+        window.set_size_request(640+8,480+8)
 
+        self.fixed = gtk.Fixed()
         self.ftable = gtk.Table(4,4,False)
+        self.fixed.put(self.ftable,0,0)
         self.ftable.attach(
             f.widget,
             1,3,1,3,
             gtk.EXPAND | gtk.FILL,
             gtk.EXPAND | gtk.FILL,
-            0,0)
+            1,1)
 
         self.attach_subfract(0,0,0)
         self.attach_subfract(1,1,0)
@@ -145,7 +149,7 @@ class MainWindow:
         self.attach_subfract(10,2,3)
         self.attach_subfract(11,3,3)
 
-        window.add_with_viewport(self.ftable)
+        window.add_with_viewport(self.fixed)
         f.connect('progress_changed', self.progress_changed)
         f.connect('status_changed',self.status_changed)
 

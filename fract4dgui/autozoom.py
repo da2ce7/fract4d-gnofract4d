@@ -18,7 +18,7 @@ class AutozoomDialog(gtk.Dialog):
     def __init__(self,main_window,f):
         gtk.Dialog.__init__(
             self,
-            "Gnofract4D Autozoom",
+            _("Autozoom"),
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
@@ -29,8 +29,8 @@ class AutozoomDialog(gtk.Dialog):
         self.table = gtk.Table(2,2)
         self.vbox.add(self.table)
         
-        self.zoombutton = gtk.ToggleButton("Start _Zooming")
-        self.tips.set_tip(self.zoombutton,"Zoom into interesting areas automatically")
+        self.zoombutton = gtk.ToggleButton(_("Start _Zooming"))
+        self.tips.set_tip(self.zoombutton,_("Zoom into interesting areas automatically"))
         self.zoombutton.set_use_underline(True)
         self.zoombutton.connect('toggled',self.onZoomToggle)
         f.connect('status-changed',self.onStatusChanged)
@@ -40,8 +40,8 @@ class AutozoomDialog(gtk.Dialog):
         self.minsize = 1.0E-13 # FIXME, should calculate this better
 
         self.minsize_entry = gtk.Entry()
-        self.tips.set_tip(self.minsize_entry,"Stop zooming when size of fractal is this small")
-        minlabel = gtk.Label("_Min Size")
+        self.tips.set_tip(self.minsize_entry,_("Stop zooming when size of fractal is this small"))
+        minlabel = gtk.Label(_("_Min Size"))
         self.table.attach(minlabel,0,1,1,2,0,0,2,2)
         minlabel.set_use_underline(True)
         minlabel.set_mnemonic_widget(self.minsize_entry)

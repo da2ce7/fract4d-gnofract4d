@@ -8,6 +8,7 @@ import sys
 import struct
 import math
 import copy
+import random
 
 import fract4dc
 import fracttypes
@@ -491,6 +492,44 @@ class T(FctUtils):
 
     def mul_vs(self,v,s):
         return map(lambda x : x * s, v)
+
+    def xy_random(self,weirdness,size):
+        return weirdness * 0.5 * size * (random.random() - 0.5)
+
+    def zw_random(self,weirdness,size):
+        factor = math.fabs(1.0 - math.log(size)) + 1.0
+        return weirdness * (random.random() - 0.5 ) * 1.0 / factor
+
+    def angle_random(self, weirdness):
+        action = random.random()
+        if action > weirdness:
+            return 0.0 # no change
+
+        action = random.random()
+        if action < weirdness/6.0: 
+            # +/- pi/2
+            if random.random() > 0.5:
+                return math.pi/2.0
+            else:
+                return math.pi/2.0
+        
+        return weirdness * (random.random() - 0.5) * math.pi/2.0
+
+    def mutate(self,weirdness):
+        '''randomly adjust position, angles and parameters.
+        weirdness is between 0 and 1 - 0 is no change, 1 is lots'''
+
+        size = self.params[self.MAGNITUDE]
+        self.params[self.XCENTER] += self.xy_random(weirdness, size)
+        self.params[self.YCENTER] += self.xy_random(weirdness, size)
+        self.params[self.ZCENTER] += self.zw_random(weirdness, size)
+        self.params[self.WCENTER] += self.zw_random(weirdness, size)
+
+        for a in xrange(self.XYANGLE,self.ZWANGLE):
+            self.params[a] += self.angle_random(weirdness)
+
+        if random.random() < weirdness * 0.75:
+            self.params[self.MAGNITUDE] *= 1.0 + (0.5 - random.random())
 
     def nudge(self,x,y,axis=0):
         # move a little way in x or y
