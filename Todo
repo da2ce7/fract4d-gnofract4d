@@ -31,14 +31,15 @@ todo for 2.0
 * W	i18n, gettext
 * W	keyboard shortcuts for all widgets
 * W	review human interface guidelines
-* B	undo/redo cause recompilation
-* W	make default fractal more interesting
 * B	warnings for several fractal types
 * BB	auto-tolerance for older fractals
 * BB	lattice.fct - 1.9 is wrong too!
 * B	browser pops up whenever click on fractal
+* WW	docs
+* BBB	crash when edit fractal parameters: G_IS_OBJECT(object) failed
 
 done:
+* W	make default fractal more interesting
 * B	Reset changes antialiasing
 * B	mandelbar is a circle (?)
 * B	defaults not applied when choose fractal
@@ -75,6 +76,7 @@ done:
 * W	user parameter functions
 
 postponed
+* B	undo/redo cause recompilation
 * W	command-line arguments
 * WW	cmap browser
 * W	autosave/restore?

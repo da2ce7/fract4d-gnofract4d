@@ -27,6 +27,7 @@ import preferences
 import autozoom
 import model
 import colors
+import browser
 
 # We don't use GDK threads because RedHat seem to compile pygtk
 # without thread support. Grrr.
@@ -415,6 +416,7 @@ class MainWindow:
     def load_formula(self,file):
         try:
             self.compiler.load_formula_file(file)
+            browser.update()
             return True
         except Exception, err:
             self.show_error_message("Error opening %s: '%s'" % (file, err))

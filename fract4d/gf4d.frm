@@ -74,6 +74,15 @@ endparam
 float func bailfunc
 	default = cmag
 endfunc
+complex param a
+	default = (1.0, 0.0)
+endparam
+complex param b
+	default = (1.0, 0.0)
+endparam
+complex param c
+	default = (1.0, 0.0)
+endparam
 }
 
 Cubic Mandelbrot {
