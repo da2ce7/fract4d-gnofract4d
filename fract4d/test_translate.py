@@ -144,11 +144,12 @@ class TranslateTest(testbase.TestBase):
         t = self.translate('''t_d1 {
         default:
         maxiter = 100
+        xyangle = 4.9
         }''')
         self.assertNoErrors(t)
-        defsect = t.sections["default"]
-        print defsect.pretty()
-        
+        self.assertEqual(t.defaults["maxiter"].value,100)
+        self.assertEqual(t.defaults["xyangle"].value,4.9)
+                
     def testParams(self):
         t12 = self.translate('''t_params {
         init: complex x = @p1 + p2 + @my_param

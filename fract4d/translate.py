@@ -21,6 +21,7 @@ class TBase:
         self.sections = {}
         self.canon_sections = {}
         self.output_sections = {}
+        self.defaults = {}
         self.fakeNode = Empty(-1) # node used for code not written by user
         
         self.dumpCanon = 0
@@ -135,7 +136,8 @@ class TBase:
 
     def setlist(self, node):
         children = filter(lambda c : c.type != "empty", node.children)
-        seq = ir.Seq(map(lambda c: self.setting(c), children), node)
+        settings = map(lambda c: self.setting(c), children)        
+        seq = ir.Seq(filter(lambda c: c != None, settings), node)
         return seq
 
     def setting(self,node):
@@ -149,12 +151,19 @@ class TBase:
             print "heading"
             pass
         elif node.type == "set":
-            return self.set(node)
+            self.set(node)
         else:
-            return self.stm(node)
+            self.error("%d: invalid statement in default section" % node.pos)
 
     def set(self,node):
-        return self.assign(node)
+        name = node.children[0].leaf
+        if node.children[1].type == "const":
+            self.defaults[name] = self.const(node.children[1])
+        else:
+            self.error("%d: only constants can be used in default sections" %
+                       node.pos)
+        
+        
     
     def stmlist(self, node):
         children = filter(lambda c : c.type != "empty", node.children)

@@ -105,29 +105,17 @@ class Colorizer(FctUtils):
 class T(FctUtils):
     def __init__(self,compiler,site=None):
         FctUtils.__init__(self)
-        # set up defaults
-        self.params = [
-            0.0, 0.0, 0.0, 0.0, # center
-            4.0, # size
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0 # angles
-            ]
-        self.initparams = []
-        i = 0
-        self.bailout = 4.0
-        self.funcName = "Mandelbrot"
-        self.maxiter = 256
-        self.antialias = 1
-        self.rot_by = math.pi/2
         
         # utilities - this fakes a C-style enum
-        paramnames = [ "XCENTER", "YCENTER", "ZCENTER", "WCENTER",
+        paramnames = ["XCENTER", "YCENTER", "ZCENTER", "WCENTER",
                       "MAGNITUDE",
                       "XYANGLE", "XZANGLE", "XWANGLE",
                       "YZANGLE", "YWANGLE", "ZWANGLE"]
+        i = 0
         for name in paramnames:
             self.__dict__[name] = i
             i += 1
-
+        
         # formula support
         self.formula = None
         self.cfuncs = [None,None]
@@ -136,6 +124,8 @@ class T(FctUtils):
         self.set_formula("gf4d.frm","Mandelbrot")
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","default")
+
+        self.reset()
 
         # interaction with fract4d library
         self.site = site or fract4dc.site_create(self)
@@ -160,6 +150,32 @@ class T(FctUtils):
         if self.outputfile:
             os.remove(self.outputfile)
 
+    def reset(self):
+        # set global default values, then override from formula
+        # set up defaults
+        self.params = [
+            0.0, 0.0, 0.0, 0.0, # center
+            4.0, # size
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0 # angles
+            ]
+        self.initparams = []
+
+        self.bailout = 4.0
+        self.funcName = "Mandelbrot"
+        self.maxiter = 256
+        self.antialias = 1
+        self.rot_by = math.pi/2
+
+        self.set_formula_defaults()
+        
+    def set_formula_defaults(self):
+        if self.formula != None:
+            for (name,val) in self.formula.defaults.items():
+                if name == "maxiter":
+                    self.maxiter = val.value
+                else:
+                    print "ignored parameter %s" % name
+        
     def set_formula(self,formulafile,func):
         self.formula = self.compiler.get_formula(formulafile,func)
         if self.formula == None:
