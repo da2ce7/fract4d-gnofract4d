@@ -39,7 +39,7 @@ class Model:
                 self.f.changed()
                 self.unblock_callbacks()
                 
-        previous = self.old_f        
+        previous = self.old_f
         def undo():
             self.f.freeze()
             self.f.deserialize(previous)

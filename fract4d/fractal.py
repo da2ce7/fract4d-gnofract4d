@@ -205,7 +205,9 @@ class T(FctUtils):
         self.set_outer("gf4d.cfrm","default")
         self.dirtyFormula = True # formula needs recompiling
         self.dirty = True # parameters have changed
+        self.saved = False
         self.auto_deepen = True
+
         
         self.reset()
 
@@ -230,7 +232,7 @@ class T(FctUtils):
 
     def serialize(self):
         out = StringIO.StringIO()
-        self.save(out)
+        self.save(out,False)
         return out.getvalue()
 
     def deserialize(self,string):
@@ -245,7 +247,7 @@ class T(FctUtils):
             file,self.cfuncs[index],self.cfunc_params[index])
         print >>file, "[endsection]"
         
-    def save(self,file):
+    def save(self,file,update_saved_flag=True):
         print >>file, "gnofract4d parameter file"
         print >>file, "version=2.0"
 
@@ -275,6 +277,9 @@ class T(FctUtils):
         for col in self.colorlist:
             print >>file, "%f=%02x%02x%02x%02x" % col
         print >>file, "]"
+        
+        if update_saved_flag:
+            self.saved = True
 
     def save_formula_params(self,file,formula,params):
         for name in self.func_names(formula):
@@ -360,6 +365,7 @@ class T(FctUtils):
         c.colorlist = copy.copy(self.colorlist)
         c.solids = copy.copy(self.solids)
         c.yflip = self.yflip
+        c.saved = self.saved
         return c
     
     def reset(self):
@@ -491,7 +497,8 @@ class T(FctUtils):
     
     def changed(self):
         self.dirty = True
-
+        self.saved = False
+        
     def formula_changed(self):
         self.dirtyFormula = True
         
@@ -848,6 +855,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
             
             line = f.readline()
         self.fix_bailout()
+        self.saved = True
         
 if __name__ == '__main__':
     import sys

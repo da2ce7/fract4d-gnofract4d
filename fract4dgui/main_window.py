@@ -190,6 +190,9 @@ class MainWindow:
             title = _("(Untitled %s)") % self.f.funcName
         else:
             title = self.filename
+        if not self.f.saved:
+            title += "*"
+            
         self.window.set_title(title)
         
     def on_fractal_change(self,*args):
@@ -701,6 +704,19 @@ class MainWindow:
             self.show_error_message(_("Error opening %s: '%s'") % (file, err))
             return False
 
+    def check_save_fractal(self):
+        msg = _("Do you want to save the current parameters before quitting?")
+        if not self.f.saved:
+            d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
+                                  gtk.MESSAGE_QUESTION,
+                                  gtk.BUTTONS_YES_NO,
+                                  msg)
+            response = d.run()                
+            d.destroy()
+            if response == gtk.RESPONSE_YES:
+                self.save(None,None)
+        
+            
     def about(self,action,widget):
         self.display_help("about")
 
@@ -709,6 +725,7 @@ class MainWindow:
             self.f.interrupt()
             for f in self.subfracts:
                 f.interrupt()
+            self.check_save_fractal()
             preferences.userPrefs.save()
             self.compiler.clear_cache()
         finally:

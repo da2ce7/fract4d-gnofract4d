@@ -186,7 +186,28 @@ colorlist=[
         self.assertRaises(ValueError,f.loadFctFile,
                           (StringIO.StringIO(bad_testfile)))
 
+    def testSaveFlag(self):
+        'Test that we know when we\'re up-to-date on disk'
+        f = fractal.T(self.compiler)
+        self.assertEqual(f.saved, False)
+        savefile = StringIO.StringIO("")
+        f.save(savefile)
+        self.assertEqual(f.saved, True)
+
+        c = copy.copy(f)
+        self.assertEqual(c.saved, True)
+
+        f.set_param(0,7.3)
+        self.assertEqual(f.saved, False)
+
+        x = f.serialize()
+        self.assertEqual(f.saved, False)
+
+        f.loadFctFile(StringIO.StringIO(g_testfile))
+        self.assertEqual(f.saved, True)
+        
     def testLoadBadFileRaises(self):
+        'Test we throw an exception when loading an invalid file'
         f = fractal.T(self.compiler)
         not_a_file = StringIO.StringIO("ceci n'est pas un file")
         self.assertRaises(Exception,f.loadFctFile,not_a_file)

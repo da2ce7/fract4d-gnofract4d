@@ -5,6 +5,7 @@
 import unittest
 import copy
 import sys
+import StringIO
 
 import gtk
 import model
@@ -56,22 +57,31 @@ class Test(unittest.TestCase):
 
     def testUndoChangeParameter(self):
         counter = EmitCounter()
-        f = self.m.f        
+        f = self.m.f
+
         f.connect('parameters-changed',counter.onCallback)
+        
+        f.save(StringIO.StringIO(""))
+        self.assertEqual(f.saved,True)
+        
         
         mag = f.get_param(f.MAGNITUDE)
         f.set_param(f.MAGNITUDE,9.0)
 
+        self.assertEqual(f.saved,False)
+        
         self.assertEqual(counter.count,1)
         self.assertEqual(f.get_param(f.MAGNITUDE),9.0)
 
         self.m.undo()
 
+        self.assertEqual(f.saved,False)
         self.assertEqual(f.get_param(f.MAGNITUDE),mag)
 
         self.m.redo()
         self.assertEqual(f.get_param(f.MAGNITUDE),9.0)
-
+        self.assertEqual(f.saved, False)
+        
     def testUndoFunctionChange(self):
         counter = EmitCounter()
         f = self.m.f        
