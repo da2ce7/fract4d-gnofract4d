@@ -316,6 +316,11 @@ goto t__end_init;''')
               'z = x - y\n}'
         self.assertCSays(src,"init","printf(\"(%g,%g)\\n\", z_re, z_im);",
                          "(-1.5,1.5)")
+
+        src = 't_c5{\ninit: complex x = #Pixel\nz = z - x\n}'
+        self.assertCSays(src,"init","printf(\"(%g,%g)\\n\", z_re, z_im);",
+                         "(0,0)")
+        
     def testMandel(self):
         src = '''t_mandel{
 init:
@@ -326,6 +331,7 @@ bailout:
 }'''
         t = self.translate(src)
         self.codegen.output_all(t, {"z" : "", "pixel" : ""} )
+
         inserts = {
             "loop_inserts":"printf(\"(%g,%g)\\n\",z_re,z_im);",
             "main_inserts":'''
@@ -335,6 +341,11 @@ int main()
     int nItersDone=0;
     pf_calc(params, 100, &nItersDone);
     printf("(%d)\\n",nItersDone);
+
+    params[0] = 0.1; params[1] = 0.3; params[2]= 0.1; params[3] = 0.2;
+    pf_calc(params, 20, &nItersDone);
+    printf("(%d)\\n",nItersDone);
+        
     return 0;
 }
 '''
@@ -342,8 +353,48 @@ int main()
         c_code = self.codegen.output_c(t,inserts)
         #print c_code
         output = self.compileAndRun(c_code)
-        self.assertEqual(output,"(1.5,0)\n(3.75,0)\n(2)",output)
+        lines = string.split(output,"\n")
+        # 1st point we try should bail out 
+        self.assertEqual(lines[0:3],["(1.5,0)","(3.75,0)", "(2)"],output)
 
+        # 2nd point doesn't
+        self.assertEqual(lines[3],"(0.02,0.26)",output)
+        self.assertEqual(lines[-1],"(20)",output)
+        self.assertEqual(lines[-2],lines[-3],output)
+
+        # try again with sqr function and check results match
+        src = '''t_mandel{
+init:
+loop:
+z = sqr(z) + pixel
+bailout:
+|z| < 4.0
+}'''
+        t = self.translate(src)
+        self.codegen.output_all(t, {"z" : "", "pixel" : ""} )
+        c_code = self.codegen.output_c(t,inserts)
+        output2 = self.compileAndRun(c_code)
+        lines2 = string.split(output2,"\n")
+        # 1st point we try should bail out 
+        self.assertEqual(lines, lines2, output2)
+
+        # and again with ^2
+        return # not working yet
+        src = '''t_mandel{
+init:
+loop:
+z = z^2 + pixel
+bailout:
+|z| < 4.0
+}'''
+        t = self.translate(src)
+        self.codegen.output_all(t, {"z" : "", "pixel" : ""} )
+        c_code = self.codegen.output_c(t,inserts)
+        output3 = self.compileAndRun(c_code)
+        lines3 = string.split(output2,"\n")
+        # 1st point we try should bail out 
+        self.assertEqual(lines, lines3, output3)
+        
     # assertions
     def assertCSays(self,source,section,check,result,dump=None):
         asm = self.sourceToAsm(source,section,dump)

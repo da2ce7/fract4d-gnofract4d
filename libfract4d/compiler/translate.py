@@ -294,6 +294,8 @@ class T:
             r = self.binop(node)
         elif node.type == "unop":
             r = self.unop(node)
+        elif node.type == "funcall":
+            r = self.funcall(node)
         else:
             self.badNode(node,"exp")
 
@@ -308,6 +310,12 @@ class T:
         children = self.coerceList(op.args,children)
         return ir.Unop(node.leaf, children, node, op.ret)
 
+    def funcall(self, node):
+        children = map(lambda n: self.exp(n) , node.children)
+        op = self.findOp(node, children)
+        children = self.coerceList(op.args,children)
+        return ir.Call(node.leaf, children, node, op.ret)
+    
     def shortcut(self, node):
         # convert into an if-expression
         trueDest = self.newLabel(node)

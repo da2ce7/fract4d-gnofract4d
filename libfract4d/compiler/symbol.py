@@ -60,16 +60,16 @@ def createDefaultDict():
         "||": [ Func([Bool, Bool], Bool, stdlib, "boolor") ],
         "!" : [ Func([Bool],Bool, stdlib, "boolnot") ],
         
-        "#pixel": Alias("pixel"),
+        "hash__pixel": Alias("pixel"),
         "pixel" : Var(Complex), 
-        "#z" : Alias("z"),
+        "hash__z" : Alias("z"),
         "z"  : Var(Complex), 
         }
     return d
 
 
 def mangle(k):
-    return string.lower(k)
+    return string.replace(string.lower(k),'#',"hash__")
                
 class T(UserDict):
     default_dict = createDefaultDict()
@@ -87,6 +87,14 @@ class T(UserDict):
         if isinstance(val,types.ListType):
             val = val[0]
         return val.pos != -1
+
+    def realName(self,key):
+        ' returns mangled key even if var not present for test purposes'
+        k = mangle(key)
+        val = self.data.get(k,None)
+        if isinstance(val,Alias):
+            k = val.realName
+        return k
     
     def __getitem__(self,key):
         val = self.data[mangle(key)]
