@@ -18,11 +18,11 @@ class TranslateTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def translate(self,s):
+    def translate(self,s,dump=None):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
         #print pt.pretty()
-        return translate.T(pt.children[0])
+        return translate.T(pt.children[0], dump)
 
     def testFractintSections(self):
         t1 = self.translate("t1 {\na=1,a=2:\nb=2\nc=3}")
@@ -36,6 +36,8 @@ class TranslateTest(unittest.TestCase):
                  bailout:
                  c=3
                  }''')
+        #for stm in t2.sections["c_loop"]: print stm.pretty()
+        
         self.assertEquivalentTranslations(t1,t2)
         self.assertNoErrors(t1)
         self.assertNoErrors(t2)
@@ -147,7 +149,7 @@ class TranslateTest(unittest.TestCase):
         else
         a = 3
         endif
-        }''')
+        }''', {"dumpBlocks":1})
 
         self.assertNoErrors(t)
         ifseq = t.sections["loop"].children[0]
@@ -308,9 +310,22 @@ class TranslateTest(unittest.TestCase):
         self.assertEqual(len(t.errors),0,
                          "Unexpected errors %s" % t.errors)
         for (name, item) in t.sections.items():
-            if name[0:1] == "l_":
-                self.assertESeqsNotNested(item,1)
-        
+            if name[0:2] == "c_":
+                for stm in item:
+                    self.assertESeqsNotNested(stm,1)
+                self.assertValidTrace(item)
+
+    def assertValidTrace(self,trace):
+        # must have each cjump followed by false case
+        expecting = None
+        for stm in trace:
+            if expecting != None:
+                self.failUnless(isinstance(stm,ir.Label))
+                self.assertEqual(stm.name,expecting)
+                expecting = None
+            elif isinstance(stm, ir.CJump):
+                expecting = stm.falseDest
+
     def assertNoProbs(self, t):
         self.assertEqual(len(t.warnings),0,
                          "Unexpected warnings %s" % t.warnings)
@@ -319,16 +334,32 @@ class TranslateTest(unittest.TestCase):
     def assertVar(self,t, name,type):
         self.assertEquals(t.symbols[name].type,type)
 
-    def assertTreesEqual(self, t1, t2):
-        self.failUnless(
-            t1.pretty() == t2.pretty(),
-            ("%s, %s should be equivalent" % (t1.pretty(), t2.pretty())))
+    def assertNode(self,name,n):
+        self.failUnless(isinstance(n,ir.T), ("%s(%s) is not a node" % (n, name)))
+        
+    def assertTreesEqual(self, name, t1, t2):
+        if name[0:2] == "c_":
+            # canonicalized trees are a list, not a Seq()
+            for (s1,s2) in zip(t1,t2):
+                self.assertNode(name,s1)
+                self.assertNode(name,s2)
+                self.failUnless(
+                    s1.pretty() == s2.pretty(),
+                    ("%s, %s should be equivalent (section %s)" %
+                     (s1.pretty(), s2.pretty(), name)))
+        else:
+            self.assertNode(name,t1)
+            self.assertNode(name,t2)
+
+            self.failUnless(
+                t1.pretty() == t2.pretty(),
+                ("%s, %s should be equivalent" % (t1.pretty(), t2.pretty())))
 
     def assertEquivalentTranslations(self,t1,t2):
-        for k in t1.sections.keys():
-            self.assertTreesEqual(t1.sections[k],t2.sections[k])
-        for k in t2.sections.keys():
-            self.assertTreesEqual(t1.sections[k],t2.sections[k])
+        for (k,item) in t1.sections.items():
+            self.assertTreesEqual(k,item,t2.sections[k])
+        for (k,item) in t2.sections.items():
+            self.assertTreesEqual(k,t1.sections[k], item)
 
     def assertFuncOnList(self,f,nodes,types):
         self.assertEqual(len(nodes),len(types))

@@ -291,6 +291,17 @@ class CanonTest(unittest.TestCase):
         self.failUnless(trace[6].name == "a1" and \
                         trace[7].name == "a1" and \
                         trace[8].name == "a2")
+
+    def test_canonicalize(self):
+        # check overall driver works ok
+        seq = self.seq([self.cjump(self.const(), self.const(),"a1","b1"),
+                        self.label("a1"), self.var("a1"),self.jump("a2"),
+                        self.label("b1"), self.var("b1"),self.jump("b2"),
+                        self.label("a2"), self.var("a2"),self.jump("t__end"),
+                        self.label("b2"), self.var("b2"),self.jump("t__end")])
+
+        trace = self.canon.canonicalize(seq,"t__start","t__end")
+        self.assertValidTrace(trace)
         
     def printAllBlocks(self,blocks):
         for b in blocks:
