@@ -156,7 +156,8 @@ class ColorDialog(dialog.T):
         gradbox.add(self.gradarea)
 
         table = gtk.Table(3,4, True)
-
+        table.set_property("column-spacing",2)
+        
         self.left_color_button = utils.ColorButton(
             self.grad.segments[0].left_color, self.color_changed, True)
         self.tooltips.set_tip(
@@ -197,7 +198,6 @@ class ColorDialog(dialog.T):
         self.copy_right_button.connect('clicked', self.copy_right)
         table.attach(self.copy_right_button,
                      3,4,1,2, gtk.EXPAND | gtk.FILL, gtk.EXPAND)        
-
 
         self.inner_solid_button = utils.ColorButton(
             utils.floatColorFrom256(self.solids[1]),
@@ -247,7 +247,10 @@ class ColorDialog(dialog.T):
         # buttons should be sensitive if selection is good
         self.left_color_button.set_sensitive(i!= -1)
         self.right_color_button.set_sensitive(i!= -1)
-        
+        self.split_button.set_sensitive(i != -1)
+        self.remove_button.set_sensitive(i != -1)
+        self.copy_right_button.set_sensitive(i != -1)
+        self.copy_left_button.set_sensitive(i != -1)
     def gradarea_mousedown(self, widget, event):
         pass
 

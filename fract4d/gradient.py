@@ -220,6 +220,13 @@ class Gradient:
         self.segments = new_segments
         self.name = name
 
+    def compare_colors(self, c1, c2):
+        # return true if floating-point colors c1 and c2 are close
+        # enough that they would be equal when truncated to 8 bits
+        c1_8 = map(lambda x : int(x * 255.0), c1)
+        c2_8 = map(lambda x : int(x * 255.0), c2)
+        return c1_8 == c2_8
+    
     def load_list(self,l):
         # a colorlist is a simplified gradient, of the form
         # (index, r, g, b, a) (colors are 0-255 ints)
@@ -229,14 +236,32 @@ class Gradient:
         new_segments = []
         last_index = 0.0
         last_color = [0.0,0.0,0.0,1.0]
+        before_last_color = [-1.0, -1.0 , -1.0, -1.0] # meaningless color
+        before_last_index = -1.0
+        
         for (index,r,g,b,a) in l:
             color = [r/255.0, g/255.0, b/255.0, a/255.0]
             if index != last_index:
-                new_segments.append(
-                    Segment(last_index, last_color, index, color))
+                test_segment = Segment(
+                    before_last_index,
+                    before_last_color,
+                    index,
+                    color)
+                if self.compare_colors(
+                    test_segment.get_color_at(last_index), last_color):
+                    # can compress, update in place
+                    new_segments[-1].right_color = color
+                    new_segments[-1].right = index
+                    new_segments[-1].center()
+                else:
+                    new_segments.append(
+                        Segment(last_index, last_color, index, color))
+
+                    before_last_index = last_index
+                    before_last_color = last_color
             last_color = color
             last_index = index
-
+            
         # fix gradient by adding extra flat section if last index not 1.0
         if new_segments[-1].right != 1.0:
             new_segments.append(

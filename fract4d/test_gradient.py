@@ -52,7 +52,8 @@ class Test(testbase.TestBase):
                 cmap_color,
                 "colorlist(%s) = %s but gradient(%s) = %s" % \
                 (fi, cmap_color, fi, grad_color), 1.5)
-
+        return grad
+    
     def checkCGradientAndPyGradientEquivalent(self,grad):
         # We have 2 sets of gradient-drawing code, in C and Python
         # check they calculate the same answer
@@ -82,7 +83,8 @@ class Test(testbase.TestBase):
         self.assertEqual(g.segments[0].right_color, self.black)
 
         self.checkColorMapAndGradientEquivalent(colorlist)
-        
+
+    def testFromColormap2(self):
         # create a longer one
         colorlist = [
             (0.0, 255,0,0, 255),
@@ -100,8 +102,32 @@ class Test(testbase.TestBase):
 
         self.checkColorMapAndGradientEquivalent(colorlist)
 
+
+    def testFromColormap3(self):
+        # create a short, compressible one
+        colorlist = [
+            (0.0, 0, 0, 0, 255),
+            (0.5, 127, 127, 127, 255),
+            (1.0, 255, 255, 255, 255)]
+
+        g = gradient.Gradient()
+        g.load_list(colorlist)
+        self.assertWellFormedGradient(g)
+        self.assertEqual(len(g.segments),1)
+
+    def testfromColormap4(self):
         # and a 256-color one
-        f = open("../maps/4zebbowx.map","r")
+        colorlist = self.colorMapFromFile("../maps/4zebbowx.map")
+        grad = self.checkColorMapAndGradientEquivalent(colorlist)
+        self.assertEqual(len(grad.segments),255)
+
+    def testFromColormap5(self):
+        colorlist = self.colorMapFromFile("../maps/Gallet02.map")
+        grad = self.checkColorMapAndGradientEquivalent(colorlist)
+        self.failUnless(len(grad.segments) < 255,"should have been compressed")
+        
+    def colorMapFromFile(self, name):
+        f = open(name,"r")
         i = 0
         colorlist = []
         rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
@@ -119,7 +145,7 @@ class Test(testbase.TestBase):
                     colorlist.append(((i-1)/255.0,r,g,b,255))
             i += 1
 
-        self.checkColorMapAndGradientEquivalent(colorlist)
+        return colorlist
 
     def testCopy(self):
         # check that copy.copy() doesn't share state
