@@ -314,8 +314,12 @@ class T(FctUtils):
         elif type == fracttypes.Hyper:
             return "(%.17f,%.17f,%.17f,%.17f)"% \
                    (params[ord],params[ord+1],params[ord+2],params[ord+3])
-        else:
+        elif type == fracttypes.Float:
             return "%.17f" % params[ord]
+        elif type == fracttypes.Int:
+            return "%d" % params[ord]
+        else:
+            raise ValueError("Unknown type %s for param %s" % (type,name))
 
     def parse_periodicity(self,val,f):
         self.set_periodicity(bool(val))
@@ -445,18 +449,19 @@ class T(FctUtils):
         return params[n]
     
     def set_initparam(self,n,val, param_type):
-        t = self.paramtypes[n]
+        if param_type == 0:
+            params = self.initparams
+            t = self.paramtypes[n]
+        else:
+            params = self.cfunc_params[param_type-1]
+            t = self.cfunc_paramtypes[param_type-1][n]
+
         if t == fracttypes.Float:
             val = float(val)
         elif t == fracttypes.Int:
             val = int(val)
         else:
             raise ValueError("Unknown parameter type %s" % t)
-        
-        if param_type == 0:
-            params = self.initparams
-        else:
-            params = self.cfunc_params[param_type-1]
         
         if params[n] != val:
             params[n] = val
@@ -838,7 +843,9 @@ The image may not display correctly. Please upgrade to version %.1f.'''
                         self.changed()
         elif t == fracttypes.Float:
             params[ord] = float(val)
-        
+        elif t == fracttypes.Int:
+            params[ord] = int(val)
+            
     def parse_bailfunc(self,val,f):
         # can't set function directly because formula hasn't been parsed yet
         self.bailfunc = int(val)

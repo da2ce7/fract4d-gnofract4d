@@ -644,7 +644,8 @@ class T(gobject.GObject):
             (x,y) = (event.x, event.y)
             zoom = 1.0
             self.recenter(x,y,zoom)
-            self.flip_to_julia()
+            if self.f.formula.is4D():
+                self.flip_to_julia()
             
         else:
             (x,y) = (event.x, event.y)
