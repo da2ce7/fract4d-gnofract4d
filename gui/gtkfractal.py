@@ -79,7 +79,7 @@ class T(gobject.GObject):
         self.f.compile()
 
     def interrupt(self):
-        print "interrupted %d" % self.running
+        #print "interrupted %d" % self.running
         if self.skip_updates:
             #print "skip recursive interrupt"
             return
@@ -101,7 +101,6 @@ class T(gobject.GObject):
         (r,g,b,a) = self.f.solids[0]
         fract4dc.cmap_set_solid(self.cmap,0,r,g,b,a)
 
-        print "draw: init with %s" % self.initparams
         t = self.f.tolerance(width,height)
         fract4dc.pf_init(self.f.pfunc,t,self.f.initparams)
 
@@ -128,7 +127,7 @@ class T(gobject.GObject):
             if not self.skip_updates: self.progress_changed(float(p1))
         elif t == 3:
             if p1 == 0: # DONE
-                print "stop running"
+                #print "stop running"
                 self.running = False
             if not self.skip_updates: self.status_changed(p1)
         elif t == 4:
@@ -253,7 +252,7 @@ class T(gobject.GObject):
             widget.set_text("%d" % self.maxiter)
 
         def set_fractal(*args):
-            self.f.set_maxiter(int(widget.get_text()))
+            self.set_maxiter(int(widget.get_text()))
             return False
         
         set_entry(self)
@@ -303,12 +302,8 @@ class T(gobject.GObject):
 
     def loadFctFile(self,file):
         new_f = fractal.T(self.compiler,self.site)
-        print "l1:" , self.running
         new_f.loadFctFile(file)
-        print "l2:" , self.running
         self.set_fractal(new_f)
-        print "l3:" , self.running
-        #self.f.loadFctFile(file)
         self.emit('parameters-changed')
         
     def save_image(self,filename):
@@ -322,7 +317,6 @@ class T(gobject.GObject):
         pixbuf.save(filename,"png")
         
     def draw_image(self):
-        print "draw: %d" % self.running
         self.interrupt()
         self.f.compile()
         self.draw(self.image,self.width,self.height,self.nthreads)
@@ -414,7 +408,6 @@ class T(gobject.GObject):
         dx = (x - self.width/2.0)/self.width
         dy = (y - self.height/2.0)/self.width
         self.relocate(dx,dy,zoom)
-        print "params changed"
         self.emit('parameters-changed')
         
     def redraw_rect(self,x,y,w,h):
