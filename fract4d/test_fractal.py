@@ -302,7 +302,22 @@ colorlist=[
             self.failUnless(g >= 0 and g < 256)
             self.failUnless(b >= 0 and b < 256)
             self.failUnless(a == 255)
-        
+
+    def testGradientColors(self):
+        'Test that generating gradients work'
+        f = fractal.T(self.compiler)
+        f.make_gradient_colors()
+        self.assertEqual(len(f.colorlist),256)
+        last_index = -1.0
+        for i in xrange(256):
+            (index,r,g,b,a) = f.colorlist[i]
+            self.failUnless(index > last_index)
+            last_index = index
+            self.failUnless(r >= 0 and r < 256)
+            self.failUnless(g >= 0 and g < 256)
+            self.failUnless(b >= 0 and b < 256)
+            self.failUnless(a == 255)
+
     def testLoadBadFileRaises(self):
         'Test we throw an exception when loading an invalid file'
         f = fractal.T(self.compiler)

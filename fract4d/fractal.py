@@ -12,6 +12,7 @@ import random
 
 import fract4dc
 import fracttypes
+import gradient
 
 rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
 cmplx_re = re.compile(r'\((.*?),(.*?)\)')
@@ -865,7 +866,15 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         self.solids[0:len(cf.solids)] = cf.solids[:]
         self.changed(False)
 
+    def make_gradient_colors(self):
+        grad = gradient.Gradient()
+        grad.compute()
+        new_list = grad.getCList()
+        self.colorlist = new_list
+        self.changed(False)
+
     def make_random_colors(self, num):
+        # random colormap
         new_list = []
         width = 1.0 / num
         for i in xrange(num):
