@@ -187,6 +187,7 @@ class T(FctUtils):
         self.cfunc_names = [None,None]
         self.cfunc_files = [None,None]
 
+        self.yflip = False
         self.antialias = 1
         self.compiler = compiler
         self.outputfile = None
@@ -243,6 +244,7 @@ class T(FctUtils):
             print >>file, "%s=%.17f" % pair
 
         print >>file, "maxiter=%d" % self.maxiter
+        print >>file, "yflip=%s" % self.yflip
         print >>file, "[function]"
         print >>file, "formulafile=%s" % self.funcFile
         print >>file, "function=%s" % self.funcName
@@ -341,6 +343,7 @@ class T(FctUtils):
         self.maxiter = 256
         self.rot_by = math.pi/2
         self.title = self.funcName
+        self.yflip = False
         
         self.set_formula_defaults()
 
@@ -546,9 +549,8 @@ class T(FctUtils):
 
         fract4dc.pf_init(pfunc,1.0E-9,self.initparams)
 
-        #print "draw aa: %d %d %d" % (self.antialias,self.maxiter,threads)
-        fract4dc.calc(self.params,self.antialias,self.maxiter,1,
-                     pfunc,cmap,self.auto_deepen,image,self.site)
+        fract4dc.calc(self.params,self.antialias,self.maxiter,self.yflip,1,
+                      pfunc,cmap,self.auto_deepen,image,self.site)
 
     def clean(self):
         self.dirty = False
@@ -567,6 +569,11 @@ class T(FctUtils):
 
     def parse_version(self,val,f):        
         self.format_version=float(val)
+        if self.format_version < 2.0:
+            # old versions displayed everything upside down
+            # switch the rotation so they load OK
+            self.yflip = True
+
         if self.format_version > 2.0:
             warning = \
 '''This file was created by a newer version of Gnofract 4D.
@@ -652,6 +659,14 @@ The image may not display correctly. Please upgrade to version %f.'''
     def parse_outer(self,val,f):
         name = self.colorfunc_names[int(val)]
         self.set_outer("gf4d.cfrm",name)
+
+    def set_yflip(self,yflip):
+        if self.yflip != yflip:
+            self.yflip = yflip
+            self.changed()
+        
+    def parse_yflip(self,val,f):
+        self.yflip = val == "1"
         
     def parse_x(self,val,f):
         self.set_param(self.XCENTER,val)
@@ -669,10 +684,6 @@ The image may not display correctly. Please upgrade to version %f.'''
         self.set_param(self.MAGNITUDE,val)
 
     def parse_xy(self,val,f):
-        if self.format_version < 2.0:
-            # old versions displayed everything upside down
-            # switch the rotation so they load OK
-            val = float(val) + math.pi
         self.set_param(self.XYANGLE,val)
 
     def parse_xz(self,val,f):

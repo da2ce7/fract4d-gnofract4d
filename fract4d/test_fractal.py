@@ -79,7 +79,10 @@ class FctTest(unittest.TestCase):
         file = file.replace('version=2.0','version=1.9',1)
         f = fractal.T(self.compiler);
         f.loadFctFile(StringIO.StringIO(file))
-        self.assertEqual(f.params[f.XYANGLE], math.pi + 0.00000001)
+        self.assertEqual(f.params[f.XYANGLE], 0.00000001)
+        self.assertEqual(f.yflip, True)
+        f.reset()
+        self.assertEqual(f.yflip, False)
         
     def assertExpectedValues(self,f):        
         self.assertEqual(f.params[f.XCENTER],0.0891)
@@ -106,6 +109,7 @@ class FctTest(unittest.TestCase):
         self.assertEqual(f.colorlist[0][0],0.0)
         self.assertEqual(f.colorlist[-1][0],1.0)
         self.assertEqual(f.solids[0],(0,0,0,255))
+        self.assertEqual(f.yflip,False)
         
         sofile = f.compile()
         image = fract4dc.image_create(40,30)
@@ -133,7 +137,6 @@ class FctTest(unittest.TestCase):
         file2 = StringIO.StringIO()
         f1.save(file2)
         saved = file2.getvalue()
-        #print saved
         self.failUnless(saved.startswith("gnofract4d parameter file"))
 
         # load it into another instance
