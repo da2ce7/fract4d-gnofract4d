@@ -6,6 +6,7 @@ import translate
 import unittest
 import fractparser
 import fractlexer
+import fracttypes
 
 class TranslateTest(unittest.TestCase):
     def setUp(self):
@@ -44,7 +45,15 @@ class TranslateTest(unittest.TestCase):
                  }''')
         self.assertEquivalentTranslations(t1,t3)
         self.assertEqual(len(t3.warnings),3)
-                            
+
+    def testDecls(self):
+        t1 = self.translate("t1 {\nglobal:int a\ncomplex b\n}")
+        self.assertVar(t1, "a", fracttypes.Int)
+        self.assertVar(t1, "b", fracttypes.Complex)
+                       
+    def assertVar(self,t, name,type):
+        self.assertEquals(t.symbols[name].type,type)
+        
     def assertEquivalentTranslations(self,t1,t2):
         for k in t1.sections.keys():
             self.assertEqual(t1.sections[k],t2.sections[k])
