@@ -1,6 +1,7 @@
 # GUI and backend for colormaps
 
 import os
+import sys
 
 import gtk
 import gobject
@@ -25,6 +26,8 @@ class ColorDialog(gtk.Dialog):
 
         self.f = f
 
+        self.set_size_request(200,500)
+        self.maps = {}
         sw = self.create_map_file_list()
         self.vbox.add(sw)
         self.connect('response',self.onResponse)
@@ -38,21 +41,24 @@ class ColorDialog(gtk.Dialog):
             absfile = os.path.join(dirname,f)
             (name,ext) = os.path.splitext(absfile)
             if ext.lower() == ".map":
+                if self.maps.get(f):
+                    continue # avoid duplicates
+                self.maps[f] = absfile
                 iter = self.map_list.append ()
                 self.map_list.set (iter, 0, f)
-                self.map_list.set (iter, 1, absfile)
                 
     def populate_file_list(self):
         self.add_directory("../maps")
-
+        self.add_directory(os.path.join(sys.exec_prefix,"share/maps/gnofract4d"))
+        
     def file_selection_changed(self,selection):
         (model,iter) = selection.get_selected()
 
         if iter == None:
             return
         
-        fname = model.get_value(iter,1)
-        self.f.set_cmap(fname)
+        mapfile = model.get_value(iter,0)
+        self.f.set_cmap(self.maps[mapfile])
     
     def create_map_file_list(self):
         sw = gtk.ScrolledWindow ()
@@ -62,7 +68,6 @@ class ColorDialog(gtk.Dialog):
 
         self.map_list = gtk.ListStore(
             gobject.TYPE_STRING,
-            gobject.TYPE_STRING
             )
 
         self.treeview = gtk.TreeView (self.map_list)
