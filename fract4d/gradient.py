@@ -94,8 +94,7 @@ class Segment:
 		self.bmode = blend_mode
 		self.left = lh
 		self.right = rh
-		
-			
+					
 class Gradient:
 	def __init__(self):
 		self.segments=[Segment(Handle(0, [255, 255, 0]), Handle(.5, [255, 0, 0])),

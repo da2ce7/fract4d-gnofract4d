@@ -385,10 +385,11 @@ class T(FctUtils):
         
         for i in range(2):
             frm = self.cfuncs[i]
+            c_frm = c.cfuncs[i]
             for name in self.func_names(frm):
                 c.set_named_func(name,
                                  self.get_func_value(name,frm),
-                                 frm)
+                                 c_frm)
 
             c.cfunc_params[i] = copy.copy(self.cfunc_params[i]) 
                     

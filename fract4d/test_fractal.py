@@ -471,7 +471,12 @@ blue=0
 
         self.assertFractalsEqual(f1,f3)
         self.assertEqual(f3.get_func_value("@myfunc",f3.cfuncs[1]),"sqrt")
-            
+
+    def assertFuncsEqual(self, f1, form1, f2, form2):
+        for name in f1.func_names(form1):
+            self.assertEqual(f1.get_func_value(name,form1),
+                             f2.get_func_value(name,form2))
+        
     def assertFractalsEqual(self,f1,f2):
         # check that they are equivalent
         self.assertEqual(f1.maxiter, f2.maxiter)
@@ -482,9 +487,9 @@ blue=0
         self.assertEqual(f1.cfunc_names, f2.cfunc_names)
         self.assertEqual(f1.cfunc_files, f2.cfunc_files)
         self.assertEqual(f1.cfunc_params, f2.cfunc_params)
-        for name in f1.func_names(f1.formula):
-            self.assertEqual(f1.get_func_value(name,f1.formula),
-                             f2.get_func_value(name,f2.formula))
+        self.assertFuncsEqual(f1, f1.formula,f2, f2.formula)
+        self.assertFuncsEqual(f1, f1.cfuncs[0],f2, f2.cfuncs[0])
+        self.assertFuncsEqual(f1, f1.cfuncs[1],f2, f2.cfuncs[1])
         self.assertEqual(f1.yflip,f2.yflip)
         
     def testSave(self):
@@ -894,6 +899,7 @@ blue=0.5543108971162746
         f.set_formula("gf4d.frm","Barnsley Type 1")
         f.set_named_item("@bailfunc","manhattanish",f.formula,f.initparams)
         f.set_outer("test.cfrm","flat")
+        f.set_named_item("@_transfer","sqrt",f.cfuncs[0],f.cfunc_params[0])
         c = copy.copy(f)
 
         self.assertFractalsEqual(f,c)
