@@ -51,8 +51,10 @@ class Compiler:
                 formulas[formula.leaf] = formula
 
             basefile = os.path.basename(filename)
-            self.files[basefile] = FormulaFile(formulas,s)
-        
+            ff = FormulaFile(formulas,s)
+            self.files[basefile] = ff 
+
+            return ff
         except Exception, err:
             #print "Error parsing '%s' : %s" % (filename, err)
             raise

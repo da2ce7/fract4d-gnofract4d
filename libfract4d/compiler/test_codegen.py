@@ -94,8 +94,9 @@ int main()
     def translate(self,s,dump=None):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
-        #print pt.pretty()
+        print pt.pretty()
         t = translate.T(pt.children[0],dump)
+        print t.pretty()
         self.assertNoErrors(t)
         self.codegen = codegen.T(t.symbols,dump)
         return t
@@ -326,6 +327,14 @@ t__temp2 = 0.0;
 a_re = t__temp1;
 a_im = t__temp2;
 goto t__end_init;''')
+
+
+
+    def testComplexBool(self):
+        t = self.sourceToAsm('''t_cb{
+            float x=real(z), float y=imag(z)
+chrH1 = x<-0.16646 || x>-0.13646; ||(y<0.656&&y>0.644)&&x>-0.17846&&x<-0.12446
+}''',"init", { "dumpPreCanon" : 1, "dumpDecorated" : 1})
         
     def testSymbols(self):
         self.codegen.symbols["q"] = Var(Complex)

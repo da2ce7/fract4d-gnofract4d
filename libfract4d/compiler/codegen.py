@@ -574,7 +574,7 @@ pf_obj *pf_new()
                 return action
         
         # every possible tree ought to be matched by *something* 
-        msg = "Internal Compiler Error: unmatched tree %s" % tree
+        msg = "Internal Compiler Error:%d:unmatched tree %s" % (tree.node.pos,tree)
         raise fracttypes.TranslationError(msg)
 
 
