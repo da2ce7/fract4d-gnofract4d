@@ -211,12 +211,11 @@ model_init_compiler(model_t *m,compiler *pc)
 
     if(NULL == template_location)
     {
-        //template_location = gnome_datadir_file(PACKAGE "/compiler_template.cpp");
-        template_location = "compiler_template.cpp";
+        template_location = gnome_datadir_file(PACKAGE "/compiler_template.cpp");
     }
     pc->in = template_location;
 
-    //g_free(template_location);
+    g_free(template_location);
 
     gchar *compiler_location =
         gnome_config_get_string(PACKAGE "/Compiler/path");
@@ -233,6 +232,13 @@ model_init_compiler(model_t *m,compiler *pc)
     {
         model_set_compiler_flags(m,compiler_flags);
     }
+
+    g_free(compiler_flags);
+
+    gchar *cache_dir = g_concat_dir_and_file(
+        g_get_home_dir(),".gnome/" PACKAGE "-cache");
+    pc->set_cache_dir(cache_dir);
+    g_free(cache_dir);
 
     pc->set_err_callback((void (*)(void *,const char *))model_on_error, (void *)m);
 }

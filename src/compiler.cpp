@@ -40,8 +40,6 @@
 #include <iostream>
 #include <sstream>
 
-#include <gnome.h>
-
 // global compiler instance
 compiler *g_pCompiler;
 
@@ -51,9 +49,13 @@ compiler::compiler()
     cc = "g++";
     flags = "-shared -O3 -ffast-math";
     in = "compiler_template.cpp";
-    next_so = 0;
-    so_cache_dir = g_get_home_dir() + std::string("/.gnome/" PACKAGE "-cache");
-    
+    next_so = 0;    
+}
+
+void
+compiler::set_cache_dir(const char *s)
+{ 
+    so_cache_dir = s; invalidate_cache();
     struct stat buf;
     if(stat(so_cache_dir.c_str(),&buf)== -1 && errno == ENOENT)
     {
@@ -61,12 +63,12 @@ compiler::compiler()
         if(mkdir(so_cache_dir.c_str(),0777) == -1)
         {
             // couldn't create the directory
-            cerr << "Couldn't create cache directory " << so_cache_dir << std::endl;
+            on_error("Couldn't create cache directory '" + so_cache_dir +"':\n\n" +
+                     strerror(errno));
             exit(EXIT_FAILURE);
         }
     }
 }
-
 std::string
 compiler::Dstring(std::string iter, std::string decl, std::string ret, std::string bail)
 {
@@ -83,7 +85,7 @@ compiler::compile(std::string commandLine)
     char buf[PATH_MAX];
     std::string complaints;
 
-    cout << commandLine << std::endl;
+    //cout << commandLine << std::endl;
     FILE *compiler_output = popen(commandLine.c_str(),"r");
     if(NULL == compiler_output)
     {
@@ -103,9 +105,9 @@ compiler::compile(std::string commandLine)
     if(!dlHandle)
     {
         on_error(std::string("Error '") + strerror(errno) + 
-                 "'compiling fractal code using command:\n\n" +
+                 "' compiling fractal code using command:\n\n" +
                  flow(commandLine) + "\n\nCompiler output was:\n\n" +
-                 flow(complaints));
+                 flow(complaints) + "\n\nPlease ensure your compiler settings are correct");
     }
     return dlHandle;
 }
@@ -175,9 +177,9 @@ compiler::getHandle(std::string iter, std::string decl, std::string ret, std::st
 std::string
 compiler::flow(std::string in)
 {
-    int max_width = 40;
-    int last_break_pos = 0;
-    int last_space_pos = in.find(' ');
+    std::string::size_type max_width = 40;
+    std::string::size_type last_break_pos = 0;
+    std::string::size_type last_space_pos = in.find(' ');
     if(last_space_pos == string::npos)
     {
         return in;
@@ -186,7 +188,7 @@ compiler::flow(std::string in)
 
     os << in.substr(0,last_space_pos);
 
-    int this_space_pos;
+    std::string::size_type this_space_pos;
     while((this_space_pos = in.find(' ', last_space_pos+1)) != string::npos)
     {
         if(this_space_pos - last_break_pos > max_width)

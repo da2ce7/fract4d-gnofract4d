@@ -37,7 +37,8 @@ public:
     void set_err_callback(void (*cb)(void *, const char *), void *cbdata) {
         err_callback = cb; err_callback_data = cbdata;
     }
-    void set_cc(char *s) { cc = s; invalidate_cache(); }
+    void set_cc(const char *s) { cc = s; invalidate_cache(); }
+    void set_cache_dir(const char *s); 
     const char *get_cc() { return cc.c_str(); }
     std::string flags; 
     std::string in;
