@@ -97,7 +97,7 @@ def p_set_param(t):
      t[0] = absyn.Param(t[2],t[4],"complex")
 
 def p_set_typed_param(t):
-     'set : ID PARAM ID NEWLINE setlist ENDPARAM'
+     'set : TYPE PARAM ID NEWLINE setlist ENDPARAM'
      t[0] = absyn.Param(t[3],t[5],t[1])
 
 def p_section_stm(t):
@@ -129,12 +129,28 @@ def p_empty(t):
     t[0] = absyn.Empty()
     
 def p_stm_decl(t):
-    'stm : ID ID'
+    'stm : TYPE ID'
     t[0] = absyn.Decl(t[1], t[2])
 
 def p_stm_decl_assign(t):
-    'stm : ID ID ASSIGN exp'
+    'stm : TYPE ID ASSIGN exp'
     t[0] = absyn.Decl(t[1],t[2],t[4])
+
+def p_stm_if(t):
+    'stm : IF ifbody ENDIF' 
+    t[0] = t[2]
+
+def p_ifbody(t):
+    'ifbody : exp NEWLINE stmlist'
+    t[0] = absyn.If(t[1],t[3],[absyn.Empty()])
+    
+def p_ifbody_else(t):
+    'ifbody : exp NEWLINE stmlist ELSE NEWLINE stmlist'
+    t[0] = absyn.If(t[1], t[3], t[6])
+    
+def p_ifbody_elseif(t):
+    'ifbody : exp NEWLINE stmlist ELSEIF ifbody'
+    t[0] = absyn.If(t[1], t[3], [t[5]])
 
 def p_exp_binop(t):
     '''exp : exp PLUS exp

@@ -88,7 +88,7 @@ def CheckTree(tree, nullOK=0):
         raise Exception, "bad node type %s" % tree
     if tree.children:
         if not isinstance(tree.children, types.ListType):
-            raise Exception, "children not a list: %s instead", tree.children
+            raise Exception, ("children not a list: %s instead" % tree.children)
         for child in tree.children:
             CheckTree(child,0)
     return 1
@@ -148,6 +148,10 @@ def Formula(id, stmlist):
 
 def Param(id,settinglist,type):
     return Node("param", settinglist, (id,type))
+
+def If(test, left, right):
+    return Node("if",
+                [test, Stmlist("",left), Stmlist("",right)], "")
 
 def InternalError():
     return Node("parser error", None, "oops")
