@@ -194,7 +194,7 @@ def Formula(id, stmlist, pos):
     
     return n
 
-def Param(id,settinglist,type,pos):
+def Param(id,settinglist,type,pos):    
     return Node("param", pos, settinglist, id, fracttypes.typeOfStr(type))
 
 def Func(id,settinglist,type, pos):

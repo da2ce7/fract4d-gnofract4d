@@ -153,8 +153,16 @@ class TBase:
                 node.datatype = fracttypes.Int
                 break
 
+        if node.datatype == None:
+            # datatype not specified. Must try to infer from default value
+            # in the meantime, will assume it's complex
+            datatype = fracttypes.Complex
+        else:
+            datatype = node.datatype
+            
         # create param
-        v = Var(node.datatype, default_value(node.datatype), node.pos)
+            
+        v = Var(datatype, default_value(datatype), node.pos)
 
         # process settings
         for child in node.children:
@@ -164,6 +172,9 @@ class TBase:
                 self.error("%d: invalid statement in parameter block" % node.pos)
 
         if hasattr(v,"default"):
+            if node.datatype == None:
+                v.type = v.default.datatype
+                v.value = default_value(v.type)
             v.default = self.const_convert(v.default,v.type)
 
         self.symbols["@" + node.leaf] = v

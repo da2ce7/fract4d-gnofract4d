@@ -61,6 +61,7 @@ _cTypeOfType = {
     }
 
 def typeOfStr(tname):
+    if not tname: return None
     return _typeOfStr[string.lower(tname)]
 
 def strOfType(t):

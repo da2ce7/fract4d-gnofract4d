@@ -111,18 +111,11 @@ default:
 
         self.assertNoErrors(t)
 
-    def disabled_testTriangleInequality(self):
-        '''Some UF coloring algorithms cause problems. I think the
-        type of the param is implicitly set based on the default value?'''
+    def testImplicitParamTypes(self):
+        # Some UF coloring algorithms cause problems. The
+        # type of the param is implicitly set based on the default value
         t = self.translatecf('''
 Triangle {
-;
-; Variation on the Triangle Inequality Average coloring method 
-; from Kerry Mitchell. The smoothing used here is based on the
-; Smooth formula, which only works for z^n+c and derivates.
-;
-; Written by Damien M. Jones
-;
 init:
   float sum = 0.0
   float sum2 = 0.0
@@ -133,24 +126,7 @@ init:
   float lowbound = 0.0
   float f = 0.0
   BOOL first = true
-loop:
-  sum2 = sum
-  IF (!first)
-    az2 = cabs(#z - #pixel)
-    lowbound = abs(az2 - ac)
-    sum = sum + ((cabs(#z) - lowbound) / (az2+ac - lowbound))
-  ELSE
-    first = false
-  ENDIF
-final:
-  sum = sum / (#numiter)
-  sum2 = sum2 / (#numiter-1)
-  f = il*lp - il*log(log(cabs(#z)))
-  #index = sum2 + (sum-sum2) * (f+1)  
 default:
-  title = "Triangle Inequality Average"
-  helpfile = "Uf3.chm"
-  helptopic = "Html/coloring/standard/triangleinequalityaverage.html"
   param power
     caption = "Exponent"
     default = 2.0
@@ -161,13 +137,26 @@ default:
     caption = "Bailout"
     default = 1e20
     min = 1
-    hint = "This should be set to match the bail-out value in \
-            the Formula tab. Use a very high value for good results."
+  endparam
+  param implicit_nodefault
+  endparam
+  param implicit_bool
+    default = true
+  endparam
+  param implicit_int
+    default = 7
   endparam
 }
         ''')
 
         self.assertNoErrors(t)
+
+        self.assertEqual(t.symbols["@power"].type, fracttypes.Float)
+        self.assertEqual(t.symbols["@bailout"].type, fracttypes.Float)
+        self.assertEqual(t.symbols["@implicit_nodefault"].type,
+                         fracttypes.Complex)
+        self.assertEqual(t.symbols["@implicit_bool"].type, fracttypes.Bool)
+        self.assertEqual(t.symbols["@implicit_int"].type, fracttypes.Int)
         
     def testFractintSections(self):
         t1 = self.translate("t1 {\na=1,a=2:\nb=2\nc=3}")
@@ -257,7 +246,7 @@ default:
     def testBadTypeForParam(self):
         t = self.translate('''t_badparam {
         default:
-        param foo
+        complex param foo
             default = "fish"
         endparam
         }''')
@@ -266,7 +255,7 @@ default:
     def testParamTypeConversion(self):
         t = self.translate('''t_badparam {
         default:
-        param foo
+        complex param foo
             default = (1.0,2.0)
         endparam
         }''')
@@ -324,11 +313,11 @@ default:
         xyangle = 4.9
         center = (8.1,-2.0)
         title = "Hello World"
-        param foo
+        complex param foo
             caption = "Angle"
             default = 10.0
         endparam
-        param with_Turnaround8
+        complex param with_Turnaround8
             caption = "Turnaround 8?"
             default = true
             hint = ""

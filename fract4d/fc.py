@@ -56,8 +56,8 @@ class FormulaFile:
         return names
     
 class Compiler:
-    isFRM = re.compile(r'\.frm\Z', re.IGNORECASE)
-    isCFRM = re.compile(r'\.cfrm\Z', re.IGNORECASE)
+    isFRM = re.compile(r'(\.frm\Z)|(.ufm\Z)', re.IGNORECASE)
+    isCFRM = re.compile(r'(\.cfrm\Z)|(.ucl\Z)', re.IGNORECASE)
     def __init__(self):
         self.parser = fractparser.parser
         self.lexer = fractlexer.lexer
