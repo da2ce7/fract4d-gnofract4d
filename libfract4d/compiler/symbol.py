@@ -43,9 +43,9 @@ class T(UserDict):
             if l==-1:
                 msg = "is predefined"
             else:
-                msg = ("already defined on line %d" % l)
+                msg = ("was already defined on line %d" % l)
             
-            raise KeyError, ("symbol %s %s" % (k,msg))
+            raise KeyError, ("symbol '%s' %s" % (key,msg))
 
         self.data[mangle(key)] = value
     def __delitem__(self,key):

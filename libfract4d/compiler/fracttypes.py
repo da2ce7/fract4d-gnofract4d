@@ -24,8 +24,19 @@ _typeOfStr = {
     "color" : Color
     }
 
+_strOfType = {
+    Int : "int",
+    Float : "float",
+    Complex : "complex",
+    Bool : "bool",
+    Color : "color"
+   }
+
 def typeOfStr(tname):
     return _typeOfStr[string.lower(tname)]
+
+def strOfType(t):
+    return _strOfType[t]
 
 class Func:
     def __init__(self,ret,pos=-1):
