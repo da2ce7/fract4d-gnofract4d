@@ -55,10 +55,12 @@ _canBeCast = [
 
 def canBeCast(t1,t2):
     ' can t1 be cast to t2?'
+    if t1 == None or t2 == None:
+        return 0
     try:
         return _canBeCast[t1][t2]
     except Exception, e:
-        print t1,t2
+        #print t1,t2
         raise
     
 class Func:
