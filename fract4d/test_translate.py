@@ -140,6 +140,15 @@ class TranslateTest(testbase.TestBase):
         self.assertWarning(t10,"conversion from int to float on line 4")
         self.assertError(t10, "invalid type float for 1.0 on line 5, expecting int")
 
+    def testBadTypeForParam(self):
+        t = self.translate('''t_badparam {
+        default:
+        param foo
+            default = "fish"
+        endparam
+        }''')
+        self.assertError(t, "4: Cannot convert string (fish) to complex")
+        
     def testDefaultSection(self):
         t = self.translate('''t_d1 {
         default:
@@ -174,13 +183,46 @@ class TranslateTest(testbase.TestBase):
 
         foo = t.symbols["@foo"]
         self.assertEqual(foo.caption.value, "Angle")
-        self.assertEqual(foo.default.value, 10.0)
+        self.assertEqual(foo.default.value, [ 10.0, 0.0])
 
         t8 = t.symbols["@with_turnaround8"]
         self.assertEqual(t8.hint.value,"")
 
         f1 = t.symbols["@f1"]
         self.assertEqual(f1.type,fracttypes.Float)
+
+        params = t.symbols.parameters(True)
+        op = t.symbols.order_of_params()
+        self.assertEqual(op["t__a_f1"],0)
+        self.assertEqual(op["t__a_foo"],1)
+        self.assertEqual(op["t__a_with_turnaround8"],3)
+        self.assertEqual(op["__SIZE__"],5)
+
+        defparams = t.symbols.default_params()
+        print defparams
+        
+    def testEnum(self):
+        t = self.translate('''t_enum {
+        default:
+        param calculate
+        caption = "Calculate"
+        enum    = "Sum" "Abs" "Diff"
+        default = 1
+        endparam
+        init:
+        if @calculate == 1
+        x = 1
+        else
+        x = 7
+        endif
+        }''')
+
+        self.assertNoErrors(t)
+
+        calculate = t.symbols["@calculate"]
+        e = calculate.enum
+        self.assertEqual(e.value, ["Sum", "Abs", "Diff"])
+        self.assertEqual(calculate.type,fracttypes.Int)
         
     def testStringErrors(self):
         t = self.translate('''t_se {
@@ -204,10 +246,12 @@ class TranslateTest(testbase.TestBase):
 
         var_k = ["t__a_p1", "t__a_p2", "t__a_my_param"]
         var_k.sort()
+        var_k.append("__SIZE__")
         
         op = t12.symbols.order_of_params()
         for (key,ord) in op.items():
-            self.assertEqual(op[key],var_k.index(key))
+            self.assertEqual(op[key],var_k.index(key)*2)
+
 
     def testBadFunc(self):
         t = self.translate('t_badfunc {\nx= badfunc(0):\n}')

@@ -235,9 +235,30 @@ class T(UserDict):
         op = {}; i = 0
         for k in karray:
             op[k] = i
-            i = i + 1
+            if p[k].type == Complex:
+                i += 2
+            else:
+                i = i + 1
+        op["__SIZE__"]=i
+        
         return op
-            
+
+    def default_params(self):
+        op = self.order_of_params()
+        defaults = [0.0] * op["__SIZE__"]
+        for (k,i) in op.items():
+            param = self.get(k,None)
+            if not param: continue
+            defval = getattr(param,"default",None)
+            if not defval: continue
+            if param.type == Complex:
+                print "c:", defval.__class__.__name__
+                #defaults[i] = defval.value.children[0]
+                #defaults[i+1] = defval.value.children[1]
+            else:
+                defaults[i] = defval.value
+        return defaults
+        
     def __delitem__(self,key):
         del self.data[mangle(key)]
         
