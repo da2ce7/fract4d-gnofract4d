@@ -41,10 +41,9 @@ void
 save_image_ok_cb(GtkButton *button, gpointer user_data)
 {
     save_cb_data *p = (save_cb_data *)user_data;
-    char *name;
 
     GtkFileSelection *f = GTK_FILE_SELECTION(p->f);
-    name = gtk_file_selection_get_filename (f);
+    const gchar *name = gtk_file_selection_get_filename (f);
 
     model_cmd_save_image(p->m,name);
     g_free(user_data);
@@ -55,9 +54,9 @@ void
 save_param_ok_cb(GtkButton *button, gpointer user_data)
 {
     save_cb_data *p = (save_cb_data *)user_data;
-    char *name;
+
     GtkFileSelection *f = GTK_FILE_SELECTION(p->f);
-    name = gtk_file_selection_get_filename (f);
+    const gchar *name = gtk_file_selection_get_filename (f);
     model_cmd_save(p->m,name);
     g_free(user_data);
 }
@@ -67,9 +66,9 @@ void
 load_param_ok_cb(GtkButton *button, gpointer user_data)
 {
     save_cb_data *p = (save_cb_data *)user_data;
-    char *name;
+
     GtkFileSelection *f = GTK_FILE_SELECTION(p->f);
-    name = gtk_file_selection_get_filename (f);
+    const gchar *name = gtk_file_selection_get_filename (f);
     model_cmd_load(p->m,name);
     g_free(user_data);
 }

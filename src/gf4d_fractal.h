@@ -130,7 +130,7 @@ gboolean gf4d_fractal_pause(Gf4dFractal *f, gboolean pause);
 
 /* update functions */
 void gf4d_fractal_set_max_iterations(Gf4dFractal *f, int val);
-void gf4d_fractal_set_param(Gf4dFractal *f, param_t i, char *val);
+void gf4d_fractal_set_param(Gf4dFractal *f, param_t i, const char *val);
 void gf4d_fractal_set_aa(Gf4dFractal *f, e_antialias val);
 void gf4d_fractal_set_auto(Gf4dFractal *f, gboolean val);
 int gf4d_fractal_set_precision(Gf4dFractal *f, int digits);

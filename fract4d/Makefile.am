@@ -11,6 +11,6 @@ fract4d_SOURCES = \
 	image.cpp image.h
 
 fract4d_LDADD = ../libfract4d/libfract4d.la $(GNOME_LIBDIR) $(GTK_LIBS) \
-	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)
+	$(GNOMEUI_LIBS) $(INTLLIBS)
 
 CXXFLAGS = -g -O3 -ffast-math -Wall -D_REENTRANT -DCXX="\"$(CXX)\"" 

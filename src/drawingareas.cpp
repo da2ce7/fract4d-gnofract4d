@@ -225,7 +225,7 @@ message_callback(Gf4dFractal *f, gint val, void *user_data)
 void 
 progress_callback(Gf4dFractal *f,gfloat percentage, void *user_data)
 {
-    gnome_appbar_set_progress(GNOME_APPBAR(user_data),percentage);
+    gnome_appbar_set_progress_percentage(GNOME_APPBAR(user_data),percentage);
 }
 
 GtkWidget*

@@ -201,8 +201,8 @@ void
 create_undo_widgets(GtkToolbar *toolbar, model_t *m)
 {
     /* UNDO */
-    GtkWidget *undo_widget = gnome_stock_new_with_icon(
-        GNOME_STOCK_PIXMAP_UNDO);
+    GtkWidget *undo_widget = gtk_image_new_from_stock(
+        GTK_STOCK_UNDO, GTK_ICON_SIZE_SMALL_TOOLBAR);
 
     model_make_undo_sensitive(m,undo_widget);
 
@@ -216,8 +216,8 @@ create_undo_widgets(GtkToolbar *toolbar, model_t *m)
         m);
 
     /* REDO */
-    GtkWidget *redo_widget = gnome_stock_new_with_icon(
-        GNOME_STOCK_PIXMAP_REDO);
+    GtkWidget *redo_widget = gtk_image_new_from_stock(
+        GTK_STOCK_REDO, GTK_ICON_SIZE_SMALL_TOOLBAR);
 
     gtk_toolbar_append_item (
         toolbar, 
@@ -297,7 +297,7 @@ create_explore_widgets(GtkToolbar *toolbar, model_t *m)
     model_make_explore_sensitive(m, explore_weirdness);
 
     GtkWidget *explore_refresh = 
-        gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_REFRESH);
+        gtk_image_new_from_stock(GTK_STOCK_REFRESH, GTK_ICON_SIZE_SMALL_TOOLBAR);
 
     gtk_toolbar_append_item (
         GTK_TOOLBAR(toolbar),
@@ -315,8 +315,8 @@ create_explore_widgets(GtkToolbar *toolbar, model_t *m)
 GtkWidget*
 create_move_toolbar (model_t *m, GtkWidget *appbar)
 {
-    GtkWidget *toolbar_widget = 
-        gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
+    GtkWidget *toolbar_widget = gtk_toolbar_new();
+    // GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
     GtkToolbar *toolbar = GTK_TOOLBAR(toolbar_widget);
 
     preview_shadow = gf4d_fractal_copy(model_get_fract(m));

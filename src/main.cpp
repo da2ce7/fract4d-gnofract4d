@@ -331,8 +331,9 @@ main (int argc, char *argv[])
     g_thread_init(NULL);
     tls_init();
 
-    bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
-    textdomain (PACKAGE);
+    bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
+    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+    textdomain (GETTEXT_PACKAGE);
     
     gnome_init_with_popt_table (PACKAGE, VERSION, argc, argv, options, 0, NULL);
 

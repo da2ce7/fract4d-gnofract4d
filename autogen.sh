@@ -12,4 +12,4 @@ PKG_NAME="Gnofract 4D"
     exit 1
 }
 
-. $srcdir/macros/autogen.sh
+
