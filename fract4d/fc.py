@@ -16,6 +16,12 @@
 # The Translate module type-checks the code, maintains the symbol
 # table (symbol.py) and converts it into an intermediate form (ir.py)
 
+# Canon performs several simplifying passes on the IR to make it easier
+# to deal with, then codegen converts it into a linear sequence of
+# simple C instructions
+
+# Finally we invoke the C compiler to convert to a native code shared library
+
 import getopt
 import sys
 import commands
@@ -41,9 +47,20 @@ class Compiler:
         self.lexer = fractlexer.lexer
         self.files = {}
         self.c_code = ""
-        
+        self.file_path = []
+
+    def find_file(self,filename):
+        if os.path.exists(filename):
+            return filename
+        for path in self.file_path:
+            f = os.path.join(path,filename)
+            if os.path.exists(f):
+                return f
+        return filename
+    
     def load_formula_file(self, filename):
         try:
+            filename = self.find_file(filename)
             s = open(filename,"r").read() # read in a whole file
             self.lexer.lineno = 1
             result = self.parser.parse(s)

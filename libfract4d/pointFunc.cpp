@@ -92,8 +92,6 @@ public:
         // out params
         struct rgb *color, int *pnIters, void *out_buf) const
 	{
-
-
 	    if(NULL == out_buf) out_buf = one_space;
 
 
