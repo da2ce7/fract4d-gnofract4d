@@ -116,6 +116,14 @@ class PfTest(unittest.TestCase):
         self.assertEqual(ord(bytes[0]),200)
         self.assertEqual(ord(bytes[1]),178)
         self.assertEqual(ord(bytes[2]),98)
+
+        self.assertRaises(ValueError,fract4d.image_buffer, image, -1, 0)
+        self.assertRaises(ValueError,fract4d.image_buffer, image, 80, 0)
+        self.assertRaises(ValueError,fract4d.image_buffer, image, 41, 67)
+
+        buf = fract4d.image_buffer(image,5,10)
+        self.assertEqual(len(buf),80*60*3 - (10*80+5)*3)
+        
         
     def testCalc(self):
         xsize = 64
@@ -199,7 +207,7 @@ class PfTest(unittest.TestCase):
                  (1/256.0,255,255,255,255),
                  (1.0, 255, 255, 255, 255)])
 
-            print x
+            #print x
             fract4d.async_calc(
                 [0.0, 0.0, 0.0, 0.0,
                  4.0,
@@ -217,7 +225,7 @@ class PfTest(unittest.TestCase):
             while True:
                 nb = 5*4
                 if nrecved == x:
-                    print "hit message count"
+                    #print "hit message count"
                     fract4d.interrupt(site)
                 
                 bytes = os.read(rfd,nb)
@@ -226,10 +234,10 @@ class PfTest(unittest.TestCase):
                     break
                 (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
                 m = self.name_of_msg[t] 
-                print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
+                #print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
                 if m == "STATUS" and p1 == 0:
                     #done
-                    print "done"
+                    #print "done"
                     break
                 
                 nrecved += 1

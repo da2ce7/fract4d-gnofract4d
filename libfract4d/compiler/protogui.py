@@ -126,6 +126,7 @@ class GuiFractal(Threaded):
     
     def image_changed(self,x1,y1,x2,y2):
         #print "img changed: %d %d %d %d" % (x1,y1,x2,y2)
+        #gtk.idle_add(self.redraw_rect,x1,y1,x2-y1,y2-y1)
         self.redraw_rect(x1,y1,x2-x1,y2-y1)
 
     def onExpose(self,widget,exposeEvent):
@@ -171,22 +172,99 @@ class GuiFractal(Threaded):
 class MainWindow:
     def __init__(self):
         global g_comp
+        self.compiler = g_comp
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
-        self.window.set_default_size(640,480)
+        self.window.set_default_size(640+8,480+40)
         self.window.set_title('Gnofract 4D')
 
-        self.f = GuiFractal(g_comp)
-        if len(sys.argv) > 1:
-            self.f.loadFctFile(open(sys.argv[1]))
-            self.f.compile()
+        self.accelgroup = gtk.AccelGroup()
+        self.window.add_accel_group(self.accelgroup)
 
-        self.f.draw_image(None)
-        self.window.add(self.f.widget)
+        self.vbox = gtk.VBox()
+        self.window.add(self.vbox)
+
+        self.create_menu()
+        self.create_fractal()
 
         self.window.show_all()
 
-         
+    def create_fractal(self):
+        window = gtk.ScrolledWindow()
+        window.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
+        self.f = GuiFractal(self.compiler)
+        if len(sys.argv) > 1:
+            self.load(sys.argv[1])
+
+        self.f.draw_image(None)
+        window.add_with_viewport(self.f.widget)
+        self.vbox.pack_start(window)
+
+    def create_menu(self):
+        menu_items = (
+            ('/_File', None, None, 0, '<Branch>' ),
+            ('/File/_Open', '<control>O', self.open, 0, '<StockItem>', gtk.STOCK_OPEN),
+            ('/File/_Save', '<control>S', self.save, 0, '<StockItem>', gtk.STOCK_SAVE),
+            ('/File/Save _As', '<control><shift>S', self.saveas, 0, '<StockItem>', gtk.STOCK_SAVE_AS),
+            ('/File/Save _Image', '<control>I', self.save_image, 0, ''),
+            ('/File/sep1', None, None, 0, '<Separator>'),
+            ('/File/_Quit', '<control>Q', self.quit, 0, '<StockItem>', gtk.STOCK_QUIT),   
+            ('/_Edit', None, None, 0, '<Branch>'),
+            ('/Edit/_Fractal Settings','<control>F',self.settings, 0, ''),
+            ('/Edit/_Colors', '<control>L', self.colors, 0, ''),
+            ('/Edit/_Preferences', None, self.preferences, 0, ''),
+            ('/Edit/_Undo', '<control>Z', self.undo, 0, ''),
+            ('/Edit/_Redo', '<control>Y', self.redo, 0, ''),
+            ('/Edit/R_eset', 'Home', self.reset, 0, ''),
+            ('/_Help', None, None, 0, '<Branch>'),
+            ('/_Help/Contents', '<function>1', self.contents, 0, ''),
+            ('/Help/_About', None, self.about, 0, ''),
+            )
+    
+        item_factory = gtk.ItemFactory(gtk.MenuBar, '<main>', self.accelgroup)
+        item_factory.create_items(menu_items)
+
+        menubar = item_factory.get_widget('<main>')
+
+        self.vbox.pack_start(menubar, expand=gtk.FALSE)
+
+    def save(self,action,widget):
+        print "save"
+
+    def saveas(self,action,widget):
+        print "save as"
+    def save_image(self,action,widget):
+        print "save_image"
+    def settings(self,action,widget):
+        print "settings"
+    def colors(self,action,widget):
+        print "colors"
+    def preferences(self,action,widget):
+        print "prefs"
+    def undo(self,action,widget):
+        print "undo"
+    def redo(self,action,widget):
+        print "redo"
+    def reset(self,action,widget):
+        print "reset"
+    def contents(self,action,widget):
+        print "contents"
+
+    def open(self,action,widget):
+        fs = gtk.FileSelection("Open Formula File")
+        result = fs.run()
+        
+        if result == gtk.RESPONSE_OK:
+            self.load(fs.get_filename())
+        fs.destroy()
+
+    def load(self,file):
+        self.f.loadFctFile(open(file))
+        self.f.compile()
+        
+    def about(self,action,widget):
+        print "about"
+
     def quit(self,action,widget=None):
         gtk.main_quit()
 
