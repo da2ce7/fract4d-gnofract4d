@@ -16,7 +16,7 @@ import colors, undo, browser, fourway, angle, utils, hig
 import icons
 
 class MainWindow:
-    def __init__(self):
+    def __init__(self, extra_paths=[]):
         self.quit_when_done =False
         self.save_filename = None
         # window widget
@@ -44,7 +44,8 @@ class MainWindow:
         self.compiler.file_path.append("formulas")
         self.compiler.file_path.append(
             os.path.join(sys.exec_prefix, "share/formulas/gnofract4d"))
-                
+        self.compiler.file_path += extra_paths
+        
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
         
@@ -215,13 +216,13 @@ class MainWindow:
 
     def display_filename(self):
         if self.filename == None:
-            return _("(Untitled %s)") % self.f.funcName
+            return _("(Untitled %s)") % self.f.get_func_name()
         else:
             return self.filename
         
     def set_window_title(self):
         title = self.display_filename()
-        if not self.f.saved:
+        if not self.f.get_saved():
             title += "*"
             
         self.window.set_title(title)
@@ -406,22 +407,22 @@ class MainWindow:
         self.toolbar.add_space()
 
         self.create_angle_widget(
-            _("xy"), _("Angle in the XY plane"), self.f.XYANGLE, False)
+            _("xy"), _("Angle in the XY plane"), fractal.T.XYANGLE, False)
 
         self.create_angle_widget(
-            _("xz"), _("Angle in the XZ plane"), self.f.XZANGLE, True)
+            _("xz"), _("Angle in the XZ plane"), fractal.T.XZANGLE, True)
 
         self.create_angle_widget(
-            _("xw"), _("Angle in the XW plane"), self.f.XWANGLE, True)
+            _("xw"), _("Angle in the XW plane"), fractal.T.XWANGLE, True)
 
         self.create_angle_widget(
-            _("yz"), _("Angle in the YZ plane"), self.f.YZANGLE, True)
+            _("yz"), _("Angle in the YZ plane"), fractal.T.YZANGLE, True)
 
         self.create_angle_widget(
-            _("yw"), _("Angle in the YW plane"), self.f.YWANGLE, True)
+            _("yw"), _("Angle in the YW plane"), fractal.T.YWANGLE, True)
 
         self.create_angle_widget(
-            _("zw"), _("Angle in the ZW plane"), self.f.ZWANGLE, True)
+            _("zw"), _("Angle in the ZW plane"), fractal.T.ZWANGLE, True)
 
         # fourways
         self.toolbar.add_space()

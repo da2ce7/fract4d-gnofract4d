@@ -182,19 +182,21 @@ class Colorizer(FctUtils):
 
         
 class T(FctUtils):
+    XCENTER = 0
+    YCENTER = 1
+    ZCENTER = 2
+    WCENTER = 3
+    MAGNITUDE = 4
+    XYANGLE = 5
+    XZANGLE = 6
+    XWANGLE = 7
+    YZANGLE = 8
+    YWANGLE = 9
+    ZWANGLE = 10
+    
     def __init__(self,compiler,site=None):
         FctUtils.__init__(self)
         
-        # utilities - this fakes a C-style enum
-        paramnames = ["XCENTER", "YCENTER", "ZCENTER", "WCENTER",
-                      "MAGNITUDE",
-                      "XYANGLE", "XZANGLE", "XWANGLE",
-                      "YZANGLE", "YWANGLE", "ZWANGLE"]
-        i = 0
-        for name in paramnames:
-            self.__dict__[name] = i
-            i += 1
-
         self.format_version = 2.1
         
         # formula support
@@ -504,7 +506,13 @@ class T(FctUtils):
         self.set_bailfunc()
         self.formula_changed()
         self.changed()
-        
+
+    def get_func_name(self):
+        return self.funcName
+
+    def get_saved(self):
+        return self.saved
+    
     def set_bailfunc(self):        
         bailfuncs = [
             "cmag", "manhattanish","manhattanish2",
