@@ -19,10 +19,14 @@ class T:
         self.warnings = []
         self.sections = {}
         self.dumpCanon = 0
+        self.dumpDecorated = 0
         try:
             self.formula(f)
         except TranslationError, e:
             self.errors.append(e.msg)
+
+        if self.dumpDecorated:
+            print f.pretty()
         
     def error(self,msg):
         self.errors.append(msg)
@@ -119,6 +123,7 @@ class T:
 
         expectedType = self.symbols[node.leaf].type
         self.exp(node.children[0],expectedType)        
+        node.datatype = expectedType
         
     def decl(self,node,expectedType):
         if expectedType != None:
