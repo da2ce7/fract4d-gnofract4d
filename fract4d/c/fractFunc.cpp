@@ -23,6 +23,7 @@ fractFunc::fractFunc(
 	int maxiter_,
 	int nThreads_,
 	bool auto_deepen_,
+	bool yflip,
 	IFractWorker *fw,
 	IImage *im_, 
 	IFractalSite *site_)
@@ -43,7 +44,8 @@ fractFunc::fractFunc(
     rot = rot/im->Xres();
     // distance to jump for one pixel down or across
     deltax = rot[VX];
-    deltay = -rot[VY];
+    // if yflip, draw Y axis down, otherwise up
+    deltay = yflip ? rot[VY] : -rot[VY]; 
 
     // half that distance
     delta_aa_x = deltax / 2.0;    
@@ -321,6 +323,7 @@ calc(
     pf_obj *pfo, 
     cmap_t *cmap, 
     bool auto_deepen,
+    bool yflip,
     IImage *im, 
     IFractalSite *site)
 {
@@ -334,6 +337,7 @@ calc(
 	    maxiter,
 	    nThreads,
 	    auto_deepen,
+	    yflip,
 	    worker,
 	    im,
 	    site);

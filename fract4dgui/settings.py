@@ -43,7 +43,9 @@ class SettingsDialog(gtk.Dialog):
         self.create_param_entry(table,2,"Z (Re) :", self.f.ZCENTER)
         self.create_param_entry(table,3,"W (Im) :", self.f.WCENTER)
         self.create_param_entry(table,4,"Size :", self.f.MAGNITUDE)
-
+        yflip_widget = self.create_yflip_widget()
+        table.attach(yflip_widget,0,2,5,6, gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        
     def create_angle_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
         self.notebook.append_page(table,gtk.Label("Angles"))
@@ -53,6 +55,21 @@ class SettingsDialog(gtk.Dialog):
         self.create_param_entry(table,3,"YZ :", self.f.YZANGLE)
         self.create_param_entry(table,4,"YW :", self.f.YWANGLE)
         self.create_param_entry(table,5,"ZW :", self.f.ZWANGLE)
+
+    def create_yflip_widget(self):
+        widget = gtk.CheckButton("Flip Y Axis")
+
+        def set_widget(*args):
+            widget.set_active(self.f.yflip)
+
+        def set_fractal(*args):
+            self.f.set_yflip(widget.get_active())
+
+        set_widget()
+        self.f.connect('parameters-changed',set_widget)
+        widget.connect('toggled',set_fractal)
+
+        return widget
 
     def create_outer_page(self):
         vbox = gtk.VBox()

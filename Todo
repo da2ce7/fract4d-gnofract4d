@@ -19,7 +19,6 @@ todo for 2.0
 * W	end-to-end regression test vs V1.9
 * W	formula browser
 	manage search path (user prefs)
-	color funcs vs normal funcs
 	edit & continue
 	save/save-as
 	run $EDITOR, refresh
@@ -53,6 +52,9 @@ todo for 2.0
 * B	fn(z*z)+c : acos, acosh 
 
 done:
+* BB	old images are flipped left-to-right. 
+	- xy-rotating by #pi != vertical flip
+* W 	browser : color funcs vs normal funcs
 * W	init z from #zwpixel
 * BB	lattice.fct - 1.9 is wrong too!
 * B	buffer out of range when image is smaller than window

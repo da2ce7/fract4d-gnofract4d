@@ -28,6 +28,7 @@ class fractFunc {
 	int maxiter,
 	int nThreads_,
 	bool auto_deepen,
+	bool yflip,
 	IFractWorker *fw,
 	IImage *_im, 
 	IFractalSite *_site);
@@ -140,6 +141,7 @@ extern void calc(
     pf_obj *pfo, 
     cmap_t *cmap, 
     bool auto_deepen,
+    bool yflip,
     IImage *im, 
     IFractalSite *site);
 

@@ -549,7 +549,7 @@ struct calc_args
 {
     double params[N_PARAMS];
     int eaa, maxiter, nThreads;
-    bool auto_deepen;
+    int auto_deepen, yflip;
     pf_obj *pfo;
     cmap_t *cmap;
     IImage *im;
@@ -812,6 +812,7 @@ pycalc(PyObject *self, PyObject *args)
     double params[N_PARAMS];
     int eaa=-7, maxiter=-8, nThreads=-9;
     int auto_deepen;
+    int yflip;
     pf_obj *pfo;
     cmap_t *cmap;
     IImage *im;
@@ -819,11 +820,11 @@ pycalc(PyObject *self, PyObject *args)
  
     if(!PyArg_ParseTuple(
 	   args,
-	   "(ddddddddddd)iiiOOiOO",
+	   "(ddddddddddd)iiiiOOiOO",
 	   &params[0],&params[1],&params[2],&params[3],
 	   &params[4],&params[5],&params[6],&params[7],
 	   &params[8],&params[9],&params[10],
-	   &eaa,&maxiter,&nThreads,
+	   &eaa,&maxiter,&yflip,&nThreads,
 	   &pypfo,&pycmap,
 	   &auto_deepen,
 	   &pyim, &pysite
@@ -842,7 +843,9 @@ pycalc(PyObject *self, PyObject *args)
     }
 
     //((PySite *)site)->state = PyEval_SaveThread();
-    calc(params,eaa,maxiter,nThreads,pfo,cmap,(bool)auto_deepen,im,site);
+    calc(params,eaa,maxiter,nThreads,pfo,cmap,
+	 (bool)auto_deepen,(bool)yflip,
+	 im,site);
     //PyEval_RestoreThread(((PySite *)site)->state);
 
     Py_INCREF(Py_None);
@@ -861,7 +864,7 @@ calculation_thread(void *vdata)
 
     calc(args->params,args->eaa,args->maxiter,
 	 args->nThreads,args->pfo,args->cmap,
-	 args->auto_deepen,args->im,args->site);
+	 args->auto_deepen,args->yflip,args->im,args->site);
 
 #ifdef DEBUG_THREADS 
     printf("%p : CA : ENDCALC(%d)\n",args,pthread_self());
@@ -879,11 +882,11 @@ pycalc_async(PyObject *self, PyObject *args)
     double *p = cargs->params;
     if(!PyArg_ParseTuple(
 	   args,
-	   "(ddddddddddd)iiiOOiOO",
+	   "(ddddddddddd)iiiiOOiOO",
 	   &p[0],&p[1],&p[2],&p[3],
 	   &p[4],&p[5],&p[6],&p[7],
 	   &p[8],&p[9],&p[10],
-	   &cargs->eaa,&cargs->maxiter,&cargs->nThreads,
+	   &cargs->eaa,&cargs->maxiter,&cargs->yflip,&cargs->nThreads,
 	   &pypfo,&pycmap,
 	   &cargs->auto_deepen,
 	   &pyim, &pysite

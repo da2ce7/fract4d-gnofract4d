@@ -138,7 +138,7 @@ class T(gobject.GObject):
 
         self.running = True
         fract4dc.async_calc(self.f.params,self.f.antialias,self.f.maxiter,
-                            nthreads,
+                            self.f.yflip,nthreads,
                             self.f.pfunc,self.cmap,self.f.auto_deepen,
                             image,self.site)
 

@@ -287,6 +287,7 @@ else
 }
 *t__p_pDist = t__h_index;
 
+%(return_inserts)s
 return;
 }
 

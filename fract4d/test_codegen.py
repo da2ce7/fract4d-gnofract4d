@@ -364,21 +364,21 @@ goto t__end_init;''')
         loop:
         d = d + |z|
         final:
-        #index = log(d+1.0)
+        #index = log(d+1.0) + 3.0
         }''',"cf0")
         cg_cf0 = codegen.T(tcf0.symbols)
         cg_cf0.output_all(tcf0)
 
-        tcf1 = self.translatecf('zero {\n float d = 1.0\n#index = 0.0\n}', "cf1")
+        tcf1 = self.translatecf('x {\n float d = 1.0\n#index = 789.1\n}', "cf1")
         cg_cf1 = codegen.T(tcf1.symbols)
         cg_cf1.output_all(tcf1)
 
         t = self.translate('''
         mandel {
         loop:
-        z = z*z + c
+        z = z
         bailout:
-        |z| < 4.0
+        real(pixel) != 1.5 && imag(pixel) != 0.0
         }''')
 
         cg = codegen.T(t.symbols)
@@ -388,16 +388,14 @@ goto t__end_init;''')
         t.merge(tcf1,"cf1_")
 
         cg.output_decls(t)
+
+        inserts = {
+            "main_inserts": self.main_stub
+            }
         
-        c_code = self.codegen.output_c(t)
-        
-        cFileName = self.codegen.writeToTempFile(c_code,".c")
-        oFileName = self.codegen.writeToTempFile(None,".so")
-        #print c_code
-        cmd = "gcc -Wall -fPIC -DPIC -shared %s -o %s -lm" % (cFileName, oFileName)
-        (status,output) = commands.getstatusoutput(cmd)
-        self.assertEqual(status,0,"C error:\n%s\nProgram:\n%s\n" % \
-                         ( output,c_code))
+        c_code = self.codegen.output_c(t,inserts)
+        output = self.compileAndRun(c_code)
+        self.assertEqual(["(0,0,3)", "(20,1,789.1)"],output.split("\n"))
 
     def testC(self):
         # basic end-to-end testing. Compile a code fragment + instrumentation,
@@ -676,6 +674,12 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests[2][2] = tests[5][2] = "(inf,0)" # Python overflows the whole number
         return tests
 
+    def test_stdlib_quick(self):
+        # TODO compile a function which prints out fn(z) for each function
+        # then a main body which passes in a set of different values
+        # and construct a set of expected outputs to go with it.
+        pass
+    
     def test_stdlib(self):
 
         # additions to python math stdlib
