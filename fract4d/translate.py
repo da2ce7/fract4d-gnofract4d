@@ -180,7 +180,7 @@ class TBase:
         # translate a func block
         name = "@" + node.leaf
 
-        f = Func([Complex],Complex,stdlib,"ident")
+        f = Func([Complex],node.datatype,stdlib,"ident")
         
         # create func
         for child in node.children:

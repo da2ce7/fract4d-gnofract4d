@@ -34,13 +34,16 @@ test_func {
 loop:
 z = sqr(@myfunc(z)) + #pixel
 bailout:
-|z| < @bailout
+@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
 func myfunc
 	default = sqr()
+endfunc
+float func bailfunc
+	default = cabs
 endfunc
 }
 

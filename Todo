@@ -3,6 +3,9 @@ todo for 2.0
 * W	store user preferences
 * BB	deeper.fct doesn't load properly - old format
 * WW	support different bailout functions
+* WW	bailFuncs
+* W	user parameter functions
+* W	set size of diff_bailout check from periodicity info
 * B	fractint doesn't reset vars between calls?
 * B	parse continuation lines correctly
 * BB	more robust error reporting
@@ -13,13 +16,10 @@ todo for 2.0
 * WW	undo/redo
 * W	explorer mode
 * WW	cmap browser
-* WW	bailFuncs
-* W	set size of diff_bailout check from periodicity info
 * WW	parameters for colorfuncs
 * W	last-chance exception handler
 * W	exact SMP equality test
 * W	end-to-end regression test vs V1.9
-* W	user parameter functions
 * W 	enums, int parameters
 * W	formula browser
 * W	i18n, gettext
