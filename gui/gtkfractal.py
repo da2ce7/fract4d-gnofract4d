@@ -181,8 +181,6 @@ class T(gobject.GObject):
             widget = gtk.Entry()
 
             def set_entry(*args):
-                print self.initparams
-                print label.get_text(), order
                 widget.set_text("%.17f" % self.initparams[order])
             
             def set_fractal(*args):

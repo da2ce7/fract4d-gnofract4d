@@ -2,12 +2,14 @@
 
 # the main GUI program. Relies on fract4d libs to do the real work
 
+# python stdlib
 import sys
 import os
 import struct
 import math
 import types
 
+# gtk
 import gtk
 import gobject
 
@@ -15,8 +17,10 @@ import gobject
 # FIXME is there a better way?
 sys.path.append("..")
 
+# fractal calculation modules
 from fract4d import fractal,fc,fract4dc
 
+# gui modules
 import gtkfractal
 import settings
 import preferences
@@ -31,7 +35,7 @@ import colors
 
 class MainWindow:
     def __init__(self):
-        # create global fractal compiler and load standard formula and
+        # create fractal compiler and load standard formula and
         # coloring algorithm files
         self.compiler = fc.Compiler()
         self.compiler.file_path.append("../fract4d")
@@ -50,10 +54,11 @@ class MainWindow:
         
         self.f = gtkfractal.T(self.compiler)
 
+        self.set_filename(None)
+        
         if len(sys.argv) > 1:
             self.load(sys.argv[1])
 
-        self.set_filename(None)
         self.model = model.Model(self.f)
 
         preferences.userPrefs.connect('preferences-changed',
@@ -202,12 +207,43 @@ class MainWindow:
         self.model.seq.make_redo_sensitive(self.toolbar.get_children()[-1])
 
         self.vbox.pack_start(self.toolbar,expand=gtk.FALSE)
-        
+
+    def save_file(self,file):
+        try:
+            self.f.save(open(file,'w'))
+            self.set_filename(file)
+            return True
+        except Exception, err:
+            self.show_error_message("Error saving to file %s: '%s'" %
+                                    (file, err))
+            return False
+
     def save(self,action,widget):
-        print "save"
+        if self.filename == None:
+            self.saveas(action,widget)
+        else:
+            self.save_file(self.filename)
+        
 
     def saveas(self,action,widget):
-        print "save as"
+        # need to gather a filename
+        fs = gtk.FileSelection("Save Parameters")
+        fs.show_all()
+        fs.complete("*.fct")
+
+        name = None
+        while True:
+            result = fs.run()
+            if result == gtk.RESPONSE_OK:
+                name = fs.get_filename()
+            else:
+                break
+            
+            if name and self.confirm(name):
+                if self.save_file(name):
+                    break
+
+        fs.destroy()
 
     def confirm(self,name):
         'if this file exists, check with user before overwriting it'
