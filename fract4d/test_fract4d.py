@@ -255,8 +255,8 @@ class PfTest(unittest.TestCase):
             else:
                 print v,
                 
-            if i % x == x-1:
-                print "\n"
+            if i % (x*4) == 4*x-1:
+                print ""
             
     def testRotMatrix(self):
         params = [0.0, 0.0, 0.0, 0.0,
@@ -351,7 +351,84 @@ class PfTest(unittest.TestCase):
         fract4dc.pf_init(pfunc,0.001,[])
         result = fract4dc.pf_calc(pfunc,[1.5,0,0,0],100)
         self.assertEqual(result,(2,0,2.0/256.0))
-                         
+
+    def testDirtyFlagFullRender(self):
+        '''Render the same image 2x with different colormaps.
+
+        First, with the dirty flag set for a full redraw.  Second,
+        with the dirty flag clear. The end result should be the same
+        in both cases'''
+
+        buf1 = self.drawTwice(True)
+        buf2 = self.drawTwice(False)
+
+        i=0
+        for (a,b) in zip(list(buf1), list(buf2)):
+            if a != b:
+                print "%s != %s at %d" % (a,b,i)
+                self.assertEqual(a,b)
+            i += 1
+                    
+    def drawTwice(self,is_dirty):
+        xsize = 12
+        ysize = int(xsize * 3.0/4.0)
+        image = fract4dc.image_create(xsize,ysize)
+        siteobj = FractalSite()
+        site = fract4dc.site_create(siteobj)
+
+        self.compileColorMandel()
+        handle = fract4dc.pf_load("./test-pfc.so")
+        pfunc = fract4dc.pf_create(handle)
+        fract4dc.pf_init(pfunc,0.001,[0.5])
+
+        cmap = fract4dc.cmap_create(
+            [(0.0,0,0,0,255),
+             (1/256.0,255,255,255,255),
+             (1.0, 255, 255, 255, 255)])
+        fract4dc.calc(
+            [0.0, 0.0, 0.0, 0.0,
+             4.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            0,
+            100,
+            0,
+            1,
+            pfunc,
+            cmap,
+            0,
+            1,
+            image,
+            site, is_dirty)
+
+        print "1st pass %s" % is_dirty
+        self.print_fates(image,xsize,ysize)
+        
+        cmap = fract4dc.cmap_create(
+            [(0.0,78,91,32,255),
+             (1/256.0,79,32,99,255),
+             (11/256.0,121,140,220,255),
+             (1.0, 76, 49, 189, 255)])
+        
+        fract4dc.calc(
+            [0.0, 0.0, 0.0, 0.0,
+             4.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            0,
+            100,
+            0,
+            1,
+            pfunc,
+            cmap,
+            0,
+            1,
+            image,
+            site, is_dirty)
+
+        print "2nd pass %s" % is_dirty
+        self.print_fates(image,xsize,ysize)
+        
+        return fract4dc.image_buffer(image)
+        
     def testMiniTextRender(self):
         self.compileMandel()
         handle = fract4dc.pf_load("./test-pf.so")

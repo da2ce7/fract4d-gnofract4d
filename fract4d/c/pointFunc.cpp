@@ -64,6 +64,11 @@ public:
 	    }
 
 	    *color = cmap_lookup_with_transfer(m_cmap,fate,dist,solid);
+
+	    if (solid)
+	    {
+		fate |= FATE_SOLID;
+	    }
 	    *pFate = (fate_t) fate;
 	    *pIndex = (float) dist;
 
@@ -73,9 +78,16 @@ public:
 		dist,fate,*pnIters,
 		color->r, color->g, color->b, color->a);
 	}
-    inline rgba_t recolor(double dist) const
+    inline rgba_t recolor(double dist, fate_t fate) const
 	{	    
-	    return cmap_lookup(m_cmap,dist);
+	    int solid = 0;
+	    if(fate & FATE_SOLID)
+	    {
+		fate &= ~FATE_SOLID;
+		solid = 1;
+	    }
+
+	    return cmap_lookup_with_transfer(m_cmap,fate,dist,solid);
 	}
 };
 
