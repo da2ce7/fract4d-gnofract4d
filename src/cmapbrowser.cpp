@@ -45,7 +45,7 @@ update_preview_image(Gf4dFractal *f, GtkWidget *drawable)
 {
     g_assert(drawable);
 
-    // fractal takes ownership of new cizer
+
     colorizer_t *cizer = (colorizer_t *)gtk_object_get_data(
         GTK_OBJECT(drawable), "colorizer"); 
     g_assert(cizer);
@@ -57,9 +57,13 @@ update_preview_image(Gf4dFractal *f, GtkWidget *drawable)
 
     if(m_if_edit)
     {
-	cizer = gf4d_fractal_get_colorizer(model_get_fract(m_if_edit));
+	g_print("updating cizer %p\n",cizer);
+	delete cizer;
+	cizer = gf4d_fractal_get_colorizer(model_get_fract(m_if_edit))->clone();
+	gtk_object_set_data(GTK_OBJECT(drawable), "colorizer",cizer);
     }
 
+    // fractal takes ownership of new cizer
     gf4d_fractal_set_colorizer(f,cizer);
     gf4d_fractal_recolor(f);
     
@@ -322,10 +326,11 @@ color_change_callback(GtkWidget *colorsel, gpointer user_data)
 gboolean
 colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
-    model_t *m = (model_t *)data;
+    //model_t *m = (model_t *)data;
     int index = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"index"));
 
-    colorizer_t *cizer = gf4d_fractal_get_colorizer(model_get_fract(m));
+    colorizer_t *cizer = (colorizer *)gtk_object_get_data(
+	GTK_OBJECT(widget->parent), "cizer");
 
     cmap_colorizer *cm_cizer = dynamic_cast<cmap_colorizer *>(cizer);
     guint color;
@@ -391,6 +396,7 @@ create_edit_colormap_page(GtkWidget *notebook, model_t *m)
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
     cmap_colorizer *cizer = new cmap_colorizer();
+    g_print("cizer for edit page is %p\n",cizer);
     GtkWidget *cmap_preview = create_cmap_browser_item(m, tips, cizer, "fred",true);
     gtk_table_attach(GTK_TABLE(table), cmap_preview, 1, 2, 1, 2, 
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
@@ -400,7 +406,8 @@ create_edit_colormap_page(GtkWidget *notebook, model_t *m)
     gtk_table_attach(GTK_TABLE(table), colorsel, 0, 2, 2, 3, 
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
-    //gtk_object_set_data(GTK_OBJECT(colorbox),"colorsel",GINT_TO_POINTER(i));
+    gtk_object_set_data(GTK_OBJECT(colorbox),"colorsel",colorsel);
+    gtk_object_set_data(GTK_OBJECT(colorbox),"cizer",cizer);
 
     for(int i = 0 ; i < 256; ++i)
     {

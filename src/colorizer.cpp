@@ -208,13 +208,18 @@ cmap_colorizer::cmap_colorizer(const cmap_colorizer& c)
 cmap_colorizer&
 cmap_colorizer::operator=(const cmap_colorizer& c)
 {
-    delete[] cmap;
-    cmap = new rgb_t[size];
-    for(int i =0; i < size; i++)
+    if(this != &c)
     {
-        cmap[i] = c.cmap[i];
+	std::cout << "update " << this << " from " << c;
+	delete[] cmap;
+	cmap = new rgb_t[size];
+	for(int i =0; i < size; i++)
+	{
+	    cmap[i] = c.cmap[i];
+	}
+	name = c.name;
     }
-    name = c.name;
+
 
     return *this;
 }
@@ -228,9 +233,16 @@ cmap_colorizer::type() const
 bool 
 cmap_colorizer::operator==(const colorizer& c) const
 {
-    const cmap_colorizer *cmap = dynamic_cast<const cmap_colorizer *>(&c);
-    if(!cmap) return false;
-    return cmap->name == name;
+    const cmap_colorizer *other_cmap = dynamic_cast<const cmap_colorizer *>(&c);
+    if(!other_cmap) return false;
+    if(other_cmap->name != name) return false;
+    for(int i = 0; i < 256; ++i)
+    {
+	if(other_cmap->cmap[i].r != cmap[i].r) return false;
+	if(other_cmap->cmap[i].g != cmap[i].g) return false;
+	if(other_cmap->cmap[i].b != cmap[i].b) return false;
+    }
+    return true;
 }
 
 rgb_t
