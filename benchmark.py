@@ -3,6 +3,7 @@
 import sys
 import os
 import getopt
+import operator
 from time import time as now
 
 # gettext
@@ -53,5 +54,8 @@ window.f.connect('status-changed', status_changed)
 window.load(files[0])
 gtk.main()
 
-print times
+for (file,time) in zip(files,times):
+    print "%.4f %s" % (time,file)
+
+print reduce(operator.__add__,times,0)
 
