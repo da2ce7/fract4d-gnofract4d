@@ -296,7 +296,7 @@ class T:
         
         # convert boolean operation
         children = map(lambda n : self.exp(n) , node.children[0].children)
-        op = self.findOp(node.children[0],children)
+        op = self.findOp(node.children[0].leaf, node.children[0].pos,children)
         convertedChildren = self.coerceList(op.args,children)
 
         # convert blocks of code we jump to
@@ -339,15 +339,15 @@ class T:
 
         return ir.Move(lhs,self.coerce(rhs,expectedType),node,expectedType)
 
-    def findOp(self, opnode, list):
+    def findOp(self, func, pos, list):
         ' find the most appropriate overload for this op'
         try:
-            overloadList = self.symbols[opnode.leaf]
+            overloadList = self.symbols[func]
         except KeyError:
-            if opnode.leaf[0] == "@":
+            if func[0] == "@":
                 # an attempt to call an undeclared parameter function,
                 # create it now. Point to ident by default
-                overloadList = self.symbols[opnode.leaf] = [
+                overloadList = self.symbols[func] = [
                     Func([Complex],Complex,stdlib,"ident")]
             else:
                 raise
@@ -356,10 +356,11 @@ class T:
         for ol in overloadList:
             if ol.matchesArgs(typelist):
                 return ol
+        
         raise TranslationError(
             "Invalid argument types %s for %s on line %s" % \
-            (typelist, opnode.leaf, opnode.pos))
-            
+            (map(fracttypes.strOfType,typelist), func, pos))
+    
     def decl(self,node):
         if node.children:
             exp = self.stm(node.children[0])
@@ -402,18 +403,30 @@ class T:
 
     def unop(self, node):
         children = map(lambda n: self.exp(n) , node.children)
-        op = self.findOp(node,children)
+        op = self.findOp(node.leaf, node.pos,children)
         children = self.coerceList(op.args,children)
         return ir.Unop(node.leaf, children, node, op.ret)
 
     def funcall(self, node):
         children = map(lambda n: self.exp(n) , node.children)
         try:
-            op = self.findOp(node, children)
+            op = self.findOp(node.leaf, node.pos, children)
+        except TranslationError, err:
+            # hack to support old Fractint formulas which use exp(1,0)
+            # instead of exp((1,0))
+            # convert the args into a single complex and see if call
+            try:
+                cop = self.findOp('complex',node.pos,children)
+                children = self.coerceList(cop.args,children)
+                children = [ir.Binop("complex", children, node, cop.ret)]
+                op = self.findOp(node.leaf, node.pos,children)
+            except Exception, err2:
+                raise err
+            
         except KeyError, err:
             raise TranslationError(
-                "Unknown function %s on line %d" % (node.leaf,node.pos))
-                       
+                    "Unknown function %s on line %d" % (node.leaf,node.pos))
+
         children = self.coerceList(op.args,children)
         return ir.Call(node.leaf, children, node, op.ret)
     
@@ -426,7 +439,7 @@ class T:
         node.children[0] = self.makeCompare(node.children[0])
 
         children = map(lambda n : self.exp(n) , node.children)        
-        op = self.findOp(node,children)
+        op = self.findOp(node.leaf, node.pos ,children)
         children = self.coerceList(op.args,children)
 
         temp = ir.Var(self.symbols.newTemp(Bool),node, Bool)
@@ -478,7 +491,7 @@ class T:
             return self.shortcut(node)
         else:
             children = map(lambda n : self.exp(n) , node.children)        
-            op = self.findOp(node,children)
+            op = self.findOp(node.leaf, node.pos,children)
             children = self.coerceList(op.args,children)
 
             return ir.Binop(node.leaf,
