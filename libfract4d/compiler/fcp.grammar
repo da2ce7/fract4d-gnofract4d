@@ -1,0 +1,68 @@
+# grammar file - needs Rockit to compile
+
+
+Grammar Fractal
+Tokens
+  Comment    = /;[^\r\n]*/                            [:Skip]
+  Blank      = /(( )|(\t)|(\v))+/                     [:Skip]
+  Identifier = /[A-Z]([A-Z]|\d)*/
+  Number     = /\d+/
+  String     = /"[^\r\n]*"/
+  Newline    = /(\r\n)|(\r)|(\n)/
+  FormulaID  = /[^\(\) \t\v{}]+/
+
+Productions
+  Formulas -> Formula+              [Formulas: formulas]
+  Formula -> FormulaName '{' Newline FormulaBody '}' [Formula: name, _, _, body, _]
+          | Newline
+
+  FormulaName -> FormulaID                [FormID: name]
+             | FormulaID '(' Identifier ')'    [FormID: name,_,id]
+
+  FormulaBody -> Section+ [FormulaBody: sections]
+
+  Section -> 'init' ':' Newline Statements [Section: name, _, _, statements]
+          |  'loop' ':' Newline Statements [Section: name, _, _, statements]
+          |  'bailout' ':' Newline CondExp     [Section: name, _, _, exp]
+          |  'default' ':' Newline DefStatements [Section: name, _, _, statements]
+          # global, transform, builtin, switch, final
+ 
+  Defstatements -> Defstatement+    [Defstatements: defstatements]
+  Defstatement -> Setting
+             | "param" Identifier Newline 
+                  Settings
+             | "endparam" Newline [Param: _,id,_,settings,_,_]
+
+  Settings -> Setting+ [Settings: settings]
+  Setting -> Identifier '=' Value Newline [Setting: id,_,value,_]
+
+  Value -> String | Exp
+
+  Statements -> Statement+          [Statements: statements]
+  # Statement  -> 'IF' Condition 'THEN' Newline
+#                   Statements
+#                   ('ELSE' Newline Statements)?
+#                 'ENDIF' Newline     [If: _,condition,_,_,statements,optelse,
+#                                            _,_]
+#              |  'FOR' Identifier ':=' Expr 'TO' Expr Newline
+#                   Statements
+#                 'NEXT' Newline      [For: _,ident,_,from,_,to,_,statements,_,_]
+#              |  'READ' Identifier Newline
+#                                     [Read: _,ident,_]
+#              |  'PRINT' (Expr | String) Newline
+#                                     [Print: _,message,_]
+#              |  'PRINTLN' Newline   [PrintLn]
+#              |  Identifier ':=' Expr Newline
+#                                   [Assignment: ident,_,expression,_]
+
+  Statement -> Identifier '=' Exp Newline [Assignment: id,_,exp,_]
+
+  
+  CondExp -> Exp ('<' | '>' | '=' | '<=' | '>=' | '!=' ) Exp     
+                                    [Condition: left, op, right]
+  Exp       -> Number              [^]
+	     |  Identifier          [^]
+	     |  '(' Exp ')'        [^: _,expr,_]
+             |  '|' Exp '|'        [UnExp: op, exp, _]
+             |  Exp ('+'|'-'|'*'|'/'|'%') Exp       
+                                    [BinExp: left,op,right]
