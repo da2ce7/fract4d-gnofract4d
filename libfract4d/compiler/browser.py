@@ -6,7 +6,6 @@ import string
 import gobject
 import gtk
 
-
 import fc
 
 class MainWindow:
