@@ -229,7 +229,7 @@ static GnomeUIInfo parameters1_menu_uiinfo[] =
 {
     GNOMEUIINFO_MENU_PREFERENCES_ITEM (preferences_cb, NULL),
     {
-        GNOME_APP_UI_ITEM, N_("_Colors"),
+        GNOME_APP_UI_ITEM, N_("_Colors..."),
         NULL,
         create_cmap_browser, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,

@@ -225,7 +225,7 @@ fractal::reset()
         params[i] = zero;
     }
 
-    maxiter = 64;
+    maxiter = 256;
     rot_by = M_PI/2.0;
 }
 

@@ -35,12 +35,17 @@ typedef struct {
 void 
 redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int height, int image_width)
 {
-    gdk_draw_rgb_image(widget->window,
-                       widget->style->white_gc,
-                       x, y, width, height,
-                       GDK_RGB_DITHER_NONE,
-                       img + 3*(x + y * image_width) ,
-                       3*image_width);
+    /* widget may be hidden */
+    if(widget->window)
+    {
+        gdk_draw_rgb_image(
+            widget->window,
+            widget->style->white_gc,
+            x, y, width, height,
+            GDK_RGB_DITHER_NONE,
+            img + 3*(x + y * image_width) ,
+            3*image_width);
+    }
 }
 
 /* handle a click on a subfractal in explorer mode */
