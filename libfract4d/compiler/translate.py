@@ -230,7 +230,7 @@ class T:
 
         if fracttypes.canBeCast(exp.datatype, expectedType):
             self.warnCast(exp, expectedType)
-            return ir.Cast(exp,expectedType,exp.node)
+            return ir.Cast(exp, exp.node, expectedType)
         else:
             self.badCast(exp,expectedType)
             

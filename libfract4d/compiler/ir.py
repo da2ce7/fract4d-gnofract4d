@@ -71,9 +71,14 @@ class Real(Exp):
 class Cast(Exp):
     def __init__(self, exp, node, datatype):
         Exp.__init__(self,node, datatype)
-        self.exp = exp
+        self.children = [exp]
     def pretty(self,depth=0):
-        return d(depth) + "Cast(\n" + self.exp.pretty(depth+1) + d(depth,")\n")
+        cast_str = "Cast<%s,%s>(\n" % \
+                   (fracttypes.strOfType(self.children[0].datatype),
+                    fracttypes.strOfType(self.datatype))  
+        return d(depth) + \
+               cast_str + \
+               self.children[0].pretty(depth+1) + d(depth,")\n")
     
 class Call(Exp):
     def __init__(self, func, args, node, datatype):
@@ -107,11 +112,10 @@ class Stm(T):
 class Move(Stm):
     def __init__(self, dest, exp, node, datatype):
         Stm.__init__(self, node, datatype)
-        self.dest = dest
-        self.exp = exp
+        self.children = [dest,exp]
     def pretty(self, depth=0):
         return d(depth) + "Move(\n" + \
-               self.dest.pretty(depth+1) + self.exp.pretty(depth+1) + \
+               self.children[0].pretty(depth+1) + self.children[1].pretty(depth+1) + \
                d(depth,")\n")
     
 class SExp(Stm):
