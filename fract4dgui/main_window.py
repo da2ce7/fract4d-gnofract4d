@@ -56,7 +56,6 @@ class MainWindow:
                 "basic.map",
                 "maps",
                 "share/maps/gnofract4d"))
-            self.f.saved = True
         except:
             pass
             
@@ -82,6 +81,8 @@ class MainWindow:
                           _("Deepening (%d iterations)"),
                           _("Antialiasing"),
                           _("Paused") ]
+
+        self.f.set_saved(True)
 
     def update_subfract_visibility(self,visible):
         if visible:
