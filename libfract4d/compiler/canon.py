@@ -160,6 +160,18 @@ class T:
             else:
                 newtree = copy.copy(tree)
                 newtree.children = children
+        elif isinstance(tree, ir.Move):
+            if isinstance(children[1],ir.ESeq):
+                # move(x,eseq(stms,e)) => eseq(stms,move(x,e))
+                eseq = children[1]
+                stms = self.stms(eseq)
+                e = eseq.children[-1]
+                newtree = ir.ESeq(stms,
+                                  ir.Move(children[0],e,tree.node,tree.datatype),
+                                  eseq.node, tree.datatype)
+            else:
+                newtree = copy.copy(tree)
+                newtree.children = children
         else:
             newtree = copy.copy(tree)
             newtree.children = children
