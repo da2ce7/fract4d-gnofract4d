@@ -634,6 +634,8 @@ class T(UserDict):
                 tp.append(Float)
             elif p[k].type == Int:
                 tp.append(Int)
+            elif p[k].type == Bool:
+                tp.append(Int)
             else:
                 raise ValueError("Unknown param type %s for %s" % (p[k].type, k))
         return tp

@@ -318,6 +318,8 @@ class T(FctUtils):
             return "%.17f" % params[ord]
         elif type == fracttypes.Int:
             return "%d" % params[ord]
+        elif type == fracttypes.Bool:
+            return "%s" % params[ord]
         else:
             raise ValueError("Unknown type %s for param %s" % (type,name))
 
@@ -460,6 +462,8 @@ class T(FctUtils):
             val = float(val)
         elif t == fracttypes.Int:
             val = int(val)
+        elif t == fracttypes.Bool:
+            val = bool(val)
         else:
             raise ValueError("Unknown parameter type %s" % t)
         
@@ -833,7 +837,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
                 if params[ord+1] != im:                
                     params[ord+1] = im
                     self.changed()
-        if t == fracttypes.Hyper:
+        elif t == fracttypes.Hyper:
             m = hyper_re.match(val)
             if m!= None:
                 for i in xrange(4):
@@ -845,7 +849,11 @@ The image may not display correctly. Please upgrade to version %.1f.'''
             params[ord] = float(val)
         elif t == fracttypes.Int:
             params[ord] = int(val)
-            
+        elif t == fracttypes.Bool:
+            params[ord] = bool(val)
+        else:
+            raise ValueError("Unknown param type %s for %s" % (t,name))
+        
     def parse_bailfunc(self,val,f):
         # can't set function directly because formula hasn't been parsed yet
         self.bailfunc = int(val)
