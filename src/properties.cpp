@@ -811,7 +811,7 @@ create_propertybox_function_page(
     GtkWidget *table = gtk_table_new (3, 2, FALSE);
 
     /* iteration function */
-    GtkWidget *func_label= gtk_label_new(_("Function"));
+    GtkWidget *func_label= gtk_label_new(_("Fractal Type"));
 
     gtk_table_attach(
         GTK_TABLE(table), func_label, 0,1,0,1, 

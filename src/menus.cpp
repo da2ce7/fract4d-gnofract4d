@@ -77,17 +77,17 @@ load_param_ok_cb(GtkButton *button, gpointer user_data)
 void 
 ensure_destruction(GtkFileSelection *f)
 {
-    gtk_signal_connect_object (
-        GTK_OBJECT (f->ok_button),
+    g_signal_connect_swapped (
+        G_OBJECT (f->ok_button),
         "clicked", 
         GTK_SIGNAL_FUNC (gtk_widget_destroy),
-        GTK_OBJECT(f));
+        G_OBJECT(f));
     
-    gtk_signal_connect_object (
-        GTK_OBJECT (f->cancel_button),
+    g_signal_connect_swapped (
+        G_OBJECT (f->cancel_button),
         "clicked", 
         GTK_SIGNAL_FUNC (gtk_widget_destroy),
-        GTK_OBJECT(f));
+        G_OBJECT(f));
 }
 
 /* a general load/save box */
@@ -265,14 +265,14 @@ static GnomeUIInfo edit_menu_uiinfo[] =
         GNOME_APP_UI_ITEM, N_("_Fractal Settings..."),
         NULL,
         (void *)fractal_settings_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_PROP,
+        GNOME_APP_PIXMAP_STOCK, GTK_STOCK_PROPERTIES,
          'f', GDK_CONTROL_MASK, NULL
     },
     {
         GNOME_APP_UI_ITEM, N_("Co_lors..."),
         NULL,
         (void *)create_cmap_browser, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
+        GNOME_APP_PIXMAP_STOCK, "",
          'l', GDK_CONTROL_MASK, NULL
     },
     GNOMEUIINFO_MENU_PREFERENCES_ITEM (preferences_cb, NULL),
@@ -282,14 +282,14 @@ static GnomeUIInfo edit_menu_uiinfo[] =
         GNOME_APP_UI_ITEM, N_("Reset"),
         NULL,
         (void *)reset_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_HOME,
+        GNOME_APP_PIXMAP_STOCK, GTK_STOCK_HOME,
         GDK_Home, (GdkModifierType)0, NULL
     },
     {
         GNOME_APP_UI_ITEM, N_("_Movie Editor..."),
         NULL,
         (void *)create_movie_editor, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
+        GNOME_APP_PIXMAP_STOCK, "",
         'm', GDK_CONTROL_MASK, NULL
     },
     GNOMEUIINFO_END
