@@ -49,7 +49,7 @@ class SettingsDialog(gtk.Dialog):
             entry.set_text("%f" % f.params[param])
 
         def set_fractal(*args):
-            self.f.set_param(param,float(entry.get_text()))
+            self.f.set_param(param,entry.get_text())
 
         set_entry(self.f)
         self.f.connect('parameters-changed', set_entry)
