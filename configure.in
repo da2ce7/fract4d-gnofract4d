@@ -14,12 +14,12 @@ AC_PROG_CXX
 AM_PROG_CC_STDC
 AC_HEADER_STDC
 
-dnl look for cln 
-AC_MSG_CHECKING(for CLN arbitrary-precision math library)
-AC_TRY_CPP(cln.h,AC_DEFINE(HAVE_CLN) LIBS="$LIBS -lcln")
-
 GNOME_COMPILE_WARNINGS
 GNOME_X_CHECKS
+
+dnl look for cln 
+dnl AC_MSG_CHECKING(for CLN arbitrary-precision math library)
+dnl AC_TRY_CPP(cln.h,AC_DEFINE(HAVE_CLN) LIBS="$LIBS -lcln")
 
 dnl Add the languages which your application supports here.
 ALL_LINGUAS="fr"
