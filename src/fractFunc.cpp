@@ -349,16 +349,11 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     last_update_y = 0;
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
-        // calculate left edge of the row
-        for(int y2 = y+1; y2 < y + rsize; ++y2)
-        {
-            ptf->pixel(0,y2,1,1);
-        }
-
         send_box_row(w,y,rsize);
 
         update_image(y);
     }
+    
 
     reset_progress(1.0);
 }

@@ -231,6 +231,12 @@ fractThreadFunc::pixel(int x, int y,int w, int h)
 void 
 fractThreadFunc::box_row(int w, int y, int rsize)
 {
+    // calculate left edge of the row
+    for(int y2 = y+1; y2 < y + rsize; ++y2)
+    {
+        pixel(0,y2,1,1);
+    }
+
     for(int x = 0; x < w - rsize ; x += rsize) {
         box(x,y,rsize);            
     }		
