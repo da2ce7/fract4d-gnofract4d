@@ -12,9 +12,7 @@ from fract4d import fc
 # centralized to speed up tests
 g_comp = fc.Compiler()
 g_comp.file_path.append("../fract4d")
-g_comp.load_formula_file("./gf4d.frm")
-g_comp.load_formula_file("test.frm")
-g_comp.load_formula_file("gf4d.cfrm")
+g_comp.file_path.append("../formulas")
 
 class FakeEvent:
     def __init__(self,**kwds):
@@ -83,7 +81,7 @@ class FctTest(unittest.TestCase):
         self.assertEqual(cc.count,3)
 
     def testLoad(self):
-        self.f.loadFctFile(file("test_bail.fct"))
+        self.f.loadFctFile(file("../testdata/test_bail.fct"))
         self.testSignals()
         self.f.connect('status-changed', self.quitloop)
         self.f.draw_image(0,1)
