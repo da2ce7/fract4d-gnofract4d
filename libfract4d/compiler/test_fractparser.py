@@ -69,7 +69,7 @@ class ParserTest(unittest.TestCase):
         self.assertIsValidParse
     def testPrecedence(self):
         self.assertParsesEqual(
-            "x = 2 * 3 + 1 ^ -7 / 2 - |4 - 1|",
+            "x = 2 * 3 + 1 ^ -7 / +2 - |4 - 1|",
             "x = ((2 * 3) + ((1 ^ (-7)) / 2)) - | 4 - 1|")
 
     def testBooleanPrecedence(self):
@@ -157,7 +157,8 @@ class ParserTest(unittest.TestCase):
         complex h
         complex i = 3 + 1i + i
         complex j = (2,3)
-        color k'''))
+        complex k = complex k2 = (2,7)
+        color l'''))
         self.assertIsValidParse(t1)
         i = t1.children[0].children[0]
         for node in i.children:
@@ -321,6 +322,18 @@ default:
 
     def testComma(self):
         self.assertParsesEqual("a=1,b=2","a=1\nb=2")
+
+    # this doesn't pass yet, but I'm too lazy to fix
+    def testComma2(self):
+        t1 = self.parse(self.makeMinimalFormula("if a==b,\na = c\nendif\n"))
+        self.assertIsValidParse(t1)
+        t1 = self.parse('''t1{\ndefault:\n
+          param bailout
+   caption = "Bailout",
+   default = 30
+     endparam
+}''')
+        self.assertIsValidParse(t1)
         
     def testParseErrors(self):
         self.assertIsBadFormula(self.makeMinimalFormula("2 + 3 +"),
@@ -332,12 +345,6 @@ default:
         self.assertIsBadFormula(self.makeMinimalFormula("("),
                                 "unexpected newline",3)
         
-        # not currently an error, because we think Init is part of
-        # a fractint-style implicit-init section
-        #self.assertIsBadFormula("t1 {\nInit:\nx\n}\n",
-        #                        "unknown section name 'Init'",2)
-
-
     def assertListTypesMatch(self,nodes,types):
         self.assertEqual(len(nodes),len(types))
         for (n,t) in zip(nodes,types):
