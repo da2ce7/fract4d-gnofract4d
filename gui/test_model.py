@@ -62,8 +62,8 @@ class Test(unittest.TestCase):
         f.set_param(f.MAGNITUDE,9.0)
 
         self.assertEqual(counter.count,1)
-        
         self.assertEqual(f.get_param(f.MAGNITUDE),9.0)
+
         self.m.undo()
 
         self.assertEqual(f.get_param(f.MAGNITUDE),mag)

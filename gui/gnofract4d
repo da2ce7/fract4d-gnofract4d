@@ -21,7 +21,7 @@ import gtkfractal
 import settings
 import preferences
 import autozoom
-import undo
+import model
 
 # We don't use GDK threads because RedHat seem to compile pygtk
 # without thread support. Grrr.
@@ -39,7 +39,6 @@ class MainWindow:
     def __init__(self):
         global g_comp
         self.compiler = g_comp
-        self.seq = undo.Sequence()
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
         self.window.set_title('Gnofract 4D')
@@ -78,6 +77,8 @@ class MainWindow:
         window.add_with_viewport(self.f.widget)
         self.f.connect('progress_changed', self.progress_changed)
         self.f.connect('status_changed',self.status_changed)
+
+        self.model = model.Model(self.f)
         
         self.vbox.pack_start(window)
 
@@ -161,9 +162,11 @@ class MainWindow:
         preferences.show_preferences(self.window, self.f)
         
     def undo(self,action,widget):
-        print "undo"
+        self.model.undo()
+        
     def redo(self,action,widget):
-        print "redo"
+        self.model.redo()
+        
     def reset(self,action,widget):
         self.f.reset()
 
