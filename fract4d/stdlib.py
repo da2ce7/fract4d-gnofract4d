@@ -534,6 +534,15 @@ def ceil_c_c(gen,t,srcs):
     return ComplexArg(ceil_f_i(gen,t,[srcs[0].re]),
                       ceil_f_i(gen,t,[srcs[0].im]))
 
+def zero_i_i(gen,t,srcs):
+    return ConstIntArg(0)
+
+def zero_f_f(gen,t,srcs):
+    return ConstFloatArg(0.0)
+
+def zero_c_c(gen,t,srcs):
+    return ComplexArg(ConstFloatArg(0.0),ConstFloatArg(0.0))
+
 def atan2_c_f(gen,t,srcs):
     return gen.emit_func2('atan2', [srcs[0].im, srcs[0].re], Float)
 
