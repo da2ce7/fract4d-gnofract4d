@@ -17,6 +17,7 @@ Done in 2.7:
 * W	use fancy new filechooser dialog when available
 * W	implement $IFDEF
 * BB	hyperjulia doesn't work with continuous-potential coloring
+* WW	load/save gimp gradient files:
 
 todo:
 
@@ -54,16 +55,17 @@ bugs (the more B's, the worse the bug):
 * B	daisychain.fct - bailFunc != diff for newton
 * B	coolness.fct - need direct coloring algorithm
 * B	compile whenever resolution changes - pointless
-* B	click on GaussianInteger cfrm = print out some stuff
 * B	O-fractals in fractint-g4.frm broken
 * B	Mandrake: desktop icon not added to menu
 
 features (the more W's, the more work involved):
+* W	don't allocate memory for recoloring buffer when image very large
+* WW	cmap editor
+* W 	HSV backend
+
 * W	download missing formulas from UF formula database
 * W	copy & paste to text or image
-* W	don't allocate memory for recoloring buffer when image very large
-* WW	cmap browser
-* WW	cmap editor - brightness/contrast/gamma/HSV/RGB
+* WW	editor overall brightness/contrast/gamma/HSV/RGB
 * W	logmap
 * W	warn if overwrite/always save as/clear name on major change
 * WW	include formula in .fct file
@@ -88,7 +90,6 @@ features (the more W's, the more work involved):
 * WW	import .par files
 * WW	import .upr files
 * W	import ultrafractal gradient files
-* WW	load/save gimp gradient files:
 * W	tooltips for custom widgets in toolbar
 * W	last-chance exception handler
 * W	formula browser:manage search path (user prefs)
