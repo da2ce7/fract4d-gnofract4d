@@ -149,7 +149,7 @@ class TranslateTest(unittest.TestCase):
         else
         a = 3
         endif
-        }''', {"dumpBlocks":1})
+        }''')
 
         self.assertNoErrors(t)
         ifseq = t.sections["loop"].children[0]
