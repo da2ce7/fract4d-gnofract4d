@@ -15,6 +15,9 @@ import colors, undo, browser, fourway, angle, utils
 
 class MainWindow:
     def __init__(self):
+
+        self.quit_when_done =False
+        self.save_filename = None
         # window widget
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
@@ -240,6 +243,13 @@ class MainWindow:
             text = self.statuses[status] % self.f.maxiter
         else:
             text = self.statuses[status]
+
+        if status == 0:
+            # done
+            if self.save_file:
+                self.f.save_image(self.save_filename)
+            if self.quit_when_done:
+                self.quit(None,None)
             
         self.bar.set_text(text)
         

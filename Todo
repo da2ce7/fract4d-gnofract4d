@@ -1,7 +1,6 @@
 todo for 2.0
 
 * WW	doc
-* W	add some more built-in types
 
 UI improvements 
 * BB	more robust error reporting
@@ -59,6 +58,7 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* W	add some more built-in types
 * W	Browser: remember selected formula on compile
 * W	Browser: if no compile errors, reapply current formula
 * W	Browser: run $EDITOR, refresh
