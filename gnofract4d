@@ -9,9 +9,6 @@ import os
 import getopt
 import distutils.sysconfig
 
-import random
-random.seed(0)
-
 # gettext
 import gettext
 os.environ.setdefault('LANG', 'en')
