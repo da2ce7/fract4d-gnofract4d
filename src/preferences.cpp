@@ -113,7 +113,7 @@ void create_prefs_box (model_t *m)
     GtkTooltips *tooltips = gtk_tooltips_new ();
 
     global_prefs_box = gtk_dialog_new_with_buttons(
-        _("User Preferences"),
+        _(PACKAGE "User Preferences"),
 	GTK_WINDOW(main_app_window),
 	(GtkDialogFlags)0,
 	GTK_STOCK_CLOSE, 

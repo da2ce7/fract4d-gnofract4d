@@ -921,7 +921,7 @@ void make_func_entry(Gf4dFractal *shadow, double d, GtkWidget *table, int i)
         0, 2);
     
     model_t *m = (model_t *)g_object_get_data(G_OBJECT(table),"model");
-    assert(m);
+    g_assert(m);
 
     g_signal_connect(
         G_OBJECT(entry),"focus-out-event",
@@ -1010,7 +1010,7 @@ make_func_edit_widgets(
         0, 2);
 
     model_t *m = (model_t *)g_object_get_data(G_OBJECT(table),"model");
-    assert(m);
+    g_assert(m);
 
     g_signal_connect(G_OBJECT(fourway), "value_changed",
                        (GtkSignalFunc)fourway_set_param_cb,
@@ -1253,7 +1253,7 @@ create_propertybox (model_t *m)
     tooltips = gtk_tooltips_new ();
     
     global_propertybox = propertybox = gtk_dialog_new_with_buttons(
-        _("Fractal Settings"),
+        _(PACKAGE " Fractal Settings"),
 	GTK_WINDOW(main_app_window),
 	(GtkDialogFlags)0,
 	GTK_STOCK_CLOSE, 

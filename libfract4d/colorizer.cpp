@@ -257,6 +257,7 @@ cmap_colorizer::calc(double dist) const
 
     /* a number in [1,255] - don't want to include color zero */
     int n = (int)dist;
+    assert(n >= 0);
     n %= 255; n++;
     int n2 = (n == 255 ? 1 : n+1);
     double pos = fmod(dist,1.0);

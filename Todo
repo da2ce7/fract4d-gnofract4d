@@ -87,6 +87,7 @@ CmapEditor
 * W	choose every other in range
 * W 	save new .map + add to preview list
 * W 	remove debug printfs
+* W	finish cmapeditor
 
 Done:
 * BB	not all fractal types implemented
@@ -97,7 +98,6 @@ Done:
 * B	setting image size crashes
 * BB 	some images come out the wrong color (eg paramfiles/param.fct)
 * BB	stupid options dialog would be better as tabbed dialog
-* W	finish cmapeditor
 * W	update docs
 * B	outer_cf not saved correctly - itercount changes to cont_potential
 * B 	something wrong with zero'th iteration with manzpower - unroll-related

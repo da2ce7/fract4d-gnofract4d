@@ -301,7 +301,7 @@ create_current_maps_page(GtkWidget *notebook, model_t *m)
 	FALSE,
 	NULL);
 
-    g_print("%s\n",mapdir);
+    //g_print("%s\n",mapdir);
     add_map_directory(table, m, mapdir, tips);
     g_free(mapdir);
 
@@ -657,7 +657,7 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
 
     /* toplevel */
     dialog = gtk_dialog_new_with_buttons(
-        _("Choose a color map"),
+        _(PACKAGE " Colors"),
 	GTK_WINDOW(main_app_window),
 	(GtkDialogFlags)0,
 	_("Update Previews"),

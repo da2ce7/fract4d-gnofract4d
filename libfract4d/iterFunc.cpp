@@ -10,6 +10,7 @@
 #include <cmath>
 #include <complex>
 #include <sstream>
+#include <cassert>
 
 #define FIELD_FUNCTION "function"
 
@@ -133,7 +134,7 @@ iterFunc_data infoTable[] = {
     {
 	"Mandelbrot",
 	// flags
-	0,
+	NO_UNROLL,
 	// bailFunc
 	BAILOUT_MAG,
 	// decl code

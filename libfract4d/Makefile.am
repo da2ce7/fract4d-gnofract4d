@@ -1,7 +1,7 @@
 
 lib_LTLIBRARIES= libfract4d.la
 
-CXXFLAGS = -O3 -ffast-math -Wall -D_REENTRANT $(GNOFRACT4D_CFLAGS)
+AM_CXXFLAGS = -O3 -ffast-math -Wall -D_REENTRANT 
 
 libfract4d_la_SOURCES=\
 	fract4d.h \
