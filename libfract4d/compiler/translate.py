@@ -331,7 +331,12 @@ class T:
 
     def funcall(self, node):
         children = map(lambda n: self.exp(n) , node.children)
-        op = self.findOp(node, children)
+        try:
+            op = self.findOp(node, children)
+        except KeyError, err:
+            raise TranslationError(
+                "Unknown function %s on line %d" % (node.leaf,node.pos))
+                       
         children = self.coerceList(op.args,children)
         return ir.Call(node.leaf, children, node, op.ret)
     

@@ -104,7 +104,16 @@ class TranslateTest(unittest.TestCase):
         complex y = @fn1((1,0)) + fn2((2,0)) + @my_func((1,0))
         }''')
         self.assertNoErrors(t12)
-        print t12.parameters
+        k = t12.parameters.keys().sort()
+        exp_k = ["t__a_p1", "t__a_p2", "t__a_my_param",
+                 "t__a_fn1", "t__a_fn2", "t__a_my_func"].sort()
+
+        self.assertEqual(k,exp_k)
+
+    def testBadFunc(self):
+        t = self.translate('t_badfunc {\nx= badfunc(0):\n}')
+        self.assertError(t,"Unknown function badfunc on line 2")
+        
         
     def testIDs(self):
         t11 = self.translate('''t11 {
