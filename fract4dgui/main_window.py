@@ -347,7 +347,6 @@ class MainWindow:
 
     def update_preview_on_pointer(self,f,button, x,y):
         if button == 2:
-            print "%f,%f" % (x,y)
             self.preview.set_fractal(f.copy_f())
             self.preview.relocate(x,y,1.0)
             self.preview.flip_to_julia()
@@ -663,8 +662,8 @@ class MainWindow:
             self.set_filename(file)
             return True
         except Exception, err:
-            self.show_error_message(_("Error saving to file %s: '%s'") %
-                                    (file, err))
+            self.show_error_message(
+                _("Error saving to file %s") % file, err)
             return False
 
     def save(self,action,widget):
@@ -713,10 +712,16 @@ class MainWindow:
         d.run()
         d.destroy()
         
-    def show_error_message(self,message):
-        d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
-                              gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-                              message)
+    def show_error_message(self,message,exception=None):
+        if exception == None:
+            secondary_message = ""
+        else:
+            if isinstance(exception,EnvironmentError):
+                secondary_message = exception.strerror or str(exception) or ""
+            else:
+                secondary_message = str(exception)
+
+        d = hig.ErrorAlert(message, secondary_message,self.window)
         d.run()
         d.destroy()
 
@@ -737,7 +742,8 @@ class MainWindow:
                     self.f.save_image(name)
                     break
                 except Exception, err:
-                    self.show_error_message(_("Error saving %s:\n%s") % (name, err))
+                    self.show_error_message(
+                        _("Error saving image %s") % name, err)
         fs.destroy()
                 
     def settings(self,action,widget):
@@ -827,7 +833,7 @@ class MainWindow:
             self.set_filename(file)
             return True
         except Exception, err:
-            self.show_error_message(_("Error opening %s: '%s'") % (file, err))
+            self.show_error_message(_("Error opening %s") % file,err)
             return False
 
     def load_formula(self,file):
@@ -836,7 +842,7 @@ class MainWindow:
             browser.update()
             return True
         except Exception, err:
-            self.show_error_message(_("Error opening %s: '%s'") % (file, err))
+            self.show_error_message(_("Error opening %s") % file, err)
             return False
 
     def check_save_fractal(self):
