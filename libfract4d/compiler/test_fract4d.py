@@ -14,7 +14,8 @@ class PfTest(unittest.TestCase):
     def compileMandel(self):
         self.compiler.load_formula_file("./gf4d.frm")
         f = self.compiler.get_formula("gf4d.frm","Mandelbrot")
-        self.compiler.generate_code(f,"test-pf.so")
+        cg = self.compiler.compile(f)
+        self.compiler.generate_code(f,cg,"test-pf.so")
         
     def setUp(self):
         compiler = fc.Compiler()
@@ -57,7 +58,8 @@ class PfTest(unittest.TestCase):
         self.compiler.load_formula_file("./gf4d.cfrm")
         f = self.compiler.get_formula("gf4d.frm","Mandelbrot",
                                       "gf4d.cfrm","default")
-        self.compiler.generate_code(f,"test-pfc.so")
+        cg = self.compiler.compile(f)
+        self.compiler.generate_code(f,cg,"test-pfc.so")
         handle = fract4d.pf_load("./test-pfc.so")
         pfunc = fract4d.pf_create(handle)
         fract4d.pf_init(pfunc,0.001,[])

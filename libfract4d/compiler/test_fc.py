@@ -27,7 +27,8 @@ class FCTest(testbase.TestBase):
         f = self.compiler.get_formula("gf4d.frm","T03-01-G4")
         self.assertEqual(f.errors, [])
         commands.getoutput("rm -f test-out.so")
-        self.compiler.generate_code(f,"test-out.so",None)
+        cg = self.compiler.compile(f)
+        self.compiler.generate_code(f,cg,"test-out.so",None)
         # check the output contains the right functions
         (status,output) = commands.getstatusoutput('nm test-out.so')
         self.assertEqual(status,0)
@@ -57,11 +58,24 @@ class FCTest(testbase.TestBase):
         f = self.compiler.get_formula("test.frm","frm:ny2004-4")
         self.assertEqual(len(f.errors),0)
         #print f.pretty()
-        self.compiler.generate_code(f,"test-evil.so",None)
+        cg = self.compiler.compile(f)
+        self.compiler.generate_code(f,cg,"test-evil.so",None)
         
         f = self.compiler.get_formula("test.frm","Fractint-9-21")
         self.assertNoErrors(f)
-        self.compiler.generate_code(f,"test-evil.so",None)
+        cg = self.compiler.compile(f)
+        self.compiler.generate_code(f,cg,"test-evil.so",None)
+
+    def testColorFunc(self):
+        self.compiler.load_formula_file("gf4d.cfrm")
+        cf = self.compiler.get_colorfunc("gf4d.cfrm","default","cf0")
+        self.assertEqual(len(cf.errors),0)
+        cf2 = self.compiler.get_colorfunc("gf4d.cfrm","zero","cf1")
+        self.assertEqual(len(cf2.errors),0)
+        
+        self.compiler.load_formula_file("gf4d.frm")
+        f = self.compiler.get_formula("gf4d.frm","Mandelbrot")
+        
         
 def suite():
     return unittest.makeSuite(FCTest,'test')
