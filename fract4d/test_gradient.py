@@ -358,7 +358,7 @@ Name: Wood 2
     def testSetLeft(self):
         g = gradient.Gradient()
 
-        g.add(0.0)
+        g.add(0)
 
         # shouldn't be able to move leftmost segment
         self.assertEqual(g.set_left(0, -1.0),0.0)
@@ -375,7 +375,7 @@ Name: Wood 2
     def testSetRight(self):
         g = gradient.Gradient()
 
-        g.add(0.0)
+        g.add(0)
 
         # shouldn't be able to move rightmost segment
         self.assertEqual(g.set_right(1, -1.0),1.0)
@@ -406,7 +406,7 @@ Name: Wood 2
         g = gradient.Gradient()
 
         # add a segment at left-hand end
-        g.add(0.0)
+        g.add(0)
         self.assertWellFormedGradient(g)
         self.assertEqual(len(g.segments),2)
         left = g.segments[0]
@@ -423,7 +423,7 @@ Name: Wood 2
         self.checkGreyGradient(g, 0.5, lambda x,mid : x)
         
         # add another one
-        g.add(0.0)
+        g.add(0)
         self.assertWellFormedGradient(g)
         self.assertEqual(len(g.segments),3)
         left = g.segments[0]
@@ -439,7 +439,7 @@ Name: Wood 2
         self.checkGreyGradient(g, 0.5, lambda x,mid : x)
 
         # one more at the other end
-        g.add(1.0)
+        g.add(len(g.segments)-1)
         self.assertWellFormedGradient(g)
         self.assertEqual(len(g.segments),4)
         left = g.segments[2]
@@ -473,7 +473,7 @@ Name: Wood 2
         self.checkGreyGradient(g, 0.5, lambda x,mid : x)
 
         # remove middle one
-        g.remove(0.5)
+        g.remove(1)
 
         self.assertEqual(len(g.segments),2)
         self.assertWellFormedGradient(g)
@@ -484,7 +484,7 @@ Name: Wood 2
         self.assertWellFormedGradient(g)
         self.checkGreyGradient(g, 0.5, lambda x,mid : x)
 
-        g.remove(0.1)
+        g.remove(0)
         
         self.assertEqual(len(g.segments),2)
         self.assertWellFormedGradient(g)
@@ -495,12 +495,52 @@ Name: Wood 2
         self.assertWellFormedGradient(g)
         self.checkGreyGradient(g, 0.5, lambda x,mid : x)
 
-        g.remove(0.9)
+        g.remove(2)
         
         self.assertEqual(len(g.segments),2)
         self.assertWellFormedGradient(g)
         self.assertEqual(g.segments[1].left, 1.0/3.0)
+
+    def testRemoveSmooth(self):
+        # test removal of segments
+        g = gradient.Gradient()
+
+        g.segments = self.three_segments()
+        self.assertWellFormedGradient(g)
+        self.checkGreyGradient(g, 0.5, lambda x,mid : x)
+
+        # remove middle one
+        g.remove(1, True)
         
+        self.assertEqual(len(g.segments),2)
+        self.assertWellFormedGradient(g)
+        self.checkGreyGradient(g, 0.5, lambda x,mid : x)
+        self.assertEqual(g.segments[0].right, 0.5)
+
+        # recreate and remove left one
+        g.segments = self.three_segments()
+        self.assertWellFormedGradient(g)
+        self.checkGreyGradient(g, 0.5, lambda x,mid : x)
+
+        g.remove(0,True)
+        
+        self.assertEqual(len(g.segments),2)
+        self.assertWellFormedGradient(g)
+        self.checkGreyGradient(g, 0.5, lambda x,mid : x)
+        self.assertEqual(g.segments[0].right, 2.0/3.0)
+
+        # recreate and remove right one
+        g.segments = self.three_segments()
+        self.assertWellFormedGradient(g)
+        self.checkGreyGradient(g, 0.5, lambda x,mid : x)
+
+        g.remove(2,True)
+        
+        self.assertEqual(len(g.segments),2)
+        self.assertWellFormedGradient(g)
+        self.checkGreyGradient(g, 0.5, lambda x,mid : x)
+        self.assertEqual(g.segments[1].left, 1.0/3.0)
+
     def assertNearlyEqual(self,a,b,msg, epsilon=1.0e-12):
         # check that each element is within epsilon of expected value
         for (ra,rb) in zip(a,b):

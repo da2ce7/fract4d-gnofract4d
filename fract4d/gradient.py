@@ -243,32 +243,7 @@ class Gradient:
                 Segment(new_segments[-1].right, last_color, 1.0, last_color))
             
         self.segments = new_segments
-    
-    def broken_compute(self):
-        num=255
-        detail=1.0/num
-        
-        clist=[]; i=0; alt=0
-        while i < 1:
-            ialt=i+alt
-            if ialt > 1:
-                ialt-=1.0
-            ialt+=self.offset
-            if ialt > 1:
-                ialt-=1.0
-            col=self.getColourAt(ialt)
-            clist.append((i,
-                         int(col[0]),
-                         int(col[1]),
-                         int(col[2]),
-                         255))
-            i += detail
-            alt+=self.alternate
-            if alt > 1:
-                alt-=1.0
-                            
-        self.clist = clist
-            
+                
     def get_color_at(self, pos):
         # returns the color at position x (0 <= x <= 1.0) 
         seg = self.get_segment_at(pos)
@@ -297,9 +272,8 @@ class Gradient:
         # not found - must be > 1.0
         raise IndexError("Must be between 0 and 1")
 
-    def add(self, x):
+    def add(self, segindex):
         # split the segment which contains point x in half
-        segindex = self.get_index_at(x)
         seg = self.segments[segindex]
         
         if segindex+1 < len(self.segments):
@@ -329,27 +303,41 @@ class Gradient:
                     None, 
                     seg.bmode, seg.cmode))
 
-    def remove(self, x):
+    def remove(self, segindex, smooth=False):
         # remove the segment which contains point x
         # extend each of our neighbors so they get half our space each
         if len(self.segments) < 2:
             raise Error("Can't remove last segment")
         
-        segindex = self.get_index_at(x)
         seg = self.segments[segindex]
 
         if segindex > 0:
             # we have a previous segment
             if segindex+1 < len(self.segments):
                 # and we have a next. Move them both to touch in the middle
-                self.segments[segindex-1].right=seg.mid
+                self.segments[segindex-1].right=seg.mid                
                 self.segments[segindex+1].left=seg.mid
+                self.segments[segindex-1].center()
+                self.segments[segindex+1].center()
+                if smooth:
+                    midcolor = seg.get_color_at(seg.mid)
+                    self.segments[segindex-1].right_color = copy.copy(midcolor)
+                    self.segments[segindex+1].left_color = copy.copy(midcolor)
             else:
                 # just a left-hand neighbor, let that take over
                 self.segments[segindex-1].right = 1.0
+                if smooth:
+                    self.segments[segindex-1].right_color = \
+                        copy.copy(self.segments[segindex].right_color)
+                    
+                self.segments[segindex-1].center()
         else:
             # we must have a later segment
             self.segments[segindex+1].left=0.0
+            if smooth:
+                self.segments[segindex+1].left_color = \
+                    copy.copy(self.segments[segindex].left_color)
+            self.segments[segindex+1].center()
             
         self.segments.pop(segindex)
         
