@@ -19,7 +19,7 @@ g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")
         
 g_testfile = '''gnofract4d parameter file
-version=1.9
+version=2.0
 bailout=5.1
 x=0.0891
 y=-0.314159
@@ -156,14 +156,14 @@ class FctTest(unittest.TestCase):
         # relocate
         f.relocate(1.0,2.0,1.0)
         tparams[f.XCENTER] = 8.0
-        tparams[f.YCENTER] = 16.0
+        tparams[f.YCENTER] = -16.0
         self.assertNearlyEqual(f.params,tparams)
 
         # rotated relocation
         f.relocate(-1.0,-2.0,1.0)
         f.params[f.XYANGLE]= -math.pi/2.0
         f.relocate(1.0,2.0,1.0)
-        tparams[f.XCENTER] = -16.0
+        tparams[f.XCENTER] = 16.0
         tparams[f.YCENTER] = 8.0
         tparams[f.XYANGLE] = -math.pi/2.0
         
@@ -178,7 +178,7 @@ class FctTest(unittest.TestCase):
         tparams = [0.0] * 11
         tparams[f.MAGNITUDE] = 8.0
         tparams[f.ZCENTER] = 8.0
-        tparams[f.WCENTER] = 16.0
+        tparams[f.WCENTER] = -16.0
         tparams[f.XZANGLE] = tparams[f.YWANGLE] = math.pi/2.0
         
         self.assertNearlyEqual(f.params,tparams)

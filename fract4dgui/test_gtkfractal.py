@@ -158,7 +158,7 @@ class FctTest(unittest.TestCase):
         f.onButtonRelease(f.widget,FakeEvent(button=1))
 
         tparams[f.XCENTER] -= tparams[f.MAGNITUDE]/4.0
-        tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
+        tparams[f.YCENTER] += tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] /= 2.0
 
         self.assertEqual(f.params(),tparams)
@@ -169,7 +169,7 @@ class FctTest(unittest.TestCase):
         f.onButtonRelease(f.widget,FakeEvent(button=1))
 
         tparams[f.XCENTER] += tparams[f.MAGNITUDE]/4.0
-        tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
+        tparams[f.YCENTER] += tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] /= 2.0
 
         self.assertEqual(f.params(),tparams)
@@ -180,7 +180,7 @@ class FctTest(unittest.TestCase):
         f.onButtonRelease(f.widget,FakeEvent(button=1))
 
         tparams[f.XCENTER] -= tparams[f.MAGNITUDE]/4.0
-        tparams[f.YCENTER] += tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
+        tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] /= 2.0
 
         self.assertEqual(f.params(),tparams)
@@ -191,7 +191,7 @@ class FctTest(unittest.TestCase):
         f.onButtonRelease(f.widget,FakeEvent(button=1))
 
         tparams[f.XCENTER] += tparams[f.MAGNITUDE]/4.0
-        tparams[f.YCENTER] += tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
+        tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] /= 2.0
 
         self.assertEqual(f.params(),tparams)
@@ -211,7 +211,7 @@ class FctTest(unittest.TestCase):
         evt = FakeEvent(button=3,x=0,y=0)
         f.onButtonRelease(f.widget,evt)
         tparams[f.XCENTER] -= tparams[f.MAGNITUDE]/2.0
-        tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
+        tparams[f.YCENTER] += tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] *= 2.0
 
         self.assertEqual(f.params(),tparams)
@@ -242,7 +242,7 @@ class FctTest(unittest.TestCase):
         tparams[f.XZANGLE] = math.pi/2
         tparams[f.YWANGLE] = math.pi/2
         tparams[f.XCENTER] += tparams[f.MAGNITUDE]/2.0
-        tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
+        tparams[f.YCENTER] += tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
         
         self.assertNearlyEqual(f.params(),tparams)
 
@@ -252,7 +252,7 @@ class FctTest(unittest.TestCase):
         tparams[f.XZANGLE] = 0.0
         tparams[f.YWANGLE] = 0.0
         tparams[f.ZCENTER] -= tparams[f.MAGNITUDE]/2.0
-        tparams[f.WCENTER] += tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
+        tparams[f.WCENTER] -= tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
         
         self.assertNearlyEqual(f.params(),tparams)
         

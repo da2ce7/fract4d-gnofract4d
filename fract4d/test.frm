@@ -36,7 +36,7 @@ maxiter = 1
 init:
 	z = pixel
 bailout:
-	real(z) - imag(z) < 0.0
+	real(z) + imag(z) < 0.0
 }
 
 
