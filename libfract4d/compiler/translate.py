@@ -6,6 +6,7 @@ from absyn import *
 import symbol
 import fractparser
 import exceptions
+from fracttypes import *
 
 class TranslationError(exceptions.Exception):
     def __init__(self,msg):
@@ -95,7 +96,19 @@ class T:
 
     def global_(self,node):
         self.sections["global"] = 1
+        for child in node.children:
+            self.stm(child)
+            
+    def stm(self,node):
+        if node.type == "decl":
+            self.decl(node)
 
+    def decl(self,node):
+        try:
+            self.symbols[node.leaf] = Var(node.datatype, 0.0) # fixme exp
+        except KeyError, e:
+            self.error("%s" % e)
+    
     def init(self,node):
         self.sections["init"] = 1
 
