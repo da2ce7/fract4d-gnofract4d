@@ -27,8 +27,17 @@ class Node:
         return str
 
 # shorthand named ctors for specific node types
+def Formlist(list):
+    return Node("formlist", list, "")
+
+def Set(id,s):
+    return Node("set",[s],id)
+
 def Number(n):
     return Node("const", None, n)
+
+def Complex(left,right):
+    return Node("complex",[left, right], "")
 
 def Binop(op, left, right):
     return Node("binop", [left, right], op)
@@ -57,6 +66,9 @@ def Decl(type, id, exp=None):
 
 def Stmlist(id, list):
     return Node("stmlist", list, id)
+
+def Setlist(id, list):
+    return Node("setlist", list, id)
 
 def Empty():
     return Node("empty", None, "")
