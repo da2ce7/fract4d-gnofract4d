@@ -11,7 +11,10 @@ def createDefaultDict():
     d = {
         "sqr_i": Func(Int),
         "sqr_f": Func(Float),
-        "sqr_c": Func(Complex)
+        "sqr_c": Func(Complex),
+        "#pixel": Var(Complex,0.0), # fixme, value 
+        "#z" : Var(Complex,0.0),
+        "z"  : Var(Complex,0.0) # same as #z
         }
     return d
 
@@ -22,7 +25,7 @@ def mangle(k):
     
     s = string.lower(k[0]) + "_"
     for t in k[1]:
-        s += strOfType[t]
+        s += suffixOfType[t]
     return s
            
 class T(UserDict):

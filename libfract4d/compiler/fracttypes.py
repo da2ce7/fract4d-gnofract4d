@@ -7,13 +7,24 @@ Complex = 2
 Bool = 3
 Color = 4
 
-strOfType = {
+suffixOfType = {
     Int : "i",
     Float : "f",
     Complex : "c",
     Bool : "b",
     Color : "C"
     }
+
+_typeOfStr = {
+    "int" : Int,
+    "float" : Float,
+    "complex" : Complex,
+    "bool" : Bool,
+    "color" : Color
+    }
+
+def typeOfStr(tname):
+    return _typeOfStr[string.lower(tname)]
 
 class Func:
     def __init__(self,ret):
