@@ -83,7 +83,7 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         self.assertEqual(f.bailout,5.1)
         self.assertEqual(f.funcName,"Mandelbar")
         self.assertEqual(f.maxiter, 259)
-        self.assertEqual(len(f.colorlist),256)
+        self.assertEqual(len(f.colorlist),255)
         self.assertEqual(f.colorlist[0][0],0.0)
         self.assertEqual(f.colorlist[-1][0],1.0)
         
@@ -162,16 +162,26 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         (w,h) = (40,30)
         image = fract4dc.image_create(w,h)
         f.draw(image)
+
         buf = fract4dc.image_buffer(image,0,0)
 
-        # corners must be black
-        self.assertBlack(buf,0,0,w)
-        self.assertBlack(buf,w-1,0,w)
-        self.assertBlack(buf,0,h-1,w)
-        self.assertBlack(buf,w-1,h-1,w)
+        # corners must be white
+        self.assertWhite(buf,0,0,w)
+        self.assertWhite(buf,w-1,0,w)
+        self.assertWhite(buf,0,h-1,w)
+        self.assertWhite(buf,w-1,h-1,w)
 
-        #print buf[:80]
-        #fract4dc.image_save(image,"mandel.tga")
+        # center is black
+        self.assertBlack(buf,w/2,h/2,w)        
+
+        # and vertically symmetrical
+        for x in xrange(w):
+            for y in xrange(h/2):
+                apos = (y*w+x)*3
+                bpos = ((h-y-1)*w+x)*3
+                a = buf[apos:apos+3]
+                b = buf[bpos:bpos+3]
+                self.assertEqual(a,b)
 
     def testReset(self):
         # test that formula's defaults are applied

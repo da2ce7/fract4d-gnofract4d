@@ -71,7 +71,7 @@ public:
 	    {
 		*pnIters = -1;
 	    }
-	    *color = cmap_lookup(m_cmap,dist);
+	    *color = cmap_lookup_with_transfer(m_cmap,fate,dist);
 
 	    m_site->pixel_changed(
 		params,nIters,nNoPeriodIters,
