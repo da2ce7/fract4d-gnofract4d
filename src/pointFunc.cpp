@@ -175,7 +175,7 @@ public:
             pTemp[LASTX] = pTemp[LASTY] = DBL_MAX;
 
             int iter = 0;
-            bool bailed = false;
+            bool done = false;
             /* periodicity vars */
             d lastx = pIter[X], lasty=pIter[Y];
             int k =1, m = 1;
@@ -193,8 +193,8 @@ public:
                 // (the size of this chunk depends on whether the last point
                 // bailed or not)
 
-                bailed = calcNoPeriod(iter,nNoPeriod8Iters,pIter,pInput,pTemp);
-                if(!bailed && iter < nMax8Iters)
+                done = calcNoPeriod(iter,nNoPeriod8Iters,pIter,pInput,pTemp);
+                if(!done && iter < nMax8Iters)
                 {
                     // we have 8way iterations still to do, this time using
                     // periodicity
@@ -213,7 +213,7 @@ public:
                                fabs(pIter[Y+i] - lasty) < PERIOD_TOLERANCE)
                             {
                                 // period detected!
-                                //printf(",");
+                                done = true;
                                 iter = -1; goto finishedAll;
                             }
                         }
@@ -226,25 +226,25 @@ public:
                         (*m_pBail)(pIter,pInput,pTemp,flags);  
                         if(pTemp[EJECT_VAL] >= m_eject)
                         {
-                            bailed = true;
+                            done = true;
                             break;
                         }
                         pIter[X] = pIter[X + (2*8)];
                         pIter[Y] = pIter[Y + (2*8)];                    
                     }while(true);
                 }
-                if(bailed)
+                if(done)
                 {
                     iter = findExactIter(iter, pIter, pInput, pTemp);
                 }
             }
 
-            if(!bailed)
+            if(!done)
             {
                 // we finished the 8some iterations without bailing out,
                 // so finish off any remaining ones (could be all of them
                 // if iter8ok was false)                
-                bailed = calcSingleWithPeriod(iter,nMaxIters,pIter,pInput,pTemp);
+                done = calcSingleWithPeriod(iter,nMaxIters,pIter,pInput,pTemp);
             }
 
         finishedAll:
