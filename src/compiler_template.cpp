@@ -205,8 +205,7 @@ public:
 
   T p[STATE_SPACE];
          
-    //template<class T>
-    inline void calc(
+    void calc(
         const vec4<T>& params, int nMaxIters, int nNoPeriodIters,
 	int x, int y, int aa,
         struct rgb *color, int *pnIters, void *out_buf
@@ -274,24 +273,6 @@ public:
                 *color = colorize(iter,p,out_buf);
             }
         };
-
-    virtual void operator()(
-        const vec4<double>& params, int nMaxIters, int nNoPeriodIters,
-	int x, int y, int aa,
-        struct rgb *color, int *pnIters, void *out_buf
-        )
-        {
-            calc(params, nMaxIters, nNoPeriodIters, x, y, aa,color, pnIters, out_buf);
-        }
-#ifdef HAVE_GMP
-    virtual void operator()(
-        const vec4<gmp::f>& params, int nMaxIters,
-        struct rgb *color, int *pnIters
-        )
-        {
-            calc<gmp::f>(params, nMaxIters, nNoPeriodIters, color, pnIters);
-        }
-#endif
     
     virtual rgb_t recolor(int iter, double eject, const void *buf) const
         {

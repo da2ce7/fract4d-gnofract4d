@@ -31,7 +31,7 @@ class iterFunc;
 /* interface for function object which computes a single point */
 class pointFunc {
  public:
-    virtual void operator()(
+    virtual void calc(
         // in params
         const vec4<double>& params, int nIters, int nNoPeriodIters,
 	// only used for debugging
@@ -39,14 +39,6 @@ class pointFunc {
         // out params
         struct rgb *color, int *pnIters, void *out_buf
         ) = 0;
-#ifdef HAVE_GMP
-    virtual void operator()(
-        // in params
-        const vec4<gmp::f>& params, int nIters, int nNoPeriodIters,
-        // out params
-        struct rgb *color, int *pnIters
-        ) = 0;
-#endif
     virtual rgb_t recolor(int iter, double eject, const void *buf) const = 0;
     virtual void *handle() = 0;
     virtual int buffer_size() const = 0;

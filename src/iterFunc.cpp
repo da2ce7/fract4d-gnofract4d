@@ -640,7 +640,8 @@ public:
     std::string iter_code() const
         {
             return 
-                "z = (a[0] * z + a[1]) * z + a[2] * c;";
+		"z = (a[0] * z + a[1]) * z + a[2] * c;";
+	    //"z = (1.0 * z + 1.0) * z + 1.0 * c;";
         }
     std::string ret_code() const
         {

@@ -46,10 +46,17 @@ compiler *g_pCompiler;
 compiler::compiler()
 {
     pthread_mutex_init(&cache_lock,NULL);
-    cc = "g++";
     flags = "-shared -O3 -ffast-math";
     in = "compiler_template.cpp";
     next_so = 0;    
+    set_cc("g++");
+}
+
+void
+compiler::set_cc(const char *s)
+{
+  //check_version(s);
+    cc = s; invalidate_cache(); 
 }
 
 void
