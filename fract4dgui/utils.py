@@ -105,7 +105,7 @@ class ColorButton:
             # This GTK is too old to support ColorButton directly, fake one
             self.widget = gtk.Button()
             self.area = gtk.DrawingArea()
-            self.area.set_size_request(16,10)
+            #self.area.set_size_request(16,10)
             self.widget.add(self.area)
             self.area.connect('expose_event', self.on_expose_event)
             self.csel_dialog = gtk.ColorSelectionDialog(_("Select a Color"))
@@ -119,14 +119,14 @@ class ColorButton:
         self.color = create_color(rgb[0], rgb[1], rgb[2])
 	
 	try:
-		self.widget.set_color(self.color)
+            self.widget.set_color(self.color)
 	except:
-        	#print "sc", self.area, rgb
-        	if self.area:
-            		self.area_expose(
-                	self.area,
-                	0,0,
-                	self.area.allocation.width,self.area.allocation.height)
+            #print "sc", self.area, rgb
+            if self.area:
+                self.area_expose(
+                    self.area,
+                    0,0,
+                    self.area.allocation.width,self.area.allocation.height)
 
     def on_expose_event(self, widget, event):
         r = event.area

@@ -89,6 +89,22 @@ class ColorDialog(dialog.T):
         hbox.pack_start(gradbox)
         self.vbox.add(hbox)
         self.treeview.get_selection().unselect_all()
+
+    def copy_left(self,widget):
+        i = self.selected_segment
+        if i == -1 or i == 0:
+            return
+
+        self.grad.segments[i-1].right_color = copy.copy(self.grad.segments[i].left_color)
+        self.redraw()
+        
+    def copy_right(self,widget):
+        i = self.selected_segment
+        if i == -1 or i == len(self.grad.segments)-1:
+            return
+
+        self.grad.segments[i+1].left_color = copy.copy(self.grad.segments[i].right_color)
+        self.redraw()
         
     def create_editor(self):
         # a bunch of widgets to edit the current gradient
@@ -100,6 +116,7 @@ class ColorDialog(dialog.T):
         c = utils.get_rgb_colormap()
         self.gradarea.set_colormap(c)        
 
+        self.tooltips = gtk.Tooltips()
         self.gradarea.add_events(
             gtk.gdk.BUTTON_RELEASE_MASK |
             gtk.gdk.BUTTON1_MOTION_MASK |
@@ -117,13 +134,28 @@ class ColorDialog(dialog.T):
         self.gradarea.connect('motion-notify-event', self.gradarea_mousemoved)
 
         buttonbox = gtk.HButtonBox()
+
         self.left_color_button = utils.ColorButton(
             self.grad.segments[0].left_color, self.color_changed, True)
+        self.tooltips.set_tip(
+            self.left_color_button.widget,
+            _("Color of segment's left end"))
+        
         self.right_color_button = utils.ColorButton(
             self.grad.segments[0].right_color, self.color_changed, False)
+        self.tooltips.set_tip(
+            self.right_color_button.widget,
+            _("Color of segment's right end"))
 
+        self.copy_left_button = gtk.Button(_("<"))
+        self.copy_left_button.connect('clicked', self.copy_left)
+        buttonbox.add(self.copy_left_button)
         buttonbox.add(self.left_color_button.widget)
+
         buttonbox.add(self.right_color_button.widget)
+        self.copy_right_button = gtk.Button(_(">"))
+        buttonbox.add(self.copy_right_button)
+        self.copy_right_button.connect('clicked', self.copy_right)
         gradbox.add(self.gradarea)
         gradbox.add(buttonbox)
         return gradbox
