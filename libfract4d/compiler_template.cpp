@@ -139,22 +139,47 @@ static bool pf_calcNoPeriod(
     DECL;
 #if TRACE
     *(pfo->out) << "in:" << XPOS << "," << YPOS << "\n";
+    *(pfo->out) << "cin:" << CXPOS << "," << CYPOS << "\n";
 #endif 
 
 #if UNROLL
     while(iter + 8 < maxIter)
     {
 	SAVE_ITER;
-	ITER; 
-	ITER; 
-	ITER; 
-	ITER; 
-	ITER; 
-	ITER; 
-	ITER; 
+#if TRACE
+	*(pfo->out) << "8.0:" << XPOS << "," << YPOS << "\n";
+#endif 
 	ITER; 
 #if TRACE
-	*(pfo->out) << "8:" << XPOS << "," << YPOS << "\n";
+	*(pfo->out) << "8.1:" << XPOS << "," << YPOS << "\n";
+#endif 
+	ITER; 
+#if TRACE
+	*(pfo->out) << "8.2:" << XPOS << "," << YPOS << "\n";
+#endif 
+	ITER; 
+#if TRACE
+	*(pfo->out) << "8.3:" << XPOS << "," << YPOS << "\n";
+#endif 
+	ITER; 
+#if TRACE
+	*(pfo->out) << "8.4:" << XPOS << "," << YPOS << "\n";
+#endif 
+	ITER; 
+#if TRACE
+	*(pfo->out) << "8.5:" << XPOS << "," << YPOS << "\n";
+#endif 
+	ITER; 
+#if TRACE
+	*(pfo->out) << "8.6:" << XPOS << "," << YPOS << "\n";
+#endif 
+	ITER; 
+#if TRACE
+	*(pfo->out) << "8.7:" << XPOS << "," << YPOS << "\n";
+#endif 
+	ITER; 
+#if TRACE
+	*(pfo->out) << "8.8:" << XPOS << "," << YPOS << "\n";
 #endif 
 
 	BAIL;
@@ -163,11 +188,19 @@ static bool pf_calcNoPeriod(
 	    // we bailed out somewhere in the last 8iters -
 	    // go back to beginning and look one-by-one
 	    RESTORE_ITER;
-	    break;
+#if TRACE
+	    *(pfo->out) << "8bailed, restored to:" << XPOS << "," << YPOS << "\n";
+#endif
+ 	    break;
 	}
 	iter += 8;
     }
 #endif      
+#if TRACE
+	*(pfo->out) << "start1:" << XPOS << "," << YPOS << "\n";
+	*(pfo->out) << "start1.c:" << CXPOS << "," << CYPOS << "\n";
+#endif 
+
     while(iter + 1 < maxIter)
     {
 	ITER;

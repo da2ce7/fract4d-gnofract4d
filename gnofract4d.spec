@@ -7,11 +7,12 @@ Name: gnofract4d
 Version: %ver
 Release: 1
 Copyright: GPL
-Group: Applications/Graphics
-Source: ftp://gnofract4d.sourceforge.net/gnofract4d-%{PACKAGE_VERSION}.tar.gz
-BuildRoot: /var/tmp/gnofract4d-%{PACKAGE_VERSION}-root
+Group: X11/Applications/Graphics
+Source:	http://dl.sf.net/gnofract4d/%{name}-%{version}.tar.gz
+BuildRoot: %{tmpdir}/%{name}-%{PACKAGE_VERSION}-root-%(id -u -n)
 URL: http://gnofract4d.sourceforge.net/
-Requires: gnome-libs >= 1.4.0  gcc-c++ >= 2.95
+Requires: gnome-libs >= 1.4.0
+Requires: gcc-c++ >= 2.95
 Docdir: %{prefix}/doc
 Prefix: %prefix
 
@@ -20,7 +21,7 @@ Gnofract4D is a fractal browser. It can generate many different fractals,
 including some which are hybrids between the Mandelbrot and Julia sets.
 
 %prep
-%setup 
+%setup -q
 
 %build
 CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" ./configure \
@@ -56,3 +57,4 @@ if which scrollkeeper-update>/dev/null 2>&1; then scrollkeeper-update; fi
 %{prefix}/share/omf/gnofract4d/*
 %{prefix}/share/gnofract4d/*
 %{prefix}/share/pixmaps/gnofract4d/*
+%{prefix}/share/maps/gnofract4d/*

@@ -297,10 +297,11 @@ create_current_maps_page(GtkWidget *notebook, model_t *m)
     gchar * mapdir = gnome_program_locate_file(
 	NULL,
 	GNOME_FILE_DOMAIN_APP_DATADIR,
-	PACKAGE "/maps/" ,
+	"maps/" PACKAGE,
 	FALSE,
 	NULL);
 
+    g_print("%s\n",mapdir);
     add_map_directory(table, m, mapdir, tips);
     g_free(mapdir);
 
