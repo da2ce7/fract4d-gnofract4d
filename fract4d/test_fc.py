@@ -102,8 +102,9 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         (status,output) = commands.getstatusoutput('nm test-out.so')
         self.assertEqual(status,0)
         self.assertEqual(string.count(output,"pf_new"),1)
-        self.assertEqual(string.count(output,"pf_calc"),1)
+        self.assertEqual(string.count(output,"pf_calc"),2)
         self.assertEqual(string.count(output,"pf_init"),1)
+        self.assertEqual(string.count(output,"pf_calc_period"),1)
         self.assertEqual(string.count(output,"pf_kill"),1)
 
         # load it and mess around

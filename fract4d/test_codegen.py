@@ -67,7 +67,9 @@ int main()
     return 0;
 }
 '''
-    
+
+        self.period_stub = self.main_stub.replace('->calc','->calc_period')
+        
     def tearDown(self):
         pass
 
@@ -922,7 +924,7 @@ bailout:
         
         inserts = {
             "done_inserts": 'printf(\"%g\\n\",fk);',
-            "main_inserts": self.main_stub
+            "main_inserts": self.period_stub
             }
         c_code = self.codegen.output_c(t,inserts)
         output = self.compileAndRun(c_code)
