@@ -1,6 +1,8 @@
 #include "fractFunc.h"
 #include <stdio.h>
 
+#include <cassert>
+
 dmat4
 rotated_matrix(double *params)
 {
@@ -67,7 +69,6 @@ fractFunc::fractFunc(
     aa_topleft = topleft - (delta_aa_y + delta_aa_x) / 2.0;
     
     nTotalHalfIters = nTotalDoubleIters = nTotalK = 0;
-    clear();
 
     worker->set_fractFunc(this);
 
@@ -77,12 +78,6 @@ fractFunc::fractFunc(
 fractFunc::~fractFunc()
 {
 
-}
-
-void 
-fractFunc::clear()
-{
-    im->clear();    
 }
 
 bool
@@ -327,9 +322,12 @@ calc(
     bool auto_deepen,
     bool yflip,
     bool periodicity,
+    bool dirty,
     IImage *im, 
     IFractalSite *site)
 {
+    assert(NULL != im && NULL != site && 
+	   NULL != cmap && NULL != pfo && NULL != params);
     IFractWorker *worker = IFractWorker::create(nThreads,pfo,cmap,im,site);
 
     if(worker && worker->ok())
@@ -346,8 +344,11 @@ calc(
 	    im,
 	    site);
 
+	if(dirty)
+	{
+	    im->clear();
+	}
 	ff.draw_all();
     }
     delete worker;
-	
 }
