@@ -70,7 +70,11 @@ def p_set_empty(t):
 def p_set_param(t):
      'set : PARAM ID NEWLINE setlist ENDPARAM'
      t[0] = absyn.Param(t[2],t[4],"complex")
-     
+
+def p_set_typed_param(t):
+     'set : ID PARAM ID NEWLINE setlist ENDPARAM'
+     t[0] = absyn.Param(t[3],t[5],t[1])
+
 def p_section_stm(t):
      'section : SECT_STM NEWLINE stmlist'
      t[0] = absyn.Stmlist(t[1],t[3])
