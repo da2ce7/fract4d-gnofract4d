@@ -1,3 +1,4 @@
+#include "threadpool.h"
 
 /* enum for jobs */
 typedef enum {
@@ -144,5 +145,5 @@ class MTFractWorker : public IFractWorker
     virtual void reset_counts();
     virtual void stats(int *pnDoubleIters, int *pnHalfIters, int *pk);
 
-
+    tpool<job_info_t,STFractWorker> *ptp;
 };
