@@ -194,40 +194,14 @@ class T:
 #include <stdlib.h>
 #include <math.h>
 
-/* bailout flags */
-#define HAS_X2 1
-#define HAS_Y2 2
-#define USE_COMPLEX 4
-#define NO_UNROLL 8
-#define NO_PERIOD 16
-
-// iter state
-#define X 0
-#define Y 1
-
-// input state
-#define CX 2
-#define CY 3
-#define EJECT 4
-
-
-// temp state
-#define X2 5
-#define Y2 6
-#define EJECT_VAL 7
-#define LASTX 8
-#define LASTY 9
-#define STATE_SPACE (LASTY+1)
-
 struct s_pf_data;
 
 struct s_pf_vtable {
     /* fill in fields in pf_data with appropriate stuff */
     void (*init)(
 	struct s_pf_data *p,
-        double bailout,
         double period_tolerance,
-        void *params
+        double *params
 	);
     /* calculate one point.
        perform up to nIters iterations,
@@ -244,7 +218,7 @@ struct s_pf_vtable {
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        int *pnIters, double **out_buf
+        int *pnIters, int *pFate, double *pDist
 	);
     /* deallocate data in p */
     void (*kill)(
@@ -261,44 +235,38 @@ typedef struct s_pf_data pf_obj;
 
 typedef struct {
     pf_obj parent;
-    double p[STATE_SPACE];
-
+    double *p;
 } pf_real ;
 
 static void pf_init(
     struct s_pf_data *p_stub,
-    double bailout,
     double period_tolerance, 
-    void *params)
+    double *params)
 {
     pf_real *pfo = (pf_real *)p_stub;
-    pfo->p[EJECT_VAL] = 4.1;
-    pfo->p[X2] = 4.01;
-    pfo->p[Y2] = 4.02;
+    pfo->p = params;
 }
 
 static void pf_calc(
     // "object" pointer
     struct s_pf_data *p_stub,
     // in params
-    const double *params, int nMaxIters, int nNoPeriodIters,
+    const double *params, int t__p_nMaxIters, int t__p_nNoPeriodIters,
     // only used for debugging
     int t__p_x, int t__p_y, int t__p_aa,
     // out params
-    int *pnIters, double **out_buf)
+    int *t__p_pnIters, int *t__p_pFate, double *t__p_pDist)
 {
     pf_real *pfo = (pf_real *)p_stub;
 
-    *out_buf = &(pfo->p)[0];
-
-double z_re = params[2];
-double z_im = params[3];
 double pixel_re = params[0];
 double pixel_im = params[1];
+double z_re = params[2];
+double z_im = params[3];
 
 /* variable declarations */
 %(decls)s
-int nIters = 0;
+int t__p_nIters = 0;
 %(init)s
 t__end_init:
 do
@@ -309,15 +277,14 @@ do
     %(bailout)s
     t__end_bailout:
     %(bailout_inserts)s
-    nIters++;
-}while(%(bailout_var)s && nIters < nMaxIters);
+    t__p_nIters++;
+}while(%(bailout_var)s && t__p_nIters < t__p_nMaxIters);
 
 %(done_inserts)s
-if(nIters == nMaxIters)
-{
-    nIters = -1;
-}
-*pnIters = nIters;
+/* fate of 0 = escaped, 1 = trapped */
+*t__p_pFate = (t__p_nIters >= t__p_nMaxIters);
+*t__p_pnIters = t__p_nIters;
+
 return;
 }
 
@@ -396,8 +363,8 @@ pf_obj *pf_new()
                             out += [ Decl("%s %s_re = %.17f;" % (t,key,val[0])),
                                      Decl("%s %s_im = %.17f;" % (t,key,val[1]))]
                         else:
-                            out += [ Decl("%s %s_re = params[%d];" %(t,key,ord*2+4)),
-                                     Decl("%s %s_im = params[%d];"%(t,key,ord*2+5))]
+                            out += [ Decl("%s %s_re = pfo->p[%d];" %(t,key,ord*2)),
+                                     Decl("%s %s_im = pfo->p[%d];"%(t,key,ord*2+1))]
                             
                     elif sym.type == fracttypes.Float:
                         out.append(Decl("%s %s = %.17f;" % (t,key,val)))

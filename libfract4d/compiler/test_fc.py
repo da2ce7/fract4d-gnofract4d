@@ -4,6 +4,7 @@ import unittest
 import string
 import commands
 import re
+import dl
 
 import fc
 
@@ -22,13 +23,20 @@ class FCTest(unittest.TestCase):
         self.assertEqual(len(ff.formulas),1)
         f = self.compiler.get_formula("gf4d.frm","T03-01-G4")
         self.assertEqual(f.errors, [])
+        commands.getoutput("rm -f test-out.so")
         self.compiler.generate_code(f,"test-out.so")
+        # check the output contains the right functions
         (status,output) = commands.getstatusoutput('nm test-out.so')
         self.assertEqual(status,0)
         self.assertEqual(string.count(output,"pf_new"),1)
         self.assertEqual(string.count(output,"pf_calc"),1)
         self.assertEqual(string.count(output,"pf_init"),1)
         self.assertEqual(string.count(output,"pf_kill"),1)
+
+        # load it and mess around
+        so = dl.open('./test-out.so', dl.RTLD_NOW)
+        self.assertNotEqual(so.sym('pf_new'),0)
+        self.assertNotEqual(so.call('pf_new'),0)
         
     def testErrors(self):
         self.assertRaises(
