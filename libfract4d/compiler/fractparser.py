@@ -17,12 +17,24 @@ precedence = (
     ('right', 'BOOL_NEG', 'UMINUS', 'POWER')
 )
 
+def p_file(t):
+     'file : formlist'
+     t[0] = absyn.Formlist(t[1])
+     
+def p_formlist(t):
+     'formlist : formula NEWLINE formlist'
+     t[0] = [ t[1] ] + t[3]
+     
+def p_formlist_empty(t):
+     'formlist : empty'
+     t[0] = []
+
 def p_formula(t):
-     'formula : FORM_ID NEWLINE sectlist FORM_END NEWLINE'
+     'formula : FORM_ID NEWLINE sectlist FORM_END'
      t[0] = absyn.Formula(t[1],t[3])
 
 def p_formula_2(t):
-     'formula : FORM_ID NEWLINE stmlist sectlist FORM_END NEWLINE'
+     'formula : FORM_ID NEWLINE stmlist sectlist FORM_END'
      sectlist = [ absyn.Stmlist("nameless",t[3]) ] + t[4]
      t[0] = absyn.Formula(t[1],sectlist)
 
@@ -33,6 +45,31 @@ def p_sectlist_2(t):
 def p_sectlist_empty(t):
      'sectlist : empty'
      t[0] = [] # absyn.Empty() ]
+
+def p_section_set(t):
+     'section : SECT_SET NEWLINE setlist'
+     t[0] = absyn.Setlist(t[1],t[3])
+
+def p_setlist_set(t):
+     'setlist : set'
+     t[0] = [ t[1] ]
+
+def p_setlist_2(t):
+     'setlist : set NEWLINE setlist'
+     t[0] = [t[1]] + t[3]
+
+def p_set_string(t):
+     '''set : ID ASSIGN STRING
+        set : ID ASSIGN exp'''     
+     t[0] = absyn.Set(t[1],t[3])
+
+def p_set_empty(t):
+     'set : empty'
+     t[0] = t[1]
+     
+def p_set_param(t):
+     'set : PARAM ID NEWLINE setlist ENDPARAM'
+     t[0] = absyn.Param(t[2],t[4],"complex")
      
 def p_section_stm(t):
      'section : SECT_STM NEWLINE stmlist'
@@ -113,6 +150,10 @@ def p_exp_funcall(t):
     'exp : ID LPAREN arglist RPAREN'
     t[0] = absyn.Funcall(t[1],t[3])
 
+def p_exp_complex(t):
+     'exp : LPAREN exp COMMA exp RPAREN'
+     t[0] = absyn.Complex(t[2],t[4])
+     
 def p_exp_funcall_noargs(t):
     'exp : ID LPAREN RPAREN'
     t[0] = absyn.Funcall(t[1], None)
@@ -131,7 +172,7 @@ def p_arglist_2(t):
     
 # Error rule for syntax errors
 def p_error(t):
-    print "Syntax error in input!" + t.type
+    print "Syntax error %s on line %d " % (t.type, t.lineno)
 
 
 # debugging
