@@ -11,6 +11,16 @@ endfunc
 hyper param val2
 	default = (0.7,0.8,0.9,1)
 endparam
+int param i
+	default = 4
+endparam
+bool param b
+	default = true
+endparam
+param ep
+	enum = "hello" "world"
+	default = "world"
+endparam
 } 
 
 flat2 {

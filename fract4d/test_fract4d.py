@@ -663,7 +663,7 @@ class PfTest(unittest.TestCase):
         pfunc = fract4dc.pf_create(handle)
         self.assertRaises(TypeError,fract4dc.pf_init,pfunc,0.001,72)
         self.assertRaises(ValueError,fract4dc.pf_init,7,0.00,[0.4])
-        self.assertRaises(ValueError,fract4dc.pf_init,pfunc,0.001,[0.0]*21)
+        self.assertRaises(ValueError,fract4dc.pf_init,pfunc,0.001,[0.0]*201)
         pfunc = None
         handle = None
 

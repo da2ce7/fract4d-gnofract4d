@@ -447,7 +447,7 @@ pf_obj *pf_new()
 */
 
 // maximum number of params which can be passed to init
-#define PF_MAXPARAMS 20
+#define PF_MAXPARAMS 200
 
 typedef enum
 {
