@@ -27,8 +27,8 @@ typedef struct _model model_t;
 
 #include <gnome.h>
 
-#include "gf4d_fractal.h"
-#include "gf4d_movie.h"
+typedef struct _Gf4dFractal Gf4dFractal;
+typedef struct _Gf4dMovie Gf4dMovie;
 
 #ifdef __cplusplus
 extern "C" {

@@ -30,7 +30,7 @@
 #include "menus.h"
 #include "toolbars.h"
 #include "drawingareas.h"
-
+#include "gf4d_fractal.h"
 
 
 gint

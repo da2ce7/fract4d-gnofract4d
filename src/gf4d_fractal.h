@@ -26,9 +26,13 @@
 #ifndef _GF4D_FRACTAL_H_
 #define _GF4D_FRACTAL_H_
 
-#include <stdio.h>
+//#include <stdio.h>
 #include <gtk/gtkobject.h>
 #include <pthread.h>
+
+#include "fract4d.h"
+#include "image.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,9 +46,6 @@ extern "C" {
 
 typedef struct _Gf4dFractal Gf4dFractal;
 typedef struct _Gf4dFractalClass Gf4dFractalClass;
-
-#include "fract4d.h"
-#include "image.h"
 
 class fractal_site;
 

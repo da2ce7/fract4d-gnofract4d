@@ -21,10 +21,14 @@
 #ifndef _ANGLES_H_
 #define _ANGLES_H_
 
+#include "fract4d.h"
+#include "model.h"
+
 #include <gnome.h>
 #include <gtk/gtk.h>
 
-#include "model.h"
+
+
 
 GtkWidget* create_angle_button(
     char *label_text, 

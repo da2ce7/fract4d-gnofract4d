@@ -28,6 +28,7 @@
 
 #include "model.h"
 #include "gf4d_fractal.h"
+#include "gf4d_movie.h"
 #include "gundo.h"
 #include "gundo_ui.h"
 #include "fract_public.h"

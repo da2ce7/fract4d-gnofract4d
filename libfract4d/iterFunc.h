@@ -23,13 +23,13 @@
 #ifndef _ITERFUNC_H_
 #define _ITERFUNC_H_
 
-#include "fract_public.h"
-#include "pointFunc_public.h"
-
 #include <iosfwd>
 #include <complex>
 #include <string>
 #include <map>
+
+#include "fract_public.h"
+#include "pointFunc_public.h"
 
 /* a function which performs a single fractal iteration */
 

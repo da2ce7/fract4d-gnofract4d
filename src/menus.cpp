@@ -29,6 +29,7 @@
 #include "preferences.h"
 #include "cmapbrowser.h"
 #include "movie_editor.h"
+#include "gf4d_fractal.h"
 
 typedef struct {
     model_t *m;

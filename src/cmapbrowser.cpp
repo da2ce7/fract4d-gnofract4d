@@ -33,6 +33,7 @@
 #include "drawingareas.h"
 #include "colorizer.h"
 #include "preview.h"
+#include "gf4d_fractal.h"
 
 #include <dirent.h>
 

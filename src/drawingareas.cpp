@@ -25,6 +25,7 @@
 #include <gnome.h>
 #include "drawingareas.h"
 #include "properties.h"
+#include "gf4d_fractal.h"
 
 typedef struct {
     model_t *m;

@@ -1,6 +1,7 @@
 #include "angles.h"
 #include "callbacks.h"
 #include "gf4d_angle.h"
+#include "gf4d_fractal.h"
 
 void angle_set_cb(GtkAdjustment *adj, gpointer user_data);
 void angle_update_cb(GtkWidget *adj, gpointer user_data);

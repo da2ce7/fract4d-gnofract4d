@@ -27,6 +27,7 @@
 #include "angles.h"
 #include "preview.h"
 #include "gf4d_fourway.h"
+#include "gf4d_fractal.h"
 
 void 
 position_set_cb (GtkWidget *button, gpointer user_data)

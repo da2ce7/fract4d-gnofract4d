@@ -22,6 +22,7 @@
 #include <gdk/gdk.h>
 
 #include "model.h"
+#include "fract4d.h"
 #include "gf4d_fourway.h"
 
 typedef struct {
