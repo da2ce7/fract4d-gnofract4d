@@ -5,6 +5,7 @@ import string
 import commands
 import re
 import dl
+import os
 
 import testbase
 
@@ -87,7 +88,7 @@ class FCTest(testbase.TestBase):
         f.merge(cf2,"cf1_")
 
         ofile = self.compiler.generate_code(f,cg)
-        print ofile
+        self.failUnless(os.path.exists(ofile))
 
 def suite():
     return unittest.makeSuite(FCTest,'test')

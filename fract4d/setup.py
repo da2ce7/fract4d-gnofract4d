@@ -20,9 +20,9 @@ module1 = Extension(
     libraries = [
     'stdc++'
     ],
-    #extra_compile_args = [
-    #'-O0'
-    #],
+    extra_compile_args = [
+    '-O0'
+    ],
     define_macros = [ ('_REENTRANT',1),
                       #('DEBUG_CREATION',1)
                       ]

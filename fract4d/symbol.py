@@ -106,7 +106,9 @@ def createDefaultDict():
         "t__h_z" : Alias("z"),
         "z"  : Var(Complex),
         "t__h_index": Var(Float),
-        "t__h_numiter": Var(Int)
+        "t__h_numiter": Var(Int),
+        "t__h_maxiter": Alias("maxiter"),
+        "maxiter" : Var(Int)
         }
     
     # predefined parameters

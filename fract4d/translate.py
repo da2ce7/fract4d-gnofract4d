@@ -118,7 +118,7 @@ class TBase:
     
     def default(self,node):
         # fixme - deal with these someday
-        self.sections["default"] = 1
+        self.add_to_section("default", self.setlist(node))
 
     def add_to_section(self,sectname,stmlist):
         current = self.sections.get(sectname)
@@ -133,6 +133,29 @@ class TBase:
     def final(self,node):
         self.add_to_section("final",self.stmlist(node))
 
+    def setlist(self, node):
+        children = filter(lambda c : c.type != "empty", node.children)
+        seq = ir.Seq(map(lambda c: self.setting(c), children), node)
+        return seq
+
+    def setting(self,node):
+        if node.type == "param":
+            print "param"
+            pass
+        elif node.type == "func":
+            print "func"
+            pass
+        elif node.type == "heading":
+            print "heading"
+            pass
+        elif node.type == "set":
+            return self.set(node)
+        else:
+            return self.stm(node)
+
+    def set(self,node):
+        return self.assign(node)
+    
     def stmlist(self, node):
         children = filter(lambda c : c.type != "empty", node.children)
         seq = ir.Seq(map(lambda c: self.stm(c), children), node)

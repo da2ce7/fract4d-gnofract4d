@@ -89,7 +89,7 @@ def p_setlist_2(t):
 
 def p_set_exp(t):
      'set : ID ASSIGN exp'     
-     t[0] = absyn.Set(t[1],[t[3]],t.lineno(2))
+     t[0] = absyn.Set(absyn.ID(t[1],t.lineno(1)),t[3],t.lineno(2))
 
 def p_set_empty(t):
      'set : empty'
