@@ -32,13 +32,13 @@ class CodegenTest(testbase.TestBase):
 int main()
 {
     double pparams[] = { 1.5, 0.0, 0.0, 0.0};
-    double initparams[] = {5.0, 2.0};
+    double initparams[] = {1.0, 0.0, 1.0, 0.0, 5.0, 2.0};
     int nItersDone=0;
     int nFate=0;
     double dist=0.0;
     int solid=0;
     pf_obj *pf = pf_new();
-    pf->vtbl->init(pf,0.001,initparams,2);
+    pf->vtbl->init(pf,0.001,initparams,6);
     
     pf->vtbl->calc(
          pf,
@@ -51,7 +51,7 @@ int main()
 
     pparams[0] = 0.1; pparams[1] = 0.2;
     pparams[2] = 0.1; pparams[3] = 0.3;
-    initparams[0] = 3.0; initparams[1] = 3.5;
+    initparams[4] = 3.0; initparams[5] = 3.5;
     
     pf->vtbl->calc(
         pf,
@@ -397,7 +397,7 @@ goto t__end_finit;''')
             }
         
         c_code = self.codegen.output_c(t,inserts)
-        
+
         output = self.compileAndRun(c_code)
         self.assertEqual(["(0,0,3)", "(20,1,789.1)"],output.split("\n"))
 
