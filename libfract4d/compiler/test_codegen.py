@@ -187,12 +187,14 @@ loop:
 int a = 1
 z = z + a
 }''', "loop")
-        self.compileAndRun("", "t__end_loop:\nprintf(\"%.17g\\n\",z_re);")
+        output = self.compileAndRun("", "t__end_loop:\nprintf(\"%g,%g\\n\",z_re,z_im);")
+        self.assertEqual(output,"1,0")
         
     def assertOutputMatch(self,exp):
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
         self.assertEqual(str_output,exp)
-        
+
+    
     def printAsm(self):
         for i in self.codegen.out:
             try:
@@ -230,15 +232,18 @@ z = z + a
         c_code = self.makeC(user_preamble, user_postamble)
         cFileName = self.writeToTempFile(c_code,".c")
         oFileName = self.writeToTempFile("")
-        print c_code
+        #print c_code
         cmd = "gcc -Wall %s -o %s" % (cFileName, oFileName)
-        print cmd
+        #print cmd
         (status,output) = commands.getstatusoutput(cmd)
-        print "status: %s\noutput:\n%s" % (status, output)
+        self.assertEqual(status,0)
+        #print "status: %s\noutput:\n%s" % (status, output)
         cmd = oFileName
         (status,output) = commands.getstatusoutput(cmd)
-        print "status: %s\noutput:\n%s" % (status, output)
-        
+        self.assertEqual(status,0)
+        #print "status: %s\noutput:\n%s" % (status, output)
+        return output
+    
 def suite():
     return unittest.makeSuite(CodegenTest,'test')
 
