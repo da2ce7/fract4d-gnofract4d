@@ -409,6 +409,9 @@ class MainWindow:
             _("wrp"),
             _("Mutate the image by moving along the other 2 axes"), 2)
 
+        # deepen/resize
+        self.toolbar.append_space()
+        
         image = gtk.Image()
         image.set_from_file(
             utils.find_resource('deepen_now.png',
@@ -424,7 +427,20 @@ class MainWindow:
             image,
             self.deepen_now,
             None)
-        
+
+        res_menu = self.create_resolution_menu()
+
+        self.toolbar.append_element(
+            gtk.TOOLBAR_CHILD_WIDGET,
+            res_menu,
+            _("Resolution"),
+            _("Change fractal's resolution"),
+            None,
+            None,
+            None,
+            None)
+            
+
         # undo/redo
         self.toolbar.append_space()
         
@@ -521,7 +537,52 @@ class MainWindow:
             'value-changed',on_weirdness_changed)
         self.color_weirdness_adjustment.connect(
             'value-changed',on_weirdness_changed)
+
+    def create_resolution_menu(self):
+        self.resolutions = [
+            (320,240), (640,480),
+            (800,600), (1024, 768),
+            (1280,960), (1600,1200)]
         
+        res_menu= gtk.OptionMenu()
+        menu = gtk.Menu()
+        for (w,h) in self.resolutions:
+            item = "%dx%d" % (w,h)
+            mi = gtk.MenuItem(item)
+            menu.append(mi)
+        res_menu.set_menu(menu)
+        
+
+        def set_selected_resolution(prefs):
+            res = (w,h) = (prefs.getint("display","width"),
+                           prefs.getint("display","height"))
+
+            try:
+                index = self.resolutions.index(res)
+            except ValueError:
+                # not found
+                self.resolutions.append(res)
+                item = "%dx%d" % (w,h)
+                mi = gtk.MenuItem(item)
+                res_menu.get_menu().append(mi)
+                index = len(self.resolutions)-1
+
+            res_menu.set_history(index)
+
+        def set_resolution(*args):
+            index = res_menu.get_history()
+            if index != -1:
+                (w,h) = self.resolutions[index]
+                preferences.userPrefs.set_size(w,h)
+            
+        set_selected_resolution(preferences.userPrefs)
+        res_menu.connect('changed', set_resolution)
+
+        preferences.userPrefs.connect('preferences-changed',
+                                      set_selected_resolution)
+
+        return res_menu
+    
     def toolbar_toggle_explorer(self,widget):
         self.set_explorer_state(widget.get_active())
 

@@ -3,7 +3,6 @@ todo for 2.2
 * WW	cmap editor - brightness/contrast/gamma/HSV/RGB
 * W	recoloring
 * B	opening color browser sometimes applies 1st item
-* W	drop-down resolution chooser
 * W	logmap
 * B	fractint doesn't reset vars between calls
 * B	parse continuation lines correctly
@@ -74,12 +73,14 @@ differences from fractint:
 * B	fn(z*z)+c : acos, acosh 
 * W	fractint-builtins.frm
 
-done:
+done in 2.2:
+* W	drop-down resolution chooser
 * B	method=multipass = compile error
 * W	sort formula files by name
 * B	jgr.ufm:Birch - compiler bug!
 * B	open formula file on .cfrm should go to correct page in browser
 * B	multiple copies of same filename
+2.1:
 * W	auto-list all formula files on path, parse on first click
 * B	prompt if not saved
 * W	tdis, other fractint colorfuncs
