@@ -79,12 +79,19 @@ key_event(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
     return 0;
 }
 
+GtkWidget *main_app_window = NULL;
+
 GtkWidget *
 create_app (model_t *m)
 {
     GtkWidget *table;
     GtkWidget *drawing_area;
     GtkWidget *fixed;
+
+    if(main_app_window != NULL)
+    {
+	return main_app_window;
+    }
 
     GtkWidget *app = gnome_app_new ("Gnofract4D", _("Gnofract4D"));
 
@@ -173,7 +180,8 @@ create_app (model_t *m)
 
     g_signal_connect (GTK_OBJECT(app), "key_press_event",
 			(GtkSignalFunc) key_event, m);
-    
+
+    main_app_window= app;
     return app;
 }
 

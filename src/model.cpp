@@ -27,6 +27,7 @@
 #include <gnome.h>
 
 #include "model.h"
+#include "interface.h"
 #include "gf4d_fractal.h"
 #include "gf4d_movie.h"
 #include "gundo.h"
@@ -102,7 +103,7 @@ static void model_resize_widget(model_t *m)
     if(m->topWidget)
     {        
         // +2 to account for padding in table
-        gtk_widget_set_usize(m->topWidget,m->width+2,m->height+2);
+        gtk_widget_set_size_request(m->topWidget,m->width+2,m->height+2);
     }
 }
 
@@ -232,9 +233,14 @@ model_free_undo_data(gpointer undo_data)
 
 static void fatal_config_error(char *msg)
 {
-    GtkWidget *msgbox = gnome_error_dialog(msg);
-    gtk_window_set_modal(GTK_WINDOW(msgbox), TRUE);
-    gnome_dialog_run(GNOME_DIALOG(msgbox));
+    GtkWidget *msgbox = gtk_message_dialog_new(
+	main_app_window == NULL ? NULL : GTK_WINDOW(main_app_window),
+	GTK_DIALOG_DESTROY_WITH_PARENT,
+	GTK_MESSAGE_ERROR,
+	GTK_BUTTONS_CLOSE,
+	msg);
+	
+    gtk_dialog_run(GTK_DIALOG(msgbox));
     exit(-1);
 }
 
@@ -246,7 +252,12 @@ model_init_compiler(model_t *m,compiler *pc)
 
     if(NULL == template_location)
     {
-        template_location = gnome_datadir_file(PACKAGE "/compiler_template.cpp");
+        template_location = gnome_program_locate_file(
+	    NULL,
+	    GNOME_FILE_DOMAIN_APP_DATADIR,
+	    PACKAGE "/compiler_template.cpp",
+	    TRUE,
+	    NULL);
     }
 
     if(NULL == template_location)
@@ -291,14 +302,26 @@ model_display_pending_errors(model_t *m)
     gtk_idle_remove_by_data(m);
     if(!m->pending_error) return;
 
+    GtkWidget *dialog = gtk_dialog_new_with_buttons(
+	_("Gnofract4D Error"),
+	GTK_WINDOW(main_app_window),
+	(GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT),
+	GTK_STOCK_OK,
+	GTK_RESPONSE_ACCEPT,
+	NULL);
 
-    GtkWidget *dialog = 
-	gnome_dialog_new(_("Gnofract4D Error"),
-			 GNOME_STOCK_BUTTON_OK,
-			 NULL);
+    GtkWidget *hbox = gtk_hbox_new(false,1);
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
+		       hbox, TRUE, TRUE, 1);
+
+    GtkWidget *error_icon = 
+	gtk_image_new_from_stock(GTK_STOCK_DIALOG_ERROR, GTK_ICON_SIZE_DIALOG);
+
+    gtk_box_pack_start(GTK_BOX(hbox),
+		       error_icon, TRUE, TRUE, 1);
     
     GtkWidget *label = gtk_label_new(m->message);
-    gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(dialog)->vbox),
+    gtk_box_pack_start(GTK_BOX(hbox),
 		       label, TRUE, TRUE, 1);
     
     if(m->extra_info)
@@ -311,17 +334,19 @@ model_display_pending_errors(model_t *m)
 	gtk_widget_set_usize(scrolled,320,400);
  
 	GtkWidget *text = gtk_text_view_new();
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text), GTK_WRAP_WORD);
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer( GTK_TEXT_VIEW(text));
 	gtk_text_buffer_set_text(buffer, m->extra_info, -1);
     
 	gtk_container_add(GTK_CONTAINER(scrolled),text);
     
-	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(dialog)->vbox),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
 			   scrolled, TRUE, TRUE, 1);
     }
     gtk_widget_show_all(dialog);
 
-    gnome_dialog_run_and_close(GNOME_DIALOG(dialog));
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
 
     m->pending_error = false;
     gdk_threads_leave();
