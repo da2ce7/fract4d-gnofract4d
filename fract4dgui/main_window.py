@@ -2,6 +2,7 @@
 
 import sys
 import os
+import signal
 import copy
 import math
 
@@ -18,7 +19,6 @@ import icons
 class MainWindow:
     def __init__(self):
         self.quit_when_done =False
-        self.save_filename = None
         # window widget
 
         self.set_icon()
@@ -273,8 +273,8 @@ class MainWindow:
 
         if status == 0:
             # done
-            if self.save_filename:
-                self.f.save_image(self.save_filename)
+            if self.filename:
+                self.f.save_image(self.filename)
             if self.quit_when_done:
                 self.f.set_saved(True)
                 self.quit(None,None)
@@ -763,8 +763,12 @@ class MainWindow:
         else:
             anchor = "#" + section
 
-        os.system("yelp ghelp://%s%s 2>/dev/null &" % (abs_file, anchor))
-
+        yelp_path = utils.find_in_path("yelp")
+        if not yelp_path:
+            return
+        
+        os.system("yelp ghelp://%s%s >/dev/null 2>&1" % (abs_file, anchor))
+        
     def open_formula(self,action,widget):
         fs = gtk.FileSelection(_("Open Formula File"))
         fs.show_all()

@@ -8,3 +8,16 @@ def find_resource(name, local_dir, installed_dir):
         return local_name
 
     return os.path.join(sys.exec_prefix, installed_dir, name)
+
+def find_in_path(exe):
+    # find an executable along PATH env var
+    pathstring = os.environ["PATH"]
+    if pathstring == None or pathstring == "":
+        return None
+    paths = pathstring.split(":")
+    for path in paths:
+        full_path = os.path.join(path,exe)
+        if os.path.exists(full_path):
+            return full_path
+    return None
+    

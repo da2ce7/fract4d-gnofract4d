@@ -357,13 +357,13 @@ magnitude=3.0
 }
 
 Newton {
-; Newton is the Newton-Raphson method applied to z^a - 1.
+; Newton is the Newton-Raphson method applied to z^a = root
 init:
 	z = #zwpixel
 	nm1 = @a - 1.0
 loop:
 	last = z
-	z = z - (z ^ @a - 1.0)/ (@a * z ^ nm1)
+	z = z - (z ^ @a - @root)/ (@a * z ^ nm1)
 bailout:
 	|z - last| > #tolerance
 default:
@@ -373,6 +373,10 @@ xcenter=1.0
 param a
 	default = (3.0, 0.0)
 endparam
+param root
+	default = (1.0, 0.0)
+endparam
+
 }
 
 Nova {
