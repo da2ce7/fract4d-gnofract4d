@@ -82,6 +82,8 @@ class FctTest(unittest.TestCase):
 
     def testLoad(self):
         self.f.loadFctFile(file("../testdata/test_bail.fct"))
+        self.assertEqual(self.f.saved, True)
+        
         self.testSignals()
         self.f.connect('status-changed', self.quitloop)
         self.f.draw_image(0,1)

@@ -18,7 +18,6 @@ UI improvements
 	run $EDITOR, refresh
 * W	review human interface guidelines
 * W	recently-used files
-* W	warn before quitting or save current fractal to autosave by default?
 
 1.9 features:
 * W	command-line arguments
@@ -50,6 +49,7 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* W	warn before quitting or save current fractal to autosave by default?
 * B	translationerror on load doesn't pop up
 * B	change width or setting to something which isn't a number/float: 
 	ValueError in set_prefs, set_initparam etc

@@ -265,6 +265,7 @@ class T(gobject.GObject):
             
     def changed(self):
         self.f.dirty = True
+        self.f.saved = False
         if not self.frozen:
             self.emit('parameters-changed')
 
@@ -415,6 +416,7 @@ class T(gobject.GObject):
         new_f.warn = self.warn
         new_f.loadFctFile(file)
         self.set_fractal(new_f)
+        self.f.saved = True
         
     def save_image(self,filename):
         fract4dguic.image_save(self.image,filename)
