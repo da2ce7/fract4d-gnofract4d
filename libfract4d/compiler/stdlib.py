@@ -12,9 +12,10 @@ def imags(l):
 
 # unary negation
 def neg_i_i(gen,t,srcs):
-    return gen.emit_func('-', srcs, t.datatype)
+    return gen.emit_func('-', srcs, Int)
 
-neg_f_f = neg_i_i
+def neg_f_f(gen,t,srcs):
+    return gen.emit_func('-', srcs, Float)
 
 def neg_c_c(gen,t,srcs):
     return ComplexArg(
@@ -235,7 +236,7 @@ def recip_c_c(gen,t,srcs):
                     [ComplexArg(ConstFloatArg(1.0), ConstFloatArg(0.0)), srcs[0]])
 
 def abs_f_f(gen,t,srcs):
-    return gen.emit_func('abs',srcs, Float)
+    return gen.emit_func('fabs',srcs, Float)
 
 def abs_c_c(gen,t,srcs):
     return ComplexArg(abs_f_f(gen,t,[srcs[0].re]), abs_f_f(gen,t,[srcs[0].im]))
@@ -248,13 +249,85 @@ def sqrt_f_f(gen,t,srcs):
     return gen.emit_func('sqrt', srcs, Float)
 
 def sqrt_c_c(gen,t,srcs):
-    # t = sqrt(2 * (cabs(a+ib) + abs(a)))
-    # u = t/2
-    # sqrt(a+ib) when a == 0 : t = sqrt(abs(b)/2), (t, b < 0 ? -t : t)
-    #            when a > 0  : (u,b/t)
-    #            when a < 0  : (abs(b)/t, b < 0 ? -t : t)
-    #t = sqrt_f_f(gen.emit_binop('*', [ConstFloatArg(2.0)
-    pass
+    xnonzero = gen.symbols.newLabel()
+    done = gen.symbols.newLabel()
+    dst_re = TempArg(gen.symbols.newTemp(Float))
+    dst_im = TempArg(gen.symbols.newTemp(Float))
+
+    gen.emit_cjump(srcs[0].re,xnonzero)
+    
+    # only an imaginary part :
+    # temp = sqrt(abs(z.im) / 2);
+    # return (temp, __y < 0 ? -__temp : __temp);
+    
+    temp = sqrt_f_f(gen, t, [ abs_f_f(gen,t, [
+        gen.emit_binop('/',[srcs[0].im, ConstFloatArg(2.0)],Float)])])
+
+    gen.emit_move(temp,dst_re)
+    # y >= 0?
+    ypos = gen.emit_binop('>=',[srcs[0].im,ConstFloatArg(0.0)], Float)
+    ygtzero = gen.symbols.newLabel()
+    gen.emit_cjump(ypos,ygtzero)
+    
+    nt = neg_f_f(gen,t, [temp])
+    gen.emit_move(nt,temp)
+    
+    gen.emit_label(ygtzero)
+    gen.emit_move(temp,dst_im)
+    gen.emit_jump(done)
+
+    gen.emit_label(xnonzero)
+    # both real and imaginary
+
+    # temp = sqrt(2 * (cabs(z) + abs(z.re)));
+    # u = temp/2
+    temp = sqrt_f_f(
+        gen,t,
+        [ gen.emit_binop(
+            '*',
+            [ConstFloatArg(2.0),
+             gen.emit_binop(
+                 '+',
+                 [cabs_c_f(gen,t,[srcs[0]]),
+                  abs_f_f(gen,t,[srcs[0].re])],
+                 Float)
+             ],
+            Float)
+          ])
+    u = gen.emit_binop('/',[temp,ConstFloatArg(2.0)], Float)
+    
+    #x > 0?
+    xpos = gen.emit_binop('>',[srcs[0].re,ConstFloatArg(0.0)], Float)    
+    xgtzero = gen.symbols.newLabel()
+    gen.emit_cjump(xpos,xgtzero)
+
+    # x < 0:
+
+    # x = abs(im)/temp
+    gen.emit_move(gen.emit_binop(
+        '/',
+        [abs_f_f(gen,t,[srcs[0].im]), temp], Float) , dst_re)
+
+    # y < 0 ? -u : u
+    ypos2 = gen.emit_binop('>',[srcs[0].im,ConstFloatArg(0.0)], Float)    
+    ygtzero2 = gen.symbols.newLabel()
+    gen.emit_cjump(ypos2,ygtzero2)
+    gen.emit_move(neg_f_f(gen,t,[u]), dst_im)
+    gen.emit_jump(done)
+    gen.emit_label(ygtzero2)
+    gen.emit_move(u, dst_im)
+    gen.emit_jump(done)
+
+    # x > 0:
+    gen.emit_label(xgtzero)
+
+    # (u, im/temp)
+    gen.emit_move(u,dst_re)
+    gen.emit_move(gen.emit_binop('/',[srcs[0].im, temp], Float),dst_im)
+    
+    gen.emit_label(done)
+
+    return ComplexArg(dst_re,dst_im)
 
 def sin_f_f(gen,t,srcs):
     return gen.emit_func('sin', srcs, Float)

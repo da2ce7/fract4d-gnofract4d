@@ -528,7 +528,7 @@ goto t__end_init;''')
         return [ codefrag, lookat, result]
         
     def manufacture_tests(self,myfunc,pyfunc):
-        vals = [ 0+0j, 0+1j, 1+0j, 1+1j, 3+2j, 1-0j, 0-1j ]
+        vals = [ 0+0j, 0+1j, 1+0j, 1+1j, 3+2j, 1-0j, 0-1j, -3+2j, -2-2j ]
         return map(lambda (x,y) : self.make_test(myfunc,pyfunc,x,y), \
                    zip(vals,range(1,len(vals))))
                                 
