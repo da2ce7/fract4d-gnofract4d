@@ -158,16 +158,17 @@ class T(UserDict):
         
         self.data[k] = value
 
-    def parameters(self):
+    def parameters(self,varOnly=False):
         params = {}
         for (name,sym) in self.data.items():
             if self.is_param(name):
-                params[name] = sym
+                if not varOnly or isinstance(sym,Var):
+                    params[name] = sym
         return params
 
     def order_of_params(self):
         # a hash which maps param name -> order in input list
-        p = self.parameters()
+        p = self.parameters(True)
         karray = p.keys()
         karray.sort()
         op = {}; i = 0

@@ -249,8 +249,8 @@ return;
                             out += [ Decl("%s %s_re = %.17f;" % (t,key,val[0])),
                                      Decl("%s %s_im = %.17f;" % (t,key,val[1]))]
                         else:
-                            out += [ Decl("%s %s_re = params[%d];" %(t,key,ord*2)),
-                                     Decl("%s %s_im = params[%d];"%(t,key,ord*2+1))]
+                            out += [ Decl("%s %s_re = params[%d];" %(t,key,ord*2+4)),
+                                     Decl("%s %s_im = params[%d];"%(t,key,ord*2+5))]
                             
                     elif sym.type == fracttypes.Float:
                         out.append(Decl("%s %s = %.17f;" % (t,key,val)))
