@@ -83,6 +83,14 @@ class TranslateTest(unittest.TestCase):
 
         t12 = self.translate('t12 {\ninit: a = b}')
         self.assertWarning(t12, "Uninitialized variable b referenced on line 2")
+
+    def testBinops(self):
+        t13 = self.translate('''t13 {
+        loop:
+        complex a, complex b, complex c
+        a = b + c
+        }''')
+        self.assertNoProbs(t13)
         
     def testDecls(self):
         t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")

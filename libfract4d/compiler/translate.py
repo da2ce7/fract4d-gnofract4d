@@ -6,6 +6,7 @@ from absyn import *
 import symbol
 import fractparser
 import exceptions
+import ir
 from fracttypes import *
 
 class TranslationError(exceptions.Exception):
@@ -20,11 +21,17 @@ class T:
         self.sections = {}
         self.dumpCanon = 0
         self.dumpDecorated = 0
+        self.dumpProbs = 0
+        
         try:
             self.formula(f)
         except TranslationError, e:
             self.errors.append(e.msg)
 
+        if self.dumpProbs:
+            print self.errors
+            print self.warnings
+            
         if self.dumpDecorated:
             print f.pretty()
         
@@ -40,7 +47,6 @@ class T:
             return
 
         self.canonicalizeSections(f)
-        #print f.pretty()
         
         # lookup sections in order
         s = f.childByName("default")
@@ -114,7 +120,7 @@ class T:
             self.assign(node)
         else:
             self.exp(node,expectedType)
-
+        
     def assign(self, node):
         '''assign a new value to a variable, creating it if required'''
         if not self.symbols.has_key(node.leaf):
@@ -143,9 +149,18 @@ class T:
             self.const(node,expectedType)
         elif node.type == "id":
             self.id(node,expectedType)
+        elif node.type == "binop":
+            self.binop(node,expectedType)
         else:
             self.badNode(node,"exp")
 
+    def binop(self, node, expectedType):
+        # todo - detect and special-case logical operations
+        for child in node.children:
+            self.exp(child,expectedType)
+        self.datatype = expectedType
+
+        
     def id(self, node, expectedType):
         try:
             node.datatype = self.symbols[node.leaf].type
