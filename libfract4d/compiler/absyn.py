@@ -152,6 +152,9 @@ def Formula(id, stmlist):
 def Param(id,settinglist,type):
     return Node("param", settinglist, (id,type))
 
+def Func(id,settinglist):
+    return Node("func", settinglist, id)
+
 def If(test, left, right):
     return Node("if",
                 [test, Stmlist("",left), Stmlist("",right)], "")
