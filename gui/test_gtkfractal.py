@@ -57,7 +57,7 @@ class FctTest(unittest.TestCase):
     def testCreate(self):
         # draw a default fractal
         self.f.connect('status-changed', self.quitloop)
-        self.f.draw_image(0)
+        self.f.draw_image(0,1)
         self.wait()
 
     def testSignals(self):
@@ -86,7 +86,7 @@ class FctTest(unittest.TestCase):
         self.f.loadFctFile(file("test_bail.fct"))
         self.testSignals()
         self.f.connect('status-changed', self.quitloop)
-        self.f.draw_image(0)
+        self.f.draw_image(0,1)
         self.wait()        
         
     def disabled_testSignalsDontRecurse(self):
