@@ -220,45 +220,19 @@ fractal::reset()
     rot_by = M_PI/2.0;
 }
 
-e_colorizer
-fractal::get_color_type()
+colorizer_t *
+fractal::get_colorizer()
 {
-    return cizer->type();
+    return cizer;
 }
 
 void
-fractal::set_color_type(e_colorizer type)
+fractal::set_colorizer(colorizer_t *c)
 {
-    if(type == cizer->type()) return;
+    if(cizer == c) return;
 
     colorizer_delete(&cizer);
-    cizer = colorizer_new(type);
-}
-
-void
-fractal::set_cmap_file(const char *filename)
-{
-    cmap_colorizer *cmap_cizer = dynamic_cast<cmap_colorizer *>(cizer);
-    if(cmap_cizer)
-    {
-        if(strcmp(cmap_cizer->name.c_str(),filename)==0)
-        {
-            return; // already set to same file
-        }
-        cmap_cizer->set_cmap_file(filename);
-    }
-    else
-    {
-        g_warning("set_cmap_file on non-cmap colorizer");
-    }
-}
-
-char *
-fractal::get_cmap_file()
-{
-    cmap_colorizer *cmap_cizer = dynamic_cast<cmap_colorizer *>(cizer);
-    if(!cmap_cizer) return NULL;
-    return g_strdup(cmap_cizer->name.c_str());
+    cizer = c->clone();
 }
 
 bool 
@@ -351,39 +325,6 @@ fractal::get_auto()
 {
     return auto_deepen;
 }
-
-void 
-fractal::set_color(double _r, double _g, double _b)
-{
-    rgb_colorizer *rgb_cizer = dynamic_cast<rgb_colorizer *>(cizer);
-    if(!rgb_cizer) return;
-    rgb_cizer->set_colors(_r,_g,_b);
-}
-
-double 
-fractal::get_r()
-{
-    rgb_colorizer *rgb_cizer = dynamic_cast<rgb_colorizer *>(cizer);
-    if(!rgb_cizer) return 0.0;
-    return rgb_cizer->r;
-}
-
-double 
-fractal::get_g()
-{
-    rgb_colorizer *rgb_cizer = dynamic_cast<rgb_colorizer *>(cizer);
-    if(!rgb_cizer) return 0.0;
-    return rgb_cizer->g;
-}
-
-double 
-fractal::get_b()
-{
-    rgb_colorizer *rgb_cizer = dynamic_cast<rgb_colorizer *>(cizer);
-    if(!rgb_cizer) return 0.0;
-    return rgb_cizer->b;
-}
-
 
 bool 
 fractal::set_precision(int digits)

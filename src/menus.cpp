@@ -220,13 +220,6 @@ static GnomeUIInfo file1_menu_uiinfo[] =
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_OPEN,
         0, (enum GdkModifierType)'l', NULL
     },
-    {
-        GNOME_APP_UI_ITEM, N_("_Choose colormap"),
-        NULL,
-        create_cmap_browser, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
-        0, (enum GdkModifierType) 'c', NULL
-    },
     GNOMEUIINFO_SEPARATOR,
     GNOMEUIINFO_MENU_EXIT_ITEM (menu_quit_cb, NULL),
     GNOMEUIINFO_END
@@ -235,6 +228,13 @@ static GnomeUIInfo file1_menu_uiinfo[] =
 static GnomeUIInfo parameters1_menu_uiinfo[] =
 {
     GNOMEUIINFO_MENU_PREFERENCES_ITEM (preferences_cb, NULL),
+    {
+        GNOME_APP_UI_ITEM, N_("_Colors"),
+        NULL,
+        create_cmap_browser, NULL, NULL,
+        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
+        0, (enum GdkModifierType) 'c', NULL
+    },
     GNOMEUIINFO_END
 };
 

@@ -97,14 +97,8 @@ struct fractal
     bool set_precision(int digits); 
 
     // color functions
-    e_colorizer get_color_type();
-    void set_color_type(e_colorizer);
-    void set_color(double r, double g, double b);
-    void set_cmap_file(const char *filename);
-    char *get_cmap_file();
-    double get_r();
-    double get_g();
-    double get_b();
+    colorizer_t *get_colorizer();
+    void set_colorizer(colorizer_t *cizer);
 
     void update_matrix();
     dvec4 get_center();

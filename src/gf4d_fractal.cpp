@@ -335,21 +335,6 @@ int gf4d_fractal_get_max_iterations(Gf4dFractal *f)
     return f->f->get_max_iterations();
 }
 
-double gf4d_fractal_get_r(Gf4dFractal *f)
-{
-    return f->f->get_r();
-}
-
-double gf4d_fractal_get_g(Gf4dFractal *f)
-{
-    return f->f->get_g();
-}
-
-double gf4d_fractal_get_b(Gf4dFractal *f)
-{
-    return f->f->get_b();
-}
-
 e_antialias gf4d_fractal_get_aa(Gf4dFractal *f)
 {
     return f->f->get_aa();
@@ -401,13 +386,6 @@ int gf4d_fractal_set_precision(Gf4dFractal *f, int digits)
     return f->f->set_precision(digits);
 }
 
-void gf4d_fractal_set_color(Gf4dFractal *f, double r, double g, double b)
-{
-    kill_slave_threads(f);
-
-    f->f->set_color(r,g,b);
-}
-
 /* image-related functions: to be removed */
 int gf4d_fractal_get_xres(Gf4dFractal *f)
 {
@@ -436,26 +414,15 @@ int  gf4d_fractal_set_resolution(Gf4dFractal *f, int xres, int yres)
     return 1;
 }
 
-e_colorizer gf4d_fractal_get_color_type(Gf4dFractal *f)
+colorizer_t *gf4d_fractal_get_colorizer(Gf4dFractal *f)
 {
-    return f->f->get_color_type();
+    return f->f->get_colorizer();
 }
 
-void gf4d_fractal_set_color_type(Gf4dFractal *f, e_colorizer type)
+void gf4d_fractal_set_colorizer(Gf4dFractal *f, colorizer_t *cizer)
 {
     kill_slave_threads(f);
-    f->f->set_color_type(type);
-}
-
-void gf4d_fractal_set_cmap_file(Gf4dFractal *f, const char *filename)
-{
-    kill_slave_threads(f);
-    f->f->set_cmap_file(filename);
-}
-
-gchar *gf4d_fractal_get_cmap_file(Gf4dFractal *f)
-{
-    return f->f->get_cmap_file();
+    f->f->set_colorizer(cizer);
 }
 
 /* stop calculating now! */

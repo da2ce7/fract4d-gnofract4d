@@ -81,6 +81,7 @@ class cmap_colorizer : public colorizer {
     istream& get(istream& s) { return s >> *this; };
 	
     // not shared with colorizer
+    // FIXME: should return a status indication or throw
     void set_cmap_file(const char *filename);
 };
 

@@ -18,18 +18,31 @@
  *
  */
 
+/* The colormap browser is a toplevel window which renders a small preview
+ * of the current fractal view using each available colormap. This works by
+ * copying the current fractal into a private one whenever "update" is called, 
+ * then calling recolor() for each map and putting the results into a drawable
+ */
+
+/* TODO
+   would gnome_pixmaps be more efficient/simpler? 
+   use continuous potential
+*/
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
 
 #include "cmapbrowser.h"
 #include "drawingareas.h"
-#include "colorizer_public.h"
+#include "colorizer.h"
 
 #include <dirent.h>
 
 #define PREVIEW_SIZE 40
 #define BYTE_SIZE ((PREVIEW_SIZE) * (PREVIEW_SIZE) * 3)
+
+/* called back by the private fractal as it renders */
 void
 preview_status_callback(Gf4dFractal *f, gint val, void *user_data)
 {
@@ -38,7 +51,7 @@ preview_status_callback(Gf4dFractal *f, gint val, void *user_data)
     // finished: start filling in drawing areas
     GtkWidget *table = GTK_WIDGET(user_data);
 
-    // for each list item
+    // for each preview item
     GList *children = gtk_container_children(GTK_CONTAINER(table));
     while(children)
     {
@@ -46,24 +59,27 @@ preview_status_callback(Gf4dFractal *f, gint val, void *user_data)
         GtkWidget *drawable = GTK_BIN(button)->child;
         g_assert(drawable);
 
-        // recolor with image's colormap
-        char *fname= (char *)gtk_object_get_data(GTK_OBJECT(drawable), "filename");
+        // fractal takes ownership of new cizer
+        colorizer_t *cizer = (colorizer_t *)gtk_object_get_data(
+            GTK_OBJECT(drawable), "colorizer"); 
+        g_assert(cizer);
 
-        gf4d_fractal_set_color_type(f, COLORIZER_CMAP);
-        gf4d_fractal_set_cmap_file(f, fname);
+        gf4d_fractal_set_colorizer(f,cizer);
         gf4d_fractal_recolor(f);
 
-        // copy contents of image
+        // copy contents of image to drawable's backing store
         guchar *img = (guchar *)gtk_object_get_data(GTK_OBJECT(drawable),"image");
         g_assert(img);
         memcpy(img,gf4d_fractal_get_image(f), BYTE_SIZE);
 
+        // update currently displayed image
         redraw_image_rect(drawable, img, 0, 0, PREVIEW_SIZE, PREVIEW_SIZE, PREVIEW_SIZE);
 
         children = children->next;
     }
 }
 
+/* update the drawables whenever they're shown */
 gint 
 preview_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
@@ -71,13 +87,18 @@ preview_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_da
 
     if(image)
     {
-        redraw_image_rect(widget, image, 
-                          event->area.x, event->area.y, 
-                          event->area.width, event->area.height,
-                          PREVIEW_SIZE);
+        redraw_image_rect(
+            widget, image, 
+            event->area.x, event->area.y, 
+            event->area.width, event->area.height,
+            PREVIEW_SIZE);
     }
     return FALSE;
 }
+
+/* called when you click a preview button, surprisingly.
+   updates the main fractal with the selected colormap
+*/
 
 void
 preview_button_clicked(GtkWidget *button, gpointer user_data)
@@ -85,26 +106,24 @@ preview_button_clicked(GtkWidget *button, gpointer user_data)
     GtkWidget *drawable = GTK_BIN(button)->child;
     model_t *m = (model_t *)user_data;
 
-    char *filename = (char *)gtk_object_get_data(GTK_OBJECT(drawable), "filename");
+    colorizer_t *cizer = (colorizer_t *)gtk_object_get_data(GTK_OBJECT(drawable), "colorizer");
+    g_assert(cizer);
 
     if(model_cmd_start(m, "preview"))
     {
         Gf4dFractal *f = model_get_fract(m);
-        gf4d_fractal_set_color_type(f, COLORIZER_CMAP);
-        gf4d_fractal_set_cmap_file(f, filename);
+        gf4d_fractal_set_colorizer(f, cizer);
         model_cmd_finish(m, "preview");
     }
 }
 
+/* create a single button in the browser */
 GtkWidget *
 create_cmap_browser_item(
-    GtkWidget *table, 
     model_t *m, 
     GtkTooltips *tips,
-    gchar *dirname, 
-    gchar *filename,
-    int x,
-    int y)
+    colorizer_t *cizer, 
+    gchar *name)
 {
     // make the button 
     GtkWidget *button = gtk_button_new();
@@ -126,9 +145,7 @@ create_cmap_browser_item(
     guchar *img = new guchar[BYTE_SIZE];
     gtk_object_set_data(GTK_OBJECT(drawing_area), "image", img);
 
-    // store filename of .map file
-    char *full_name = g_concat_dir_and_file(dirname, filename);
-    gtk_object_set_data(GTK_OBJECT(drawing_area), "filename", full_name);
+    gtk_object_set_data(GTK_OBJECT(drawing_area), "colorizer", cizer);
 
     // get drawable to redraw itself properly
     gtk_signal_connect (
@@ -137,16 +154,8 @@ create_cmap_browser_item(
     
     gtk_widget_show(drawing_area);
 
-    // add to table 
-    gtk_table_attach(
-        GTK_TABLE(table), 
-        button,
-        x,x+1,y,y+1, 
-        (enum GtkAttachOptions)0, (enum GtkAttachOptions)0, 
-        0, 0);
-
     // set tip to filename
-    gtk_tooltips_set_tip(tips, button, filename, NULL);
+    gtk_tooltips_set_tip(tips, button, name, NULL);
 
     gtk_container_add(GTK_CONTAINER(button), drawing_area);
  
@@ -157,6 +166,20 @@ create_cmap_browser_item(
 
     return button;
 }
+
+void
+add_to_table(GtkWidget *table, GtkWidget *button, int x, int y)
+{
+    gtk_table_attach(
+        GTK_TABLE(table), 
+        button,
+        x,x+1,y,y+1, 
+        (enum GtkAttachOptions)0, (enum GtkAttachOptions)0, 
+        0, 0);
+}
+
+/* update the fractal from the main image and recalculate the local copy,
+   the preview images are updated by a callback from the fractal calculation */
 
 void 
 update_previews(GtkWidget *button, gpointer user_data)
@@ -176,8 +199,41 @@ update_previews(GtkWidget *button, gpointer user_data)
     gf4d_fractal_calc(f,1 );
 }
 
+/* don't destroy the dialog when it's closed, just hide it */
 static GtkWidget *dialog = NULL;
 
+
+/* add a directory full of map-files to the browser */
+void
+add_map_directory(GtkWidget *table, model_t *m, char *mapdir, GtkTooltips *tips)
+{
+    DIR *dir = opendir(mapdir);
+    struct dirent *dirEntry;
+
+    int i = 0;
+    while(dir && (dirEntry = readdir (dir)))
+    {
+        const char *ext = g_extension_pointer(dirEntry->d_name);
+        if(ext && strcmp(ext,"map")==0)
+        {
+            // get full filename of .map file & create a colorizer from it
+            char *full_name = g_concat_dir_and_file(mapdir, dirEntry->d_name);
+            cmap_colorizer *cizer = new cmap_colorizer();
+            cizer->set_cmap_file(full_name);
+            g_free(full_name);
+
+            // add it to table
+            GtkWidget *item = create_cmap_browser_item(m, tips, cizer, dirEntry->d_name);
+            add_to_table(table, item, i % 5, i / 5);
+
+            ++i;
+        }
+
+    }    
+    if(dir) closedir(dir);
+}
+
+/* create or show the colormap browser */
 GtkWidget *
 create_cmap_browser(GtkMenuItem *menu, model_t *m)
 {
@@ -190,7 +246,7 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
     /* toplevel */
     dialog = gnome_dialog_new(
         _("Choose a colormap"), 
-        _("Update"), GNOME_STOCK_BUTTON_CLOSE, NULL);
+        _("Refresh"), GNOME_STOCK_BUTTON_CLOSE, NULL);
 
     gnome_dialog_button_connect(
         GNOME_DIALOG(dialog), 0,
@@ -202,10 +258,8 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
         (GtkSignalFunc)gnome_dialog_close,
         GTK_OBJECT(dialog));
 
-
     gnome_dialog_close_hides(GNOME_DIALOG(dialog), TRUE);
     gtk_window_set_policy(GTK_WINDOW(dialog), TRUE, TRUE, FALSE);
-    gtk_window_set_default_size(GTK_WINDOW(dialog), PREVIEW_SIZE * 5 , PREVIEW_SIZE * 12);
     gtk_widget_show(dialog);
 
     /* retrieve vbox */
@@ -213,11 +267,15 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
     
     /* make a scrolling window w. viewport for list to live in */
     GtkWidget *scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
+    gtk_widget_set_usize(
+        GTK_WIDGET(scrolledwindow), 
+        -1,
+        PREVIEW_SIZE *6);
 
     gtk_widget_show(scrolledwindow);
 
-    /* add scrolling list */
-    GtkWidget *table = gtk_table_new(17,4, TRUE);
+    /* add table of previews */
+    GtkWidget *table = gtk_table_new(1,5, TRUE); // height 1 will expand as we add items
     gtk_widget_show(table);
 
     gtk_scrolled_window_add_with_viewport(
@@ -239,22 +297,12 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
 
     gchar *mapdir = gnome_datadir_file("maps/" PACKAGE  "/");
 
-    DIR *dir = opendir(mapdir);
-    struct dirent *dirEntry;
+    add_map_directory(table, m, mapdir, tips);
 
-    int i = 0;
-    while(dir && (dirEntry = readdir (dir)))
-    {
-        const char *ext = g_extension_pointer(dirEntry->d_name);
-        if(ext && strcmp(ext,"map")==0)
-        {
-            // it's probably a map file: try to add to table
-            create_cmap_browser_item(table, m, tips, mapdir, dirEntry->d_name, i % 4, i/4);
-            ++i;
-        }
-
-    }
-    if(dir) closedir(dir);
+    // make the rgb section 
+    rgb_colorizer *cizer = new rgb_colorizer();
+    cizer->set_colors(0.2, 0.7, 0.9);
+    GtkWidget *rgb_preview = create_cmap_browser_item(m, tips, cizer, "fred");
 
     gtk_signal_connect(
         GTK_OBJECT(f), "status_changed", 
@@ -262,17 +310,8 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
         table);
 
     gf4d_fractal_calc(f,1);
+
     return dialog;
 }
 
-#if 0
-// how to make a GnomePixmap
-    /* make the item's image */
-    guchar data[32 * 32 * 3];
-    for(unsigned int i = 0; i < sizeof(data) ; ++i)
-    {
-        data[i] = i % 256;
-    }
-    GtkWidget *pixmap = gnome_pixmap_new_from_rgb_d(data,NULL,32,32);
-#endif
 

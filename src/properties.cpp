@@ -332,30 +332,6 @@ GtkWidget *create_bailout_menu(Gf4dFractal *shadow)
     return bailout_type;
 }
 
-void
-set_colortype_callback(GtkToggleButton *button, gpointer user_data)
-{
-    Gf4dFractal *f = GF4D_FRACTAL(user_data);  
-    gboolean b_is_set = gtk_toggle_button_get_active(button);
-    if(b_is_set)
-    {
-        e_colorizer type = (e_colorizer)GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(button),"type"));
-	
-        gf4d_fractal_set_color_type(f,type);
-        gf4d_fractal_parameters_changed(f);
-    }
-}
-
-void
-refresh_colortype_callback(Gf4dFractal *f, gpointer user_data)
-{
-    GtkToggleButton *b = GTK_TOGGLE_BUTTON(user_data);
-    e_colorizer type = (e_colorizer)GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(b),"type"));
-    if(gf4d_fractal_get_color_type(f) == type)
-    {
-        gtk_toggle_button_set_active(b,true);
-    }
-}
 
 void
 set_aa_callback(GtkWidget *widget, gpointer user_data)
@@ -457,65 +433,7 @@ refresh_autodeepen_callback(Gf4dFractal *f, gpointer user_data)
     gtk_toggle_button_set_active(b,gf4d_fractal_get_auto(f));
 }
 
-void set_color_callback(GnomeColorPicker *picker, guint r, guint g, guint b, guint alpha, gpointer user_data)
-{
-    Gf4dFractal *f = GF4D_FRACTAL(user_data);
-    double dr, dg, db, da;
-    gnome_color_picker_get_d(picker,&dr,&dg,&db,&da);
-    gf4d_fractal_set_color(f,dr,dg,db);
-    gf4d_fractal_parameters_changed(f);
-}
 
-void
-refresh_color_callback(Gf4dFractal *f, gpointer user_data)
-{
-    GnomeColorPicker *picker = GNOME_COLOR_PICKER(user_data);
-    e_colorizer type = gf4d_fractal_get_color_type(f);
-    if(type != COLORIZER_RGB)
-    {
-        gtk_widget_set_sensitive(GTK_WIDGET(picker),false);
-        return;
-    }
-    gtk_widget_set_sensitive(GTK_WIDGET(picker),true);
-	
-    gnome_color_picker_set_d(picker, 
-                             gf4d_fractal_get_r(f),
-                             gf4d_fractal_get_g(f),
-                             gf4d_fractal_get_b(f),
-                             0.0);
-
-}
-
-void set_cmap_callback(GtkEditable *e, gpointer user_data)
-{
-    Gf4dFractal *f = GF4D_FRACTAL(user_data);
-
-    gchar *s = gf4d_fractal_get_cmap_file(f);
-    gchar *new_s = gtk_entry_get_text(GTK_ENTRY(e));
-    if(strcmp(s,new_s)!=0)
-    {
-        gf4d_fractal_set_cmap_file(f,new_s);
-        gf4d_fractal_parameters_changed(f);
-    }
-    g_free(s);
-}
-
-void refresh_cmap_callback(Gf4dFractal *f, gpointer user_data)
-{
-    GnomeFileEntry *selector = GNOME_FILE_ENTRY(user_data);
-    GtkEntry *e = GTK_ENTRY(gnome_file_entry_gtk_entry(selector));
-
-    e_colorizer type = gf4d_fractal_get_color_type(f);
-    if(type != COLORIZER_CMAP)
-    {
-        gtk_widget_set_sensitive(GTK_WIDGET(selector),false);
-        return;
-    }
-    gtk_widget_set_sensitive(GTK_WIDGET(selector),true);
-    gchar *s = gf4d_fractal_get_cmap_file(f);
-    gtk_entry_set_text(e,s);
-    g_free(s);
-}
 
 void set_potential_callback(GtkToggleButton *button, gpointer user_data)
 {
@@ -617,129 +535,6 @@ create_propertybox_bailout_page(
         _("Stop iterating points which get further from the origin than this"));
 }
 
-void
-create_propertybox_color_page(
-    GtkWidget *vbox,
-    GtkTooltips *tooltips,
-    Gf4dFractal *shadow)
-{
-    GtkWidget *table;
-    GtkWidget *clabel, *cpicker;
-    GtkWidget *cmaplabel;
-    GtkWidget *cmapselector;
-    
-    table = gtk_table_new (2, 2, FALSE);
-    GtkWidget *test_page = create_page(table, _("Color"));
-    gtk_box_pack_start( GTK_BOX (vbox), test_page, 1, 1, 0 );
-    
-    /* create label for color range */
-    clabel = gtk_radio_button_new_with_label(NULL,_("Range"));
-    gtk_widget_show(clabel);
-    gtk_tooltips_set_tip (tooltips, clabel, _("Use a range of colors. The effect is interesting but unpredictable."), NULL);
-    
-    gtk_table_attach(
-        GTK_TABLE(table), 
-        clabel,
-        0,1,0,1, 
-        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
-        (GtkAttachOptions)0, 
-        0, 2);
-    
-    /* create color picker widget */
-    cpicker = gnome_color_picker_new();
-    gtk_widget_show(cpicker);
-    gtk_table_attach(GTK_TABLE(table), 
-                     cpicker,
-                     1,2,0,1,
-                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
-                     (GtkAttachOptions) 0, 
-                     0, 2);
-
-    gtk_object_set_data (
-        GTK_OBJECT (clabel), 
-        "type",
-        GINT_TO_POINTER(COLORIZER_RGB));
-    
-    gtk_signal_connect (
-        GTK_OBJECT(cpicker),"color-set",
-        GTK_SIGNAL_FUNC(set_color_callback),
-        shadow);
-    
-    gtk_signal_connect (
-        GTK_OBJECT(shadow),"parameters_changed",
-        GTK_SIGNAL_FUNC(refresh_color_callback),
-        cpicker);
-	
-    /* connect clabel widget */
-    gtk_signal_connect(
-        GTK_OBJECT(clabel),"toggled",
-        GTK_SIGNAL_FUNC(set_colortype_callback),
-        GTK_OBJECT(shadow));
-    
-    gtk_signal_connect(
-        GTK_OBJECT(shadow), "parameters_changed",
-        GTK_SIGNAL_FUNC(refresh_colortype_callback),
-        GTK_OBJECT(clabel));
-	
-    /* create "color map" radiobutton */
-    cmaplabel = gtk_radio_button_new_with_label_from_widget (
-        GTK_RADIO_BUTTON(clabel),
-        _("Map"));
-
-    gtk_widget_show(cmaplabel);
-    gtk_table_attach(GTK_TABLE(table), cmaplabel,0,1,1,2, 
-                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
-                     (GtkAttachOptions)0, 
-                     0, 2);
-    
-    gtk_object_set_data(
-        GTK_OBJECT (cmaplabel), 
-        "type",
-        GINT_TO_POINTER(COLORIZER_CMAP));
-    
-    gtk_signal_connect(
-        GTK_OBJECT(cmaplabel),"toggled",
-        GTK_SIGNAL_FUNC(set_colortype_callback),
-        GTK_OBJECT(shadow));
-    
-    gtk_signal_connect(
-        GTK_OBJECT(shadow), "parameters_changed",
-        GTK_SIGNAL_FUNC(refresh_colortype_callback),
-        GTK_OBJECT(cmaplabel));
-    
-    /* a file selector for loading the .map files */
-    cmapselector = gnome_file_entry_new("cmaps",_("Select a color map file"));
-    
-    gchar *dir = gnome_datadir_file("maps/" PACKAGE  "/");
-    
-    GtkWidget *entry = gnome_file_entry_gtk_entry(
-        GNOME_FILE_ENTRY(cmapselector));
-    
-    gnome_file_entry_set_default_path(GNOME_FILE_ENTRY(cmapselector), dir);
-    gtk_entry_set_text(GTK_ENTRY(entry), _("Default"));
-	
-	
-    g_free(dir);
-
-    gtk_widget_show(cmapselector);
-    gtk_table_attach(GTK_TABLE(table), cmapselector,1,2,1,2, 
-                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
-                     (GtkAttachOptions)0, 
-                     0, 2);
-
-    gtk_widget_set_sensitive(GTK_WIDGET(cmapselector),FALSE);
-
-    GtkWidget *fentry = gnome_file_entry_gtk_entry(GNOME_FILE_ENTRY(cmapselector));
-    gtk_signal_connect(GTK_OBJECT(fentry),
-                       "changed",
-                       GTK_SIGNAL_FUNC(set_cmap_callback),
-                       shadow);
-
-    gtk_signal_connect(GTK_OBJECT(shadow),
-                       "parameters_changed",
-                       GTK_SIGNAL_FUNC(refresh_cmap_callback),
-                       cmapselector);
-}
 
 void
 create_propertybox_rendering_page(
@@ -1079,7 +874,6 @@ create_propertybox (model_t *m)
 
     gtk_box_set_spacing(GTK_BOX(vbox),0);
     create_propertybox_function_page(vbox, tooltips, shadow);
-    create_propertybox_color_page(vbox, tooltips, shadow);
     create_propertybox_rendering_page(vbox, tooltips, shadow);
     create_propertybox_bailout_page(vbox, tooltips, shadow);
     create_propertybox_image_page(vbox,tooltips, shadow, m);

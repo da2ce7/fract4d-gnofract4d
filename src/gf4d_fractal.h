@@ -98,18 +98,8 @@ iterFunc *gf4d_fractal_get_func(Gf4dFractal *f);
 void gf4d_fractal_set_func(Gf4dFractal *f, int type);
 
 /* color functions */
-e_colorizer gf4d_fractal_get_color_type(Gf4dFractal *f);
-void gf4d_fractal_set_color_type(Gf4dFractal *f, e_colorizer type);
-
-/* color functions : only for COLORIZER_CMAP */
-void gf4d_fractal_set_cmap_file(Gf4dFractal *f, const char *filename);
-gchar *gf4d_fractal_get_cmap_file(Gf4dFractal *f);
-
-/* color functions : only for COLORIZER_RGB */
-double gf4d_fractal_get_r(Gf4dFractal *f);
-double gf4d_fractal_get_g(Gf4dFractal *f);
-double gf4d_fractal_get_b(Gf4dFractal *f);
-void gf4d_fractal_set_color(Gf4dFractal *f, double r, double g, double b);
+colorizer_t *gf4d_fractal_get_colorizer(Gf4dFractal *f);
+void gf4d_fractal_set_colorizer(Gf4dFractal *f, colorizer_t *cizer);
 
 gboolean gf4d_fractal_get_potential(Gf4dFractal *f);
 void gf4d_fractal_set_potential(Gf4dFractal *f, gboolean potential);
