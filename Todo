@@ -22,7 +22,6 @@ UF Incompatibilities
 * W	raise/remove limit on number of parameters
 
 UI improvements 
-* W	if #zwpixel not used, disable 4D in toolbar and explorer
 * W	tooltips for custom widgets in toolbar
 * BB	more robust error reporting
 * W	last-chance exception handler
@@ -75,6 +74,8 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done in 2.2:
+* W	if #zwpixel not used, disable 4D in toolbar and explorer
+* B	fix security bug
 * W	current angle in status bar
 * W	drop-down resolution chooser
 * B	method=multipass = compile error
@@ -82,6 +83,7 @@ done in 2.2:
 * B	jgr.ufm:Birch - compiler bug!
 * B	open formula file on .cfrm should go to correct page in browser
 * B	multiple copies of same filename
+
 2.1:
 * W	auto-list all formula files on path, parse on first click
 * B	prompt if not saved

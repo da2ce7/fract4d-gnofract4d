@@ -129,12 +129,18 @@ class MainWindow:
             gtk.EXPAND | gtk.FILL,
             gtk.EXPAND | gtk.FILL,
             1,1)
-            
+
+    def on_formula_change(self, f):
+        is4d = f.formula.is4D()
+        for widget in self.four_d_sensitives:
+            widget.set_sensitive(is4d)
+        
     def create_fractal(self,f):
         window = gtk.ScrolledWindow()
         window.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
         
         f.connect('parameters-changed', self.on_fractal_change)
+        f.connect('formula-changed', self.on_formula_change)
         
         window.set_size_request(640+8,480+8)
 
@@ -371,6 +377,8 @@ class MainWindow:
         self.toolbar.set_tooltips(True)
         self.vbox.pack_start(self.toolbar,expand=gtk.FALSE)
         self.toolbar.set_border_width(1)
+
+        self.four_d_sensitives = []
         
         # preview
         self.toolbar.append_space()
@@ -396,30 +404,30 @@ class MainWindow:
         self.toolbar.append_space()
 
         self.create_angle_widget(
-            _("xy"), _("Angle in the XY plane"), self.f.XYANGLE)
+            _("xy"), _("Angle in the XY plane"), self.f.XYANGLE, False)
 
         self.create_angle_widget(
-            _("xz"), _("Angle in the XZ plane"), self.f.XZANGLE)
+            _("xz"), _("Angle in the XZ plane"), self.f.XZANGLE, True)
 
         self.create_angle_widget(
-            _("xw"), _("Angle in the XW plane"), self.f.XWANGLE)
+            _("xw"), _("Angle in the XW plane"), self.f.XWANGLE, True)
 
         self.create_angle_widget(
-            _("yz"), _("Angle in the YZ plane"), self.f.YZANGLE)
+            _("yz"), _("Angle in the YZ plane"), self.f.YZANGLE, True)
 
         self.create_angle_widget(
-            _("yw"), _("Angle in the YW plane"), self.f.YWANGLE)
+            _("yw"), _("Angle in the YW plane"), self.f.YWANGLE, True)
 
         self.create_angle_widget(
-            _("zw"), _("Angle in the ZW plane"), self.f.ZWANGLE)
+            _("zw"), _("Angle in the ZW plane"), self.f.ZWANGLE, True)
 
         # fourways
         self.toolbar.append_space()
         
-        self.add_fourway(_("pan"), _("Pan around the image"), 0)
+        self.add_fourway(_("pan"), _("Pan around the image"), 0, False)
         self.add_fourway(
             _("wrp"),
-            _("Mutate the image by moving along the other 2 axes"), 2)
+            _("Mutate the image by moving along the other 2 axes"), 2, True)
 
         # deepen/resize
         self.toolbar.append_space()
@@ -604,7 +612,7 @@ class MainWindow:
         #self.explorer_toggle.set_active(active)
         self.update_subfract_visibility(active)
 
-    def create_angle_widget(self,name,tip,axis):
+    def create_angle_widget(self,name,tip,axis, is4dsensitive):
         my_angle = angle.T(name)
         my_angle.connect('value-slightly-changed',
                          self.on_angle_slightly_changed)
@@ -627,6 +635,9 @@ class MainWindow:
             None
             )
 
+        if is4dsensitive:
+            self.four_d_sensitives.append(my_angle.widget)
+        
     def update_angle_widget(self,f,widget):
         widget.set_value(f.get_param(widget.axis))
         
@@ -646,7 +657,7 @@ class MainWindow:
     def on_release_fourway(self,widget,dx,dy):
         self.f.nudge(dx/10.0, dy/10.0, widget.axis)
     
-    def add_fourway(self, name, tip, axis):
+    def add_fourway(self, name, tip, axis, is4dsensitive):
         my_fourway = fourway.T(name)
         self.toolbar.append_element(
             gtk.TOOLBAR_CHILD_WIDGET,            
@@ -663,7 +674,9 @@ class MainWindow:
         
         my_fourway.connect('value-slightly-changed', self.on_drag_fourway)
         my_fourway.connect('value-changed', self.on_release_fourway)
-        
+
+        if is4dsensitive:
+            self.four_d_sensitives.append(my_fourway.widget)
         
     def save_file(self,file):
         try:

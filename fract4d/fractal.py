@@ -620,14 +620,19 @@ class T(FctUtils):
         '''randomly adjust position, colors, angles and parameters.
         weirdness is between 0 and 1 - 0 is no change, 1 is lots'''
 
+        is4d = self.formula.is4D()
         size = self.params[self.MAGNITUDE]
         self.params[self.XCENTER] += self.xy_random(weirdness, size)
         self.params[self.YCENTER] += self.xy_random(weirdness, size)
-        self.params[self.ZCENTER] += self.zw_random(weirdness, size)
-        self.params[self.WCENTER] += self.zw_random(weirdness, size)
+        if is4d:
+            self.params[self.ZCENTER] += self.zw_random(weirdness, size)
+            self.params[self.WCENTER] += self.zw_random(weirdness, size)
 
-        for a in xrange(self.XYANGLE,self.ZWANGLE):
-            self.params[a] += self.angle_random(weirdness)
+        self.params[self.XYANGLE] += self.angle_random(weirdness)
+        
+        if is4d:
+            for a in xrange(self.XZANGLE,self.ZWANGLE):
+                self.params[a] += self.angle_random(weirdness)
 
         if random.random() < weirdness * 0.75:
             self.params[self.MAGNITUDE] *= 1.0 + (0.5 - random.random())
