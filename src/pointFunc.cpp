@@ -26,6 +26,7 @@
 #include "bailFunc.h"
 #include "compiler.h"
 #include "colorizer.h"
+#include "colorFunc.h"
 
 #include <unistd.h>
 #include <dlfcn.h>
@@ -37,12 +38,35 @@ private:
     inner_pointFunc *m_pf;
     colorizer *m_pcizer;
     void *m_handle; 
+    colorFunc *m_pOuterColor;
+    colorFunc *m_pInnerColor;
 
+    void *one_space;
 public:
-    pf_wrapper(inner_pointFunc *pf, colorizer *pcizer, void *dlHandle) : 
+    pf_wrapper(
+	inner_pointFunc *pf, colorizer *pcizer, 
+	void *dlHandle, e_colorFunc innerCfType, e_colorFunc outerCfType) : 
 	m_pf(pf), m_pcizer(pcizer), m_handle(dlHandle)
 	{
+            m_pOuterColor = colorFunc_new(outerCfType);
+            m_pInnerColor = colorFunc_new(innerCfType);
 
+	    one_space = malloc(buffer_size());
+
+	}
+    virtual ~pf_wrapper()
+	{
+            delete m_pOuterColor;
+            delete m_pInnerColor;
+
+	    delete m_pf;
+	    free(one_space);
+
+
+	    if(NULL != m_handle) 
+	    {
+		dlclose(m_handle);
+	    }
 	}
     virtual void calc(
         // in params
@@ -53,20 +77,15 @@ public:
         struct rgb *color, int *pnIters, void *out_buf)
 	{
 	    double colorDist;
+
+	    if(NULL == out_buf) out_buf = one_space;
+
 	    m_pf->calc(params,nIters, nNoPeriodIters, x , y, aa, 
 		       &colorDist, pnIters, out_buf);
 
 	    if(color)
 	    {
 		*color = m_pcizer->calc(colorDist);
-	    }
-	}
-    virtual ~pf_wrapper()
-	{
-	    delete m_pf;
-	    if(NULL != m_handle) 
-	    {
-		dlclose(m_handle);
 	    }
 	}
     virtual rgb_t recolor(int iter, double eject, const void *buf) const
@@ -76,7 +95,8 @@ public:
 	}
     virtual int buffer_size() const
 	{
-	    return m_pf->buffer_size();
+	    return std::max(m_pInnerColor->buffer_size(),
+		       m_pOuterColor->buffer_size());
 	}
 };
 
@@ -114,7 +134,7 @@ pointFunc *pointFunc_new(
 	bailout, periodicity_tolerance, 
 	iterType->opts(), outerCfType, innerCfType);
 
-    return new pf_wrapper(inner_pf, pcf, dlHandle);
+    return new pf_wrapper(inner_pf, pcf, dlHandle, outerCfType, innerCfType);
 }
 
 /* can't just call dtor because we need to free the handle to the .so

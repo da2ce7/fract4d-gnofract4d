@@ -52,7 +52,6 @@ class inner_pointFunc {
         double *colorDist, int *pnIters, void *out_buf
         ) = 0;
     virtual double recolor(int iter, double eject, const void *buf) const = 0;
-    virtual int buffer_size() const = 0;
 };
 
 
