@@ -21,6 +21,8 @@ gnofract4d_SOURCES = \
 	model.cpp model.h \
 	gf4d_angle.cpp gf4d_angle.h \
 	gf4d_fractal.cpp gf4d_fractal.h \
+	gf4d_fourway.cpp gf4d_fourway.h \
+	preview.cpp preview.h \
 	gundo.cpp gundo.h \
 	gundo_ui.cpp gundo_ui.h \
 	image.cpp image.h \
@@ -29,7 +31,7 @@ gnofract4d_SOURCES = \
 	bailFunc.h bailFunc.cpp \
 	fractFunc.h fractFunc.cpp \
 	cmapbrowser.h cmapbrowser.cpp \
-	io.h io.cpp
+	io.h io.cpp 
 
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) \
 	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)

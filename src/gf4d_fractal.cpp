@@ -253,8 +253,7 @@ void gf4d_fractal_flip2julia(Gf4dFractal *f, int x, int y)
     f->f->flip2julia(dx,dy);
 }
 
-
-void gf4d_fractal_move(Gf4dFractal *f, param_t i, int direction)
+void gf4d_fractal_move(Gf4dFractal *f, param_t i, double direction)
 {
     kill_slave_threads(f);
 
@@ -285,12 +284,10 @@ void gf4d_fractal_set_bailout_type(Gf4dFractal *gf, e_bailFunc bailType)
     gf->f->bailout_type = bailType;
 }
 
-
 e_bailFunc gf4d_fractal_get_bailout_type(Gf4dFractal *gf)
 {
     return gf->f->bailout_type;
 }
-
 
 static void *
 calculation_thread(void *vdata) 

@@ -36,10 +36,10 @@
 #include "cmapbrowser.h"
 #include "drawingareas.h"
 #include "colorizer.h"
+#include "popup_preview.h"
 
 #include <dirent.h>
 
-#define PREVIEW_SIZE 40
 #define BYTE_SIZE ((PREVIEW_SIZE) * (PREVIEW_SIZE) * 3)
 
 void

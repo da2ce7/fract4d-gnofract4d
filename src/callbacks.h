@@ -22,15 +22,23 @@
 #include <gdk/gdk.h>
 
 #include "model.h"
+#include "gf4d_fourway.h"
 
 typedef struct {
     model_t *m;
     param_t pnum;
     GtkAdjustment *adj;
     gint dir;
+    Gf4dFractal *shadow;
 } set_cb_data;
 
-
+typedef struct {
+    model_t *m;
+    param_t pnum1, pnum2;
+    Gf4dFractal *shadow;
+    Gf4dFourway *fourway;
+} fourway_cb_data;
+ 
 //  main window interaction
 gint quit_cb (GtkWidget *widget, GdkEventAny *event, gpointer user_data);
 

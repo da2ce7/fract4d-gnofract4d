@@ -56,9 +56,6 @@ static void gf4d_angle_adjustment_value_changed (GtkAdjustment    *adjustment,
 /* Local data */
 enum {
     VALUE_SLIGHTLY_CHANGED,
-    IMAGE_CHANGED,
-    PROGRESS_CHANGED,
-    STATUS_CHANGED,
     LAST_SIGNAL
 };
 

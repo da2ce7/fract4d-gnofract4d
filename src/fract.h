@@ -80,7 +80,7 @@ struct fractal
     void recolor(image *im);
     void relocate(double x, double y, double zoom);
     void flip2julia(double x, double y);
-    void move(param_t i, int direction);
+    void move(param_t i, double distance);
     bool write_params(const char *filename);
     bool load_params(const char *filename);
     char *get_param(param_t i);

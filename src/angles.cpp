@@ -28,6 +28,21 @@ void angle_update_cb(GtkWidget *w, gpointer user_data)
     gnome_appbar_push(GNOME_APPBAR(user_data), buf);
 }
 
+void angle_update_preview_cb(GtkWidget *w, gpointer user_data)
+{
+    char buf[100];
+    set_cb_data *pdata = (set_cb_data *)(user_data);
+    Gf4dAngle *angle = GF4D_ANGLE(w);
+    GtkAdjustment *adj = gf4d_angle_get_adjustment(angle);
+    sprintf(buf,"%g", adj->value);
+    
+    if(pdata->shadow)
+    {
+        gf4d_fractal_set_param(pdata->shadow, pdata->pnum, buf);
+        gf4d_fractal_calc(pdata->shadow,1);
+    }
+}
+
 void adjustment_update_callback(Gf4dFractal *gf, gpointer user_data)
 {
     set_cb_data *pdata = (set_cb_data *)user_data;
@@ -41,7 +56,8 @@ void adjustment_update_callback(Gf4dFractal *gf, gpointer user_data)
 
 GtkWidget*
 create_angle_button(
-    char *label_text, param_t data, model_t *m, GtkWidget *appbar)
+    char *label_text, param_t data, model_t *m, GtkWidget *appbar,
+    Gf4dFractal *preview)
 {
 	GtkWidget *angle;
 	GtkAdjustment *adjustment;
@@ -56,6 +72,7 @@ create_angle_button(
 	pdata->m = m;
 	pdata->pnum = data;
 	pdata->adj = adjustment;
+        pdata->shadow = preview;
 
 	gtk_widget_show(angle);
 	
@@ -64,9 +81,14 @@ create_angle_button(
 
 	gtk_signal_connect(GTK_OBJECT(angle),"value_slightly_changed",
 			   (GtkSignalFunc)angle_update_cb, appbar );
+
+        gtk_signal_connect(GTK_OBJECT(angle), "value_slightly_changed",
+                           (GtkSignalFunc)angle_update_preview_cb, 
+                           pdata);
 	
 	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)),"parameters_changed",
-			   (GtkSignalFunc)adjustment_update_callback, pdata);	
+			   (GtkSignalFunc)adjustment_update_callback, pdata);
+
 	return angle;
 }
 

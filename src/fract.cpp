@@ -557,11 +557,9 @@ fractal::flip2julia(double x, double y)
 }
 
 void
-fractal::move(param_t i, int direction)
+fractal::move(param_t i, double d)
 {
     int axis;
-
-    double d = (double)direction;
 
     switch(i){
     case XCENTER: axis = VX; break;
@@ -572,7 +570,7 @@ fractal::move(param_t i, int direction)
     default: return;
     }
     update_matrix();
-    dvec4 delta = d * rot[axis] * (1.0 / 20.0);
+    dvec4 delta = d * rot[axis];
     recenter(delta);
 }
 

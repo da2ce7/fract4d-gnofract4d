@@ -70,7 +70,7 @@ class iterFunc;
 
 void gf4d_fractal_relocate(Gf4dFractal *f, int x, int y, double zoom);
 void gf4d_fractal_flip2julia(Gf4dFractal *f, int x, int y);
-void gf4d_fractal_move(Gf4dFractal *f, param_t i, int direction);
+void gf4d_fractal_move(Gf4dFractal *f, param_t i, double direction);
 
 void gf4d_fractal_calc(Gf4dFractal *f, int nThreads);
 
