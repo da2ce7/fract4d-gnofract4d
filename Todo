@@ -38,7 +38,6 @@ netfract
 gnofract4d
 * B	setting image size in explorer mode is screwed
 * B	setting image size crashes
-* BB 	some images come out the wrong color (eg paramfiles/param.fct)
 * B	saved images have wrong type
 * W	add fractal params to image, add load image
 * W	remember .fct filenames and re-save to same place
@@ -85,6 +84,7 @@ CmapEditor
 * W 	remove debug printfs
 
 Done:
+* BB 	some images come out the wrong color (eg paramfiles/param.fct)
 * BB	stupid options dialog would be better as tabbed dialog
 * W	finish cmapeditor
 * W	update docs

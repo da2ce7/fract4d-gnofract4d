@@ -139,8 +139,13 @@ deepen_now_cb(GtkWidget *button, model_t *m)
 void
 create_deepen_widget(GtkToolbar *toolbar, model_t *m)
 {
-    GtkWidget *deepen_pixmap = gnome_pixmap_new_from_file(
-        gnome_pixmap_file(PACKAGE "/deepen_now.png"));
+    GtkWidget *deepen_pixmap = gtk_image_new_from_file(
+        gnome_program_locate_file(
+	    NULL,
+	    GNOME_FILE_DOMAIN_APP_DATADIR,
+	    PACKAGE "/deepen_now.png",
+	    TRUE,
+	    NULL));
 
     GtkWidget *deepen_widget = gtk_toolbar_append_item(
         toolbar,NULL,
@@ -262,8 +267,13 @@ create_preview_widget(GtkToolbar *toolbar, Gf4dFractal *shadow)
 void
 create_explore_widgets(GtkToolbar *toolbar, model_t *m)
 {
-    GtkWidget *explore_widget = gnome_pixmap_new_from_file(
-        gnome_pixmap_file(PACKAGE "/explorer_mode.png"));
+    GtkWidget *explore_widget = gtk_image_new_from_file(
+	gnome_program_locate_file(
+	    NULL,
+	    GNOME_FILE_DOMAIN_APP_DATADIR,
+	    PACKAGE "/explorer_mode.png",
+	    TRUE,
+	    NULL));
 
     gtk_toolbar_append_item (
         toolbar,

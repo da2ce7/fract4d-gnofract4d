@@ -187,7 +187,8 @@ void
 update_callback(Gf4dFractal *f, GdkEventExpose *ev, void *user_data)
 {
     GtkWidget *drawing_area = GTK_WIDGET(user_data);
-    gtk_widget_draw(drawing_area,&(ev->area));
+    //gtk_widget_draw(drawing_area,&(ev->area));
+    gdk_window_invalidate_rect(drawing_area->window, &(ev->area), TRUE);
 }
 
 void redraw_callback(Gf4dFractal *f, gpointer user_data)
@@ -235,14 +236,9 @@ create_drawing_area(model_t *m, GtkWidget *appbar)
 
  
 
-    gtk_widget_push_visual (gdk_rgb_get_visual ());
-    gtk_widget_push_colormap (gdk_rgb_get_cmap ());
-    
+    gtk_widget_push_colormap (gdk_rgb_get_cmap ());    
     drawing_area = gtk_drawing_area_new();
-
     gtk_widget_pop_colormap ();
-    gtk_widget_pop_visual ();
-
 
     gtk_widget_set_events (drawing_area, 
                            GDK_EXPOSURE_MASK |
