@@ -208,12 +208,11 @@ class T(gobject.GObject):
         funclist.sort()
 
         menu = gtk.Menu()
-        menu.funclist = funclist
         for func in funclist:
             mi = gtk.MenuItem(func)
             menu.append(mi)
 
-        return menu
+        return (menu,funclist)
 
     def set_fractal(self,f):
         if f != self.f:
@@ -256,13 +255,13 @@ class T(gobject.GObject):
         table.attach(label,0,1,i,i+1,0,0,2,2)
 
         widget = gtk.OptionMenu()
-        menu = self.construct_function_menu(param)
+        (menu, funclist) = self.construct_function_menu(param)
         widget.set_menu(menu)
 
         def set_selected_function():
             try:
                 selected_func_name = self.f.get_func_value(name)
-                index = menu.funclist.index(selected_func_name)
+                index = funclist.index(selected_func_name)
             except ValueError, err:
                 # func.cname not in list
                 print "bad cname"
@@ -273,7 +272,7 @@ class T(gobject.GObject):
         def set_fractal_function(om,*args):
             index = om.get_history()
             if index != -1:
-                fname = om.get_menu().funclist[index]
+                fname = funclist[index]
                 self.set_func(param,fname)
                 
         set_selected_function()
