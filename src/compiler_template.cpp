@@ -77,20 +77,20 @@ static void pf_calcWithPeriod(
     // single iterations
     DECL; 
 #if TRACE
-    (*out) << "pin:" << XPOS << "," << YPOS << "\n";
+    *(pfo->out) << "pin:" << XPOS << "," << YPOS << "\n";
 #endif 
     do
     {
 	ITER; 
 #if TRACE
-	(*out) << "p:" << XPOS << "," << YPOS << "\n";
+	*(pfo->out) << "p:" << XPOS << "," << YPOS << "\n";
 #endif 
 	BAIL;
 	if(p[EJECT_VAL] >= pfo->m_eject)
 	{
 	    RET;
 #if TRACE
-	    (*out) << "pbail\n";
+	    *(pfo->out) << "pbail\n";
 #endif
 	    break;
 	}
@@ -99,7 +99,7 @@ static void pf_calcWithPeriod(
 	    // ran out of iterations
 	    RET;
 #if TRACE
-	    (*out) << "pmax\n";
+	    *(pfo->out) << "pmax\n";
 #endif
 	    iter = -1; break;
 	}
@@ -109,7 +109,7 @@ static void pf_calcWithPeriod(
 	    // period detected!
 	    RET;
 #if TRACE
-	    (*out) << "pp\n";
+	    *(pfo->out) << "pp\n";
 #endif
 	    iter = -1;  break;
 	}
@@ -138,7 +138,7 @@ static bool pf_calcNoPeriod(
 
     DECL;
 #if TRACE
-    (*out) << "in:" << XPOS << "," << YPOS << "\n";
+    *(pfo->out) << "in:" << XPOS << "," << YPOS << "\n";
 #endif 
 
 #if UNROLL
@@ -154,11 +154,11 @@ static bool pf_calcNoPeriod(
 	ITER; 
 	ITER; 
 #if TRACE
-	(*out) << "8:" << XPOS << "," << YPOS << "\n";
+	*(pfo->out) << "8:" << XPOS << "," << YPOS << "\n";
 #endif 
 
 	BAIL;
-	if(p[EJECT_VAL] >= pfo->m_eject)
+	if(p[EJECT_VAL] >= pfo->m_eject || !finite(p[EJECT_VAL]))
 	{
 	    // we bailed out somewhere in the last 8iters -
 	    // go back to beginning and look one-by-one
@@ -172,14 +172,13 @@ static bool pf_calcNoPeriod(
     {
 	ITER;
 #if TRACE
-	(*out) << "1:" << XPOS << "," << YPOS << "\n";
+	*(pfo->out) << "1:" << XPOS << "," << YPOS << "\n";
 #endif 
 	BAIL;
 	if(p[EJECT_VAL] >= pfo->m_eject)
 	{
-	    RET;
 #if TRACE
-	    (*out) << "bail\n";
+	    *(pfo->out) << "bail\n";
 #endif
 	    escaped = true; 
 	    break;
@@ -188,7 +187,7 @@ static bool pf_calcNoPeriod(
     }            
     RET;
 #if TRACE
-    (*out) << "max\n";
+    *(pfo->out) << "max\n";
 #endif
 
     *pIter = iter;
@@ -210,14 +209,14 @@ static void pf_calc(
     T *p = pfo->p;
 
 #if TRACE
-    if(out == NULL)
+    if(pfo->out == NULL)
     {
 	std::ostringstream ofname;
 	ofname << "out-" << pthread_self() << ".txt";
 	std::string outname = ofname.str();
 	std::cout << outname << "\n";
-	out = new std::ofstream(outname.c_str());
-	(*out) << std::setprecision(17);
+	pfo->out = new std::ofstream(outname.c_str());
+	*(pfo->out) << std::setprecision(17);
     }
 #endif
 
@@ -242,7 +241,7 @@ static void pf_calc(
 #endif
 
 #if TRACE
-    (*out)  << "calc: " << nNoPeriodIters << " " << nMaxIters 
+    *(pfo->out)  << "calc: " << nNoPeriodIters << " " << nMaxIters 
 	    << " " << x << " " << y << " " << aa << "\n";
 #endif
     if(nNoPeriodIters > 0)
@@ -263,7 +262,7 @@ static void pf_calc(
     
     *pnIters = iter;
 #if TRACE
-    (*out) << iter << "\n";
+    *(pfo->out) << iter << "\n";
 #endif
     *out_buf = &p[0];
 }

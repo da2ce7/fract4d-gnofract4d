@@ -260,6 +260,7 @@ cmap_colorizer::calc(double dist) const
     n %= 255; n++;
     int n2 = (n == 255 ? 1 : n+1);
     double pos = fmod(dist,1.0);
+    assert(n != 0 && n2 != 0);
     mix.r = (unsigned char)(cmap[n].r * (1.0 - pos) + cmap[n2].r * pos);
     mix.g = (unsigned char)(cmap[n].g * (1.0 - pos) + cmap[n2].g * pos);
     mix.b = (unsigned char)(cmap[n].b * (1.0 - pos) + cmap[n2].b * pos);

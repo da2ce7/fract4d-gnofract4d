@@ -36,6 +36,7 @@ Other
 * W	make sure inner function is sensible (itercount is pointless)
 * B	pause doesn't stop subfracts
 * BB	stupid options dialog would be better as tabbed dialog
+* W	pass colorFuncs by value instead of enum
 
 Movies-
 * B	deadlock when render movie while image is being drawn
@@ -57,15 +58,17 @@ CmapEditor
 * W	choose every N in range
 
 Must do pre 1.7
+* W	finish cmapeditor
+* W	update docs
+* B	outer_cf not saved correctly - itercount changes to cont_potential
+
+Done:
+* B 	something wrong with zero'th iteration with manzpower - unroll-related
 * B	nova, quadratic (options) doesn't work w gcc 2.96 unless -O0
+* W	disable periodicity if innerFunc != color zero
 * W	compiler error dialog unusable
 * W	make interface to pointFunc extern "C"		
 * W	reduce number of installed headers
-* W	pass colorFuncs by value instead of enum
-* B 	something wrong with zero'th iteration with manzpower
- 
-
-Done:
 * B	refresh button on cmapbrowser is confusing
 * W	bring dialog boxes to front when menu item re-chosen
 * B 	loaded colorfunc doesn't override current one

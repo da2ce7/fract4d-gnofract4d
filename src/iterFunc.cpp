@@ -367,7 +367,8 @@ public:
             reset_opts();
             iterImpl<novaFunc,3>::reset(params);
             // start at Julia
-            params[XZANGLE] = params[YWANGLE] = M_PI/2.0;
+            params[ZCENTER] = 1.0;
+	    params[MAGNITUDE] = 3.0;
         }
     virtual e_bailFunc preferred_bailfunc(void)
         {

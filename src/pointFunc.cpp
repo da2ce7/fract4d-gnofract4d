@@ -143,6 +143,13 @@ pointFunc *pointFunc_new(
     std::map<std::string,std::string> code_map;
     iterType->get_code(code_map);
     b->get_code(code_map, iterType->flags());
+
+    // disable periodicity if inner function will show its effect
+    if(innerCfType != COLORFUNC_ZERO)
+    {
+	code_map["NOPERIOD"]="1";
+    }
+
     void *dlHandle = g_pCompiler->getHandle(code_map);
 
     // get a pointer to the pf_new function in the new .so
