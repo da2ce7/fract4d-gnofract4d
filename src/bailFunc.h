@@ -31,16 +31,8 @@
 
 class bailFunc {
  public:
-    /* sets the value of p[EJECT_VAL] */
-    virtual void operator()(
-        double *pIter, 
-        double *pInput, 
-        double *pTemp, 
-        int flags)= 0;
-    virtual std::string bail_code() const = 0;
-#ifdef HAVE_GMP
-    virtual void operator()(gmp::f *p, int flags)= 0;
-#endif
+    /* returns a code snippet which does bailout */
+    virtual std::string bail_code(int flags) const = 0;
 };
 
 // factory method to construct bailout function objects 

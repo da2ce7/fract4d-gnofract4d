@@ -14,19 +14,17 @@ const d PERIOD_TOLERANCE = 1.0E-10;
 class pointCalc : public pointFunc {
 private:
     /* members */
-    iterFunc *m_pIter;
     colorFunc *m_pOuterColor, *m_pInnerColor;
     double m_eject;
     colorizer *m_pcf;
 
 public:
     /* ctor */
-    pointCalc(iterFunc *iterType, 
-              double eject,
+    pointCalc(double eject,
               colorizer *pcf,
               e_colorFunc outerCfType,
               e_colorFunc innerCfType) 
-        : m_pIter(iterType), m_eject(eject), m_pcf(pcf)
+        : m_eject(eject), m_pcf(pcf)
         {
             m_pOuterColor = colorFunc_new(outerCfType);
             m_pInnerColor = colorFunc_new(innerCfType);
@@ -55,8 +53,6 @@ public:
     template<class T>
     bool calcNoPeriod(int& iter, int maxIter, T *pIter, T *pInput, T *pTemp)
         {
-            int flags = m_pIter->flags();
-
             do
             {
                 iter1(pIter,pInput,pTemp);
@@ -64,7 +60,7 @@ public:
                 {   
                     return false;
                 }                    
-                bail(pIter,pInput,pTemp,flags);  
+                bail(pIter,pInput,pTemp);  
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
                     return true;
@@ -77,8 +73,6 @@ public:
         int &iter, int nMaxIters, 
         T *pIter, T *pInput, T *pTemp)
         {
-            int flags = m_pIter->flags();
-
             /* periodicity vars */
             d lastx = pIter[X], lasty=pIter[Y];
             int k =1, m = 1;
@@ -91,7 +85,7 @@ public:
                     // ran out of iterations
                     iter = -1; return false;
                 }
-                bail(pIter,pInput,pTemp,flags);            
+                bail(pIter,pInput,pTemp);            
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
                     return true;
@@ -183,7 +177,7 @@ public:
             RET;
         }
     inline void bail(
-        double *pIter, double *pInput, double *pTemp, int flags)
+        double *pIter, double *pInput, double *pTemp)
         {
             BAIL;
         }
@@ -191,12 +185,11 @@ public:
 
 extern "C" {
     void *create_pointfunc(
-            iterFunc *iterType, 
             double bailout,
             colorizer *pcf,
             e_colorFunc outerCfType,
             e_colorFunc innerCfType)
     {
-        return new pointCalc(iterType, bailout, pcf, outerCfType, innerCfType);
+        return new pointCalc(bailout, pcf, outerCfType, innerCfType);
     }
 }

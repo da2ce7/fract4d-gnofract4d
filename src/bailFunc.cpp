@@ -30,24 +30,18 @@ inline double MAX(double x, double y) { return x > y ? x : y; }
 
 class mag_bailout : public bailFunc {
 public:
-    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
+    virtual std::string bail_code(int flags) const 
         {
+            std::string bail;
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
-                pTemp[X2] = pIter[X] * pIter[X];
-                pTemp[Y2] = pIter[Y] * pIter[Y];
-            }            
-            pTemp[EJECT_VAL] = pTemp[X2] + pTemp[Y2];
-        };
-    virtual std::string bail_code() const 
-        {
-            return 
-                "if(!(flags & (HAS_X2 | HAS_Y2)))"
-                "{"
-                "    pTemp[X2] = pIter[X] * pIter[X];"
-                "    pTemp[Y2] = pIter[Y] * pIter[Y];"
-                "}"
-                "pTemp[EJECT_VAL] = pTemp[X2] + pTemp[Y2];";
+                bail = 
+                    "    pTemp[X2] = pIter[X] * pIter[X];"
+                    "    pTemp[Y2] = pIter[Y] * pIter[Y];";
+            }
+
+            bail += "pTemp[EJECT_VAL] = pTemp[X2] + pTemp[Y2];";
+            return bail;
         } 
     void init(void) {};
 };
@@ -137,6 +131,7 @@ public:
 class diff_bailout : public bailFunc {
 public:
     static const double epsilon = 0.01;
+    /*
     void operator()(double *pIter, double *pInput, double *pTemp, int flags)
         {
             double diffx = pIter[X] - pTemp[LASTX];
@@ -149,7 +144,8 @@ public:
             pTemp[EJECT_VAL] = pInput[EJECT] + epsilon - diff;
 
         }
-    std::string bail_code() const
+    */
+    std::string bail_code(int flags) const
         {
             return "";
         }
