@@ -229,14 +229,15 @@ gf4d_fractal_class_init (Gf4dFractalClass *klass)
                        GTK_TYPE_NONE, 1,
                        GTK_TYPE_FLOAT);
 
+    g_warning("emit status defined");
     fractal_signals[STATUS_CHANGED] = 
         gtk_signal_new("status_changed",
                        GTK_RUN_FIRST,
                        GTK_CLASS_TYPE(object_class),
                        GTK_SIGNAL_OFFSET(Gf4dFractalClass, status_changed),
-                       gtk_marshal_NONE__ENUM,
+                       gf4d_marshal_VOID__INT,
                        GTK_TYPE_NONE, 1,
-                       GTK_TYPE_ENUM);
+                       GTK_TYPE_INT);
 
     /* default signal handlers don't do anything */
     klass->parameters_changed=NULL;
@@ -490,9 +491,10 @@ gboolean gf4d_fractal_pause(Gf4dFractal *f, gboolean pause)
     gboolean previous_pause_state = f->paused;
     if(pause)
     {
-        gtk_signal_emit(
+        g_signal_emit(
             GTK_OBJECT(f), 
             fractal_signals[STATUS_CHANGED],
+	    0,
             GF4D_FRACTAL_PAUSED);
 
         pthread_mutex_lock(&f->pause_lock);
@@ -503,9 +505,10 @@ gboolean gf4d_fractal_pause(Gf4dFractal *f, gboolean pause)
         if(previous_pause_state)
         {
             // restore previous status
-            gtk_signal_emit(
+            g_signal_emit(
                 GTK_OBJECT(f),
                 fractal_signals[STATUS_CHANGED],
+		0,
                 f->status);
             pthread_mutex_unlock(&f->pause_lock);
             f->paused = FALSE;
@@ -517,7 +520,7 @@ gboolean gf4d_fractal_pause(Gf4dFractal *f, gboolean pause)
 void 
 gf4d_fractal_parameters_changed(Gf4dFractal *f)
 {
-    gtk_signal_emit(GTK_OBJECT(f), fractal_signals[PARAMETERS_CHANGED]); 
+    g_signal_emit(GTK_OBJECT(f), fractal_signals[PARAMETERS_CHANGED], 0); 
 }
 
 gboolean gf4d_fractal_is_equal(Gf4dFractal *f, Gf4dFractal *f2)
@@ -555,9 +558,10 @@ void gf4d_fractal_image_changed(Gf4dFractal *f, int x1, int y1, int x2, int y2)
 
     gf4d_fractal_enter_callback(f);
 
-    gtk_signal_emit(GTK_OBJECT(f), 
-                    fractal_signals[IMAGE_CHANGED],
-                    &fakeEvent);
+    g_signal_emit(GTK_OBJECT(f), 
+		  fractal_signals[IMAGE_CHANGED],
+		  0,
+		  &fakeEvent);
     gf4d_fractal_leave_callback(f);
 }
 
@@ -565,9 +569,10 @@ void gf4d_fractal_progress_changed(Gf4dFractal *f, float progress)
 {
     gf4d_fractal_enter_callback(f);
 
-    gtk_signal_emit(GTK_OBJECT(f),
-                    fractal_signals[PROGRESS_CHANGED], 
-                    progress);
+    g_signal_emit(GTK_OBJECT(f),
+		  fractal_signals[PROGRESS_CHANGED], 
+		  0,
+		  progress);
     gf4d_fractal_leave_callback(f);
 }
 
@@ -576,9 +581,10 @@ void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val)
     f->status = status_val;
     gf4d_fractal_enter_callback(f);
 
-    gtk_signal_emit(GTK_OBJECT(f),
-                    fractal_signals[STATUS_CHANGED],
-                    status_val);
+    g_signal_emit(GTK_OBJECT(f),
+		  fractal_signals[STATUS_CHANGED],
+		  0,
+		  status_val);
     gf4d_fractal_leave_callback(f);
 }
 

@@ -329,6 +329,7 @@ main (int argc, char *argv[])
     model_t *m;
 
     g_thread_init(NULL);
+    gdk_threads_init();
     tls_init();
 
     bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);

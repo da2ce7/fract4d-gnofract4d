@@ -145,14 +145,16 @@ void gundo_sequence_clear( GundoSequence *seq ) {
     }
     
     if( could_undo ) {
-        gtk_signal_emit( GTK_OBJECT(seq),
-                         gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_UNDO],
-                         FALSE );
+        g_signal_emit( GTK_OBJECT(seq),
+		       gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_UNDO],
+		       0,
+		       FALSE );
     }
     if( could_redo ) {
-        gtk_signal_emit( GTK_OBJECT(seq),
-                         gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_REDO],
-                         FALSE );
+        g_signal_emit( GTK_OBJECT(seq),
+		       gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_REDO],
+		       0,
+		       FALSE );
     }
 }
 
@@ -182,15 +184,17 @@ void gundo_sequence_add_action( GundoSequence *seq,
         seq->next_redo++;
         
         if( !could_undo ) {
-            gtk_signal_emit( 
+            g_signal_emit( 
                 GTK_OBJECT(seq),
                 gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_UNDO],
+		0,
                 TRUE );
         }
         if( could_redo ) {
-            gtk_signal_emit( 
+            g_signal_emit( 
                 GTK_OBJECT(seq),
                 gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_REDO],
+		0,
                 FALSE );
         }
     }
@@ -251,14 +255,16 @@ void gundo_sequence_undo( GundoSequence *seq ) {
     (action->type->undo)( action->data );
     
     if( !could_redo ) {
-        gtk_signal_emit( GTK_OBJECT(seq),
-                         gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_REDO],
-                         TRUE );
+        g_signal_emit( GTK_OBJECT(seq),
+		       gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_REDO],
+		       0,
+		       TRUE );
     }
     if( !gundo_sequence_can_undo(seq) ) {
-        gtk_signal_emit( GTK_OBJECT(seq),
-                         gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_UNDO],
-                         FALSE );
+        g_signal_emit( GTK_OBJECT(seq),
+		       gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_UNDO],
+		       0,
+		       FALSE );
     }
 }
 
@@ -281,14 +287,16 @@ void gundo_sequence_redo( GundoSequence *seq ) {
     (action->type->redo)( action->data );
     
     if( !could_undo ) {
-        gtk_signal_emit( GTK_OBJECT(seq),
-                         gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_UNDO],
-                         TRUE );
+        g_signal_emit( GTK_OBJECT(seq),
+		       gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_UNDO],
+                       0,
+		       TRUE );
     }
     if( !gundo_sequence_can_redo(seq) ) {
-        gtk_signal_emit( GTK_OBJECT(seq),
-                         gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_REDO],
-                         FALSE );
+        g_signal_emit( GTK_OBJECT(seq),
+		       gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_REDO],
+		       0,
+		       FALSE );
     }
 }
 
