@@ -184,10 +184,18 @@ some periodicity:
 8.1515 testdata/zpower.fct
 46.6695671082
 
-2.2:
+2.2-pre1:
 0.8520 testdata/std.fct
 3.9118 testdata/param.fct
 5.6318 testdata/valley_test.fct
 28.2883 testdata/trigcentric.fct
 7.9833 testdata/zpower.fct
 46.6672129631
+
+2.2-pre2 (with recoloring buffer):
+0.7896 testdata/std.fct
+3.9417 testdata/param.fct
+5.7556 testdata/valley_test.fct
+29.5918 testdata/trigcentric.fct
+8.2473 testdata/zpower.fct
+48.3259401321

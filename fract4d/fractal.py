@@ -195,7 +195,7 @@ class T(FctUtils):
             self.__dict__[name] = i
             i += 1
 
-        self.format_version = 2.0
+        self.format_version = 2.1
         
         # formula support
         self.formula = None
