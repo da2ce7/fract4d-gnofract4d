@@ -5,6 +5,7 @@
 #include <gtk/gtksignal.h>
 #include "marshallers.h"
 #include "tls.h"
+#include "marshallers.h"
 
 static void gf4d_movie_class_init               (Gf4dMovieClass    *klass);
 static void gf4d_movie_init                     (Gf4dMovie         *dial);
@@ -25,23 +26,28 @@ static GtkObjectClass *parent_class = NULL;
 GtkType
 gf4d_movie_get_type ()
 {
-    static guint movie_type = 0;
+    static GType movie_type = 0;
 
     if (!movie_type)
     {
-        GtkTypeInfo movie_info =
+        GTypeInfo movie_info =
         {
-            "Gf4dMovie",
-            sizeof (Gf4dMovie),
             sizeof (Gf4dMovieClass),
-            (GtkClassInitFunc) gf4d_movie_class_init,
-            (GtkObjectInitFunc) gf4d_movie_init,
             NULL,
             NULL,
-            (GtkClassInitFunc) NULL
+            (GClassInitFunc) gf4d_movie_class_init,
+            NULL,
+            NULL,
+            sizeof (Gf4dMovie),
+	    0,
+            (GInstanceInitFunc) gf4d_movie_init,
         };
 
-        movie_type = gtk_type_unique (gtk_object_get_type (), &movie_info);
+        movie_type = g_type_register_static (
+	    GTK_TYPE_OBJECT,
+            "Gf4dMovie",
+	    &movie_info,
+	    (GTypeFlags)0);
     }
 
     return movie_type;
@@ -85,7 +91,7 @@ gf4d_movie_new ()
 {
     Gf4dMovie *mov;
 
-    mov = GF4D_MOVIE(gtk_type_new (gf4d_movie_get_type ()));
+    mov = GF4D_MOVIE(g_object_new (gf4d_movie_get_type (), NULL));
 
     return GTK_OBJECT (mov);
 }
@@ -165,39 +171,47 @@ gf4d_movie_class_init (Gf4dMovieClass *klass)
     parent_class = (GtkObjectClass *)(gtk_type_class(GTK_TYPE_OBJECT));
 
     movie_signals[LIST_CHANGED] = 
-        gtk_signal_new("list_changed",
-                       GtkSignalRunType(GTK_RUN_FIRST | GTK_RUN_NO_RECURSE),
-                       GTK_CLASS_TYPE(object_class),
-                       GTK_SIGNAL_OFFSET(Gf4dMovieClass, list_changed),
-                       gtk_marshal_NONE__NONE,
-                       GTK_TYPE_NONE, 0);
+        g_signal_new("list_changed",
+		     G_TYPE_FROM_CLASS(klass),
+		     (GSignalFlags)(G_SIGNAL_RUN_FIRST |G_SIGNAL_NO_RECURSE),
+		     G_STRUCT_OFFSET(Gf4dMovieClass, list_changed),
+		     NULL,
+		     NULL,
+		     g_cclosure_marshal_VOID__VOID, 
+		     G_TYPE_NONE, 0);
 
     movie_signals[PROGRESS_CHANGED] = 
-        gtk_signal_new("progress_changed",
-                       GTK_RUN_FIRST,
-                       GTK_CLASS_TYPE(object_class),
-                       GTK_SIGNAL_OFFSET(Gf4dMovieClass, progress_changed),
-                       gf4d_marshal_VOID__FLOAT,
-                       GTK_TYPE_NONE, 1,
-                       GTK_TYPE_FLOAT);
+        g_signal_new("progress_changed",
+		     G_TYPE_FROM_CLASS(klass),
+		     G_SIGNAL_RUN_FIRST,
+		     G_STRUCT_OFFSET(Gf4dMovieClass, progress_changed),
+		     NULL,
+		     NULL,
+		     gf4d_marshal_VOID__FLOAT,
+		     G_TYPE_NONE, 1,
+		     G_TYPE_FLOAT);
 
     movie_signals[IMAGE_COMPLETE] =
-	gtk_signal_new("image_complete",
-		       GTK_RUN_FIRST,
-		       GTK_CLASS_TYPE(object_class),
-		       GTK_SIGNAL_OFFSET(Gf4dMovieClass, image_complete),
-		       gf4d_marshal_VOID__INT,
-		       GTK_TYPE_NONE, 1,
-		       GTK_TYPE_INT);
+	g_signal_new("image_complete",
+		     G_TYPE_FROM_CLASS(klass),
+		     G_SIGNAL_RUN_FIRST,
+		     G_STRUCT_OFFSET(Gf4dMovieClass, image_complete),
+		     NULL,
+		     NULL,
+		     gf4d_marshal_VOID__INT,
+		     G_TYPE_NONE, 1,
+		     G_TYPE_INT);
 
     movie_signals[STATUS_CHANGED] = 
-        gtk_signal_new("status_changed",
-                       GTK_RUN_FIRST,
-                       GTK_CLASS_TYPE(object_class),
-                       GTK_SIGNAL_OFFSET(Gf4dMovieClass, status_changed),
-                       gf4d_marshal_VOID__INT,
-                       GTK_TYPE_NONE, 1,
-                       GTK_TYPE_INT);
+        g_signal_new("status_changed",
+		     G_TYPE_FROM_CLASS(klass),
+		     G_SIGNAL_RUN_FIRST,
+		     G_STRUCT_OFFSET(Gf4dMovieClass, status_changed),
+		     NULL,
+		     NULL,
+		     gf4d_marshal_VOID__INT,
+		     G_TYPE_NONE, 1,
+		     G_TYPE_INT);
 
     /* default signal handlers don't do anything */
     klass->list_changed=NULL;
