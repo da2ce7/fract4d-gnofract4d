@@ -156,9 +156,16 @@ class TBase:
             self.error("%d: invalid statement in default section" % node.pos)
 
     def set(self,node):
+        # FIXME should compute full constant expressions
         name = node.children[0].leaf
-        if node.children[1].type == "const":
-            self.defaults[name] = self.const(node.children[1])
+        val = node.children[1]
+        if val.type == "const":
+            self.defaults[name] = self.const(val)
+        elif val.type == "binop" and val.leaf == "complex" and \
+             val.children[0].type == "const" and val.children[1].type == "const":
+            self.defaults[name] = [
+                self.const(val.children[0]),
+                self.const(val.children[1])]
         else:
             self.error("%d: only constants can be used in default sections" %
                        node.pos)
