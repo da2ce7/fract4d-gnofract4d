@@ -27,9 +27,9 @@ class TestBase(unittest.TestCase):
                 return
         self.fail(("No warning matching '%s' raised, warnings were %s" % (str, t.warnings)))
 
-    def assertNoErrors(self,t):
+    def assertNoErrors(self,t, info=""):
         self.assertEqual(len(t.errors),0,
-                         "Unexpected errors %s" % t.errors)
+                         "Unexpected errors %s in %s" % (t.errors, info))
         for (name, item) in t.canon_sections.items():
             for stm in item:
                 #print stm.pretty()

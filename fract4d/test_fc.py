@@ -30,12 +30,14 @@ class FCTest(testbase.TestBase):
     def testLists(self):
         'Check we correctly classify funcs by color/insideness'
         fl = [x for (x,y) in self.compiler.formula_files()]
-        fl.sort()
-        self.assertEqual(fl,["gf4d.frm", "test.frm"])
-
+        self.assertEqual(fl.count("gf4d.frm"), 1)
+        self.assertEqual(fl.count("test.frm"), 1)
+        self.assertEqual(fl.count("gf4d.cfrm"), 0)
+        
         cfl = [x for (x,y) in self.compiler.colorfunc_files()]
-        self.assertEqual(cfl,["gf4d.cfrm"])
-
+        self.assertEqual(cfl.count("gf4d.cfrm"),1)
+        self.assertEqual(cfl.count("gf4d.frm"), 0)
+        
         file = self.compiler.files["gf4d.cfrm"]
         names = file.get_formula_names()
         self.assertEqual(names,file.formulas.keys())
@@ -170,7 +172,15 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         of2 = self.compiler.generate_code(f,cg2)
 
         self.assertEqual(of1,of2)
-        
+
+    def testAllFormulasCompile(self):
+        'Go through every formula and check for errors'
+        for filename in self.compiler.find_formula_files():
+            ff = self.compiler.get_file(filename)
+            for fname in ff.get_formula_names():
+                f = self.compiler.get_formula(ff.filename, fname)
+                self.assertNoErrors(f, "%s:%s" % (filename, fname))
+                
 def suite():
     return unittest.makeSuite(FCTest,'test')
 

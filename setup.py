@@ -56,7 +56,6 @@ module1 = Extension(
     extra_compile_args = [
     #'-O0',
     '-Wall',
-    #'-Wno-non-template-friend'
     ],
     define_macros = [ ('_REENTRANT',1),
                       #('DEBUG_CREATION',1)
