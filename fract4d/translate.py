@@ -143,7 +143,20 @@ class TBase:
         name = node.children[0]
         val = self.const_exp(node.children[1])
         setattr(var,name.leaf,val)
-        
+
+    def expand_enum(self, node, v, name):
+        if hasattr(v, "enum"):
+            if isinstance(v.default, ir.Const) \
+                   and v.default.datatype == String:
+                try:
+                    val = v.enum.value.index(v.default.value)
+                    v.default = ir.Const(val,node,Int)
+                except ValueError:
+                    msg = "%d: enum value '%s' invalid for param %s" % \
+                          (node.pos, v.default.value, name)
+                    raise TranslationError(msg)
+        return v.default
+
     def param(self,node):
         # translate a param block
         
@@ -168,7 +181,7 @@ class TBase:
             v = Var(datatype, default_value(datatype), node.pos)
             set_v = True
             
-        # process settings
+        # process settings        
         for child in node.children:
             if child.type == "set":
                 self.paramsetting(child,v)
@@ -179,6 +192,8 @@ class TBase:
             if node.datatype == None:
                 v.type = v.default.datatype
                 v.value = default_value(v.type)
+
+            v.default = self.expand_enum(node, v, name)
             v.default = self.const_convert(v.default,v.type)
 
         # if we created new var, write it back
@@ -558,7 +573,7 @@ class TBase:
         r = ir.ESeq([test, trueBlock, falseBlock, doneDest],
                     temp, node, op.ret)
         return r
-
+    
     def expand_enums(self, node, children):
         'special case for @foo <binop> "enum"'
         lhs = children[0]
