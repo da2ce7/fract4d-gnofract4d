@@ -36,14 +36,22 @@ _strOfType = {
     None : "none"
    }
 
+_defaultOfType = {
+    Int : 0,
+    Float : 0.0,
+    Complex : [0.0, 0.0],
+    Bool : 0,
+    Color : [0,0,0,0]
+    }
+
 def typeOfStr(tname):
     return _typeOfStr[string.lower(tname)]
 
 def strOfType(t):
     return _strOfType[t]
 
-def default(t):
-    return 0.0
+def default_value(t):
+    return _defaultOfType[t]
 
 _canBeCast = [
     # Bool Int Float Complex Color
@@ -81,9 +89,12 @@ class Func:
         return 1            
 
 class Var:
-    def __init__(self,type,value,pos=-1):
+    def __init__(self,type,value=None,pos=-1):
         self.type = type
-        self.value = value
+        if value == None:
+            self.value = default_value(type)
+        else:
+            self.value = value
         self.pos = pos
     def __str__(self):
         return "%s %s (%d)" % (strOfType(self.type), self.value, self.pos)

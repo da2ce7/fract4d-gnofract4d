@@ -228,7 +228,7 @@ class T:
         '''assign a new value to a variable, creating it if required'''
         if not self.symbols.has_key(node.leaf):
             # implicitly create a new var - a warning?
-            self.symbols[node.leaf] = Var(fracttypes.Complex,0,node)
+            self.symbols[node.leaf] = Var(Complex,default_value(Complex),node)
 
         expectedType = self.symbols[node.leaf].type
         rhs = self.exp(node.children[0])
@@ -252,12 +252,13 @@ class T:
             exp = self.stm(node.children[0])
         else:
             # default initializer
-            exp = ir.Const(fracttypes.default(node.datatype),
+            exp = ir.Const(fracttypes.default_value(node.datatype),
                            node, node.datatype)
 
         try:
             # fixme - get exp right instead of 0.0
-            self.symbols[node.leaf] = Var(node.datatype, 0.0, node.pos)
+            self.symbols[node.leaf] = Var(node.datatype,
+                                          default_value(node.datatype), node.pos)
             return ir.Move(
                 ir.Name(node.leaf, node, node.datatype),                
                 self.coerce(exp, node.datatype),
@@ -294,14 +295,15 @@ class T:
         trueDest = self.newLabel(node)
         falseDest = self.newLabel(node)
         doneDest = self.newLabel(node)
-        temp = self.newTemp(node)
         
         node.children[0] = self.makeCompare(node.children[0])
 
         children = map(lambda n : self.exp(n) , node.children)        
         op = self.findOp(node,children)
         children = self.coerceList(op.args,children)
-            
+
+        temp = ir.Var(self.symbols.newTemp(Bool),node, Bool)
+        
         # a && b = eseq(if(a) then t = (bool)b else t = false; t)
         #        = eseq(cjump(==,a,0,td,fd),
         #               lab(td),move(t,b),jmp(end),

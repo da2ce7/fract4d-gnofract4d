@@ -59,10 +59,18 @@ class T:
     def binop_const_exp(self,t):
         s0 = t.children[0]
         s1 = t.children[1]
-        dst = self.symbols.newTemp(t.datatype)
-        assem = "%%(d0)s = %d %s %%(s1)s" % (s0.value, t.op)
-        print assem
-        self.out.append(Oper(assem, [ self.generate_code(s1) ] , [dst]))
+        srcs = self.generate_code(s1)
+        if t.datatype == fracttypes.Complex:
+            d0 = self.symbols.newTemp(fracttypes.Float)
+            d1 = self.symbols.newTemp(fracttypes.Float)
+            dst = [d0,d1]
+            assem = "%%(d0)s = %d %s %%(s1)s" % (s0.value[0], t.op)
+            self.out.append(Oper(assem, [srcs[0]], [d0]))
+            self.out.append(Oper(assem, [srcs[1]], [d1]))
+        else: 
+            dst = [self.symbols.newTemp(t.datatype)]
+            assem = "%%(d0)s = %d %s %%(s1)s" % (s0.value, t.op)
+            self.out.append(Oper(assem, srcs , dst))
         return dst
     
     def binop_exp_const(self,t):
@@ -72,7 +80,10 @@ class T:
         pass
 
     def var(self,t):
-        return t.name
+        if t.datatype == fracttypes.Complex:
+            return [ t.name + "_re", t.name + "_im"]
+        else:
+            return [ t.name ]
     
     # matching machinery
     def generate_code(self,tree):

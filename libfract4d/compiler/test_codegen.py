@@ -64,9 +64,22 @@ class CodegenTest(unittest.TestCase):
     def testGen(self):
         tree = self.binop([self.const(),self.var()])
         self.codegen.generate_code(tree)
+        self.assertEqual(len(self.codegen.out),1)
+        self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
+
+    def testGenComplex(self):
+        tree = self.binop([self.const(),self.var()])
+        tree.datatype = Complex
+        tree.children[0].datatype = Complex
+        tree.children[1].datatype = Complex
+        tree.children[0].value = [0.0,0.0]
+        print tree.pretty()
+        self.codegen.generate_code(tree)
+        self.assertEqual(len(self.codegen.out),2)
+        self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
         for insn in self.codegen.out:
             print insn
-            
+        
 def suite():
     return unittest.makeSuite(CodegenTest,'test')
 
