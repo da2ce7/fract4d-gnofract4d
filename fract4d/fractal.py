@@ -93,24 +93,46 @@ class Colorizer(FctUtils):
 
     def parse_blue(self,val,f):
         pass
-    
+
+    def extract_color(self,val,pos,alpha=False):
+        cols = [int(val[pos:pos+2],16),
+                int(val[pos+2:pos+4],16),
+                int(val[pos+4:pos+6],16),
+                255]
+        if alpha:
+            cols[3] = int(val[pos+6:pos+8],16)
+        return cols
+        
     def parse_colordata(self,val,f):
         nc =len(val)//6
         i = 0
         self.colorlist = []
         while i < nc:
             pos = i*6
-            (r,g,b) = (int(val[pos:pos+2],16),
-                       int(val[pos+2:pos+4],16),
-                       int(val[pos+4:pos+6],16))
+            cols = self.extract_color(val,pos)
             if i == 0:
                 # first color is inside solid color
-                self.solid = (r,g,b,255)
+                self.solid = tuple(cols)
             else:
-                c = (float(i-1)/(nc-2),r,g,b,255)
+                c = tuple([float(i-1)/(nc-2)] + cols)
                 self.colorlist.append(c)
             i+= 1
-        
+
+    def parse_colorlist(self,val,f):
+        line = f.readline()
+        self.colorlist = []
+        while not line.startswith("]"):
+            entry = line.split("=")
+            
+            if len(entry) != 2:
+                raise ValueError, "invalid color %s in file" % line
+
+            cols = self.extract_color(entry[1],0,True)            
+            index = float(entry[0])
+            
+            self.colorlist.append(tuple([index] + cols))
+            line = f.readline()
+            
     def parse_file(self,val,f):
         mapfile = open(val)
         self.parse_map_file(mapfile)
@@ -206,7 +228,11 @@ class T(FctUtils):
         print >>file, "[endsection]"
 
         print >>file, "[colors]"
-        print >>file, "colorizer=0"
+        print >>file, "colorizer=1"
+        print >>file, "colorlist=["
+        for col in self.colorlist:
+            print >>file, "%f=%2x%2x%2x%2x" % col
+        print >>file, "]"
         
     def initvalue(self,name):
         ord = self.order_of_name(name)
