@@ -93,6 +93,51 @@ def log_c_c(gen,t,srcs):
     re = gen.emit_func('log', [cabs_c_f(gen,t,srcs)], Float)
     im = atan2_c_f(gen,t,srcs)
     return ComplexArg(re,im)
+
+def polar_ff_c(gen,t,srcs):
+    # polar(r,theta) = (r * cos(theta), r * sin(theta))
+    re = gen.emit_binop('*',[srcs[0],cos_f_f(gen,t,[srcs[1]])], Float)
+    im = gen.emit_binop('*',[srcs[0],sin_f_f(gen,t,[srcs[1]])], Float)
+    return ComplexArg(re,im)
+
+def exp_f_f(gen,t,srcs):
+    return gen.emit_func('exp', srcs, Float)
+
+def pow_ff_f(gen,t,srcs):
+    return gen.emit_func2('pow', srcs, Float)
+
+def pow_cf_c(gen,t,srcs):
+    try:
+        nonzero = gen.symbols.newLabel()
+        done = gen.symbols.newLabel()
+        dst_re = TempArg(gen.symbols.newTemp(Float))
+        dst_im = TempArg(gen.symbols.newTemp(Float))
+    
+        gen.emit_cjump(srcs[0].im,nonzero)
+
+        # compute result if just real
+        tdest = pow_ff_f(gen,t,[srcs[0].re,srcs[1]])
+        gen.emit_move(tdest,dst_re)
+        gen.emit_jump(done)
+    
+        gen.emit_label(nonzero)
+        # result if real + imag
+        # temp = log(a+ib)
+        # polar(y * real(temp), y * imag(temp))
+
+        temp = log_c_c(gen,t,[srcs[0]])
+        t_re = gen.emit_binop('*',[temp.re, srcs[1]], Float)
+        t_re = gen.emit_func('exp',[t_re], Float)
+        t_im = gen.emit_binop('*',[temp.im, srcs[1]], Float)
+        temp2 = polar_ff_c(gen,t,[t_re, t_im])
+        gen.emit_move(temp2.re,dst_re)
+        gen.emit_move(temp2.im,dst_im)
+        gen.emit_label(done)
+    
+        return ComplexArg(dst_re,dst_im)
+    except Exception, err:
+        print err
+        raise
     
 def lt_cc_b(gen,t,srcs):    
     # compare real parts only

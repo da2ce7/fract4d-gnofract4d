@@ -342,13 +342,8 @@ goto t__end_init;''')
             y = 3
         endif
         }'''
-        self.assertCSays(src,"init","printf(\"%d\\n\",y);","2",
-                         {"dumpTranslation" : 1,
-                          "dumpPreCanon" : 1,
-                          "dumpLinear" : 1,
-                          "dumpBlocks" : 1,
-                          "dumpTrace" : 1})
-        
+        self.assertCSays(src,"init","printf(\"%d\\n\",y);","2")
+                
     def testParams(self):
         src = 't_cp0{\ninit: complex @p = (2,1)\n}'
         self.assertCSays(src,"init",self.inspect_complex("t__a_p"),
@@ -389,19 +384,18 @@ goto t__end_init;''')
             return "(%.6g,%.6g)" % (z.real,z.imag) 
         except OverflowError:
             return "(inf,inf)"
-        
-
+    
     def make_test(self,myfunc,pyfunc,val,n):
         codefrag = "ct_%s%d = %s((%d,%d))" % (myfunc, n, myfunc, val.real, val.imag)
         lookat = "ct_%s%d" % (myfunc, n)
         result = self.cpredict(pyfunc,val)
         return [ codefrag, lookat, result]
-    
+        
     def manufacture_tests(self,myfunc,pyfunc):
         vals = [ 0+0j, 0+1j, 1+0j, 1+1j, 3+2j, 1-0j, 0-1j ]
         return map(lambda (x,y) : self.make_test(myfunc,pyfunc,x,y), \
                    zip(vals,range(1,len(vals))))
-    
+                                
     def test_stdlib(self):
         tests = [
             # code to run, var to inspect, result
@@ -421,6 +415,10 @@ goto t__end_init;''')
             [ "cab = (cabs((0,0)), cabs((3,4)))", "cab", "(0,5)"],
             [ "sq = (sqrt(4),sqrt(2))", "sq", self.predict(math.sqrt,4,2)],
             [ "l = (log(1),log(3))", "l", self.predict(math.log,1,3)],
+            [ "ex = (exp(1),exp(2))","ex", self.predict(math.exp,1,2)],
+            [ "p = (2^2,9^0.5)","p", "(4,3)"],
+            [ "pow1 = (1,0)^2","pow1", "(1,0)"],
+            [ "pow2 = (-2,-3)^7.5","pow2","(-13320.5,6986.17)"],
             
             # trig functions
             [ "t_sin = (sin(0),sin(1))","t_sin", self.predict(math.sin)],
@@ -450,6 +448,8 @@ goto t__end_init;''')
         logtests = self.manufacture_tests("log",cmath.log)
         logtests[0][2] = "(-inf,0)" # log(0+0j) is overflow in python
         tests += logtests
+
+        
         
         src = 't_c6{\ninit: y = (1,2)\n' + \
               string.join(map(lambda x : x[0], tests),"\n") + "\n}"
@@ -521,10 +521,7 @@ bailout:
         # 1st point we try should bail out 
         self.assertEqual(lines, lines2, output2)
 
-        # and again with parameters
-        
         # and again with ^2
-        return # not working yet
         src = '''t_mandel{
 init:
 loop:
