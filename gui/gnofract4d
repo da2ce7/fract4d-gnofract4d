@@ -183,7 +183,6 @@ class MainWindow:
     def load(self,file):
         try:
             self.f.loadFctFile(open(file))
-            self.f.compile()
         except Exception, err:
             d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                   gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,

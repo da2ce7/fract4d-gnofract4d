@@ -204,7 +204,7 @@ class T(Threaded,gobject.GObject):
             if index != -1:
                 fname = menu.funclist[index]
                 self.set_func(param,fname)
-
+                
         set_selected_function()
         
         self.connect('parameters-changed',set_selected_function)
@@ -245,6 +245,10 @@ class T(Threaded,gobject.GObject):
         fractal.T.reset(self)
         self.emit('parameters-changed')
 
+    def loadFctFile(self,file):
+        fractal.T.loadFctFile(self,file)
+        self.emit('parameters-changed')
+        
     def save_image(self,filename):
         # FIXME need to get hold of a pixbuf
         pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,None,8,self.width,self.height)
@@ -257,6 +261,7 @@ class T(Threaded,gobject.GObject):
         
     def draw_image(self):
         self.interrupt()
+        self.compile()
         self.draw(self.image)
         return gtk.FALSE
 
