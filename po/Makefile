@@ -36,8 +36,8 @@ XGETTEXT = PATH=../src:$$PATH /usr/bin/xgettext
 MSGMERGE = PATH=../src:$$PATH msgmerge
 
 DEFS = -DHAVE_CONFIG_H
-CFLAGS = -g -O2 -Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -Wpointer-arith 
-CPPFLAGS =  -I/usr/X11R6/include -I/usr/lib/glib/include
+CFLAGS = -g -O2 -Wall -Wunused 
+CPPFLAGS =  -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/X11R6/include
 
 INCLUDES = -I.. -I$(top_srcdir)/intl
 
@@ -71,7 +71,7 @@ POTFILES = \
 	../src/properties.cpp \
 	../src/toolbars.cpp
 
-CATALOGS = 
+CATALOGS =  fr.gmo
 CATOBJEXT = .gmo
 INSTOBJEXT = .mo
 
