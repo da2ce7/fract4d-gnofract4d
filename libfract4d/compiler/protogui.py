@@ -42,17 +42,24 @@ class GuiFractal(fractal.Threaded):
 
         self.widget = drawing_area
         self.compile()
-        
+
+        self.skip_updates = False
         self.draw(self.image)
 
+    def interrupt(self):
+        fract4d.interrupt(self.site)
+        self.skip_updates = True
+        
     def draw_image(self,dummy):
         print "draw image"
+        self.skip_updates = False
         self.draw(self.image)
         return gtk.FALSE
     
     def image_changed(self,x1,y1,x2,y2):
-        #print "img changed: %d %d %d %d" % (x1,y1,x2,y2)
-        self.redraw_rect(x1,y1,x2-x1,y2-y1)
+        if not self.skip_updates:
+            #print "img changed: %d %d %d %d" % (x1,y1,x2,y2)
+            self.redraw_rect(x1,y1,x2-x1,y2-y1)
 
     def onExpose(self,widget,exposeEvent):
         r = exposeEvent.area
@@ -61,7 +68,8 @@ class GuiFractal(fractal.Threaded):
     def onButtonRelease(self,widget,event):
         print "button release"
         print "click (%d,%d)" % (event.x, event.y)
-        fract4d.interrupt(self.site)
+        self.interrupt()
+        
         self.params[self.XCENTER] += 0.3
         gtk.idle_add(self.draw_image,self)
         
