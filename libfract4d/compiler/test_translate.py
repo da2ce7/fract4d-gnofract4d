@@ -115,9 +115,11 @@ class TranslateTest(unittest.TestCase):
         self.assertEqual(div.children[1].datatype, fracttypes.Float)
         self.assertEqual(div.children[1].children[0].children[0].datatype,
                          fracttypes.Int)
-        
-        print plus.pretty()
-        
+
+        self.assertFuncOnList(lambda x,y : x.__class__.__name__ == y,
+                              [x for x in plus],
+                              ["Move","Name","Cast","Binop","Var","Cast","Var"])
+
         
     def testDecls(self):
         t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")
@@ -185,7 +187,12 @@ class TranslateTest(unittest.TestCase):
             self.assertTreesEqual(t1.sections[k],t2.sections[k])
         for k in t2.sections.keys():
             self.assertTreesEqual(t1.sections[k],t2.sections[k])
-            
+
+    def assertFuncOnList(self,f,nodes,types):
+        self.assertEqual(len(nodes),len(types))
+        for (n,t) in zip(nodes,types):
+            self.failUnless(f(n,t))
+
 def suite():
     return unittest.makeSuite(TranslateTest,'test')
 
