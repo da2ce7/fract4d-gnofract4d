@@ -66,7 +66,7 @@ class ColorDialog(dialog.T):
         global userPrefs
         dialog.T.__init__(
             self,
-            _("Color Maps"),
+            _("Gradient Editor"),
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (#gtk.STOCK_REFRESH, ColorDialog.RESPONSE_REFRESH,
@@ -119,18 +119,31 @@ class ColorDialog(dialog.T):
         buttonbox = gtk.HButtonBox()
         self.left_color_button = utils.ColorButton(
             self.grad.segments[0].left_color, self.color_changed, True)
+        self.right_color_button = utils.ColorButton(
+            self.grad.segments[0].right_color, self.color_changed, False)
+
         buttonbox.add(self.left_color_button.widget)
+        buttonbox.add(self.right_color_button.widget)
         gradbox.add(self.gradarea)
         gradbox.add(buttonbox)
         return gradbox
 
     def color_changed(self,r,g,b, is_left):
+        #print "color changed", r, g, b, is_left
         if self.selected_segment == -1:
             return
 
         seg = self.grad.segments[self.selected_segment]
-        seg.left_color = [r,g,b, seg.left_color[3]]
+        if is_left:
+            seg.left_color = [r,g,b, seg.left_color[3]]
+        else:
+            seg.right_color = [r,g,b, seg.right_color[3]]
         self.redraw()
+
+    def select_segment(self,i):
+        self.selected_segment = i
+        self.left_color_button.set_color(self.grad.segments[i].left_color)
+        self.right_color_button.set_color(self.grad.segments[i].right_color)
         
     def gradarea_mousedown(self, widget, event):
         pass
@@ -138,8 +151,9 @@ class ColorDialog(dialog.T):
     def gradarea_clicked(self, widget, event):
         pos = float(event.x) / widget.allocation.width
         i = self.grad.get_index_at(pos)
-        self.selected_segment = i
+        self.select_segment(i)
         self.redraw()
+
 
     def gradarea_mousemoved(self, widget, event):
         pass
@@ -253,12 +267,15 @@ class ColorDialog(dialog.T):
             return
         
         mapfile = model.get_value(iter,0)
+        self.set_map_file(self.model.maps[mapfile])
+
+    def set_map_file(self, name):
         c = fractal.Colorizer()
-        file = open(self.model.maps[mapfile])
+        file = open(name)
         c.parse_map_file(file)
         self.grad = c.gradient
         if not self.grad.name:
-            self.grad.name = mapfile
+            self.grad.name = name
 
         self.redraw()
         
@@ -281,7 +298,7 @@ class ColorDialog(dialog.T):
         sw.add(self.treeview)
 
         renderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn (_('Color Map'), renderer, text=0)
+        column = gtk.TreeViewColumn (_('Gradient'), renderer, text=0)
         self.treeview.append_column (column)
 
         selection = self.treeview.get_selection()

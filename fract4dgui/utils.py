@@ -79,40 +79,68 @@ def create_option_menu(items, cb):
     return widget
 
 def create_color(r,g,b):
+    # multiply up to match range expected by gtk
+    print "#%04X%04X%04X" % (r*65535,g*65535,b*65535)
     try:
-        return gtk.gdk.color(r*256,g*256,b*256)
+        return gtk.gdk.color(r*65535,g*65535,b*65535)
     except:
-        return gtk.gdk.color_parse("#%4x%4x%4x" % (r*256,g*256,b*256))
+        # old gtk doesn't have direct color constructor
+        return gtk.gdk.color_parse("#%04X%04X%04X" % (r*65535,g*65535,b*65535))
 
 
 class ColorButton:
-    def __init__(self,rgb, changed_cb, *args):
-        color = create_color(rgb[0], rgb[0], rgb[0])
+    def __init__(self,rgb, changed_cb, is_left):
+        self.area = None
+        self.set_color(rgb)
         self.changed_cb = changed_cb
-        self.cb_args = args
+        self.is_left = is_left
         try:
-            self.widget = gtk.ColorButton(color)
+            self.widget = gtk.ColorButton(self.color)
 
             def color_set(widget):
                 color = widget.get_color()
                 self.color_changed(color)
-                
+
             self.widget.connect('color-set', self.color_changed)
         except:
             # This GTK is too old to support ColorButton directly, fake one
-            self.widget = gtk.Button("Color") # FIXME use drawable widget
-
+            self.widget = gtk.Button()
+            self.area = gtk.DrawingArea()
+            self.area.set_size_request(16,10)
+            self.widget.add(self.area)
+            self.area.connect('expose_event', self.on_expose_event)
             self.csel_dialog = gtk.ColorSelectionDialog(_("Select a Color"))
-            self.csel_dialog.colorsel.set_current_color(color)
 
             self.widget.connect('clicked', self.run_colorsel)
 
+    def set_color(self, rgb):
+        self.color = create_color(rgb[0], rgb[1], rgb[2])
+
+        print "sc", self.area, rgb
+        if self.area:
+            self.area_expose(
+                self.area,
+                0,0,
+                self.area.allocation.width,self.area.allocation.height)
+
+    def on_expose_event(self, widget, event):
+        r = event.area
+        self.area_expose(widget, r.x, r.y, r.width, r.height)
+        
+    def area_expose(self, widget, x, y, w, h):        
+        gc = widget.window.new_gc(fill=gtk.gdk.SOLID)
+        self.color = widget.get_colormap().alloc_color(
+            self.color.red, self.color.green, self.color.blue)
+        gc.set_foreground(self.color)
+        widget.window.draw_rectangle(gc, True, x, y, w, h)
+
     def run_colorsel(self, widget):
         dlg = self.csel_dialog
+        dlg.colorsel.set_current_color(self.color)
         result = dlg.run()
         if result == gtk.RESPONSE_OK:
-            color = dlg.colorsel.get_current_color()
-            self.color_changed(color)
+            self.color = dlg.colorsel.get_current_color()
+            self.color_changed(self.color)
         self.csel_dialog.hide()
         
     def color_changed(self,color):
@@ -120,6 +148,6 @@ class ColorButton:
             color.red/65535.0,
             color.green/65535.0,
             color.blue/65535.0,
-            self.cb_args)
+            self.is_left)
 
         

@@ -497,6 +497,11 @@ class T(FctUtils):
             params[n] = val
             self.changed()
 
+    def set_gradient(self, g):
+        # FIXME: compare for equality
+        self.gradient = g
+        self.changed(False)
+        
     def refresh(self):
         if self.compiler.out_of_date(self.funcFile):
             self.set_formula(self.funcFile,self.funcName)
