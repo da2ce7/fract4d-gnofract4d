@@ -1,6 +1,5 @@
 todo for 2.0
 * BB	giger.fct - results of extangle are different vs 1.9
-* W	explorer mode
 * WW	angle and 4way widgets
 * B	if load rgb colorizer .fct, report ValueError: Empty color array
 
@@ -54,6 +53,7 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* W	explorer mode
 * B	temp variables in colorfuncs persist across compilations?
 * W	keyboard shortcuts for all widgets
 * B	fn1..4 appear in random order in dialog box
