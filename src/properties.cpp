@@ -42,7 +42,7 @@ set_width_callback(GtkEntry *e, GdkEventFocus *, model_t *m)
     int width=0;
     sscanf(s,"%d",&width);
     model_set_width(m,width);
-    return TRUE;
+    return FALSE;
 }
 
 void 
@@ -60,7 +60,7 @@ set_height_callback(GtkEntry *e, GdkEventFocus *, model_t *m)
     int height=0;
     sscanf(s,"%d",&height);
     model_set_height(m,height);
-    return TRUE;
+    return FALSE;
 }
 
 void 
@@ -82,7 +82,7 @@ set_maxiter_callback(GtkEntry *e, GdkEventFocus *, Gf4dFractal *f)
 
     gf4d_fractal_set_max_iterations(f,niters);
     gf4d_fractal_parameters_changed(f);	
-    return TRUE;
+    return FALSE;
 }
 
 void 
@@ -193,7 +193,7 @@ set_param_callback(GtkEntry *e, GdkEventFocus *, gpointer user_data)
         gf4d_fractal_parameters_changed(f);
     }
     g_free(current);
-    return TRUE;
+    return FALSE;
 }
 
 void 
@@ -830,7 +830,7 @@ create_propertybox_function_page(
     create_page(vbox, table,_("Function"));
 }
 
-void
+gboolean
 set_func_parameter_cb(GtkWidget * entry, GdkEventFocus *, model_t *m)
 {
     Gf4dFractal *f = model_get_fract(m);
@@ -857,7 +857,8 @@ set_func_parameter_cb(GtkWidget * entry, GdkEventFocus *, model_t *m)
     {
         func->setOption(index/2,newVal);
         model_cmd_finish(m,"set_func_param");
-    }        
+    }
+    return TRUE;
 }
 
 void make_func_label(const char *name, const char *part_name, GtkWidget *table, int i)
