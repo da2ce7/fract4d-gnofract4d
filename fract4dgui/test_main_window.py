@@ -102,6 +102,20 @@ class Test(unittest.TestCase):
         result = self.mw.load_formula(fn_bad)
         self.assertEqual(result, True, "load of bad file failed")
 
+    def testCollapsarPreview(self):
+        'Check for problem where collapsar preview differs from main image'
+        result = self.mw.load("../testdata/collapsar.fct")
+        self.failUnless(result, "load failed")
+
+        self.mw.update_preview(self.mw.f, False)
+        fct1 = self.mw.f.serialize()        
+        fct2 = self.mw.preview.f.serialize()
+
+        self.mw.f.save(open("c1.fct","w"), False)        
+        self.mw.preview.f.save(open("c2.fct","w"), False)
+
+        self.assertEqual(fct1, fct2)
+        
     def testDialogs(self):
         self.mw.settings(None,None)
         self.mw.colors(None,None)

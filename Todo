@@ -12,50 +12,52 @@ Done in 2.7:
 * B	should disable flip2julia if not is4D()
 * WW	enum, int, bool parameters
 * W	initial gradient stuff (chris le sueur)
+* B	collapsar preview different color from main image
 
 todo:
 
 bugs (the more B's, the worse the bug):
-* BB	explorer doesn't work properly with int/enum/bool params?
-* BB	intermittently failing test in test_fract4d
+* BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
+* BBB	explorer doesn't work properly with int/enum/bool params?
 * BB	should save enum params as strings, not indexes
-* B	collapsar preview different color from main image?
-* B	should start drawing straight away when image returns to normal size
-* B	weird behavior when using explorer mode & oversized image
-* B	incredibly slow when allocate very big image which fits in VM
-* B	fractint builtin fns with () in the name 
 * BB	painter produces wrong color sometimes?
-* B	painter doesn't understand solid
-* B	each fractal gets compiled twice, 2nd time with extra vars:
-* B	compile whenever resolution changes - pointless
+* BB	opening color browser sometimes applies 1st item
 * BB	opening browser should select current fractfile and formula
+* BB	intermittently failing test in test_fract4d
+* BB	fractint doesn't reset vars between calls
+* BB	click on colormap calls calc() twice
+* B     var called 'loat' would clash with C reserved word
+* B	weird behavior when using explorer mode & oversized image
+* B	untitled_5 displays weirdly - so do some combinations of bailout+colorfunc
+* B	standard.cfrm:triangle = all black
+* B	should start drawing straight away when image returns to normal size
+* B	seaslug.fct - diff bailout for quadratic
+* B	recoloring during deepening can make things shallower
+* B	parse continuation lines correctly mid-token
+* B	painter doesn't understand solid
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
-* BB	opening color browser sometimes applies 1st item
-* BB	click on colormap calls calc() twice
-* BB	fractint doesn't reset vars between calls
-* B	parse continuation lines correctly mid-token
-* B	O-fractals in fractint-g4.frm broken
-* B	recoloring during deepening can make things shallower
-* B     var called 'loat' would clash with C reserved word
-* BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
-* B	Mandrake: desktop icon not added to menu
 * B	mandrake: pygtk2 is called pygtk2.0
+* B	interrupt takes too long on deep-zoomed fractals
+* B	incredibly slow when allocate very big image which fits in VM
+* B	horrible_drawing_bug.fct - zoom out & it looks very different
+* B	giger.fct - results of extangle are different vs 1.9
+* B	fractint builtin fns with () in the name 
+* B	explorer rather slow with complex colorfuncs
+* B	each fractal gets compiled twice, 2nd time with extra vars:
 * B	does everything have to be .17f ?
-* B	seaslug.fct - diff bailout for quadratic
-* B	coolness.fct - need direct coloring algorithm
+* B	default chebyshev gives blank screen
 * B	deeper.fct, hive.fct, image.fct doesn't load properly - old format
 * B	daisychain.fct - bailFunc != diff for newton
-* B	interrupt takes too long on deep-zoomed fractals
-* B	untitled_5 displays weirdly - 
-	so do some combinations of bailout+colorfunc
-* B	giger.fct - results of extangle are different vs 1.9
-* B	horrible_drawing_bug.fct - zoom out & it looks very different
+* B	coolness.fct - need direct coloring algorithm
+* B	compile whenever resolution changes - pointless
 * B	click on GaussianInteger cfrm = print out some stuff
-* B	default chebyshev gives blank screen
-* B	standard.cfrm:triangle = all black
+* B	O-fractals in fractint-g4.frm broken
+* B	Mandrake: desktop icon not added to menu
 
 features (the more W's, the more work involved):
+* W	download missing formulas from UF formula database
+* W	implement $IFDEF
 * W	copy & paste to text or image
 * W	don't allocate memory for recoloring buffer when image very large
 * WW	cmap browser
