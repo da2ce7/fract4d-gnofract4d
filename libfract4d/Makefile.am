@@ -1,7 +1,7 @@
 
 lib_LTLIBRARIES= libfract4d.la
 
-AM_CXXFLAGS = -O3 -ffast-math -Wall -D_REENTRANT 
+AM_CXXFLAGS = -O3 -ffast-math -Wall -D_REENTRANT @PY_CFLAGS@
 
 libfract4d_la_SOURCES=\
 	fract4d.h \
@@ -20,6 +20,8 @@ libfract4d_la_SOURCES=\
 	io.h io.cpp \
 	threadpool.h \
 	fractWorker.h fractWorker_public.h MTFractWorker.cpp 
+
+libfract4d_la_LIBADD=@PY_OBJS@ @PY_LIBS@
 
 EXTRA_DIST=compiler_template.cpp
 

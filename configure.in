@@ -20,6 +20,44 @@ dnl libs required by libfract4d
 AC_CHECK_LIB(pthread,pthread_join)
 AC_CHECK_LIB(dl,dlopen)
 
+dnl python
+AM_PATH_PYTHON(2.0)
+
+dmod="distutils.sysconfig"
+AC_MSG_CHECKING(for Python $dmod module)
+if $PYTHON -c "import $dmod" >/dev/null 2>&1; then
+    AC_MSG_RESULT(found)
+else
+    AC_MSG_RESULT(not found)
+    AC_MSG_ERROR([** Please install Python distutils modules **])
+fi
+
+AC_ARG_WITH(pythoninc,
+	AC_HELP_STRING([--with-pythoninc],
+		       [Select path for python headers]),
+    	pythoninc=${withval},
+	AC_MSG_CHECKING(for Python include dir)
+	pythoninc=`$PYTHON -c "import $dmod; print $dmod.get_python_inc()"`
+	AC_MSG_RESULT($pythoninc)
+	AC_MSG_CHECKING(for Python library dir)
+	pythonlibpath=`$PYTHON -c "import $dmod; print $dmod.get_config_var('LIBPL')"`
+	AC_MSG_RESULT($pythonlibpath)
+	AC_MSG_CHECKING(for Python library file)
+	pythonlib=`$PYTHON -c "import $dmod; print $dmod.get_config_var('LIBRARY')"`
+	AC_MSG_RESULT($pythonlib)
+
+	AC_MSG_CHECKING(for Python library dependencies)
+	pythondeps=`$PYTHON -c "import $dmod; print $dmod.get_config_var('LIBS')"`
+	AC_MSG_RESULT($pythondeps)
+
+	)
+PY_CFLAGS="-I$pythoninc"
+PY_OBJS="$pythonlibpath/$pythonlib"
+PY_LIBS="$pythondeps"
+AC_SUBST(PY_CFLAGS)
+AC_SUBST(PY_OBJS)
+AC_SUBST(PY_LIBS)
+
 pkg_modules="libgnomeui-2.0"
 PKG_CHECK_MODULES(GNOFRACT4D, [$pkg_modules])
 AC_SUBST(GNOFRACT4D_CFLAGS)

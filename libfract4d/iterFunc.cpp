@@ -12,6 +12,8 @@
 #include <sstream>
 #include <cassert>
 
+#include "Python.h"
+
 #define FIELD_FUNCTION "function"
 
 // forward static calls of << to appropriate virtual function
@@ -708,6 +710,70 @@ operator>>(std::istream& s, iterImpl& m)
 }
 
 
+
+class iterFuncFactory
+{
+private:
+    bool m_ok;
+    PyObject *pClass;
+    PyObject *pCompiler;
+    PyObject *pModule;
+
+public:
+    bool ok() const { return m_ok; };
+    iterFuncFactory();
+    ~iterFuncFactory();
+};
+
+
+iterFuncFactory::iterFuncFactory()
+{
+    m_ok = false;
+    pModule = pCompiler = pClass = NULL;
+    Py_Initialize(); // FIXME can this go wrong?
+
+    PyObject *pName = PyString_FromString("fc");
+    assert(pName);
+
+    pModule = PyImport_Import(pName);
+    Py_DECREF(pName);
+
+    PyObject *pDict = NULL, 
+	*pArgs = NULL; 
+
+    if(!pModule) goto error;
+
+
+    pDict = PyModule_GetDict(pModule);
+    if(!pDict) goto error;
+
+    pClass = PyDict_GetItemString(pDict, "Compiler");
+    if(!pClass) goto error;
+
+    pArgs = PyTuple_New(0);
+    if(!pArgs) goto error;
+
+    pCompiler = PyInstance_New(pClass,pArgs, NULL);
+    if(!pCompiler) goto error;
+    
+    m_ok = true;
+ error:
+    if(PyErr_Occurred())
+    {
+	PyErr_Print();
+    }
+    Py_XDECREF(pModule);
+    Py_XDECREF(pArgs);
+    Py_XDECREF(pCompiler);
+}
+
+iterFuncFactory::~iterFuncFactory()
+{
+    Py_XDECREF(pModule);
+    Py_XDECREF(pCompiler);
+    Py_Finalize();
+}
+
 static const char **createNameTable()
 {
     int nNames = sizeof(infoTable)/sizeof(infoTable[0]);
@@ -736,10 +802,23 @@ iterFunc::load_file(const char *filename)
 }
 #endif
 
+static 
+bool ensure_initialized()
+{
+    static iterFuncFactory *factory = new iterFuncFactory();
+    return factory->ok();
+}
+
+
 // factory method to make new iterFuncs
 iterFunc *iterFunc::create(const char *name, const char *filename)
 {
     if(!name) return NULL;
+    if(!ensure_initialized())
+    {
+	return NULL;
+    }
+    
 
     iterFunc_data *p = infoTable;
     while(p->name)
