@@ -16,15 +16,12 @@ import colors, undo, browser, fourway, angle, utils, hig
 
 class MainWindow:
     def __init__(self):
-
         self.quit_when_done =False
         self.save_filename = None
         # window widget
         
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
-
-        #self.set_icon()
 
         # keyboard handling
         self.keymap = {
@@ -87,7 +84,7 @@ class MainWindow:
                           _("Paused") ]
 
         self.f.set_saved(True)
-
+        
     def set_icon(self):
         # currently disabled because set_icon_list doesn't exist on RH8
         icon = utils.find_resource(
@@ -477,16 +474,23 @@ class MainWindow:
         # explorer mode widgets
         self.toolbar.add_space()
 
-        image = gtk.Image()
-        image.set_from_file(
+        pixbuf = gtk.gdk.pixbuf_new_from_file(
             utils.find_resource('explorer_mode.png',
                                 'pixmaps',
                                 'share/pixmaps/gnofract4d'))
+
+        iconset = gtk.IconSet(pixbuf)
+        iconfactory = gtk.IconFactory()
+        iconfactory.add("explorer", iconset)
+        iconfactory.add_default()
+
+        gtk.stock_add(
+            [("explorer", _("Explore"), gtk.gdk.CONTROL_MASK, ord( "e"), "c")])
                             
         self.toolbar.add_toggle(
+            "explorer",
             _("Explore"),
             _("Toggle Explorer Mode"),
-            image,
             self.toolbar_toggle_explorer)
         
         self.weirdness_adjustment = gtk.Adjustment(

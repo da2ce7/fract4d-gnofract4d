@@ -64,16 +64,17 @@ class T(gtk.Toolbar):
                 None,
                 -1)
 
-    def add_toggle(self, title, tip_text, image, cb):
+    def add_toggle(self, stock_id, title, tip_text, cb):
         try:
-            # FIXME work out how the hell this works in pygtk 2.4
-            #toolitem = gtk.ToggleToolButton()
-            #toolitem.connect('toggled', cb)
-            #toolitem.set_tooltip(gtk.Tooltips(), tip_text, tip_text)
-            #toolitem.
-            #self.insert(toolitem,-1)
-            raise Exception("NYI")
+            toolitem = gtk.ToggleToolButton(stock_id)
+            toolitem.connect('toggled', cb)
+            toolitem.set_tooltip(gtk.Tooltips(), tip_text, tip_text)
+            self.insert(toolitem,-1)
         except:
+            pixbuf = self.render_icon(
+                stock_id, gtk.ICON_SIZE_LARGE_TOOLBAR, "toolbar")
+            image = gtk.Image()
+            image.set_from_pixbuf(pixbuf)
             self.append_element(
                 gtk.TOOLBAR_CHILD_TOGGLEBUTTON,
                 None,
