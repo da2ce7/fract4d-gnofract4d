@@ -100,15 +100,14 @@ class CodegenTest(unittest.TestCase):
         cFile.close()
         return cFileName
     
-    def compileAndRun(self,user_preamble="", user_postamble=""):
-        c_code = self.makeC(user_preamble, user_postamble)
+    def compileAndRun(self,c_code):
         cFileName = self.writeToTempFile(c_code,".c")
         oFileName = self.writeToTempFile("")
         #print c_code
         cmd = "gcc -Wall %s -o %s" % (cFileName, oFileName)
         #print cmd
         (status,output) = commands.getstatusoutput(cmd)
-        self.assertEqual(status,0)
+        self.assertEqual(status,0,"C error:\n" + output)
         #print "status: %s\noutput:\n%s" % (status, output)
         cmd = oFileName
         (status,output) = commands.getstatusoutput(cmd)
@@ -252,7 +251,7 @@ goto t__end_loop;''')
     def testMandel(self):
         src = '''t_mandel{
 init:
-z = 0,c = 0
+z = 0,c = 1.5
 loop:
 z = z*z + c
 bailout:
@@ -260,14 +259,18 @@ bailout:
 }'''
         t = self.translate(src)
         self.codegen.output_all(t)
-        c_code = self.codegen.output_c(t)
-        print c_code
+        inserts = {"loop_inserts":"printf(\"(%g,%g)\\n\",z_re,z_im);"}
+        c_code = self.codegen.output_c(t,inserts)
+        #print c_code
+        output = self.compileAndRun(c_code)
+        self.assertEqual(output,"(1.5,0)\n(3.75,0)",output)
         
     # assertions
     def assertCSays(self,source,section,check,result,dump=None):
         asm = self.sourceToAsm(source,section,dump)
         postamble = "t__end_%s:\n%s\n" % (section,check)
-        output = self.compileAndRun("", postamble)
+        c_code = self.makeC("", postamble)
+        output = self.compileAndRun(c_code)
         self.assertEqual(output,result)
         
     def assertOutputMatch(self,exp):
