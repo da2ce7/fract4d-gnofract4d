@@ -813,7 +813,6 @@ class SubFract(T):
         self.master = master
         
     def onButtonRelease(self,widget,event):
-        print "updating master"
         self.master.set_fractal(self.copy_f())
         
 # explain our existence to GTK's object system
