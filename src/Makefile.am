@@ -25,11 +25,12 @@ gnofract4d_SOURCES = \
 	gundo.cpp gundo.h \
 	gundo_ui.cpp gundo_ui.h \
 	cmapbrowser.h cmapbrowser.cpp \
-	movie_editor.h movie_editor.cpp \
 	tls.h tls.cpp \
 	preferences.h preferences.cpp \
 	image.cpp image.h \
 	marshallers.c
+
+DEAD_FILES = movie_editor.h movie_editor.cpp 
 
 marshallers.h: marshallers.list
 	( @GLIB_GENMARSHAL@ --prefix=gf4d_marshal marshallers.list --header > marshal.tmp && mv marshal.tmp marshallers.h ) || ( rm -f marshal.tmp && exit 1 )

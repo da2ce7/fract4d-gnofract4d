@@ -334,17 +334,24 @@ gf4d_angle_expose (GtkWidget      *widget,
     /* Draw text (rather badly - should perhaps use label widget) */
     if(dial->text)
     {
-/* FIXME replace with pango nonsense once I figure it out
-        gint l = gdk_string_width(widget->style->font_desc,dial->text);
-        gint h = gdk_string_height(widget->style->font, dial->text);
-		
-        gtk_draw_string(widget->style,
-                        widget->window,
-                        GTK_STATE_NORMAL,
-                        xc - l/2,
-                        yc - h/2,
-                        dial->text);
-*/
+	PangoLayout *pgl = gtk_widget_create_pango_layout(widget, dial->text);
+
+	gint l, h;
+	pango_layout_get_pixel_size(pgl, &l, &h);
+
+	gtk_paint_layout(
+	    widget->style,
+	    widget->window,
+	    GTK_STATE_NORMAL,
+	    TRUE,
+	    &event->area,
+	    widget,
+	    NULL,
+	    xc - l/2,
+	    yc - h/2,
+	    pgl);
+
+	g_object_unref(pgl);
     }
 
     /* Draw circle */

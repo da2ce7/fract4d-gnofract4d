@@ -33,7 +33,7 @@
 #include "callbacks.h"
 #include "interface.h"
 #include "gf4d_fractal.h"
-#include "movie_editor.h"
+//#include "movie_editor.h"
 #include "tls.h"
 #include "compiler.h"
 

@@ -268,16 +268,25 @@ gf4d_fourway_expose (GtkWidget      *widget,
     /* Draw text (rather badly - should perhaps use label widget) */
     if(fourway->text)
     {
-	/* FIXME replace with pango stuff once I figure it out
-        gint l = gdk_string_width(widget->style->font,fourway->text);
-		
-        gtk_draw_string(widget->style,
-                        widget->window,
-                        GTK_STATE_NORMAL,
-                        xc - l/2,
-                        yc,
-                        fourway->text);
-	*/
+
+	PangoLayout *pgl = gtk_widget_create_pango_layout(widget, fourway->text);
+
+	gint l, h;
+	pango_layout_get_pixel_size(pgl, &l, &h);
+
+	gtk_paint_layout(
+	    widget->style,
+	    widget->window,
+	    GTK_STATE_NORMAL,
+	    TRUE,
+	    &event->area,
+	    widget,
+	    NULL,
+	    xc - l/2,
+	    yc - h/2,
+	    pgl);
+
+	g_object_unref(pgl);
     }
 
     /* Draw square */
