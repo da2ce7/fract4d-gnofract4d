@@ -356,7 +356,7 @@ def createDefaultDict():
         d[name] = Alias("t__a_" + name)
         d["t__a_" + name ] = OverloadList([Func([Complex],Complex, stdlib, "ident") ])
 
-    d["t__a_transfer"] = OverloadList([Func([Float],Float, stdlib, "ident") ])
+    d["t__a__transfer"] = OverloadList([Func([Float],Float, stdlib, "ident") ])
     
     for (k,v) in d.items():
         if hasattr(v,"cname") and v.cname == None:

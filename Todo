@@ -1,13 +1,12 @@
 todo for 2.1
 * WW	cmap browser
 * WW	cmap editor - brightness/contrast/gamma/HSV/RGB
+* W	recoloring
 * B	opening color browser sometimes applies 1st item
 * W	drop-down resolution chooser
 * W	logmap
-* W	periodicity
 * B	fractint doesn't reset vars between calls
 * B	parse continuation lines correctly
-* W	tdis, other fractint colorfuncs
 * BB	changing inner colormap modifies outer appearance
 
 UI improvements 
@@ -42,7 +41,6 @@ FALSE so the entry gets the event as well
 
 Gtk-ERROR **: file gtkentry.c: line 4214 (blink_cb): assertion failed: (GTK_WIDGET_HAS_FOCUS (entry))
 aborting...
-* B	Undo/redo behaves weirdly sometimes 
 
 Testing:
 * W	end-to-end regression test vs V1.9
@@ -58,6 +56,9 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* W	tdis, other fractint colorfuncs
+* B	Undo/redo behaves weirdly sometimes 
+* W	periodicity
 * WW	doc
 * W	command-line arguments
 * W	add some more built-in types

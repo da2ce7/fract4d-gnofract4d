@@ -151,7 +151,6 @@ class T(gobject.GObject):
             print initparams
             raise
 
-        print "p:", self.f.periodicity
         self.running = True
         fract4dc.async_calc(self.f.params,self.f.antialias,self.f.maxiter,
                             self.f.yflip,nthreads,
