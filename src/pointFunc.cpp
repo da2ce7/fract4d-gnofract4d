@@ -28,6 +28,7 @@
 #include <math.h>
 #include <iostream>
 #include <float.h>
+#include <stdio.h>
 
 class pointCalc : public pointFunc {
 private:
@@ -90,6 +91,11 @@ public:
 
             int iter = 0;
 
+            /* periodicity vars */
+            const d PERIOD_TOLERANCE = 1.0E-10;
+            d lastx = pIter[X], lasty=pIter[Y];
+            int k =1, m = 1;
+
             /* to save on bailout tests and function call overhead, we
                try to calculate 8 iterations at a time. Some bailout
                functions don't allow this, however */
@@ -102,7 +108,23 @@ public:
                     if((iter+= 8) >= nMax8Iters)
                     {
                         goto finished8;
+                    }                    
+                    for(int i = 2; i < 18; ++i)
+                    {
+                        if(fabs(pIter[X+i] - lastx) < PERIOD_TOLERANCE &&
+                           fabs(pIter[Y+i] - lasty) < PERIOD_TOLERANCE)
+                        {
+                            // period detected!
+                            //printf(",");
+                            iter = -1; goto finishedAll;
+                        }
                     }
+                    if(--k == 0)
+                    {
+                        lastx = pIter[X]; lasty = pIter[Y];
+                        m *= 2;
+                        k = m;
+                    }                    
                     (*m_pBail)(pIter,pInput,pTemp,flags);  
                     if(pTemp[EJECT_VAL] >= m_eject)
                     {
@@ -132,7 +154,7 @@ public:
             // we finished the 8some iterations without bailing out
             do
             {
-                (*m_pIter)(pIter,pInput,pTemp);                
+                (*m_pIter)(pIter,pInput,pTemp);
                 if(iter++ >= nMaxIters) 
                 {
                     // ran out of iterations
@@ -145,6 +167,19 @@ public:
                 }
                 pIter[X] = pIter[X + (2*1)];
                 pIter[Y] = pIter[Y + (2*1)];
+                if(fabs(pIter[X] - lastx) < PERIOD_TOLERANCE &&
+                   fabs(pIter[Y] - lasty) < PERIOD_TOLERANCE)
+                {
+                    // period detected!
+                    //printf(".");
+                    iter = -1; break;
+                }
+                if(--k == 0)
+                {
+                    lastx = pIter[X]; lasty = pIter[Y];
+                    m *= 2;
+                    k = m;
+                }
             }while(1);
 
         finishedAll:
