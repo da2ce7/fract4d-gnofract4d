@@ -25,13 +25,16 @@
 #include "pf.h"
 #include "cmap.h"
 
+class IFractalSite;
+
 /* interface for function object which computes and/or colors a single point */
 class pointFunc {
  public:
     /* factory method for making new pointFuncs */
     static pointFunc *create(
 	pf_obj *pfo,
-	cmap_t *cmap);
+	cmap_t *cmap,
+	IFractalSite *site);
 	
     virtual ~pointFunc() {};
     virtual void calc(

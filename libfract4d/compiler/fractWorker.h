@@ -29,7 +29,7 @@ class STFractWorker : public IFractWorker {
     IImage *im;    
 
     /* not a ctor because we always create a whole array then init them */
-    bool init(pf_obj *pfo, cmap_t *cmap, IImage *im);
+    bool init(pf_obj *pfo, cmap_t *cmap, IImage *im, IFractalSite *site);
 
     ~STFractWorker();
 
@@ -120,7 +120,8 @@ class MTFractWorker : public IFractWorker
     MTFractWorker(int n, 
 		  pf_obj *obj,
 		  cmap_t *cmap,
-		  IImage *im);
+		  IImage *im,
+		  IFractalSite *site);
     ~MTFractWorker();
 
     void set_fractFunc(fractFunc *ff); 

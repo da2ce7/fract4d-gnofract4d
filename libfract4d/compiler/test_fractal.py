@@ -3,9 +3,13 @@
 import string
 import unittest
 import StringIO
+import sys
 
 import fc
 import fractal
+
+sys.path.append("build/lib.linux-i686-2.2") # FIXME
+import fract4d
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
@@ -88,8 +92,26 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         f.set_formula("gf4d.frm","Mandelbrot")
         f.set_inner("gf4d.cfrm","default")
         f.set_outer("gf4d.cfrm","zero")
-        s = f.compile()
 
+        # check defaults
+        self.assertEqual(f.params[f.XCENTER],0.0)
+        self.assertEqual(f.params[f.YCENTER],0.0)
+        self.assertEqual(f.params[f.ZCENTER],0.0)
+        self.assertEqual(f.params[f.WCENTER],0.0)
+        self.assertEqual(f.params[f.MAGNITUDE],4.0)
+        self.assertEqual(f.params[f.XYANGLE],0.0)
+        self.assertEqual(f.params[f.XZANGLE],0.0)
+        self.assertEqual(f.params[f.XWANGLE],0.0)
+        self.assertEqual(f.params[f.YZANGLE],0.0)
+        self.assertEqual(f.params[f.YWANGLE],0.0)
+        self.assertEqual(f.params[f.ZWANGLE],0.0)
+        self.assertEqual(f.bailout,4.0)
+
+        f.compile()
+        image = fract4d.image_create(40,30)
+        f.draw(image)
+        fract4d.image_save(image,"mandel.tga")
+        
     def testFractalBadness(self):
         f = fractal.T(self.compiler)
         self.assertRaises(ValueError,f.set_formula,"gf4d.frm","xMandelbrot")

@@ -367,6 +367,26 @@ public:
 	    return ret;
 	}
 
+    // pixel changed
+    virtual void pixel_changed(
+	const double *params, int maxIters, int nNoPeriodIters,
+	int x, int y, int aa,
+	double dist, int fate, int nIters,
+	int r, int g, int b, int a) 
+	{
+	    /*
+	    printf("pixel: params: <%g,%g,%g,%g>,"
+		   "pos: (%d,%d,%d), iters: %d, %d: "
+		   "dist %g, fate %d, iter %d: "
+		   "color (%d,%d,%d,%d)\n",
+		   params[0],params[1],params[2],params[3],
+		   x,y,aa,
+		   maxIters,nNoPeriodIters,
+		   dist,fate,nIters,
+		   r,g,b,a);
+	    */
+	};
+
     ~PySite()
 	{
 	    //printf("dtor %p\n",this);

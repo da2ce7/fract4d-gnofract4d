@@ -4,30 +4,32 @@
 #include <stdio.h>
 
 IFractWorker *
-IFractWorker::create(int nThreads,pf_obj *pfo, cmap_t *cmap, IImage *im_)
+IFractWorker::create(
+    int nThreads,pf_obj *pfo, cmap_t *cmap, IImage *im_, IFractalSite *site)
 {
 // can IFDEF here if threads are not available
     if ( nThreads > 1)
     {
-	return new MTFractWorker(nThreads,pfo,cmap,im_);
+	return new MTFractWorker(nThreads,pfo,cmap,im_,site);
     }
     else
     {
 	STFractWorker *w = new STFractWorker();
 	if(!w) return w;
-	w->init(pfo,cmap,im_);
+	w->init(pfo,cmap,im_,site);
 	return w;
     }
 } 
 
 bool
-STFractWorker::init(pf_obj *pfo, cmap_t *cmap, IImage *im_)
+STFractWorker::init(
+    pf_obj *pfo, cmap_t *cmap, IImage *im_, IFractalSite *site)
 {
     ff = NULL;
     im = im_;
     m_ok = true;
 
-    pf = pointFunc::create(pfo,cmap);
+    pf = pointFunc::create(pfo,cmap,site);
     if(NULL == pf)
     {
 	m_ok = false;

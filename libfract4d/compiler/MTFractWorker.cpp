@@ -11,7 +11,8 @@ MTFractWorker::MTFractWorker(
     int n, 
     pf_obj *pfo,
     cmap_t *cmap,
-    IImage *im)
+    IImage *im,
+    IFractalSite *site)
 {
     /* 0'th ftf is in this thread for calculations we don't want to offload */
     nWorkers = n > 1 ? n + 1 : 1;
@@ -19,7 +20,7 @@ MTFractWorker::MTFractWorker(
     ptf = new STFractWorker[nWorkers];
     for(int i = 0; i < nWorkers; ++i)
     {
-        if(!ptf[i].init(pfo,cmap,im))
+        if(!ptf[i].init(pfo,cmap,im,site))
         {
             // failed to create - mark this dead 
             m_ok = false;	    

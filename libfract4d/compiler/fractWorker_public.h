@@ -7,11 +7,13 @@ class IImage;
 #include "pf.h"
 #include "cmap.h"
 
+class IFractalSite;
+
 class IFractWorker {
 public:
 
     static IFractWorker *create(
-	int nThreads,pf_obj *pfo, cmap_t *cmap, IImage *im_);
+	int nThreads,pf_obj *pfo, cmap_t *cmap, IImage *im_, IFractalSite *site);
 
     virtual void set_fractFunc(fractFunc *ff_) =0;
 

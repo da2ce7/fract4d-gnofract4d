@@ -26,6 +26,7 @@
 #include "pf.h"
 #include "cmap.h"
 #include "pointFunc_public.h"
+#include "fract_public.h"
 
 #include <unistd.h>
 #include <dlfcn.h>
@@ -37,13 +38,14 @@ class pf_wrapper : public pointFunc
 private:
     pf_obj *m_pfo;
     cmap_t *m_cmap;
-
+    IFractalSite *m_site;
 public:
     pf_wrapper(
 	pf_obj *pfo,
-	cmap_t *cmap
+	cmap_t *cmap,
+	IFractalSite *site
 	) : 
-	m_pfo(pfo), m_cmap(cmap)
+	m_pfo(pfo), m_cmap(cmap), m_site(site)
 	{
 
 	}
@@ -70,6 +72,12 @@ public:
 		*pnIters = -1;
 	    }
 	    *color = cmap_lookup(m_cmap,dist);
+
+	    m_site->pixel_changed(
+		params,nIters,nNoPeriodIters,
+		x,y,aa,
+		dist,fate,*pnIters,
+		color->r, color->g, color->b, color->a);
 	}
     inline rgba_t recolor(double dist) const
 	{	    
@@ -80,13 +88,14 @@ public:
 
 pointFunc *pointFunc::create(
     pf_obj *pfo,
-    cmap_t *cmap)
+    cmap_t *cmap,
+    IFractalSite *site)
 {
     if(NULL == pfo || NULL == cmap)
     {
 	return NULL;
     }
 
-    return new pf_wrapper(pfo,cmap);
+    return new pf_wrapper(pfo,cmap,site);
 }
 

@@ -243,9 +243,9 @@ double t__h_index = 0.0;
 int t__h_numiter = 0;
 %(init)s
 t__end_init:
-%(cf0init)s
+%(cf0_init)s
 t__end_cf0init:
-%(cf1init)s
+%(cf1_init)s
 t__end_cf1init:
 do
 {
@@ -256,9 +256,9 @@ do
     t__end_bailout:
     %(bailout_inserts)s
     if(!%(bailout_var)s) break;
-    %(cf0loop)s
+    %(cf0_loop)s
     t__end_cf0loop:
-    %(cf1loop)s
+    %(cf1_loop)s
     t__end_cf1loop:
     t__h_numiter++;
 }while(t__h_numiter < t__p_nMaxIters);
@@ -273,12 +273,12 @@ t__end_final:
 *t__p_pnIters = t__h_numiter;
 if(*t__p_pFate == 0)
 {
-    %(cf0final)s
+    %(cf0_final)s
     t__end_cf0final:
 }
 else
 {
-    %(cf1final)s
+    %(cf1_final)s
     t__end_cf1final:
 }
 *t__p_pDist = t__h_index;
