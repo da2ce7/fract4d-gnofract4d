@@ -363,6 +363,17 @@ goto t__end_init;''')
     def cpredict(self,f,arg=(1+0j)):
         z = f(arg)
         return "(%.6g,%.6g)" % (z.real,z.imag) 
+
+    def make_test(self,myfunc,pyfunc,val,n):
+        codefrag = "ct_%s%d = %s((%d,%d))" % (myfunc, n, myfunc, val.real, val.imag)
+        lookat = "ct_%s%d" % (myfunc, n)
+        result = self.cpredict(pyfunc,val)
+        return [ codefrag, lookat, result]
+    
+    def manufacture_tests(self,myfunc,pyfunc):
+        vals = [ 0+0j, 0+1j, 1+0j, 1+1j, 1+2j, 1-0j, 0-1j ]
+        return map(lambda (x,y) : self.make_test(myfunc,pyfunc,x,y), \
+                   zip(vals,range(1,len(vals))))
     
     def test_stdlib(self):
         tests = [
@@ -400,14 +411,10 @@ goto t__end_init;''')
             [ "t_asinh = (asinh(0),asinh(1))","t_asinh", "(0,0.881374)" ],
             [ "t_acosh = (acosh(10),acosh(1))","t_acosh", "(2.99322,0)" ],
             [ "t_atanh = (atanh(0),atanh(0.5))","t_atanh", "(0,0.549306)" ],
-
-            # trig functions on complex args
-            [ "ct_cos1 = cos((0,0))","ct_cos1", self.cpredict(cmath.cos,0+0j) ],
-            [ "ct_cos2 = cos((1,2))","ct_cos2", self.cpredict(cmath.cos,1+2j) ],
-
-            [ "ct_sin1 = sin((0,0))","ct_sin1", self.cpredict(cmath.sin,0+0j) ],
-            [ "ct_sin2 = sin((1,2))","ct_sin2", self.cpredict(cmath.sin,1+2j) ],
-            ]
+        ]
+        tests += self.manufacture_tests("sin",cmath.sin)
+        tests += self.manufacture_tests("cos",cmath.cos)
+            
 
         src = 't_c6{\ninit: y = (1,2)\n' + \
               string.join(map(lambda x : x[0], tests),"\n") + "\n}"
