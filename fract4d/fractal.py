@@ -63,7 +63,7 @@ class Colorizer(FctUtils):
         FctUtils.__init__(self)
         self.name = "default"
         self.colorlist = []
-        self.solid = (0,0,0,255)
+        self.solids = [(0,0,0,255)]
         
     def load(self,f):
         line = f.readline()
@@ -112,12 +112,20 @@ class Colorizer(FctUtils):
             cols = self.extract_color(val,pos)
             if i == 0:
                 # first color is inside solid color
-                self.solid = tuple(cols)
+                self.solids[0] = tuple(cols)
             else:
                 c = tuple([float(i-1)/(nc-2)] + cols)
                 self.colorlist.append(c)
             i+= 1
 
+    def parse_solids(self,val,f):
+        line = f.readline()
+        self.solids = []
+        while not line.startswith("]"):
+            cols = self.extract_color(line,0,True)            
+            self.solids.append(tuple(cols))
+            line = f.readline()
+        
     def parse_colorlist(self,val,f):
         line = f.readline()
         self.colorlist = []
@@ -148,7 +156,7 @@ class Colorizer(FctUtils):
  
                 if i == 0:
                     # first color is inside solid color
-                    self.solid = (r,g,b,255)
+                    self.solids[0] = (r,g,b,255)
                 else:
                     self.colorlist.append(((i-1)/255.0,r,g,b,255))
             i += 1
@@ -175,6 +183,9 @@ class T(FctUtils):
         self.funcName = "Mandelbrot"
         self.bailfunc = 0
         self.cfuncs = [None,None]
+        self.cfunc_names = [None,None]
+        self.cfunc_files = [None,None]
+        
         self.compiler = compiler
         self.outputfile = None
         self.funcFile = "gf4d.frm"
@@ -206,6 +217,12 @@ class T(FctUtils):
             "decomposition",
             "external_angle"]
 
+    def save_cfunc_info(self,index,section,file):
+        print >>file, "[%s]" % section
+        print >>file, "formulafile=%s" % self.cfunc_files[index]
+        print >>file, "function=%s" % self.cfunc_names[index]
+        print >>file, "[endsection]"
+        
     def save(self,file):
         print >>file, "gnofract4d parameter file"
         print >>file, "version=2.0"
@@ -227,11 +244,19 @@ class T(FctUtils):
             print >>file, "%s=%s" % (name, self.initvalue(name))
         print >>file, "[endsection]"
 
+        self.save_cfunc_info(1,"inner",file)
+        self.save_cfunc_info(0,"outer",file)
+        
         print >>file, "[colors]"
         print >>file, "colorizer=1"
+        print >>file, "solids=["
+        for solid in self.solids:
+            print >>file, "%02x%02x%02x%02x" % solid
+        print >>file, "]"
+        
         print >>file, "colorlist=["
         for col in self.colorlist:
-            print >>file, "%f=%2x%2x%2x%2x" % col
+            print >>file, "%f=%02x%02x%02x%02x" % col
         print >>file, "]"
         
     def initvalue(self,name):
@@ -242,7 +267,17 @@ class T(FctUtils):
             return "(%.17f,%.17f)"%(self.initparams[ord],self.initparams[ord+1])
         else:
             return "%.17f" % self.initparams[ord]
-    
+
+    def parse__inner_(self,val,f):
+        params = ParamBag()
+        params.load(f)
+        self.set_inner(params.dict["formulafile"],params.dict["function"])
+
+    def parse__outer_(self,val,f):
+        params = ParamBag()
+        params.load(f)
+        self.set_outer(params.dict["formulafile"],params.dict["function"])
+
     def parse__initparams_(self,val,f):
         params = ParamBag()
         params.load(f)
@@ -275,6 +310,8 @@ class T(FctUtils):
         c.initparams = copy.copy(self.initparams) # must be after set_formula
         c.bailfunc = self.bailfunc
         c.cfuncs = copy.copy(self.cfuncs)
+        c.cfunc_names = copy.copy(self.cfunc_names)
+        c.cfunc_files = copy.copy(self.cfunc_files)
         c.colorlist = copy.copy(self.colorlist)
         c.solids = copy.copy(self.solids)
         return c
@@ -302,7 +339,7 @@ class T(FctUtils):
         file = open(mapfile)
         c.parse_map_file(file)
         self.colorlist = c.colorlist
-        self.solids[0] = c.solid
+        self.solids[0:len(c.solids)] = c.solids[:]
         self.changed()
         
     def set_initparam(self,n,val):
@@ -394,19 +431,22 @@ class T(FctUtils):
             self.dirtyFormula = True            
             self.changed()
         
-    def set_inner(self,funcfile,func):
-        self.cfuncs[1] = self.compiler.get_colorfunc(funcfile,func,"cf1")
-        if self.cfuncs[1] == None:
-            raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
+    def set_inner(self,funcfile,funcname):
+        self.set_colorfunc(1,funcfile,funcname)
+
+    def set_colorfunc(self,index,funcfile,funcname):
+        func = self.compiler.get_colorfunc(funcfile,funcname,"cf%d" % index)
+        if func == None:
+            raise ValueError("no such colorfunc: %s:%s" % (funcfile, funcname))
+        self.cfuncs[index] = func
+        self.cfunc_files[index] = funcfile
+        self.cfunc_names[index] = funcname
+
         self.dirtyFormula = True
         self.changed()
         
-    def set_outer(self,funcfile,func):
-        self.cfuncs[0] = self.compiler.get_colorfunc(funcfile,func,"cf0")
-        if self.cfuncs[0] == None:
-            raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
-        self.dirtyFormula = True
-        self.changed()
+    def set_outer(self,funcfile,funcname):
+        self.set_colorfunc(0,funcfile,funcname)
         
     def compile(self):
         if self.formula == None:
@@ -571,7 +611,7 @@ class T(FctUtils):
         cf = Colorizer()
         cf.load(f)        
         self.colorlist = cf.colorlist
-        self.solids[0] = cf.solid
+        self.solids[0:len(cf.solids)] = cf.solids[:]
         self.changed()
         
     def parse__colorizer_(self,val,f):
@@ -580,7 +620,7 @@ class T(FctUtils):
         cf.load(f)        
         if which_cf == 0:
             self.colorlist = cf.colorlist
-            self.solids[0] = cf.solid
+            self.solids[0:len(cf.solids)] = cf.solids[:]
             self.changed()
         # ignore other colorlists for now
 

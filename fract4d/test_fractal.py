@@ -89,10 +89,15 @@ class FctTest(unittest.TestCase):
         self.assertEqual(f.initparams[f.order_of_name("@bailout")],5.1)
         
         self.assertEqual(f.funcName,"Mandelbar")
+        self.assertEqual(f.funcFile,"gf4d.frm")
+        self.assertEqual(f.cfunc_names, ["continuous_potential", "zero"])
+        self.assertEqual(f.cfunc_files, ["gf4d.cfrm"]*2)
+        
         self.assertEqual(f.maxiter, 259)
         self.assertEqual(len(f.colorlist),255)
         self.assertEqual(f.colorlist[0][0],0.0)
         self.assertEqual(f.colorlist[-1][0],1.0)
+        self.assertEqual(f.solids[0],(0,0,0,255))
         
         sofile = f.compile()
         image = fract4dc.image_create(40,30)
@@ -120,7 +125,7 @@ class FctTest(unittest.TestCase):
         file2 = StringIO.StringIO()
         f1.save(file2)
         saved = file2.getvalue()
-        print saved
+        #print saved
         self.failUnless(saved.startswith("gnofract4d parameter file"))
 
         # load it into another instance
@@ -355,6 +360,10 @@ blue=0.5543108971162746
         f.set_formula("gf4d.frm","Mandelbar")
         f.set_inner("gf4d.cfrm","zero")
         f.set_outer("gf4d.cfrm","default")
+
+        self.assertEqual(f.cfunc_files, ["gf4d.cfrm"] * 2)
+        self.assertEqual(f.cfunc_names, ["default", "zero"])
+        
         f.compile()
         image = fract4dc.image_create(4,3)
         f.draw(image)
