@@ -254,6 +254,32 @@ iterFunc_data infoTable[] = {
 	NO_OVERRIDES,
 	DEFAULT_CRITICAL_VALUES
     },
+    /* barnsley t3 */
+    {
+	"Barnsley Type 3",
+	NO_UNROLL,
+	BAILOUT_MAG,
+	"T xy;",
+	//iter code
+	"p[X2] = p[X] * p[X];"
+	"p[Y2] = p[Y] * p[Y];"
+	"xy = p[X] * p[Y];"
+    
+	"if(p[X] > 0)"
+	"{" 
+	    "p[X] = p[X2] - p[Y2] - 1.0;"
+	    "p[Y] = xy * 2.0;"
+	"}" 
+	"else"
+	"{" 
+	    "p[X] = p[X2] - p[Y2] - 1.0 + p[CX] * p[Y];"
+	    "p[Y] = xy * 2.0 + p[CY] * p[X];"
+	"}",
+	DEFAULT_SIMPLE_CODE,
+	NO_OPTIONS,
+	NO_OVERRIDES,
+	DEFAULT_CRITICAL_VALUES
+    },
     /* lambda */
     {
 	"Lambda",
@@ -377,7 +403,6 @@ iterFunc_data infoTable[] = {
 	mandelPowerOverrideValues,
 	DEFAULT_CRITICAL_VALUES
     },
-
     /* sentinel value */
     {
 	NULL, // name
@@ -621,29 +646,6 @@ operator>>(std::istream& s, iterImpl& m)
     return s; 
 }
 
-#if 0
-// Taylor series approximation to exp
-class taylorFunc : public iterImpl<taylorFunc,0>
-{
-#define CUBE_DECL double atmp
-#define CUBE_ITER 
-    p[X2] = p[X] * p[X];
-    p[Y2] = p[Y] * p[Y];
-    atmp = p[X2] * p[X] - 3.0 * p[X] * p[Y2] + p[CX];
-    p[Y] = 3.0 * p[X2] * p[Y] - p[Y2] * p[Y] + p[CY];
-    p[X] = atmp
-
-public:
-    enum {  FLAGS = HAS_X2 | HAS_Y2 };
-    cubeFunc() : iterImpl<cubeFunc,0>(name()) {}
-
-    ITER_DECLS(CUBE_DECL, CUBE_ITER)
-    static const char *name()
-        {
-            return "Cubic Mandelbrot";
-        }
-};
-#endif
 
 static const char **createNameTable()
 {
