@@ -291,10 +291,10 @@ static void pf_calc(
 
     *out_buf = &(pfo->p)[0];
 
-double z_re = params[0];
-double z_im = params[1];
-double pixel_re = params[2];
-double pixel_im = params[3];
+double z_re = params[2];
+double z_im = params[3];
+double pixel_re = params[0];
+double pixel_im = params[1];
 
 /* variable declarations */
 %(decls)s
@@ -313,6 +313,10 @@ do
 }while(%(bailout_var)s && nIters < nMaxIters);
 
 %(done_inserts)s
+if(nIters == nMaxIters)
+{
+    nIters = -1;
+}
 *pnIters = nIters;
 return;
 }

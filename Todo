@@ -7,6 +7,11 @@ Compiler
 libfract4d
 * BB	assert 'colorizer.cpp:263: virtual rgb_t cmap_colorizer::calc(double) const: Assertion `n != 0 && n2 != 0' failed.' while changing inner under load
 * BB	deeper.fct doesn't load properly
+* BB 	(lt-gnofract4d:11413): GLib-GObject-WARNING **: invalid uninstantiatable type `(null)' in cast to `GObject'
+
+(lt-gnofract4d:11413): GLib-GObject-CRITICAL **: file gobject.c: line 1370 (g_object_get_data): assertion `G_IS_OBJECT (object)' failed
+
+(lt-gnofract4d:11413): GLib-GObject-WARNING **: invalid cast from (NULL) pointer to `Gf4dFractal'
 * W 	namespace
 * W	single top-level header
 * B	why is Barnsley so slow?
