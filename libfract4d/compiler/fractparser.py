@@ -191,6 +191,10 @@ def p_exp_num(t):
     'exp : NUMBER'
     t[0] = absyn.Number(t[1])
 
+def p_exp_boolconst(t):
+    'exp : CONST'
+    t[0] = absyn.Const(t[1])
+    
 def p_exp_id(t):
     'exp : ID'
     t[0] = absyn.ID(t[1])

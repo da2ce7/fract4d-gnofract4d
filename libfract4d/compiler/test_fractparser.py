@@ -117,8 +117,31 @@ class ParserTest(unittest.TestCase):
         elseif 4 + 6
         else
         endif'''))
-        print t1.pretty()
+        #print t1.pretty()
         self.assertIsValidParse(t1)                        
+
+    def testBadIfStatements(self):
+        self.assertIsBadFormula(self.makeMinimalFormula("if = 7"),
+                                "unexpected assign '='", 3)
+        self.assertIsBadFormula(self.makeMinimalFormula("if x == 2\n1+1"),
+                                "unexpected form_end '}'", 5)
+        self.assertIsBadFormula(self.makeMinimalFormula("endif"),
+                                "unexpected endif 'endif'",3)
+
+    def testDecls(self):
+        t1 = self.parse(self.makeMinimalFormula('''
+        bool a
+        bool b = true
+        bool c=false
+        int d
+        int e= 2
+        float f
+        float g = 2.0
+        complex h
+        complex i = (2,3)
+        color j'''))
+        #print t1.pretty()
+        self.assertIsValidParse(t1)
         
     def testSimpleMandelbrot(self):
         t1 = self.parse('''
@@ -163,7 +186,7 @@ default:
         self.assertNotEqual(re.search(message,err.leaf),None,
                             ("bad error message text '%s'", err.leaf))
         self.assertNotEqual(re.search(("line %s" % line),err.leaf),None,
-                            ("bad error mesage line number in '%s'", err.leaf)) 
+                            ("bad error message line number in '%s'", err.leaf)) 
         
     def assertIsValidParse(self,t1):
         self.failUnless(absyn.CheckTree(t1))

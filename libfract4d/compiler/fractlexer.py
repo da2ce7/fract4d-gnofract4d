@@ -61,17 +61,16 @@ tokens = (
    'ENDIF',
    'ENDPARAM',
    'ENDWHILE',
-   'FALSE',
    'FUNC',
    'HEADING',
    'IF',
    'PARAM',
    'REPEAT',
-   'TRUE',
    'UNTIL',
    'WHILE',
 
-   'TYPE'
+   'TYPE',
+   'CONST'
 )
 
 # lookup table to convert IDs into keywords
@@ -82,13 +81,11 @@ keywords = [ "else",
              "endif",
              "endparam",
              "endwhile",
-             "false",
              "func",
              "heading",
              "if",
              "param",
              "repeat",
-             "true",
              "until",
              "while"]
 
@@ -98,10 +95,12 @@ types = ["bool",
          "float",
          "int"]
 
+consts = ["true", "false"]
+
 lookup = {}
 for k in keywords: lookup[k] = string.upper(k)
 for t in types: lookup[t] = "TYPE"
-
+for c in consts: lookup[c] = "CONST"
 
 # Regular expression rules for simple tokens
 t_PLUS    = r'\+'
