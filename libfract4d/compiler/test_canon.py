@@ -265,8 +265,32 @@ class CanonTest(unittest.TestCase):
         blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
         trace = self.canon.schedule_trace(blocks,"t__end")
         self.assertValidTrace(trace)
-        #for stm in trace: print stm.pretty(),
+        self.assertEqual(trace[2].op,"<=")
 
+        # cjump followed by neither
+        seq = self.seq([self.label("start"),
+                        self.cjump(self.var(),self.var(),"start","t__end"),
+                        self.label("foo"),
+                        self.const()])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        trace = self.canon.schedule_trace(blocks,"t__end")
+        self.assertValidTrace(trace)
+
+        # two mingled traces
+        seq = self.seq([self.cjump(self.const(), self.const(),"a1","b1"),
+                        self.label("a1"), self.var("a1"),self.jump("a2"),
+                        self.label("b1"), self.var("b1"),self.jump("b2"),
+                        self.label("a2"), self.var("a2"),self.jump("t__end"),
+                        self.label("b2"), self.var("b2"),self.jump("t__end")])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        trace = self.canon.schedule_trace(blocks,"t__end")
+        self.assertValidTrace(trace)
+        self.failUnless(trace[2].name == "b1" and \
+                        trace[3].name == "b1" and \
+                        trace[4].name == "b2")
+        self.failUnless(trace[6].name == "a1" and \
+                        trace[7].name == "a1" and \
+                        trace[8].name == "a2")
         
     def printAllBlocks(self,blocks):
         for b in blocks:
