@@ -161,8 +161,8 @@ void gundo_sequence_clear( GundoSequence *seq ) {
 
 
 void gundo_sequence_add_action( GundoSequence *seq, 
-                               const GundoActionType *type, 
-                               gpointer data ) 
+                                const GundoActionType *type, 
+                                gpointer data ) 
 {
     if( seq->group ) {
         gundo_sequence_add_action( seq->group, type, data );

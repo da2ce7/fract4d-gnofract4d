@@ -3,17 +3,17 @@
 void
 soi_mandel_iter(double *p, double *temp)
 {
-	temp[S_X] = p[S_X] * p[S_X];
-	temp[S_Y] = p[S_Y] * p[S_Y];
-	double atmp = temp[S_X] - temp[S_Y] + temp[S_CX];
-	p[S_Y] = 2.0 * p[S_X] * p[S_Y] + temp[S_CY];
-	p[S_X] = atmp;
+    temp[S_X] = p[S_X] * p[S_X];
+    temp[S_Y] = p[S_Y] * p[S_Y];
+    double atmp = temp[S_X] - temp[S_Y] + temp[S_CX];
+    p[S_Y] = 2.0 * p[S_X] * p[S_Y] + temp[S_CY];
+    p[S_X] = atmp;
 }
 
 bool
 soi_mag_bailout(double *squares, double bailout)
 {
-	return (squares[S_X] + squares[S_Y] > bailout);
+    return (squares[S_X] + squares[S_Y] > bailout);
 }
 
 /* calculate the parametric quadratic polynomial which passes through 
@@ -28,11 +28,11 @@ soi_mag_bailout(double *squares, double bailout)
 double 
 interpolate(double x0, double x1, double x2, double t)
 {
-	double a =  2 * x2 - 4 * x1 + 2 * x0;
-	double b = -1 * x2 + 4 * x1 - 3 * x0; 
-	double c = x0;
+    double a =  2 * x2 - 4 * x1 + 2 * x0;
+    double b = -1 * x2 + 4 * x1 - 3 * x0; 
+    double c = x0;
 
-	return (a * t + b)*t + c; // Horner eval
+    return (a * t + b)*t + c; // Horner eval
 }
 
 /* since we only call interpolate for t = 1/4 & t = 3/4, 
@@ -44,27 +44,27 @@ interpolate(double x0, double x1, double x2, double t)
 double 
 interpquarter(double x0, double x1, double x2)
 {
-	return (3 * x0 + 6 * x1 - x2)/8;
+    return (3 * x0 + 6 * x1 - x2)/8;
 }
 
 /* do both parts of a complex number */
 void
 c_interpquarter(double z0[2], double z1[2], double z2[2], double *z)
 {
-	z[0] = interpquarter(z0[0],z1[0],z2[0]);
-	z[1] = interpquarter(z0[1],z1[1],z2[1]);
+    z[0] = interpquarter(z0[0],z1[0],z2[0]);
+    z[1] = interpquarter(z0[1],z1[1],z2[1]);
 }
 
 /* interpolate for t = 3/4 */
 double 
 interpthreequarter(double x0, double x1, double x2)
 {
-	return (3 * x2 + 6 * x1 - x0)/8;
+    return (3 * x2 + 6 * x1 - x0)/8;
 }
 
 void
 c_interpthreequarter(double z0[2], double z1[2], double z2[2], double *z)
 {
-	z[0] = interpthreequarter(z0[0],z1[0],z2[0]);
-	z[1] = interpthreequarter(z0[1],z1[1],z2[1]);
+    z[0] = interpthreequarter(z0[0],z1[0],z2[0]);
+    z[1] = interpthreequarter(z0[1],z1[1],z2[1]);
 }

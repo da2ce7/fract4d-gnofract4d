@@ -21,57 +21,37 @@
 #ifndef _TEST_FONCTION_H_
 #define _TEST_FONCTION_H_
 
+#include "calc.h"
 
+typedef double scratch_space[8];
 
-#define	NFUNCS 2
-
-#define X 0
-#define Y 1
-#define CX 2
-#define CY 3
-#define X2 4
-#define Y2 5
-#define EJECT 6
-#define EJECT_VAL 7
-
-/* bailout flags */
-#define HAS_X2 1
-#define HAS_Y2 2
-
-static const int N_SCRATCH_REGISTERS=8;
-
-typedef double scratch_space[N_SCRATCH_REGISTERS] ;
-
-typedef int (*fractFunc)(
-	const dvec4& params, 
-	const d& eject, 
-	scratch_space scratch,
-	int nIters);
-
-extern fractFunc fractFuncTable[NFUNCS];
-
-int test_mandelbrot_double(
-	const dvec4& params, 
-	const d& eject, 
-	scratch_space scratch,
-	int nIters);
-
-int test_mandelbrot_cln(const dvec4& params, const d& eject, int nIters);
-
-void mandelbrot_iter(double *p);
-
+/* an enumeration of the available bailout functions */
 typedef enum 
 {
-	BAILOUT_MAG,
-	BAILOUT_MANH,
-	BAILOUT_OR,
-	BAILOUT_AND,
-} bailout_t;
+    BAILOUT_MAG = 1,
+    BAILOUT_MANH,
+    BAILOUT_MANH2,
+    BAILOUT_OR,
+    BAILOUT_AND,
+} e_bailFunc;
 
+/* an enumeration of the available iteration functions */
 
-typedef void (*bailoutFunc_t)(double *p, int flags);
-	
-void mag_bailout(double *p, int flags);
+typedef enum {
+    ITERFUNC_MAND = 1,
+} e_iterFunc;
 
+/* interface for function object which computes a single point */
+class fractFunc {
+ public:
+    virtual int operator()(const dvec4& params, double *scratch, int nIters) = 0;
+};
+
+/* factory method for making new fractFuncs */
+fractFunc *fractFunc_new(
+    e_iterFunc iterType, 
+    e_bailFunc bailType,
+    const d& eject);
 
 #endif
+

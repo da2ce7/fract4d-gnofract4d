@@ -19,171 +19,108 @@
  */
 
 #include <gnome.h>
-#include "model.h"
-//#include "fract.h"
-#include "calc.h"
-#include "test-fonction.h"
-#include <math.h>
 
+#include "test-fonction.h"
+#include "iterFunc.h"
+#include "bailFunc.h"
+
+#include <math.h>
 #include <iostream>
+
+class fractCalc : public fractFunc {
+private:
+    /* members */
+    iterFunc *m_pIter;
+    bailFunc *m_pBail;
+    const d& m_eject;
+    double p[PARAM_SIZE];
+
+public:
+    /* ctor */
+    fractCalc(e_iterFunc iterType, 
+              e_bailFunc bailType, 
+              const d& eject) : m_eject(eject)
+        {
+            m_pIter = iterFunc_new(iterType);
+            m_pBail = bailFunc_new(bailType);
+        }
+    virtual int operator()(const dvec4& params, double *p, int nIters)
+        {
+            int flags = HAS_X2 | HAS_Y2; // FIXME get from iterFunc
+
+            p[X] =  DOUBLE(params.n[VZ]); 
+            p[Y] =  DOUBLE(params.n[VW]);
+            p[CX] = DOUBLE(params.n[VX]);
+            p[CY] = DOUBLE(params.n[VY]);
+            p[EJECT] = DOUBLE(m_eject);
+
+            int iter = 0;
+            do
+            {
+                (*m_pIter)(p);                
+                if(iter++ == nIters) return -1; // ran out of iterations
+                (*m_pBail)(p,flags);            
+            }while(p[EJECT_VAL] < m_eject);
+
+            return iter;
+        }
+};
+
 
 int test_cube(const dvec4& params, const d& eject, int nIters);
 
-fractFunc fractFuncTable[NFUNCS] = {
-	test_mandelbrot_double,
-};
 
-// z = z^2 + c
-void
-mandelbrot_iter(double *p)
-{
-
-	p[X2] = p[X] * p[X];
-	p[Y2] = p[Y] * p[Y];
-	double atmp = p[X2] - p[Y2] + p[CX];
-	p[Y] = 2.0 * p[X] * p[Y] + p[CY];
-	p[X] = atmp;
-}
-
-// z = z^2 + z +c
 void
 weird_iter(double *p)
 {
-	p[X2] = p[X] * p[X];
-	p[Y2] = p[Y] * p[Y];
-	double atmp = p[X2] - p[Y2] + p[X] + p[CX];
-	p[Y] = 2.0 * p[X] * p[Y] + p[Y] + p[CY];
-	p[X] = atmp;
-}
-
-void
-mag_bailout(double *p, int flags)
-{
-	if(!(flags & (HAS_X2 | HAS_Y2)))
-	{
-		p[X2] = p[X] * p[X];
-		p[Y2] = p[Y] * p[Y];
-	}
-	p[EJECT_VAL] = p[X2] + p[Y2];
-}
-
-void
-manhattan_bailout(double *p, int flags)
-{
-	p[EJECT_VAL] = p[X] + p[Y];
-}
-
-void
-manhattan2_bailout(double *p, int flags)
-{
-	double t = fabs(p[X2]) + fabs(p[Y]);
-	p[EJECT_VAL] = t*t;
-}
-
-void
-or_bailout(double *p, int flags)
-{
-	double absx = fabs(p[X]);
-	double absy = fabs(p[Y]);
-
-	p[EJECT_VAL] = MAX(p[X2],p[Y2]);
-}
-
-void
-and_bailout(double *p, int flags)
-{
-	p[EJECT_VAL] = MIN(p[X2],p[Y2]);
-}
-
-int 
-test_mandelbrot_double(const dvec4& params, const d& eject, scratch_space scratch, int max_iters)
-{
-	double * p = scratch;
-	int flags = HAS_X2 | HAS_Y2;
-
-	p[X] =  DOUBLE(params.n[VZ]); 
-	p[Y] =  DOUBLE(params.n[VW]);
-	p[CX] = DOUBLE(params.n[VX]);
-	p[CY] = DOUBLE(params.n[VY]);
-	p[EJECT] = DOUBLE(eject);
-
-	int iter = 0;
-	do
-	{
-		mandelbrot_iter(p);
-
-		if(iter++ == max_iters) return -1; // ran out of iterations
-		mag_bailout(p,flags);
-		
-	}while(p[EJECT_VAL] < p[EJECT]);
-
-	return iter;
+    p[X2] = p[X] * p[X];
+    p[Y2] = p[Y] * p[Y];
+    double atmp = p[X2] - p[Y2] + p[X] + p[CX];
+    p[Y] = 2.0 * p[X] * p[Y] + p[Y] + p[CY];
+    p[X] = atmp;
 }
 
 int test_mandelbrot_cln(const dvec4& params, const d& eject, int nIters)
 {
-	d a = params.n[VZ], b = params.n[VW], 
-		px = params.n[VX], py = params.n[VY], 
-		atmp = D_LIKE(0.0,a), 
-		a2 = a*a, b2=b*b;
+    d a = params.n[VZ], b = params.n[VW], 
+        px = params.n[VX], py = params.n[VY], 
+        atmp = D_LIKE(0.0,a), 
+        a2 = a*a, b2=b*b;
 
-	//debug_precision(a,"a");
-	int n = 0;
-	while ((a2 + b2) <= eject) {
-		atmp = a2 - b2 + px;
-		b = (a + a) * b + py;
-		a = atmp;
-		if(n++ == nIters) return -1; // ran out of iterations
-		a2 = a*a; b2 = b*b;
-	}
-	return n;
+    //debug_precision(a,"a");
+    int n = 0;
+    while ((a2 + b2) <= eject) {
+        atmp = a2 - b2 + px;
+        b = (a + a) * b + py;
+        a = atmp;
+        if(n++ == nIters) return -1; // ran out of iterations
+        a2 = a*a; b2 = b*b;
+    }
+    return n;
 }
 
 // z = z^3 + c
 int
 test_cube(const dvec4& params, const d& eject, int nIters)
 {
-	d a = params.n[VZ], b = params.n[VW],
-		px = params.n[VX], py = params.n[VY], atmp;
+    d a = params.n[VZ], b = params.n[VW],
+        px = params.n[VX], py = params.n[VY], atmp;
 
-	int n = 0;
+    int n = 0;
 
-	while((a * a + b * b) <= eject) {
-		atmp = a * a * a - 3 * a * b * b +px;
-		b = 3 * a * a * b - b * b * b + py;
-		a = atmp;
-		if(n++ == nIters) return -1;
-	}
-	return n;
+    while((a * a + b * b) <= eject) {
+        atmp = a * a * a - 3 * a * b * b +px;
+        b = 3 * a * a * b - b * b * b + py;
+        a = atmp;
+        if(n++ == nIters) return -1;
+    }
+    return n;
 }
 
-
-/*
-int test_julia(double *params, int nIters)
+fractFunc *fractFunc_new(
+    e_iterFunc iterFunc, 
+    e_bailFunc bailFunc, 
+    const d& bailout)
 {
-	
-	register double a = params[X], atmp = 0, b = params[Y];
-	int n = 0;
-	while ((a * a + b * b) <= params[EJECT]) {
-		atmp = a * a - b * b + params[PX];
-		b = 2 * a * b + params[PY];
-		a = atmp;
-		if(n++ == nIters) return -1;
-	}
-	return n;
+    return new fractCalc(iterFunc, bailFunc, bailout);
 }
-
-int test_perso(double *params, int nIters)
-{
-	
-	register double a = 0, atmp = 0, b = 0;
-	int n = 0;
-	while ((a * a + b * b) <= params[EJECT]) {
-		atmp = a * a - b * b + params[X];
-		b = 2 * a * b + params[Y];
-		a = atmp;
-		if(n++ == nIters) return -1;
-	}
-	return n;
-}
-*/

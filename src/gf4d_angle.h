@@ -41,56 +41,56 @@ extern "C" {
 #define GF4D_IS_ANGLE(obj)       GTK_CHECK_TYPE (obj, gf4d_angle_get_type ())
 
 
-typedef struct _Gf4dAngle        Gf4dAngle;
-typedef struct _Gf4dAngleClass   Gf4dAngleClass;
+    typedef struct _Gf4dAngle        Gf4dAngle;
+    typedef struct _Gf4dAngleClass   Gf4dAngleClass;
 
-struct _Gf4dAngle
-{
-  GtkWidget widget;
+    struct _Gf4dAngle
+    {
+        GtkWidget widget;
 
-  /* update policy (GTK_UPDATE_[CONTINUOUS/DELAYED/DISCONTINUOUS]) */
-  guint policy : 2;
+        /* update policy (GTK_UPDATE_[CONTINUOUS/DELAYED/DISCONTINUOUS]) */
+        guint policy : 2;
 
-  /* Button currently pressed or 0 if none */
-  guint8 button;
+        /* Button currently pressed or 0 if none */
+        guint8 button;
 
-  /* Dimensions of dial components */
-  gint radius;
-  gint pointer_width;
+        /* Dimensions of dial components */
+        gint radius;
+        gint pointer_width;
 
-  /* ID of update timer, or 0 if none */
-  guint32 timer;
+        /* ID of update timer, or 0 if none */
+        guint32 timer;
 
-  /* Current angle */
-  gfloat angle;
+        /* Current angle */
+        gfloat angle;
 
-  /* Old values from adjustment stored so we know when something changes */
-  gfloat old_value;
-  gfloat old_lower;
-  gfloat old_upper;
+        /* Old values from adjustment stored so we know when something changes */
+        gfloat old_value;
+        gfloat old_lower;
+        gfloat old_upper;
 
-  /* The adjustment object that stores the data for this dial */
-  GtkAdjustment *adjustment;
+        /* The adjustment object that stores the data for this dial */
+        GtkAdjustment *adjustment;
 
 	gchar *text;
-};
+    };
 
-struct _Gf4dAngleClass
-{
-  GtkWidgetClass parent_klass;
-};
+    struct _Gf4dAngleClass
+    {
+        GtkWidgetClass parent_klass;
+    };
 
 
-GtkWidget*     gf4d_angle_new                    (GtkAdjustment *adjustment);
-guint          gf4d_angle_get_type               (void);
-GtkAdjustment* gf4d_angle_get_adjustment         (Gf4dAngle      *dial);
-void           gf4d_angle_set_update_policy      (Gf4dAngle      *dial,
-						  GtkUpdateType  policy);
+    GtkWidget*     gf4d_angle_new                    (GtkAdjustment *adjustment);
+    guint          gf4d_angle_get_type               (void);
+    GtkAdjustment* gf4d_angle_get_adjustment         (Gf4dAngle      *dial);
+    void           gf4d_angle_set_update_policy      (Gf4dAngle      *dial,
+                                                      GtkUpdateType  policy);
 
-void           gf4d_angle_set_adjustment         (Gf4dAngle      *dial,
-						  GtkAdjustment *adjustment);
-void           gf4d_angle_set_label              (Gf4dAngle      *dial,
-						  gchar          *text);
+    void           gf4d_angle_set_adjustment         (Gf4dAngle      *dial,
+                                                      GtkAdjustment *adjustment);
+    void           gf4d_angle_set_label              (Gf4dAngle      *dial,
+                                                      gchar          *text);
 
 #ifdef __cplusplus
 }

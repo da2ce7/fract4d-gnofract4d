@@ -28,7 +28,7 @@ extern "C" {
 
 /** <pre>
     GtkObject
-     +----GundoSequence
+    +----GundoSequence
     </pre>
     <p>
     A GundoSequence is a Gtk object that manages a sequence of actions that
@@ -37,50 +37,50 @@ extern "C" {
     <p>
     GundoSequence objects provide the following signals:
     <dd>
-      <dt>"can_undo"</dt>
-      <dd>Fired when the undo sequence transitions from a state where it
-          cannot undo actions to one where it can.</dd>
-      <dt>"can_redo"</dt>
-      <dd>Fired when the undo sequence transitions from a state where it
-          cannot redo actions to one where it can.</dd>
+    <dt>"can_undo"</dt>
+    <dd>Fired when the undo sequence transitions from a state where it
+    cannot undo actions to one where it can.</dd>
+    <dt>"can_redo"</dt>
+    <dd>Fired when the undo sequence transitions from a state where it
+    cannot redo actions to one where it can.</dd>
     </dd>
     
     @memo A Gtk object that manages a sequence of actions that can be 
     undone and redone.
- */
-typedef struct _GundoSequence GundoSequence;
-struct _GundoSequence
-{
-    GtkObject base;
-    GArray *actions;
-    int next_redo;
-    GundoSequence *group;
-};
+*/
+    typedef struct _GundoSequence GundoSequence;
+    struct _GundoSequence
+    {
+        GtkObject base;
+        GArray *actions;
+        int next_redo;
+        GundoSequence *group;
+    };
 
 
 /** The Gtk object class of GundoSequence objects.  Used by the type
     checking and casting macros.
- */
-typedef struct _GundoSequenceClass GundoSequenceClass;
-struct _GundoSequenceClass
-{
-    GtkObjectClass base;
+*/
+    typedef struct _GundoSequenceClass GundoSequenceClass;
+    struct _GundoSequenceClass
+    {
+        GtkObjectClass base;
     
-    void (*can_undo)( GundoSequence*, gboolean );
-    void (*can_redo)( GundoSequence*, gboolean );
-};
+        void (*can_undo)( GundoSequence*, gboolean );
+        void (*can_redo)( GundoSequence*, gboolean );
+    };
 
 
 /** The type of function called to undo or redo an action or free data
     associated with an action.
     
     @param action_data
-        Data about the action.  The action_data pointer must be
-        cast to a concrete type by GundoActionCallback implementations.
+    Data about the action.  The action_data pointer must be
+    cast to a concrete type by GundoActionCallback implementations.
     @see GundoActionType
     @see _GundoActionType
- */
-typedef void (*GundoActionCallback)( gpointer action_data );
+*/
+    typedef void (*GundoActionCallback)( gpointer action_data );
 
 /** An GundoActionType defines the operations that can be applied to an undo
     action that has been added to an GundoSequence.  All operations are of
@@ -89,40 +89,40 @@ typedef void (*GundoActionCallback)( gpointer action_data );
     <p>
     Operations:
     <dl>
-      <dt>undo</dt> 
-      <dd>Undoes an action of this type.</dd>
-      <dt>redo</dt>
-      <dd>Redoes an action of this type.</dd>
-      <dt>free</dt> 
-      <dd>Frees the data about an action of this type.  
-          Can be <em>NULL</em>, in which case the data is not freed.</dd>
+    <dt>undo</dt> 
+    <dd>Undoes an action of this type.</dd>
+    <dt>redo</dt>
+    <dd>Redoes an action of this type.</dd>
+    <dt>free</dt> 
+    <dd>Frees the data about an action of this type.  
+    Can be <em>NULL</em>, in which case the data is not freed.</dd>
     </dl>
     
     @see _GundoActionType
     @see gundo_sequence_add_action
- */
-typedef struct _GundoActionType GundoActionType;
+*/
+    typedef struct _GundoActionType GundoActionType;
 
 /** Information about the type of an undoable action.  This structure should be
     referred to by the \Ref{GundoActionType} typedef.
     
     @see GundoActionType
     @see gundo_sequence_add_action
- */
-struct _GundoActionType {
-    /** Function called to undo the action.
-     */
-    GundoActionCallback undo;
+*/
+    struct _GundoActionType {
+        /** Function called to undo the action.
+         */
+        GundoActionCallback undo;
     
-    /** Function called to redo the action. 
-     */
-    GundoActionCallback redo;
+        /** Function called to redo the action. 
+         */
+        GundoActionCallback redo;
     
-    /** Function called to free the action_data.  Can be NULL, in which case
-        the action_data is not free'd.
-     */
-    GundoActionCallback free;
-};
+        /** Function called to free the action_data.  Can be NULL, in which case
+            the action_data is not free'd.
+        */
+        GundoActionCallback free;
+    };
 
 
 /** Support for the Gtk type system */
@@ -143,7 +143,7 @@ struct _GundoActionType {
 
 /** Returns the Gtk type for a \Ref{GundoSequence}.
  */
-guint gundo_sequence_get_type(void);
+    guint gundo_sequence_get_type(void);
 
 
 /** Creates a new, empty GundoSequence.  
@@ -153,9 +153,9 @@ guint gundo_sequence_get_type(void);
     of their GundoActionType) when the sequence is destroyed.
    
     @return 
-        A new GundoSequence object.
- */
-GundoSequence *gundo_sequence_new(void);
+    A new GundoSequence object.
+*/
+    GundoSequence *gundo_sequence_new(void);
 
 /** Adds an action to the end of the GundoSequence.  Any actions that
     have been undone but not redone are destroyed.  If any groups have
@@ -163,55 +163,55 @@ GundoSequence *gundo_sequence_new(void);
     started group.
     
     @param seq
-        The undo sequence to which to add an action.
+    The undo sequence to which to add an action.
     @param type
-        The type of the action.
+    The type of the action.
     @param data
-        Data about the action.  The data is destroyed by calling the
-        "free" callback of the action type.
+    Data about the action.  The data is destroyed by calling the
+    "free" callback of the action type.
     
     @see GundoActionType
- */
-void gundo_sequence_add_action( GundoSequence *seq, 
-                                const GundoActionType *type, 
-                                gpointer data );
+*/
+    void gundo_sequence_add_action( GundoSequence *seq, 
+                                    const GundoActionType *type, 
+                                    gpointer data );
 
 /** Queries whether the undo sequence contains any actions that can be undone.
     
     @param seq
-        The undo sequence.
+    The undo sequence.
     @return 
-        TRUE if there are actions that can be undone, FALSE otherwise.
- */
-gboolean gundo_sequence_can_undo( GundoSequence *seq );
+    TRUE if there are actions that can be undone, FALSE otherwise.
+*/
+    gboolean gundo_sequence_can_undo( GundoSequence *seq );
 
 /** Queries whether the undo sequence contains any actions that can be redone.
     
     @param seq
-        The undo sequence.
+    The undo sequence.
     @return 
-        TRUE if there are actions that have already been undone, and
-        can therefore be redone, FALSE otherwise.
- */
-gboolean gundo_sequence_can_redo( GundoSequence *seq );
+    TRUE if there are actions that have already been undone, and
+    can therefore be redone, FALSE otherwise.
+*/
+    gboolean gundo_sequence_can_redo( GundoSequence *seq );
 
 /** Undoes the action at the end of the action sequence.
     <p>
     <em>Pre</em>: no group is being constructed && undo_sequence_can_undo(seq).
     
     @param seq
-        The undo sequence.
- */
-void gundo_sequence_undo( GundoSequence *seq );
+    The undo sequence.
+*/
+    void gundo_sequence_undo( GundoSequence *seq );
 
 /** Redoes the last action that was undone.
     <p>
     <em>Pre</em>: no group is being constructed && undo_sequence_can_redo(seq).
     
     @param seq
-        The undo sequence.
- */
-void gundo_sequence_redo( GundoSequence *seq );
+    The undo sequence.
+*/
+    void gundo_sequence_redo( GundoSequence *seq );
 
 /** Starts a new group of actions that are treated as a single action.
     E.g. a single call to undo and redo undoes or redoes all actions of
@@ -220,33 +220,33 @@ void gundo_sequence_redo( GundoSequence *seq );
     nested.
     
     @param seq
-        The undo sequence.
- */
-void gundo_sequence_start_group( GundoSequence *seq );
+    The undo sequence.
+*/
+    void gundo_sequence_start_group( GundoSequence *seq );
 
 /** Ends a group, adding it to the end of the undo sequence, or its parent
     group.
  
     @param seq
-        The undo sequence.
- */
-void gundo_sequence_end_group( GundoSequence *seq );
+    The undo sequence.
+*/
+    void gundo_sequence_end_group( GundoSequence *seq );
 
 /** Aborts the construction of a group, freeing all of its actions.
     
     @param seq
-        The undo sequence.
- */
-void gundo_sequence_abort_group( GundoSequence *seq );
+    The undo sequence.
+*/
+    void gundo_sequence_abort_group( GundoSequence *seq );
 
 /** Frees all actions in the undo sequence.
     <p>
     <em>Pre</em>:  no group is being constructed.
     
     @param seq
-        The undo sequence.
- */
-void gundo_sequence_clear( GundoSequence *seq );
+    The undo sequence.
+*/
+    void gundo_sequence_clear( GundoSequence *seq );
 
 
 #ifdef __cplusplus

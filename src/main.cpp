@@ -33,33 +33,33 @@
 int
 main (int argc, char *argv[])
 {
-	GtkWidget *app;
-	GnomeClient *client;
-	model_t *m;
+    GtkWidget *app;
+    GnomeClient *client;
+    model_t *m;
+    
+    g_thread_init(NULL);
+    
+    bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
+    textdomain (PACKAGE);
 
-	g_thread_init(NULL);
+    gnome_init (PACKAGE, VERSION, argc, argv);
 
-	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
-	textdomain (PACKAGE);
+    m = model_new();
 
-	gnome_init (PACKAGE, VERSION, argc, argv);
+    client = gnome_master_client();
+    gtk_signal_connect(GTK_OBJECT (client), "save_yourself",
+                       GTK_SIGNAL_FUNC( save_session_cb ), m);
+    gtk_signal_connect(GTK_OBJECT (client), "die",
+                       GTK_SIGNAL_FUNC( quit_session_cb ), m);
 
-	m = model_new();
-
-	client = gnome_master_client();
-	gtk_signal_connect(GTK_OBJECT (client), "save_yourself",
-			   GTK_SIGNAL_FUNC( save_session_cb ), m);
-	gtk_signal_connect(GTK_OBJECT (client), "die",
-			   GTK_SIGNAL_FUNC( quit_session_cb ), m);
-
-	gdk_threads_enter();
-	app = create_app (m);
-	gtk_widget_show (app);
+    gdk_threads_enter();
+    app = create_app (m);
+    gtk_widget_show (app);
 
 
-	gtk_main ();
-	gdk_threads_leave();
+    gtk_main ();
+    gdk_threads_leave();
 
-	return 0;
+    return 0;
 }
 

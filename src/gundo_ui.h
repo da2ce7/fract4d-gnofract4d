@@ -30,11 +30,11 @@ extern "C" {
     GundoSequence (that is, when \Ref{gundo_sequence_can_undo} returns TRUE).
     
     @param widget
-        The widget to make undo-sensitive.
+    The widget to make undo-sensitive.
     @param seq
-        The undo sequence that the widget should be sensitive to.
- */
-void gundo_make_undo_sensitive( GtkWidget *widget, GundoSequence *seq );
+    The undo sequence that the widget should be sensitive to.
+*/
+    void gundo_make_undo_sensitive( GtkWidget *widget, GundoSequence *seq );
 
 /** Makes a widget sensitive to the current redo state of a GundoSequence.  
     A widget that is redo-sensitive will only be sensitive when it is 
@@ -42,11 +42,11 @@ void gundo_make_undo_sensitive( GtkWidget *widget, GundoSequence *seq );
     (that is, when \Ref{gundo_sequence_can_redo} returns TRUE).
     
     @param widget
-        The widget to make redo-sensitive.
+    The widget to make redo-sensitive.
     @param seq
-        The undo sequence that the widget should be sensitive to.
- */
-void gundo_make_redo_sensitive( GtkWidget *widget, GundoSequence *seq );
+    The undo sequence that the widget should be sensitive to.
+*/
+    void gundo_make_redo_sensitive( GtkWidget *widget, GundoSequence *seq );
 
 
 #ifdef __cplusplus

@@ -32,48 +32,48 @@ typedef struct _model model_t;
 extern "C" {
 #endif
 
-        /* ctor */
-	model_t *model_new(void);	
+    /* ctor */
+    model_t *model_new(void);	
 	
 
-	/* dtor */
-	void model_delete(model_t **pm);
+    /* dtor */
+    void model_delete(model_t **pm);
 
-	/* apply changes */	
-	//void model_update(model_t *m);
+    /* apply changes */	
+    //void model_update(model_t *m);
 
-	/* commands */
-	bool model_cmd_start(model_t *m);
-	void model_cmd_finish(model_t *m);
-	void model_undo(model_t *m);
-	void model_redo(model_t *m);
+    /* commands */
+    bool model_cmd_start(model_t *m);
+    void model_cmd_finish(model_t *m);
+    void model_undo(model_t *m);
+    void model_redo(model_t *m);
 
-	int model_cmd_reset(model_t *m);
-	int model_cmd_save_image(model_t *m, char *filename);
+    int model_cmd_reset(model_t *m);
+    int model_cmd_save_image(model_t *m, char *filename);
 
-	int model_cmd_save(model_t *m, char *filename);
-	int model_cmd_load(model_t *m, char *filename);
+    int model_cmd_save(model_t *m, char *filename);
+    int model_cmd_load(model_t *m, char *filename);
 
-	/* retrieve things */
-	Gf4dFractal *model_get_fract(model_t *m);
-	Gf4dFractal *model_get_subfract(model_t *m, int num);
+    /* retrieve things */
+    Gf4dFractal *model_get_fract(model_t *m);
+    Gf4dFractal *model_get_subfract(model_t *m, int num);
 
-	/* copy subfract n onto main fract */
-	void model_set_subfract(model_t *m, int num);
+    /* copy subfract n onto main fract */
+    void model_set_subfract(model_t *m, int num);
 
-	/* make subfracts weird versions of main one */
-	void model_update_subfracts(model_t *m);
-	void model_toggle_explore_mode(model_t *m);
+    /* make subfracts weird versions of main one */
+    void model_update_subfracts(model_t *m);
+    void model_toggle_explore_mode(model_t *m);
 
-	// this is crap - lose it
-	void model_set_subfract_widget(model_t *m, GtkWidget *widget, int num);
+    // this is crap - lose it
+    void model_set_subfract_widget(model_t *m, GtkWidget *widget, int num);
 
-	// delegates to gundo
-	void model_make_undo_sensitive(model_t *m, GtkWidget *widget);
-	void model_make_redo_sensitive(model_t *m, GtkWidget *widget);
+    // delegates to gundo
+    void model_make_undo_sensitive(model_t *m, GtkWidget *widget);
+    void model_make_redo_sensitive(model_t *m, GtkWidget *widget);
 
-	// explorer stuff
-	void model_set_weirdness_factor(model_t *m, gfloat weirdness);
+    // explorer stuff
+    void model_set_weirdness_factor(model_t *m, gfloat weirdness);
 
 #ifdef __cplusplus
 }

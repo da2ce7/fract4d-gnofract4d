@@ -22,20 +22,20 @@
 #include <gdk/gdk.h>
 
 typedef struct {
-	model_t *m;
-	GtkWidget *f;
+    model_t *m;
+    GtkWidget *f;
 } save_cb_data;
 
 typedef struct {
-	model_t *m;
-	param_t pnum;
-	GtkAdjustment *adj;
-	gint dir;
+    model_t *m;
+    param_t pnum;
+    GtkAdjustment *adj;
+    gint dir;
 } set_cb_data;
 
 typedef struct {
-	model_t *m;
-	int num;
+    model_t *m;
+    int num;
 } subfract_cb_data;
 		
 gint
@@ -76,7 +76,7 @@ about_cb                               (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 void
 help_content_cb               			(GtkMenuItem     *menuitem,
-                                        gpointer         user_data);
+                                                 gpointer         user_data);
 void
 save_image_ok_cb                       (GtkButton       *button,
                                         gpointer         user_data);

@@ -3,16 +3,16 @@
 
 struct image
 {
-	int Xres;
-	int Yres;
-	char *buffer;
-	int * iter_buf;
+    int Xres;
+    int Yres;
+    char *buffer;
+    int * iter_buf;
 
-	image();
-	~image();
-	image(const image& im);
-	bool set_resolution(int x, int y);
-	double ratio();
+    image();
+    ~image();
+    image(const image& im);
+    bool set_resolution(int x, int y);
+    double ratio();
 };
 
 #endif /* _IMAGE_H_ */
