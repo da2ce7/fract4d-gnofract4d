@@ -33,18 +33,26 @@ class ColorModel:
 
         files = os.listdir(dirname)
         for f in files:
+            if not os.path.isfile:
+                continue
             absfile = os.path.join(dirname,f)
             (name,ext) = os.path.splitext(absfile)
-            if ext.lower() == ".map":
-                if self.maps.get(f):
-                    continue # avoid duplicates
-                self.maps[f] = absfile
+            if self.maps.get(f):
+                continue # avoid duplicates
+            self.maps[f] = absfile
                 
     def populate_file_list(self):
         self.add_directory("maps")
         self.add_directory(
             os.path.join(sys.exec_prefix,"share/maps/gnofract4d"))
-        
+
+        # find gimp gradient files
+        gimp_dir = os.path.join(sys.exec_prefix,"share/gimp/")
+        if os.path.isdir(gimp_dir):
+            for gimp_ver in os.listdir(gimp_dir):
+                self.add_directory(
+                    os.path.join(gimp_dir, gimp_ver, "gradients"))
+                    
 def stricmp(a,b):
     return cmp(a.lower(),b.lower())
 

@@ -175,6 +175,18 @@ class Colorizer(FctUtils):
         self.parse_map_file(mapfile)
 
     def parse_map_file(self,mapfile):
+        x = mapfile.tell()
+        try:
+            self.gradient.load(mapfile)
+        except gradient.Error:
+            try:
+                mapfile.seek(x)
+                self.parse_fractint_map_file(mapfile)
+            except Exception, err:
+                if self.parent:
+                    self.parent.warn("Error reading colormap: %s" % err)
+        
+    def parse_fractint_map_file(self,mapfile):
         'parse a fractint .map file'
         i = 0
         colorlist = []
