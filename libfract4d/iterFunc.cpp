@@ -77,6 +77,30 @@ const double cubicOptDefaults[] = {
     0.0, 0.0 //a
 };
 
+const param_t lambdaOverrides[] = { XCENTER, ZCENTER, MAGNITUDE };
+const double lambdaOverrideValues[] = { 1.0, 0.5, 8.0 };
+
+const param_t shipOverrides[] = { XCENTER, YCENTER};
+const double shipOverrideValues[] = { -0.5, -0.5 };
+
+const param_t buffaloOverrides[] = { MAGNITUDE};
+const double buffaloOverrideValues[] = { 6.0 };
+
+const char *mandelPowerOptNames[] = { "a" };
+const double mandelPowerOptDefaults[] = {
+    4.0, 0.0 //a
+};
+
+const param_t mandelPowerOverrides[] = { ZCENTER};
+const double mandelPowerOverrideValues[] = { 1.0E-10 };
+
+const char *quadraticOptNames[] = { "a", "b", "c" };
+const double quadraticOptDefaults[] = {
+    1.0, 0.0, // a
+    1.0, 0.0, // b
+    1.0, 0.0  // c
+};
+
 #define NO_OPTIONS 0, NULL, NULL
 #define NO_OVERRIDES 0, NULL, NULL
 
@@ -205,6 +229,118 @@ iterFunc_data infoTable[] = {
 	NO_OVERRIDES,
 	DEFAULT_CRITICAL_VALUES
     },
+    /* barnsley t2 */
+    {
+	"Barnsley Type 2",
+	NO_UNROLL,
+	BAILOUT_MAG,
+	"T x_cy, x_cx, y_cy, y_cx",
+	//iter code
+	"x_cy = p[X] * p[CY]; x_cx = p[X] * p[CX];"
+	"y_cy = p[Y] * p[CY]; y_cx = p[Y] * p[CX]; "
+    
+	"if(p[X]*p[CY] + p[Y]*p[CX] >= 0) "
+	"{" 
+	    "p[X] = (x_cx - p[CX] - y_cy );"
+	    "p[Y] = (y_cx - p[CY] + x_cy );"
+	"}" 
+	"else"
+	"{" 
+	    "p[X] = (x_cx + p[CX] - y_cy);"
+	    "p[Y] = (y_cx + p[CY] + x_cy);" 
+	"}",
+	DEFAULT_SIMPLE_CODE,
+	NO_OPTIONS,
+	NO_OVERRIDES,
+	DEFAULT_CRITICAL_VALUES
+    },
+    /* lambda */
+    {
+	"Lambda",
+	0,
+	BAILOUT_MAG,
+	"T tx, ty",
+	//iter code
+	"p[X2] = p[X] * p[X]; p[Y2] = p[Y] * p[Y];"
+    
+	/* t <- z * (1 - z) */
+	"tx = p[X] - p[X2] + p[Y2];"
+	"ty = p[Y] - 2.0 * p[X] * p[Y];"
+    
+	"p[X] = p[CX] * tx - p[CY] * ty;"
+	"p[Y] = p[CX] * ty + p[CY] * tx",
+	DEFAULT_SIMPLE_CODE,
+	NO_OPTIONS,
+	3,
+	lambdaOverrides,
+	lambdaOverrideValues,
+	DEFAULT_CRITICAL_VALUES
+    },
+    /* burning ship */
+    {
+	"Burning Ship",
+	0,
+	BAILOUT_MAG,
+	"T atmp",
+	//iter code
+	"p[X] = fabs(p[X]);"
+	"p[Y] = fabs(p[Y]);"
+	
+	/* same as mbrot from here */
+	"p[X2] = p[X] * p[X];"
+	"p[Y2] = p[Y] * p[Y];"
+	"atmp = p[X2] - p[Y2] + p[CX];"
+	"p[Y] = 2.0 * p[X] * p[Y] + p[CY];"
+	"p[X] = atmp",
+	DEFAULT_SIMPLE_CODE,
+	NO_OPTIONS,
+	2,
+	shipOverrides,
+	shipOverrideValues,
+	DEFAULT_CRITICAL_VALUES
+    },
+
+    /* buffalo: z <- a[0] * (|x| + i |y|)^2 + a[1] * (|x| + i|y|) + a[2] * c */
+    {
+	"Buffalo",
+	0,
+	BAILOUT_MAG,
+	"T atmp",
+	//iter code
+	"p[X] = fabs(p[X]);"
+	"p[Y] = fabs(p[Y]);"
+   
+	"p[X2] = p[X] * p[X];"
+	"p[Y2] = p[Y] * p[Y];"
+	"atmp = p[X2] - p[Y2] - p[X] + p[CX];"
+	"p[Y] = 2.0 * p[X] * p[Y] - p[Y] + p[CY];"
+	"p[X] = atmp",
+	DEFAULT_SIMPLE_CODE,
+	NO_OPTIONS,
+	1,
+	buffaloOverrides,
+	buffaloOverrideValues,
+	DEFAULT_CRITICAL_VALUES
+    },
+    /* quadratic mandelbrot: z <- A z^2 + B z + C c */
+    {
+	"Quadratic",
+	USE_COMPLEX, //flags
+	BAILOUT_MAG,
+	// decl code
+	"std::complex<double> z(p[X],p[Y]);" 
+	"std::complex<double> c(p[CX],p[CY]);",
+	// iter code
+	"z = (a[0] * z + a[1]) * z + a[2] * c;",
+	DEFAULT_COMPLEX_CODE,
+	3,
+	quadraticOptNames,
+	quadraticOptDefaults,
+	NO_OVERRIDES,
+	DEFAULT_CRITICAL_VALUES
+    },
+
+    /* cubic mandelbrot: z <- z^3 -3 A z^2 + c */
     {
 	"Cubic Mandelbrot",
 	USE_COMPLEX, //flags
@@ -221,6 +357,27 @@ iterFunc_data infoTable[] = {
 	2,
 	"cv[0] = -a[0]; cv[1] = a[0]"
     },
+
+    /* mandelPower: z <- z^A + c */
+    {
+	"ManZPower",
+	USE_COMPLEX, //flags
+	BAILOUT_MAG,
+	// decl code
+	"std::complex<double> z(p[X],p[Y]);" 
+	"std::complex<double> c(p[CX],p[CY]);",
+	// iter code
+	"z = pow(z,a[0]) + c;",
+	DEFAULT_COMPLEX_CODE,
+	1,
+	mandelPowerOptNames,
+	mandelPowerOptDefaults,
+	1,
+	mandelPowerOverrides,
+	mandelPowerOverrideValues,
+	DEFAULT_CRITICAL_VALUES
+    },
+
     /* sentinel value */
     {
 	NULL, // name
@@ -465,273 +622,6 @@ operator>>(std::istream& s, iterImpl& m)
 }
 
 #if 0
-
-
-class barnsley2Func: public iterImpl<barnsley2Func,0>
-{
-public:
-    enum {  FLAGS = NO_UNROLL };
-    barnsley2Func() : iterImpl<barnsley2Func,0>(name()) {};
-
-    static const char *name()
-        {
-            return "Barnsley Type 2";
-        }
-    std::string decl_code() const 
-        { 
-            return "double x_cy, x_cx, y_cy, y_cx";
-        }
-    std::string iter_code() const 
-        { 
-            return 
-                "x_cy = p[X] * p[CY]; x_cx = p[X] * p[CX];"
-                "y_cy = p[Y] * p[CY]; y_cx = p[Y] * p[CX]; "
-    
-                "if(p[X]*p[CY] + p[Y]*p[CX] >= 0) "
-                "{" 
-                    "p[X] = (x_cx - p[CX] - y_cy );"
-                    "p[Y] = (y_cx - p[CY] + x_cy );"
-                "}" 
-                "else"
-                "{" 
-                    "p[X] = (x_cx + p[CX] - y_cy);"
-                    "p[Y] = (y_cx + p[CY] + x_cy);" 
-                "}";
-        }
-};
-
-
-// z <- lambda * z * ( 1 - z)
-class lambdaFunc: public iterImpl<lambdaFunc,0>
-{
-public:
-    enum {  FLAGS = HAS_X2 | HAS_Y2 };
-    lambdaFunc() : iterImpl<lambdaFunc,0>(name()) {};
-
-    static const char *name()
-        {
-            return "Lambda";
-        }
-    virtual void reset(double *params)
-        {
-            iterImpl<lambdaFunc,0>::reset(params);
-            // override some defaults for a prettier picture
-            params[XCENTER] = 1.0;
-            params[ZCENTER] = 0.5;
-            params[MAGNITUDE] = 8.0;
-        }
-    std::string decl_code() const 
-        { 
-            return "double tx, ty";
-        }
-    std::string iter_code() const 
-        { 
-            return
-                "p[X2] = p[X] * p[X]; p[Y2] = p[Y] * p[Y];"
-    
-                /* t <- z * (1 - z) */
-                "tx = p[X] - p[X2] + p[Y2];"
-                "ty = p[Y] - 2.0 * p[X] * p[Y];"
-    
-                "p[X] = p[CX] * tx - p[CY] * ty;"
-                "p[Y] = p[CX] * ty + p[CY] * tx";
-        }
-};
-
-// z <- (|x| + i |y|)^2 + c
-class shipFunc: public iterImpl<shipFunc,0>
-{
-public:
-    enum {  FLAGS = HAS_X2 | HAS_Y2 };
-    shipFunc() : iterImpl<shipFunc,0>(name()) {};
-
-    static const char *name()
-        {
-            return "Burning Ship";
-        }
-    std::string iter_code() const 
-        { 
-            return
-                "p[X] = fabs(p[X]);"
-                "p[Y] = fabs(p[Y]);"
-
-                /* same as mbrot from here */
-                "p[X2] = p[X] * p[X];"
-                "p[Y2] = p[Y] * p[Y];"
-                "atmp = p[X2] - p[Y2] + p[CX];"
-                "p[Y] = 2.0 * p[X] * p[Y] + p[CY];"
-                "p[X] = atmp";
-        }
-    std::string decl_code() const 
-        { 
-            return "double atmp";
-        }
-    virtual void reset(double *params)
-        {
-            iterImpl<shipFunc,0>::reset(params);
-            // override some defaults for a prettier picture
-            params[XCENTER] = -0.5;
-            params[YCENTER] = -0.5;
-        }
-};
-
-// z <- a[0] * (|x| + i |y|)^2 + a[1] * (|x| + i|y|) + a[2] * c
-class buffaloFunc: public iterImpl<buffaloFunc,0>
-{
-public:
-    enum {  FLAGS = HAS_X2 | HAS_Y2 };
-    buffaloFunc() : iterImpl<buffaloFunc,0>(name()) {}
-
-    static const char *name()
-        {
-            return "Buffalo";
-        }
-    std::string decl_code() const 
-        { 
-            return "double atmp";
-        }
-    std::string iter_code() const
-        {
-            return 
-                "p[X] = fabs(p[X]);"
-                "p[Y] = fabs(p[Y]);"
-   
-                "p[X2] = p[X] * p[X];"
-                "p[Y2] = p[Y] * p[Y];"
-                "atmp = p[X2] - p[Y2] - p[X] + p[CX];"
-                "p[Y] = 2.0 * p[X] * p[Y] - p[Y] + p[CY];"
-                "p[X] = atmp";
-        }
-    virtual void reset(double *params)
-        {
-            iterImpl<buffaloFunc,0>::reset(params);
-            // override some defaults for a prettier picture
-            params[MAGNITUDE] = 6.0;
-        }
-};
-
-
-
-// computes z^a + c
-class ztoaFunc : public iterImpl<ztoaFunc,1>
-{
-public:
-    enum { FLAGS = USE_COMPLEX };
-    ztoaFunc() : iterImpl<ztoaFunc,1>(name()) {
-    }
-    static const char *name()
-        {
-            return "ManZPower";
-        }
-    std::string decl_code() const 
-        { 
-            return 
-                "std::complex<double> z(p[X],p[Y]);" 
-                "std::complex<double> c(p[CX],p[CY]);";
-        }
-    std::string iter_code() const
-        {
-            return
-                "z = pow(z,a[0]) + c;";
-        }
-    std::string ret_code() const
-        {
-            return "p[X] = z.real(); p[Y] = z.imag()";
-        }
-    std::string save_iter_code() const
-        {
-            return "std::complex<double> last_z = z";
-        }
-    std::string restore_iter_code() const
-        {
-            return "z = last_z";
-        }
-    const char *optionName(int i) const
-        {
-            if(i != 0)  return NULL;
-            return "a";
-        }
-    virtual void reset(double *params)
-        {
-            reset_opts();
-            iterImpl<ztoaFunc,1>::reset(params);
-            params[ZCENTER] = 1.0E-10; // avoid weird behavior with pow(0,...)
-        }
-private:
-    void reset_opts()
-        {
-            // default is z^4 + c
-            a[0] = std::complex<double>(4.0,0.0);
-        }
-
-};
-
-
-// generalised quadratic mandelbrot
-// computes a[0] * z^2 + a[1] * z + a[2] * c
-class quadFunc : public iterImpl<quadFunc,3>
-{
-public:
-    enum { FLAGS = USE_COMPLEX };
-    quadFunc() : iterImpl<quadFunc,3>(name()) {
-        reset_opts();
-    }
-    static const char *name()
-        {
-            return "Quadratic";
-        }
-    std::string decl_code() const 
-        { 
-            return 
-                "std::complex<double> z(p[X],p[Y]);" 
-                "std::complex<double> c(p[CX],p[CY]);";
-        }
-    std::string iter_code() const
-        {
-            return 
-		"z = (a[0] * z + a[1]) * z + a[2] * c;";
-	    //"z = (1.0 * z + 1.0) * z + 1.0 * c;";
-        }
-    std::string ret_code() const
-        {
-            return "p[X] = z.real(); p[Y] = z.imag()";
-        }
-    std::string save_iter_code() const
-        {
-            return "std::complex<double> last_z = z";
-        }
-    std::string restore_iter_code() const
-        {
-            return "z = last_z";
-        }
-    const char *optionName(int i) const
-        {
-            static const char *optNames[] =
-            {
-                "a", "b", "c"
-            };
-            if(i < 0 || i >= 3) return NULL;
-            return optNames[i];
-        }
-    virtual void reset(double *params)
-        {
-            reset_opts();
-            iterImpl<quadFunc,3>::reset(params);
-            params[XCENTER]=-0.75;
-        }
-private:
-    void reset_opts()
-        {
-            // default is z^2 - z + c
-            a[0] = std::complex<double>(1.0,0.0);
-            a[1] = std::complex<double>(1.0,0.0);
-            a[2] = std::complex<double>(1.0,0.0);
-        }
-};
-
-#endif
-
-#if 0
 // Taylor series approximation to exp
 class taylorFunc : public iterImpl<taylorFunc,0>
 {
@@ -753,32 +643,6 @@ public:
             return "Cubic Mandelbrot";
         }
 };
-#endif
-
-#if 0
-#define CTOR_TABLE_ENTRY(className) \
-    { className::name(), className::create }
-
-ctorInfo ctorTable[] = {
-    CTOR_TABLE_ENTRY(mandFunc),
-
-    CTOR_TABLE_ENTRY(quadFunc),
-    CTOR_TABLE_ENTRY(cubeFunc),
-    CTOR_TABLE_ENTRY(ztoaFunc),
-
-    CTOR_TABLE_ENTRY(lambdaFunc),
-    CTOR_TABLE_ENTRY(mandelBarFunc),
-
-    CTOR_TABLE_ENTRY(shipFunc),
-    CTOR_TABLE_ENTRY(buffaloFunc),
-    CTOR_TABLE_ENTRY(barnsleyFunc),
-    CTOR_TABLE_ENTRY(barnsley2Func),
-    CTOR_TABLE_ENTRY(novaFunc),
-    CTOR_TABLE_ENTRY(newtFunc),
-
-    { NULL, NULL}
-};
-
 #endif
 
 static const char **createNameTable()
