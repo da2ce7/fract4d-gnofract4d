@@ -107,7 +107,7 @@ create_generic_file_dialog(
     
     pdata->f = f;
     pdata->m = m;
-    gtk_signal_connect (
+    g_signal_connect (
         GTK_OBJECT (GTK_FILE_SELECTION(f)->ok_button),
         "clicked", func, pdata);
                              

@@ -190,7 +190,7 @@ create_cmap_browser_item(
     }
 
     // get drawable to redraw itself properly
-    gtk_signal_connect (
+    g_signal_connect (
         GTK_OBJECT(drawing_area), "expose_event", 
         (GtkSignalFunc) preview_expose_event, NULL);
     
@@ -202,7 +202,7 @@ create_cmap_browser_item(
     gtk_container_add(GTK_CONTAINER(button), drawing_area);
  
     // button callback
-    gtk_signal_connect (
+    g_signal_connect (
         GTK_OBJECT(button), "clicked",
         (GtkSignalFunc) preview_button_clicked, m);
 
@@ -486,7 +486,7 @@ create_edit_colormap_page(GtkWidget *notebook, model_t *m)
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
 
-    gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed",
+    g_signal_connect(GTK_OBJECT(colorsel), "color-changed",
 		       (GtkSignalFunc)colorbut_set_event,
 		       cmap_preview);
 
@@ -505,11 +505,11 @@ create_edit_colormap_page(GtkWidget *notebook, model_t *m)
 
 	gtk_object_set_data(GTK_OBJECT(colorbut),"index",GINT_TO_POINTER(i));
 
-	gtk_signal_connect(GTK_OBJECT(colorbut),"expose_event",
+	g_signal_connect(GTK_OBJECT(colorbut),"expose_event",
 			   (GtkSignalFunc)colorbut_expose_event,
 			   (gpointer)m);
 
-	gtk_signal_connect (GTK_OBJECT(colorbut), "button_press_event",
+	g_signal_connect (GTK_OBJECT(colorbut), "button_press_event",
 			    (GtkSignalFunc) colorbut_mouse_event, colorsel);
 
 
@@ -556,7 +556,7 @@ create_new_color_page(GtkWidget *notebook, model_t *m)
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
     /* connect up color selector callbacks */
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(colorsel), "color-changed",
         (GtkSignalFunc) color_change_callback,
         (gpointer) rgb_preview);
@@ -593,7 +593,7 @@ create_which_colorizer_menu(GtkWidget *vbox, Gf4dFractal *shadow, model_t *m)
 	"id",
 	GINT_TO_POINTER(0));
     
-    gtk_signal_connect(
+    g_signal_connect(
 	GTK_OBJECT(menu_item),
 	"activate",
 	GTK_SIGNAL_FUNC(set_id_callback),
@@ -609,7 +609,7 @@ create_which_colorizer_menu(GtkWidget *vbox, Gf4dFractal *shadow, model_t *m)
 	"id",
 	GINT_TO_POINTER(1));
     
-    gtk_signal_connect(
+    g_signal_connect(
 	GTK_OBJECT(menu_item),
 	"activate",
 	GTK_SIGNAL_FUNC(set_id_callback),
@@ -685,17 +685,17 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
 
     // setup callbacks from fract's calculations
     
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(f), "status_changed", 
         GTK_SIGNAL_FUNC(preview_status_callback),
         table);
     
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(f), "status_changed", 
         GTK_SIGNAL_FUNC(preview_status_callback),
         table2);
 /*
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(f), "status_changed", 
         GTK_SIGNAL_FUNC(preview_status_callback),
         table3);

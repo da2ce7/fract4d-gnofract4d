@@ -62,17 +62,17 @@ static void make_sensitive( GtkWidget *widget,
     cx->widget = widget;
     
     cx->undo_sensitive_signal = 
-        gtk_signal_connect( GTK_OBJECT(seq),
+        g_signal_connect( GTK_OBJECT(seq),
                             signal_name,
                             GTK_SIGNAL_FUNC(cb_set_sensitivity),
                             widget );
     cx->undo_destroy_signal =
-        gtk_signal_connect( GTK_OBJECT(seq),
+        g_signal_connect( GTK_OBJECT(seq),
                             "destroy",
                             GTK_SIGNAL_FUNC(cb_undo_sequence_destroyed),
                             cx );
     cx->widget_destroy_signal =
-        gtk_signal_connect( GTK_OBJECT(widget),
+        g_signal_connect( GTK_OBJECT(widget),
                             "destroy",
                             GTK_SIGNAL_FUNC(cb_widget_destroyed),
                             cx );

@@ -73,7 +73,7 @@ create_prefs_compiler_page(
     GtkWidget *entry = gnome_file_entry_gtk_entry( GNOME_FILE_ENTRY(cpath_entry));
     gtk_entry_set_text(GTK_ENTRY(entry),model_get_compiler_location(m));
 
-    gtk_signal_connect(GTK_OBJECT(entry),"focus-out-event",
+    g_signal_connect(GTK_OBJECT(entry),"focus-out-event",
                        (GtkSignalFunc)set_cpath_cb,
                        m);
 
@@ -95,7 +95,7 @@ create_prefs_compiler_page(
     entry = gnome_entry_gtk_entry( GNOME_ENTRY(cflags_entry));
     gtk_entry_set_text(GTK_ENTRY(entry),model_get_compiler_flags(m));
 
-    gtk_signal_connect(GTK_OBJECT(entry),"focus-out-event",
+    g_signal_connect(GTK_OBJECT(entry),"focus-out-event",
                        (GtkSignalFunc)set_cflags_cb,
                        m);
     

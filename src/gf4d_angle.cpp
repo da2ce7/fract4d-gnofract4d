@@ -212,10 +212,10 @@ gf4d_angle_set_adjustment (Gf4dAngle      *dial,
     dial->adjustment = adjustment;
     gtk_object_ref (GTK_OBJECT (dial->adjustment));
 
-    gtk_signal_connect (GTK_OBJECT (adjustment), "changed",
+    g_signal_connect (GTK_OBJECT (adjustment), "changed",
                         (GtkSignalFunc) gf4d_angle_adjustment_changed,
                         (gpointer) dial);
-    gtk_signal_connect (GTK_OBJECT (adjustment), "value_changed",
+    g_signal_connect (GTK_OBJECT (adjustment), "value_changed",
                         (GtkSignalFunc) gf4d_angle_adjustment_value_changed,
                         (gpointer) dial);
 

@@ -85,16 +85,16 @@ create_preview_drawing_area(Gf4dFractal *f)
         PREVIEW_SIZE);
 
     /* connect widget signals */
-    gtk_signal_connect (GTK_OBJECT(drawing_area), "expose_event", 
+    g_signal_connect (GTK_OBJECT(drawing_area), "expose_event", 
                         (GtkSignalFunc) popup_expose_event, f);
 
     /* connect fractal object signals */
-    gtk_signal_connect(GTK_OBJECT(f), "status_changed",
+    g_signal_connect(GTK_OBJECT(f), "status_changed",
                        GTK_SIGNAL_FUNC (preview_status_callback), 
                        drawing_area);
 
     /* register disconnection - could use _while_alive stuff instead */
-    gtk_signal_connect(GTK_OBJECT(drawing_area), "destroy",
+    g_signal_connect(GTK_OBJECT(drawing_area), "destroy",
                        GTK_SIGNAL_FUNC (preview_disconnect), f);
 
     gtk_object_set_data (GTK_OBJECT (drawing_area), "shadow", f);

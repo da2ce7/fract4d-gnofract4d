@@ -253,43 +253,43 @@ create_drawing_area(model_t *m, GtkWidget *appbar)
 			   GDK_KEY_PRESS_MASK);
 
     /* connect widget signals */
-    gtk_signal_connect (GTK_OBJECT(drawing_area), "expose_event", 
+    g_signal_connect (GTK_OBJECT(drawing_area), "expose_event", 
                         (GtkSignalFunc) expose_event, model_get_fract(m));
 
-    gtk_signal_connect (GTK_OBJECT(drawing_area), "configure_event",
+    g_signal_connect (GTK_OBJECT(drawing_area), "configure_event",
                         (GtkSignalFunc) configure_event, model_get_fract(m));
 
-    gtk_signal_connect (GTK_OBJECT(drawing_area), "button_press_event",
+    g_signal_connect (GTK_OBJECT(drawing_area), "button_press_event",
                         (GtkSignalFunc) mouse_event, m);
 
-    gtk_signal_connect (GTK_OBJECT(drawing_area), "motion_notify_event",
+    g_signal_connect (GTK_OBJECT(drawing_area), "motion_notify_event",
                         (GtkSignalFunc) mouse_event, m);
 
-    gtk_signal_connect (GTK_OBJECT(drawing_area), "button_release_event",
+    g_signal_connect (GTK_OBJECT(drawing_area), "button_release_event",
                         (GtkSignalFunc) mouse_event, m);
 
 
     /* connect fractal object signals */
-    gtk_signal_connect(GTK_OBJECT(model_get_fract(m)), "image_changed",
+    g_signal_connect(GTK_OBJECT(model_get_fract(m)), "image_changed",
                        GTK_SIGNAL_FUNC (update_callback), 
                        drawing_area);
 
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(model_get_fract(m)), "parameters_changed",
         GTK_SIGNAL_FUNC(redraw_callback),
         m);
     
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(model_get_fract(m)),"progress_changed",
         GTK_SIGNAL_FUNC(progress_callback),
         appbar);
     
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(model_get_fract(m)),"status_changed",
         GTK_SIGNAL_FUNC(message_callback),
         appbar);
 
-    gtk_signal_connect(
+    g_signal_connect(
         GTK_OBJECT(model_get_fract(m)),"status_changed",
         GTK_SIGNAL_FUNC(model_status_callback),
         m);
@@ -325,24 +325,24 @@ create_sub_drawing_area(model_t *m, GtkWidget *table, int num, int x, int y)
 
     Gf4dFractal *f = model_get_subfract(m,num);
     /* connect widget signals */
-    gtk_signal_connect (GTK_OBJECT(drawing_area), "expose_event", 
+    g_signal_connect (GTK_OBJECT(drawing_area), "expose_event", 
                         (GtkSignalFunc) expose_event, 
                         f);
 	
-    gtk_signal_connect (GTK_OBJECT(drawing_area), "configure_event",
+    g_signal_connect (GTK_OBJECT(drawing_area), "configure_event",
                         (GtkSignalFunc) configure_event, 
                         f);
 	
-    gtk_signal_connect (GTK_OBJECT(drawing_area), "button_press_event",
+    g_signal_connect (GTK_OBJECT(drawing_area), "button_press_event",
                         (GtkSignalFunc) sub_mouse_event, pdata);
 
     /* connect fractal object signals */
-    gtk_signal_connect(GTK_OBJECT(f),
+    g_signal_connect(GTK_OBJECT(f),
                        "image_changed",
                        GTK_SIGNAL_FUNC (update_callback), 
                        drawing_area);
 	
-    gtk_signal_connect(GTK_OBJECT(f),
+    g_signal_connect(GTK_OBJECT(f),
                        "parameters_changed",
                        GTK_SIGNAL_FUNC(redraw_callback),
                        m);
