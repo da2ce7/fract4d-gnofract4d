@@ -9,7 +9,6 @@ todo for 2.2
 * BB	changing inner colormap modifies outer appearance
 * W	warn if overwrite/always save as/clear name on major change
 * WW	include formula in .fct file
-* W	when loading new formula, highlight in list
 
 UF Incompatibilities
 * W	boolean, int, enum params 

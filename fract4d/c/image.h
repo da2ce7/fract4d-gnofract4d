@@ -5,19 +5,30 @@
 
 #include "image_public.h"
 
+#include <cassert>
+
 class image : public IImage
 {
+    static const int N_SUBPIXELS;
     int m_Xres;
     int m_Yres;
 
     /* the RGB colours of the image */
     char *buffer;
 
-    /* the iteration count for each (antialiased) pixel */
+    /* the iteration count for each pixel */
     int * iter_buf;
 
-    int data_size;
-    void * data_buf;
+    /* the value of #index for each pixel */
+    float *index_buf;
+
+    /* the fate of each pixel */
+    fate_t *fate_buf;
+
+    void delete_buffers();
+    void alloc_buffers();
+    void clear_fate(int x, int y);
+
 public:
     image();
     ~image();
@@ -35,7 +46,7 @@ public:
     void put(int x, int y, rgba_t pixel);
     rgba_t get(int x, int y) const;
 
-    int getIter(int x, int y) const{
+    int getIter(int x, int y) const {
       return iter_buf[x + y * m_Xres];
     };
 
@@ -43,16 +54,19 @@ public:
       iter_buf[x + y * m_Xres] = iter;
     };
 
-    void *getData(int x, int y) {
-      if(data_buf == NULL)
-      {
-	  return NULL;
-      }
-      return (void *)((char *)data_buf + data_size * (x + y * m_Xres));
+    void set_fate(int x, int y, int subpixel, fate_t fate);
+
+    int index_of_subpixel(int x, int y, int subpixel) {
+	assert(subpixel >= 0 && subpixel < N_SUBPIXELS);
+	assert(x >= 0 && x < m_Xres);
+	assert(y >= 0 && y < m_Yres);
+
+	return (y * m_Xres + x ) * N_SUBPIXELS + subpixel;
     };
+
     image(const image& im);
     bool set_resolution(int x, int y);
-    bool set_data_size(int size);
+
     double ratio() const;
     void clear();
 

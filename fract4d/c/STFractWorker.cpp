@@ -176,33 +176,35 @@ STFractWorker::antialias(int x, int y)
     rgba_t ptmp;
     unsigned int pixel_r_val=0, pixel_g_val=0, pixel_b_val=0;    
     int p=0;
+    float index;
+    fate_t fate;
 
     int single_iters = im->getIter(x,y);
     bool checkPeriod = periodGuess(single_iters); 
 
     // top left
-    pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,1,&ptmp,&p); 
+    pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,1,&ptmp,&p,&index,&fate); 
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
 
     // top right
     pos+=ff->delta_aa_x;
-    pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,2,&ptmp,&p); 
+    pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,2,&ptmp,&p,&index,&fate); 
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
 
     // bottom left
     pos = topleft + ff->delta_aa_y;
-    pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,3,&ptmp,&p); 
+    pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,3,&ptmp,&p,&index,&fate); 
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
 
     // bottom right
     pos+= ff->delta_aa_x;
-    pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,4,&ptmp,&p); 
+    pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,4,&ptmp,&p,&index,&fate); 
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
@@ -219,6 +221,9 @@ STFractWorker::pixel(int x, int y,int w, int h)
 {
     int iter = im->getIter(x,y);
     rgba_t pixel;
+    float index;
+    fate_t fate;
+
     if(iter != -1) return;
 
     // calculate coords of this point
@@ -227,7 +232,9 @@ STFractWorker::pixel(int x, int y,int w, int h)
     //printf("(%g,%g,%g,%g)\n",pos[VX],pos[VY],pos[VZ],pos[VW]);
 
     assert(pf != NULL && m_ok == true);
-    pf->calc(pos.n, ff->maxiter,periodGuess(), x,y,0,&pixel,&iter); 
+    pf->calc(pos.n, ff->maxiter,periodGuess(),x,y,0,
+	     &pixel,&iter,&index,&fate); 
+
     periodSet(&iter);
     im->setIter(x,y,iter);
 
@@ -238,7 +245,8 @@ STFractWorker::pixel(int x, int y,int w, int h)
     {
         int i=0;
 
-        pf->calc(pos.n, ff->maxiter*2,periodGuess(),x,y,-1,&pixel,&i);
+        pf->calc(pos.n, ff->maxiter*2,periodGuess(),x,y,-1,
+		 &pixel,&i, &index, &fate);
 
         if( (i > ff->maxiter/2) && (i < ff->maxiter))
         {

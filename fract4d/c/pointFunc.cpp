@@ -39,7 +39,7 @@ public:
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        rgba_t *color, int *pnIters) const
+        rgba_t *color, int *pnIters, float *pIndex, fate_t *pFate) const
 	{
 	    double dist; 
 	    int fate;

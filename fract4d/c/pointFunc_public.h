@@ -3,6 +3,7 @@
 
 #include "pf.h"
 #include "cmap.h"
+#include "fate.h"
 
 class IFractalSite;
 
@@ -22,7 +23,7 @@ class pointFunc {
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        rgba_t *color, int *pnIters
+        rgba_t *color, int *pnIters, float *pIndex, fate_t *pFate
         ) const = 0;
     virtual rgba_t recolor(double dist) const = 0;
 };

@@ -863,7 +863,7 @@ class MainWindow:
     def load_formula(self,file):
         try:
             self.compiler.load_formula_file(file)
-            browser.update()
+            browser.update(file)
             return True
         except Exception, err:
             self.show_error_message(_("Error opening %s") % file, err)
