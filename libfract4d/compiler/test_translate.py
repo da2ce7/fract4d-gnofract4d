@@ -28,14 +28,15 @@ class TranslateTest(unittest.TestCase):
              t2 {
                  init: 
                  a=1
+                 a=2
                  loop:
                  b=2
                  bailout:
                  c=3
                  }''')
         self.assertEquivalentTranslations(t1,t2)
-        self.assertNoProbs(t1)
-        self.assertNoProbs(t2)
+        self.assertNoErrors(t1)
+        self.assertNoErrors(t2)
 
         t3 = self.translate('''
              t3 {
@@ -48,7 +49,7 @@ class TranslateTest(unittest.TestCase):
                  c=3
                  }''')
         self.assertEquivalentTranslations(t1,t3)
-        self.assertEqual(len(t3.warnings),3)
+        self.assertEqual(len(t3.warnings),6)
 
     def testDecls(self):
         t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")
