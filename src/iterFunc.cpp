@@ -225,6 +225,32 @@ public:
         }
 };
 
+// z <- conj(z)^2 + c
+class mandelBarFunc : public iterImpl<mandelBarFunc,0>
+{
+ public:
+    enum { FLAGS = HAS_X2 | HAS_Y2 };
+    mandelBarFunc() : iterImpl<mandelBarFunc,0>(name()) {} 
+
+    static const char *name()
+        {
+            return "Mandelbar";
+        }
+    std::string decl_code() const 
+        { 
+            return "double atmp"; 
+        }
+    std::string iter_code() const 
+        { 
+            return 
+		"p[Y] = -p[Y];"
+                "p[X2] = p[X] * p[X];"
+                "p[Y2] = p[Y] * p[Y];"
+                "atmp = p[X2] - p[Y2] + p[CX];"
+                "p[Y] = 2.0 * p[X] * p[Y] + p[CY];"
+                "p[X] = atmp";
+        }    
+};
 
 // Newton's method for a quadratic complex polynomial
 // z <- z - (z^2 - 1)/2z
@@ -710,16 +736,21 @@ public:
 
 ctorInfo ctorTable[] = {
     CTOR_TABLE_ENTRY(mandFunc),
+
+    CTOR_TABLE_ENTRY(quadFunc),
+    CTOR_TABLE_ENTRY(cubeFunc),
+    CTOR_TABLE_ENTRY(ztoaFunc),
+
+    CTOR_TABLE_ENTRY(lambdaFunc),
+    CTOR_TABLE_ENTRY(mandelBarFunc),
+
     CTOR_TABLE_ENTRY(shipFunc),
     CTOR_TABLE_ENTRY(buffaloFunc),
-    CTOR_TABLE_ENTRY(cubeFunc),
-    CTOR_TABLE_ENTRY(quadFunc),
     CTOR_TABLE_ENTRY(barnsleyFunc),
     CTOR_TABLE_ENTRY(barnsley2Func),
-    CTOR_TABLE_ENTRY(lambdaFunc),
-    CTOR_TABLE_ENTRY(ztoaFunc),
     CTOR_TABLE_ENTRY(novaFunc),
     CTOR_TABLE_ENTRY(newtFunc),
+
     { NULL, NULL}
 };
 
