@@ -33,10 +33,10 @@ gt_ff_b = gte_ff_b = lt_ff_b = lte_ff_b = eq_ff_b = noteq_ff_b = add_ff_f
 
 def mul_cc_c(gen,t,srcs):
     # (a+ib) * (c+id) = ac - bd + i(bc + ad)
-    ac = gen.emit_binop(t.op, [srcs[0].re, srcs[1].re], Float)
-    bd = gen.emit_binop(t.op, [srcs[0].im, srcs[1].im], Float)
-    bc = gen.emit_binop(t.op, [srcs[0].im, srcs[1].re], Float)
-    ad = gen.emit_binop(t.op, [srcs[0].re, srcs[1].im], Float)
+    ac = gen.emit_binop('*', [srcs[0].re, srcs[1].re], Float)
+    bd = gen.emit_binop('*', [srcs[0].im, srcs[1].im], Float)
+    bc = gen.emit_binop('*', [srcs[0].im, srcs[1].re], Float)
+    ad = gen.emit_binop('*', [srcs[0].re, srcs[1].im], Float)
     dst = ComplexArg(
         gen.emit_binop('-', [ac, bd], Float),
         gen.emit_binop('+', [bc, ad], Float))
@@ -103,41 +103,69 @@ def polar_ff_c(gen,t,srcs):
 def exp_f_f(gen,t,srcs):
     return gen.emit_func('exp', srcs, Float)
 
+def exp_c_c(gen,t,srcs):
+    #exp(a+ib) = polar(exp(a),b)
+    expx = gen.emit_func('exp', [srcs[0].re], Float)
+    return polar_ff_c(gen,t,[expx, srcs[0].im])
+
 def pow_ff_f(gen,t,srcs):
     return gen.emit_func2('pow', srcs, Float)
 
 def pow_cf_c(gen,t,srcs):
-    try:
-        nonzero = gen.symbols.newLabel()
-        done = gen.symbols.newLabel()
-        dst_re = TempArg(gen.symbols.newTemp(Float))
-        dst_im = TempArg(gen.symbols.newTemp(Float))
-    
-        gen.emit_cjump(srcs[0].im,nonzero)
+    nonzero = gen.symbols.newLabel()
+    done = gen.symbols.newLabel()
+    dst_re = TempArg(gen.symbols.newTemp(Float))
+    dst_im = TempArg(gen.symbols.newTemp(Float))
 
-        # compute result if just real
-        tdest = pow_ff_f(gen,t,[srcs[0].re,srcs[1]])
-        gen.emit_move(tdest,dst_re)
-        gen.emit_jump(done)
-    
-        gen.emit_label(nonzero)
-        # result if real + imag
-        # temp = log(a+ib)
-        # polar(y * real(temp), y * imag(temp))
+    gen.emit_cjump(srcs[0].im,nonzero)
 
-        temp = log_c_c(gen,t,[srcs[0]])
-        t_re = gen.emit_binop('*',[temp.re, srcs[1]], Float)
-        t_re = gen.emit_func('exp',[t_re], Float)
-        t_im = gen.emit_binop('*',[temp.im, srcs[1]], Float)
-        temp2 = polar_ff_c(gen,t,[t_re, t_im])
-        gen.emit_move(temp2.re,dst_re)
-        gen.emit_move(temp2.im,dst_im)
-        gen.emit_label(done)
+    # compute result if just real
+    tdest = pow_ff_f(gen,t,[srcs[0].re,srcs[1]])
+    gen.emit_move(tdest,dst_re)
+    gen.emit_jump(done)
+
+    gen.emit_label(nonzero)
+    # result if real + imag
+    # temp = log(a+ib)
+    # polar(y * real(temp), y * imag(temp))
+
+    temp = log_c_c(gen,t,[srcs[0]])
+    t_re = gen.emit_binop('*',[temp.re, srcs[1]], Float)
+    t_re = gen.emit_func('exp',[t_re], Float)
+    t_im = gen.emit_binop('*',[temp.im, srcs[1]], Float)
+    temp2 = polar_ff_c(gen,t,[t_re, t_im])
+    gen.emit_move(temp2.re,dst_re)
+    gen.emit_move(temp2.im,dst_im)
+    gen.emit_label(done)
+
+    return ComplexArg(dst_re,dst_im)
+
+def pow_cc_c(gen,t,srcs):
+    nonzero = gen.symbols.newLabel()
+    done = gen.symbols.newLabel()
+    dst_re = TempArg(gen.symbols.newTemp(Float))
+    dst_im = TempArg(gen.symbols.newTemp(Float))
+
+    gen.emit_cjump(srcs[0].re,nonzero)
+    gen.emit_cjump(srcs[0].im,nonzero)
     
-        return ComplexArg(dst_re,dst_im)
-    except Exception, err:
-        print err
-        raise
+    # 0^foo = 0
+    gen.emit_move(ConstFloatArg(0.0),dst_re)
+    gen.emit_move(ConstFloatArg(0.0),dst_im)
+    gen.emit_jump(done)
+
+    gen.emit_label(nonzero)
+    # exp(y*log(x))
+
+    logx = log_c_c(gen,t,[srcs[0]])
+    ylogx = mul_cc_c(gen,t,[srcs[1],logx])
+    xtoy = exp_c_c(gen,t,[ylogx])
+    
+    gen.emit_move(xtoy.re,dst_re)
+    gen.emit_move(xtoy.im,dst_im)
+    gen.emit_label(done)
+
+    return ComplexArg(dst_re,dst_im)
     
 def lt_cc_b(gen,t,srcs):    
     # compare real parts only
