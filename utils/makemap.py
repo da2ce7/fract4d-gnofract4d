@@ -14,7 +14,13 @@ class Node:
         self.sum_b = 0 # sum of B values for local pixels
         self.error = 0 # quantization error
         self.children = [None for x in range(8)] # no children yet
-        
+
+    def increment_children(self):
+        self.n_tree_pixels += 1
+
+    def increment(self):
+        self.n_local_pixels += 1
+    
 class T:
     R = 0
     G = 1
@@ -36,39 +42,59 @@ class T:
     
     def build_octree(self):
         self.root = Node()
-
-    def mid(self,min,max):
-        return (min + max) // 2
-
-    def adjust_dimension(self, min, max, val, dim):
-        mid = self.mid(min[dim],max[dim])
-        if val > mid:
-            min[dim] = mid
-            return True
-        else:
-            max[dim] = mid+1
-            return False
+        for (r,g,b) in self.getdata():
+            self.insert_pixel(r,g,b)
         
-    def which_child(self,min,max, r, g, b):
+    def dump_octree(self,node,prefix=""):
+        if node == None:
+            return "None\n"
+        val = "%s[(%s,%s)\n" % \
+              (prefix, node.n_local_pixels, node.n_tree_pixels)
+        child_prefix = "  " + prefix
+        for child in node.children:
+            val += self.dump_octree(child,child_prefix)
+        val += "%s]\n" % prefix
+        return val
+    
+    def adjust_dimension(self, min, length, val, dim):
+        length //= 2
+        mid = min[dim] + length
+        if val < mid:
+            # lower half
+            return False
+        else:
+            # upper half
+            min[dim] += length
+            return True
+        
+    def which_child(self,min,length, r, g, b):
         'index into child array where this pixel should go'
         child = 0
-        if self.adjust_dimension(min,max, r, T.R):
+        if self.adjust_dimension(min, length, r, T.R):
             child += 4
-        if self.adjust_dimension(min,max, g, T.G):
+        if self.adjust_dimension(min, length, g, T.G):
             child += 2
-        if self.adjust_dimension(min,max, b, T.B):
+        if self.adjust_dimension(min, length, b, T.B):
             child += 1
         return child
-    
-    def insert_pixel(self,r,g,b):
-        min = [0,0,0]
-        max = [256,256,256]
 
-        pos = this.root
-        while 1:
-            child = which_child(min_max,r,g,b)
+    def insert_pixel(self,r,g,b):
+        '''update the octree to include this pixel,
+        inserting nodes as required.'''
+        min = [0,0,0]
+        length = 256
+
+        pos = self.root
+        x = 0
+        while length > 1:
+            pos.increment_children()
+            child = self.which_child(min,length,r,g,b)
             if pos.children[child] == None:
                 pos.children[child] = Node()
+
+            pos = pos.children[child]
+            length //= 2
+            
+        pos.increment()
                 
-                
-                
+        
