@@ -73,6 +73,7 @@ class CodegenTest(unittest.TestCase):
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)])
         tree.datatype = Complex
         self.codegen.generate_code(tree)
+
         self.assertEqual(len(self.codegen.out),2)
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
         self.assertEqual(self.codegen.out[0].format(), "t__temp0 = 1 + a_re")
