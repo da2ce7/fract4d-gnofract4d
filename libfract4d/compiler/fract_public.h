@@ -18,7 +18,6 @@ typedef enum {
 } e_antialias;
 
 typedef enum {
-    BAILOUT,
     XCENTER,
     YCENTER,
     ZCENTER,
@@ -36,7 +35,7 @@ typedef enum {
 #define OUTER 0
 #define INNER 1
 
-#define N_PARAMS 12
+#define N_PARAMS 11
 
 //class colorizer;
 class IImage;

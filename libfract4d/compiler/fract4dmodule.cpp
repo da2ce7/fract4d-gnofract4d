@@ -416,10 +416,10 @@ pycalc(PyObject *self, PyObject *args)
 
     if(!PyArg_ParseTuple(
 	   args,
-	   "(dddddddddddd)iiiOOiOO",
+	   "(ddddddddddd)iiiOOiOO",
 	   &params[0],&params[1],&params[2],&params[3],
 	   &params[4],&params[5],&params[6],&params[7],
-	   &params[8],&params[9],&params[10],&params[11],
+	   &params[8],&params[9],&params[10],
 	   &eaa,&maxiter,&nThreads,
 	   &pypfo,&pycmap,
 	   &auto_deepen,
