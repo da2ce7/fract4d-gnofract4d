@@ -41,13 +41,13 @@ typedef enum {
 #define N_PARAMS 12
 
 typedef struct fractal fractal_t;
-typedef struct image image_t;
 //class colorizer;
 typedef class colorizer colorizer_t;
 typedef struct _Gf4dFractal Gf4dFractal;
 typedef struct s_fract_callbacks fract_callbacks;
 
 class iterFunc;
+class IImage;
 
 #include "pointFunc_public.h"
 
@@ -62,7 +62,7 @@ public:
     virtual IFractal& operator=(const IFractal& f) =0; // assignment op
     virtual bool operator==(const IFractal& f) const =0; // equality 
 
-    virtual ~IFractal();
+    virtual ~IFractal() {};
 
     // make this fractal like f but weirder
     virtual void set_inexact(const IFractal& f, double weirdness) = 0; 
@@ -71,9 +71,9 @@ public:
     virtual void set_mixed(const IFractal& f1, const IFractal& f2, double lambda) = 0;
 
     virtual void reset() = 0;
-    virtual void calc(Gf4dFractal *gf4d, image *im, fract_callbacks *fcb) = 0;
+    virtual void calc(Gf4dFractal *gf4d, IImage *im, fract_callbacks *fcb) = 0;
 
-    virtual void recolor(image *im) = 0;
+    virtual void recolor(IImage *im) = 0;
     virtual void relocate(double x, double y, double zoom) = 0;
     virtual void flip2julia(double x, double y) = 0;
     virtual void move(param_t i, double distance) = 0;

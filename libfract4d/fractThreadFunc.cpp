@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 bool
-fractThreadFunc::init(fractFunc *ff_,fractal_t *f_, image *im_)
+fractThreadFunc::init(fractFunc *ff_,fractal_t *f_, IImage *im_)
 {
     ff = ff_;
     f = f_;

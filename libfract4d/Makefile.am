@@ -9,7 +9,7 @@ libfract4d_la_SOURCES=\
 	fract.cpp fract.h fract_public.h fract_callbacks.h calc.h \
 	pointFunc.cpp pointFunc.h pointFunc_public.h state.h \
 	vectors.h \
-	image.cpp image.h \
+	image_public.h \
 	colorizer.cpp colorizer.h colorizer_public.h \
 	colorFunc.h colorFunc.cpp \
 	iterFunc.h iterFunc.cpp \

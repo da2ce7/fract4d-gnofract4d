@@ -23,7 +23,7 @@
 
 #include "fract_callbacks.h"
 #include "fract.h"
-#include "image.h"
+#include "image_public.h"
 #include "pointFunc.h"
 #include "colorizer.h"
 #include "threadpool.h"
@@ -50,10 +50,10 @@ class fractThreadFunc {
 
     /* pointers to data also held in fractFunc */
     fractal_t *f; 
-    image *im;    
+    IImage *im;    
 
     /* not a ctor because we always create a whole array then init them */
-    bool init(fractFunc *ff, fractal_t *f, image *im);
+    bool init(fractFunc *ff, fractal_t *f, IImage *im);
 
     ~fractThreadFunc();
 
@@ -134,7 +134,7 @@ class fractFunc {
  public:
     fractFunc(
 	fractal_t *_f, 
-	image *_im, 
+	IImage *_im, 
 	Gf4dFractal *_gf,
 	fract_callbacks *fcb);
     ~fractFunc();
@@ -206,7 +206,7 @@ class fractFunc {
 
 
     fractal_t *f; // pointer to fract passed in to ctor
-    image *im;    // pointer to image passed in to ctor
+    IImage *im;    // pointer to image passed in to ctor
     fract_callbacks *fcb; // callbacks for reporting progress
     pointFunc *pf; // function for calculating 1 point
 

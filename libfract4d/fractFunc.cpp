@@ -11,7 +11,7 @@ void worker(job_info_t& tdata, fractThreadFunc *pFunc)
 
 fractFunc::fractFunc(
     fractal_t *_f, 
-    image *_im, 
+    IImage *_im, 
     Gf4dFractal *_gf,
     fract_callbacks *_fcb)
 {

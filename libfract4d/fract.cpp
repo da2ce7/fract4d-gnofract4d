@@ -94,11 +94,6 @@ fractal::fractal()
     colorFuncs[INNER]=COLORFUNC_ZERO;
 }
 
-
-
-// this looks pointless but weirdly it won't link otherwise
-IFractal::~IFractal() {}
-
 /* dtor */
 fractal::~fractal()
 {
@@ -659,7 +654,7 @@ fractal::move(param_t i, double dist)
 }
 
 void
-fractal::calc(Gf4dFractal *gf, image *im, fract_callbacks *fcb)
+fractal::calc(Gf4dFractal *gf, IImage *im, fract_callbacks *fcb)
 {    
     if(eaa == AA_DEFAULT) 
     {
@@ -676,7 +671,7 @@ fractal::calc(Gf4dFractal *gf, image *im, fract_callbacks *fcb)
 }
 
 void 
-fractal::recolor(image *im)
+fractal::recolor(IImage *im)
 {
 
     pointFunc *p = pointFunc_new(
@@ -704,7 +699,7 @@ fractal::recolor(image *im)
 }
 
 d 
-fractal::tolerance(image *im)
+fractal::tolerance(IImage *im)
 {
     // 10% of the size of a pixel
     d t = params[MAGNITUDE]/(2 * std::max(im->Xres(),im->Yres()) * 10.0);
