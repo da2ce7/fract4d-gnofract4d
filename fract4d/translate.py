@@ -715,17 +715,17 @@ class ColorFunc(TBase):
         density = Var(Float, 0.0, -1)
         density.default = ir.Const(1.0,-1,fracttypes.Float)
         
-        self.symbols["@offset"] = Var(Float, 0.0, -1)
-        self.symbols["@density"] = density
+        self.symbols["@_offset"] = Var(Float, 0.0, -1)
+        self.symbols["@_density"] = density
         
         transfer = Stmlist(
             "", [ Assign(
             ID("#index",-1),
             Binop('+', 
                 Binop('*', 
-                   ID("@density",-1),
-                   Funcall("@transfer",[ID("#index",-1)],-1), -1),
-                ID("@offset",-1),-1),
+                   ID("@_density",-1),
+                   Funcall("@_transfer",[ID("#index",-1)],-1), -1),
+                ID("@_offset",-1),-1),
             -1)], -1)
         TBase.final(self,transfer)
         

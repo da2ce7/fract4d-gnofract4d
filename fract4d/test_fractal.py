@@ -262,7 +262,7 @@ colorlist=[
         
         f.set_outer("test.cfrm", "Triangle")
 
-        self.assertEqual(f.cfunc_params[0],[ 1.0e20, 1.0, 0.0, 2.0])
+        self.assertEqual(f.cfunc_params[0],[ 1.0, 0.0, 1.0e20, 2.0])
         
         cf0p = f.cfuncs[0].symbols.parameters()
         self.assertEqual(cf0p["t__a_bailout"].cname, "t__a_cf0bailout")
@@ -286,25 +286,25 @@ colorlist=[
         op2 = f.formula.symbols.order_of_params()
         self.assertEqual(op2, {
             't__a_bailout' : 0,
-            't__a_cf0bailout' : 1,
-            't__a_cf0density' : 2,
-            't__a_cf0offset' : 3,
+            't__a_cf0_density' : 1,
+            't__a_cf0_offset' : 2,
+            't__a_cf0bailout' : 3,
             't__a_cf0power' : 4,
-            't__a_cf1density' : 5,
-            't__a_cf1offset' : 6,
+            't__a_cf1_density' : 5,
+            't__a_cf1_offset' : 6,
             '__SIZE__' : 7
             })
         params = f.all_params()
-        self.assertEqual(params,[4.0,1.0e20,1.0, 0.0, 2.0, 1.0, 0.0])
+        self.assertEqual(params,[4.0,1.0, 0.0, 1.0e20, 2.0, 1.0, 0.0])
 
         # check for appropriate snippets in the code
         cg.output_decls(f.formula)
         c_code = cg.output_c(f.formula)
+
         self.assertNotEqual( # init
-            c_code.find("double t__a_cf0bailout = t__pfo->p[1]"),-1)
+            c_code.find("double t__a_cf0bailout = t__pfo->p[3]"),-1)
         self.assertNotEqual( # use
             c_code.find("log(t__a_cf0bailout)"),-1)
-        #print c_code
         
     def assertNearlyEqual(self,a,b):
         # check that each element is within epsilon of expected value
@@ -362,7 +362,7 @@ blue=0
 
         f1.compile()
         
-        self.assertEqual(f1.cfunc_params[0],[1.0e12, 1.0, 0.0, 3.0])
+        self.assertEqual(f1.cfunc_params[0],[1.0, 0.0, 1.0e12, 3.0])
         self.assertEqual(f1.get_func_value("@myfunc",f1.cfuncs[1]),"sqrt")
         
         # save again

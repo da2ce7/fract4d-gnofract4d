@@ -49,6 +49,17 @@ final:
 	#index = index_of_closest_point /256.0
 }
 
+tdis {
+init:
+	lastz = z
+	float dist = 0.0
+loop:
+	dist = dist + sqrt(|z-lastz|)
+	lastz = z
+final:
+	#index = dist / 256.0
+}
+
 zmag {
 final:
 	#index = (|z| * #numiter/2.0 + 1)/256.0

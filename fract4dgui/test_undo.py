@@ -41,11 +41,11 @@ class UndoTest(unittest.TestCase):
         self.undo_cb_status = Status()
         self.redo_cb_status = Status()
         
-        def inc_status():
-            status.count += 1
+        def inc_status(x):
+            status.count += x
             
-        def dec_status():
-            status.count -= 1
+        def dec_status(x):
+            status.count -= x
 
         def set_undoable(sequence,state):
             #print "undo_status: %s" % state
@@ -72,8 +72,8 @@ class UndoTest(unittest.TestCase):
         self.assertEqual(len(undoer.history),0)
         
         # perform an action
-        inc_status()
-        undoer.do(inc_status,dec_status)
+        inc_status(1)
+        undoer.do(inc_status,1,dec_status,1)
         
         self.assertEqual(status.count,1)
         self.assertUndoStatus(undoer,True,False)        
@@ -105,26 +105,26 @@ class UndoTest(unittest.TestCase):
     def testUndoAndRedoAreAssociated(self):
         status = Status()
 
-        def inc_status():
-            status.count += 1
+        def inc_status(x):
+            status.count += x
             
-        def dec_status():
-            status.count -= 1
+        def dec_status(x):
+            status.count -= x
 
-        def make_status_string():
-            status.count = "foo"
+        def make_status_string(s):
+            status.count = s
 
-        def make_status_int():
-            status.count = 1
+        def make_status_int(i):
+            status.count = i
                     
         self.assertEqual(status.count,0)
 
         # create sequence
         undoer = undo.Sequence()
-        inc_status()
-        undoer.do(inc_status,dec_status)
-        make_status_string()
-        undoer.do(make_status_string, make_status_int)
+        inc_status(1)
+        undoer.do(inc_status,1,dec_status,1)
+        make_status_string("foo")
+        undoer.do(make_status_string, "foo", make_status_int, 1)
 
         self.assertEqual(status.count,"foo")
         undoer.undo()
@@ -135,32 +135,36 @@ class UndoTest(unittest.TestCase):
     def testDoRemovesRedoStack(self):
         status = Status()
 
-        def inc_status():
-            status.count += 1
+        def inc_status(x):
+            status.count += x
             
-        def dec_status():
-            status.count -= 1
+        def dec_status(x):
+            status.count -= x
                     
         self.assertEqual(status.count,0)
 
         # perform 3 actions, undo 2, do 1 again
         undoer = undo.Sequence()
-        inc_status()
-        undoer.do(inc_status,dec_status)
-        inc_status()
-        undoer.do(inc_status,dec_status)
-        inc_status()
-        undoer.do(inc_status,dec_status)
+        inc_status(1)
+        undoer.do(inc_status,1,dec_status,1)
+        inc_status(1)
+        undoer.do(inc_status,1,dec_status,1)
+        inc_status(1)
+        undoer.do(inc_status,1,dec_status,1)
         undoer.undo()
         undoer.undo()
         self.assertEqual(status.count,1)
 
-        inc_status()
-        undoer.do(inc_status,dec_status)
+        inc_status(1)
+        undoer.do(inc_status,1,dec_status,1)
         self.assertEqual(len(undoer.history),2)
         self.assertEqual(undoer.can_redo(), False)
         self.assertEqual(status.count,2)
 
+        # undo again, check we're back where we started
+        undoer.undo()
+        self.assertEqual(status.count,1)
+        
     def testInvalidOperationsThrow(self):
         undoer = undo.Sequence()
         self.assertRaises(ValueError,undoer.undo)

@@ -121,10 +121,10 @@ class FctTest(unittest.TestCase):
 
         names = [x.get_text() for x in children if isinstance(x,gtk.Label)]
 
-        self.assertEqual(names[0],"density")
-        self.assertEqual(names[1],"myfunc")
-        self.assertEqual(names[2],"offset")
-        self.assertEqual(names[3],"transfer")
+        self.assertEqual(names[0],"_density")
+        self.assertEqual(names[1],"_offset")
+        self.assertEqual(names[2],"_transfer")
+        self.assertEqual(names[3],"myfunc")
         self.assertEqual(names[4],"val")
 
     def testButton1(self):
