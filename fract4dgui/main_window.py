@@ -13,12 +13,15 @@ from fract4d import fractal,fc,fract4dc
 
 import gtkfractal, model, preferences, autozoom, settings, toolbar
 import colors, undo, browser, fourway, angle, utils, hig
+import icons
 
 class MainWindow:
     def __init__(self):
         self.quit_when_done =False
         self.save_filename = None
         # window widget
+
+        self.set_icon()
         
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
@@ -86,16 +89,12 @@ class MainWindow:
         self.f.set_saved(True)
         
     def set_icon(self):
-        # currently disabled because set_icon_list doesn't exist on RH8
-        icon = utils.find_resource(
-            "gnofract4d-logo.png",
-            "pixmaps",
-            "share/pixmaps/gnofract4d")
+        try:
+            gtk.window_set_default_icon_list([icons.logo.pixbuf])
+        except Exception,err:
+            # not supported in this pygtk. Oh well...
+            pass
         
-        if icon:
-            pixbuf = gtk.gdk.pixbuf_new_from_file(icon)
-            self.window.set_icon_list(pixbuf)
-
     def update_subfract_visibility(self,visible):
         if visible:
             for f in self.subfracts:
@@ -435,16 +434,9 @@ class MainWindow:
         # deepen/resize
         self.toolbar.add_space()
         
-        image = gtk.Image()
-        image.set_from_file(
-            utils.find_resource('deepen_now.png',
-                                'pixmaps',
-                                'share/pixmaps/gnofract4d'))
-
-        self.toolbar.add_button(
-            _("Deepen"),
+        self.toolbar.add_stock(
+            icons.deepen_now.stock_name,
             _("Double the maximum number of iterations"),
-            image,
             self.deepen_now)
 
         res_menu = self.create_resolution_menu()
@@ -474,22 +466,9 @@ class MainWindow:
         # explorer mode widgets
         self.toolbar.add_space()
 
-        pixbuf = gtk.gdk.pixbuf_new_from_file(
-            utils.find_resource('explorer_mode.png',
-                                'pixmaps',
-                                'share/pixmaps/gnofract4d'))
-
-        iconset = gtk.IconSet(pixbuf)
-        iconfactory = gtk.IconFactory()
-        iconfactory.add("explorer", iconset)
-        iconfactory.add_default()
-
-        gtk.stock_add(
-            [("explorer", _("Explore"), gtk.gdk.CONTROL_MASK, ord( "e"), "c")])
-                            
         self.toolbar.add_toggle(
-            "explorer",
-            _("Explore"),
+            icons.explorer.stock_name,
+            icons.explorer.title,
             _("Toggle Explorer Mode"),
             self.toolbar_toggle_explorer)
         
