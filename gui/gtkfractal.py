@@ -247,7 +247,6 @@ class T(gobject.GObject):
 
         def set_selected_function(*args):
             try:
-                print name
                 selected_func_name = self.f.get_func_value(name)
                 index = menu.funclist.index(selected_func_name)
             except ValueError, err:
@@ -265,7 +264,9 @@ class T(gobject.GObject):
                 
         set_selected_function()
         
-        self.connect('parameters-changed',set_selected_function)
+        widget.handler_id = self.connect(
+            'parameters-changed',set_selected_function)
+        
         widget.connect('changed',set_fractal_function)
         
         table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL,0,2,2)
@@ -340,9 +341,10 @@ class T(gobject.GObject):
     def save_image(self,filename):
         fract4dguic.image_save(self.image,filename)
         
-    def draw_image(self):
+    def draw_image(self,aa):
         self.interrupt()
         self.f.compile()
+        self.f.antialias = aa
         self.draw(self.image,self.width,self.height,self.nthreads)
         return gtk.FALSE
 

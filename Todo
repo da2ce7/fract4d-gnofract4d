@@ -8,13 +8,11 @@ todo for 2.0
 * BB	novamount.fct
 * BB	seaslug.fct
 * BB	skull_fairy.fct
-* BB	lattice.fct - 1.9 is wrong too!
 * B	differences vs Fractint with fn(z)+c: sqrt,cosh,exp,cos,cotan,cotanh,flip
 * B	fn1..4 appear in reverse order in dialog box
 * B	fractint doesn't reset vars between calls?
 * B	parse continuation lines correctly
 * BB	more robust error reporting
-* W	command-line arguments
 * W	explorer mode
 * WW	parameters for colorfuncs
 * W	last-chance exception handler
@@ -31,21 +29,21 @@ todo for 2.0
 * WW	Inner, Outer pages for settings notebook
 * W	fmod, tdis, bof60, bof61, other fractint colorfuncs
 * W	i18n, gettext
-* B	Reset changes antialiasing
 * W	keyboard shortcuts for all widgets
 * W	review human interface guidelines
 * B	undo/redo cause recompilation
 * W	make default fractal more interesting
-* B	starting colors dialog changes color scheme to 1st in list
-* B	defaults not applied when choose fractal
 * B	warnings for several fractal types
-* B	weird line breaks in "formula contains a fractint-style..."
-* B	mandelbar is a circle (?)
-* B	apply newton, nova -> unsubscriptable object in get_func_value
 * BB	auto-tolerance for older fractals
+* BB	lattice.fct - 1.9 is wrong too!
 * B	browser pops up whenever click on fractal
 
 done:
+* B	Reset changes antialiasing
+* B	mandelbar is a circle (?)
+* B	defaults not applied when choose fractal
+* B	weird line breaks in "formula contains a fractint-style..."
+* B	apply newton, nova -> unsubscriptable object in get_func_value
 * B	"(Untitled Mandelbrot)" name not updated when formula changed
 * W	formula browser: apply to current fractal
 * B	default size for browser is too small
@@ -77,6 +75,7 @@ done:
 * W	user parameter functions
 
 postponed
+* W	command-line arguments
 * WW	cmap browser
 * W	autosave/restore?
 * W	max size for .so cache

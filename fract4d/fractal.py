@@ -185,7 +185,8 @@ class T(FctUtils):
         self.cfuncs = [None,None]
         self.cfunc_names = [None,None]
         self.cfunc_files = [None,None]
-        
+
+        self.antialias = 1
         self.compiler = compiler
         self.outputfile = None
         self.funcFile = "gf4d.frm"
@@ -328,7 +329,6 @@ class T(FctUtils):
 
         self.bailout = 0.0
         self.maxiter = 256
-        self.antialias = 1
         self.rot_by = math.pi/2
         self.title = self.funcName
         
@@ -418,7 +418,7 @@ class T(FctUtils):
         self.set_func(func[0],val)            
 
     def get_func_value(self,func_to_get):
-        fname = self.formula.symbols.demangle(func_to_get)
+        fname = self.formula.symbols.demangle(func_to_get)        
         func = self.formula.symbols.get(fname)
         return func[0].cname
     

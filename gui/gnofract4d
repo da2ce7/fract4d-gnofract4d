@@ -85,9 +85,9 @@ class MainWindow:
         window.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
         
         f.connect('parameters-changed', self.on_fractal_change)
-        
-        f.draw_image()
 
+        self.draw()
+        
         window.set_size_request(640+2,480+2)
         window.add_with_viewport(self.f.widget)
         f.connect('progress_changed', self.progress_changed)
@@ -95,6 +95,10 @@ class MainWindow:
         
         self.vbox.pack_start(window)
 
+    def draw(self):
+        aa = preferences.userPrefs.getint("display","antialias")
+        self.f.draw_image(aa)
+        
     def update_compiler_prefs(self,prefs):
         # update compiler
         self.compiler.compiler_name = prefs.get("compiler","name")
@@ -106,14 +110,13 @@ class MainWindow:
                  prefs.getint("display","height"))
         self.f.set_size(w,h)
         self.f.set_auto_deepen(prefs.getboolean("display","autodeepen"))
-        self.f.set_antialias(prefs.getint("display","antialias"))
 
     def on_prefs_changed(self,prefs):
         self.f.freeze()
         self.update_compiler_prefs(prefs)
         self.update_image_prefs(prefs)
-        self.f.thaw()
-        self.f.draw_image()
+        if self.f.thaw():
+            self.draw()
 
     def set_window_title(self):
         if self.filename == None:
@@ -123,7 +126,7 @@ class MainWindow:
         self.window.set_title(title)
         
     def on_fractal_change(self,object):
-        self.f.draw_image()
+        self.draw()
         self.set_window_title()
         
     def set_filename(self,name):
