@@ -55,7 +55,40 @@ save_session_cb(GnomeClient* client, gint phase, GnomeSaveStyle save_style,
 	return TRUE;
 }
 
-void set_cb (GtkAdjustment *adj, gpointer user_data)
+void position_set_cb (GtkWidget *button, gpointer user_data)
+{
+	char buf[100];
+	double val;
+	double size;
+	set_cb_data *pdata = (set_cb_data *)user_data;
+	Gf4dFractal *f = model_get_fract(pdata->m);
+	char *current_val = gf4d_fractal_get_param(f ,pdata->pnum);
+
+	sscanf(current_val,"%lg",&val);
+	g_free(current_val);
+
+	current_val = gf4d_fractal_get_param(f,SIZE);
+	sscanf(current_val,"%lg",&size);
+	g_free(current_val);
+
+	/* z,w have more spectacular visual effects than x,y, 
+	   so do them more slowly */
+	if(pdata->pnum == XCENTER || pdata->pnum == YCENTER)
+	{
+		val += size/ 6.0 * pdata->dir;
+	}
+	else
+	{
+		val += size/ 12.0 * pdata->dir;
+	}
+	sprintf(buf,"%g",val);
+
+	model_cmd_start(pdata->m);
+	gf4d_fractal_set_param(f,pdata->pnum, buf);
+	model_cmd_finish(pdata->m);
+}
+
+void angle_set_cb (GtkAdjustment *adj, gpointer user_data)
 {
 	char buf[100];
 	set_cb_data *pdata = (set_cb_data *)user_data;
@@ -87,8 +120,6 @@ void redo_cb(GtkMenuItem *menuitem, gpointer user_data)
 	model_t *m = (model_t *)user_data;
 	model_redo(m);
 }
-
-void redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int height, int image_width);
 
 gboolean
 quit_cb(GtkWidget       *widget,
@@ -225,11 +256,10 @@ propertybox_apply(GnomePropertyBox *gnomepropertybox,
 
 	model_cmd_start(m);
 	f = model_get_fract(m);
-	/* FIXME: -ve combo_s? */
+
 	Xres_new = atoi(param_by_name(pb,"combo_entry_image_width"));
 	Yres_new = atoi(param_by_name(pb,"combo_entry_image_height"));
 
-	gf4d_fractal_freeze(f);
 	gf4d_fractal_set_max_iterations(f,atoi(param_by_name(pb,"combo_entry_max_iterations")));
 	for(i = 0; i < N_PARAMS; i++)
 	{
@@ -263,7 +293,6 @@ propertybox_apply(GnomePropertyBox *gnomepropertybox,
 		gf4d_fractal_set_cmap_file(f,file);
 		g_free(file);
 	}
-	gf4d_fractal_thaw(f);
 	model_cmd_finish(m);
 }
 
@@ -285,7 +314,7 @@ propertybox_destroy (GtkObject *gnomepropertybox, gpointer user_data)
 }
 
 
-void 
+static void 
 redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int height, int image_width)
 {
 	gdk_draw_rgb_image(widget->window,
@@ -433,94 +462,10 @@ message_callback(Gf4dFractal *m, gint val, void *user_data)
 	gnome_appbar_push((GnomeAppBar *)user_data, msg);
 }
 
-static void
-toggle_visibility(GtkWidget *item)
-{
-	if(GTK_WIDGET_VISIBLE(item)) {
-		gtk_widget_hide(item);
-	} else {
-		gtk_widget_show(item);
-	}
-}
-
-static void
-hide_dock_item(char *name)
-{
-	GtkWidget *dock = GNOME_APP(app)->dock;
-	GnomeDockPlacement place;
-	guint band,pos,off;
-	GnomeDockItem *item = 
-		gnome_dock_get_item_by_name(GNOME_DOCK(dock),name,
-					    &place,&band,&pos,&off);
-	
-	toggle_visibility(GTK_WIDGET(item));
-}
-
-int g_x;
-
-void
-hide_move_toolbar_cb(GtkMenuItem *widget, gpointer user_data)
-{
-	GtkWidget *dock = GNOME_APP(app)->dock;
-	static GnomeDockPlacement place;
-	static guint band,pos,off;
-	GnomeDockItem *item = 
-		gnome_dock_get_item_by_name(GNOME_DOCK(dock),"move",
-					    &place,&band,&pos,&off);
-
-	if(item) {
-		GnomeDockLayout *layout = gnome_dock_get_layout(GNOME_DOCK(dock));
-		g_x = gnome_dock_layout_remove_item_by_name(GNOME_DOCK_LAYOUT(layout),
-						      "move");
-	} else {
-		gnome_app_add_toolbar(GNOME_APP (app), 
-				      GTK_TOOLBAR(toolbar_move),
-				      "move",
-				      GNOME_DOCK_ITEM_BEH_NORMAL,
-				      place,
-				      band,pos,off);
-	}
-	gtk_item_toggle(GTK_ITEM(widget));
-}
-
-void
-hide_main_toolbar_cb(GtkMenuItem *widget, gpointer user_data)
-{
-	gtk_item_toggle(GTK_ITEM(widget));
-	hide_dock_item("main");
-}
-
-void
-hide_status_bar_cb(GtkMenuItem *widget, gpointer user_data)
-{
-	gtk_item_toggle(GTK_ITEM(widget));
-}
-
-void
-full_screen_cb(GtkWidget *widget, gpointer user_data)
-{
-	static gboolean enlarged=0;
-	static int x=0, y=0, w=0, h=0;
-	if(enlarged) {
-		gdk_window_move_resize(app->window,x,y,w,h);
-		enlarged=0;
-	} else {
-		gdk_window_get_root_origin(app->window,&x,&y);
-		gdk_window_get_size(app->window,&w,&h);
-		gdk_window_move_resize(app->window,0,0,gdk_screen_width(), gdk_screen_height());
-		enlarged=1;
-	}
-}
-
 void 
 progress_callback(Gf4dFractal *f,gfloat percentage, void *user_data)
 {
 	gnome_appbar_set_progress((GnomeAppBar *)user_data,percentage);
-
-	/* allows interaction during calculation 
-	while (gtk_events_pending())
-		gtk_main_iteration();
-	*/
 }
 
 void 
@@ -625,7 +570,7 @@ color_picker_cb(GnomeColorPicker *colorpicker,
 void
 color_type_changed(GtkToggleButton *button, gpointer user_data)
 {
-	GtkWidget *widget = GTK_WIDGET(user_data); // 
+	GtkWidget *widget = GTK_WIDGET(user_data);  
 	gboolean b_is_set = gtk_toggle_button_get_active(button);
 	gtk_widget_set_sensitive(widget,b_is_set);
 }

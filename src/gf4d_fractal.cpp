@@ -58,10 +58,6 @@ gf4d_fractal_init (Gf4dFractal *f)
 	f->f = new fractal();
 	f->im = new image();
 
-	f->freeze_depth = 0;
-	f->interrupted=FALSE;
-	f->change_pending=FALSE;
-	f->sensitive=TRUE;
 	f->tid=0;
 	f->workers_running=0;
 	pthread_mutex_init(&f->lock,NULL);
@@ -119,7 +115,6 @@ try_finished_cond(Gf4dFractal *f)
 	if(f->workers_running==0) 
 	{
 		// we've been signalled
-		//g_print("finished\n");
 		throw(1);
 	}
 }
@@ -268,28 +263,26 @@ calculation_thread(void *vdata)
 {
 	Gf4dFractal *f = (Gf4dFractal *)vdata;
 
-	gf4d_fractal_lock(f);
 	set_started_cond(f);
-	gf4d_fractal_unlock(f);
+
 	try {
 		f->f->calc(f,f->im);	
 	}
 	catch(...)
 	{
-		//g_print("interrupted\n");
+
 	}
 	return NULL;
 }
 
 void gf4d_fractal_calc(Gf4dFractal *f)
 {
-	//g_print("calculating\n");
-
 	kill_slave_threads(f);
 
 	if(pthread_create(&f->tid,NULL,calculation_thread,(void *)f))
 	{
-		g_print("Error, couldn't start thread\n");
+		g_warning("Error, couldn't start thread\n");
+		return;
 	}
 	
 	// check that it really has started (and set workers) before returning
@@ -457,27 +450,16 @@ gchar *gf4d_fractal_get_cmap_file(Gf4dFractal *f)
 {
 	return f->f->get_cmap_file();
 }
-void gf4d_fractal_freeze(Gf4dFractal *f)
-{
-
-}
-
-void gf4d_fractal_thaw(Gf4dFractal *f)
-{
-
-}
 
 /* stop calculating now! */
 void gf4d_fractal_interrupt(Gf4dFractal *f)
 {
 	kill_slave_threads(f);
-	// f->f->finish();
 }
 
 void 
 gf4d_fractal_parameters_changed(Gf4dFractal *f)
 {
-	//g_print("parameters changed: emit\n");
 	gtk_signal_emit(GTK_OBJECT(f), fractal_signals[PARAMETERS_CHANGED]); 
 }
 
@@ -536,7 +518,4 @@ void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val)
 	gf4d_fractal_leave_callback(f);
 }
 
-int gf4d_fractal_is_interrupted(Gf4dFractal *f)
-{
-	return f->interrupted;
-}
+

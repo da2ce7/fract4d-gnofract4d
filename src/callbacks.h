@@ -30,6 +30,7 @@ typedef struct {
 	model_t *m;
 	param_t pnum;
 	GtkAdjustment *adj;
+	gint dir;
 } set_cb_data;
 		
 gboolean
@@ -111,7 +112,8 @@ double parameter_by_name(GtkWidget *pb, gchar *name);
 void do_nothing_cb(GtkButton *button,gpointer user_data);
 void set_down_cb(GtkToggleButton *button, gpointer user_data);
 
-void set_cb (GtkAdjustment *adj, gpointer user_data);
+void position_set_cb (GtkWidget *widget, gpointer user_data);
+void angle_set_cb(GtkAdjustment *adj, gpointer user_data);
 
 gchar *param_by_name(GtkWidget *pb, 
 		     gchar *name);

@@ -25,7 +25,6 @@ GtkWidget* create_save_param (model_t *);
 GtkWidget* create_load_param (model_t *);
 GtkWidget* create_propertybox (model_t *);
 GtkWidget* create_move_toolbar(model_t *);
-GtkWidget* create_main_toolbar(model_t *);
 GtkWidget* create_drawing_area(model_t *);
 
 void
@@ -58,8 +57,8 @@ create_entry_with_label(GtkWidget *propertybox,
 			      gchar *tip);
 
 GtkWidget* create_angle_button(char *text, int data, model_t *m);
-GtkWidget* create_param_slider(char *label_text, int data, model_t *m);
+GtkWidget* create_param_button(char *label_text, int data, model_t *m);
 
-GtkWidget* create_main_toolbar(model_t *m);
+
 
 

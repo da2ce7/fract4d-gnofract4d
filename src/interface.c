@@ -38,7 +38,6 @@
 GtkWidget *appbar1;
 GtkWidget *app;
 GtkWidget *toolbar_move;
-GtkWidget *toolbar_main;
 GtkWidget *propertybox=NULL;
   
 static GnomeUIInfo file1_menu_uiinfo[] =
@@ -88,33 +87,10 @@ static GnomeUIInfo help1_menu_uiinfo[] =
 	GNOMEUIINFO_END
 };
 
-/* not implemented yet 
-static GnomeUIInfo view_menu_uiinfo[] =
-{
-	GNOMEUIINFO_TOGGLEITEM(N_("Hide/Show Mo_ve Toolbar"),
-			       NULL,hide_move_toolbar_cb,NULL),
-	GNOMEUIINFO_TOGGLEITEM(N_("Hide/Show _Main Toolbar"),
-			       NULL,hide_main_toolbar_cb,NULL),
-	GNOMEUIINFO_TOGGLEITEM(N_("Hide/Show _Status Bar"),
-			       NULL,hide_status_bar_cb,NULL),
-	{
-		GNOME_APP_UI_ITEM, N_("_Full Screen"),
-		NULL,
-		full_screen_cb, NULL, NULL,
-		GNOME_APP_PIXMAP_FILENAME, PACKAGE "/full_screen.png",
-		0, 'f', NULL
-	},
-
-
-	GNOMEUIINFO_END
-};
-*/
-
 static GnomeUIInfo menubar1_uiinfo[] =
 {
 	GNOMEUIINFO_MENU_FILE_TREE (file1_menu_uiinfo),
 	GNOMEUIINFO_MENU_SETTINGS_TREE (param_tres1_menu_uiinfo),
-	/* GNOMEUIINFO_MENU_VIEW_TREE(view_menu_uiinfo), */
 	GNOMEUIINFO_MENU_HELP_TREE (help1_menu_uiinfo),
 	GNOMEUIINFO_END
 };
@@ -139,7 +115,7 @@ create_angle_button(char *label_text, int data, model_t *m)
 	gtk_widget_show(angle);
 	
 	gtk_signal_connect(GTK_OBJECT(adjustment),"value_changed",
-			   set_cb, pdata );
+			   angle_set_cb, pdata );
 	
 	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)),"parameters_changed",
 			   adjustment_update_callback, pdata);	
@@ -147,67 +123,62 @@ create_angle_button(char *label_text, int data, model_t *m)
 }
 
 GtkWidget*
-create_param_slider(char *label_text, int data, model_t *m)
+create_param_button(char *label_text, int data, model_t *m)
 {
-	GtkWidget *angle;
-	GtkAdjustment *adjustment;
-	set_cb_data *pdata;
+	GtkWidget *left_button;
+	GtkWidget *right_button;
+	GtkWidget *vbox;
+	GtkWidget *hbox;
+	GtkWidget *label;
 
-	adjustment = GTK_ADJUSTMENT(gtk_adjustment_new(0, -2.0, 2.0, 0.01, 0.01, 0));
-	angle = gtk_hscale_new(adjustment);
+	set_cb_data *pdata_left;
+	set_cb_data *pdata_right;
 
-	pdata = g_new0(set_cb_data,1);
-	pdata->m = m;
-	pdata->pnum = data;
+	left_button = gtk_button_new_with_label("<<");
+	right_button = gtk_button_new_with_label(">>");
 
-	gtk_widget_show(angle);
-	
-	gtk_signal_connect(GTK_OBJECT(adjustment),"value_changed",
-			   set_cb, pdata );
+	hbox = gtk_hbox_new(1,0);
+	gtk_box_pack_start_defaults(GTK_BOX(hbox),left_button);
+	gtk_box_pack_start_defaults(GTK_BOX(hbox),right_button);
+
+	vbox = gtk_vbox_new(1,0);
+	label = gtk_label_new(label_text);
+	gtk_box_pack_start_defaults(GTK_BOX(vbox),label);
+	gtk_box_pack_start_defaults(GTK_BOX(vbox),hbox);
+
+	gtk_widget_show(vbox);
+	gtk_widget_show(hbox);
+	gtk_widget_show(left_button);
+	gtk_widget_show(right_button);
+	gtk_widget_show(label);
+
+	pdata_left = g_new0(set_cb_data,1);
+	pdata_left->m = m;
+	pdata_left->pnum = data;
+	pdata_left->dir= -1;
+
+	pdata_right = g_new0(set_cb_data,1);
+	pdata_right->m = m;
+	pdata_right->pnum = data;
+	pdata_right->dir = 1;
+
+	gtk_signal_connect(GTK_OBJECT(left_button),"clicked",
+			   position_set_cb, pdata_left );
+
+	gtk_signal_connect(GTK_OBJECT(right_button),"clicked",
+			   position_set_cb, pdata_right );
 			     
-	return angle;
-}
-
-GtkWidget*
-create_main_toolbar(model_t *m)
-{
-	GtkWidget *toolbar;
-	GtkWidget *undo_widget = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_UNDO);
-	GtkWidget *redo_widget = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_REDO);
-
-	model_make_undo_sensitive(m,undo_widget);
-	model_make_redo_sensitive(m,redo_widget);
-
-
-	toolbar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
-
-	gtk_toolbar_append_item (GTK_TOOLBAR(toolbar), 
-				 _("Undo"),
-				 _("Undo the last action"),
-				 NULL,
-				 undo_widget,
-				 undo_cb,
-				 m);
-
-	gtk_toolbar_append_item (GTK_TOOLBAR(toolbar), 
-				 _("Undo"),
-				 _("Undo the last action"),
-				 NULL,
-				 redo_widget,
-				 redo_cb,
-				 m);
-
-	//model_set_undo_status_callback(m,undo_status_callback,undo_widget);
-	//model_set_redo_status_callback(m,undo_status_callback,redo_widget);
-	return toolbar;
+	return vbox;
 }
 
 GtkWidget*
 create_move_toolbar (model_t *m)
 {
 	GtkWidget *toolbar;
+	GtkWidget *undo_widget;
+	GtkWidget *redo_widget;
 
-	toolbar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_BOTH);
+	toolbar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
 
 	gtk_toolbar_append_widget (GTK_TOOLBAR(toolbar),
 				   create_angle_button(_("xy"), XYANGLE, m),
@@ -238,21 +209,45 @@ create_move_toolbar (model_t *m)
 	gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 
 	gtk_toolbar_append_widget (GTK_TOOLBAR(toolbar),
-				   create_param_slider(_("x"), XCENTER, m),
+				   create_param_button(_("x"), XCENTER, m),
 				   _("X position"),
 				   NULL);
 	gtk_toolbar_append_widget (GTK_TOOLBAR(toolbar),
-				   create_param_slider(_("y"), YCENTER, m),
+				   create_param_button(_("y"), YCENTER, m),
 				   _("Y position"),
 				   NULL);
 	gtk_toolbar_append_widget (GTK_TOOLBAR(toolbar),
-				   create_param_slider(_("z"), ZCENTER, m),
+				   create_param_button(_("z"), ZCENTER, m),
 				   _("Z position"),
 				   NULL);
 	gtk_toolbar_append_widget (GTK_TOOLBAR(toolbar),
-				   create_param_slider(_("w"), WCENTER, m),
+				   create_param_button(_("w"), WCENTER, m),
 				   _("W position"),
 				   NULL);
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+
+	undo_widget = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_UNDO);
+	redo_widget = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_REDO);
+
+	model_make_undo_sensitive(m,undo_widget);
+	model_make_redo_sensitive(m,redo_widget);
+
+	gtk_toolbar_append_item (GTK_TOOLBAR(toolbar), 
+				 _("Undo"),
+				 _("Undo the last action"),
+				 NULL,
+				 undo_widget,
+				 undo_cb,
+				 m);
+
+	gtk_toolbar_append_item (GTK_TOOLBAR(toolbar), 
+				 _("Redo"),
+				 _("Redo the last action"),
+				 NULL,
+				 redo_widget,
+				 redo_cb,
+				 m);
 
 	return toolbar;
 }
@@ -312,10 +307,8 @@ create_app (model_t *m)
 	gnome_app_create_menus_with_data (GNOME_APP (app), menubar1_uiinfo, m);
 
 	toolbar_move = create_move_toolbar(m);
-	toolbar_main = create_main_toolbar(m);
 
 	gtk_widget_ref(toolbar_move);
-	gtk_widget_ref(toolbar_main);
 
 	gnome_app_add_toolbar(GNOME_APP (app), 
 			      GTK_TOOLBAR(toolbar_move),
@@ -323,13 +316,6 @@ create_app (model_t *m)
 			      GNOME_DOCK_ITEM_BEH_NORMAL,
 			      GNOME_DOCK_TOP,
 			      1,0,0);
-
-	gnome_app_add_toolbar(GNOME_APP (app), 
-			      GTK_TOOLBAR(toolbar_main),
-			      "main",
-			      GNOME_DOCK_ITEM_BEH_NORMAL,
-			      GNOME_DOCK_TOP,
-			      1,1,0);
 
 	appbar1 = gnome_appbar_new (TRUE, TRUE, GNOME_PREFERENCES_NEVER);
 	gtk_widget_show (appbar1);
@@ -373,11 +359,6 @@ create_app (model_t *m)
 			   GTK_SIGNAL_FUNC(redraw_callback),
 			   m);
 
-	/* FIXME: causes an endless loop
-	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)), "parameters_changed",
-			   GTK_SIGNAL_FUNC(resize_callback),
-			   scrolledwindow1);
-	*/
 	gtk_signal_connect (GTK_OBJECT (app), "delete_event",
 			    GTK_SIGNAL_FUNC (quit_cb),
 			    NULL);

@@ -31,10 +31,6 @@ typedef struct _Gf4dFractalClass Gf4dFractalClass;
 struct _Gf4dFractal
 {
 	GtkObject object;	
-	gint freeze_depth;
-	gboolean change_pending;
-	gboolean interrupted;
-	gboolean sensitive;
 	fractal_t *f;
 	image_t *im;
 	pthread_t tid;
@@ -72,10 +68,6 @@ gboolean gf4d_fractal_get_aa(Gf4dFractal *f);
 int gf4d_fractal_get_auto(Gf4dFractal *f);
 char *gf4d_fractal_get_param(Gf4dFractal *f, param_t i);
 
-/* to update several things at once, first call freeze, then thaw when done */
-void gf4d_fractal_freeze(Gf4dFractal *f);
-void gf4d_fractal_thaw(Gf4dFractal *f);
-
 /* stop calculating now! */
 void gf4d_fractal_interrupt(Gf4dFractal *f);
 
@@ -109,15 +101,11 @@ char *gf4d_fractal_get_image(Gf4dFractal *f);
 double gf4d_fractal_get_ratio(Gf4dFractal *f);
 int  gf4d_fractal_set_resolution(Gf4dFractal *f, int xres, int yres);
 
-void gf4d_fractal_realloc_image(Gf4dFractal *f);
-void gf4d_fractal_delete_image(Gf4dFractal *f);
-
 /* functions used only by calc.cpp : to be removed */
 void gf4d_fractal_parameters_changed(Gf4dFractal *f);
 void gf4d_fractal_image_changed(Gf4dFractal *f, int x1, int x2, int y1, int y2);
 void gf4d_fractal_progress_changed(Gf4dFractal *f, float progress);
 void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val);
-int  gf4d_fractal_is_interrupted(Gf4dFractal *f);
 
 /* sneaky functions */
 fractal_t *gf4d_fractal_copy_fract(Gf4dFractal *f);
