@@ -34,7 +34,7 @@ set_cpath_cb(GtkEntry *e, GdkEventFocus *, gpointer user_data)
     model_t *m = (model_t *)(m);
     const gchar *text = gtk_entry_get_text(e);
     model_set_compiler_location(m,text);
-    return TRUE;
+    return FALSE;
 }
 
 gboolean
@@ -43,7 +43,7 @@ set_cflags_cb(GtkEntry *e, GdkEventFocus *, gpointer user_data)
     model_t *m = (model_t *)(m);
     const char *text = gtk_entry_get_text(e);
     model_set_compiler_flags(m,text,true);
-    return TRUE;
+    return FALSE;
 }
 
 void
