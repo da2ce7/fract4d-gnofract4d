@@ -50,10 +50,17 @@ class Test(unittest.TestCase):
         self.assertFractalSegmentsEqualEditorSegments(c)
 
         c.selected_segment = 0
-        alpha = c.grad.segments[0].left_color[3]
+        alpha_l = c.grad.segments[0].left_color[3]
+        alpha_r = c.grad.segments[0].right_color[3]
+        
         c.color_changed(0.3,0.4,0.5,True)
+        c.color_changed(0.8,0.5,0.3,False)
+        
         self.assertEqual(c.grad.segments[0].left_color,
-                         [0.3, 0.4, 0.5, alpha])
+                         [0.3, 0.4, 0.5, alpha_l])
+
+        self.assertEqual(c.grad.segments[0].right_color,
+                         [0.8, 0.5, 0.3, alpha_r])
 
     def testApply(self):
         c = colors.ColorDialog(None,self.f)
