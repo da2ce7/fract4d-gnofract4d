@@ -302,3 +302,38 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     reset_progress(1.0);
 }
 
+void 
+calc(	
+    d *params,
+    int eaa,
+    int maxiter,
+    int nThreads,
+    pf_obj *pfo, 
+    cmap_t *cmap, 
+    bool auto_deepen,
+    IImage *im, 
+    IFractalSite *site)
+{
+    IFractWorker *worker = IFractWorker::create(nThreads,pfo,cmap,im);
+
+    if(worker && worker->ok())
+    {
+	site->status_changed( GF4D_FRACTAL_CALCULATING);	
+	fractFunc ff(
+	    params, 
+	    eaa,
+	    maxiter,
+	    nThreads,
+	    auto_deepen,
+	    worker,
+	    im,
+	    site);
+
+	ff.draw_all();
+    }
+
+    site->status_changed( GF4D_FRACTAL_DONE);	
+
+    delete worker;
+	
+}

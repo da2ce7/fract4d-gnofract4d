@@ -71,7 +71,16 @@ struct s_pf_data {
 typedef struct s_pf_vtable pf_vtable;
 typedef struct s_pf_data pf_obj;
 
-/* create a new pf_obj.*/ 
+/* create a new pf_obj.*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+ 
 extern pf_obj *pf_new(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PF_H_ */

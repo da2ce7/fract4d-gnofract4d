@@ -8,6 +8,7 @@
 
 #include "pf.h"
 #include "cmap.h"
+#include "fractFunc.h"
 
 /* not sure why this isn't defined already */
 #ifndef PyMODINIT_FUNC 
@@ -284,6 +285,46 @@ cmap_pylookup(PyObject *self, PyObject *args)
     pyret = Py_BuildValue("iiii",color.r,color.g,color.b,color.a);
 
     return pyret;
+}
+
+static 
+PyObject *pycalc(PyObject *self, PyObject *args)
+{
+    PyObject *pypfo, *pycmap, *pyim, *pysite;
+    double params[N_PARAMS];
+    int eaa, maxiter, nThreads;
+    bool auto_deepen;
+    pf_obj *pfo;
+    cmap_t *cmap;
+    IImage *im;
+    IFractalSite *site;
+
+    if(!PyArg_ParseTuple(
+	   "(dddddddddddd)iiiOOiOO",
+	   &params[0],&params[1],&params[2],&params[3],
+	   &params[4],&params[5],&params[6],&params[7],
+	   &params[8],&params[9],&params[10],&params[11],
+	   &eaa,&maxiter,&nThreads,
+	   &pypfo,&pycmap,
+	   &auto_deepen,
+	   &pyim, &pysite
+	   ))
+    {
+	return NULL;
+    }
+
+    cmap = PyCObject_AsVoidPtr(pycmap);
+    pfo = PyCObject_AsVoidPtr(pypfo);
+    im = PyCObject_AsVoidPtr(pyim);
+    site = PyCObject_AsVoidPtr(pysite);
+    if(!cmap || !pfo || !im || !site)
+    {
+	return NULL;
+    }
+
+    calc(params,eaa,maxiter,nThreads,pfo,cmap,auto_deepen,im,site);
+
+    return Py_None;
 }
 
 static PyMethodDef PfMethods[] = {

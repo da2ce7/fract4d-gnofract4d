@@ -94,24 +94,28 @@ class fractFunc {
     // see if we need to auto-deepen
     enum { AUTO_DEEPEN_FREQUENCY = 30 };
 
-    // for callbacks
-    IFractalSite *site;
-
+    // used for calculating (x,y,z,w) pixel coords
     dmat4 rot; // scaled rotation matrix
     dvec4 deltax, deltay; // step from 1 pixel to the next in x,y directions
     dvec4 delta_aa_x, delta_aa_y; // offset between subpixels
     dvec4 topleft; // top left corner of screen
     dvec4 aa_topleft; // topleft - offset to 1st subpixel to draw
+    d ddepth;     
 
-    int depth;    // antialias depth
+    // params from ctor
+    int depth;    
     int eaa;
     int maxiter;
     int nThreads;
     bool auto_deepen;
-
     d *params;
 
-    d ddepth;     // double version of antialias depth
+    IImage *im;    
+    IFractWorker *worker;
+    // for callbacks
+    IFractalSite *site;
+
+    // auto-deepening support
 
     // n pixels correctly classified that would be wrong 
     // if we halved iterations
@@ -124,12 +128,7 @@ class fractFunc {
     // last time we redrew the image to this line
     int last_update_y; 
 
-
-    IImage *im;    // pointer to image passed in to ctor
-    pointFunc *pf; // function for calculating 1 point
-
-    IFractWorker *worker;
-
+    // private drawing methods
     void send_quit();
 
     // redraw the image to this line
@@ -147,5 +146,24 @@ class fractFunc {
     // reset image
     void clear();
 };
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern void calc(	
+    d *params,
+    int eaa,
+    int maxiter,
+    int nThreads_,
+    pf_obj *pfo, 
+    cmap_t *cmap, 
+    bool auto_deepen,
+    IImage *im, 
+    IFractalSite *site);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _FRACTFUNC_H_ */
