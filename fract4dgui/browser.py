@@ -30,6 +30,7 @@ def update():
     
 class BrowserDialog(gtk.Dialog):
     RESPONSE_EDIT = 1
+    RESPONSE_REFRESH = 2
     def __init__(self,main_window,f):
         gtk.Dialog.__init__(
             self,
@@ -37,6 +38,7 @@ class BrowserDialog(gtk.Dialog):
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (_("_Edit..."), BrowserDialog.RESPONSE_EDIT,
+             _("_Refresh"), BrowserDialog.RESPONSE_REFRESH,
              gtk.STOCK_APPLY, gtk.RESPONSE_APPLY,
              gtk.STOCK_OK, gtk.RESPONSE_OK,
              gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
@@ -74,6 +76,8 @@ class BrowserDialog(gtk.Dialog):
             self.hide()
         elif id == BrowserDialog.RESPONSE_EDIT:
             self.onEdit()
+        elif id == BrowserDialog.RESPONSE_REFRESH:
+            self.onRefresh()
         else:
             print "unexpected response %d" % id
 
@@ -81,6 +85,10 @@ class BrowserDialog(gtk.Dialog):
         editor = preferences.userPrefs.get("editor","name")
         file = self.compiler.find_file(self.current_fname)
         os.system("%s %s &" % (editor, file))
+
+    def onRefresh(self):
+        self.f.refresh()
+        self.set_file(self.current_fname) # update text window
         
     def onApply(self):
         self.f.freeze()
@@ -291,8 +299,13 @@ class BrowserDialog(gtk.Dialog):
         if iter == None:
             return
         
-        self.current_fname = model.get_value(iter,0)
+        fname = model.get_value(iter,0)
+        self.set_file(fname)
+        
+    def set_file(self,fname):
+        self.current_fname = fname
         text = self.compiler.files[self.current_fname].contents
+        self.clear_selection()
         self.sourcetext.get_buffer().set_text(text,-1)
         self.populate_formula_list(self.current_fname)
         self.set_edit_sensitivity()
@@ -300,7 +313,6 @@ class BrowserDialog(gtk.Dialog):
     def clear_selection(self):
         self.text.get_buffer().set_text("",-1)
         self.transtext.get_buffer().set_text("",-1)
-        self.sourcetext.get_buffer().set_text("",-1)
         self.msgtext.get_buffer().set_text("",-1)
         self.disable_apply()
         

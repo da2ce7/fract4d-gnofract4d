@@ -441,6 +441,7 @@ default:
 float param bailout
 	default = 4.0
 endparam
+zwcenter = (0.3,0.2)
 }
 
 T03-01-G4 {; based on T03-01 in CHBY1.FRM by Morgan L. Owens
@@ -457,4 +458,6 @@ default:
 float param bailout
 	default = 4.0
 endparam
+zwcenter = (0.02,0.01)
 }
+
