@@ -20,6 +20,7 @@ import getopt
 import sys
 import commands
 import os.path
+import random
 
 import fractparser
 import fractlexer
@@ -33,7 +34,45 @@ class FormulaFile:
         self.contents = contents
     def get_formula(self,formula):
         return self.formulas.get(formula)
-    
+
+class Fractal:
+    def __init__(self, compiler):
+        self.formula = None
+        self.cfuncs = [None,None]
+        self.compiler = compiler
+        self.outputfile = None
+
+    def __del__(self):
+        if self.outputfile:
+            os.remove(self.outputfile)
+        
+    def set_formula(self,formulafile,func):
+        self.formula = self.compiler.get_formula(formulafile,func)
+        if self.formula == None:
+            raise ValueError("no such formula: %s:%s" % (formulafile, func))
+        
+    def set_inner(self,funcfile,func):
+        self.cfuncs[0] = self.compiler.get_colorfunc(funcfile,func,"cf0")
+        if self.cfuncs[0] == None:
+            raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
+
+    def set_outer(self,funcfile,func):
+        self.cfuncs[1] = self.compiler.get_colorfunc(funcfile,func,"cf1")
+        if self.cfuncs[1] == None:
+            raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
+
+    def compile(self):
+        if self.formula == None:
+            raise ValueError("no formula")
+        cg = self.compiler.compile(self.formula)
+        self.compiler.compile(self.cfuncs[0])
+        self.compiler.compile(self.cfuncs[1])
+
+        self.formula.merge(self.cfuncs[0],"cf0")
+        self.formula.merge(self.cfuncs[1],"cf1")        
+        self.outputfile = self.compiler.generate_code(self.formula, cg)
+        return self.outputfile
+                                    
 class Compiler:
     def __init__(self):
         self.parser = fractparser.parser
@@ -63,8 +102,12 @@ class Compiler:
         cg = codegen.T(ir.symbols)
         cg.output_all(ir)
         return cg
+
+    def makefilename(self):
+        # FIXME
+        return "fract%d.so" % random.randrange(0,sys.maxint)
     
-    def generate_code(self,ir, cg, outputfile,cfile=None):
+    def generate_code(self,ir, cg, outputfile=None,cfile=None):
         cg.output_decls(ir)
         self.c_code = cg.output_c(ir)
         
@@ -72,13 +115,18 @@ class Compiler:
         if cfile != None:
             open(cfile,"w").write(self.c_code)
         #print c_code
+
+        if outputfile == None:
+            outputfile = self.makefilename()
+            
         cmd = "gcc -Wall -fPIC -DPIC -g -O3 -shared %s -o %s -lm" % \
               (cFileName, outputfile)
         (status,output) = commands.getstatusoutput(cmd)
         if status != 0:
             raise fracttypes.TranslationError(
                 "Error reported by C compiler:%s" % output)
-        
+
+        return outputfile
 
     def get_formula(self, filename, formula):
         ff = self.files.get(os.path.basename(filename))
@@ -95,7 +143,6 @@ class Compiler:
         if ff == None : return None
         f = ff.get_formula(formula)
 
-        cf = None
         if f != None:
             f = translate.ColorFunc(f,name)
         return f
