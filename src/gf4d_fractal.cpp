@@ -1,6 +1,3 @@
-#define GTK_DISABLE_DEPRECATED 
-#define GNOME_DISABLE_DEPRECATED
-
 #include "gf4d_fractal.h"
 #include "image.h"
 #include <gtk/gtkmain.h>
