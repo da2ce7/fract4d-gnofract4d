@@ -169,30 +169,38 @@ class PfTest(unittest.TestCase):
             [(0.0,0,0,0,255),
              (1/256.0,255,255,255,255),
              (1.0, 255, 255, 255, 255)])
-        fract4d.async_calc(
-            [0.0, 0.0, 0.0, 0.0,
-             4.0,
-             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            0,
-            100,
-            1,
-            pfunc,
-            cmap,
-            0,
-            image,
-            site)
 
-        while True:
-            nb = 5*4
-            bytes = os.read(rfd,nb)
-            if len(bytes) < nb:
-                break
-            (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
-            m = self.name_of_msg[t] 
-            print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
-            if m == "STATUS" and p1 == 0:
-                #done
-                break
+        for x in xrange(10):
+            print x
+            fract4d.async_calc(
+                [0.0, 0.0, 0.0, 0.0,
+                 4.0,
+                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                0,
+                100,
+                1,
+                pfunc,
+                cmap,
+                0,
+                image,
+                site)
+
+            nrecved = 0
+            while True:
+                nb = 5*4
+                if nrecved == x:
+                    break
+                
+                bytes = os.read(rfd,nb)
+                if len(bytes) < nb:
+                    break
+                (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
+                m = self.name_of_msg[t] 
+                print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
+                if m == "STATUS" and p1 == 0:
+                    #done
+                    break
+                nrecved += 1
             
         fract4d.image_save(image,"test.tga")
         
