@@ -344,66 +344,6 @@ class T(FctUtils):
                 self.parseVal(name,val,f)
             
             line = f.readline()
-
-class Threaded(T):
-    def __init__(self,comp):
-        (r,w) = os.pipe()
-        self.readfd = r
-        s = fract4d.fdsite_create(w)
-        T.__init__(self,comp,s)
-        self.msgformat = "5i"
-        self.msgsize = struct.calcsize(self.msgformat)
-
-        self.name_of_msg = [
-            "PARAMS",
-            "IMAGE",
-            "PROGRESS",
-            "STATUS",
-            "PIXEL"
-            ]
-
-        self.skip_updates = False
-
-    def interrupt(self):
-        fract4d.interrupt(self.site)
-        self.skip_updates = True
-
-    def draw(self,image):
-        print "drawing with %s" % self.pfunc
-        self.cmap = fract4d.cmap_create(self.colorlist)
-        
-        fract4d.pf_init(self.pfunc,0.001,self.initparams)
-
-        self.skip_updates = False
-        fract4d.async_calc(self.params,self.antialias,self.maxiter,1,
-                           self.pfunc,self.cmap,1,image,self.site)
-
-    def onData(self,fd,condition):
-        #print "data!"
-        bytes = os.read(fd,self.msgsize)
-        if len(bytes) < self.msgsize:
-            print "bad message"
-            return
-
-        if self.skip_updates:
-            return
-        
-        (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
-        m = self.name_of_msg[t] 
-        #print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
-        if t == 0:
-            self.parameters_changed()
-        elif t == 1:
-            self.image_changed(p1,p2,p3,p4)
-        elif t == 2:
-            self.progress_changed(float(p1))
-        elif t == 3:
-            self.status_changed(p1)
-        elif t == 4:
-            # FIXME pixel_changed
-            pass
-        else:
-            raise Exception("Unknown message from fractal thread")
         
 if __name__ == '__main__':
     import sys

@@ -2,14 +2,14 @@
 #include <stdio.h>
 
 
-void
-fractFunc::update_matrix(double *params)
+dmat4
+rotated_matrix(double *params)
 {
     d one = d(1.0);
     d zero = d(0.0);
     dmat4 id = identity3D<d>(params[MAGNITUDE],zero);
 
-    rot = id * 
+    return id * 
         rotXY<d>(params[XYANGLE],one,zero) *
         rotXZ<d>(params[XZANGLE],one,zero) * 
         rotXW<d>(params[XWANGLE],one,zero) *
@@ -40,7 +40,7 @@ fractFunc::fractFunc(
     nThreads = nThreads_;
     auto_deepen = auto_deepen_;
 
-    update_matrix(params);
+    rot = rotated_matrix(params);
     rot = rot/im->Xres();
     deltax = rot[VX];
     deltay = rot[VY];

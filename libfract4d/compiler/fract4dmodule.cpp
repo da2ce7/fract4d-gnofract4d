@@ -11,6 +11,7 @@
 #include "cmap.h"
 #include "fractFunc.h"
 #include "image.h"
+#include "assert.h"
 
 /* not sure why this isn't defined already */
 #ifndef PyMODINIT_FUNC 
@@ -25,7 +26,7 @@ static void
 pf_unload(void *p)
 {
 #ifdef DEBUG_CREATION
-    printf("Unloading %p\n",p);
+    printf("%p : SO : DTOR\n",p);
 #endif
     dlclose(p);
 }
@@ -41,7 +42,7 @@ pf_load(PyObject *self, PyObject *args)
 
     void *dlHandle = dlopen(so_filename, RTLD_NOW);
 #ifdef DEBUG_CREATION
-    printf("Loading %p\n",dlHandle);
+    printf("%p : SO :CTOR\n",dlHandle);
 #endif
     if(NULL == dlHandle)
     {
@@ -63,7 +64,7 @@ pf_delete(void *p)
 {
     struct pfHandle *pfh = (struct pfHandle *)p;
 #ifdef DEBUG_CREATION
-    printf("deleting %p\n",pfh);
+    printf("%p : PF : DTOR\n",pfh);
 #endif
     pfh->pfo->vtbl->kill(pfh->pfo);
     Py_DECREF(pfh->pyhandle);
@@ -97,7 +98,7 @@ pf_create(PyObject *self, PyObject *args)
     pfh->pfo = p;
     pfh->pyhandle = pyobj;
 #ifdef DEBUG_CREATION
-    printf("created %p(%p)\n",pfh,pfh->pfo);
+    printf("%p : PF : CTOR (%p)\n",pfh,pfh->pfo);
 #endif
     // refcount module so it can't be unloaded before all funcs are gone
     Py_INCREF(pyobj); 
@@ -124,7 +125,6 @@ pf_init(PyObject *self, PyObject *args)
     }
 
     pfh = (struct pfHandle *)PyCObject_AsVoidPtr(pyobj);
-    /* printf("pfo:%p\n",pfo); */
 
     if(!PySequence_Check(pyarray))
     {
@@ -201,6 +201,7 @@ pf_calc(PyObject *self, PyObject *args)
     }
 
     pfh = (struct pfHandle *)PyCObject_AsVoidPtr(pyobj);
+    printf("%p : PF : CALC\n",pfh);
     pfh->pfo->vtbl->calc(pfh->pfo,params,
 		    nIters,nNoPeriodIters,
 		    x,y,aa,
@@ -468,7 +469,7 @@ struct calc_args
     calc_args()
 	{
 #ifdef DEBUG_CREATION
-	    printf("create calc_args %p\n",this);
+	    printf("%p : CA : CTOR\n",this);
 #endif
 	}
 
@@ -503,7 +504,7 @@ struct calc_args
     ~calc_args()
 	{
 #ifdef DEBUG_CREATION
-	    printf("delete calc_args %p\n",this);
+	    printf("%p : CA : DTOR\n",this);
 #endif
 	    Py_XDECREF(pycmap);
 	    Py_XDECREF(pypfo);
@@ -520,7 +521,7 @@ public:
 		      interrupted(false), params(NULL) 
 	{
 #ifdef DEBUG_CREATION
-	    printf("created fdsite %p\n",this);
+	    printf("%p : FD : CTOR\n",this);
 #endif
 	}
 
@@ -533,17 +534,23 @@ public:
     // we've drawn a rectangle of image
     virtual void image_changed(int x1, int y1, int x2, int y2)
 	{
-	    msg_t m = { IMAGE };
-	    m.p1 = x1; m.p2 = y1; m.p3 = x2; m.p4 = y2;
-	    write(fd,&m,sizeof(m));
+	    if(!interrupted)
+	    {
+		msg_t m = { IMAGE };
+		m.p1 = x1; m.p2 = y1; m.p3 = x2; m.p4 = y2;
+		write(fd,&m,sizeof(m));
+	    }
 	}
     // estimate of how far through current pass we are
     virtual void progress_changed(float progress)
 	{
-	    msg_t m = { PROGRESS };
-	    m.p1 = (int) (100.0 * progress);
-	    m.p2 = m.p3 = m.p4 = 0;
-	    write(fd,&m,sizeof(m));
+	    if(!interrupted)
+	    {
+		msg_t m = { PROGRESS };
+		m.p1 = (int) (100.0 * progress);
+		m.p2 = m.p3 = m.p4 = 0;
+		write(fd,&m,sizeof(m));
+	    }
 	}
     // one of the status values above
     virtual void status_changed(int status_val)
@@ -573,7 +580,7 @@ public:
 
     virtual void interrupt() 
 	{
-	    printf("interrupting\n");
+	    printf("%p : CA : INT(%d)\n", this, tid);
 	    interrupted = true;
 	}
     
@@ -590,6 +597,7 @@ public:
 
     virtual void set_tid(int tid_) 
 	{
+	    printf("%p : CA : SET(%d)\n", this,tid_);
 	    tid = tid_;
 	}
 
@@ -597,13 +605,14 @@ public:
 	{
 	    if(tid != 0)
 	    {
+		printf("%p : CA : WAIT(%d)\n", this,tid);
 		pthread_join(tid,NULL);
 	    }
 	}
     ~FDSite()
 	{
 #ifdef DEBUG_CREATION
-	    printf("deleted fdsite %p\n",this);
+	    printf("%p : FD : DTOR\n",this);
 #endif
 	    close(fd);
 	}
@@ -730,11 +739,11 @@ calculation_thread(void *vdata)
 {
     calc_args *args = (calc_args *)vdata;
 
-    printf("start calc: %p\n",args);
+    printf("%p : CA : CALC(%d)\n",args,pthread_self());
     calc(args->params,args->eaa,args->maxiter,
 	 args->nThreads,args->pfo,args->cmap,
 	 args->auto_deepen,args->im,args->site);
-    printf("end calc: %p\n",args);
+    printf("%p : CA : ENDCALC(%d)\n",args,pthread_self());
 
     return NULL;
 }
@@ -770,17 +779,15 @@ pycalc_async(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    printf("call interrupt\n");
     cargs->site->interrupt();
     cargs->site->wait();
 
-    printf("call start\n");
     cargs->site->start(cargs);
-    printf("called start\n");
 
     pthread_t tid;
     //printf("create thread %d for %p\n",tid,cargs);
     pthread_create(&tid,NULL,calculation_thread,(void *)cargs);
+    assert(tid != 0);
 
     cargs->site->set_tid(tid);
 
@@ -865,6 +872,31 @@ image_buffer(PyObject *self, PyObject *args)
     return pybuf;
 }
 
+static PyObject *
+rot_matrix(PyObject *self, PyObject *args)
+{
+    double params[N_PARAMS];
+
+    if(!PyArg_ParseTuple(
+	   args,
+	   "(ddddddddddd)",
+	   &params[0],&params[1],&params[2],&params[3],
+	   &params[4],&params[5],&params[6],&params[7],
+	   &params[8],&params[9],&params[10]))
+    {
+	return NULL;
+    }
+
+    dmat4 rot = rotated_matrix(params);
+
+    return Py_BuildValue(
+	"((dddd)(dddd)(dddd)(dddd))",
+	rot[0][0], rot[0][1], rot[0][2], rot[0][3],
+	rot[1][0], rot[1][1], rot[1][2], rot[1][3],
+	rot[2][0], rot[2][1], rot[2][2], rot[2][3],
+	rot[3][0], rot[3][1], rot[3][2], rot[3][3]);
+}
+
 static PyMethodDef PfMethods[] = {
     {"pf_load",  pf_load, METH_VARARGS, 
      "Load a new point function shared library"},
@@ -903,6 +935,9 @@ static PyMethodDef PfMethods[] = {
     { "interrupt", pystop_calc, METH_VARARGS,
       "Stop an async calculation" },
 
+    { "rot_matrix", rot_matrix, METH_VARARGS,
+      "Return a rotated and scaled identity matrix based on params"},
+ 
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
