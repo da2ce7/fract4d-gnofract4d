@@ -282,20 +282,23 @@ bailout:
         }
         ''')
         self.assertIsValidParse(t1)
-        #print t1.pretty()
         self.assertListTypesMatch(
             t1.children[0].children,
             ["stmlist"]*7 + ["setlist"] * 3)
 
         # test we work with old-style fractint sections
-        t2 = self.parse('''InvMandel (XAXIS) {; Mark Peterson
-  c = z = 1 / pixel:
-   z = sqr(z) + c
+        t1 = self.parse('''InvMandel (XAXIS) {; Mark Peterson
+  c = z = 1 / pixel:z = sqr(z) + c
     |z| <= 4
   }
   ''')
-        #print t2.pretty()
-        
+        self.assertIsValidParse(t1)
+        self.failUnless(
+            t1.children[0].children[0].type =="stmlist" and
+            t1.children[0].children[0].leaf == "init" and
+            t1.children[0].children[1].type == "stmlist" and
+            t1.children[0].children[1].leaf == "")
+            
     def testSimpleMandelbrot(self):
         t1 = self.parse('''
 MyMandelbrot {

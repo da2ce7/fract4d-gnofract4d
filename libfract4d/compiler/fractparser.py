@@ -45,7 +45,7 @@ def p_formula_err(t):
 
 def p_formbody_2(t):
      'formbody : NEWLINE stmlist sectlist FORM_END'
-     t[0] = [ absyn.Stmlist("nameless",t[2]) ] + t[3]
+     t[0] = [ absyn.Stmlist("init",t[2]) ] + t[3] #no name = init section
 
 def p_formbody_err(t):
      'formbody : error FORM_END'
@@ -121,6 +121,10 @@ def p_set_heading(t):
 def p_section_stm(t):
      'section : SECT_STM NEWLINE stmlist'
      t[0] = absyn.Stmlist(t[1],t[3])
+
+def p_section_stm_2(t):
+     'section : SECT_STM stmlist'
+     t[0] = absyn.Stmlist(t[1],t[2])
 
 def p_stmlist_stm(t):
     'stmlist : stm'
