@@ -146,7 +146,6 @@ create_deepen_widget(GtkToolbar *toolbar, model_t *m)
 	FALSE,
 	NULL);
 
-    g_print("%s\n",filename);
     GtkWidget *deepen_pixmap = gtk_image_new_from_file(filename);
 
     GtkWidget *deepen_widget = gtk_toolbar_append_item(
