@@ -31,8 +31,9 @@ class fract_rot;
 struct fractal
 {
     private:
-// basic params
-d params[N_PARAMS];
+
+    // basic params
+    d params[N_PARAMS];
     int nbit_max;
     int fractal_type;
     int aa_profondeur;
@@ -53,8 +54,13 @@ d params[N_PARAMS];
     colorizer *cizer;
     //colorfunc cfunc;
     bool potential;
-    e_bailFunc bailout_type;
+
     public:
+    
+    // member vars
+    e_bailFunc bailout_type;
+
+    // member funs
     fractal();
     fractal(const fractal& f); // copy ctor
     fractal& operator=(const fractal& f); // assignment op

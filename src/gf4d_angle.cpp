@@ -1,7 +1,5 @@
-/* example-start gtkdial gtkdial.c */
-
 /* GTK - The GIMP Toolkit
- * Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
+ * Copyright (C) 2000 Edwin Young
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -588,4 +586,4 @@ gf4d_angle_adjustment_value_changed (GtkAdjustment *adjustment,
         dial->old_value = adjustment->value;
     }
 }
-/* example-end */
+

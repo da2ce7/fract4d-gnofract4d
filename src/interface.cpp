@@ -619,6 +619,50 @@ create_param_entry_with_label(GtkWidget *table,
 	gtk_object_set_data(GTK_OBJECT(combo_entry),"param",GINT_TO_POINTER(param));
 };
 
+GtkWidget *create_bailout_menu(Gf4dFractal *shadow)
+{
+    GtkWidget *bailout_type = gtk_option_menu_new();
+    GtkWidget *bailout_menu = gtk_menu_new();
+
+    static const gchar *bailout_names[] = 
+    {
+        N_("Magnitude"),
+        N_("Manhattan Distance"),
+        N_("Manhattan Variant"),
+        N_("Or"),
+        N_("And")
+    };
+
+    for(int i=0; i < sizeof(bailout_names)/sizeof(bailout_names[0]); ++i)
+    {
+        GtkWidget *menu_item = gtk_menu_item_new_with_label(bailout_names[i]);
+    
+        gtk_object_set_data(
+            GTK_OBJECT (menu_item), 
+            "type",
+            GINT_TO_POINTER((e_bailFunc)i));
+    
+        gtk_signal_connect(
+            GTK_OBJECT(menu_item),
+            "activate",
+            GTK_SIGNAL_FUNC(set_bailout_callback),
+            shadow);
+    
+        gtk_menu_append(GTK_MENU(bailout_menu), menu_item);
+        gtk_widget_show(menu_item);
+        gtk_option_menu_set_menu(GTK_OPTION_MENU(bailout_type), bailout_menu);
+    }    
+
+    // refresh when shadow changes
+    gtk_signal_connect(
+        GTK_OBJECT(shadow),
+        "parameters_changed",
+        GTK_SIGNAL_FUNC(refresh_bailout_callback),
+        bailout_type);
+
+    return bailout_type;
+}
+
 void
 create_propertybox_color_page(GtkWidget *propertybox,
 			      GtkWidget *notebook,
@@ -753,8 +797,9 @@ create_propertybox_color_page(GtkWidget *propertybox,
 			   GTK_SIGNAL_FUNC(refresh_cmap_callback),
 			   cmapselector);
 
+        // continuous potential
 	GtkWidget *potential = gtk_check_button_new_with_label(_("Continuous Potential"));
-	gtk_table_attach(GTK_TABLE(table), potential,0,1,2,3, 
+	gtk_table_attach(GTK_TABLE(table), potential,0,1,3,4, 
 			 (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
 			 (GtkAttachOptions)0, 
 			 0, 2);
@@ -770,7 +815,26 @@ create_propertybox_color_page(GtkWidget *propertybox,
 			   potential);
 
 	gtk_widget_show(potential);
+
+        // bailout type
+        GtkWidget *bailout_label= gtk_label_new(_("Bailout Function"));
+        gtk_widget_show(bailout_label);
+        gtk_table_attach(GTK_TABLE(table), bailout_label, 0,1,2,3, 
+			 (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+			 (GtkAttachOptions)0, 
+			 0, 2);
+        
+        GtkWidget *bailout_type = create_bailout_menu(shadow);
+
+        gtk_widget_show(bailout_type);
+
+        gtk_table_attach(GTK_TABLE(table), bailout_type ,1,2,2,3, 
+			 (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+			 (GtkAttachOptions)0, 
+			 0, 2);
+
 }
+
 
 void
 create_propertybox_general_page(GtkWidget *propertybox, 

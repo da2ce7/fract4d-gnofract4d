@@ -1,7 +1,8 @@
 /* functions which perform individual iterations of a fractal function */
 
 #include "iterFunc.h"
-#include "test-fonction.h"
+
+#include <cstddef>
 
 class mandFunc : public iterFunc 
 {

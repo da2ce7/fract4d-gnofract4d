@@ -695,3 +695,44 @@ void weirdness_callback(GtkAdjustment *adj, gpointer user_data)
     model_t *m = (model_t *)user_data;
     model_set_weirdness_factor(m,adj->value);
 }
+
+void set_bailout_callback(GtkWidget *widget, gpointer user_data)
+{
+    Gf4dFractal *f = GF4D_FRACTAL(user_data);
+
+    e_bailFunc type = (e_bailFunc)GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"type"));
+
+    e_bailFunc old_type = gf4d_fractal_get_bailout_type(f);
+    if(type != old_type)
+    {
+        gf4d_fractal_set_bailout_type(f,type);
+        gf4d_fractal_parameters_changed(f);
+    }
+}
+
+void refresh_bailout_callback(Gf4dFractal *f, gpointer user_data)
+{
+    GtkOptionMenu *om = GTK_OPTION_MENU(user_data);
+    GtkWidget *m = gtk_option_menu_get_menu(om);
+
+    GList *list = gtk_container_children(GTK_CONTAINER(m));
+    int index=0;
+    e_bailFunc bailType = gf4d_fractal_get_bailout_type(f);
+
+    // find an element with the same bailtype as the one the fractal has
+    while(list)
+    {
+        GtkMenuItem *mi = GTK_MENU_ITEM(list->data);
+        e_bailFunc t = (e_bailFunc)GPOINTER_TO_INT(
+            gtk_object_get_data(GTK_OBJECT(mi),"type"));
+        
+        if(t == bailType)
+        {
+            gtk_option_menu_set_history(om,index);
+            return;
+        }
+        list = g_list_next(list);
+        index++;
+    }
+    g_warning(_("Unknown bailout type ignored"));
+}

@@ -18,16 +18,14 @@
  *
  */
 
-#include <gnome.h>
-
-#include "test-fonction.h"
+#include "pointFunc.h"
 #include "iterFunc.h"
 #include "bailFunc.h"
 
 #include <math.h>
 #include <iostream>
 
-class fractCalc : public fractFunc {
+class pointCalc : public pointFunc {
 private:
     /* members */
     iterFunc *m_pIter;
@@ -37,7 +35,7 @@ private:
 
 public:
     /* ctor */
-    fractCalc(e_iterFunc iterType, 
+    pointCalc(e_iterFunc iterType, 
               e_bailFunc bailType, 
               const d& eject) : m_eject(eject)
         {
@@ -117,10 +115,10 @@ test_cube(const dvec4& params, const d& eject, int nIters)
     return n;
 }
 
-fractFunc *fractFunc_new(
+pointFunc *pointFunc_new(
     e_iterFunc iterFunc, 
     e_bailFunc bailFunc, 
     const d& bailout)
 {
-    return new fractCalc(iterFunc, bailFunc, bailout);
+    return new pointCalc(iterFunc, bailFunc, bailout);
 }

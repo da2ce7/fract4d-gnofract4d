@@ -27,6 +27,7 @@ extern "C" {
 
 #include "fract_public.h"
 #include "colorizer_public.h"
+#include "pointFunc_public.h"
 
     struct _Gf4dFractal
     {
@@ -97,6 +98,10 @@ extern "C" {
 
     gboolean gf4d_fractal_get_potential(Gf4dFractal *f);
     void gf4d_fractal_set_potential(Gf4dFractal *f, gboolean potential);
+
+    /* bailout type */
+    e_bailFunc gf4d_fractal_get_bailout_type(Gf4dFractal *f);
+    void gf4d_fractal_set_bailout_type(Gf4dFractal *f, e_bailFunc);
 
 /* image-related functions: to be removed */
     int gf4d_fractal_get_xres(Gf4dFractal *f);

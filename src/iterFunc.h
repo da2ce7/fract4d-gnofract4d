@@ -2,7 +2,7 @@
 #ifndef _ITERFUNC_H_
 #define _ITERFUNC_H_
 
-#include "test-fonction.h"
+#include "pointFunc_public.h"
 
 // offsets into parameter array
 #define X 0

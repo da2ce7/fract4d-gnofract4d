@@ -26,7 +26,7 @@
 #include "gf4d_fractal.h"
 #include "fract.h"
 #include "image.h"
-#include "test-fonction.h"
+#include "pointFunc.h"
 #include <fstream>
 #include <queue>
 
@@ -266,6 +266,7 @@ fractal::write_params(const char *filename)
     os << fractal_type << "\n";
     os << aa_profondeur << "\n";
     os << *cizer << "\n";
+    os << bailout_type << "\n";
 
     if(!os) return false;
     return true;
@@ -292,6 +293,9 @@ fractal::load_params(const char *filename)
         cizer = cizer_tmp;
     }
     if(!is) return false;
+    // cast is to quiet a curious compiler warning
+    is >> (int&)bailout_type;
+
     return true;
 }
 
@@ -545,7 +549,7 @@ public:
     int k;	
     int last_update_y;
     fractal_t *f;
-    fractFunc *pf;
+    pointFunc *pf;
     int *p;
     image *im;
     //std::queue<soidata_t> soi_queue;
@@ -553,7 +557,7 @@ public:
         gf = _gf;
         im = _im;
         f = _f; 
-        pf = fractFunc_new(ITERFUNC_MAND, BAILOUT_MAG, f->params[BAILOUT]);
+        pf = pointFunc_new(ITERFUNC_MAND, f->bailout_type, f->params[BAILOUT]);
         depth = f->aa_profondeur ? f->aa_profondeur : 1; 
 
         f->update_matrix();

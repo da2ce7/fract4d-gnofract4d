@@ -250,7 +250,6 @@ void gf4d_fractal_move(Gf4dFractal *f, param_t i, int direction)
     kill_slave_threads(f);
 
     f->f->move(i,direction);
-
 }
 
 fractal_t *gf4d_fractal_copy_fract(Gf4dFractal *f)
@@ -264,6 +263,19 @@ void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f)
     kill_slave_threads(gf);
     *(gf->f) = *f;
 }
+
+void gf4d_fractal_set_bailout_type(Gf4dFractal *gf, e_bailFunc bailType)
+{
+    kill_slave_threads(gf);
+    gf->f->bailout_type = bailType;
+}
+
+
+e_bailFunc gf4d_fractal_get_bailout_type(Gf4dFractal *gf)
+{
+    return gf->f->bailout_type;
+}
+
 
 static void *
 calculation_thread(void *vdata) 

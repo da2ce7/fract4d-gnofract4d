@@ -12,7 +12,7 @@ gnofract4d_SOURCES = \
 	interface.cpp interface.h \
 	callbacks.cpp callbacks.h \
 	fract.cpp fract.h fract_public.h calc.h \
-	test-fonction.cpp test-fonction.h \
+	pointFunc.cpp pointFunc.h \
 	vectors.h \
 	model.cpp model.h \
 	gf4d_angle.cpp gf4d_angle.h \
@@ -24,5 +24,6 @@ gnofract4d_SOURCES = \
 	iterFunc.h iterFunc.cpp \
 	bailFunc.h bailFunc.cpp
 
-gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) $(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)
+gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) \
+	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)
 

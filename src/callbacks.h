@@ -175,3 +175,6 @@ void set_potential_callback(GtkToggleButton *button, gpointer user_data);
 void refresh_potential_callback(Gf4dFractal *f, gpointer user_data);
 
 void weirdness_callback(GtkAdjustment *adj, gpointer user_data);
+
+void set_bailout_callback(GtkWidget *widget, gpointer user_data);
+void refresh_bailout_callback(Gf4dFractal *, gpointer user_data);

@@ -1,8 +1,10 @@
 #include "bailFunc.h"
 #include "iterFunc.h"
 
-inline bool MIN(double x, double y) { return x < y ? x : y; }
-inline bool MAX(double x, double y) { return x > y ? x : y; }
+#include <cstddef>
+
+inline double MIN(double x, double y) { return x < y ? x : y; }
+inline double MAX(double x, double y) { return x > y ? x : y; }
 
 class mag_bailout : public bailFunc {
 public:

@@ -3,7 +3,7 @@
 
 #include "colorizer_public.h"
 #include "calc.h"
-#include "test-fonction.h"
+#include "pointFunc.h"
 
 #include <iosfwd>
 #include <string>

@@ -18,37 +18,23 @@
  *
  */
 
-#ifndef _TEST_FONCTION_H_
-#define _TEST_FONCTION_H_
+#ifndef _POINTFUNC_H_
+#define _POINTFUNC_H_
 
 #include "calc.h"
+#include "pointFunc_public.h"
 
 typedef double scratch_space[8];
 
-/* an enumeration of the available bailout functions */
-typedef enum 
-{
-    BAILOUT_MAG = 1,
-    BAILOUT_MANH,
-    BAILOUT_MANH2,
-    BAILOUT_OR,
-    BAILOUT_AND,
-} e_bailFunc;
-
-/* an enumeration of the available iteration functions */
-
-typedef enum {
-    ITERFUNC_MAND = 1,
-} e_iterFunc;
 
 /* interface for function object which computes a single point */
-class fractFunc {
+class pointFunc {
  public:
     virtual int operator()(const dvec4& params, double *scratch, int nIters) = 0;
 };
 
 /* factory method for making new fractFuncs */
-fractFunc *fractFunc_new(
+pointFunc *pointFunc_new(
     e_iterFunc iterType, 
     e_bailFunc bailType,
     const d& eject);
