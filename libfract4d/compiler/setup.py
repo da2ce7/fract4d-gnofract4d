@@ -15,7 +15,10 @@ module1 = Extension(
     ],
     libraries = [
     'stdc++'
-    ])
+    ],
+    define_macros = [ ('_REENTRANT',1),
+                      ('DEBUG_CREATION',1)]
+    )
 
 setup (name = 'fract4d',
        version = '1.0',

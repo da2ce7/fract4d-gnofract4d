@@ -460,9 +460,11 @@ typedef struct
 class FDSite :public IFractalSite
 {
 public:
-    FDSite(int fd_) : fd(fd_), tid((pthread_t)-1), interrupted(false) 
+    FDSite(int fd_) : fd(fd_), tid((pthread_t)0), interrupted(false) 
 	{
-
+#ifdef DEBUG_CREATION
+	    printf("created fdsite %p\n",this);
+#endif
 	}
 
     virtual void parameters_changed()
@@ -529,13 +531,16 @@ public:
 
     virtual void wait()
 	{
-	    if(tid != -1)
+	    if(tid != 0)
 	    {
 		pthread_join(tid,NULL);
 	    }
 	}
     ~FDSite()
 	{
+#ifdef DEBUG_CREATION
+	    printf("deleted fdsite %p\n",this);
+#endif
 	    close(fd);
 	}
 private:
@@ -647,9 +652,14 @@ calculation_thread(void *vdata)
 {
     calc_args *args = (calc_args *)vdata;
 
+    printf("start calc: %p\n",args);
     calc(args->params,args->eaa,args->maxiter,
 	 args->nThreads,args->pfo,args->cmap,
 	 args->auto_deepen,args->im,args->site);
+    printf("end calc: %p\n",args);
+
+    printf("delete calc_args %p\n",args);
+    delete args;
     return NULL;
 }
 
@@ -690,6 +700,7 @@ pycalc_async(PyObject *self, PyObject *args)
     cargs->site->start((void *)cargs);
 
     pthread_t tid;
+    printf("create thread %d for %p\n",tid,cargs);
     pthread_create(&tid,NULL,calculation_thread,(void *)cargs);
 
     cargs->site->set_tid(tid);

@@ -2,6 +2,7 @@
 
 import sys
 import gtk
+import gobject
 
 import fractal
 import fc
@@ -41,8 +42,14 @@ class GuiFractal(fractal.Threaded):
 
         self.widget = drawing_area
         self.compile()
+        
         self.draw(self.image)
 
+    def draw_image(self,dummy):
+        print "draw image"
+        self.draw(self.image)
+        return gtk.FALSE
+    
     def image_changed(self,x1,y1,x2,y2):
         self.redraw_rect(x1,y1,x2-x1,y2-y1)
 
@@ -53,6 +60,8 @@ class GuiFractal(fractal.Threaded):
     def onButtonRelease(self,widget,event):
         print "button release"
         print "click (%d,%d)" % (event.x, event.y)
+        self.params[self.XCENTER] += 0.3
+        gtk.idle_add(self.draw_image,self)
         
     def redraw_rect(self,x,y,w,h):
         gc = self.widget.get_style().white_gc
