@@ -8,6 +8,5 @@ include fract4d/*.xml
 include pixmaps/*.png
 include gnofract4d.desktop
 include COPYING
-include AUTHORS
 include gnofract4d
 include gui/test_gtk.py
