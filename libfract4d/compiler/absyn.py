@@ -152,12 +152,18 @@ def Param(id,settinglist,type):
 def InternalError():
     return Node("parser error", None, "oops")
 
+def Error2(str, lineno):
+    return Node("error", None,
+                "Syntax error: unexpected '%s' on line %d" % (str,lineno))
+
 def Error(type, value, lineno):
     # get complaints about NEWLINE tokens on right line
     if type == "NEWLINE":
         lineno -= 1
         return Node("error", None,
-                    "Syntax error: unexpected newline on line %d " % lineno)
+                    "Syntax error: unexpected newline on line %d" % lineno)
     
-    return Node("error", None, "Syntax error: unexpected %s '%s' on line %d " %
+    return Node("error", None, "Syntax error: unexpected %s '%s' on line %d" %
                 (string.lower(type), value, lineno))
+
+

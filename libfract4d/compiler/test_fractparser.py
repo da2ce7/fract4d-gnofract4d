@@ -45,8 +45,19 @@ class ParserTest(unittest.TestCase):
         err = formula.children[0]
         self.failUnless(err.type == "error")
         self.assertNotEqual(re.search("line 2",err.leaf),None,
-                            "bad error mesage line number") 
+                            "bad error message line number") 
 
+    def testErrorBeforeAndInFormula(self):
+        tree = self.parse("gibberish\nt1 {\n ~\n}\n")
+        self.failUnless(absyn.CheckTree(tree))
+        #print tree.pretty()
+        formula = tree.children[0]
+        self.failUnless(formula.type == "formula")
+        err = formula.children[0]
+        self.failUnless(err.type == "error")
+        self.assertNotEqual(re.search("line 3",err.leaf),None,
+                            "bad error message line number") 
+        
     def testPrecedence(self):
         self.assertParsesEqual(
             "x = 2 * 3 + 1 ^ -7 / 2 - |4 - 1|",
@@ -84,18 +95,29 @@ default:
         self.assertIsValidParse(t1)
 
     def testParseErrors(self):
-        self.assertIsBadFormula("t1 {\ninit:\n2 + 3 +\n}\n",
+        self.assertIsBadFormula(self.makeMinimalFormula("2 + 3 +"),
+                                 "unexpected newline",3)
+        self.assertIsBadFormula(self.makeMinimalFormula("3 4"),
+                                 "unexpected number '4.0'",3)
+
+        # not a great error message...
+        self.assertIsBadFormula(self.makeMinimalFormula("("),
                                 "unexpected newline",3)
-        self.assertIsBadFormula("t1 {\ninit:\n3 4\n}\n",
-                                "unexpected number '4.0'",3)
+        
+        # not currently an error, because we think Init is part of
+        # a fractint-style implicit-init section
+        #self.assertIsBadFormula("t1 {\nInit:\nx\n}\n",
+        #                        "unknown section name 'Init'",2)
+
         
     def assertIsBadFormula(self,s,message,line):
         t1 = self.parse(s)
-        self.failUnless(absyn.CheckTree(t1), "parse error not detected")
+        #print t1.pretty()
+        self.failUnless(absyn.CheckTree(t1), "invalid tree created")
         formula = t1.children[0]
         self.failUnless(formula.type == "formula")
         err = formula.children[0]
-        self.failUnless(err.type == "error")
+        self.failUnless(err.type == "error", "error not found")
         #print err.leaf
         self.assertNotEqual(re.search(message,err.leaf),None,
                             ("bad error message text '%s'", err.leaf))
