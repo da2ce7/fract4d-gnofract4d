@@ -106,7 +106,8 @@ def t_NEWLINE(t):
     return t
 
 def t_STRING(t):
-    r'\"[^\"]*"' # embedded quotes not supported in UF?
+    r'"[^"]*"' # embedded quotes not supported in UF?
+    t.value = re.sub(r'(^")|("$)',"",t.value) # remove trailing and leading "
     t.value = re.sub(r'\\\r?\n[ \t\v]*',"",t.value) # hide \-split lines
     return t
     
@@ -117,12 +118,12 @@ t_ignore  = ' \t\r'
 def t_error(t):
     print "Illegal character '%s'" % t.value[0]
     t.skip(1)
+    
+# Build the lexer
+lexer = lex.lex()
 
 # debugging
 if __name__ == '__main__':
-    # Build the lexer
-    lex.lex()
-
     # Test it out
     data = open(sys.argv[1],"r").read()
 
