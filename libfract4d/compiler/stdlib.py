@@ -10,6 +10,16 @@ def reals(l):
 def imags(l):
     return [x.im for x in l]
 
+# basic binary operation
+def add_ff_f(gen,t,srcs):
+    return gen.emit_binop(t.op,srcs,t.datatype)
+
+# many equivalent funcs
+sub_ff_f = mul_ff_f = div_ff_f = add_ff_f
+add_ii_i = sub_ii_i = mul_ii_i = div_ii_i = add_ff_f
+gt_ii_b = gte_ii_b = lt_ii_b = lte_ii_b = eq_ii_b = noteq_ii_b = add_ff_f
+gt_ff_b = gte_ff_b = lt_ff_b = lte_ff_b = eq_ff_b = noteq_ff_b = add_ff_f
+
 def mul_cc_c(gen,t,srcs):
     # (a+ib) * (c+id) = ac - bd + i(bc + ad)
     ac = gen.emit_binop(t.op, [srcs[0].re, srcs[1].re], Float)
@@ -34,6 +44,13 @@ def add_cc_c(gen,t,srcs):
 
 # sub implemented same way as add
 sub_cc_c = add_cc_c
+
+def mag_c_f(gen,t,src):
+    # |x| = x_re * x_re + x_im * x_im
+    re_2 = gen.emit_binop('*',[src.re,src.re],Float)
+    im_2 = gen.emit_binop('*',[src.im,src.im],Float)
+    return gen.emit_binop('+',[re_2,im_2],Float)
+
 
 def lt_cc_b(gen,t,srcs):    
     # compare real parts only
