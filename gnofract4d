@@ -83,12 +83,13 @@ def main():
     mainWindow = main_window.MainWindow()
     (opts, args) = getopt.getopt(
         sys.argv[1:],
-        "p:i:j:s:qh",
+        "p:i:j:s:qhP:",
         [ "params=",
           "width=",
           "height=",
           "save=",
           "help",
+          "path="
           "quit"])
 
     width = preferences.userPrefs.getint("display","width")
@@ -108,6 +109,8 @@ def main():
         elif name=="-h" or name=="--help":
             help()
             return
+        elif name=="-P" or name=="--path":
+            mainWindow.compiler.file_path.append(val)
         else:
             print "Unknown argument", name, val
 

@@ -71,6 +71,19 @@ bailout:
 	real(z) + imag(z) < @angle
 }
 
+ploom_problem {
+; there was a bug where the 2nd pass would leave black dots in the 
+; corners of each 8-block
+
+init:
+complex z = #pixel
+
+loop:
+  z = z*z + #pixel 
+ bailout:
+  |z| < 30  
+}
+
 test_func {
 init:
 	z = #zwpixel
