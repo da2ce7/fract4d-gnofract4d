@@ -1,5 +1,5 @@
 /* GTK - The GIMP Toolkit
- * Copyright (C) 1999-2001 Edwin Young
+ * Copyright (C) 1999-2002 Edwin Young
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public

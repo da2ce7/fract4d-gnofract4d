@@ -24,6 +24,9 @@
 * W	preview .fcts in open dialog
 * B 	invalid bailfunc # = crash
 * W	parameterize buffalo
+* W	image size != window size (scrollable)
+* W	persistent user prefs, rather than per-fractal
+* W	
 
 Movies-
 * B	deadlock when render movie while image is being drawn
@@ -34,14 +37,13 @@ Movies-
 * B	antialiasing/auto-deepen broken for movies
 * W 	actually save movie images -> disk
 * W	move keyframes up/down 
-
-Version 1.5
-* W	removing mallocing from work queue
 * W	profile number of threads: is > 2 better?
 * B	SMP auto-deepening broken
 * B	lines are ugly
 
 Done:
+* W	removing mallocing from work queue
+* B	Fixed recoloring
 * W	Undo/Redo
 * W	Online Help
 * W	Documentation

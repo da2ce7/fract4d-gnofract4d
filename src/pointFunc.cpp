@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 1999-2001 Edwin Young
+ * Copyright (C) 1999-2002 Edwin Young
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -155,7 +155,7 @@ public:
         {
             // fake scratch space
             d s[SCRATCH_SPACE]= { 0.0 };
-
+            s[EJECT_VAL] = 1.0; // otherwise we have 0/0 = NaN for some colorFuncs
             return colorize(iter, s);
         }
 

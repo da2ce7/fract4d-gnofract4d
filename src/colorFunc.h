@@ -1,5 +1,5 @@
 /* Gnofract4D -- a little fractal generator-browser program
- * Copyright (C) 1999-2001 Edwin Young
+ * Copyright (C) 1999-2002 Edwin Young
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -42,7 +42,7 @@ class colorFunc {
 #endif
 };
 
-// factory method to construct bailout function objects 
+// factory method to construct color function objects 
 colorFunc *colorFunc_new(e_colorFunc);
 colorFunc *colorFunc_read(std::istream& s);
 
