@@ -17,59 +17,65 @@ g_comp.load_formula_file("./gf4d.frm")
 g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")
 
-f = fractal.Threaded(g_comp)
 
-gtk.input_add(f.readfd, gtk.gdk.INPUT_READ, f.onData)
+#file = open(sys.argv[1])
+#f.loadFctFile(file)
 
-file = open(sys.argv[1])
-f.loadFctFile(file)
-f.compile()
-
-image = fract4d.image_create(640,480)
-
-print "draw start"
-f.draw(image)
-print "draw return"
-
-buf = fract4d.image_buffer(image)
-
-class MainWindow:
-    def __init__(self):
-        self.window = gtk.Window()
-        self.window.connect('destroy', self.quit)
-        self.window.set_default_size(640,400)
-        self.window.set_title('Gnofract 4D')
-
-        c = gtk.gdk.rgb_get_cmap()
-        v = gtk.gdk.rgb_get_visual()
+class GuiFractal(fractal.Threaded):
+    def __init__(self,comp):
+        fractal.Threaded.__init__(self,comp)
+        gtk.input_add(self.readfd, gtk.gdk.INPUT_READ, self.onData)
         
+        self.image = fract4d.image_create(640,480)
+        self.buf = fract4d.image_buffer(self.image)
+
+        c = gtk.gdk.rgb_get_cmap()        
         drawing_area = gtk.DrawingArea()
         drawing_area.set_colormap(c)
         drawing_area.set_size_request(640,480)
-        drawing_area.connect('expose_event',self.expose)
+        drawing_area.connect('expose_event',self.onExpose)
+
         drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK)
         
-        self.window.add(drawing_area)
+        self.widget = drawing_area
+        self.compile()
+        self.draw(self.image)
 
-        self.window.show_all()
+    def image_changed(self,x1,y1,x2,y2):
+        self.redraw_rect(x1,y1,x2-x1,y2-y1)
 
-    def expose(self,widget,exposeEvent):
-        global buf
+    def onExpose(self,widget,exposeEvent):
         r = exposeEvent.area
-        print "expose: widget %s x:%d y:%d w:%d h:%d" % (widget,r.x,r.y,r.width,r.height)
 
-        gc = widget.get_style().white_gc
+        self.redraw_rect(r.x,r.y,r.width,r.height)
 
+    def redraw_rect(self,x,y,w,h):
+        gc = self.widget.get_style().white_gc
+        
         # FIXME should draw smaller chunks but buf interface makes that tricky
         # FIXME remove hard-coded constants
-        exposeEvent.window.draw_rgb_image(
+        self.widget.window.draw_rgb_image(
             gc,
             0, 0,
             640,
             480,
             gtk.gdk.RGB_DITHER_NONE,
-            buf,
+            self.buf,
             640*3)
+
+class MainWindow:
+    def __init__(self):
+        global g_comp
+        self.window = gtk.Window()
+        self.window.connect('destroy', self.quit)
+        self.window.set_default_size(640,400)
+        self.window.set_title('Gnofract 4D')
+
+        self.f = GuiFractal(g_comp)
+        self.window.add(self.f.widget)
+
+        self.window.show_all()
+
          
     def quit(self,action,widget=None):
         gtk.main_quit()
