@@ -18,6 +18,8 @@ rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
 cmplx_re = re.compile(r'\((.*?),(.*?)\)')
 hyper_re = re.compile(r'\((.*?),(.*?),(.*?),(.*?)\)')
 
+THIS_VERSION=2.8
+
 # generally useful funcs for reading in .fct files
 class FctUtils:
     def __init__(self,parent=None):
@@ -225,7 +227,7 @@ class T(FctUtils):
     def __init__(self,compiler,site=None):
         FctUtils.__init__(self)
         
-        self.format_version = 2.7
+        self.format_version = 2.8
         
         # formula support
         self.formula = None
@@ -292,7 +294,7 @@ class T(FctUtils):
         
     def save(self,file,update_saved_flag=True):
         print >>file, "gnofract4d parameter file"
-        print >>file, "version=2.7"
+        print >>file, "version=2.8"
 
         paramnames = ["x","y","z","w","size","xy","xz","xw","yz","yw","zw"]
         for pair in zip(paramnames,self.params):
@@ -840,7 +842,8 @@ class T(FctUtils):
     def parse_gnofract4d_parameter_file(self,val,f):
         pass
 
-    def parse_version(self,val,f):        
+    def parse_version(self,val,f):
+        global THIS_VERSION
         self.format_version=float(val)
         if self.format_version < 2.0:
             # old versions displayed everything upside down
@@ -850,7 +853,7 @@ class T(FctUtils):
             # a version that used auto-tolerance for Nova and Newton
             self.auto_tolerance = True
             
-        if self.format_version > 2.7:
+        if self.format_version > THIS_VERSION:
             warning = \
 '''This file was created by a newer version of Gnofract 4D.
 The image may not display correctly. Please upgrade to version %.1f.''' 
@@ -916,31 +919,31 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         # can't set function directly because formula hasn't been parsed yet
         self.bailfunc = int(val)
 
-    def parse__colors_(self,val,f):
-        cf = Colorizer(self)
-        cf.load(f)        
+    def apply_colorizer(self, cf):
         self.gradient = cf.gradient
         self.solids[0:len(cf.solids)] = cf.solids[:]
         self.changed(False)
+        if cf.direct:
+            # loading a legacy rgb colorizer
+            self.set_outer("gf4d.cfrm", "rgb")
+            cfunc = self.cfuncs[0]
+            params = self.cfunc_params[0]
+
+            self.set_named_item("@base_red",cf.rgb[0], cfunc, params)
+            self.set_named_item("@base_green",cf.rgb[1], cfunc, params)
+            self.set_named_item("@base_blue",cf.rgb[2], cfunc, params)
+
+    def parse__colors_(self,val,f):
+        cf = Colorizer(self)
+        cf.load(f)
+        self.apply_colorizer(cf)
         
     def parse__colorizer_(self,val,f):
         which_cf = int(val)
         cf = Colorizer(self)
         cf.load(f)        
         if which_cf == 0:
-            self.gradient = cf.gradient
-            self.solids[0:len(cf.solids)] = cf.solids[:]
-            self.changed(False)
-            if cf.direct:
-                # loading a legacy rgb colorizer
-                self.set_outer("gf4d.cfrm", "rgb")
-                cfunc = self.cfuncs[which_cf]
-                params = self.cfunc_params[which_cf]
-
-                self.set_named_item("@base_red",cf.rgb[0], cfunc, params)
-                self.set_named_item("@base_green",cf.rgb[1], cfunc, params)
-                self.set_named_item("@base_blue",cf.rgb[2], cfunc, params)
-
+            self.apply_colorizer(cf)
         # ignore other colorlists for now
 
     def parse_inner(self,val,f):

@@ -258,6 +258,13 @@ class TBase:
         else:
             self.error("%d: invalid statement in default section" % node.pos)
 
+    def make_const(self, node, type):
+        parts = []
+        for i in xrange(len(node.children)):
+            parts.append(self.const_convert(
+                self.const_exp(node.children[i]), fracttypes.Float))
+        return ir.Const(parts, node, type)
+    
     def const_exp(self,node):
         # FIXME should compute full constant expressions
         if node.type == "const":
@@ -277,11 +284,14 @@ class TBase:
         elif node.type == "string":
             return self.string(node)
         elif node.type == "funcall" and node.leaf == "hyper":
-            parts = []
-            for i in xrange(4):
-                parts.append(self.const_convert(
-                    self.const_exp(node.children[i]), fracttypes.Float))
-            return ir.Const(parts, node, fracttypes.Hyper)        
+            return self.make_const(node, fracttypes.Hyper)
+        elif node.type == "funcall" and node.leaf == "rgb":
+            const = self.make_const(node, fracttypes.Color)
+            const.children.append(
+                ir.Const(1.0, node, fracttypes.Float))
+            return const
+        elif node.type == "funcall" and node.leaf == "rgba":
+            return self.make_const(node, fracttypes.Color)
         else:
             #print node.pretty()
             self.error("%d: only constants can be used in default sections" %
