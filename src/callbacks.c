@@ -320,13 +320,13 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
 			y = event->button.y;
 			new_x = x ; new_y = y;
 		}else if (event->button.button == 2) {
-			f = model_cmd_start(m);
+			model_cmd_start(m);
 			gf4d_fractal_flip2julia(f, 
 				   event->button.x,
 				   event->button.y);
 			model_cmd_finish(m);
 		}else if (event->button.button == 3) {
-			f = model_cmd_start(m);
+			model_cmd_start(m);
 			gf4d_fractal_relocate(f,
 				 event->button.x,
 				 event->button.y,
@@ -379,7 +379,7 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
 			x = (x + new_x)/2;
 			y = (y + new_y)/2;
 
-			f = model_cmd_start(m);
+			model_cmd_start(m);
 			gf4d_fractal_relocate(f,
 				 x,
 				 y,
@@ -408,45 +408,45 @@ gint
 configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
 {
 	model_t *m = (model_t *)user_data;
-	// model_cmd_start(m);
+
 	gf4d_fractal_set_resolution(model_get_fract(m),
 			 widget->allocation.width, 
 			 widget->allocation.height);
-	//model_cmd_finish(m);
+	gf4d_fractal_parameters_changed(model_get_fract(m));
 	return TRUE;
 }
 
-/* should check if reqd before calling this */
-void resize_callback(model_t *m, void *user_data)
+static int 
+do_redraw_callback(model_t *m)
 {
-	Gf4dFractal *f = model_get_fract(m);
-	GtkWidget* drawing_area = GTK_WIDGET(user_data);
-	gtk_widget_set_usize(drawing_area, gf4d_fractal_get_xres(f), gf4d_fractal_get_yres(f));
-}
+	Gf4dFractal *f;
 
-// declaration to get rid of tedious warning
-int do_redraw_callback(model_t *m);
-
-int do_redraw_callback(model_t *m)
-{
-	Gf4dFractal *f = model_get_fract(m);
-	model_clear_interrupt(m);
+	gdk_threads_enter();
+	f = model_get_fract(m);
 
 	property_box_refresh(m);
 
 	gf4d_fractal_calc(f);
 
-	property_box_refresh(m);
-
+	gdk_threads_leave();
 	return FALSE;
 }
 
 void redraw_callback(Gf4dFractal *f, gpointer m)
 {
+/*
 	static guint idle_id = 0;
 
-	if(idle_id) gtk_idle_remove(idle_id);
+	if(idle_id) {
+		g_print("removing idle %d\n",idle_id);
+		gtk_idle_remove(idle_id);
+	}
 	idle_id = gtk_idle_add((GtkFunction)do_redraw_callback,m);
+	g_print("added idle %d\n",idle_id);
+*/
+	f = model_get_fract(m);
+	property_box_refresh(m);
+	gf4d_fractal_calc(f);
 }
 
 
@@ -463,12 +463,6 @@ message_callback(Gf4dFractal *m, gint val, void *user_data)
 	default: msg = _("error"); break;
 	};
 	gnome_appbar_push((GnomeAppBar *)user_data, msg);
-}
-
-void
-undo_status_callback(model_t *m, int status, void *user_data)
-{
-	gtk_widget_set_sensitive(GTK_WIDGET(user_data),status);
 }
 
 static void
@@ -555,10 +549,10 @@ progress_callback(Gf4dFractal *f,gfloat percentage, void *user_data)
 {
 	gnome_appbar_set_progress((GnomeAppBar *)user_data,percentage);
 
-	/* allows interaction during calculation */
+	/* allows interaction during calculation 
 	while (gtk_events_pending())
 		gtk_main_iteration();
-	
+	*/
 }
 
 void 
@@ -592,6 +586,7 @@ property_box_refresh(model_t *m)
 	int i;
 	e_colorizer ctype;
 	char *filename;
+
 
 	if (propertybox!=NULL) {
 		GtkWidget *w;

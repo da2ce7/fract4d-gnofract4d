@@ -80,6 +80,16 @@ rgb_colorizer::rgb_colorizer()
 	set_colors(1.0,0.0,0.0);
 }
 
+rgb_colorizer::rgb_colorizer(const rgb_colorizer& c)
+{
+	set_colors(c.r,c.g,c.b);
+}
+
+rgb_colorizer::~rgb_colorizer()
+{
+
+}
+
 void
 rgb_colorizer::set_colors(double _r, double _g, double _b)
 {
@@ -131,7 +141,6 @@ operator>>(std::istream& is, rgb_colorizer& cizer)
 cmap_colorizer::cmap_colorizer()
 {
 	/* build default cmap: same effect as default color */
-	const int size = 256;
 	cmap = new rgb_t[size];
 
 	for(int i =0; i < size; i++)
@@ -148,6 +157,30 @@ cmap_colorizer::~cmap_colorizer()
 	delete[] cmap;
 }
 
+cmap_colorizer::cmap_colorizer(const cmap_colorizer& c)
+{
+	cmap = new rgb_t[size];
+	for(int i =0; i < size; i++)
+	{
+		cmap[i] = c.cmap[i];
+	}
+	name = c.name;
+}
+
+cmap_colorizer&
+cmap_colorizer::operator=(const cmap_colorizer& c)
+{
+	delete[] cmap;
+	cmap = new rgb_t[size];
+	for(int i =0; i < size; i++)
+	{
+		cmap[i] = c.cmap[i];
+	}
+	name = c.name;
+
+	return *this;
+}
+
 e_colorizer
 cmap_colorizer::type() const 
 {
@@ -157,7 +190,11 @@ cmap_colorizer::type() const
 rgb_t
 cmap_colorizer::operator()(int n) const
 {
-	return cmap[n % 256];
+	if(n == -1)
+	{
+		return cmap[0];
+	}
+	return cmap[n % 255 +1];
 }
 
 std::ostream& 

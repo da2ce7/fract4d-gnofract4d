@@ -125,17 +125,12 @@ void hide_move_toolbar_cb(GtkMenuItem *widget, gpointer user_data);
 void hide_main_toolbar_cb(GtkMenuItem *widget, gpointer user_data);
 void hide_status_bar_cb(GtkMenuItem *widget, gpointer user_data);
 
-/* calls from model to interface */
-callback_func_t resize_callback;
-
 void redraw_callback(Gf4dFractal *gf, gpointer user_data);
 void message_callback(Gf4dFractal *gf, gint status, gpointer user_data);
 void progress_callback(Gf4dFractal *gf, gfloat progress, gpointer user_data);
 void update_callback(Gf4dFractal *gf, GdkEventExpose *ev, gpointer user_data);
 
 void adjustment_update_callback(Gf4dFractal *gf, gpointer user_data);
-
-undo_callback_func_t undo_status_callback;
 
 gint save_session_cb(GnomeClient* client, gint phase, GnomeSaveStyle save_style,
 		     gint is_shutdown, GnomeInteractStyle interact_style,

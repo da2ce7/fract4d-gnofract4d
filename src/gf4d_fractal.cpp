@@ -62,6 +62,8 @@ gf4d_fractal_init (Gf4dFractal *f)
 	f->interrupted=FALSE;
 	f->change_pending=FALSE;
 	f->sensitive=TRUE;
+	f->tid=0;
+	pthread_mutex_init(&f->lock,NULL);
 }
 
 GtkObject*
@@ -75,14 +77,52 @@ gf4d_fractal_new ()
 }
 
 static void
+gf4d_fractal_lock(Gf4dFractal *f)
+{
+	pthread_mutex_lock(&f->lock);
+}
+
+static void
+gf4d_fractal_unlock(Gf4dFractal *f)
+{
+	pthread_mutex_unlock(&f->lock);
+}
+
+void
+kill_slave_threads(Gf4dFractal *f)
+{
+	gf4d_fractal_lock(f);
+	if(f->tid)
+	{
+		void *statusp;
+		int err = pthread_cancel(f->tid);
+		if(err)
+		{
+			g_print("error in cancel\n");
+		}
+		else
+		{
+			g_print("cancelled %d\n", f->tid);
+			pthread_join(f->tid,&statusp);
+		}
+	}
+	f->tid = 0;
+	gf4d_fractal_unlock(f);
+}
+
+static void
 gf4d_fractal_destroy (GtkObject *object)
 {
 	Gf4dFractal *f;
+
+
 
 	g_return_if_fail (object != NULL);
 	g_return_if_fail (GF4D_IS_FRACTAL (object));
 
 	f = GF4D_FRACTAL (object);
+
+	kill_slave_threads(f);
 
 	if (GTK_OBJECT_CLASS (parent_class)->destroy)
 		(* GTK_OBJECT_CLASS (parent_class)->destroy) (object);
@@ -157,6 +197,8 @@ gf4d_fractal_class_init (Gf4dFractalClass *klass)
 
 void gf4d_fractal_relocate(Gf4dFractal *f, int x, int y, double zoom)
 {
+	kill_slave_threads(f);
+
 	double dx = ((double)(x - f->im->Xres/2))/f->im->Xres;
 	double dy = ((double)(y - f->im->Yres/2))/f->im->Xres;
 	f->f->relocate(dx,dy,zoom);
@@ -164,19 +206,62 @@ void gf4d_fractal_relocate(Gf4dFractal *f, int x, int y, double zoom)
 
 void gf4d_fractal_flip2julia(Gf4dFractal *f, int x, int y)
 {
+	kill_slave_threads(f);
+
 	double dx = ((double)(x - f->im->Xres/2))/f->im->Xres;
 	double dy = ((double)(y - f->im->Yres/2))/f->im->Xres;
 	f->f->flip2julia(dx,dy);
 }
 
+
+fractal_t *gf4d_fractal_copy_fract(Gf4dFractal *f)
+{
+	kill_slave_threads(f);
+	return new fractal(*f->f);
+}
+
+void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f)
+{
+	kill_slave_threads(gf);
+	*(gf->f) = *f;
+}
+
+static void *
+calculation_thread(void *vdata)
+{
+	Gf4dFractal *f = (Gf4dFractal *)vdata;
+	int last_type; // not used
+	int last_state; // not used
+
+	/* enable deferred cancellations */
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &last_type);
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &last_state);
+
+	f->f->calc(f,f->im);	
+	return NULL;
+}
+
 void gf4d_fractal_calc(Gf4dFractal *f)
 {
 	g_print("calculating\n");
-	f->f->calc(f,f->im);
+
+	kill_slave_threads(f);
+
+	gf4d_fractal_lock(f);
+	if(pthread_create(&f->tid,NULL,calculation_thread,(void *)f))
+	{
+		g_print("Error, couldn't start thread\n");
+	}
+
+	g_print("created thread %d\n",f->tid);
+	gf4d_fractal_unlock(f);
 }
 
 void gf4d_fractal_reset(Gf4dFractal *f)
 {
+
+	kill_slave_threads(f);
+
 	f->f->reset();
 	gf4d_fractal_parameters_changed(f);
 }
@@ -230,31 +315,43 @@ char *gf4d_fractal_get_param(Gf4dFractal *f, param_t i)
 /* update functions */
 void gf4d_fractal_set_max_iterations(Gf4dFractal *f, int val)
 {
+	kill_slave_threads(f);
+
 	f->f->set_max_iterations(val);
 }
 
 void gf4d_fractal_set_param(Gf4dFractal *f, param_t i, char *val)
 {
+	kill_slave_threads(f);
+
 	f->f->set_param(i,val);
 }
 
 void gf4d_fractal_set_aa(Gf4dFractal *f, int val)
 {
+	kill_slave_threads(f);
+
 	f->f->set_aa(val);
 }
 
 void gf4d_fractal_set_auto(Gf4dFractal *f, int val)
 {
+	kill_slave_threads(f);
+
 	f->f->set_auto(val);
 }
 
 int gf4d_fractal_set_precision(Gf4dFractal *f, int digits)
 {
+	kill_slave_threads(f);
+
 	return f->f->set_precision(digits);
 }
 
 void gf4d_fractal_set_color(Gf4dFractal *f, double r, double g, double b)
 {
+	kill_slave_threads(f);
+
 	f->f->set_color(r,g,b);
 }
 
@@ -281,9 +378,9 @@ double gf4d_fractal_get_ratio(Gf4dFractal *f)
 
 int  gf4d_fractal_set_resolution(Gf4dFractal *f, int xres, int yres)
 {
-	int ret = f->im->set_resolution(xres,yres);
-	gf4d_fractal_parameters_changed(f);
-	return ret;
+	kill_slave_threads(f);
+	f->im->set_resolution(xres,yres);
+	return 1;
 }
 
 e_colorizer gf4d_fractal_get_color_type(Gf4dFractal *f)
@@ -293,11 +390,13 @@ e_colorizer gf4d_fractal_get_color_type(Gf4dFractal *f)
 
 void gf4d_fractal_set_color_type(Gf4dFractal *f, e_colorizer type)
 {
+	kill_slave_threads(f);
 	f->f->set_color_type(type);
 }
 
 void gf4d_fractal_set_cmap_file(Gf4dFractal *f, const char *filename)
 {
+	kill_slave_threads(f);
 	f->f->set_cmap_file(filename);
 }
 
@@ -318,7 +417,8 @@ void gf4d_fractal_thaw(Gf4dFractal *f)
 /* stop calculating now! */
 void gf4d_fractal_interrupt(Gf4dFractal *f)
 {
-	f->f->finish();
+	kill_slave_threads(f);
+	// f->f->finish();
 }
 
 void gf4d_fractal_parameters_changed(Gf4dFractal *f)
@@ -342,23 +442,35 @@ void gf4d_fractal_image_changed(Gf4dFractal *f, int x1, int y1, int x2, int y2)
 	fakeEvent.area = rect;
 	fakeEvent.count = 0;
 
+	pthread_testcancel();
+
+	gdk_threads_enter();
 	gtk_signal_emit(GTK_OBJECT(f), 
 			fractal_signals[IMAGE_CHANGED],
 			&fakeEvent);
+	gdk_threads_leave();
 }
 
 void gf4d_fractal_progress_changed(Gf4dFractal *f, float progress)
 {
+	pthread_testcancel();
+
+	gdk_threads_enter();
 	gtk_signal_emit(GTK_OBJECT(f),
 			fractal_signals[PROGRESS_CHANGED], 
 			progress);
+	gdk_threads_leave();
 }
 
 void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val)
 {
+	pthread_testcancel();
+
+	gdk_threads_enter();
 	gtk_signal_emit(GTK_OBJECT(f),
 			fractal_signals[STATUS_CHANGED],
 			status_val);
+	gdk_threads_leave();
 }
 
 int gf4d_fractal_is_interrupted(Gf4dFractal *f)

@@ -80,7 +80,7 @@ fractal::finish()
 }
 
 /* copy ctor */
-fractal::fractal(fractal& f)
+fractal::fractal(const fractal& f)
 {	
 	for(int i = 0 ; i < N_PARAMS ; i++)
 	{
@@ -93,8 +93,35 @@ fractal::fractal(fractal& f)
 	digits = f.digits;
 	running = f.running;
 	finished = f.finished;
+	rot_by = f.rot_by;
 
-	cizer = f.cizer;
+	rot = f.rot;
+
+	cizer = f.cizer->clone();
+}
+
+fractal&
+fractal::operator=(const fractal& f)
+{
+	for(int i = 0 ; i < N_PARAMS ; i++)
+	{
+		params[i] = f.params[i];
+	}
+	nbit_max = f.nbit_max;
+	fractal_type = f.fractal_type;
+	aa_profondeur = f.aa_profondeur;
+	auto_deepen = f.auto_deepen;
+	digits = f.digits;
+	running = f.running;
+	finished = f.finished;
+	rot_by = f.rot_by;
+
+	rot = f.rot;
+
+	colorizer_delete(&cizer);
+	cizer = f.cizer->clone();
+	
+	return *this;
 }
 
 /* return to mandelbrot set */
@@ -531,7 +558,6 @@ inline void
 fract_rot::pixel(int x, int y,int w, int h)
 {
 	int *ppos = p + y*im->Xres + x;
-	if(!f->running) throw(1);
 
 	dvec4 pos = topleft + I2D_LIKE(x, f->params[SIZE]) * deltax + 
 		              I2D_LIKE(y, f->params[SIZE]) * deltay;
@@ -570,8 +596,6 @@ fract_rot::pixel(int x, int y,int w, int h)
 inline void
 fract_rot::pixel_aa(int x, int y)
 {
-	if(!f->running) throw(1);
-
 	dvec4 pos = aa_topleft + I2D_LIKE(x, f->params[SIZE]) * deltax + 
 		              I2D_LIKE(y, f->params[SIZE]) * deltay;
 
@@ -711,46 +735,28 @@ void fract_rot::draw(int rsize)
 
 	gf4d_fractal_image_changed(gf,0,0,im->Xres,im->Yres);	
 	gf4d_fractal_progress_changed(gf,1.0);	
-
 }
 
 void
 fractal::calc(Gf4dFractal *gf, image *im)
 {
-	if(running) {
-		/* we've been called from an idle callback : interrupt current
-		   calculation and return */
-		running = 0;
-		return;
+	fractFunc pf= fractFuncTable[fractal_type];
+	fract_rot pr(this, im, pf,gf);
+
+	gf4d_fractal_status_changed(gf,GF4D_FRACTAL_CALCULATING);
+	pr.draw(4);
+
+	while(pr.updateiters())
+	{
+		gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DEEPENING);
+		pr.draw(1);
 	}
-
-	do {
-		running = 1;
-		fractFunc pf= fractFuncTable[fractal_type];
-		fract_rot pr(this, im, pf,gf);
-		
-		try {
-			gf4d_fractal_status_changed(gf,GF4D_FRACTAL_CALCULATING);
-			
-			pr.draw(4);
-			while(pr.updateiters())
-			{
-				gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DEEPENING);
-				pr.draw(1);
-			}
-			
-			if(aa_profondeur > 1) {
-				gf4d_fractal_status_changed(gf,GF4D_FRACTAL_ANTIALIASING);
-				pr.draw_aa();
-			}
-		}
-		catch(int i)
-		{
-			// interrupted
-		}
-	}while(!finished && !running);
-
-	running=0;
+	
+	if(aa_profondeur > 1) {
+		gf4d_fractal_status_changed(gf,GF4D_FRACTAL_ANTIALIASING);
+		pr.draw_aa();
+	}
+	
 	gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DONE);
 	gf4d_fractal_progress_changed(gf,0.0);
 }

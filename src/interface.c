@@ -175,8 +175,9 @@ create_main_toolbar(model_t *m)
 	GtkWidget *undo_widget = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_UNDO);
 	GtkWidget *redo_widget = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_REDO);
 
-	gtk_widget_set_sensitive(undo_widget,FALSE);
-	gtk_widget_set_sensitive(redo_widget,FALSE);
+	model_make_undo_sensitive(m,undo_widget);
+	model_make_redo_sensitive(m,redo_widget);
+
 
 	toolbar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
 
@@ -196,8 +197,8 @@ create_main_toolbar(model_t *m)
 				 redo_cb,
 				 m);
 
-	model_set_undo_status_callback(m,undo_status_callback,undo_widget);
-	model_set_redo_status_callback(m,undo_status_callback,redo_widget);
+	//model_set_undo_status_callback(m,undo_status_callback,undo_widget);
+	//model_set_redo_status_callback(m,undo_status_callback,redo_widget);
 	return toolbar;
 }
 
@@ -495,20 +496,17 @@ create_entry_with_label(GtkWidget *propertybox,
 			  (GtkAttachOptions) (0), 0, 0);
 	gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_RIGHT);
 	gtk_widget_show (label);
-	gtk_widget_show (combo_entry);
+
 	gtk_table_attach (GTK_TABLE (table), combo_entry, 1, 2, row, row+1,
 			  (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
 			  (GtkAttachOptions) (0), 0, 0);
-		
-	gtk_widget_set_name (combo_entry, combo_name);
-
-	gtk_widget_ref (combo_entry);
-	gtk_object_set_data_full (GTK_OBJECT (propertybox), 
-				  combo_name,
-				  combo_entry,
-				  (GtkDestroyNotify) gtk_widget_unref);
-
+	
+	gtk_object_set_data (GTK_OBJECT (propertybox), 
+			     combo_name,
+			     combo_entry);
+	
 	gtk_tooltips_set_tip (tooltips, combo_entry, tip, NULL);
+	gtk_widget_show (combo_entry);
 
 	gtk_signal_connect_object (GTK_OBJECT(combo_entry),"changed",
 				   GTK_SIGNAL_FUNC(gnome_property_box_changed),
@@ -572,7 +570,7 @@ create_propertybox_color_page(GtkWidget *propertybox,
 		cpicker);
 
 	gtk_signal_connect (
-		GTK_OBJECT(cpicker),"color-set",
+		GTK_OBJECT(cpicker),"color_set",
 		GTK_SIGNAL_FUNC(color_picker_cb),
 		propertybox);
 
@@ -676,13 +674,9 @@ create_propertybox_general_page(GtkWidget *propertybox,
 	aa_button = gtk_check_button_new_with_label(_("Antialias"));
 	gtk_table_attach(GTK_TABLE(table), aa_button, 0,1,4,5,0,0,0,2);
 
-	gtk_widget_set_name (aa_button, "checkbutton_antialias");
-
-	gtk_widget_ref (aa_button);
-	gtk_object_set_data_full (GTK_OBJECT (propertybox), 
-				  "checkbutton_antialias",
-				  aa_button,
-				  (GtkDestroyNotify) gtk_widget_unref);
+	gtk_object_set_data (GTK_OBJECT (propertybox), 
+			     "checkbutton_antialias",
+			     aa_button);
 
 	gtk_tooltips_set_tip (tooltips, aa_button, 
 			      _("If you turn this on the image looks smoother but takes longer"), NULL);
@@ -697,14 +691,9 @@ create_propertybox_general_page(GtkWidget *propertybox,
 	auto_deepen_button = gtk_check_button_new_with_label(_("Auto Deepening"));
 	gtk_table_attach(GTK_TABLE(table), auto_deepen_button, 1,2,4,5,0,0,0,2);
 
-	gtk_widget_set_name (auto_deepen_button, "checkbutton_auto_deepen");
-
-	gtk_widget_ref (auto_deepen_button);
-
-	gtk_object_set_data_full (GTK_OBJECT (propertybox), 
-				  "checkbutton_auto_deepen",
-				  auto_deepen_button,
-				  (GtkDestroyNotify) gtk_widget_unref);
+	gtk_object_set_data (GTK_OBJECT (propertybox), 
+			     "checkbutton_auto_deepen",
+			     auto_deepen_button);
 
 	gtk_tooltips_set_tip (tooltips, auto_deepen_button, 
 			      _("Work out how many iterations are required automatically"), NULL);
@@ -822,7 +811,7 @@ create_propertybox (model_t *m)
 	tooltips = gtk_tooltips_new ();
 
 	propertybox = gnome_property_box_new ();
-	gtk_widget_set_name (propertybox, "propertybox");
+
 	gtk_object_set_data (GTK_OBJECT (propertybox), "propertybox", propertybox);
 	
 	notebook = GNOME_PROPERTY_BOX (propertybox)->notebook;

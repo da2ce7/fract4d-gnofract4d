@@ -14,7 +14,7 @@ gnofract4d_SOURCES = \
 	fract.cpp fract.h calc.h \
 	test-fonction.cpp test-fonction.h \
 	vectors.h \
-	model.c model.h \
+	model.cpp model.h \
 	gf4d_angle.c gf4d_angle.h \
 	gf4d_fractal.cpp gf4d_fractal.h \
 	gundo.c gundo.h \

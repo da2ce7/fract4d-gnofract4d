@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <gtk/gtkobject.h>
+#include <pthread.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,6 +37,8 @@ struct _Gf4dFractal
 	gboolean sensitive;
 	fractal_t *f;
 	image_t *im;
+	pthread_t tid;
+	pthread_mutex_t lock;
 };
 
 struct _Gf4dFractalClass
@@ -113,6 +116,9 @@ void gf4d_fractal_progress_changed(Gf4dFractal *f, float progress);
 void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val);
 int  gf4d_fractal_is_interrupted(Gf4dFractal *f);
 
+/* sneaky functions */
+fractal_t *gf4d_fractal_copy_fract(Gf4dFractal *f);
+void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f);
 #ifdef __cplusplus
 }
 #endif

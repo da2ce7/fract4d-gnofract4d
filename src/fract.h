@@ -54,8 +54,11 @@ private:
 
 public:
 	fractal();
-	fractal(fractal& f); // copy ctor
+	fractal(const fractal& f); // copy ctor
+	fractal& operator=(const fractal& f); // assignment op
 	~fractal();
+
+
 	void reset();
 	void calc(Gf4dFractal *gf4d, image *im);
 	void relocate(double x, double y, double zoom);
