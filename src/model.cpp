@@ -492,8 +492,27 @@ model_cmd_save_image(model_t *m, const char *filename)
 	NULL, // no destroynotify fn - is this correct?
 	NULL);
 
-    // FIXME: deal with errors, get filetype from extension
-    gdk_pixbuf_save(image, filename, "png", NULL, NULL); 
+    gchar *ext = strrchr(filename,'.');
+    gchar *type = NULL;
+    if(NULL != ext)
+    {
+	if(strcasecmp(ext,".jpg")==0 || strcasecmp(ext,".jpeg")==0)
+	{ 
+	    type = "jpeg";
+	}
+	else if(strcasecmp(ext, ".png")==0)
+	{
+	    type = "png";
+	}
+    }
+    
+    if(NULL == type)
+    {
+	g_warning("Unable to determine file type for %s, using PNG",filename);
+	type = "png";
+    }
+    // FIXME: deal with errors
+    gdk_pixbuf_save(image, filename, type, NULL, NULL); 
     gdk_pixbuf_unref(image);
 
     return 1;
