@@ -53,7 +53,7 @@ class CodegenTest(unittest.TestCase):
         
     def assertMatchResult(self, tree, template,result):
         template = eval(codegen.expand(template))
-        self.assertEqual(codegen.match(tree,template),result,
+        self.assertEqual(codegen.match_template(tree,template),result,
                          "%s mismatches %s" % (tree.pretty(),template))
         
 def suite():
