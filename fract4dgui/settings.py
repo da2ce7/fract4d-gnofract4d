@@ -30,6 +30,7 @@ class SettingsDialog(gtk.Dialog):
 
         self.create_formula_parameters_page()
         self.create_outer_page()
+        self.create_inner_page()
         self.create_location_page()
         self.create_angle_page()
 
@@ -90,6 +91,28 @@ class SettingsDialog(gtk.Dialog):
         hbox.pack_start(label)
         button = gtk.Button("Browse...")
         button.connect('clicked', self.show_browser, browser.OUTER)
+        hbox.pack_start(button)
+        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
+
+    def create_inner_page(self):
+        vbox = gtk.VBox()
+        table = gtk.Table(5,2,gtk.FALSE)
+        vbox.pack_start(table)
+
+        self.notebook.append_page(vbox,gtk.Label("Inner"))
+
+        table.attach(gtk.Label("Colorfunc :"), 0,1,0,1,0,0,2,2)
+        label = gtk.Label(self.f.cfunc_names[1])
+
+        def set_label(*args):
+            label.set_text(self.f.cfunc_names[1])
+            
+        self.f.connect('parameters-changed',set_label)
+
+        hbox = gtk.HBox(False,1)
+        hbox.pack_start(label)
+        button = gtk.Button("Browse...")
+        button.connect('clicked', self.show_browser, browser.INNER)
         hbox.pack_start(button)
         table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
 

@@ -119,13 +119,13 @@ class Func:
         
     def matchesArgs(self, potentialArgs):
         if len(potentialArgs) != len(self.args):
-            return 0
+            return False
         i = 0
         for arg in self.args:
             if not canBeCast(potentialArgs[i],arg):
-                return 0
+                return False
             i = i + 1
-        return 1            
+        return True 
 
 class Var:
     def __init__(self,type_,value=None,pos=-1,**kwds):
