@@ -52,12 +52,11 @@ class Threaded(fractal.T):
 
     def interrupt(self):
         if self.skip_updates:
-            print "skip recursive interrupt"
+            #print "skip recursive interrupt"
             return
         
         self.skip_updates = True
         
-        print "interrupt"
         fract4dc.interrupt(self.site)
 
         n = 0
@@ -78,10 +77,9 @@ class Threaded(fractal.T):
                            self.pfunc,self.cmap,1,image,self.site)
 
     def onData(self,fd,condition):
-        #print "data!"
         bytes = os.read(fd,self.msgsize)
         if len(bytes) < self.msgsize:
-            print "bad message"
+            print "bad message: %s" % list(bytes)
             return
 
         (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
@@ -95,7 +93,6 @@ class Threaded(fractal.T):
             if not self.skip_updates: self.progress_changed(float(p1))
         elif t == 3:
             if p1 == 0: # DONE
-                print "done"
                 self.running = False
             if not self.skip_updates: self.status_changed(p1)
         elif t == 4:
@@ -123,10 +120,15 @@ class GuiFractal(Threaded,gobject.GObject):
 
         drawing_area = gtk.DrawingArea()
         drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
+                                gtk.gdk.BUTTON1_MOTION_MASK |
+                                gtk.gdk.POINTER_MOTION_HINT_MASK |
                                 gtk.gdk.BUTTON_PRESS_MASK)
+        
+        drawing_area.connect('motion_notify_event', self.onMotionNotify)
         drawing_area.connect('button_release_event', self.onButtonRelease)
+        drawing_area.connect('button_press_event', self.onButtonPress)
         drawing_area.connect('expose_event',self.onExpose)
-
+        
         c = gtk.gdk.rgb_get_cmap()
         drawing_area.set_colormap(c)        
         drawing_area.set_size_request(self.width,self.height)
@@ -159,9 +161,39 @@ class GuiFractal(Threaded,gobject.GObject):
         r = exposeEvent.area
         self.redraw_rect(r.x,r.y,r.width,r.height)
 
+    def onMotionNotify(self,widget,event):
+        (self.newx,self.newy,state) = widget.window.get_pointer()
+        self.redraw_rect(0,0,self.width,self.height)
+
+        dy = int(abs(self.newx - self.x) * self.height/self.width)
+        if(self.newy < self.y): dy = -dy
+        self.newy = self.y + dy;
+
+        widget.window.draw_rectangle(
+            self.widget.get_style().white_gc,
+            gtk.FALSE,
+            min(self.x,self.newx),
+            min(self.y,self.newy),
+            abs(self.newx-self.x), abs(self.newy-self.y));
+
+    def onButtonPress(self,widget,event):
+        self.x = event.x
+        self.y = event.y
+        self.newx = self.x
+        self.newy = self.y
+        
     def onButtonRelease(self,widget,event):
+        (x,y) = (event.x, event.y)
+        self.redraw_rect(0,0,self.width,self.height)
         if event.button == 1:
-            zoom = 0.5
+            if self.x == self.newx or self.y == self.newy:
+                zoom=0.5
+            else:
+                zoom=abs(self.x - self.newx)/float(self.width)
+                        
+            x = (self.x + self.newx)/2;
+            y = (self.y + self.newy)/2;
+
         elif event.button == 2:
             zoom = 1.0
             self.params[self.XZANGLE] += math.pi / 2
@@ -169,8 +201,8 @@ class GuiFractal(Threaded,gobject.GObject):
         else:
             zoom = 2.0
             
-        print "click (%d,%d)" % (event.x, event.y)
-        self.recenter(event.x,event.y,zoom)
+        #print "click (%d,%d)" % (event.x, event.y)
+        self.recenter(x,y,zoom)
 
     def recenter(self,x,y,zoom):
         dx = float(x - self.width/2)/self.width
