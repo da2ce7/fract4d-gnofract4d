@@ -204,10 +204,10 @@ public:
 
             assert(nNoPeriodIters >= 0 && nNoPeriodIters <= nMaxIters);
 
-#ifdef NOPERIOD
+#if NOPERIOD
             nNoPeriodIters = nMaxIters;
 #else 
-#ifdef ALLPERIOD
+#if ALLPERIOD
             nNoPeriodIters = 0;
 #endif
 #endif

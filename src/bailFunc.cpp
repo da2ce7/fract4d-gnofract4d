@@ -52,6 +52,7 @@ public:
         } 
     void init(void) {};
     bool iter8_ok() const { return true; };
+    bool period_ok() const { return true; };
 };
 
 /* eject if difference between this point and last iteration is < epsilon */
@@ -71,6 +72,7 @@ public:
                 "pTemp[EJECT_VAL] = pInput[EJECT] + epsilon - diff;";
         }
     bool iter8_ok() const { return false; };
+    bool period_ok() const { return false; };
 };
 
 
@@ -89,6 +91,7 @@ public:
             return bail;
         };
     bool iter8_ok() const { return false; };
+    bool period_ok() const { return true; };
 };
 
 class imag_bailout : public bailFunc {
@@ -104,6 +107,7 @@ public:
             return bail;
         };
     bool iter8_ok() const { return false; };
+    bool period_ok() const { return true; };
 };
 
 class and_bailout : public bailFunc {
@@ -121,7 +125,7 @@ public:
             return bail;
         };
     bool iter8_ok() const { return true; };
-
+    bool period_ok() const { return true; };
 };
 
 class or_bailout : public bailFunc {
@@ -139,7 +143,7 @@ public:
             return bail;
         }
     bool iter8_ok() const { return true; }
-
+    bool period_ok() const { return true; };
 };
 
 class manhattan2_bailout : public bailFunc {
@@ -157,6 +161,8 @@ public:
             return bail;
         }
     bool iter8_ok() const { return false; }
+    bool period_ok() const { return true; };
+
 };
 
 class manhattan_bailout : public bailFunc {
@@ -166,6 +172,7 @@ public:
             return "pTemp[EJECT_VAL] = XPOS + YPOS;";
         }
     bool iter8_ok() const { return false; }
+    bool period_ok() const { return true; };
 };
 
 bailFunc *bailFunc_new(e_bailFunc e)

@@ -42,6 +42,8 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     /* 0'th ftf is in this thread for calculations we don't want to offload */
     nThreadFuncs = f->nThreads > 1 ? f->nThreads + 1 : 1;
 
+    gf4d_fractal_status_changed(gf, GF4D_FRACTAL_COMPILING);
+
     ptf = new fractThreadFunc[nThreadFuncs];
     for(int i = 0; i < nThreadFuncs; ++i)
     {
@@ -51,6 +53,8 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
             ok = false;
         }
     }
+
+    gf4d_fractal_status_changed(gf, GF4D_FRACTAL_CALCULATING);
 
     /* threading */
     if(f->nThreads > 1)

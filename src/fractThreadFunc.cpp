@@ -155,6 +155,10 @@ fractThreadFunc::antialias(int x, int y)
     int single_iters = im->getIter(x,y);
     int nNoPeriodIters = periodGuess(single_iters); 
     
+    if(x == 1 && y == 25)
+    {
+        pixel_r_val = 99;
+    }
     // top left
     (*(pf))(pos, f->maxiter,nNoPeriodIters,&ptmp,&p); 
     pixel_r_val += ptmp.r;
@@ -302,9 +306,7 @@ fractThreadFunc::box(int x, int y, int rsize)
     {
         // just draw a solid rectangle
         struct rgb pixel = im->get(x,y);
-        //pixel.r = pixel.g = pixel.b = 0xff;
-        //rectangle_with_iter(pixel,100,x+1,y+1,rsize-2,rsize-2);
-        rectangle(pixel,x+1,y+1,rsize-2,rsize-2);
+        rectangle_with_iter(pixel,iter,x+1,y+1,rsize-2,rsize-2);
     }
     else
     {
@@ -336,7 +338,7 @@ fractThreadFunc::rectangle_with_iter(
     {
         for(int j = x; j < x+w; j++) {
             im->put(j,i,pixel);
-            im->iter_buf[y*im->Xres() + x] = iter;            
+            im->iter_buf[i*im->Xres() + j] = iter;            
         }
     }
 }

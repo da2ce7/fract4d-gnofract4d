@@ -664,7 +664,7 @@ create_propertybox_rendering_page(
         GTK_LABEL(GTK_BIN(auto_deepen_button)->child),GTK_JUSTIFY_LEFT);
 
     gtk_table_attach(GTK_TABLE(table), auto_deepen_button, 
-                     0,1,2,3,
+                     1,2,2,3,
                      (GtkAttachOptions)GTK_FILL,
                      (GtkAttachOptions)0,
                      0,2);

@@ -55,4 +55,4 @@ gnofract4d_SOURCES = \
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) \
 	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)
 
-CXXFLAGS = -g -O2 -Wall -D_REENTRANT -DCXX="\"$(CXX)\"" 
+CXXFLAGS = -g -O3 -ffast-math -Wall -D_REENTRANT -DCXX="\"$(CXX)\"" 
