@@ -13,6 +13,7 @@ done in 2.4:
 * B	can't use auto_deepen prefs widget after auto_deepening (Joe Healy)
 * B 	(also introduced in 2.4) - yelp not run in background
 * B	make transition <-> explorer mode less slow + ugly
+* B	maxiter isn't updated due to auto-deepening
 
 todo:
 * BB	settings dialog doesn't update - can't repro
@@ -61,7 +62,6 @@ UI improvements
 * W	tooltips for custom widgets in toolbar
 * BB	more robust error reporting
 * W	last-chance exception handler
-* B	maxiter isn't updated due to auto-deepening
 * W	formula browser
 	manage search path (user prefs)
 	save changes to .frm files

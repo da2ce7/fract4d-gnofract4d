@@ -25,6 +25,9 @@ class T(gobject.GObject):
         'parameters-changed' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
         gobject.TYPE_NONE, ()),
+        'iters-changed' : (
+        (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
+        gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'formula-changed' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
         gobject.TYPE_NONE, ()),
@@ -361,21 +364,23 @@ class T(gobject.GObject):
         widget.set_activates_default(True)
         
         def set_entry(*args):
-            widget.set_text("%d" % self.maxiter)
+            widget.set_text("%d" % self.f.maxiter)
 
         def set_fractal(*args):
             try:
                 i = int(widget.get_text())
-                self.set_maxiter(int(widget.get_text()))
+                self.set_maxiter(i)
             except ValueError, err:
-                msg = "Invalid value '%s': must be a number" % widget.get_text()
+                msg = "Invalid value '%s': must be a number" % \
+                      widget.get_text()
                 gtk.idle_add(self.warn, msg)
                 
             return False
-        
+
         set_entry(self)
 
         self.connect('parameters-changed', set_entry)
+        self.connect('iters-changed', set_entry)
         widget.connect('focus-out-event',set_fractal)
 
         table.attach(widget,1,2,i,i+1,0,0,2,2)
@@ -473,8 +478,9 @@ class T(gobject.GObject):
         self.emit('status-changed',status)
         
     def iters_changed(self,n):
-        self.maxiter = n
+        self.f.maxiter = n
         # don't emit a parameters-changed here to avoid deadlock
+        self.emit('iters-changed',n)
         
     def image_changed(self,x1,y1,x2,y2):
         self.redraw_rect(x1,y1,x2-x1,y2-y1)
