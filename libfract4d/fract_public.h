@@ -40,8 +40,6 @@ typedef enum {
 
 #define N_PARAMS 12
 
-#define SECTION_STOP "[endsection]"
-
 typedef struct fractal fractal_t;
 typedef struct image image_t;
 //class colorizer;
@@ -61,8 +59,10 @@ public:
     // equivalent to copy ctor
     static IFractal *clone(const IFractal *f); 
 
+
     virtual IFractal& operator=(const IFractal& f) =0; // assignment op
     virtual bool operator==(const IFractal& f) =0; // equality 
+
     virtual ~IFractal();
 
 

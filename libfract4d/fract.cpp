@@ -92,8 +92,6 @@ fractal::fractal()
     bailout_type=BAILOUT_MAG;
     colorFuncs[OUTER]=COLORFUNC_CONT;
     colorFuncs[INNER]=COLORFUNC_ZERO;
-
-    assert(pIterFunc > (void *)0x1000);
 }
 
 
@@ -122,8 +120,9 @@ fractal::copy(const fractal& f)
         params[i] = f.params[i];
     }
     maxiter = f.maxiter;
+
     pIterFunc = f.pIterFunc->clone();
-    assert(pIterFunc > (void *)0x1000);
+
     antialias = f.antialias;
     auto_deepen = f.auto_deepen;
     digits = f.digits;
@@ -178,8 +177,6 @@ fractal::operator=(const fractal& f)
         colorizer_delete(&cizer);
         delete pIterFunc;
         copy(f);
-
-	assert(pIterFunc > (void *)0x1000);
     }
     return *this;
 }
@@ -189,7 +186,6 @@ fractal::operator=(const IFractal& f)
 {
     operator=((fractal&)f);
 
-    assert(pIterFunc > (void *)0x1000);
     return *this;
 }
 
@@ -730,18 +726,21 @@ fractal::set_bailFunc(e_bailFunc bf)
 void 
 fractal::set_colorFunc(e_colorFunc cf, int which_cf)
 {
+    assert(which_cf >= 0 && which_cf < N_COLORFUNCS);
     colorFuncs[which_cf] = cf;
 }
 
 e_colorFunc 
 fractal::get_colorFunc(int which_cf) const
 {
+    assert(which_cf >= 0 && which_cf < N_COLORFUNCS);
     return colorFuncs[which_cf];
 }
 
 void
 fractal::set_threads(int n)
 {
+    assert(nThreads >= 0);
     nThreads = n;
 }
 
@@ -754,14 +753,16 @@ fractal::get_threads() const
 iterFunc *
 fractal::get_iterFunc() const
 {
-    assert(pIterFunc > (void *)0x1000);
+    assert(pIterFunc != NULL);
     return pIterFunc;
 }
 
 void 
 fractal::set_iterFunc(iterFunc *f)
 {
-    assert(pIterFunc > (void *)0x1000 && f > (void *)0x1000);
-    pIterFunc = f;
-
+    assert(f != NULL);
+    if(f == pIterFunc) return;
+    delete pIterFunc;
+    pIterFunc = f->clone();
+    assert(pIterFunc != NULL);
 }
