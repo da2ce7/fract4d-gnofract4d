@@ -36,7 +36,8 @@ create_app (model_t *m)
 {
     GtkWidget *table;
     GtkWidget *drawing_area;
-    
+    GtkWidget *fixed;
+
     GtkWidget *app = gnome_app_new ("Gnofract4D", _("Gnofract4D"));
 
     gtk_widget_realize(app);
@@ -58,16 +59,33 @@ create_app (model_t *m)
         GNOME_DOCK_TOP,
         1,0,0);
     
+    GtkWidget *scrolled_window = NULL;
+    scrolled_window = gtk_scrolled_window_new(NULL,NULL);
+    gtk_scrolled_window_set_policy(
+        GTK_SCROLLED_WINDOW(scrolled_window),
+        GTK_POLICY_AUTOMATIC,
+        GTK_POLICY_AUTOMATIC);
+    gtk_widget_show(scrolled_window);
+
     table = gtk_table_new (3,3,false);
     
     gtk_widget_show (table);
-    gnome_app_set_contents (GNOME_APP (app), table);
+    
+    fixed = gtk_fixed_new();
+    gtk_widget_show(fixed);
+    //gtk_widget_set_usize(table,640,480);
+    gtk_fixed_put(GTK_FIXED(fixed),table,0,0);
+
+    gtk_scrolled_window_add_with_viewport(
+        GTK_SCROLLED_WINDOW(scrolled_window), fixed);
+
+    gnome_app_set_contents (GNOME_APP (app), scrolled_window);
     
     model_set_top_widget(m, table, app);
     
     drawing_area = create_drawing_area(m,appbar);
     
-    gtk_widget_show (drawing_area);
+    gtk_widget_show_all (drawing_area);
 
     gtk_table_attach(GTK_TABLE(table),drawing_area,1,2,1,2, 
                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),

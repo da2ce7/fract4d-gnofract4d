@@ -169,25 +169,28 @@ void fractFunc::draw_aa()
 
     reset_counts();
 
-    last_update_y = 0;
     reset_progress(0.0);
 
-    for(int y = 0; y < h ; y++) {
-        if(f->nThreads > 1)
-        {
-            send_row_aa(0,y,w);
-        }
-        else
-        {
-            ptf->row_aa(0,y,w);
-            if(update_image(y))
+    for(int i = 0; i < f->nThreads; ++i)
+    {
+        last_update_y = 0;
+        for(int y = i; y < h ; y+= f->nThreads) {
+            if(f->nThreads > 1)
             {
-                break;
+                send_row_aa(0,y,w);
+            }
+            else
+            {
+                ptf->row_aa(0,y,w);
+                if(update_image(y))
+                {
+                    break;
+                }
             }
         }
+        reset_progress(1.0);
     }
 
-    reset_progress(1.0);
 }
 
 void fractFunc::reset_counts()

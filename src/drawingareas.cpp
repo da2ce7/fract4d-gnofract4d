@@ -172,11 +172,12 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
 {
     Gf4dFractal *f = GF4D_FRACTAL(user_data);
 
-    gf4d_fractal_set_resolution(f,
-                                widget->allocation.width, 
-                                widget->allocation.height);
-    gf4d_fractal_parameters_changed(f);
-    
+    if(gf4d_fractal_set_resolution(f,
+                                   widget->allocation.width, 
+                                   widget->allocation.height))
+    {
+        gf4d_fractal_parameters_changed(f);
+    }
     return TRUE;
 }
 
@@ -228,12 +229,17 @@ GtkWidget*
 create_drawing_area(model_t *m, GtkWidget *appbar)
 {
     GtkWidget *drawing_area=NULL;
+
+ 
+
     gtk_widget_push_visual (gdk_rgb_get_visual ());
     gtk_widget_push_colormap (gdk_rgb_get_cmap ());
     
     drawing_area = gtk_drawing_area_new();
+
     gtk_widget_pop_colormap ();
     gtk_widget_pop_visual ();
+
 
     gtk_widget_set_events (drawing_area, 
                            GDK_EXPOSURE_MASK |

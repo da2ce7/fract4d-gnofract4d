@@ -434,6 +434,10 @@ double gf4d_fractal_get_ratio(Gf4dFractal *f)
 
 int  gf4d_fractal_set_resolution(Gf4dFractal *f, int xres, int yres)
 {
+    if(xres == f->im->Xres() && yres == f->im->Yres())
+    {
+        return 0;
+    }
     kill_slave_threads(f);
     f->im->set_resolution(xres,yres);
     return 1;
