@@ -18,11 +18,26 @@ else:
 # gtk
 try:
     import gtk
-    import gobject
 except ImportError, err:
     print _("Can't find PyGTK. You need to install it before you can run Gnofract 4D.")
     sys.exit(1)
+
+# check for pygtk >=1.99
+pygtk_ok = True
+try:
+    (major,minor,patch) = gtk.pygtk_version
+    if major < 2:
+        if minor < 99:
+            pygtk_ok = False
+    import gobject
     
+except Exception:
+    pygtk_ok = False
+
+if not pygtk_ok:
+    print _("Sorry, your PyGTK version is too old. You need at least 1.99")
+    sys.exit(1)
+
 try:
     # we install our libs privately instead of to site-packages
     sys.path.append('/usr/lib/gnofract4d-2.1')
