@@ -846,7 +846,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
             new_list.append(color)
         self.colorlist = new_list
         self.changed(False)
-    
+        
     def parse__colorizer_(self,val,f):
         which_cf = int(val)
         cf = Colorizer(self)

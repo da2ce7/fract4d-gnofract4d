@@ -215,6 +215,23 @@ class ParserTest(unittest.TestCase):
         ''')
         self.assertIsValidParse(t1)
 
+    def testUseEnum(self):
+        t1 = self.parse('''
+        t1 {
+        init:
+        if @y == "foo"
+           x = 1
+        elseif @y == "bar"
+           x = 2
+        endif          
+        default:
+        param y
+        enum = "foo" "bar"
+        endparam
+        }
+        ''')
+        self.assertIsValidParse(t1)
+        
     def testFuncBlocks(self):
         t1 = self.parse('''
         t1 {
