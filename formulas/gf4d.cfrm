@@ -1,0 +1,58 @@
+comment {
+
+Standard Gnofract4D coloring algorithms
+
+}
+
+default (OUTSIDE){
+; the default is just to use the iteration count
+final:
+#index = #numiter / 256.0
+}
+
+zero (BOTH) {
+final:
+#solid = true
+}
+
+continuous_potential {
+final:
+float ed = 4.0/|z| 
+#index = (#numiter + ed) / 256.0
+;default:
+;float param bailout
+;	default = 4.0
+;endparam
+}
+
+external_angle {
+final:
+float angle = atan2(z)
+if angle < 0.0 
+	angle = 2.0 * #pi + angle
+endif
+#index = angle / (2.0 * #pi)
+}
+
+decomposition {
+final:
+float quadrant = 0.0;
+if(real(z) < 0.0) 
+	quadrant = quadrant + 0.25
+endif
+if(imag(z) < 0.0) 
+	quadrant = quadrant + 0.5
+endif
+#index = quadrant
+}
+
+ejection_distance {
+final:
+float ed = 4.0/|z| 
+#index = ed
+;default:
+;float param bailout
+;	default = 4.0
+;endparam
+}
+
