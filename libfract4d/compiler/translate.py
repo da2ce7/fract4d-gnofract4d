@@ -18,6 +18,7 @@ class T:
         self.errors = []
         self.warnings = []
         self.sections = {}
+        self.dumpCanon = 0
         try:
             self.formula(f)
         except TranslationError, e:
@@ -91,6 +92,9 @@ class T:
 
         f.children.remove(s)
 
+        if self.dumpCanon:
+            print f.pretty()
+
     def default(self,node):
         self.sections["default"] = 1
 
@@ -133,12 +137,13 @@ class T:
         node = self.coerce(node, expectedType)
 
     def coerce(self, node, expectedType):
+        '''insert code to convert node from actual to expected type, or
+           produce an error if conversion is not permitted'''
         if node.datatype == None:
             raise TranslationError("Internal Compiler Error: coercing an untyped node %s" % node)
         elif node.datatype == expectedType:
             return node
         elif node.datatype == Bool:
-            # allowed widenings
             if expectedType == Int or expectedType == Float or expectedType == Complex:
                 self.warnCast(node,expectedType)
                 # fixme - rewrite exp with coercion
