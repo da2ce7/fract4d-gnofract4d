@@ -214,7 +214,7 @@ class T:
 
 typedef struct {
     pf_obj parent;
-    double p[PF_MAXPARAMS];
+    struct s_param p[PF_MAXPARAMS];
     double period_tolerance;
     %(var_decls)s
 } pf_real ;
@@ -222,7 +222,7 @@ typedef struct {
 static void pf_init(
     struct s_pf_data *p_stub,
     double period_tolerance, 
-    double *params,
+    struct s_param *params,
     int nparams)
 {
     pf_real *pfo = (pf_real *)p_stub;
@@ -449,6 +449,19 @@ pf_obj *pf_new()
 // maximum number of params which can be passed to init
 #define PF_MAXPARAMS 20
 
+typedef enum
+{
+    INT = 0,
+    FLOAT = 1
+} e_paramtype;
+
+struct s_param
+{
+    e_paramtype t;
+    int intval;
+    double doubleval;
+};
+
 struct s_pf_data;
 
 struct s_pf_vtable {
@@ -456,9 +469,10 @@ struct s_pf_vtable {
     void (*init)(
 	struct s_pf_data *p,
         double period_tolerance,
-        double *params,
+        struct s_param *params,
 	int nparams
 	);
+
     /* calculate one point.
        perform up to nIters iterations,
        return:
@@ -573,8 +587,8 @@ extern pf_obj *pf_new(void);
                         im_val = "%.17f" % val[1]
                         out += self.make_complex_init(t,sym.cname, re_val, im_val)
                     else:
-                        re_val = "t__pfo->p[%d]" % ord
-                        im_val = "t__pfo->p[%d]" % (ord+1)
+                        re_val = "t__pfo->p[%d].doubleval" % ord
+                        im_val = "t__pfo->p[%d].doubleval" % (ord+1)
                         out += self.make_complex_init(t,sym.cname, re_val, im_val)
 
                 elif sym.type == fracttypes.Hyper:
@@ -583,7 +597,7 @@ extern pf_obj *pf_new(void);
                         fval = [ "%.17f" % v for v in val]
                         out += self.make_hyper_init(t,sym.cname, fval)
                     else:
-                        fval = [ "t__pfo->p[%d]" % x for x in range(ord,ord+4)]
+                        fval = [ "t__pfo->p[%d].doubleval" % x for x in range(ord,ord+4)]
                         out += self.make_hyper_init(t,sym.cname, fval)
                     
                 elif sym.type == fracttypes.Float:
@@ -591,7 +605,7 @@ extern pf_obj *pf_new(void);
                     if ord == None:
                         out.append(Decl("%s %s = %.17f;" % (t,sym.cname,val)))
                     else:
-                        out.append(Decl("%s %s = t__pfo->p[%d];" % \
+                        out.append(Decl("%s %s = t__pfo->p[%d].doubleval;" % \
                                             (t, sym.cname, ord)))
                 else:
                     out.append(Decl("%s %s = %d;" % (t,sym.cname,val)))

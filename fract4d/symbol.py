@@ -619,6 +619,26 @@ class T(UserDict):
 
         return op
 
+    def type_of_params(self):
+        # an array from param order -> type
+        p = self.parameters(True)
+        karray = p.keys()
+        karray.sort(self.keysort)
+        tp = []; 
+        for k in karray:
+            if p[k].type == Complex:
+                tp += [Float, Float]
+            elif p[k].type == Hyper:
+                tp += [Float, Float, Float, Float]
+            elif p[k].type == Float:
+                tp.append(Float)
+            elif p[k].type == Int:
+                tp.append(Int)
+            else:
+                raise ValueError("Unknown param type %s for %s" % (p[k].type, k))
+        return tp
+
+
     def default_params(self):
         op = self.order_of_params()
         defaults = [0.0] * op["__SIZE__"]

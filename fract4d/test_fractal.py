@@ -8,10 +8,12 @@ import math
 import copy
 import os
 import time
+import types
 
 import fc
 import fractal
 import fract4dc
+import fracttypes
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
@@ -307,6 +309,27 @@ colorlist=[
         not_a_file = StringIO.StringIO("ceci n'est pas un file")
         self.assertRaises(Exception,f.loadFctFile,not_a_file)
 
+    def testIntParams(self):
+        f = fractal.T(self.compiler)
+        f.set_formula("testx.frm", "fn_with_intparam")
+
+        p = f.formula.symbols.parameters()
+        op = f.formula.symbols.order_of_params()
+        
+        self.assertEqual(len(p), 1)
+        self.assertEqual(p["t__a_x"].type, fracttypes.Int)
+        self.assertEqual(op["t__a_x"], 0)
+        self.assertEqual(op["__SIZE__"], 1)
+
+        tp = f.formula.symbols.type_of_params()
+
+        self.assertEqual(len(tp),1)
+        self.assertEqual(tp[0], fracttypes.Int)
+        
+        f.set_initparam(0, "17", 0)
+        self.assertEqual(f.initparams[0],17)
+        self.failUnless(isinstance(f.initparams[0],types.IntType))
+            
     def testCFParams(self):
         f = fractal.T(self.compiler)
 

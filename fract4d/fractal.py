@@ -207,7 +207,8 @@ class T(FctUtils):
         self.cfuncs = [None,None]
         self.cfunc_names = [None,None]
         self.cfunc_files = [None,None]
-        self.cfunc_params = [[],[]]
+        self.cfunc_params = [[], []]
+        self.cfunc_paramtypes = [[], []]
         self.yflip = False
         self.periodicity = True
         self.auto_tolerance = False
@@ -443,8 +444,15 @@ class T(FctUtils):
             params = self.cfunc_params[param_type-1]
         return params[n]
     
-    def set_initparam(self,n,val,param_type):
-        val = float(val)
+    def set_initparam(self,n,val, param_type):
+        t = self.paramtypes[n]
+        if t == fracttypes.Float:
+            val = float(val)
+        elif t == fracttypes.Int:
+            val = int(val)
+        else:
+            raise ValueError("Unknown parameter type %s" % t)
+        
         if param_type == 0:
             params = self.initparams
         else:
@@ -466,6 +474,7 @@ class T(FctUtils):
             return
 
         self.initparams = self.formula.symbols.default_params()
+        self.paramtypes = self.formula.symbols.type_of_params()
         
         for (name,val) in self.formula.defaults.items():
             # FIXME helpfile,helptopic,method,periodicity,precision,
@@ -492,6 +501,7 @@ class T(FctUtils):
 
         for i in xrange(2):
             self.cfunc_params[i] = self.cfuncs[i].symbols.default_params()
+            self.cfunc_paramtypes[i] = self.cfuncs[i].symbols.type_of_params()
         
     def set_formula(self,formulafile,func):
         formula = self.compiler.get_formula(formulafile,func)
@@ -507,6 +517,7 @@ class T(FctUtils):
         self.funcFile = formulafile
 
         self.initparams = self.formula.symbols.default_params()
+        self.paramtypes = self.formula.symbols.type_of_params()
         self.set_bailfunc()
 
         self.formula_changed()
@@ -590,6 +601,7 @@ class T(FctUtils):
         self.cfunc_files[index] = funcfile
         self.cfunc_names[index] = funcname
         self.cfunc_params[index] = func.symbols.default_params()
+        self.cfunc_paramtypes[index] = func.symbols.type_of_params()
         
         self.dirtyFormula = True
         self.formula_changed()

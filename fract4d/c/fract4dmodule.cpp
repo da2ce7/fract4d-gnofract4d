@@ -122,7 +122,7 @@ pf_init(PyObject *self, PyObject *args)
 {
     PyObject *pyobj, *pyarray;
     double period_tolerance;
-    double *params;
+    struct s_param *params;
     struct pfHandle *pfh;
 
     if(!PyArg_ParseTuple(args,"OdO",&pyobj,&period_tolerance,&pyarray))
@@ -147,8 +147,9 @@ pf_init(PyObject *self, PyObject *args)
     int len = PySequence_Size(pyarray);
     if(len == 0)
     {
-	params = (double *)malloc(sizeof(double));
-	params[0] = 0.0;
+	params = (struct s_param *)malloc(sizeof(struct s_param));
+	params[0].t = FLOAT;
+	params[0].doubleval = 0.0;
     }
     else if(len > PF_MAXPARAMS)
     {
@@ -158,7 +159,7 @@ pf_init(PyObject *self, PyObject *args)
     else
     {
 	int i = 0;
-	params = (double *)malloc(len * sizeof(double));
+	params = (struct s_param *)malloc(len * sizeof(struct s_param));
 	if(!params) return NULL;
 	for(i = 0; i < len; ++i)
 	{
@@ -169,7 +170,7 @@ pf_init(PyObject *self, PyObject *args)
 	    }
 	    if(PyFloat_Check(pyitem))
 	    {
-		params[i] = PyFloat_AsDouble(pyitem);
+		params[i].doubleval = PyFloat_AsDouble(pyitem);
 	    }
 	    else
 	    {
