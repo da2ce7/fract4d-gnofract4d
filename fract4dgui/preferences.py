@@ -141,7 +141,7 @@ class PrefsDialog(dialog.T):
             if self.fix_ratio.get_active():
                 height = int(width * float(height)/self.f.width)
 
-            self.prefs.set_size(width, height)
+            gtk.idle_add(self.prefs.set_size,width, height)
             return False
     
         set_entry()
