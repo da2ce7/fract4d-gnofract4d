@@ -154,6 +154,22 @@ creating a whole world of bizarre pictures.
 </para>
 
 </sect2>
+
+<sect2 id="hypercomplex">
+<title>Hypercomplex Fractals and Quaternions</title>
+<para>
+There are other kinds of fractal which are commonly described as
+"four-dimensional" - hypercomplex and quaternion-based
+fractals. &gf4; doesn't currently support these fractals, so they're
+only mentioned here to clarify the difference. (If you want to
+generate hypercomplex fractals I recommend you try <ulink url="http://www.physcip.uni-stuttgart.de/phy11733/quat_e.html">
+Quat</ulink>.) Hypercomplex
+numbers have four components (one real and three imaginary) where
+complex numbers have two. Since the hypercomplex mandelbrot has two
+hypercomplex parameters, in &gf4; terms it's actually an
+eight-dimensional object.
+</para>
+</sect2>
 </sect1>
 
 <sect1 id="types">
@@ -385,21 +401,23 @@ click the map.
 <title>About &gf4;</title>
 <para>
 
-This is &gf4; version 1.5. You can find the most recent version of
+This is &gf4; version 1.6. You can find the most recent version of
 &gf4; from <ulink url="http://gnofract4d.sourceforge.net">
 http://gnofract4d.sourceforge.net/</ulink>. 
 </para>
 <para>
-&gf4; was originally based on Gnofract, written by Aurelien Alleaume <ulink
-url="mailto:manchot@club-internet.fr">(manchot@club-internet.fr)</ulink>.
-Gnofract can be obtained from <ulink url="http://www.multimania.com/mason/">
-http://www.multimania.com/mason/</ulink>. The new code in &gf4; is by
-Edwin Young <ulink
-url="mailto:edwin@sourceforge.net">(edwin@sourceforge.net)
-</ulink>. 
-&gf4; contains code from
-<emphasis>gundo</>, by Nat Pryce. &gf4; also contains palette files (by
-a number of authors) which were originally distributed with <ulink
+&gf4; was originally based on Gnofract, written by Aurelien Alleaume
+<ulink url="mailto:manchot@club-internet.fr">(manchot@club-internet.fr)
+</ulink>,
+though none of the original code remains in the current version.
+Gnofract can be obtained from 
+<ulink url="http://www.multimania.com/mason/">
+http://www.multimania.com/mason/</ulink>. 
+The new code in &gf4; is by Edwin Young <ulink
+url="mailto:edwin@sourceforge.net">(edwin@sourceforge.net) </ulink>.
+&gf4; contains code from <emphasis>gundo</>, by Nat Pryce. &gf4; also
+contains palette files (by a number of authors) which were originally
+distributed with <ulink
 url="http://spanky.triumf.ca/">Fractint</ulink>.
 </para>
 <para>
