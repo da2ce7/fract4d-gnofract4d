@@ -83,28 +83,28 @@ def HSVtoRGB(hsv):
 			
 	return rgb
 
-class ColorPoint:
-		def __init__(self, index, r, g, b):
-				self.index = index
-				self.r = r
-				self.g = g
-				self.b = b
+class Handle:
+	def __init__(self, pos, color):
+		self.pos = pos
+		self.col = color
 		
 class Segment:
-    def __init__(self, color_mode, blend_mode, left_point, right_point):
-			self.color_mode = color_mode
-			self.blend_mode = blend_mode
-			self.left = left_point
-			self.right = right_point
+    def __init__(self, lh, rh, color_mode='RGB', blend_mode='Linear'):
+		self.cmode = color_mode
+		self.bmode = blend_mode
+		self.left = lh
+		self.right = rh
+		
 			
 class Gradient:
 	def __init__(self):
-		#self.first=[255,0,255]
-		self.segments=[	['RGB','Linear', [0, [255, 255, 0]], [.5,[255, 0, 0]]],
-						['RGB','Linear', [.5,[255, 0, 0]], [1, [0,   0, 255]]]]
+		self.segments=[Segment(Handle(0, [255, 255, 0]), Handle(.5, [255, 0, 0])),
+						Segment(Handle(.5, [255, 0, 0]),  Handle(.55, [0, 0, 255])),
+						Segment(Handle(.55,[0, 0, 255]),  Handle(.7,  [0, 128, 0])),
+						Segment(Handle(.7, [0, 128, 0]),  Handle(1, [255, 255, 0]))]
 		
-		#Key:	Colouring mode, Blending mode, [position [R|H, G|S, B|V], [same again, but for left handle]]
-		#	Note that HSV colouring mode does NOT specify the colour in H, S and V, merely blends along the
+		#Key:	Coloring mode, Blending mode, [position [R|H, G|S, B|V], [same again, but for left handle]]
+		#	Note that HSV coloring mode does NOT specify the color in H, S and V, merely blends along the
 		#	HSV axes.
 		#Possibly add option for midpoint
 		
@@ -113,6 +113,7 @@ class Gradient:
 		self.detail=1.0/self.num
 		self.alternating=0
 		self.offset=0
+		self.dialog=None
 		
 	def compute(self):
 		clist=[]; i=0; alt=0
@@ -123,7 +124,7 @@ class Gradient:
 			ialt+=self.offset
 			if ialt > 1:
 				ialt-=1.0
-			col=self.getColourAt(ialt)
+			col=self.getColorAt(ialt)
 			clist.append((i,
 						 int(col[0]),
 						 int(col[1]),
@@ -136,9 +137,10 @@ class Gradient:
 							
 		self.clist = clist
 			
-	def getColourAt(self, pos):
+	def getColorAt(self, pos):
 		#Clever stuff is shtolen from gimp/app/core/gimpgradient.c
 		seg = self.getSegAt(pos)
+		if seg == None: return [0, 0, 0]
 
 		#if seg == 0:
 		#	s_lpos = 0
@@ -147,18 +149,17 @@ class Gradient:
 		#	s_lpos = self.handles[seg-1][2][0]
 		#	s_lcol = self.handles[seg-1][2][1]
 		
-		cmode = seg[0]
-		bmode = seg[1]
+		cmode = seg.cmode
+		bmode = seg.bmode
 		
-		if cmode == 'RGB':
-			s_lcol = seg[2][1]
-			s_rcol = seg[3][1]
-		else:
-			s_lcol = RGBtoHSV(seg[2][1])
-			s_rcol = RGBtoHSV(seg[3][1])
+		s_lcol = seg.left.col
+		s_rcol = seg.right.col
+		if cmode == 'HSV':
+			s_lcol = RGBtoHSV(s_lcol)
+			s_rcol = RGBtoHSV(s_rcol)
 			
-		s_lpos = seg[2][0]
-		s_rpos = seg[3][0]
+		s_lpos = seg.left.pos
+		s_rpos = seg.right.pos
 		
 		#if pos > s_rpos:
 		#	if s_rpos >= s_lpos:
@@ -209,31 +210,34 @@ class Gradient:
 		else:
 			return HSVtoRGB([RH,GS,BV])
 		
-	#Obtains the first handle to the right of pos
-	#Essentially, we obtain the segment of gradient in which pos resides.
+	#Another monstrosity brought about by the fact that we need to do weird stuff when
+	#A segment crosses the border... This probably houses a couple of bugs I haven't found, yet...
 	def getSegAt(self, pos):
+		bestseg = None
 		for seg in self.segments:
-			if pos <= seg[3][0]:
-				return seg
-	
-	def getRawSegAt(self, pos):
-		for seg in self.segments:
-			if pos <= seg[3][0]:
-				return seg
+			#print seg.right.pos, bestpos, pos
+			if pos <= seg.right.pos and pos >=seg.left.pos:
+				bestseg = seg
+		
+		if bestseg != None:
+			return bestseg
+		else:	
+			return None
+		
 	
 	def getSegFromHandle(self, handle):
 		seg = handle/2
 		if handle/2.0 == seg:
-			return self.segments[seg], 2
+			return self.segments[seg], 'left'
 		else:
-			return self.segments[seg], 3
+			return self.segments[seg], 'right'
 	
 	def getDataFromHandle(self, handle):
 		seg = handle/2
 		if handle/2.0 == seg:
-			return self.segments[seg][2]
+			return self.segments[seg].left
 		else:
-			return self.segments[seg][3]
+			return self.segments[seg].right
 	
 	def getLinearFactor(self, pos, middle):
 		if pos <= middle:
@@ -245,7 +249,58 @@ class Gradient:
 		
 	def getCurvedFactor(self, pos, middle):
 		return pos**( log(0.5) / log(middle) )
+	
 		
+	def add(self, action, widget):
+		x = self.mousepos/self.num
+		
+		seg = self.getSegAt(x)
+		segindex = self.segments.index(seg)
+		
+		if segindex+1 < len(self.segments):
+			segright = self.segments[segindex+1]
+		else: segright = None
+		
+		s_len = (seg.right.pos-seg.left.pos)
+		s_mid = seg.left.pos + s_len*0.5
+		newcol= self.getColorAt(s_mid)
+		
+		seg.right.pos = s_mid
+		seg.right.col = newcol
+		if segright == None:
+			self.segments.append(Segment(Handle(s_mid, newcol), Handle(1, self.segments[0].left.col), seg.cmode, seg.bmode))
+		else:
+			self.segments.insert(segindex+1,
+								  Segment(Handle(s_mid, newcol), Handle(segright.left.pos, segright.left.col), seg.cmode, seg.bmode))
+								  
+		self.compute()
+		if self.dialog != None:
+			self.dialog.gradarea.queue_draw()
+			
+	def remove(self, action, widget):
+		if self.cur == 0 or self.cur == len(self.segments):
+			return
+		
+		seg, side = self.getSegFromHandle(self.cur)
+		segindex = self.segments.index(seg)
+		
+		if side == 'left':
+			segright = self.segments[segindex-1]
+			segright.right.pos = seg.right.pos
+			segright.right.col = seg.right.col
+			self.segments.remove(seg)
+		else:
+			segleft = self.segments[segindex+1]
+			segleft.left.pos = seg.left.pos
+			segleft.left.col = seg.left.col
+			self.segments.remove(seg)
+		
+		self.cur = 0
+		
+		self.compute()
+		if self.dialog != None:
+			self.dialog.gradarea.queue_draw()
+
 	def getCList(self):
 		return self.clist
 	def getOffset(self):
