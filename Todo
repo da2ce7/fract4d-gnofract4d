@@ -2,7 +2,7 @@ todo for 2.0
 * BB	deeper.fct, hive.fct, image.fct doesn't load properly - old format
 * BB	tower_of_thorns, untitled_5 don't load - need bailout for colorfunc
 * BB	novaspiral.fct
-* BB	elfglow.fct, egg.fct
+* BB	egg.fct
 * B	coolness.fct - need direct coloring algorithm
 * BB	daisychain.fct
 * BB	dubious.fct
@@ -20,7 +20,6 @@ todo for 2.0
 * W	save images
 * WW	save parameter files (define a format first)
 * W	explorer mode
-* WW	cmap browser
 * WW	parameters for colorfuncs
 * W	last-chance exception handler
 * W	exact SMP equality test
@@ -63,6 +62,7 @@ done:
 * W	user parameter functions
 
 postponed
+* WW	cmap browser
 * W	autosave/restore?
 * W	max size for .so cache
 * W	diff bailout for other types
