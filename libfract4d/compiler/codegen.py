@@ -298,8 +298,14 @@ return;
         
     def output_c(self,t,inserts={},output_template=None):
         # find bailout variable
-        bailout_insn = t.output_sections["bailout"][-2]
-        inserts["bailout_var"] = bailout_insn.dst[0].format()
+        try:
+            bailout_insn = t.output_sections["bailout"][-2]
+            bailout_var = bailout_insn.dst[0].format()
+        except KeyError:
+            # can't find it, bail out immediately
+            bailout_var = "0"
+            
+        inserts["bailout_var"] = bailout_var
         f = Formatter(self,t,inserts)
         if output_template == None:
             output_template = self.output_template

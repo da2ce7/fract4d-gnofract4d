@@ -166,10 +166,11 @@ class MainWindow:
         # generate code
         cg = codegen.T(self.ir.symbols)
         cg.output_all(self.ir)
-        asm = ""
-        for (name,sect) in self.ir.output_sections.items():
-            asm += "\nSection %s:\n" % name
-            asm += string.join([x.format() for x in sect],"\n") + "\n"
+        asm = cg.output_c(self.ir)
+        # asm = ""
+#         for (name,sect) in self.ir.output_sections.items():
+#             asm += "\nSection %s:\n" % name
+#             asm += string.join([x.format() for x in sect],"\n") + "\n"
         buffer = self.asmtext.get_buffer()
         buffer.set_text(asm,-1)
         

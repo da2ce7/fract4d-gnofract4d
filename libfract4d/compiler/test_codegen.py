@@ -367,8 +367,12 @@ goto t__end_init;''')
         return "(%.6g,%.6g)" % (f(arg1),f(arg2))
 
     def cpredict(self,f,arg=(1+0j)):
-        z = f(arg)
-        return "(%.6g,%.6g)" % (z.real,z.imag) 
+        try:
+            z = f(arg)
+            return "(%.6g,%.6g)" % (z.real,z.imag) 
+        except OverflowError:
+            return "(inf,inf)"
+        
 
     def make_test(self,myfunc,pyfunc,val,n):
         codefrag = "ct_%s%d = %s((%d,%d))" % (myfunc, n, myfunc, val.real, val.imag)
@@ -377,7 +381,7 @@ goto t__end_init;''')
         return [ codefrag, lookat, result]
     
     def manufacture_tests(self,myfunc,pyfunc):
-        vals = [ 0+0j, 0+1j, 1+0j, 1+1j, 1+2j, 1-0j, 0-1j ]
+        vals = [ 0+0j, 0+1j, 1+0j, 1+1j, 3+2j, 1-0j, 0-1j ]
         return map(lambda (x,y) : self.make_test(myfunc,pyfunc,x,y), \
                    zip(vals,range(1,len(vals))))
     
@@ -399,6 +403,7 @@ goto t__end_init;''')
             [ "a2 = abs((4,-4))","a2","(4,4)"],
             [ "cab = (cabs((0,0)), cabs((3,4)))", "cab", "(0,5)"],
             [ "sq = (sqrt(4),sqrt(2))", "sq", self.predict(math.sqrt,4,2)],
+            [ "l = (log(1),log(3))", "l", self.predict(math.log,1,3)],
             
             # trig functions
             [ "t_sin = (sin(0),sin(1))","t_sin", self.predict(math.sin)],
@@ -425,6 +430,9 @@ goto t__end_init;''')
         tests += self.manufacture_tests("sinh",cmath.sinh)
         tests += self.manufacture_tests("cosh",cmath.cosh)
         tests += self.manufacture_tests("tanh",cmath.tanh)
+        logtests = self.manufacture_tests("log",cmath.log)
+        logtests[0][2] = "(-inf,0)" # log(0+0j) is overflow in python
+        tests += logtests
         
         src = 't_c6{\ninit: y = (1,2)\n' + \
               string.join(map(lambda x : x[0], tests),"\n") + "\n}"
