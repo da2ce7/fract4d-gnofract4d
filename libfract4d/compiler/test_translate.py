@@ -10,6 +10,7 @@ import ir
 
 import string
 import unittest
+import types
 
 class TranslateTest(unittest.TestCase):
     def setUp(self):
@@ -329,6 +330,7 @@ class TranslateTest(unittest.TestCase):
         self.assertEqual(len(t.warnings),0,
                          "Unexpected warnings %s" % t.warnings)
         self.assertNoErrors(t)
+        self.assertWellTyped(t)
         
     def assertVar(self,t, name,type):
         self.assertEquals(t.symbols[name].type,type)
@@ -404,6 +406,34 @@ class TranslateTest(unittest.TestCase):
         for target in jumpTargets.keys():
             self.failUnless(jumpLabels.has_key(target),
                             "jump to unknown target %s" % target )
+
+    def assertWellTyped(self,t):
+        for (key,s) in t.sections.items():
+            for node in s:
+                if isinstance(node,ir.T):
+                    ob = node
+                    dt = node.datatype
+                elif isinstance(node,types.StringType):
+                    try:
+                        sym = t.symbols[node]
+                    except KeyError, err:
+                        self.fail("%s not a symbol in %s" % (node, s.pretty()))
+                    self.failUnless(isinstance(sym,fracttypes.Var),
+                                    "weird symbol %s : %s(%s)" %
+                                    (node, sym, sym.__class__.__name__))
+                    ob = sym
+                    dt = ob.type
+                else:
+                    self.fail("%s(%s) not an ir Node" % (node, node.__class__.__name__))
+
+                if isinstance(ob,ir.Stm):
+                    self.assertEqual(dt,None,"bad type %s for %s" % (dt, ob))
+                else:
+                    self.failUnless(dt in [fracttypes.Bool,
+                                           fracttypes.Color,
+                                           fracttypes.Complex,
+                                           fracttypes.Float,
+                                           fracttypes.Int], "bad type %s for %s" % (dt, ob))
 
 def suite():
     return unittest.makeSuite(TranslateTest,'test')

@@ -233,7 +233,7 @@ class T:
         expectedType = self.symbols[node.leaf].type
         rhs = self.exp(node.children[0])
         
-        lhs = ir.Var(node.leaf, node, node.datatype)
+        lhs = ir.Var(node.leaf, node, rhs.datatype)
         return ir.Move(lhs,self.coerce(rhs,expectedType),node,expectedType)
 
     def findOp(self, opnode, list):
@@ -311,13 +311,13 @@ class T:
         if node.leaf == "&&":
             # code to calc B and store in temp
             trueBlock = ir.Seq(
-                [trueDest, ir.Move(temp, children[1],node, node.datatype),
+                [trueDest, ir.Move(temp, children[1],node, children[1].datatype),
                  ir.Jump(doneDest.name, node)], node)
             
             # code to set temp to false
             falseBlock = ir.Seq(
                 [falseDest,
-                 ir.Move(temp, ir.Const(0,Bool,node),node, node.datatype),
+                 ir.Move(temp, ir.Const(0,Bool,node),node, Bool),
                  ir.Jump(doneDest.name, node)], node)
             
         else:
@@ -326,13 +326,13 @@ class T:
             # code to set temp to true
             trueBlock = ir.Seq(
                 [trueDest,
-                 ir.Move(temp, ir.Const(1,Bool,node),node, node.datatype),
+                 ir.Move(temp, ir.Const(1,Bool,node),node, Bool),
                  ir.Jump(doneDest.name, node)], node)
 
             # set temp to (bool)b
             falseBlock = ir.Seq(
                 [falseDest,
-                 ir.Move(temp, children[1],node, node.datatype),
+                 ir.Move(temp, children[1],node, children[1].datatype),
                  ir.Jump(doneDest.name, node)], node)
             
         # construct actual if operation

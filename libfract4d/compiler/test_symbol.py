@@ -51,6 +51,9 @@ class SymbolTest(unittest.TestCase):
 
     def test_clash_with_secret_vars(self):
         self.assertRaises(KeyError, self.t.__setitem__, ("t__temp0"), 1)
+
+    def testZ(self):
+        self.assertEqual(self.t["z"].type, Complex)
         
 def suite():
     return unittest.makeSuite(SymbolTest,'test')

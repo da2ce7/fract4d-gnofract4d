@@ -130,7 +130,13 @@ class T:
     def move(self,t):
         dst = self.generate_code(t.children[0])
         src = self.generate_code(t.children[1])
-        self.out.append(Move(src,dst))
+        if t.datatype == Complex:
+            print src
+            print dst
+            self.out.append(Move([src[0]],[dst[0]]))
+            self.out.append(Move([src[1]],[dst[1]]))
+        else:
+            self.out.append(Move(src,dst))
         return dst
     
     def label(self,t):
