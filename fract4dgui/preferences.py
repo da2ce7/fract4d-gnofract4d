@@ -104,7 +104,7 @@ class PrefsDialog(gtk.Dialog):
         self.tips = gtk.Tooltips()
         self.create_image_options_page()
         self.create_compiler_options_page()
-        self.create_editor_options_page()
+        #self.create_editor_options_page()
         
         self.set_size_request(500,-1)
         self.connect('response',self.onResponse)
