@@ -149,8 +149,9 @@ int main()
         double pixel_re = 0.0, pixel_im = 0.0;
         double t__h_zwpixel_re = 0.0, t__h_zwpixel_im = 0.0;
         '''
-        decls = string.join(map(lambda x: x.format(),
-                                self.codegen.output_symbols({})),"\n")
+
+        codegen_symbols = self.codegen.output_symbols(self.codegen,{})
+        decls = string.join(map(lambda x: x.format(), codegen_symbols),"\n")
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
         postamble = "\nreturn 0;}\n"
 
@@ -348,12 +349,12 @@ goto t__end_finit;''')
     def testSymbols(self):
         self.codegen.symbols["q"] = Var(Complex)
         z = self.codegen.symbols["q"] # ping z to get it in output list
-        out = self.codegen.output_symbols({})
+        out = self.codegen.output_symbols(self.codegen,{})
         l = [x for x in out if x.assem == "double q_re = 0.00000000000000000;"]
         self.failUnless(len(l)==1,l)
 
         z = self.codegen.symbols["z"] # ping z to get it in output list
-        out = self.codegen.output_symbols({ "z" : "foo"})
+        out = self.codegen.output_symbols(self.codegen,{ "z" : "foo"})
         l = [x for x in out if x.assem == "foo"]
         self.failUnless(len(l)==1)
 

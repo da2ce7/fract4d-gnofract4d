@@ -76,8 +76,7 @@ class Test(unittest.TestCase):
         counter = EmitCounter()
         f = self.m.f        
         f.connect('parameters-changed',counter.onCallback)
-        f = self.m.f
-        
+
         bailfunc = f.get_func_value("@bailfunc",f.formula)
         self.assertEqual(bailfunc,"cmag")
         

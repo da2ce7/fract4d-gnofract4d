@@ -280,9 +280,8 @@ class T(FctUtils):
         for name in self.func_names(formula):
             print >>file, "%s=%s" % (name, self.get_func_value(name,formula))
         for name in formula.symbols.param_names():
-            if formula.symbols.is_local_param(name):
-                print >>file, "%s=%s" % \
-                      (name, self.initvalue(name, formula.symbols,params))
+            print >>file, "%s=%s" % \
+                  (name, self.initvalue(name, formula.symbols,params))
         
     def initvalue(self,name,symbol_table,params):
         ord = self.order_of_name(name,symbol_table)
@@ -297,16 +296,21 @@ class T(FctUtils):
         params = ParamBag()
         params.load(f)
         self.set_inner(params.dict["formulafile"],params.dict["function"])
-
+        self.set_cfunc_params(params,1)
+        
     def parse__outer_(self,val,f):
         params = ParamBag()
         params.load(f)
         self.set_outer(params.dict["formulafile"],params.dict["function"])
+        self.set_cfunc_params(params,0)
+
+    def set_cfunc_params(self,params,index):
         for (name,val) in params.dict.items():
             if name == "formulafile" or name=="function":
                 pass
             else:
-                self.set_named_item(name,val,self.cfuncs[0],self.cfunc_params[0])
+                self.set_named_item(
+                    name,val,self.cfuncs[index],self.cfunc_params[index])
 
     def set_named_item(self,name,val,formula,params):
         sym = formula.symbols[name].first()
@@ -499,16 +503,11 @@ class T(FctUtils):
         if self.dirtyFormula == False:
             return self.outputfile
 
-        cg = self.compiler.compile(self.formula)
-        self.compiler.compile(self.cfuncs[0])
-        self.compiler.compile(self.cfuncs[1])
-
-        self.formula.merge(self.cfuncs[0],"cf0_")        
-        self.formula.merge(self.cfuncs[1],"cf1_")        
-        outputfile = os.path.abspath(
-            self.compiler.generate_code(self.formula, cg))
+        outputfile = self.compiler.compile_all(
+            self.formula, 
+            self.cfuncs[0],
+            self.cfuncs[1])
         
-        #print "compiled %s" % outputfile
         if outputfile != None:
             if self.outputfile != outputfile:
                 self.outputfile = outputfile

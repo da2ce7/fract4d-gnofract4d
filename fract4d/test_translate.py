@@ -8,6 +8,7 @@ import types
 
 import testbase
 
+import absyn
 import translate
 import fractparser
 import fractlexer
@@ -32,6 +33,11 @@ class TranslateTest(testbase.TestBase):
         pt = self.parser.parse(s)
         return translate.ColorFunc(pt.children[0], "cf0", dump)
 
+    def testEmpty(self):
+        pt = absyn.Formula("",[],-1)
+        t = translate.T(pt)
+        self.assertEqual(t.sections,{})
+        
     def testCF(self):
         t1 = self.translatecf('''c1 {
                             final:

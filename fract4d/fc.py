@@ -35,6 +35,7 @@ import fractlexer
 import translate
 import codegen
 import fracttypes
+import absyn
 
 class FormulaFile:
     def __init__(self, formulas, contents):
@@ -86,6 +87,24 @@ class Compiler:
         '''does nothing here, but can be overridden by GUI to prompt user.'''
         raise IOError("Can't find formula file %s in formula search path" % \
                       filename)
+
+    def compile_all(self,formula,cf0,cf1):        
+        cg = self.compile(formula)
+        self.compile(cf0)
+        self.compile(cf1)
+
+        # create temp empty formula and merge everything into that
+        t = translate.T(absyn.Formula("",[],-1))
+        t.merge(formula,"")
+        t.merge(cf0,"cf0_")        
+        t.merge(cf1,"cf1_")
+        
+        #print t.symbols.keys()
+        #print cg.symbols.keys()
+        
+        outputfile = os.path.abspath(self.generate_code(t, cg))
+        
+        return outputfile
     
     def find_file(self,filename):
         if os.path.exists(filename):

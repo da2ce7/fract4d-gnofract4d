@@ -626,6 +626,9 @@ class T(TBase):
         self.post_init()
 
     def main(self, f):
+        if len(f.children) == 0:
+            return
+        
         if f.children[0].type == "error":
             self.error(f.children[0].leaf)
             return
