@@ -64,27 +64,33 @@ def createDefaultDict():
         "||": [ Func([Bool, Bool], Bool, stdlib, "boolor") ],
         "!" : [ Func([Bool],Bool, stdlib, "boolnot") ],
         
-        "hash__pixel": Alias("pixel"),
+        "t__h_pixel": Alias("pixel"),
         "pixel" : Var(Complex), 
-        "hash__z" : Alias("z"),
+        "t__h_z" : Alias("z"),
         "z"  : Var(Complex),        
         }
     # predefined parameters
     for f in xrange(1,7):
         name = "p%d" % f
         d[name] = Var(Complex)
-        d["@" + name]  = Alias(name)
+        d["t__a_" + name]  = Alias(name)
     # predefined functions
     for f in xrange(1,5):
         name = "fn%d" % f
-        d[name] = [ Func([Float],Float, stdlib, name),
-                    Func([Complex],Complex, stdlib, name) ]
-        d["@" + name] = Alias(name)
+        d[name] = [
+            Func([Float],Float, stdlib, name),
+            Func([Complex],Complex, stdlib, name) ]
+        d["t__a_" + name] = Alias(name)
     return d
 
 
 def mangle(k):
-    return string.replace(string.lower(k),'#',"hash__")
+    l = string.lower(k)
+    if l[0] == '#':
+        l = "t__h_" + l[1:]
+    elif l[0] == '@':
+        l = "t__a_" + l[1:]
+    return l
                
 class T(UserDict):
     default_dict = createDefaultDict()
@@ -137,7 +143,7 @@ class T(UserDict):
         elif T.default_dict.has_key(k):
             msg = "is predefined"
             raise KeyError, ("symbol '%s' %s" % (key,msg))
-        elif string.find(k,"t__",0,3)==0:
+        elif string.find(k,"t__",0,3)==0 and not key[0]=='@':
             raise KeyError, \
                   ("symbol '%s': no symbol starting with t__ is allowed" % key)
         elif key[0]=='#':
