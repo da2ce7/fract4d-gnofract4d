@@ -29,3 +29,15 @@ def Number(n):
 
 def Binop(op, left, right):
     return Node("binop", [left, right], op)
+
+def ID(id):
+    return Node("id", None, id)
+
+def Mag(exp):
+    return Node("unop", [exp], "mag")
+
+def Neg(exp):
+    return Node("unop", [exp], "neg")
+
+def Funcall(id,arglist):
+    return Node("funcall", arglist, id)
