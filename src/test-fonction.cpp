@@ -43,8 +43,17 @@ mandelbrot_iter(double *p)
 	p[Y] = 2.0 * p[X] * p[Y] + p[CY];
 	p[X] = atmp;
 }
-#define HAS_X2 1
-#define HAS_Y2 2
+
+// z = z^2 + z +c
+void
+weird_iter(double *p)
+{
+	p[X2] = p[X] * p[X];
+	p[Y2] = p[Y] * p[Y];
+	double atmp = p[X2] - p[Y2] + p[X] + p[CX];
+	p[Y] = 2.0 * p[X] * p[Y] + p[Y] + p[CY];
+	p[X] = atmp;
+}
 
 void
 mag_bailout(double *p, int flags)
@@ -57,6 +66,33 @@ mag_bailout(double *p, int flags)
 	p[EJECT_VAL] = p[X2] + p[Y2];
 }
 
+void
+manhattan_bailout(double *p, int flags)
+{
+	p[EJECT_VAL] = p[X] + p[Y];
+}
+
+void
+manhattan2_bailout(double *p, int flags)
+{
+	double t = fabs(p[X2]) + fabs(p[Y]);
+	p[EJECT_VAL] = t*t;
+}
+
+void
+or_bailout(double *p, int flags)
+{
+	double absx = fabs(p[X]);
+	double absy = fabs(p[Y]);
+
+	p[EJECT_VAL] = MAX(p[X2],p[Y2]);
+}
+
+void
+and_bailout(double *p, int flags)
+{
+	p[EJECT_VAL] = MIN(p[X2],p[Y2]);
+}
 
 int 
 test_mandelbrot_double(const dvec4& params, const d& eject, scratch_space scratch, int max_iters)

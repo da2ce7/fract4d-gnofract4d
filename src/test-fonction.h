@@ -34,6 +34,10 @@
 #define EJECT 6
 #define EJECT_VAL 7
 
+/* bailout flags */
+#define HAS_X2 1
+#define HAS_Y2 2
+
 static const int N_SCRATCH_REGISTERS=8;
 
 typedef double scratch_space[N_SCRATCH_REGISTERS] ;
@@ -53,5 +57,9 @@ int test_mandelbrot_double(
 	int nIters);
 
 int test_mandelbrot_cln(const dvec4& params, const d& eject, int nIters);
+
+void mandelbrot_iter(double *p);
+void mag_bailout(double *p, int flags);
+
 
 #endif

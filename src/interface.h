@@ -18,7 +18,8 @@
  *
  */
 
-GtkWidget* create_app (model_t *);
+GtkWidget *
+create_app (model_t *);
 GtkWidget* create_about (void);
 GtkWidget* create_save_image (model_t *);
 GtkWidget* create_save_param (model_t *);

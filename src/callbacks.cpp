@@ -31,6 +31,7 @@
 #include "interface.h"
 #include "support.h"
 #include "gf4d_fractal.h"
+#include "fract.h"
 #include "colorizer_public.h"
 
 GtkWidget *global_propertybox=NULL;
@@ -147,7 +148,7 @@ void
 save_image_cb(GtkMenuItem     *menuitem,
               gpointer         user_data)
 {
-	gtk_widget_show (create_save_image (user_data));
+	gtk_widget_show (create_save_image ((model_t *)user_data));
 }
 
 
@@ -155,7 +156,7 @@ void
 save_param_cb(GtkMenuItem     *menuitem,
               gpointer         user_data)
 {
-	gtk_widget_show (create_save_param (user_data));
+	gtk_widget_show (create_save_param ((model_t *)user_data));
 }
 
 
@@ -163,7 +164,7 @@ void
 load_param_cb(GtkMenuItem     *menuitem,
               gpointer         user_data)
 {
-	gtk_widget_show (create_load_param (user_data));
+	gtk_widget_show (create_load_param ((model_t *)user_data));
 }
 
 void
@@ -171,8 +172,8 @@ preferences_cb(GtkMenuItem     *menuitem,
                gpointer         user_data)
 {
 	if (global_propertybox==NULL) {
-		global_propertybox = create_propertybox (user_data); 
-		property_box_refresh(user_data);
+		global_propertybox = create_propertybox ((model_t *)user_data); 
+		property_box_refresh((model_t *)user_data);
 		gtk_widget_show(global_propertybox);
 	}
 }
@@ -226,28 +227,12 @@ propertybox_apply(GnomePropertyBox *gnomepropertybox,
                   gint arg1,
                   gpointer user_data)
 {
-	// FIXME: get rid of stupid naming thing?
-	char *pnames[N_PARAMS] = {
-		"combo_entry_bailout",
-		"combo_entry_xcenter",
-		"combo_entry_ycenter",
-		"combo_entry_zcenter",
-		"combo_entry_wcenter",
-		"combo_entry_size",					   
-		"combo_entry_xyangle",
-		"combo_entry_xzangle",
-		"combo_entry_xwangle",
-		"combo_entry_yzangle",
-		"combo_entry_ywangle",
-		"combo_entry_zwangle"
-	};
 	model_t *m = (model_t *)user_data;
 	int Xres_new,Yres_new;
 	double r,g,b,alpha;
 	int i;
 	GnomeColorPicker *cpicker;
 	Gf4dFractal *f;
-	GtkWidget *aa, *auto_deepen;
 	GtkWidget *ctype;
 
 	GtkWidget *pb = GTK_WIDGET(gnomepropertybox);
@@ -256,43 +241,9 @@ propertybox_apply(GnomePropertyBox *gnomepropertybox,
 
 	model_cmd_start(m);
 	f = model_get_fract(m);
+	Gf4dFractal *shadow = GF4D_FRACTAL(gtk_object_get_data(GTK_OBJECT(pb),"shadow"));
+	*(f->f) = *(shadow->f);
 
-	Xres_new = atoi(param_by_name(pb,"combo_entry_image_width"));
-	Yres_new = atoi(param_by_name(pb,"combo_entry_image_height"));
-
-	gf4d_fractal_set_max_iterations(f,atoi(param_by_name(pb,"combo_entry_max_iterations")));
-	for(i = 0; i < N_PARAMS; i++)
-	{
-		char *s = param_by_name(pb,pnames[i]);
-		gf4d_fractal_set_param(f,i,s);
-		g_free(s);
-	}
-	
-	aa = lookup_widget(pb,"checkbutton_antialias");
-	gf4d_fractal_set_aa(f,(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(aa))));
-
-	auto_deepen = lookup_widget(pb,"checkbutton_auto_deepen");
-	gf4d_fractal_set_auto(f,gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auto_deepen)));
-
-	gf4d_fractal_set_resolution(f,Xres_new,Yres_new);
-
-	cpicker = (GnomeColorPicker *)lookup_widget(pb,"color_picker");
-	gnome_color_picker_get_d(cpicker,&r,&g, &b,&alpha);
-
-	ctype = lookup_widget(pb,"rgb_toggle");
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctype)))
-	{
-		gf4d_fractal_set_color_type(f,COLORIZER_RGB);
-		gf4d_fractal_set_color(f,r,g,b);
-	}
-	else
-	{
-		/* assume cmap for now */
-		char *file = param_by_name(pb, "cmap_entry");
-		gf4d_fractal_set_color_type(f,COLORIZER_CMAP);
-		gf4d_fractal_set_cmap_file(f,file);
-		g_free(file);
-	}
 	model_cmd_finish(m);
 }
 
@@ -308,8 +259,11 @@ propertybox_help(GnomePropertyBox *gnomepropertybox,
 
 
 void
-propertybox_destroy (GtkObject *gnomepropertybox, gpointer user_data)
+propertybox_destroy (GtkObject *pb, gpointer user_data)
 {
+	// FIXME: do we need to delete shadow?
+	//Gf4dFractal *shadow = GF4D_FRACTAL(gtk_object_get_data(pb, "shadow"));
+
 	global_propertybox=NULL;
 }
 
@@ -339,20 +293,20 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
 	
 	case GDK_BUTTON_PRESS:
 		if (event->button.button == 1) {
-			x = event->button.x;
-			y = event->button.y;
+			x = (int)event->button.x;
+			y = (int)event->button.y;
 			new_x = x ; new_y = y;
 		}else if (event->button.button == 2) {
 			model_cmd_start(m);
 			gf4d_fractal_flip2julia(f, 
-				   event->button.x,
-				   event->button.y);
+				   (int)event->button.x,
+				   (int)event->button.y);
 			model_cmd_finish(m);
 		}else if (event->button.button == 3) {
 			model_cmd_start(m);
 			gf4d_fractal_relocate(f,
-				 event->button.x,
-				 event->button.y,
+				 (int)event->button.x,
+				 (int)event->button.y,
 				 (1.0/zoom) );
 			model_cmd_finish(m);
 		}
@@ -370,7 +324,7 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
 				       &new_x, &new_y,NULL);
 
 		/* correct rectangle to screen aspect ratio */
-		dy = abs(new_x - x) * gf4d_fractal_get_ratio(f);
+		dy = (int)(abs(new_x - x) * gf4d_fractal_get_ratio(f));
 		if(new_y < y) dy = -dy;
 		new_y = y + dy;
 
@@ -441,25 +395,31 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
 
 void redraw_callback(Gf4dFractal *f, gpointer m)
 {
-	f = model_get_fract(m);
-	property_box_refresh(m);
+	f = model_get_fract((model_t *)m);
+	property_box_refresh((model_t *)m);
 	gf4d_fractal_calc(f);
 }
 
 
 void 
-message_callback(Gf4dFractal *m, gint val, void *user_data)
+message_callback(Gf4dFractal *f, gint val, void *user_data)
 {
 	gchar *msg;
 	switch(val)
 	{
 	case GF4D_FRACTAL_DONE: msg = _("finished"); break;
-	case GF4D_FRACTAL_DEEPENING: msg = _("deepening..."); break;
+	case GF4D_FRACTAL_DEEPENING: 
+		msg = g_strdup_printf(_("deepening(%d iterations)..."), 
+				       gf4d_fractal_get_max_iterations(f)); break;
 	case GF4D_FRACTAL_ANTIALIASING: msg = _("antialiasing..."); break;
 	case GF4D_FRACTAL_CALCULATING: msg = _("calculating..."); break;
 	default: msg = _("error"); break;
 	};
 	gnome_appbar_push((GnomeAppBar *)user_data, msg);
+	if(val == GF4D_FRACTAL_DEEPENING)
+	{
+		g_free(msg);
+	}
 }
 
 void 
@@ -478,21 +438,6 @@ update_callback(Gf4dFractal *f, GdkEventExpose *ev, void *user_data)
 void 
 property_box_refresh(model_t *m)
 {
-	char *combo_names[] = {
-		"combo_entry_bailout",
-		"combo_entry_xcenter",
-		"combo_entry_ycenter",
-		"combo_entry_zcenter",
-		"combo_entry_wcenter",
-		"combo_entry_size",
-		"combo_entry_xyangle",
-		"combo_entry_xzangle",
-		"combo_entry_xwangle",
-		"combo_entry_yzangle",
-		"combo_entry_ywangle",
-		"combo_entry_zwangle"
-	};
-
 	GtkWidget *propertybox = global_propertybox;
 
 	Gf4dFractal *f = model_get_fract(m);
@@ -504,73 +449,230 @@ property_box_refresh(model_t *m)
 	if (propertybox!=NULL) {
 		GtkWidget *w;
 
-		w = lookup_widget(propertybox,"combo_entry_image_width");
-		gtk_entry_set_text(GTK_ENTRY(w),
-				   g_strdup_printf("%d",gf4d_fractal_get_xres(f)));
-
-		w = lookup_widget(propertybox,"combo_entry_image_height");
-		gtk_entry_set_text(GTK_ENTRY(w),
-				   g_strdup_printf("%d",gf4d_fractal_get_yres(f)));
-
-		w = lookup_widget(propertybox,"combo_entry_max_iterations");
-		gtk_entry_set_text(GTK_ENTRY(w),
-				   g_strdup_printf("%d",gf4d_fractal_get_max_iterations(f)));
-
-		w = lookup_widget(propertybox,"checkbutton_antialias");
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w),gf4d_fractal_get_aa(f));
-
-		w = lookup_widget(propertybox,"checkbutton_auto_deepen");
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w),
-					     gf4d_fractal_get_auto(f));
-			
-		for(i = 0; i < N_PARAMS; i++) {
-
-			w = lookup_widget(propertybox,combo_names[i]);
-			gtk_entry_set_text(GTK_ENTRY(w),
-					   gf4d_fractal_get_param(f,i));
-		}
-
-		ctype = gf4d_fractal_get_color_type(f);
-		switch(ctype)
-		{
-		case COLORIZER_RGB:
-			w = lookup_widget(propertybox,"color_picker");
-			gnome_color_picker_set_d(GNOME_COLOR_PICKER(w),
-						 gf4d_fractal_get_r(f), 
-						 gf4d_fractal_get_g(f), 
-						 gf4d_fractal_get_b(f), 0.0);
-			w = lookup_widget(propertybox, "rgb_toggle");
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w),1);
-			break;
-		case COLORIZER_CMAP:
-			w = lookup_widget(propertybox, "cmap_toggle");
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w),1);
-			w = lookup_widget(propertybox, "cmap_entry");
-			filename = gf4d_fractal_get_cmap_file(f);
-			gtk_entry_set_text(GTK_ENTRY(w),filename);
-			g_free(filename);
-			break;
-		default:
-		}
-
+		Gf4dFractal *shadow;
+		shadow = GF4D_FRACTAL(gtk_object_get_data(GTK_OBJECT(propertybox),"shadow"));
+		// invoke assignment operator to copy entire state of fractal
+		*(shadow->f) = *(f->f);
+		// shadow updates all widgets 
+		gf4d_fractal_parameters_changed(shadow);
 		gnome_property_box_set_state(GNOME_PROPERTY_BOX(propertybox),
 					     FALSE);
 	}	
-	
 }
 
 void
-color_picker_cb(GnomeColorPicker *colorpicker, 
-		guint arg1, guint arg2, guint arg3, guint arg4,
-		gpointer user_data)
+set_colortype_callback(GtkToggleButton *button, gpointer user_data)
 {
-	gnome_property_box_changed (GNOME_PROPERTY_BOX(user_data));
-}
-
-void
-color_type_changed(GtkToggleButton *button, gpointer user_data)
-{
-	GtkWidget *widget = GTK_WIDGET(user_data);  
+	Gf4dFractal *f = GF4D_FRACTAL(user_data);  
 	gboolean b_is_set = gtk_toggle_button_get_active(button);
-	gtk_widget_set_sensitive(widget,b_is_set);
+	if(b_is_set)
+	{
+		e_colorizer type = (e_colorizer)GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(button),"type"));
+	
+		gf4d_fractal_set_color_type(f,type);
+		gf4d_fractal_parameters_changed(f);
+	}
+}
+
+void
+refresh_colortype_callback(Gf4dFractal *f, gpointer user_data)
+{
+	GtkToggleButton *b = GTK_TOGGLE_BUTTON(user_data);
+	e_colorizer type = (e_colorizer)GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(b),"type"));
+	if(gf4d_fractal_get_color_type(f) == type)
+	{
+		gtk_toggle_button_set_active(b,true);
+	}
+}
+void
+set_aa_callback(GtkToggleButton *button, gpointer user_data)
+{
+	Gf4dFractal *f = GF4D_FRACTAL(user_data);
+	gf4d_fractal_set_aa(f,gtk_toggle_button_get_active(button));
+	gf4d_fractal_parameters_changed(f);
+}
+
+void
+refresh_aa_callback(Gf4dFractal *f, gpointer user_data)
+{
+	GtkToggleButton *b = GTK_TOGGLE_BUTTON(user_data);
+	gtk_toggle_button_set_active(b,gf4d_fractal_get_aa(f));
+}
+
+void
+set_autodeepen_callback(GtkToggleButton *button, gpointer user_data)
+{
+	Gf4dFractal *f = GF4D_FRACTAL(user_data);
+	gf4d_fractal_set_auto(f,gtk_toggle_button_get_active(button));
+	gf4d_fractal_parameters_changed(f);
+}
+
+void
+refresh_autodeepen_callback(Gf4dFractal *f, gpointer user_data)
+{
+	GtkToggleButton *b = GTK_TOGGLE_BUTTON(user_data);
+	gtk_toggle_button_set_active(b,gf4d_fractal_get_auto(f));
+}
+
+gboolean 
+set_width_callback(GtkEntry *, GdkEventFocus *, gpointer user_data)
+{
+	// FIXME: doesn't do anything
+	return TRUE;
+}
+
+void 
+refresh_width_callback(Gf4dFractal *f, gpointer user_data)
+{
+	char buf[80];
+	GtkEntry *e = GTK_ENTRY(user_data);
+	sprintf(buf,"%d",gf4d_fractal_get_xres(f));
+	gtk_entry_set_text(e,buf);
+}
+
+
+gboolean
+set_height_callback(GtkEntry *, GdkEventFocus *, gpointer user_data)
+{
+	// FIXME : doesn't do anything
+	return TRUE;
+}
+
+void 
+refresh_height_callback(Gf4dFractal *f, gpointer user_data)
+{
+	char buf[80];
+	GtkEntry *e = GTK_ENTRY(user_data);
+	sprintf(buf,"%d",gf4d_fractal_get_yres(f));
+	gtk_entry_set_text(e,buf);
+}
+
+gboolean
+set_maxiter_callback(GtkEntry *e, GdkEventFocus *, gpointer user_data)
+{
+	Gf4dFractal *f = GF4D_FRACTAL(user_data);
+	gchar *s = gtk_entry_get_text(e);
+	int niters=0;
+	sscanf(s,"%d",&niters);
+	if(niters==gf4d_fractal_get_max_iterations(f)) TRUE;
+
+	gf4d_fractal_set_max_iterations(f,niters);
+	gf4d_fractal_parameters_changed(f);	
+	return TRUE;
+}
+
+void 
+refresh_maxiter_callback(Gf4dFractal *f, gpointer user_data)
+{
+	char buf[80];
+	GtkEntry *e = GTK_ENTRY(user_data);
+	sprintf(buf,"%d",gf4d_fractal_get_max_iterations(f));
+	gtk_entry_set_text(e,buf);
+}
+
+// ugh!
+static param_t 
+get_param(GtkEntry *e)
+{
+	return (param_t)GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(e),"param"));
+}
+
+gboolean
+set_param_callback(GtkEntry *e, GdkEventFocus *, gpointer user_data)
+{
+	Gf4dFractal *f = GF4D_FRACTAL(user_data);
+	param_t param = get_param(e);
+	char *text = gtk_entry_get_text(e);
+	char *current = gf4d_fractal_get_param(f,param);
+	if(strcmp(text,current)) 
+	{		
+		gf4d_fractal_set_param(f,param,text);
+		gf4d_fractal_parameters_changed(f);
+	}
+	g_free(current);
+	return TRUE;
+}
+
+void 
+refresh_param_callback(Gf4dFractal *f, gpointer user_data)
+{
+	GtkEntry *e = GTK_ENTRY(user_data);
+	param_t param = get_param(e);
+	gchar *s = gf4d_fractal_get_param(f,param);
+	gtk_entry_set_text(e,s);
+	g_free(s);
+}
+
+
+void set_color_callback(GnomeColorPicker *picker, guint r, guint g, guint b, guint alpha, gpointer user_data)
+{
+	Gf4dFractal *f = GF4D_FRACTAL(user_data);
+	double dr, dg, db, da;
+	gnome_color_picker_get_d(picker,&dr,&dg,&db,&da);
+	gf4d_fractal_set_color(f,dr,dg,db);
+	gf4d_fractal_parameters_changed(f);
+}
+
+void
+refresh_color_callback(Gf4dFractal *f, gpointer user_data)
+{
+	GnomeColorPicker *picker = GNOME_COLOR_PICKER(user_data);
+	e_colorizer type = gf4d_fractal_get_color_type(f);
+	if(type != COLORIZER_RGB)
+	{
+		gtk_widget_set_sensitive(GTK_WIDGET(picker),false);
+		return;
+	}
+	gtk_widget_set_sensitive(GTK_WIDGET(picker),true);
+	
+	gnome_color_picker_set_d(picker, 
+				 gf4d_fractal_get_r(f),
+				 gf4d_fractal_get_g(f),
+				 gf4d_fractal_get_b(f),
+				 0.0);
+
+}
+
+void set_cmap_callback(GtkEditable *e, gpointer user_data)
+{
+	Gf4dFractal *f = GF4D_FRACTAL(user_data);
+
+	gchar *s = gf4d_fractal_get_cmap_file(f);
+	gchar *new_s = gtk_entry_get_text(GTK_ENTRY(e));
+	if(strcmp(s,new_s)!=0)
+	{
+		gf4d_fractal_set_cmap_file(f,new_s);
+		gf4d_fractal_parameters_changed(f);
+	}
+	g_free(s);
+}
+
+void refresh_cmap_callback(Gf4dFractal *f, gpointer user_data)
+{
+	GnomeFileEntry *selector = GNOME_FILE_ENTRY(user_data);
+	GtkEntry *e = GTK_ENTRY(gnome_file_entry_gtk_entry(selector));
+
+	e_colorizer type = gf4d_fractal_get_color_type(f);
+	if(type != COLORIZER_CMAP)
+	{
+		gtk_widget_set_sensitive(GTK_WIDGET(selector),false);
+		return;
+	}
+	gtk_widget_set_sensitive(GTK_WIDGET(selector),true);
+	gchar *s = gf4d_fractal_get_cmap_file(f);
+	gtk_entry_set_text(e,s);
+	g_free(s);
+}
+
+void set_potential_callback(GtkToggleButton *button, gpointer user_data)
+{
+	Gf4dFractal *f = GF4D_FRACTAL(user_data);
+	gf4d_fractal_set_potential(f,gtk_toggle_button_get_active(button));
+	gf4d_fractal_parameters_changed(f);
+}
+
+void refresh_potential_callback(Gf4dFractal *f, gpointer user_data)
+{
+	GtkToggleButton *b = GTK_TOGGLE_BUTTON(user_data);
+	gtk_toggle_button_set_active(b,gf4d_fractal_get_potential(f));
 }

@@ -23,6 +23,7 @@
 
 #include "fract_public.h"
 #include "colorizer.h"
+#include "colorfunc.h"
 
 #include "calc.h"
 
@@ -51,6 +52,7 @@ private:
 
 	// color params
 	colorizer *cizer;
+	//colorfunc cfunc;
 	bool potential;
 
 public:
@@ -99,8 +101,6 @@ private:
 
 void fract_delete(fractal_t **f);
 void fract_set(fractal_t *dst, fractal_t *src);
-
-
 
 /* accessor functions */
 int fract_get_xres(fractal_t *f);

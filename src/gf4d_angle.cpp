@@ -57,7 +57,7 @@ static void gf4d_angle_adjustment_value_changed (GtkAdjustment    *adjustment,
 
 /* Local data */
 
-static GtkWidgetClass *parent_class = NULL;
+static GtkWidgetClass *parent_klass = NULL;
 static gfloat min_angle = -M_PI/2.0; // (-1.0 * M_PI/6.0);
 static gfloat max_angle = 3 * M_PI/2.0; // ( 7.0 * M_PI/6.0);
 
@@ -86,25 +86,25 @@ gf4d_angle_get_type ()
 }
 
 static void
-gf4d_angle_class_init (Gf4dAngleClass *class)
+gf4d_angle_class_init (Gf4dAngleClass *klass)
 {
-	GtkObjectClass *object_class;
-	GtkWidgetClass *widget_class;
+	GtkObjectClass *object_klass;
+	GtkWidgetClass *widget_klass;
 
-	object_class = (GtkObjectClass*) class;
-	widget_class = (GtkWidgetClass*) class;
+	object_klass = (GtkObjectClass*) klass;
+	widget_klass = (GtkWidgetClass*) klass;
 
-	parent_class = gtk_type_class (gtk_widget_get_type ());
+	parent_klass = GTK_WIDGET_CLASS(gtk_type_class (gtk_widget_get_type ()));
 
-	object_class->destroy = gf4d_angle_destroy;
+	object_klass->destroy = gf4d_angle_destroy;
 
-	widget_class->realize = gf4d_angle_realize;
-	widget_class->expose_event = gf4d_angle_expose;
-	widget_class->size_request = gf4d_angle_size_request;
-	widget_class->size_allocate = gf4d_angle_size_allocate;
-	widget_class->button_press_event = gf4d_angle_button_press;
-	widget_class->button_release_event = gf4d_angle_button_release;
-	widget_class->motion_notify_event = gf4d_angle_motion_notify;
+	widget_klass->realize = gf4d_angle_realize;
+	widget_klass->expose_event = gf4d_angle_expose;
+	widget_klass->size_request = gf4d_angle_size_request;
+	widget_klass->size_allocate = gf4d_angle_size_allocate;
+	widget_klass->button_press_event = gf4d_angle_button_press;
+	widget_klass->button_release_event = gf4d_angle_button_release;
+	widget_klass->motion_notify_event = gf4d_angle_motion_notify;
 }
 
 static void
@@ -128,7 +128,7 @@ gf4d_angle_new (GtkAdjustment *adjustment)
 {
 	Gf4dAngle *dial;
 
-	dial = gtk_type_new (gf4d_angle_get_type ());
+	dial = GF4D_ANGLE(gtk_type_new (gf4d_angle_get_type ()));
 
 	if (!adjustment)
 		adjustment = (GtkAdjustment*) gtk_adjustment_new (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -151,8 +151,8 @@ gf4d_angle_destroy (GtkObject *object)
 	if (dial->adjustment)
 		gtk_object_unref (GTK_OBJECT (dial->adjustment));
 
-	if (GTK_OBJECT_CLASS (parent_class)->destroy)
-		(* GTK_OBJECT_CLASS (parent_class)->destroy) (object);
+	if (GTK_OBJECT_CLASS (parent_klass)->destroy)
+		(* GTK_OBJECT_CLASS (parent_klass)->destroy) (object);
 }
 
 GtkAdjustment*
@@ -277,7 +277,7 @@ gf4d_angle_size_allocate (GtkWidget     *widget,
 					allocation->width, allocation->height);
 
 	}
-	dial->radius = MIN(allocation->width,allocation->height) * 0.5;
+	dial->radius = (gint)(MIN(allocation->width,allocation->height) * 0.5);
 	dial->pointer_width = dial->radius / 5;
 }
 
@@ -337,9 +337,9 @@ gf4d_angle_expose (GtkWidget      *widget,
 	c = cos(dial->angle);
 
 	{
-		gint pyr = MAX(dial->radius*0.1,4);
-		gint pxc = xc + c * (dial->radius-pyr);
-		gint pyc = yc - s * (dial->radius-pyr);
+		gint pyr = (gint)MAX(dial->radius*0.1,4);
+		gint pxc = (gint)(xc + c * (dial->radius-pyr));
+		gint pyc = (gint)(yc - s * (dial->radius-pyr));
 
 
 		gdk_draw_arc(widget->window,
@@ -372,7 +372,7 @@ gf4d_angle_button_press (GtkWidget      *widget,
 	{
 		gtk_grab_add (widget);
 		dial->button = event->button;
-		gf4d_angle_update_mouse (dial, event->x, event->y);
+		gf4d_angle_update_mouse (dial, (gint)event->x, (gint)event->y);
 	}
 
 	return FALSE;
@@ -423,8 +423,8 @@ gf4d_angle_motion_notify (GtkWidget      *widget,
 
 	if (dial->button != 0)
 	{
-		x = event->x;
-		y = event->y;
+		x = (gint)event->x;
+		y = (gint)event->y;
 
 		if (event->is_hint || (event->window != widget->window))
 			gdk_window_get_pointer (widget->window, &x, &y, &mods);

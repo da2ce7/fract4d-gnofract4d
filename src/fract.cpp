@@ -28,7 +28,9 @@
 #include "image.h"
 #include "test-fonction.h"
 #include <fstream>
+#include <queue>
 
+#include "soi.h"
 
 void 
 debug_precision(const d& s, char *location)
@@ -467,6 +469,7 @@ public:
 	fractFunc pf;
 	int *p;
 	image *im;
+	std::queue<soidata_t> soi_queue;
 	fract_rot(fractal_t *_f, image *_im, fractFunc _pf, Gf4dFractal *_gf) {
 		gf = _gf;
 		im = _im;
@@ -503,14 +506,16 @@ public:
 	}
 	void pixel(int x, int y, int h, int w);
 	void check_update(int i);
-	void rectangle(struct rgb pixel, int x, int y, int h, int w);
+	void rectangle(struct rgb pixel, int x, int y, int w, int h);
 	void fourpixel(int x, int y);
 	struct rgb antialias(const dvec4& pos);
 	bool updateiters();
 	void draw(int rsize);
+	void soi();
 	void draw_aa();
 	void pixel_aa(int x, int y);
 	inline int RGB2INT(int y, int x);
+	void scan_rect(soidata_t& s);
 };
 
 inline void
@@ -681,6 +686,102 @@ inline int fract_rot::RGB2INT(int y, int x)
 	ret |= *p;
 	return ret;
 }
+
+
+void
+fract_rot::scan_rect(soidata_t& s)
+{
+	int w = s.x2 - s.x1;
+	int h = s.y2 - s.y1;
+
+	colorizer_t *cf = f->cizer;
+
+	for(int y = 0; y < h ; ++y)
+	{
+		for(int x = 0; x < w; ++x)
+		{			
+			scratch_space scratch;
+			s.interp_both(scratch,(double)x/w,(double)y/h);
+			int iter = s.iter;
+			do
+			{
+				mandelbrot_iter(scratch);
+				if(iter++ >= f->nbit_max) {
+					iter=-1; break;
+				}
+				mag_bailout(scratch,HAS_X2 | HAS_Y2);
+			}while(scratch[EJECT_VAL] < 4.0);
+			
+			rgb_t pixel = (*cf)(iter,scratch,0);
+			rectangle(pixel,s.x1+x,s.y1+y,1,1);		       
+		} 
+	}
+	gf4d_fractal_image_changed(gf,s.x1,s.y1,s.x2,s.y2);
+}
+
+void fract_rot::soi()
+{
+	/* create first chunk of data, describing whole screen */
+	soidata_t soi_init(0,0,im->Xres,im->Yres,0,topleft,deltax,deltay);
+	soi_queue.push(soi_init);
+
+	/* insert into queue */
+	
+	do
+	{
+		soidata_t s = soi_queue.front();
+
+		/* remove element we've just processed */
+		soi_queue.pop();
+		
+		/* if too small, draw by scanning */
+		if(s.x2 - s.x1 < 8) 
+		{
+			scan_rect(s);
+			continue;
+		}
+		/* iterate until it splits or maxiter */
+		do {
+			s.iterate();
+			if(s.iter >= f->nbit_max) 
+			{
+				/* draw black box */
+				break;
+			}
+		}while(! s.needs_split());
+
+		colorizer_t *cf = f->cizer;
+
+		// this rect is entirely within the set
+		if(s.iter >= f->nbit_max)
+		{
+			rgb_t pixel = (*cf)(-1,s.data[0],0);
+			/* draw interior rect */
+			rectangle(pixel,s.x1,s.y1,s.x2-s.x1,s.y2-s.y1);
+			gf4d_fractal_image_changed(gf,s.x1,s.y1,s.x2,s.y2);
+		}
+		else
+		{
+			// undo the last iteration, which broke tolerance
+			s.revert(); 
+			
+			rgb_t pixel = (*cf)(s.iter,s.data[0],0);
+			
+			/* draw with split number of iterations */
+			rectangle(pixel,s.x1,s.y1,s.x2-s.x1,s.y2-s.y1);
+			gf4d_fractal_image_changed(gf,s.x1,s.y1,s.x2,s.y2);
+			
+			/* create 4 new rectangles & add to front of queue */
+			soi_queue.push(s.topleft());
+			soi_queue.push(s.topright());
+			soi_queue.push(s.botleft());
+			soi_queue.push(s.botright());			
+		}
+	}while(!(soi_queue.empty()));
+
+	gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DONE);
+}
+
 void fract_rot::draw(int rsize)
 {
 	int x,y;
@@ -769,6 +870,9 @@ fractal::calc(Gf4dFractal *gf, image *im)
 	fract_rot pr(this, im, pf,gf);
 
 	gf4d_fractal_status_changed(gf,GF4D_FRACTAL_CALCULATING);
+
+	//pr.soi();
+	//return;
 	pr.draw(4);
 
 	while(pr.updateiters())

@@ -20,7 +20,8 @@ gnofract4d_SOURCES = \
 	gundo.c gundo.h \
 	gundo_ui.c gundo_ui.h \
 	image.cpp image.h \
-	colorizer.cpp colorizer.h colorizer_public.h 
+	colorizer.cpp colorizer.h colorizer_public.h \
+	soi.h soi.cpp
 
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) $(GNOMEUI_LIBS) $(INTLLIBS)
 

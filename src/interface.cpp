@@ -35,9 +35,11 @@
 #include "support.h"
 #include "gf4d_angle.h"
 
-GtkWidget *appbar1;
-GtkWidget *app;
-GtkWidget *toolbar_move;
+#include "fract.h"
+#include "colorizer_public.h"
+
+//GtkWidget *appbar1;
+//GtkWidget *toolbar_move;
 GtkWidget *propertybox=NULL;
   
 static GnomeUIInfo file1_menu_uiinfo[] =
@@ -47,28 +49,28 @@ static GnomeUIInfo file1_menu_uiinfo[] =
 		NULL,
 		new_image_cb, NULL, NULL,
 		GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_HOME,
-		0, 'm', NULL
+		0, (enum GdkModifierType)'m', NULL
 	},
 	{
 		GNOME_APP_UI_ITEM, N_("_Save image"),
 		NULL,
 		save_image_cb, NULL, NULL,
 		GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE,
-		0, 's', NULL
+		0, (enum GdkModifierType)'s', NULL
 	},
 	{
 		GNOME_APP_UI_ITEM, N_("Save _parameters"),
 		NULL,
 		save_param_cb, NULL, NULL,
 		GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE_AS,
-		0, 'p', NULL
+		0, (enum GdkModifierType)'p', NULL
 	},
 	{
 		GNOME_APP_UI_ITEM, N_("_Load parameters"),
 		NULL,
 		load_param_cb, NULL, NULL,
 		GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_OPEN,
-		0, 'l', NULL
+		0, (enum GdkModifierType)'l', NULL
 	},
 	GNOMEUIINFO_SEPARATOR,
 	GNOMEUIINFO_MENU_EXIT_ITEM (quit_cb, NULL),
@@ -96,7 +98,7 @@ static GnomeUIInfo menubar1_uiinfo[] =
 };
 
 GtkWidget*
-create_angle_button(char *label_text, int data, model_t *m)
+create_angle_button(char *label_text, param_t data, model_t *m)
 {
 	GtkWidget *angle;
 	GtkAdjustment *adjustment;
@@ -115,15 +117,15 @@ create_angle_button(char *label_text, int data, model_t *m)
 	gtk_widget_show(angle);
 	
 	gtk_signal_connect(GTK_OBJECT(adjustment),"value_changed",
-			   angle_set_cb, pdata );
+			   (GtkSignalFunc)angle_set_cb, pdata );
 	
 	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)),"parameters_changed",
-			   adjustment_update_callback, pdata);	
+			   (GtkSignalFunc)adjustment_update_callback, pdata);	
 	return angle;
 }
 
 GtkWidget*
-create_param_button(char *label_text, int data, model_t *m)
+create_param_button(char *label_text, param_t data, model_t *m)
 {
 	GtkWidget *left_button;
 	GtkWidget *right_button;
@@ -163,10 +165,10 @@ create_param_button(char *label_text, int data, model_t *m)
 	pdata_right->dir = 1;
 
 	gtk_signal_connect(GTK_OBJECT(left_button),"clicked",
-			   position_set_cb, pdata_left );
+			   (GtkSignalFunc)position_set_cb, pdata_left );
 
 	gtk_signal_connect(GTK_OBJECT(right_button),"clicked",
-			   position_set_cb, pdata_right );
+			   (GtkSignalFunc)position_set_cb, pdata_right );
 			     
 	return vbox;
 }
@@ -238,7 +240,7 @@ create_move_toolbar (model_t *m)
 				 _("Undo the last action"),
 				 NULL,
 				 undo_widget,
-				 undo_cb,
+				 (GtkSignalFunc)undo_cb,
 				 m);
 
 	gtk_toolbar_append_item (GTK_TOOLBAR(toolbar), 
@@ -246,7 +248,7 @@ create_move_toolbar (model_t *m)
 				 _("Redo the last action"),
 				 NULL,
 				 redo_widget,
-				 redo_cb,
+				 (GtkSignalFunc)redo_cb,
 				 m);
 
 	return toolbar;
@@ -294,21 +296,19 @@ create_drawing_area(model_t *m)
 	return drawing_area;
 }
 
-GtkWidget*
+GtkWidget *
 create_app (model_t *m)
 {
 	GtkWidget *vbox1;
 	GtkWidget *scrolledwindow1;
 	GtkWidget *drawing_area;
 
-	app = gnome_app_new ("Gnofract4D", _("Gnofract4D"));
-	gtk_window_set_policy (GTK_WINDOW (app), TRUE, TRUE, FALSE);
+	GtkWidget *app = gnome_app_new ("Gnofract4D", _("Gnofract4D"));
+	//gtk_window_
 
 	gnome_app_create_menus_with_data (GNOME_APP (app), menubar1_uiinfo, m);
 
-	toolbar_move = create_move_toolbar(m);
-
-	gtk_widget_ref(toolbar_move);
+	GtkWidget *toolbar_move = create_move_toolbar(m);
 
 	gnome_app_add_toolbar(GNOME_APP (app), 
 			      GTK_TOOLBAR(toolbar_move),
@@ -317,9 +317,10 @@ create_app (model_t *m)
 			      GNOME_DOCK_TOP,
 			      1,0,0);
 
-	appbar1 = gnome_appbar_new (TRUE, TRUE, GNOME_PREFERENCES_NEVER);
-	gtk_widget_show (appbar1);
-	gnome_app_set_statusbar (GNOME_APP (app), appbar1);
+
+	// appbar1 = gnome_appbar_new 
+	//gtk_widget_show (appbar1);
+	//gnome_app_set_statusbar (GNOME_APP (app), appbar1);
 
 	vbox1 = gtk_vbox_new (FALSE, 0);
 	gtk_widget_show (vbox1);
@@ -345,16 +346,7 @@ create_app (model_t *m)
 
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolledwindow1),
 					       drawing_area);
-
-
-	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)), "progress_changed",
-			   GTK_SIGNAL_FUNC (progress_callback),
-			   appbar1);
-
-	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)), "status_changed",
-			   GTK_SIGNAL_FUNC (message_callback),
-			   appbar1);
-
+	
 	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)), "parameters_changed",
 			   GTK_SIGNAL_FUNC(redraw_callback),
 			   m);
@@ -389,12 +381,12 @@ create_save_image (model_t *m)
 	gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION(f)->ok_button),
 				   "clicked", 
 				   GTK_SIGNAL_FUNC (gtk_widget_destroy),
-				   (gpointer)f);
+				   GTK_OBJECT(f));
 
 	gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION(f)->cancel_button),
 				   "clicked", 
 				   GTK_SIGNAL_FUNC (gtk_widget_destroy),
-				   (gpointer)f);
+				   GTK_OBJECT(f));
 
 	return f;
 }
@@ -419,12 +411,12 @@ create_save_param (model_t *m)
 	gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION(f)->ok_button),
 				   "clicked", 
 				   GTK_SIGNAL_FUNC (gtk_widget_destroy),
-				   (gpointer)f);
+				   GTK_OBJECT(f));
 
 	gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION(f)->cancel_button),
 				   "clicked", 
 				   GTK_SIGNAL_FUNC (gtk_widget_destroy),
-				   (gpointer)f);
+				   GTK_OBJECT(f));
 
 	return f;
 }
@@ -449,12 +441,12 @@ create_load_param (model_t *m)
 	gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION(f)->ok_button),
 				   "clicked", 
 				   GTK_SIGNAL_FUNC (gtk_widget_destroy),
-				   (gpointer)f);
+				   GTK_OBJECT(f));
 
 	gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION(f)->cancel_button),
 				   "clicked", 
 				   GTK_SIGNAL_FUNC (gtk_widget_destroy),
-				   (gpointer)f);
+				   GTK_OBJECT(f));
 
 	return f;
 
@@ -466,7 +458,9 @@ create_entry_with_label(GtkWidget *propertybox,
 			GtkTooltips *tooltips,
 			int row,
 			gchar *label_text,
-			gchar *combo_name,
+			Gf4dFractal *shadow,
+			GtkSignalFunc set_cb,
+			GtkSignalFunc refresh_cb,
 			gchar *tip)
 {
 	GtkWidget *label = gtk_label_new (label_text);
@@ -482,22 +476,59 @@ create_entry_with_label(GtkWidget *propertybox,
 			  (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
 			  (GtkAttachOptions) (0), 0, 0);
 	
-	gtk_object_set_data (GTK_OBJECT (propertybox), 
-			     combo_name,
-			     combo_entry);
+	gtk_tooltips_set_tip (tooltips, combo_entry, tip, NULL);
+	gtk_widget_show (combo_entry);
+
+	gtk_signal_connect(GTK_OBJECT(combo_entry),"focus-out-event",
+			   set_cb,
+			   shadow);
+
+	gtk_signal_connect(GTK_OBJECT(shadow), "parameters_changed",
+			   refresh_cb,
+			   combo_entry);
+};
+
+void
+create_param_entry_with_label(GtkWidget *table,
+			      GtkTooltips *tooltips,
+			      int row,
+			      gchar *label_text,
+			      Gf4dFractal *shadow,
+			      param_t param,
+			      gchar *tip)
+{
+	GtkWidget *label = gtk_label_new (label_text);
+	GtkWidget *combo_entry=gtk_entry_new();
+
+	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1,
+			  (GtkAttachOptions) (0),
+			  (GtkAttachOptions) (0), 0, 0);
+	gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_RIGHT);
+	gtk_widget_show (label);
+
+	gtk_table_attach (GTK_TABLE (table), combo_entry, 1, 2, row, row+1,
+			  (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+			  (GtkAttachOptions) (0), 0, 0);
 	
 	gtk_tooltips_set_tip (tooltips, combo_entry, tip, NULL);
 	gtk_widget_show (combo_entry);
 
-	gtk_signal_connect_object (GTK_OBJECT(combo_entry),"changed",
-				   GTK_SIGNAL_FUNC(gnome_property_box_changed),
-				   GTK_OBJECT(propertybox));
+	gtk_signal_connect(GTK_OBJECT(combo_entry),"focus-out-event",
+			   (GtkSignalFunc)set_param_callback,
+			   shadow);
+
+	gtk_signal_connect(GTK_OBJECT(shadow), "parameters_changed",
+			   (GtkSignalFunc)refresh_param_callback,
+			   combo_entry);
+
+	gtk_object_set_data(GTK_OBJECT(combo_entry),"param",GINT_TO_POINTER(param));
 };
 
 void
 create_propertybox_color_page(GtkWidget *propertybox,
 			      GtkWidget *notebook,
-			      GtkTooltips *tooltips)
+			      GtkTooltips *tooltips,
+			      Gf4dFractal *shadow)
 {
 	GtkWidget *vbox;
 	GtkWidget *label;
@@ -527,38 +558,47 @@ create_propertybox_color_page(GtkWidget *propertybox,
 	gtk_widget_show(clabel);
 	gtk_tooltips_set_tip (tooltips, clabel, _("Use a range of colors. The effect is interesting but unpredictable."), NULL);
 
-	gtk_table_attach(GTK_TABLE(table), clabel,0,1,0,1, 
-			 GTK_EXPAND | GTK_FILL, 0, 0, 2);
-
-	gtk_signal_connect_object (GTK_OBJECT(clabel),"toggled",
-				   GTK_SIGNAL_FUNC(gnome_property_box_changed),
-				   GTK_OBJECT(propertybox));
-
-	gtk_object_set_data (
-		GTK_OBJECT (propertybox), 
-		"rgb_toggle",
-		clabel);
+	gtk_table_attach(
+		GTK_TABLE(table), 
+		clabel,
+		0,1,0,1, 
+		(GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+		(GtkAttachOptions)0, 
+		0, 2);
 
 	/* create color picker widget */
 	cpicker = gnome_color_picker_new();
 	gtk_widget_show(cpicker);
-	gtk_table_attach(GTK_TABLE(table), cpicker,1,2,0,1,
-			 GTK_EXPAND | GTK_FILL, 0, 0, 2);
+	gtk_table_attach(GTK_TABLE(table), 
+			 cpicker,
+			 1,2,0,1,
+			 (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+			 (GtkAttachOptions) 0, 
+			 0, 2);
 
 	gtk_object_set_data (
-		GTK_OBJECT (propertybox), 
-		"color_picker",
-		cpicker);
+		GTK_OBJECT (clabel), 
+		"type",
+		GINT_TO_POINTER(COLORIZER_RGB));
 
 	gtk_signal_connect (
-		GTK_OBJECT(cpicker),"color_set",
-		GTK_SIGNAL_FUNC(color_picker_cb),
-		propertybox);
+		GTK_OBJECT(cpicker),"color-set",
+		GTK_SIGNAL_FUNC(set_color_callback),
+		shadow);
 
-	/* connect clabel and cpicker widgets */
+	gtk_signal_connect (
+		GTK_OBJECT(shadow),"parameters_changed",
+		GTK_SIGNAL_FUNC(refresh_color_callback),
+		cpicker);
+	
+	/* connect clabel widget */
 	gtk_signal_connect(GTK_OBJECT(clabel),"toggled",
-			   GTK_SIGNAL_FUNC(color_type_changed),
-			   GTK_OBJECT(cpicker));
+			   GTK_SIGNAL_FUNC(set_colortype_callback),
+			   GTK_OBJECT(shadow));
+
+	gtk_signal_connect(GTK_OBJECT(shadow), "parameters_changed",
+			   GTK_SIGNAL_FUNC(refresh_colortype_callback),
+			   GTK_OBJECT(clabel));
 	
 	/* create "color map" radiobutton */
 	cmaplabel = gtk_radio_button_new_with_label_from_widget (
@@ -566,54 +606,82 @@ create_propertybox_color_page(GtkWidget *propertybox,
 		_("Color Map"));
 	gtk_widget_show(cmaplabel);
 	gtk_table_attach(GTK_TABLE(table), cmaplabel,0,1,1,2, 
-			 GTK_EXPAND | GTK_FILL, 0, 0, 2);
-	gtk_tooltips_set_tip (tooltips, cmaplabel, _("Use a predefined palette of colors loaded from a .map file"), NULL);
+			 (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+			 (GtkAttachOptions)0, 
+			 0, 2);
+
+	// gtk_tooltips_set_tip (tooltips, cmaplabel, _("Use a predefined palette of colors loaded from a .map file"), NULL);
 
 	gtk_object_set_data(
-		GTK_OBJECT (propertybox), 
-		"cmap_toggle",
-		cmaplabel);
+		GTK_OBJECT (cmaplabel), 
+		"type",
+		GINT_TO_POINTER(COLORIZER_CMAP));
+
+	gtk_signal_connect(GTK_OBJECT(cmaplabel),"toggled",
+		GTK_SIGNAL_FUNC(set_colortype_callback),
+		GTK_OBJECT(shadow));
+
+	gtk_signal_connect(GTK_OBJECT(shadow), "parameters_changed",
+			   GTK_SIGNAL_FUNC(refresh_colortype_callback),
+			   GTK_OBJECT(cmaplabel));
 
 	/* a file selector for loading the .map files */
 	cmapselector = gnome_file_entry_new("cmaps",_("Select a color map file"));
 	
-	{
-		gchar *dir = gnome_datadir_file("maps/" PACKAGE  "/");
+	gchar *dir = gnome_datadir_file("maps/" PACKAGE  "/");
+	
+	GtkWidget *entry = gnome_file_entry_gtk_entry(
+		GNOME_FILE_ENTRY(cmapselector));
+	
+	gnome_file_entry_set_default_path(GNOME_FILE_ENTRY(cmapselector), dir);
+	gtk_entry_set_text(GTK_ENTRY(entry), _("Default"));
+	
+	
+	g_free(dir);
 
-		GtkWidget *entry = gnome_file_entry_gtk_entry(
-			GNOME_FILE_ENTRY(cmapselector));
-
-		gnome_file_entry_set_default_path(GNOME_FILE_ENTRY(cmapselector), dir);
-		gtk_entry_set_text(GTK_ENTRY(entry), _("Default"));
-
-		/* set cmap selector name */
-		gtk_object_set_data(
-			GTK_OBJECT (propertybox), 
-			"cmap_entry",
-			entry);
-		gtk_signal_connect_object(GTK_OBJECT(entry),"changed",
-					  GTK_SIGNAL_FUNC(gnome_property_box_changed),
-					  GTK_OBJECT(propertybox));
-
-		g_free(dir);
-	}
 	gtk_widget_show(cmapselector);
 	gtk_table_attach(GTK_TABLE(table), cmapselector,1,2,1,2, 
-			 GTK_EXPAND | GTK_FILL, 0, 0, 2);
+			 (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+			 (GtkAttachOptions)0, 
+			 0, 2);
 
-	gtk_widget_set_sensitive(cmapselector,FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(cmapselector),FALSE);
 
+	GtkWidget *fentry = gnome_file_entry_gtk_entry(GNOME_FILE_ENTRY(cmapselector));
+	gtk_signal_connect(GTK_OBJECT(fentry),
+			   "changed",
+			   GTK_SIGNAL_FUNC(set_cmap_callback),
+			   shadow);
 
-	/* connect cmaplabel and cmapselector */
-	gtk_signal_connect(GTK_OBJECT(cmaplabel),"toggled",
-			   GTK_SIGNAL_FUNC(color_type_changed),
-			   GTK_OBJECT(cmapselector));
+	gtk_signal_connect(GTK_OBJECT(shadow),
+			   "parameters_changed",
+			   GTK_SIGNAL_FUNC(refresh_cmap_callback),
+			   cmapselector);
+
+	GtkWidget *potential = gtk_check_button_new_with_label(_("Continuous Potential"));
+	gtk_table_attach(GTK_TABLE(table), potential,0,1,2,3, 
+			 (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+			 (GtkAttachOptions)0, 
+			 0, 2);
+
+	gtk_signal_connect(GTK_OBJECT(potential),
+			   "toggled",
+			   GTK_SIGNAL_FUNC(set_potential_callback),
+			   shadow);
+
+	gtk_signal_connect(GTK_OBJECT(shadow),
+			   "parameters_changed",
+			   GTK_SIGNAL_FUNC(refresh_potential_callback),
+			   potential);
+
+	gtk_widget_show(potential);
 }
 
 void
 create_propertybox_general_page(GtkWidget *propertybox, 
 				GtkWidget *notebook,
-				GtkTooltips *tooltips)
+				GtkTooltips *tooltips,
+				Gf4dFractal *shadow)
 {
 	GtkWidget *vbox;
 	GtkWidget *table;
@@ -636,66 +704,88 @@ create_propertybox_general_page(GtkWidget *propertybox,
 	gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), 
 				    gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), 0), label);
 
-	create_entry_with_label(propertybox, table, tooltips, 0,
+
+	create_entry_with_label(propertybox, 
+				table, 
+				tooltips, 
+				0,
 				_("Width :"),
-				"combo_entry_image_width",
+				shadow,
+				(GtkSignalFunc)set_width_callback,
+				(GtkSignalFunc)refresh_width_callback,
 				_("Image width (in pixels)"));
+
 
 	create_entry_with_label(propertybox, table, tooltips, 1,
 				_("Height :"),
-				"combo_entry_image_height",
+				shadow,
+				(GtkSignalFunc)set_height_callback,
+				(GtkSignalFunc)refresh_height_callback,
 				_("Image height (in pixels)"));
 
 	create_entry_with_label(propertybox, table, tooltips, 2,
 				_("Max Iterations :"),
-				"combo_entry_max_iterations",
+				shadow,
+				(GtkSignalFunc)set_maxiter_callback,
+				(GtkSignalFunc)refresh_maxiter_callback,
 				_("The further you zoom in the larger this needs to be"));
 
-	create_entry_with_label(propertybox, table, tooltips, 3,
-				_("Bailout :"),
-				"combo_entry_bailout",
-				_("Stop iterating points which get further from the origin than this"));
+	create_param_entry_with_label(table, tooltips, 3,
+				      _("Bailout :"),
+				      shadow,
+				      BAILOUT,
+				      _("Stop iterating points which get further from the origin than this"));
+
 
 	/* antialias */
 	aa_button = gtk_check_button_new_with_label(_("Antialias"));
-	gtk_table_attach(GTK_TABLE(table), aa_button, 0,1,4,5,0,0,0,2);
-
-	gtk_object_set_data (GTK_OBJECT (propertybox), 
-			     "checkbutton_antialias",
-			     aa_button);
+	gtk_table_attach(GTK_TABLE(table), aa_button, 
+			 0,1,4,5,
+			 (GtkAttachOptions)0,
+			 (GtkAttachOptions)0,
+			 0,2);
 
 	gtk_tooltips_set_tip (tooltips, aa_button, 
-			      _("If you turn this on the image looks smoother but takes longer"), NULL);
+			      _("If you turn this on the image looks smoother but takes longer to draw"), NULL);
 
 	gtk_widget_show(aa_button);
 
-	gtk_signal_connect_object (GTK_OBJECT(aa_button),"toggled",
-				   GTK_SIGNAL_FUNC(gnome_property_box_changed),
-				   GTK_OBJECT(propertybox));
+	gtk_signal_connect (GTK_OBJECT(aa_button),"toggled",
+			    GTK_SIGNAL_FUNC(set_aa_callback),
+			    (gpointer) shadow);
+
+	gtk_signal_connect (GTK_OBJECT(shadow),"parameters_changed",
+			    GTK_SIGNAL_FUNC(refresh_aa_callback),
+			    (gpointer) aa_button);
 
 	/* auto-deepen */
 	auto_deepen_button = gtk_check_button_new_with_label(_("Auto Deepening"));
-	gtk_table_attach(GTK_TABLE(table), auto_deepen_button, 1,2,4,5,0,0,0,2);
-
-	gtk_object_set_data (GTK_OBJECT (propertybox), 
-			     "checkbutton_auto_deepen",
-			     auto_deepen_button);
+	gtk_table_attach(GTK_TABLE(table), auto_deepen_button, 
+			 1,2,4,5,
+			 (GtkAttachOptions)0,
+			 (GtkAttachOptions)0,
+			 0,2);
 
 	gtk_tooltips_set_tip (tooltips, auto_deepen_button, 
 			      _("Work out how many iterations are required automatically"), NULL);
 
 	gtk_widget_show(auto_deepen_button);
 
-	gtk_signal_connect_object (GTK_OBJECT(auto_deepen_button),"toggled",
-				   GTK_SIGNAL_FUNC(gnome_property_box_changed),
-				   GTK_OBJECT(propertybox));
+	gtk_signal_connect (GTK_OBJECT(auto_deepen_button),"toggled",
+			    GTK_SIGNAL_FUNC(set_autodeepen_callback),
+			    (gpointer) shadow);
+
+	gtk_signal_connect (GTK_OBJECT(shadow),"parameters_changed",
+			    GTK_SIGNAL_FUNC(refresh_autodeepen_callback),
+			    (gpointer) auto_deepen_button);
 
 }
 
 void
 create_propertybox_location_page(GtkWidget *propertybox, 
 				 GtkWidget *notebook,
-				 GtkTooltips *tooltips)
+				 GtkTooltips *tooltips,
+				 Gf4dFractal *shadow)
 {
 	GtkWidget *vbox = gtk_vbox_new (FALSE, 0);
 	GtkWidget *table;
@@ -715,33 +805,41 @@ create_propertybox_location_page(GtkWidget *propertybox,
 	gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), 
 				    gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), 1), label);
 
-	create_entry_with_label(propertybox, table, tooltips, 0,
-				_("X (Re) :"),
-				"combo_entry_xcenter",
-				_("This is c.re in z^2 + c"));
+	create_param_entry_with_label(table, tooltips, 0,
+				      _("X (Re) :"),
+				      shadow,
+				      XCENTER,
+				      _("This is c.re in z^2 + c"));
 
-	create_entry_with_label(propertybox, table, tooltips, 1,
-				_("Y (Im) :"),
-				"combo_entry_ycenter",
-				_("This is c.im in z^2 + c"));
-	create_entry_with_label(propertybox, table, tooltips, 2,
-				_("Z (Re) :"),
-				"combo_entry_zcenter",
-				_("This is z0.re in z^2 + c"));
-	create_entry_with_label(propertybox, table, tooltips, 3,
-				_("W (Im) :"),
-				"combo_entry_wcenter",
-				_("This is z0.im in z^2 + c"));
-	create_entry_with_label(propertybox, table, tooltips, 4,
-				_("Size :"),
-				"combo_entry_size",
-				_("Magnitude of image"));
+	create_param_entry_with_label(table, tooltips, 1,
+				      _("Y (Im) :"),
+				      shadow,
+				      YCENTER,
+				      _("This is c.im in z^2 + c"));
+
+	create_param_entry_with_label(table, tooltips, 2,
+				      _("Z (Re) :"),
+				      shadow,
+				      ZCENTER,
+				      _("This is z0.re in z^2 + c"));
+	create_param_entry_with_label(table, tooltips, 3,
+				      _("W (Im) :"),
+				      shadow,
+				      WCENTER,
+				      _("This is z0.im in z^2 + c"));
+	create_param_entry_with_label(table, tooltips, 4,
+				      _("Size :"),
+				      shadow,
+				      SIZE,
+				      _("Magnitude of image"));
+
 }
 
 void
 create_propertybox_angles_page(GtkWidget *propertybox, 
 			       GtkWidget *notebook,
-			       GtkTooltips *tooltips)
+			       GtkTooltips *tooltips,
+			       Gf4dFractal *shadow)
 {
 	GtkWidget *vbox = gtk_vbox_new (FALSE, 0);
 	GtkWidget *table;
@@ -761,30 +859,36 @@ create_propertybox_angles_page(GtkWidget *propertybox,
 	gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), 
 				    gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), 2), label);
 
-	create_entry_with_label(propertybox, table, tooltips, 0,
-				_("XY :"),
-				"combo_entry_xyangle",
-				NULL);
-	create_entry_with_label(propertybox, table, tooltips, 1,
-				_("XZ :"),
-				"combo_entry_xzangle",
-				NULL);
-	create_entry_with_label(propertybox, table, tooltips, 2,
-				_("XW :"),
-				"combo_entry_xwangle",
-				NULL);
-	create_entry_with_label(propertybox, table, tooltips, 3,
-				_("YZ :"),
-				"combo_entry_yzangle",
-				NULL);
-	create_entry_with_label(propertybox, table, tooltips, 4,
-				_("YW :"),
-				"combo_entry_ywangle",
-				NULL);
-	create_entry_with_label(propertybox, table, tooltips, 5,
-				_("ZW :"),
-				"combo_entry_zwangle",
-				NULL);
+	create_param_entry_with_label(table, tooltips, 0,
+				      _("XY :"),
+				      shadow,
+				      XYANGLE,
+				      NULL);
+	create_param_entry_with_label(table, tooltips, 1,
+				      _("XZ :"),
+				      shadow,
+				      XZANGLE,
+				      NULL);
+	create_param_entry_with_label(table, tooltips, 2,
+				      _("XW :"),
+				      shadow,
+				      XWANGLE,
+				      NULL);
+	create_param_entry_with_label(table, tooltips, 3,
+				      _("YZ :"),
+				      shadow,
+				      YZANGLE,
+				      NULL);
+	create_param_entry_with_label(table, tooltips, 4,
+				      _("YW :"),
+				      shadow,
+				      YWANGLE,
+				      NULL);
+	create_param_entry_with_label(table, tooltips, 5,
+				      _("ZW :"),
+				      shadow,
+				      ZWANGLE,
+				      NULL);
 }
 
 GtkWidget*
@@ -793,20 +897,18 @@ create_propertybox (model_t *m)
 	GtkWidget *notebook;
 	GtkWidget *propertybox;
 	GtkTooltips *tooltips;
-  
+	Gf4dFractal *shadow = gf4d_fractal_copy(model_get_fract(m));
 	tooltips = gtk_tooltips_new ();
 
 	propertybox = gnome_property_box_new ();
 
-	gtk_object_set_data (GTK_OBJECT (propertybox), "propertybox", propertybox);
-	
 	notebook = GNOME_PROPERTY_BOX (propertybox)->notebook;
 	gtk_widget_show (notebook);
 	
-	create_propertybox_general_page(propertybox,notebook,tooltips);
-	create_propertybox_location_page(propertybox, notebook, tooltips);
-	create_propertybox_angles_page(propertybox, notebook, tooltips);
-	create_propertybox_color_page(propertybox, notebook, tooltips);
+	create_propertybox_general_page(propertybox,notebook,tooltips, shadow);
+	create_propertybox_location_page(propertybox, notebook, tooltips, shadow);
+	create_propertybox_angles_page(propertybox, notebook, tooltips, shadow);
+	create_propertybox_color_page(propertybox, notebook, tooltips, shadow);
 
 	gtk_signal_connect (GTK_OBJECT (propertybox), "apply",
 			    GTK_SIGNAL_FUNC (propertybox_apply),
@@ -820,8 +922,10 @@ create_propertybox (model_t *m)
 				   GTK_SIGNAL_FUNC (propertybox_destroy),
 				   NULL);
 
-                                             
-	gtk_object_set_data (GTK_OBJECT (propertybox), "tooltips", tooltips);
-  
+	gtk_signal_connect_object (GTK_OBJECT(shadow),"parameters_changed",
+				   GTK_SIGNAL_FUNC(gnome_property_box_changed),
+				   GTK_OBJECT(propertybox));
+
+	gtk_object_set_data (GTK_OBJECT (propertybox), "shadow", shadow);
 	return propertybox;
 }
