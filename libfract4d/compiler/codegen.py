@@ -117,7 +117,11 @@ class Oper(Insn):
         self.dst = dst
         self.jumps = jumps
     def __str__(self):
-        return "OPER(%s,%s,%s,%s)" % (self.assem, self.src, self.dst, self.jumps)
+        return "OPER(%s,%s,%s,%s)" % \
+               (self.assem,
+                string.join([x.__str__() for x in self.src]," "),
+                string.join([x.__str__() for x in self.dst]," "),
+                self.jumps)
     
 class Label(Insn):
     'A label which can be jumped to'
@@ -144,7 +148,9 @@ class Decl(Insn):
         Insn.__init__(self,assem)
         self.src = None
         self.dst = None
-        
+    def __str__(self):
+        return "DECL(%s,%s)" % (self.src, self.dst)
+    
 class Formatter:
     ' fed to print to fill the output template'
     def __init__(self, codegen, tree, lookup):
