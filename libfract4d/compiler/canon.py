@@ -133,6 +133,45 @@ class T:
     def linearize_list(self,l):
         return map(self.linearize,l)
 
+    def is_block_boundary(self, irNode):
+        return self.is_jump(irNode) or isinstance(irNode, ir.Label)
+
+    def is_jump(self, irNode):
+        return isinstance(irNode, ir.Jump) or \
+               isinstance(irNode, ir.CJump)
+        
+    def basic_blocks(self, tree, startLabel, endLabel):
+        # divides tree into a list of basic blocks
+        # we assume it has a Seq() at the top, and no other seqs or eseqs
+        assert(isinstance(tree, ir.Seq))
+        tree.children.append(ir.Label(endLabel,tree.node))
+        
+        blocks = []
+        label = startLabel
+        inBlock = 0
+        block = []
+        for stm in tree.children:
+            if isinstance(stm, ir.Label):
+                if block == []:                    
+                    block.append(stm)
+                else:
+                    # close existing block, create a new one
+                    if not self.is_jump(block[-1]):
+                        # append a jump to current label
+                        block.append(ir.Jump(stm.name, stm.node))
+                    blocks.append(block)
+                    block = [ stm ]
+            else:
+                if block == []:
+                    # manufacture a label if first stm is not a label
+                    block.append(ir.Label(label,tree.node))
+                    label = self.symbols.newLabel()
+                block.append(stm)
+                if self.is_jump(stm):
+                    blocks.append(block)
+                    block = []
+        return blocks
+    
 def commutes(t1,t2):
     '''true iff it doesn\'t matter which of t1 and t2 is done first'''
     # t1, t2 may be lists

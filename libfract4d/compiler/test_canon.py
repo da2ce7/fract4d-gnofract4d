@@ -32,11 +32,16 @@ class CanonTest(unittest.TestCase):
         return ir.Move(dest, exp, self.fakeNode, Int)
     def cjump(self,e1,e2):
         return ir.CJump(">",e1,e2,"trueDest", "falseDest", self.fakeNode)
+    def jump(self,dest):
+        return ir.Jump(dest,self.fakeNode)
     def cast(self, e, type):
         return ir.Cast(e,self.fakeNode, type)
+    def label(self,name):
+        return ir.Label(name,self.fakeNode)
+    
     def testEmptyTree(self):
         self.assertEqual(self.canon.linearize(None),None)
-
+                                     
     def testBinop(self):
         # binop with no eseqs
         tree = self.binop([self.var(), self.const()])
@@ -183,6 +188,68 @@ class CanonTest(unittest.TestCase):
 
         ltree = self.canon.linearize(tree)
         self.assertESeqsNotNested(ltree,1)
+
+    def testBasicBlocks(self):
+        # no jumps or labels
+        seq = self.seq([self.var(), self.var("b"), self.var("c")])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+
+        self.assertBlockIsWellFormed(blocks[0],"t__start","t__end")
+
+        # starts with a label
+        seq = self.seq([self.label("t__1"),self.var()])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        self.assertBlockIsWellFormed(blocks[0],"t__1","t__end")
+
+        # just a label
+        seq = self.seq([self.label("t__1")])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        self.assertBlockIsWellFormed(blocks[0],"t__1","t__end")
+
+        # just a jump
+        seq = self.seq([self.jump("d__1")])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        self.assertBlockIsWellFormed(blocks[0],"t__start","d__1")
+
+        # empty seq
+        seq = self.seq([])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        self.assertEqual(blocks,[])
+
+        # jump midway
+        seq = self.seq([self.var("a"),self.jump("d__1"),self.var("b")])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        self.assertBlocksAreWellFormed(blocks)
+        self.assertEqual(len(blocks),2)
+        
+    def printAllBlocks(self,blocks):
+        for b in blocks:
+            for stm in b: print stm.pretty(),
+            print
+
+    def assertBlocksAreWellFormed(self,blocks):
+        for b in blocks:
+            self.assertBlockIsWellFormed(b)
+            
+    def assertBlockIsWellFormed(self,block,startLabel=None, endLabel=None):
+        self.assertStartsWithLabel(block,startLabel)
+        self.assertEndsWithJump(block,endLabel)
+        for stm in block[1:-1]:
+            if isinstance(stm,ir.Jump) or \
+               isinstance(stm,ir.CJump) or \
+               isinstance(stm,ir.Label):
+                self.fail("%s not allowed mid-basic-block", stm.pretty())
+    
+    def assertStartsWithLabel(self, block, name=None):
+        self.failUnless(isinstance(block[0], ir.Label))
+        if name != None:
+            self.assertEqual(block[0].name, name)
+
+    def assertEndsWithJump(self,block, name=None):
+        self.failUnless(isinstance(block[-1], ir.Jump) or \
+                        isinstance(block[-1], ir.CJump))
+        if name != None:
+            self.assertEqual(block[-1].dest, name)
         
     def assertESeqsNotNested(self,t,parentAllowsESeq):
         'check that no ESeqs are left below other nodes'
