@@ -36,7 +36,7 @@ typedef enum {
 // colorFunc indices
 #define OUTER 0
 #define INNER 1
-#define N_COLORFUNCS 2
+#define N_COLORFUNCS 4
 
 #define N_PARAMS 12
 

@@ -141,8 +141,6 @@ fractal::copy(const fractal& f)
 
     rot = f.rot;
 
-
-
     for(int i = 0; i < N_COLORFUNCS; ++i)
     {
 	set_colorizer(f.cizers[i],i);
@@ -337,6 +335,12 @@ fractal::reset()
             params[i] = 0.0;
         }
     }
+}
+
+int 
+fractal::get_active_colorizers() const
+{
+    return 1 << pIterFunc->nCriticalValues();
 }
 
 colorizer_t *

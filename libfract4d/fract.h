@@ -118,6 +118,7 @@ public:
     bool set_precision(int digits); 
 
     // color functions
+    int get_active_colorizers() const;
     colorizer_t *get_colorizer(int which_cizer) const ;
     void set_colorizer(colorizer_t *cizer, int which_cizer);
 
