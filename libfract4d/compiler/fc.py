@@ -59,9 +59,13 @@ class Compiler:
             #print "Error parsing '%s' : %s" % (filename, err)
             raise
 
-    def generate_code(self,ir, outputfile,cfile=None):
+    def compile(self,ir):
         cg = codegen.T(ir.symbols)
         cg.output_all(ir)
+        return cg
+    
+    def generate_code(self,ir, cg, outputfile,cfile=None):
+        cg.output_decls(ir)
         self.c_code = cg.output_c(ir)
         
         cFileName = cg.writeToTempFile(self.c_code,".c")
@@ -86,6 +90,16 @@ class Compiler:
             f = translate.T(f)
         return f
 
+    def get_colorfunc(self,filename, formula, name):
+        ff = self.files.get(os.path.basename(filename))
+        if ff == None : return None
+        f = ff.get_formula(formula)
+
+        cf = None
+        if f != None:
+            f = translate.ColorFunc(f,name)
+        return f
+        
 def usage():
     print "FC : a compiler from Fractint .frm files to C code"
     print "fc.py -o [outfile] -f [formula] infile"
@@ -104,7 +118,8 @@ def generate(fc,formulafile, formula, outputfile, cfile):
             print e
         raise Exception("Errors during translation")
 
-    fc.generate_code(ir, outputfile,cfile)
+    cg = fc.compile(ir)
+    fc.generate_code(ir, cg, outputfile,cfile)
 
 def main():
     fc = Compiler()
