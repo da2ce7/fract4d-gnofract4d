@@ -356,7 +356,7 @@ class MainWindow:
 
     def update_preview(self,f,flip2julia=False):
         self.preview.set_fractal(f.copy_f())
-        #self.draw_preview()
+        self.draw_preview()
 
     def update_preview_on_pointer(self,f,button, x,y):
         if button == 2:

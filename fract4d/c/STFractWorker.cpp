@@ -183,39 +183,76 @@ STFractWorker::antialias(int x, int y)
     bool checkPeriod = periodGuess(single_iters); 
 
     // top left
-    pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,1,&ptmp,&p,&index,&fate); 
-    pixel_r_val += ptmp.r;
-    pixel_g_val += ptmp.g;
-    pixel_b_val += ptmp.b;
-    im->setFate(x,y,0,fate);
-    im->setIndex(x,y,0,index);
+    fate = im->getFate(x,y,0);
+    if(im->hasUnknownSubpixels(x,y))
+    {
+	pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,1,&ptmp,&p,&index,&fate); 
+	im->setFate(x,y,0,fate);
+	im->setIndex(x,y,0,index);
+    }
+    else
+    {
+	ptmp = pf->recolor(im->getIndex(x,y,0), fate);
+    }
 
-    // top right
-    pos+=ff->delta_aa_x;
-    pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,2,&ptmp,&p,&index,&fate); 
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
-    im->setFate(x,y,1,fate);
-    im->setIndex(x,y,1,index);
+	
+    
+    // top right
+    fate = im->getFate(x,y,1);
+    if(fate == FATE_UNKNOWN)
+    {	
+	pos+=ff->delta_aa_x;
+	pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,2,&ptmp,&p,&index,&fate); 
+	im->setFate(x,y,1,fate);
+	im->setIndex(x,y,1,index);
+    }
+    else
+    {
+	ptmp = pf->recolor(im->getIndex(x,y,1), fate);
+    }
+
+    pixel_r_val += ptmp.r;
+    pixel_g_val += ptmp.g;
+    pixel_b_val += ptmp.b;
 
     // bottom left
-    pos = topleft + ff->delta_aa_y;
-    pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,3,&ptmp,&p,&index,&fate); 
+    fate = im->getFate(x,y,2);
+    if(fate == FATE_UNKNOWN)
+    {	
+	pos = topleft + ff->delta_aa_y;
+	pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,3,&ptmp,&p,&index,&fate); 
+	im->setFate(x,y,2,fate);
+	im->setIndex(x,y,2,index);
+    }
+    else
+    {
+	ptmp = pf->recolor(im->getIndex(x,y,2), fate);
+    }
+
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
-    im->setFate(x,y,2,fate);
-    im->setIndex(x,y,2,index);
 
     // bottom right
-    pos+= ff->delta_aa_x;
-    pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,4,&ptmp,&p,&index,&fate); 
+    fate = im->getFate(x,y,3);
+    if(fate == FATE_UNKNOWN)
+    {	
+	pos = topleft + ff->delta_aa_y + ff->delta_aa_x;
+	pf->calc(pos.n, ff->maxiter,checkPeriod,x,y,4,&ptmp,&p,&index,&fate); 
+	im->setFate(x,y,3,fate);
+	im->setIndex(x,y,3,index);
+    }
+    else
+    {
+	ptmp = pf->recolor(im->getIndex(x,y,3), fate);
+    }
+
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
-    im->setFate(x,y,3,fate);
-    im->setIndex(x,y,3,index);
 
     ptmp.r = pixel_r_val / 4;
     ptmp.g = pixel_g_val / 4;
@@ -227,7 +264,6 @@ STFractWorker::antialias(int x, int y)
 void 
 STFractWorker::pixel(int x, int y,int w, int h)
 {
-
     assert(pf != NULL && m_ok == true);
 
     rgba_t pixel;
@@ -236,8 +272,7 @@ STFractWorker::pixel(int x, int y,int w, int h)
     fate_t fate = im->getFate(x,y,0);
     if(fate == FATE_UNKNOWN)
     {
-
-	int iter = im->getIter(x,y);
+	int iter = 0;
 	
 	// calculate coords of this point
 	dvec4 pos = ff->topleft + x * ff->deltax + y * ff->deltay;
@@ -282,7 +317,7 @@ STFractWorker::pixel(int x, int y,int w, int h)
     {
 	pixel = pf->recolor(im->getIndex(x,y,0), fate);
 	rectangle(pixel,x,y,w,h);
-    } 
+    }
 }
 
 void 
@@ -310,11 +345,6 @@ void
 STFractWorker::pixel_aa(int x, int y)
 {
     rgba_t pixel;
-
-    if(! needs_aa_calc(x,y))
-    {
-	return;
-    }
 
     int iter = im->getIter(x,y);
 
@@ -345,7 +375,7 @@ STFractWorker::pixel_aa(int x, int y)
     }
     pixel = antialias(x,y);
 
-    rectangle(pixel,x,y,1,1);
+    rectangle(pixel,x,y,1,1,true);
 }
 
 void 
@@ -396,54 +426,14 @@ STFractWorker::box(int x, int y, int rsize)
 
 inline void
 STFractWorker::rectangle(
-    rgba_t pixel, int x, int y, int w, int h)
+    rgba_t pixel, int x, int y, int w, int h, bool force)
 {
     for(int i = y ; i < y+h; i++)
     {
         for(int j = x; j < x+w; j++) 
 	{
-	    fate_t fate = im->getFate(j,i,0);
-	    if(FATE_UNKNOWN == fate)
-	    {
-		im->put(j,i,pixel);
-	    }
-	    else
-	    {
-		// 0'th (non-aa) pixel's fate is known - just recolor it
-		rgba_t new_pixel = pf->recolor(im->getIndex(j,i,0), fate);
-		fate = im->getFate(j,i,1);
-		if(FATE_UNKNOWN != fate)
-		{
-		    // either we should know all subpixels or none
-		    assert(im->getFate(j,i,2) != FATE_UNKNOWN);
-		    assert(im->getFate(j,i,3) != FATE_UNKNOWN);
-
-		    // and so are the other pixels
-		    int tr=new_pixel.r, 
-			tg=new_pixel.g, 
-			tb=new_pixel.b, 
-			ta=new_pixel.a;
-
-		    int nSubPixels = im->getNSubPixels();
-		    for(int k = 1; k < nSubPixels; ++k)
-		    {
-			fate = im->getFate(j,i,k);
-			float index = im->getIndex(j,i,k);
-			new_pixel = pf->recolor(index, fate);
-			tr += new_pixel.r;
-			tg += new_pixel.g;
-			tb += new_pixel.b;
-			ta += new_pixel.a;
-		    }
-
-		    new_pixel.r = tr/nSubPixels;
-		    new_pixel.g = tg/nSubPixels;
-		    new_pixel.b = tb/nSubPixels;
-		    new_pixel.a = ta/nSubPixels;
-		}
-		im->put(j,i,new_pixel);
-	    }
-        }
+	    im->put(j,i,pixel);
+	}
     }
 }
 

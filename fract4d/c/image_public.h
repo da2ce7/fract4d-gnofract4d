@@ -60,6 +60,7 @@ public:
     virtual void setIndex(int x, int y, int sub, float index) = 0;
     
     virtual int getNSubPixels() const = 0;
+    virtual bool hasUnknownSubpixels(int x, int y) const = 0;
 };
 
 #endif /* IMAGE_PUBLIC_H_ */
