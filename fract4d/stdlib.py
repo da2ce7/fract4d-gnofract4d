@@ -4,6 +4,17 @@ import math
 from codegen import ComplexArg, ConstFloatArg, ConstIntArg, TempArg
 from fracttypes import *
 
+class Constants:
+    def __init__(self):
+        self.i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(1.0))
+        self.iby2 = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(0.5))
+        
+        self.minus_i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(-1.0))        
+
+        self.one = ComplexArg(ConstFloatArg(1.0),ConstFloatArg(0.0))
+
+const = Constants()
+    
 def reals(l):
     # [[a + ib], [c+id]] => [ a, c]
     return [x.re for x in l]
@@ -85,10 +96,14 @@ def div_cc_c(gen,t,srcs):
 def div_cf_c(gen,t,srcs):
     # divide a complex number by a real one
     return ComplexArg(
-        gen.emit_binop(t.op,[srcs[0].re, srcs[1]], Float),
-        gen.emit_binop(t.op,[srcs[0].im, srcs[1]], Float))
+        gen.emit_binop('/',[srcs[0].re, srcs[1]], Float),
+        gen.emit_binop('/',[srcs[0].im, srcs[1]], Float))
 
-mul_cf_c = div_cf_c
+def mul_cf_c(gen,t,srcs):
+    # multiply a complex number by a real one
+    return ComplexArg(
+        gen.emit_binop('*',[srcs[0].re, srcs[1]], Float),
+        gen.emit_binop('*',[srcs[0].im, srcs[1]], Float))
 
 def cmag_c_f(gen,t,srcs):
     # |x| = x_re * x_re + x_im * x_im
@@ -462,16 +477,13 @@ def asin_f_f(gen,t,srcs):
 
 def asin_c_c(gen,t,srcs):
     # asin(z) = -i * log(i*z + sqrt(1-z*z))
-     one = ComplexArg(ConstFloatArg(1.0),ConstFloatArg(0.0))
-     i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(1.0))
-     minus_i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(-1.0))
    
-     one_minus_z2 = sub_cc_c(gen,t,[one,sqr_c_c(gen,t,srcs)])
-     sq = sqrt_c_c(gen,t,[one_minus_z2])
-     arg = add_cc_c(gen,t,[mul_cc_c(gen,t,[i,srcs[0]]), sq])
+    one_minus_z2 = sub_cc_c(gen,t,[const.one,sqr_c_c(gen,t,srcs)])
+    sq = sqrt_c_c(gen,t,[one_minus_z2])
+    arg = add_cc_c(gen,t,[mul_cc_c(gen,t,[const.i,srcs[0]]), sq])
 
-     l = log_c_c(gen,t,[arg])
-     return mul_cc_c(gen,t,[minus_i,l])                         
+    l = log_c_c(gen,t,[arg])
+    return mul_cc_c(gen,t,[const.minus_i,l])               
 
 def acos_f_f(gen,t,srcs):
     return gen.emit_func('acos', srcs, Float)
@@ -486,11 +498,9 @@ def atan_f_f(gen,t,srcs):
 
 def atan_c_c(gen,t,srcs):
     # atan(z) = i/2 * log(i+x/i-x)
-    i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(1.0))
-    iby2 = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(0.5))
-    ratio = div_cc_c(gen,t,[add_cc_c(gen,t,[i,srcs[0]]),
-                            sub_cc_c(gen,t,[i,srcs[0]])])
-    return mul_cc_c(gen,t,[iby2,log_c_c(gen,t,[ratio])])
+    ratio = div_cc_c(gen,t,[add_cc_c(gen,t,[const.i,srcs[0]]),
+                            sub_cc_c(gen,t,[const.i,srcs[0]])])
+    return mul_cc_c(gen,t,[const.iby2,log_c_c(gen,t,[ratio])])
 
 def atan2_c_f(gen,t,srcs):
     return gen.emit_func2('atan2', [srcs[0].im, srcs[0].re], Float)
@@ -500,8 +510,7 @@ def asinh_f_f(gen,t,srcs):
 
 def asinh_c_c(gen,t,srcs):
     # log(z + sqrt(z*z+1))
-    one = ComplexArg(ConstFloatArg(1.0),ConstFloatArg(0.0))
-    sq = sqrt_c_c(gen,t,[add_cc_c(gen,t,[one,sqr_c_c(gen,t,srcs)])])
+    sq = sqrt_c_c(gen,t,[add_cc_c(gen,t,[const.one,sqr_c_c(gen,t,srcs)])])
     return log_c_c(gen,t,[add_cc_c(gen,t,[srcs[0],sq])])
 
 def acosh_f_f(gen,t,srcs):
@@ -509,14 +518,24 @@ def acosh_f_f(gen,t,srcs):
 
 def acosh_c_c(gen,t,srcs):
     # log(z + sqrt(z-1)*sqrt(z+1))
-    one = ComplexArg(ConstFloatArg(1.0),ConstFloatArg(0.0))    
-    sqzm1 = sqrt_c_c(gen,t,[sub_cc_c(gen,t,[srcs[0],one])])
-    sqzp1 = sqrt_c_c(gen,t,[add_cc_c(gen,t,[srcs[0],one])])
+    sqzm1 = sqrt_c_c(gen,t,[sub_cc_c(gen,t,[srcs[0],const.one])])
+    sqzp1 = sqrt_c_c(gen,t,[add_cc_c(gen,t,[srcs[0],const.one])])
     sum = add_cc_c(gen,t,[srcs[0],mul_cc_c(gen,t,[sqzm1,sqzp1])])
     return log_c_c(gen,t,[sum])
     
 def atanh_f_f(gen,t,srcs):
     return gen.emit_func('atanh', srcs, Float)
+
+def times_i(gen,t,srcs):
+    # multiply by i = (-im,re) 
+    return ComplexArg(neg_f_f(gen,t,[srcs[0].im]),srcs[0].re)
+
+def atanh_c_c(gen,t,srcs):
+    # 1/2(log(1+z)-log(1-z))
+    one_m_z = log_c_c(gen,t,[sub_cc_c(gen,t,[const.one,srcs[0]])])
+    one_p_z = log_c_c(gen,t,[add_cc_c(gen,t,[const.one,srcs[0]])])
+    return mul_cf_c(gen,t,[sub_cc_c(gen,t,[one_p_z, one_m_z]),
+                           ConstFloatArg(0.5)])
 
 def manhattanish_c_f(gen,t,srcs):
     return gen.emit_binop('+',[srcs[0].re,srcs[0].im],Float)

@@ -669,7 +669,12 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests[1][2] = "(nan,nan)"
         tests[6][2] = "(nan,-inf)" # not really sure who's right on this
         return tests
-    
+
+    def atanhtests(self):
+        tests = self.manufacture_tests("atanh",cmath.atanh)
+        tests[2][2] = tests[5][2] = "(inf,0)" # Python overflows the whole number
+        return tests
+
     def test_stdlib(self):
 
         # additions to python math stdlib
@@ -763,8 +768,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests += self.atantests()
         tests += self.manufacture_tests("asinh",myasinh)
         tests += self.manufacture_tests("acosh",myacosh)
-        
-        # FIXME: asinh, acosh, atanh
+        tests += self.atanhtests()
 
         # construct a formula calculating all of the above,
         # run it and compare results with expected values
