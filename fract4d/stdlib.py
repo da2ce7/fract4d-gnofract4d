@@ -178,11 +178,11 @@ def clamp_C_C(gen,t,srcs):
 
 def add_CC_C(gen,t,srcs):
     # add 2 colors, piecewise
-    dst = clamp_C_C(gen,t, [ColorArg(
+    dst = ColorArg(
         gen.emit_binop('+',parts(0,srcs), Float),
         gen.emit_binop('+',parts(1,srcs), Float),
         gen.emit_binop('+',parts(2,srcs), Float),
-        gen.emit_binop('+',parts(3,srcs), Float))])
+        gen.emit_binop('+',parts(3,srcs), Float))
     return dst
     
 def sub_cc_c(gen,t,srcs):
@@ -202,11 +202,11 @@ def sub_hh_h(gen,t,srcs):
     return dst
 
 def sub_CC_C(gen,t,srcs):
-    dst = clamp_C_C(gen,t, [ColorArg(
+    dst = ColorArg(
         gen.emit_binop('-',parts(0,srcs), Float),
         gen.emit_binop('-',parts(1,srcs), Float),
         gen.emit_binop('-',parts(2,srcs), Float),
-        gen.emit_binop('-',parts(3,srcs), Float))])
+        gen.emit_binop('-',parts(3,srcs), Float))
     return dst
     
 def div_cc_c(gen,t,srcs):
@@ -245,7 +245,7 @@ def mul_hf_h(gen,t,srcs):
         )
 
 def mul_Cf_C(gen,t,srcs):
-    return mul_hf_h(gen,t,[srcs[0], clamp_f_f(gen,t,[srcs[1]])])
+    return mul_hf_h(gen,t,srcs)
 
 def div_hf_h(gen,t,srcs):
     # multiply a hypercomplex number by a real one
@@ -257,7 +257,7 @@ def div_hf_h(gen,t,srcs):
         )
 
 def div_Cf_C(gen,t,srcs):
-    return clamp_C_C(gen,t, [div_hf_h(gen,t,srcs)])
+    return div_hf_h(gen,t,srcs)
 
 def cmag_c_f(gen,t,srcs):
     # |x| = x_re * x_re + x_im * x_im
