@@ -624,13 +624,23 @@ The image may not display correctly. Please upgrade to version 3.4.''')
         im = fract4dc.image_create(w,h)
         f.draw(im)
 
+        fract4dc.image_save(im,"foo.tga")
         # check that result is horizontally symmetrical
         buf = fract4dc.image_buffer(im,0,0)
         for y in xrange(h):
-            line = list(buf[y*w*3:(y*w+w)*3])
+            line = map(ord,list(buf[y*w*3:(y*w+w)*3]))
             line.reverse()
-            revline = "".join(line)
-            self.assertEqual(buf[y*w*3:(y*w+w)*3],revline)
+            revline = line
+            line = map(ord,list(buf[y*w*3:(y*w+w)*3]))
+            for x in xrange(w):
+                a = line[x*3:(x+1)*3]
+                b = revline[x*3:(x+1)*3]
+
+                if a != b:
+                    fate_buf = fract4dc.image_fate_buffer(im,0,y)
+                    print map(ord,list(fate_buf[0:w]))
+                    self.assertEqual(a,b,"%s != %s, %d != %d" % (a,b,x,w-x))
+
 
         # and vertically symmetrical
         for x in xrange(w):

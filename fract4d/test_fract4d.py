@@ -316,7 +316,7 @@ class PfTest(unittest.TestCase):
         self.assertPixelIs(iw,0,0,[iw.OUT]+[iw.UNKNOWN]*3, [79,88,41])
 
         # redraw antialiased pixel
-        fract4dc.fw_pixel(fw,2,2,1,1)
+        fract4dc.fw_pixel_aa(fw,2,2)
         self.assertPixelIs(
             iw,2,2, [iw.OUT, iw.OUT, iw.IN, iw.OUT],
             [79,88,41], [100,101,102])

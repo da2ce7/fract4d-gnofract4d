@@ -12,6 +12,7 @@ todo for 2.2
 * B	O-fractals in fractint-g4.frm broken
 * W	assert that correct number of params passed to init()
 * B	click on colormap calls calc() twice
+* W	speed up 'instant recolor'
 
 UF Incompatibilities
 * W	boolean, int, enum params 
@@ -20,7 +21,7 @@ UF Incompatibilities
 * B	browse fhq.ufm - invalid UTF8 string passed to pango_layout
 * B	dmj.ufm:DHNovaJulka - '#magn' - no symbol starting with t__ is allowed
 * B	dmj.udm:dmj-ManyJulia - looks like 3 quadrants are wrong somehow
-* B	jock.ufm:neptwona = "complex z = #pixel", eg redeclare z
+* B	jock.ufm:neptwona = "complex z = #pixel", ie redeclare z
 * W	raise/remove limit on number of parameters
 
 UI improvements 

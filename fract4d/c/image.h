@@ -36,6 +36,17 @@ public:
     ~image();
 
     int getNSubPixels() const { return N_SUBPIXELS; };
+    inline bool hasUnknownSubpixels(int x, int y) const
+	{
+	    for(int i = 0; i < N_SUBPIXELS; ++i)
+	    {
+		if(getFate(x,y,i) == FATE_UNKNOWN)
+		{
+		    return true;
+		}
+	    }
+	    return false;
+	}
     inline int Xres() const { return m_Xres; };
     inline int Yres() const { return m_Yres; };
     inline char *getBuffer() { return buffer; };

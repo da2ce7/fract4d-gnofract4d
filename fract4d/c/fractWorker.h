@@ -77,7 +77,10 @@ class STFractWorker : public IFractWorker {
     void pixel_aa(int x, int y);
 
     // draw a rectangle of this colour
-    void rectangle(rgba_t pixel, int x, int y, int w, int h);
+    void rectangle(rgba_t pixel, 
+		   int x, int y, int w, int h, 
+		   bool force=false);
+
     void rectangle_with_iter(rgba_t pixel, fate_t fate, 
 			     int iter, float index,
 			     int x, int y, int w, int h);

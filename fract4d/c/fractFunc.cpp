@@ -170,6 +170,7 @@ void fractFunc::reset_progress(float progress)
 // image got deeper
 void fractFunc::clear_in_fates()
 {
+    // FIXME can end up with some subpixels known and some unknown
     for(int y = 0; y < im->Yres(); ++y)
     {
 	for(int x = 0; x < im->Xres(); ++x)
