@@ -92,23 +92,9 @@ class CodegenTest(unittest.TestCase):
                             user_preamble,str_output,"\n",
                             user_postamble,postamble],"")
 
-    def writeToTempFile(self,data=None,suffix=""):
-        'try mkstemp or mktemp if missing'
-        try:
-            (cFile,cFileName) = tempfile.mkstemp("gf4d",suffix)
-        except AttributeError, err:
-            # this python is too antique for mkstemp
-            cFileName = tempfile.mktemp(suffix)
-            cFile = open(cFileName,"w+b")
-
-        if data != None:
-            cFile.write(data)
-        cFile.close()
-        return cFileName
-    
     def compileAndRun(self,c_code):
-        cFileName = self.writeToTempFile(c_code,".c")
-        oFileName = self.writeToTempFile("")
+        cFileName = self.codegen.writeToTempFile(c_code,".c")
+        oFileName = self.codegen.writeToTempFile("")
         #print c_code
         cmd = "gcc -Wall %s -o %s -lm" % (cFileName, oFileName)
         #print cmd
@@ -554,22 +540,24 @@ bailout:
 
     def testLibrary(self):
         # create a library containing the compiled code
-        src = '''t_mandel{
-init:
-loop:
-z = z*z + 1/pixel
-bailout:
-|z| < 4.0
-}'''
+        src = '''
+Newton4(XYAXIS) {; Mark Peterson
+  ; Note that floating-point is required to make this compute accurately
+  z = pixel, Root = 1:
+   z3 = z*z*z
+   z4 = z3 * z
+   z = (3 * z4 + Root) / (4 * z3)
+    .004 <= |z4 - Root|
+  }
+'''
         t = self.translate(src)
         self.codegen.output_all(t, {"z" : "", "pixel" : ""} )
         c_code = self.codegen.output_c(t)
 
-        cFileName = self.writeToTempFile(c_code,".c")
-        oFileName = self.writeToTempFile(None,".so")
+        cFileName = self.codegen.writeToTempFile(c_code,".c")
+        oFileName = self.codegen.writeToTempFile(None,".so")
         #print c_code
         cmd = "gcc -Wall -fPIC -dPIC -shared %s -o %s -lm" % (cFileName, oFileName)
-        print oFileName
         (status,output) = commands.getstatusoutput(cmd)
         self.assertEqual(status,0,"C error:\n%s\nProgram:\n%s\n" % \
                          ( output,c_code))
