@@ -1,39 +1,46 @@
 todo for 2.0
- 
+
+* WW	doc
+* W	add some more built-in types
+
+UI improvements 
 * BB	more robust error reporting
 * W	last-chance exception handler
-
-* W	command-line arguments
-* WW	cmap browser
-
-* B	untitled_5 displays weirdly - 
-	so do some combinations of bailout+colorfunc
-* BB	giger.fct - results of extangle are different vs 1.9
-* BB	horrible_drawing_bug.fct - zoom out & it looks very different
-
-* W	end-to-end regression test vs V1.9
-* W	regression test vs fractint
+* B	translationerror on load doesn't pop up
+* B	standard.cfrm:triangle = all black
 * W	current angle in status bar
-
+* B	open formula file on .cfrm should go to correct page in browser
+* B	maxiter isn't updated due to auto-deepening
+* B	change width or setting to something which isn't a number/float: 
+	ValueError in set_prefs, set_initparam etc
 * W	formula browser
 	manage search path (user prefs)
 	auto-list all formula files on path, parse on first click
 	edit & continue
 	save/save-as
 	run $EDITOR, refresh
-* W	i18n, gettext
 * W	review human interface guidelines
+* W	recently-used files
+* W	warn before quitting or save current fractal to autosave by default?
+* W	does everything have to be .17f ?
 
-* WW	doc
-
-* B	open formula file on .cfrm should go to correct page in browser
-* B	maxiter isn't updated due to auto-deepening
-* B	change width or setting to something which isn't a number/float: 
-	ValueError in set_prefs, set_initparam etc
-* B	click on GaussianInteger cfrm = print out some stuff
-* B	standard.cfrm:triangle = all black
+1.9 features:
+* W	command-line arguments
+* WW	cmap browser
 * B	opening color browser sometimes applies 1st item
-* B	translationerror on load doesn't pop up
+
+Math weirdness:
+* B	untitled_5 displays weirdly - 
+	so do some combinations of bailout+colorfunc
+* BB	giger.fct - results of extangle are different vs 1.9
+* BB	horrible_drawing_bug.fct - zoom out & it looks very different
+* B	click on GaussianInteger cfrm = print out some stuff
+* W	default chebyshev gives blank screen
+
+Testing:
+* W	end-to-end regression test vs V1.9
+
+Distribution weirdness
 * B	Mandrake: desktop icon not added to menu, pygtk2 is called pygtk2.0
 
 differences from fractint:
@@ -129,6 +136,8 @@ done:
 * B	undo/redo cause recompilation
 
 postponed
+* W	regression test vs fractint
+* W	i18n, gettext
 * B	warnings for several fractal types
 * B	other windows always in front - is that good?
 * W	exact SMP equality test

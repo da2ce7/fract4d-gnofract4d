@@ -212,13 +212,13 @@ class T(gobject.GObject):
             widget = gtk.Entry()
 
             def set_entry(*args):
-                widget.set_text("%.17f"%self.f.get_initparam(order,param_type))
+                widget.set_text("%.17f" % self.f.get_initparam(order,param_type))
                     
             def set_fractal(entry,event,f,order,param_type):
                 try:
                     f.set_initparam(order,entry.get_text(),param_type)
                 except Exception, err:
-                    print params, order
+                    gtk.idle_add(self.warn,str(err))
                 return False
             
             set_entry(self)
@@ -336,7 +336,12 @@ class T(gobject.GObject):
             widget.set_text("%d" % self.maxiter)
 
         def set_fractal(*args):
-            self.set_maxiter(int(widget.get_text()))
+            try:
+                i = int(widget.get_text())
+                self.set_maxiter(int(widget.get_text()))
+            except ValueError, err:
+                gtk.idle_add(self.warn,str(err))
+                
             return False
         
         set_entry(self)
