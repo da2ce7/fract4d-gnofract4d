@@ -390,7 +390,8 @@ goto t__end_init;''')
             [ "t_asin = (asin(0),asin(1))","t_asin", self.predict(math.asin)],
             [ "t_acos = (acos(0),acos(1))","t_acos", self.predict(math.acos)],
             [ "t_atan = (atan(0),atan(1))","t_atan", self.predict(math.atan)],
-
+            [ "t_atan2 = (atan2((1,1)),atan2((-1,-1)))",
+              "t_atan2", "(0.785398,-2.35619)"],
             # these aren't in python stdlib, need to hard-code results
             [ "t_asinh = (asinh(0),asinh(1))","t_asinh", "(0,0.881374)" ],
             [ "t_acosh = (acosh(10),acosh(1))","t_acosh", "(2.99322,0)" ],

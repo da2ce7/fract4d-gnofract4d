@@ -49,6 +49,7 @@ def createDefaultDict():
         "asin" :  efl("asin", "[_], _", [Float, Complex]),
         "acos" :  efl("acos", "[_], _", [Float, Complex]),
         "atan" :  efl("atan", "[_], _", [Float, Complex]),
+        "atan2" :  [ Func([Complex], Float, stdlib, "atan2")],
         "asinh" :  efl("asinh", "[_], _", [Float, Complex]),
         "acosh" :  efl("acosh", "[_], _", [Float, Complex]),
         "atanh" :  efl("atanh", "[_], _", [Float, Complex]),
