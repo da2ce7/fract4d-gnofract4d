@@ -109,6 +109,7 @@ class Test(unittest.TestCase):
         self.mw.autozoom(None,None)
         self.mw.contents(None,None)
         self.mw.browser(None,None)
+        self.mw.painter(None,None)
         
     def testExplorer(self):
         self.mw.set_explorer_state(True)

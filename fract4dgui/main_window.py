@@ -12,7 +12,7 @@ sys.path.append("..")
 from fract4d import fractal,fc,fract4dc
 
 import gtkfractal, model, preferences, autozoom, settings, toolbar
-import colors, undo, browser, fourway, angle, utils, hig
+import colors, undo, browser, fourway, angle, utils, hig, painter
 import icons
 
 class MainWindow:
@@ -330,10 +330,12 @@ class MainWindow:
              self.autozoom, 0, ''),
             (_('/_Tools/_Explorer'), '<control>E',
              self.toggle_explorer, 0, '<ToggleItem>'),
-            (_('/_Tools/Formula _Browser'), '<control>B',
+            (_('/_Tools/Formula _Browser...'), '<control>B',
              self.browser, 0, ''),
             (_('/_Tools/_Randomize Colors'), '<control>R',
              self.randomize_colors, 0, ''),
+            (_('/_Tools/_Painter...'), None,
+             self.painter, 0, ''),
             
             (_('/_Help'), None,
              None, 0, '<Branch>'),
@@ -364,8 +366,11 @@ class MainWindow:
         browser.show(self.window,self.f,browser.FRACTAL)
 
     def randomize_colors(self,action,menuitem):
-        self.f.make_random_colors(7)
-        
+        self.f.make_random_colors(8)
+
+    def painter(self,action,menuitem):
+        painter.show(self.window,self.f)
+            
     def toggle_explorer(self, action, menuitem):
         self.set_explorer_state(menuitem.get_active())
         

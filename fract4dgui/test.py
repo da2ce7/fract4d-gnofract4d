@@ -11,6 +11,7 @@ import test_hig
 import test_browser
 import test_main_window
 import test_settings
+import test_painter
 
 def suite():
     tests = (
@@ -23,6 +24,7 @@ def suite():
         test_hig.suite(),
         test_browser.suite(),
         test_settings.suite(),
+        test_painter.suite(),
         test_main_window.suite())
     return unittest.TestSuite(tests)
 

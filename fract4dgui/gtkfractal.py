@@ -7,6 +7,7 @@ import os
 import struct
 import math
 import copy
+import random
 
 import gtk
 import gobject
@@ -51,6 +52,8 @@ class T(gobject.GObject):
 
         self.parent = parent
         self.compiler = comp
+
+        self.paint_mode = False
         
         self.msgformat = "5i"
         self.msgsize = struct.calcsize(self.msgformat)
@@ -564,24 +567,50 @@ class T(gobject.GObject):
         self.newx = self.x
         self.newy = self.y
         self.button = event.button
+
+    def set_paint_mode(self,isEnabled, colorsel):
+        self.paint_mode = isEnabled
+        self.paint_color_sel = colorsel
+        
+    def get_paint_color(self):
+        color = self.paint_color_sel.get_current_color() 
+        return (color.red, color.green, color.blue)
+    
+    def onPaint(self,x,y):
+        # obtain index
+        index = fract4dc.image_get_color_index(self.image, x, y)
+        
+        # obtain a color
+        (r,g,b) = self.get_paint_color()
+        
+        # update colormap
+        for i in xrange(len(self.colorlist)):
+            if self.colorlist[i][0] >= index:
+                (old_index,oldr,oldg,oldb,a) = self.colorlist[i]
+                self.colorlist[i] = (index,r,g,b,a)
+                break
+        self.changed(False)
         
     def onButtonRelease(self,widget,event):
         self.redraw_rect(0,0,self.width,self.height)
         self.freeze()
         if event.button == 1:
-            if self.x == self.newx or self.y == self.newy:
-                zoom=0.5
-                x = self.x
-                y = self.y
+            if self.paint_mode:
+                self.onPaint(self.newx, self.newy)
             else:
-                zoom= (1+abs(self.x - self.newx))/float(self.width)
-                x = 0.5 + (self.x + self.newx)/2.0;
-                y = 0.5 + (self.y + self.newy)/2.0;
+                if self.x == self.newx or self.y == self.newy:
+                    zoom=0.5
+                    x = self.x
+                    y = self.y
+                else:
+                    zoom= (1+abs(self.x - self.newx))/float(self.width)
+                    x = 0.5 + (self.x + self.newx)/2.0;
+                    y = 0.5 + (self.y + self.newy)/2.0;
 
-            # with shift held, don't zoom
-            if hasattr(event,"state") and event.state & gtk.gdk.SHIFT_MASK:
-                zoom = 1.0
-            self.recenter(x,y,zoom)
+                # with shift held, don't zoom
+                if hasattr(event,"state") and event.state & gtk.gdk.SHIFT_MASK:
+                    zoom = 1.0
+                self.recenter(x,y,zoom)
             
         elif event.button == 2:
             (x,y) = (event.x, event.y)
