@@ -418,7 +418,12 @@ def cotan_f_f(gen,t,srcs):
                                 gen.emit_func('sin', srcs, Float)], Float)
 
 def cotanh_f_f(gen,t,srcs):
-    return gen.emit_func('cotanh', srcs, Float)
+    return gen.emit_binop('/', [gen.emit_func('cosh', srcs, Float),
+                                gen.emit_func('sinh', srcs, Float)], Float)
+
+def cotanh_c_c(gen,t,srcs):
+    return div_cc_c(gen,t, [cosh_c_c(gen,t, [srcs[0]]),
+                            sinh_c_c(gen,t,[srcs[0]])])
 
 def cosh_f_f(gen,t,srcs):
     return gen.emit_func('cosh', srcs, Float)

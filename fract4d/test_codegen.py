@@ -632,8 +632,18 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
                                 
     def test_stdlib(self):
 
+        # additions to python math stdlib
         def myfcotan(x):
             return math.cos(x)/math.sin(x)
+        
+        def myfcotanh(x):
+            return math.cosh(x)/math.sinh(x)
+
+        def mycotan(z):
+            return cmath.cos(z)/cmath.sin(z)
+
+        def mycotanh(z):
+            return cmath.cosh(z)/cmath.sinh(z)
         
         tests = [
             # code to run, var to inspect, result
@@ -679,7 +689,8 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
             [ "t_sinh = (sinh(0),sinh(1))","t_sinh", self.predict(math.sinh)],
             [ "t_cosh = (cosh(0),cosh(1))","t_cosh", self.predict(math.cosh)],
             [ "t_tanh = (tanh(0),tanh(1))","t_tanh", self.predict(math.tanh)],
-            #[ "t_cotanh
+            [ "t_cotanh = (cotanh(0),cotanh(1))","t_cotanh",
+              self.predict(myfcotanh)],
               
             # inverse trig functions
             [ "t_asin = (asin(0),asin(1))","t_asin", self.predict(math.asin)],
@@ -700,10 +711,11 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests += self.manufacture_tests("tanh",cmath.tanh)
         tests += self.manufacture_tests("exp",cmath.exp)
         tests += self.manufacture_tests("sqrt",cmath.sqrt)
-        def mycotan(z):
-            return cmath.cos(z)/cmath.sin(z)
+
+        tests += self.manufacture_tests("cotanh",mycotanh)        
         cottests = self.manufacture_tests("cotan",mycotan)
 
+        
         # CONSIDER: comes out as -0,1.31304 in python, but +0 in C++ and gf4d
         # think Python's probably in error, but not 100% sure
         cottests[6][2] = "(0,1.31304)" 
@@ -711,13 +723,17 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         
         logtests = self.manufacture_tests("log",cmath.log)
         
-        # asin,acos,atan,atan2, asinh, acosh, atanh, cotan, cotanh
+
             
         logtests[0][2] = "(-inf,0)" # log(0+0j) is overflow in python
         tests += logtests
+
+        # FIXME: asin,acos,atan,atan2, asinh, acosh, atanh
         
         src = 't_c6{\ninit: y = (1,2)\n' + \
               string.join(map(lambda x : x[0], tests),"\n") + "\n}"
+
+
 
         check = string.join(map(lambda x :self.inspect_complex(x[1]),tests),"\n")
 
