@@ -37,13 +37,16 @@ netfract
 
 gnofract4d
 * B	setting image size in explorer mode is screwed
+* B	setting image size crashes
+* BB 	some images come out the wrong color (eg paramfiles/param.fct)
+* B	saved images have wrong type
+* W	add fractal params to image, add load image
 * W	remember .fct filenames and re-save to same place
 * W	Julia preview by moving around while holding button3
 * W	history window (move history inside library??)
 * B	SIGSEGV when changing mutant weirdness - hard to repro
 * WW	MDI
 * B	pause doesn't stop subfracts
-* BB	stupid options dialog would be better as tabbed dialog
 * WW	preview .fcts in open dialog
 
 fract4d
@@ -82,6 +85,7 @@ CmapEditor
 * W 	remove debug printfs
 
 Done:
+* BB	stupid options dialog would be better as tabbed dialog
 * W	finish cmapeditor
 * W	update docs
 * B	outer_cf not saved correctly - itercount changes to cont_potential
