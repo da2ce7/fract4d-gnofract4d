@@ -1,4 +1,4 @@
-/* functions which perform individual iterations of a fractal function */
+/* function objects which perform individual iterations of a fractal function */
 
 #include "iterFunc.h"
 
@@ -6,28 +6,11 @@
 #include <iostream>
 #include <string>
 
-// for some reason these have to be declared in the leaf class, even
-// though they're the same all over. Odd.
 #define IO_DECLS(className) \
     friend std::ostream& operator<<(std::ostream& s, const className& m); \
     friend std::istream& operator>>(std::istream& s, className& m); \
     std::ostream& put(std::ostream& s) const { return s << *this; } \
     std::istream& get(std::istream& s) { return s;  } 
-
-#define IO_DEFNS(className) \
-std::ostream& \
-operator<<(std::ostream& s, const className& m) \
-{ \
-    s << m.type() << "\n"; \
-    return s; \
-} \
-\
-std::istream& \
-operator>>(std::istream& s, className& m) \
-{ \
-    /* don't need to do anything */ \
-    return s; \
-}
 
 // forward static calls of << to appropriate virtual function
 std::ostream& 
@@ -47,7 +30,11 @@ operator>>(std::istream& s, iterFunc& iter)
 
 class noOptions : public iterFunc
 {
+private:
+    int m_type;
 public:
+    noOptions(int type) : m_type(type) {}
+
     int nOptions() const
         { 
             return 0; 
@@ -61,12 +48,32 @@ public:
             // no real options
             return 0.0; 
         }
+    int type() const
+        {
+            return m_type;
+        }
+    IO_DECLS(noOptions)
 };
+
+std::ostream& 
+operator<<(std::ostream& s, const noOptions& m) 
+{ 
+    s << m.type() << "\n"; 
+    return s; 
+} 
+
+std::istream& 
+operator>>(std::istream& s, noOptions& m) 
+{ 
+    /* don't need to do anything */ 
+    return s; 
+}
 
 // z <- z^2 +c
 class mandFunc : public noOptions
 {
 public:
+    mandFunc() : noOptions(0) {}
     void operator()(double *p) const
         {
             p[X2] = p[X] * p[X];
@@ -83,10 +90,6 @@ public:
         {
             return "Mandelbrot";
         }
-    int type() const
-        {
-            return 0;
-        }
     iterFunc *clone() const
         {
             return new mandFunc(*this);
@@ -97,15 +100,13 @@ public:
             if(!p) return false;
             return true;
         }
-    IO_DECLS(mandFunc)
 };
-
-IO_DEFNS(mandFunc)
 
 // z <- (|x| + i |y|)^2 + c
 class shipFunc: public noOptions
 {
 public:
+    shipFunc() : noOptions(1) {};
     void operator()(double *p) const 
         {
             p[X] = fabs(p[X]);
@@ -125,10 +126,6 @@ public:
         {
             return HAS_X2 | HAS_Y2;
         }
-    int type() const
-        {
-            return 1;
-        }
     iterFunc *clone() const
         {
             return new shipFunc(*this);
@@ -139,15 +136,13 @@ public:
             if(!p) return false;
             return true;
         }
-    IO_DECLS(shipFunc)
 };
-
-IO_DEFNS(shipFunc)
 
 // z <- (|x| + i |y|)^2 + (|x| + i|y|) + c
 class buffaloFunc: public noOptions
 {
 public:
+    buffaloFunc() : noOptions(2) {}
     virtual void operator()(double *p) const
         {
             p[X] = fabs(p[X]);
@@ -167,10 +162,6 @@ public:
         {
             return "Buffalo";
         }
-    int type() const
-        {
-            return 2;
-        }
     iterFunc *clone() const
         {
             return new buffaloFunc(*this);
@@ -181,15 +172,13 @@ public:
             if(!p) return false;
             return true;
         }
-    IO_DECLS(buffaloFunc)
 };
-
-IO_DEFNS(buffaloFunc);
 
 // z <- z^3 + c
 class cubeFunc : public noOptions
 {
 public:
+    cubeFunc() : noOptions(3) {}
     virtual void operator()(double *p) const
         {
             p[X2] = p[X] * p[X];
@@ -206,10 +195,6 @@ public:
         {
             return "Cubic Mandelbrot";
         }
-    int type() const
-        {
-            return 3;
-        }
     iterFunc *clone() const
         {
             return new cubeFunc(*this);
@@ -220,10 +205,7 @@ public:
             if(!p) return false;
             return true;
         }
-    IO_DECLS(cubeFunc)
 };
-
-IO_DEFNS(cubeFunc)
 
 // generalised quadratic mandelbrot
 // computes a[0] * z^2 + a[1] * z + a[2] * c
