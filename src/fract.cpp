@@ -131,9 +131,9 @@ fractal::operator=(const fractal& f)
 /* x & y vary by up to 50% of the size */
 
 static double
-xy_random(double current, double size)
+xy_random(double weirdness, double size)
 {
-	return current + 0.5 * size * (drand48() - 0.5);
+	return weirdness * 0.5 * size * (drand48() - 0.5);
 }
 
 /* z & w vary by up to 1.0 / log(size) 
@@ -141,49 +141,47 @@ xy_random(double current, double size)
 */
 
 static double
-zw_random(double current, double size)
+zw_random(double weirdness, double size)
 {
 	double factor = fabs(1.0 - log(size)) + 1.0;
-	return current + (drand48() - 0.5 ) * 1.0 / factor;
+	return weirdness * (drand48() - 0.5 ) * 1.0 / factor;
 }
 
-/* scale independent, but skewed distribution:
-   50% no change, 25% += pi/2, 25% += rand() * pi/4;
-*/
+/* scale independent, but skewed distribution */
 
 static double
-angle_random()
+angle_random(double weirdness)
 {
-	int type = rand()/(RAND_MAX/5);
-	switch(type){
-	case 0:
-	case 1:
-	case 2:
-		return 0.0;
-	case 3:
+	double action = drand48();
+	if(action > weirdness) return 0.0; // no change
+
+	action = drand48();
+	if(action < weirdness/6.0) 
+	{
+		// +/- pi/2
 		return drand48() > 0.5 ? M_PI/2.0 : -M_PI/2.0;
-	default:
-		return (drand48() - 0.5) * M_PI/4.0;
 	}
+	return weirdness * (drand48() - 0.5) * M_PI/2.0;
 }
 
 void
-fractal::set_inexact(const fractal& f)
+fractal::set_inexact(const fractal& f, double weirdness)
 {
 	*this = f; // invoke op=
 
-	params[XCENTER] = xy_random(params[XCENTER],params[SIZE]);
-	params[YCENTER] = xy_random(params[YCENTER],params[SIZE]);
-	params[ZCENTER] = zw_random(params[ZCENTER],params[SIZE]);
-	params[WCENTER] = zw_random(params[WCENTER],params[SIZE]);
+	params[XCENTER] += xy_random(weirdness, params[SIZE]);
+	params[YCENTER] += xy_random(weirdness, params[SIZE]);
+	params[ZCENTER] += zw_random(weirdness, params[SIZE]);
+	params[WCENTER] += zw_random(weirdness, params[SIZE]);
 
 	for(int i = XYANGLE; i <= ZWANGLE ; i++)
 	{	       
-		params[i] += angle_random();
+		params[i] += angle_random(weirdness);
 	}
-	if(drand48() > 0.75)
+	
+	if(drand48() < weirdness * 0.75)
 	{
-		params[SIZE] *= drand48() * 2.0;
+		params[SIZE] *= 1.0 + (0.5 - drand48());
 	}
 }
 

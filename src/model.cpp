@@ -53,6 +53,7 @@ struct _model {
 
 	int interrupted;
 	bool explore_mode;
+	double weirdness;
 };
 
 static void 
@@ -91,6 +92,7 @@ model_new(void)
 		m->subfracts[i] = GF4D_FRACTAL(gf4d_fractal_new());
 	}
 	m->explore_mode = true;
+	m->weirdness = 0.5;
 	model_update_subfracts(m);
 	m->undo_seq = gundo_sequence_new();
 
@@ -218,7 +220,7 @@ model_update_subfracts(model_t *m)
 
 	for(int i = 0; i < 8; i++)
 	{
-		gf4d_fractal_set_inexact(m->subfracts[i],m->fract);
+		gf4d_fractal_set_inexact(m->subfracts[i],m->fract,m->weirdness);
 		gf4d_fractal_parameters_changed(m->subfracts[i]);
 	}
 }
@@ -257,3 +259,8 @@ model_make_redo_sensitive(model_t *m, GtkWidget *widget)
 }
 
 
+void
+model_set_weirdness_factor(model_t *m, gfloat weirdness)
+{
+	m->weirdness = weirdness;
+}

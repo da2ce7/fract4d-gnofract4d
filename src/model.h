@@ -68,8 +68,12 @@ extern "C" {
 	// this is crap - lose it
 	void model_set_subfract_widget(model_t *m, GtkWidget *widget, int num);
 
+	// delegates to gundo
 	void model_make_undo_sensitive(model_t *m, GtkWidget *widget);
 	void model_make_redo_sensitive(model_t *m, GtkWidget *widget);
+
+	// explorer stuff
+	void model_set_weirdness_factor(model_t *m, gfloat weirdness);
 
 #ifdef __cplusplus
 }

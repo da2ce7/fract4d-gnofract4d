@@ -114,7 +114,7 @@ Gf4dFractal *gf4d_fractal_copy(Gf4dFractal *f);
 
 fractal_t *gf4d_fractal_copy_fract(Gf4dFractal *f);
 void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f);
-void gf4d_fractal_set_inexact(Gf4dFractal *gf_dst, Gf4dFractal *gf_src);
+void gf4d_fractal_set_inexact(Gf4dFractal *gf_dst, Gf4dFractal *gf_src, double weirdness);
 
 #ifdef __cplusplus
 }

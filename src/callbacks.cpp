@@ -686,3 +686,9 @@ void refresh_potential_callback(Gf4dFractal *f, gpointer user_data)
 	GtkToggleButton *b = GTK_TOGGLE_BUTTON(user_data);
 	gtk_toggle_button_set_active(b,gf4d_fractal_get_potential(f));
 }
+
+void weirdness_callback(GtkAdjustment *adj, gpointer user_data)
+{
+	model_t *m = (model_t *)user_data;
+	model_set_weirdness_factor(m,adj->value);
+}

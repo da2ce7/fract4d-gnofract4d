@@ -251,6 +251,8 @@ create_move_toolbar (model_t *m)
 				 (GtkSignalFunc)redo_cb,
 				 m);
 
+	gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+
 	GtkWidget *explore_widget = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_SEARCH);
 	gtk_toolbar_append_item (GTK_TOOLBAR(toolbar),
 				 _("Explore"),
@@ -259,6 +261,21 @@ create_move_toolbar (model_t *m)
 				 explore_widget,
 				 (GtkSignalFunc)explore_cb,
 				 m);
+
+	GtkObject *explore_adj = gtk_adjustment_new(0.5, 0.0, 1.0, 0.05, 0.05, 0.0);
+	GtkWidget *explore_weirdness = gtk_hscale_new(GTK_ADJUSTMENT(explore_adj));
+
+	gtk_signal_connect(GTK_OBJECT(explore_adj),
+			   "value-changed",
+			   (GtkSignalFunc)weirdness_callback, 
+			   m);
+
+	gtk_widget_show(explore_weirdness);
+	gtk_toolbar_append_widget(GTK_TOOLBAR(toolbar),
+				  explore_weirdness,
+				  _("How different the mutants are in Explore Mode"),
+				  NULL);
+
 	return toolbar;
 }
 

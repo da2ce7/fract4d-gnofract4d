@@ -168,3 +168,5 @@ void refresh_colortype_callback(Gf4dFractal *button, gpointer user_data);
 
 void set_potential_callback(GtkToggleButton *button, gpointer user_data);
 void refresh_potential_callback(Gf4dFractal *f, gpointer user_data);
+
+void weirdness_callback(GtkAdjustment *adj, gpointer user_data);
