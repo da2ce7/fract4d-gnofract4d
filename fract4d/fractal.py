@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import string
+import StringIO
 import re
 import os
 import sys
@@ -218,6 +219,15 @@ class T(FctUtils):
             "decomposition",
             "external_angle"]
 
+    def serialize(self):
+        out = StringIO.StringIO()
+        self.save(out)
+        return out.getvalue()
+
+    def deserialize(self,string):
+        self.loadFctFile(StringIO.StringIO(string))
+        self.changed()
+        
     def save_cfunc_info(self,index,section,file):
         print >>file, "[%s]" % section
         print >>file, "formulafile=%s" % self.cfunc_files[index]

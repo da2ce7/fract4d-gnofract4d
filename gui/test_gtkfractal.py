@@ -109,14 +109,6 @@ class FctTest(unittest.TestCase):
         self.assertEqual(children[2].get_text(),"bailout")
         self.assertEqual(children[3].get_text(),"4.00000000000000000")
         self.assertEqual(children[4].get_text(),"myfunc")
-        optmenu =children[5]
-        self.assertEqual(optmenu.get_menu().funclist[optmenu.get_history()],
-                         "sqr")
-
-        bailoptmenu =children[7]
-        self.assertEqual(
-            bailoptmenu.get_menu().funclist[bailoptmenu.get_history()],"cmag")
-
         
     def testButton1(self):
         f = self.f

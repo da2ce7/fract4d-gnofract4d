@@ -78,14 +78,23 @@ class T(gobject.GObject):
         drawing_area.connect('button_release_event', self.onButtonRelease)
         drawing_area.connect('button_press_event', self.onButtonPress)
         drawing_area.connect('expose_event',self.onExpose)
+
+        c = self.get_rgb_colormap()
         
-        c = gtk.gdk.rgb_get_cmap()
         drawing_area.set_colormap(c)        
         drawing_area.set_size_request(self.width,self.height)
 
         self.widget = drawing_area
         self.f.compile()
 
+    def get_rgb_colormap(self):
+        # work around a difference between pygtk versions
+        if hasattr(gtk.gdk,'get_colormap'):
+            c = gtk.gdk.rgb_get_colormap()
+        else:
+            c = gtk.gdk.rgb_get_cmap()
+        return c
+    
     def update_formula(self):
         self.f.dirtyFormula = True
         
