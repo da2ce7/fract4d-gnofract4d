@@ -320,11 +320,17 @@ def real_h_f(gen,t,srcs):
 def imag_h_f(gen,t,srcs):
     return srcs[0].parts[1]
 
-def imag_j_h_f(gen,t,srcs):
+def hyper_j_h_f(gen,t,srcs):
     return srcs[0].parts[2]
 
-def imag_k_h_f(gen,t,srcs):
+def hyper_k_h_f(gen,t,srcs):
     return srcs[0].parts[3]
+
+def hyper_ri_h_c(gen,t,srcs):
+    return ComplexArg(srcs[0].parts[0], srcs[0].parts[1])
+
+def hyper_jk_h_c(gen,t,srcs):
+    return ComplexArg(srcs[0].parts[2], srcs[0].parts[3])
 
 def ident_i_i(gen,t,srcs):
     return srcs[0]

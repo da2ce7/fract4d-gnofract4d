@@ -617,20 +617,29 @@ func fn1
         src = '''t_hyper3 {
         init:
         hyper x = (1,2,3,4)
-        float a=real(x), float b=imag(x), float c=imag_j(x), float d=imag_k(x)
+        hyper y
+        float a=real(x),float b=imag(x),float c=hyper_j(x),float d=hyper_k(x)
+        complex c1 = hyper_ri(x), c2 = hyper_jk(x)
         real(x) = 4
         imag(x) = 3
-        imag_j(x) = 2
-        imag_k(x) = 1
+        hyper_j(x) = 2
+        hyper_k(x) = 1
+        hyper_ri(y) = (3,4)
+        hyper_jk(y) = (1,2)
         }'''
         self.assertCSays(src,"init",
                          self.inspect_float("a") +
                          self.inspect_float("b") +
                          self.inspect_float("c") +
                          self.inspect_float("d") +
-                         self.inspect_hyper("x"),
+                         self.inspect_complex("c1") +
+                         self.inspect_complex("c2") +
+                         self.inspect_hyper("x") +
+                         self.inspect_hyper("y"),
                          "a = 1\nb = 2\nc = 3\nd = 4\n" +
-                         "x = (4,3,2,1)")
+                         "c1 = (1,2)\nc2 = (3,4)\n" +
+                         "x = (4,3,2,1)\n" +
+                         "y = (3,4,1,2)")
         
     def testC(self):
         # basic end-to-end testing. Compile a code fragment + instrumentation,
