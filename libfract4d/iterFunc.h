@@ -40,12 +40,35 @@ class IFractOption {
     virtual ~IFractOption() {};
 };
 
+class iterFunc;
+
+class IFormula
+{
+ public:
+    virtual const char**errors() const = 0;
+    virtual ~IFormula() {};
+};
+
+class IFuncFactory
+{
+ public:
+    static IFuncFactory* create();
+
+    virtual bool load_file(const char *filename) = 0;
+
+    virtual IFormula *get_formula(const char *filename, const char *formula) = 0;
+    virtual ~IFuncFactory() {};
+};
+
 /* a fractal formula */
+
 
 class iterFunc {
  public:
     // factory method for create-by-name
     static iterFunc *create(const char *name, const char *filename);
+
+
 
     static iterFunc *read(std::istream& is);
 

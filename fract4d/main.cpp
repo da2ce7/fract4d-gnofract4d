@@ -1,6 +1,7 @@
 #include <cstdlib>
 
 #include "fract4d.h"
+#include "iterFunc.h"
 
 #include "image.h"
 
@@ -30,6 +31,21 @@ class callbacks : public IFractalSite, public ICompilerSite
 int main(int argc, char **argv)
 {
     IFractalSite *site = new callbacks();
+
+    IFuncFactory *ff = IFuncFactory::create();
+    if(ff)
+    {
+	if(ff->load_file("libfract4d/compiler/gf4d.frm"))
+	{
+	    IFormula *form = ff->get_formula("gf4d.frm","T03-01-G4");
+	    const char**errors = form->errors();
+	    int i = 0;
+	    while(errors[i] != NULL)
+	    {
+		printf("%s\n",errors[i++]);
+	    }	    
+	}
+    }
     IFractal *f = IFractal::create();
     g_pCompiler = ICompiler::create((ICompilerSite *)site);
 

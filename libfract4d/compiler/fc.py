@@ -19,6 +19,7 @@
 import getopt
 import sys
 import commands
+import os.path
 
 import fractparser
 import fractlexer
@@ -51,16 +52,20 @@ class Compiler:
             for formula in result.children:
                 formulas[formula.leaf] = formula
 
-            self.files[filename] = FormulaFile(formulas,s)
+            basefile = os.path.basename(filename)
+            self.files[basefile] = FormulaFile(formulas,s)
         
         except Exception, err:
-            print "Error parsing '%s' : %s" % (filename, err)
+            #print "Error parsing '%s' : %s" % (filename, err)
             raise
 
     def get_formula(self, filename, formula):
-        ff = self.files.get(filename)
+        ff = self.files.get(os.path.basename(filename))
         if ff == None : return None
-        return ff.get_formula(formula)
+        f = ff.get_formula(formula)
+        if f != None:
+            f = translate.T(f)
+        return f
 
     def main(self):
         try:
@@ -84,13 +89,12 @@ class Compiler:
             sys.exit(1)
             
         # find the function we want
-        ast = self.get_formula(args[0],self.formula)
+        ir = self.get_formula(args[0],self.formula)
         if ast == None:
             print "Can't find formula %s in %s" % \
                   (self.formula, self.formulafile)
             sys.exit(1)
 
-        ir = translate.T(self.ast)
         if ir.errors != []:
             print "Errors during translation"
             for e in ir.errors:
