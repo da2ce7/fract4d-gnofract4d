@@ -51,10 +51,12 @@ main (int argc, char *argv[])
 			   GTK_SIGNAL_FUNC( save_session_cb ), m);
 	gtk_signal_connect(GTK_OBJECT (client), "die",
 			   GTK_SIGNAL_FUNC( quit_session_cb ), m);
+
+	gdk_threads_enter();
 	app = create_app (m);
 	gtk_widget_show (app);
 
-	gdk_threads_enter();
+
 	gtk_main ();
 	gdk_threads_leave();
 

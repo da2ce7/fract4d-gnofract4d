@@ -1,6 +1,16 @@
 # List of source files containing translatable strings.
 
-src/main.c
-src/interface.c
-src/callbacks.c
-src/support.c
+src/callbacks.cpp
+src/colorizer.cpp
+src/fract.cpp
+src/gf4d_angle.cpp
+src/gf4d_fractal.cpp
+src/gundo.cpp
+src/gundo_ui.cpp
+src/image.cpp
+src/interface.cpp
+src/main.cpp
+src/model.cpp
+src/soi.cpp
+src/support.cpp
+src/test-fonction.cpp

@@ -8,7 +8,7 @@
 # Please note that the actual code is *not* freely available.
 
 PACKAGE = gnofract4d
-VERSION = 1.2
+VERSION = 1.3
 
 SHELL = /bin/sh
 
@@ -30,14 +30,14 @@ MKINSTALLDIRS = $(top_srcdir)/./mkinstalldirs
 
 CC = gcc
 GENCAT = 
-GMSGFMT = PATH=../src:$$PATH /usr/local/bin/msgfmt
-MSGFMT = /usr/local/bin/msgfmt
-XGETTEXT = PATH=../src:$$PATH /usr/local/bin/xgettext
+GMSGFMT = PATH=../src:$$PATH /usr/bin/msgfmt
+MSGFMT = /usr/bin/msgfmt
+XGETTEXT = PATH=../src:$$PATH /usr/bin/xgettext
 MSGMERGE = PATH=../src:$$PATH msgmerge
 
 DEFS = -DHAVE_CONFIG_H
-CFLAGS = -g -O2 -Wall -Wunused 
-CPPFLAGS = -I/usr/local/include -I/usr/X11R6/include/gtk12 -I/usr/local/include/glib12 -I/usr/local/include -I/usr/X11R6/include
+CFLAGS = -g -O2 -Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -Wpointer-arith 
+CPPFLAGS =  -I/usr/X11R6/include -I/usr/lib/glib/include
 
 INCLUDES = -I.. -I$(top_srcdir)/intl
 
@@ -50,12 +50,22 @@ DISTFILES = ChangeLog Makefile.in.in POTFILES.in $(PACKAGE).pot \
 stamp-cat-id $(POFILES) $(GMOFILES) $(SOURCES)
 
 POTFILES = \
-	../src/main.c \
-	../src/interface.c \
-	../src/callbacks.c \
-	../src/support.c
+	../src/callbacks.cpp \
+	../src/colorizer.cpp \
+	../src/fract.cpp \
+	../src/gf4d_angle.cpp \
+	../src/gf4d_fractal.cpp \
+	../src/gundo.cpp \
+	../src/gundo_ui.cpp \
+	../src/image.cpp \
+	../src/interface.cpp \
+	../src/main.cpp \
+	../src/model.cpp \
+	../src/soi.cpp \
+	../src/support.cpp \
+	../src/test-fonction.cpp
 
-CATALOGS =  fr.gmo
+CATALOGS = 
 CATOBJEXT = .gmo
 INSTOBJEXT = .mo
 

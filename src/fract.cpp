@@ -526,7 +526,7 @@ fractal::move(param_t i, int direction)
     default: return;
     }
     update_matrix();
-    dvec4 delta = d * rot[axis]/params[SIZE];
+    dvec4 delta = d * rot[axis] * (1.0 / 20.0);
     recenter(delta);
 }
 
@@ -622,11 +622,11 @@ fract_rot::antialias(const dvec4& cpos)
 	scratch_space scratch;
 
 	dvec4 topleft = cpos;
-		
+
+	colorizer *cf = f->cizer;		
 	for(i=0;i<depth;i++) {
 		dvec4 pos = topleft; 
 		for(j=0;j<depth;j++) {
-			colorizer *cf = f->cizer;
 			int p = (pf(pos, f->params[BAILOUT], scratch, f->nbit_max)); 
 			ptmp = (*cf)(p,scratch,f->potential);
 			pixel_r_val += ptmp.r;

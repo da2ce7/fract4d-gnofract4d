@@ -28,11 +28,11 @@ colorizer_read(std::istream& is)
 	is >> type;
 
 	// construct different colorizer type based on stream contents
-	if(type == "colorizer=RGB")
+	if(0 == type.compare("colorizer=RGB"))
 	{
 		cizer = colorizer_new(COLORIZER_RGB);
 	}
-	else if(type == "colorizer=CMAP") 
+	else if(0 == type.compare("colorizer=CMAP")) 
 	{
 		cizer = colorizer_new(COLORIZER_CMAP);
 	}

@@ -43,7 +43,7 @@ static void group_redo( GundoSequence *seq );
 static void free_actions( int actc, UndoAction *actv );
 
 
-static gint gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_LAST+1];
+static guint gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_LAST+1];
 static GtkObjectClass *base_class = 0;
 static GundoActionType gundo_action_group = {
     (GundoActionCallback)group_undo,
@@ -101,7 +101,7 @@ static void gundo_sequence_class_init( GundoSequenceClass *klass ) {
     klass->can_undo = NULL;
     klass->can_redo = NULL;
     
-    base_class = gtk_type_class( gtk_object_get_type() );
+    base_class = (GtkObjectClass *)gtk_type_class( gtk_object_get_type() );
 }
 
 static void gundo_sequence_init( GundoSequence *seq ) {
