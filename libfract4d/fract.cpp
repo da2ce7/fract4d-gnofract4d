@@ -297,6 +297,7 @@ fractal::reset()
     maxiter = 256;
     rot_by = M_PI/2.0;
     
+    assert(pIterFunc != NULL);
     if(pIterFunc)
     {
         pIterFunc->reset(params);

@@ -11,12 +11,6 @@
 #include <complex>
 #include <sstream>
 
-#define IO_DECLS(className) \
-    friend std::ostream& operator<< <>(std::ostream& s, const className& m); \
-    friend std::istream& operator>> <>(std::istream& s, className& m); \
-    std::ostream& put(std::ostream& s) const { return s << *this; } \
-    std::istream& get(std::istream& s) { return s >> *this;  } 
-
 #define FIELD_FUNCTION "function"
 
 // forward static calls of << to appropriate virtual function
@@ -143,7 +137,12 @@ public:
             code_map["XPOS"]= flags() & USE_COMPLEX ? "z.real()" : "p[X]";
             code_map["YPOS"]= flags() & USE_COMPLEX ? "z.imag()" : "p[Y]";
         }
-    IO_DECLS(iterImpl)
+
+    friend std::ostream& operator<< <>(std::ostream& s, const iterImpl& m); \
+    friend std::istream& operator>> <>(std::istream& s, iterImpl& m); \
+    std::ostream& put(std::ostream& s) const { return s << *this; } \
+    std::istream& get(std::istream& s) { return s >> *this;  } 
+
 };
 
 template<class T, int NOPTIONS>
