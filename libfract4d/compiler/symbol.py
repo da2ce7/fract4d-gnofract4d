@@ -33,6 +33,9 @@ class T(UserDict):
     def __init__(self):
         UserDict.__init__(self)
         self.reset()
+
+    def has_key(self,key):
+        return self.data.has_key(mangle(key))
         
     def __getitem__(self,key):
         return self.data[mangle(key)]

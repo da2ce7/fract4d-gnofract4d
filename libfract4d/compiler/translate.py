@@ -112,7 +112,14 @@ class T:
             self.exp(node,expectedType)
 
     def assign(self, node):
-        print "skip assign for now"
+        '''assign a new value to a variable, creating it if required'''
+        if self.symbols.has_key(node.leaf):
+            print "assign to existing var %s" % node.leaf
+        else:
+            print "assign to new var %s" % node.leaf
+            self.symbols[node.leaf] = Var(fracttypes.Complex,0,node.pos)
+
+        
         
     def decl(self,node,expectedType):
         if expectedType != None:

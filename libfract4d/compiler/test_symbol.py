@@ -24,6 +24,8 @@ class SymbolTest(unittest.TestCase):
         
     def testAddCheckVar(self):
         self.t["fish"] = Var(Int,1)
+        self.failUnless(self.t.has_key("fish"))
+        self.failUnless(self.t.has_key("FisH"))
         x = self.t["fish"]
         self.failUnless(isinstance(x,Var) and x.value == 1 and x.type == Int)
 
