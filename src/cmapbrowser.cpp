@@ -169,14 +169,14 @@ create_cmap_browser_item(
 
     // make the drawable 
     GtkWidget *drawing_area=NULL;
-    gtk_widget_push_visual (gdk_rgb_get_visual ());
+    //gtk_widget_push_visual (gdk_rgb_get_visual ());
     gtk_widget_push_colormap (gdk_rgb_get_cmap ());    
     drawing_area = gtk_drawing_area_new();
     gtk_widget_pop_colormap ();
-    gtk_widget_pop_visual ();
+    //gtk_widget_pop_visual ();
 
     // resize
-    gtk_drawing_area_size(GTK_DRAWING_AREA(drawing_area), PREVIEW_SIZE, PREVIEW_SIZE);
+    gtk_widget_set_size_request(drawing_area, PREVIEW_SIZE, PREVIEW_SIZE);
 
     // buffer for image
     guchar *img = new guchar[BYTE_SIZE];
@@ -256,13 +256,14 @@ add_map_directory(GtkWidget *table, model_t *m, char *mapdir, GtkTooltips *tips)
         if(ext && strcmp(ext,"map")==0)
         {
             // get full filename of .map file & create a colorizer from it
-            char *full_name = g_concat_dir_and_file(mapdir, dirEntry->d_name);
+            char *full_name = g_build_filename(mapdir, dirEntry->d_name,NULL);
             cmap_colorizer *cizer = new cmap_colorizer();
             cizer->set_cmap_file(full_name);
             g_free(full_name);
 
             // add it to table
-            GtkWidget *item = create_cmap_browser_item(m, tips, cizer, dirEntry->d_name, false);
+            GtkWidget *item = create_cmap_browser_item(
+		m, tips, cizer, dirEntry->d_name, false);
             add_to_table(table, item, i % 8, i / 8);
 
             ++i;
@@ -291,14 +292,13 @@ create_current_maps_page(GtkWidget *notebook, model_t *m)
     GtkTooltips *tips = gtk_tooltips_new();
     gtk_tooltips_enable(tips);
 
-    gchar *mapdir; /* = g_concat_dir_and_file(
-        g_get_home_dir(),".gnome/" PACKAGE "-maps");
+    gchar * mapdir = gnome_program_locate_file(
+	NULL,
+	GNOME_FILE_DOMAIN_APP_DATADIR,
+	"maps/" PACKAGE  "/",
+	FALSE,
+	NULL);
 
-    add_map_directory(table, m, mapdir, tips);
-
-    g_free(mapdir);
-                   */
-    mapdir = gnome_datadir_file("maps/" PACKAGE  "/");
     add_map_directory(table, m, mapdir, tips);
     g_free(mapdir);
 
@@ -314,8 +314,9 @@ create_current_maps_page(GtkWidget *notebook, model_t *m)
 void
 color_change_callback(GtkWidget *colorsel, gpointer user_data)
 {
-    gdouble colors[4];
-    gtk_color_selection_get_color(GTK_COLOR_SELECTION(colorsel), colors);
+    GdkColor color;
+    gtk_color_selection_get_current_color(
+	GTK_COLOR_SELECTION(colorsel), &color);
 
     GtkWidget *button = GTK_WIDGET(user_data);  
     GtkWidget *drawable = GTK_BIN(button)->child;
@@ -323,8 +324,10 @@ color_change_callback(GtkWidget *colorsel, gpointer user_data)
         g_object_get_data(G_OBJECT(drawable), "colorizer");
 
     Gf4dFractal *f = GF4D_FRACTAL(g_object_get_data(G_OBJECT(dialog), "fractal"));
-
-    rgb_cizer->set_colors(colors[0],colors[1],colors[2]);
+    rgb_cizer->set_colors(
+	((double)color.red)/65535.0,
+	((double)color.green)/65535.0,
+	((double)color.blue)/65535.0);
 
     update_preview_image(f, drawable, NULL);
 }
@@ -403,13 +406,13 @@ void colorbut_mouse_event(
     current_colorbut = widget;
     gtk_widget_set_state(widget, GTK_STATE_SELECTED);
 
-    gdouble colors[4];
     rgb_t rgb_color =colorbut_get_color(widget);
-    colors[0] = (gdouble) rgb_color.r / 256.0;
-    colors[1] = (gdouble) rgb_color.g / 256.0;
-    colors[2] = (gdouble) rgb_color.b / 256.0;
-    colors[3] = 1.0;
-    gtk_color_selection_set_color(GTK_COLOR_SELECTION(colorsel),colors);
+    GdkColor color;
+    color.red =   (guint16)(rgb_color.r * 256.0);
+    color.green = (guint16)(rgb_color.g * 256.0);
+    color.blue =  (guint16)(rgb_color.b * 256.0);
+
+    gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel),&color);
     g_print("color selected\n");
 }
 
@@ -418,12 +421,12 @@ void colorbut_set_event(GtkWidget *colorsel, gpointer user_data)
     GtkWidget *colorbut = current_colorbut;
     if(!current_colorbut) return;
 
-    gdouble colors[4];
-    gtk_color_selection_get_color(GTK_COLOR_SELECTION(colorsel),colors);
+    GdkColor color;
+    gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(colorsel),&color);
     rgb_t rgb_color;
-    rgb_color.r = (char)(colors[0]*255.0);
-    rgb_color.g = (char)(colors[1]*255.0);
-    rgb_color.b = (char)(colors[2]*255.0);
+    rgb_color.r = (char)(color.red/256);
+    rgb_color.g = (char)(color.green/256);
+    rgb_color.b = (char)(color.blue/256);
 
     int index = GPOINTER_TO_INT(
 	g_object_get_data(G_OBJECT(colorbut),"index"));
@@ -497,7 +500,7 @@ create_edit_colormap_page(GtkWidget *notebook, model_t *m)
     for(int i = 0 ; i < 256; ++i)
     {
 	GtkWidget *colorbut = gtk_drawing_area_new();
-	gtk_drawing_area_size(GTK_DRAWING_AREA(colorbut),12,12);
+	gtk_widget_set_size_request(colorbut,12,12);
 
 	gtk_widget_set_events (colorbut, 
 			       GDK_EXPOSURE_MASK |
@@ -616,7 +619,7 @@ create_which_colorizer_menu(GtkWidget *vbox, Gf4dFractal *shadow, model_t *m)
 	GTK_SIGNAL_FUNC(set_id_callback),
 	m);
     
-    gtk_menu_append(GTK_MENU(func_menu), menu_item);
+    gtk_menu_shell_append(GTK_MENU_SHELL(func_menu), menu_item);
     gtk_option_menu_set_menu(GTK_OPTION_MENU(func_type), func_menu);
 
     gtk_widget_show_all(func_type);
