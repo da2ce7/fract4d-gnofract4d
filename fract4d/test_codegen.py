@@ -808,7 +808,7 @@ func fn1
         tests = string.join([
             self.inspect_bool("b"),
             self.inspect_bool("b2"),
-            self.inspect_int("zvalx"),
+            self.inspect_int("zval"),
             ])
         
         results = string.join([
