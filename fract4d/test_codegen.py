@@ -172,6 +172,7 @@ int main()
         int i = 0;
         for(i = 0; i < 20; ++i) {
             params[i].t = FLOAT;
+            params[i].intval = 773;
             params[i].doubleval = 0.0;
         };
         pf_fake t__f;
@@ -841,8 +842,8 @@ func fn1
         
         results = string.join([
             "b = 1",
-            "b2 = 1",
-            "zval = 0",
+            "b2 = 0",
+            "zval = 773",
             ],"\n")
         self.assertCSays(src,"init",tests,results)
 

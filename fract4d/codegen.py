@@ -607,8 +607,17 @@ extern pf_obj *pf_new(void);
                     else:
                         out.append(Decl("%s %s = t__pfo->p[%d].doubleval;" % \
                                             (t, sym.cname, ord)))
+                elif sym.type == fracttypes.Int or \
+                         sym.type == fracttypes.Bool:
+                    ord = op.get(key)
+                    if ord == None:
+                        out.append(Decl("%s %s = %d;" % (t,sym.cname,val)))
+                    else:
+                        out.append(Decl("%s %s = t__pfo->p[%d].intval;" % \
+                                            (t, sym.cname, ord)))
                 else:
-                    out.append(Decl("%s %s = %d;" % (t,sym.cname,val)))
+                    raise ValueError("Unknown symbol type %d for %s" % \
+                                     (sym.type, key))
             else:
                 #print "override %s for %s" % (override, key)
                 out.append(Decl(override))
