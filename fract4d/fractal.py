@@ -174,19 +174,19 @@ class Colorizer(FctUtils):
         mapfile = open(val)
         self.parse_map_file(mapfile)
 
-    def parse_map_file(self,mapfile):
+    def parse_map_file(self,mapfile, maxdiff=0):
         x = mapfile.tell()
         try:
             self.gradient.load(mapfile)
         except gradient.Error:
             try:
                 mapfile.seek(x)
-                self.parse_fractint_map_file(mapfile)
+                self.parse_fractint_map_file(mapfile,maxdiff)
             except Exception, err:
                 if self.parent:
                     self.parent.warn("Error reading colormap: %s" % err)
         
-    def parse_fractint_map_file(self,mapfile):
+    def parse_fractint_map_file(self,mapfile,maxdiff=0):
         'parse a fractint .map file'
         i = 0
         colorlist = []
@@ -203,7 +203,7 @@ class Colorizer(FctUtils):
                 else:
                     colorlist.append(((i-1)/255.0,r,g,b,255))
             i += 1
-        self.gradient.load_list(colorlist)
+        self.gradient.load_list(colorlist,maxdiff)
         
 class T(FctUtils):
     XCENTER = 0
@@ -676,6 +676,10 @@ class T(FctUtils):
         self.dirtyFormula = False
         return self.outputfile
 
+    def make_random_colors(self, n):
+        self.gradient.randomize(n)
+        self.changed(False)
+        
     def mul_vs(self,v,s):
         return map(lambda x : x * s, v)
 

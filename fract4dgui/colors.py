@@ -77,6 +77,7 @@ class ColorDialog(dialog.T):
         self.set_size_request(500,300)
         
         self.f = f
+        self.fudge_factor = 3
         self.update_gradient()
         
         self.model = _get_model()
@@ -155,7 +156,7 @@ class ColorDialog(dialog.T):
 
         gradbox.add(self.gradarea)
 
-        table = gtk.Table(3,4, True)
+        table = gtk.Table(4,4, True)
         table.set_property("column-spacing",2)
         
         self.left_color_button = utils.ColorButton(
@@ -215,6 +216,9 @@ class ColorDialog(dialog.T):
                      2,3,2,3)
         table.attach(self.outer_solid_button.widget,
                      3,4,2,3, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+
+        table.attach(gtk.Label("Simplify by:"),
+                     0,1,3,4)
 
         gradbox.add(table)
 
@@ -378,7 +382,7 @@ class ColorDialog(dialog.T):
     def set_map_file(self, name):
         c = fractal.Colorizer()
         file = open(name)
-        c.parse_map_file(file)
+        c.parse_map_file(file, self.fudge_factor)
         self.grad = c.gradient
         if not self.grad.name:
             self.grad.name = name

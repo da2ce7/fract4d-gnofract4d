@@ -138,6 +138,9 @@ class Test(unittest.TestCase):
             
         self.mw.set_explorer_state(False)
             
+
+    def testRandomize(self):
+        self.mw.randomize_colors()
         
 def suite():
     return unittest.makeSuite(Test,'test')

@@ -35,9 +35,9 @@ class Test(testbase.TestBase):
         self.assertEqual(len(g.segments), 1)
         self.assertWellFormedGradient(g)
 
-    def checkColorMapAndGradientEquivalent(self,colorlist):
+    def checkColorMapAndGradientEquivalent(self,colorlist,maxdiff=0):
         grad = gradient.Gradient()
-        grad.load_list(colorlist)
+        grad.load_list(colorlist,maxdiff)
 
         self.assertWellFormedGradient(grad)
         cmap = fract4dc.cmap_create(colorlist)
@@ -51,7 +51,7 @@ class Test(testbase.TestBase):
                 grad_color,
                 cmap_color,
                 "colorlist(%s) = %s but gradient(%s) = %s" % \
-                (fi, cmap_color, fi, grad_color), 1.5)
+                (fi, cmap_color, fi, grad_color), maxdiff*2 + 1.5)
         return grad
     
     def checkCGradientAndPyGradientEquivalent(self,grad):
@@ -100,9 +100,8 @@ class Test(testbase.TestBase):
         self.assertEqual(g.segments[1].left_color, self.green)
         self.assertEqual(g.segments[1].right_color, self.blue)
 
-        self.checkColorMapAndGradientEquivalent(colorlist)
-
-
+        self.checkColorMapAndGradientEquivalent(colorlist)            
+            
     def testFromColormap3(self):
         # create a short, compressible one
         colorlist = [
@@ -130,6 +129,10 @@ class Test(testbase.TestBase):
         colorlist = self.colorMapFromFile("../maps/Gallet02.map")
         grad = self.checkColorMapAndGradientEquivalent(colorlist)
         self.failUnless(len(grad.segments) < 255,"should have been compressed")
+
+    def testFromColormapLossyCompression(self):
+        colorlist = self.colorMapFromFile("../maps/Gallet02.map")
+        grad = self.checkColorMapAndGradientEquivalent(colorlist, 2)
         
     def colorMapFromFile(self, name):
         f = open(name,"r")
