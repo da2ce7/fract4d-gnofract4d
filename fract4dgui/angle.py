@@ -82,11 +82,14 @@ class T(gobject.GObject):
             if self.old_value != current_value:
                 self.old_value = current_value
                 self.emit('value-changed',current_value)
-        
+
+        self.widget.set_state(gtk.STATE_NORMAL)
+                              
     def onButtonPress(self,widget,event):
         if event.button == 1:
             self.update_from_mouse(event.x, event.y)
-
+            self.widget.set_state(gtk.STATE_ACTIVE)
+            
     def __del__(self):
         #This is truly weird. If I don't have this method, when you use
         # one fourway widget, it fucks up the other. Having this fixes it.

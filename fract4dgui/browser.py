@@ -184,19 +184,30 @@ class BrowserDialog(gtk.Dialog):
         return sw
 
     def populate_file_list(self):
+        # find all appropriate files and add to file list
         self.file_list.clear()
         if self.func_type == FRACTAL:
             files = self.compiler.find_formula_files()
         else:
             files = self.compiler.find_colorfunc_files()
 
+        current_iter = None
         files.sort(stricmp)
         for fname in files:
             iter = self.file_list.append ()
+            if fname == self.current_fname:
+                current_iter = iter
             self.file_list.set (iter, 0, fname)
 
-        self.formula_list.clear()
-        self.formula_selection_changed(None)
+        # re-select current file, if any
+        if current_iter:
+            sel = self.filetreeview.get_selection()
+            sel.unselect_all()
+            sel.select_iter(current_iter)
+            self.populate_formula_list(self.current_fname)
+        else:
+            self.formula_list.clear()
+            self.formula_selection_changed(None)
         
     def populate_formula_list(self,fname):
         self.formula_list.clear()

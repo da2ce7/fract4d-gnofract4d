@@ -74,8 +74,10 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done in 2.2:
+* W	reselect current fname and formula when reopening browser
 * W	if #zwpixel not used, disable 4D in toolbar and explorer
 * B	fix security bug
+* B	compile on FreeBSD
 * W	current angle in status bar
 * W	drop-down resolution chooser
 * B	method=multipass = compile error
