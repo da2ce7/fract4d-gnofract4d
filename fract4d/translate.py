@@ -278,6 +278,9 @@ class TBase:
             retval.value = float(val.value)
             
         return retval
+
+    def is4D(self):
+        return self.symbols.has_user_key("#zwpixel")
     
     def set(self,node):
         name = node.children[0].leaf
