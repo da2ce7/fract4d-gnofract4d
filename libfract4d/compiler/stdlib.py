@@ -140,3 +140,53 @@ def recip_f_f(gen,t,srcs):
 def recip_c_c(gen,t,srcs):
     return div_cc_c(gen, None,
                     [ComplexArg(ConstFloatArg(1.0), ConstFloatArg(0.0)), srcs[0]])
+
+def abs_f_f(gen,t,srcs):
+    return gen.emit_func('abs',srcs, Float)
+
+def abs_c_c(gen,t,srcs):
+    return ComplexArg(abs_f_f(gen,t,[srcs[0].re]), abs_f_f(gen,t,[srcs[0].im]))
+
+def sqrt_f_f(gen,t,srcs):
+    return gen.emit_func('sqrt', srcs, Float)
+
+def sin_f_f(gen,t,srcs):
+    return gen.emit_func('sin', srcs, Float)
+
+def cos_f_f(gen,t,srcs):
+    return gen.emit_func('cos', srcs, Float)
+
+def tan_f_f(gen,t,srcs):
+    return gen.emit_func('tan', srcs, Float)
+
+def cosh_f_f(gen,t,srcs):
+    return gen.emit_func('cosh', srcs, Float)
+
+def sinh_f_f(gen,t,srcs):
+    return gen.emit_func('sinh', srcs, Float)
+
+def tanh_f_f(gen,t,srcs):
+    return gen.emit_func('tanh', srcs, Float)
+
+def asin_f_f(gen,t,srcs):
+    return gen.emit_func('asin', srcs, Float)
+
+def acos_f_f(gen,t,srcs):
+    return gen.emit_func('acos', srcs, Float)
+
+def atan_f_f(gen,t,srcs):
+    return gen.emit_func('atan', srcs, Float)
+
+def atan2_c_f(gen,t,srcs):
+    return gen.emit_func2('atan2', [srcs[0].re, srcs[1].im], Float)
+
+def asinh_f_f(gen,t,srcs):
+    return gen.emit_func('asinh', srcs, Float)
+
+def acosh_f_f(gen,t,srcs):
+    return gen.emit_func('acosh', srcs, Float)
+
+def atanh_f_f(gen,t,srcs):
+    return gen.emit_func('atanh', srcs, Float)
+
+

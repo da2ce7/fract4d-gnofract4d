@@ -4,6 +4,7 @@ import unittest
 import tempfile
 import os
 import commands
+import math
 
 import absyn
 import ir
@@ -78,7 +79,7 @@ class CodegenTest(unittest.TestCase):
 
     def makeC(self,user_preamble="", user_postamble=""):
         # construct a C stub for testing
-        preamble = '''#include <stdio.h>\nint main(){
+        preamble = '''#include <stdio.h>\n#include <math.h>\nint main(){
         double params[20]= {0.0, 0.0, 0.0, 0.0};
         '''
         decls = string.join(map(lambda x: x.format(),
@@ -108,7 +109,7 @@ class CodegenTest(unittest.TestCase):
         cFileName = self.writeToTempFile(c_code,".c")
         oFileName = self.writeToTempFile("")
         #print c_code
-        cmd = "gcc -Wall %s -o %s" % (cFileName, oFileName)
+        cmd = "gcc -Wall %s -o %s -lm" % (cFileName, oFileName)
         #print cmd
         (status,output) = commands.getstatusoutput(cmd)
         self.assertEqual(status,0,"C error:\n%s\nProgram:\n%s\n" % \
@@ -354,6 +355,10 @@ goto t__end_init;''')
         
     def inspect_complex(self,name):
         return "printf(\"%s = (%%g,%%g)\\n\", %s_re, %s_im);" % (name,name,name)
+
+    def predict(self,f):
+        # compare our compiler results to Python stdlib
+        return "(%.6g,%.6g)" % (f(0),f(1))
     
     def test_stdlib(self):
         tests = [
@@ -369,6 +374,16 @@ goto t__end_init;''')
             [ "d4 = (2,1)/2","d4","(1,0.5)"],
             [ "recip1 = recip((4,0))/recip(4)", "recip1", "(1,0)"],
             [ "i = ident(y)","i","(1,2)"],
+            [ "a = (abs(4),abs(-4))","a","(4,4)"],
+            [ "a2 = abs((4,-4))","a2","(4,4)"],
+            # trig functions
+            [ "t_sin = (sin(0),sin(1))","t_sin", self.predict(math.sin)],
+            [ "t_cos = (cos(0),cos(1))","t_cos", self.predict(math.cos)],
+            [ "t_tan = (tan(0),tan(1))","t_tan", self.predict(math.tan)],
+            [ "t_sinh = (sinh(0),sinh(1))","t_sinh", self.predict(math.sinh)],
+            [ "t_cosh = (cosh(0),cosh(1))","t_cosh", self.predict(math.cosh)],
+            [ "t_tanh = (tanh(0),tanh(1))","t_tanh", self.predict(math.tanh)],
+            
             ]
 
         src = 't_c6{\ninit: y = (1,2)\n' + \
@@ -377,7 +392,7 @@ goto t__end_init;''')
         check = string.join(map(lambda x : self.inspect_complex(x[1]),tests),"\n")
 
         #check = check + "printf(\"temp52 = %g\\\n\", t__temp52);"
-        exp = string.join(map(lambda x : "%s = %s" % (x[1],x[2]), tests),"\n")
+        exp = map(lambda x : "%s = %s" % (x[1],x[2]), tests)
 
         self.assertCSays(src,"init",check,exp)
 
@@ -397,12 +412,15 @@ bailout:
             "main_inserts":'''
 int main()
 {
-    double params[4] = { 0.0, 0.0, 1.5, 0.0 };
+    double params[6] = { 0.0, 0.0, 1.5, 0.0, 5.0, 2.0};
     int nItersDone=0;
     pf_calc(params, 100, &nItersDone);
     printf("(%d)\\n",nItersDone);
 
-    params[0] = 0.1; params[1] = 0.3; params[2]= 0.1; params[3] = 0.2;
+    params[0] = 0.1; params[1] = 0.3;
+    params[2] = 0.1; params[3] = 0.2;
+    params[4] = 3.0; params[5] = 3.5;
+    
     pf_calc(params, 20, &nItersDone);
     printf("(%d)\\n",nItersDone);
         
@@ -438,6 +456,8 @@ bailout:
         # 1st point we try should bail out 
         self.assertEqual(lines, lines2, output2)
 
+        # and again with parameters
+        
         # and again with ^2
         return # not working yet
         src = '''t_mandel{
@@ -454,6 +474,7 @@ bailout:
         lines3 = string.split(output2,"\n")
         # 1st point we try should bail out 
         self.assertEqual(lines, lines3, output3)
+
         
     # assertions
     def assertCSays(self,source,section,check,result,dump=None):
@@ -461,7 +482,12 @@ bailout:
         postamble = "t__end_%s:\n%s\n" % (section,check)
         c_code = self.makeC("", postamble)        
         output = self.compileAndRun(c_code)
-        self.assertEqual(output,result)
+        if isinstance(result,types.ListType):
+            outputs = string.split(output,"\n")
+            for (exp,res) in zip(result,outputs):
+                self.assertEqual(exp,res)
+        else:
+            self.assertEqual(output,result)
         
     def assertOutputMatch(self,exp):
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")

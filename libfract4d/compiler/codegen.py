@@ -183,6 +183,7 @@ class T:
         
         self.output_template = '''
 #include <stdio.h>
+#include <math.h>
         
 static void pf_calc(
     // "object" pointer
@@ -231,6 +232,20 @@ return;
         self.out.append(Oper(assem, srcs ,[ dst ]))
         return dst
 
+    def emit_func(self,op,srcs,type):
+        # emit a call to C stdlib function 'op'
+        dst = TempArg(self.symbols.newTemp(type))
+        assem = "%(d0)s = " + op + "(%(s0)s);"
+        self.out.append(Oper(assem, srcs, [dst]))
+        return dst
+
+    def emit_func2(self,op,srcs,type):
+        # emit a call to C stdlib function 'op'
+        dst = TempArg(self.symbols.newTemp(type))
+        assem = "%(d0)s = " + op + "(%(s0)s,%(s1)s);"
+        self.out.append(Oper(assem, srcs, [dst]))
+        return dst
+    
     def emit_move(self, src, dst):
         self.out.append(Move([src],[dst]))
         

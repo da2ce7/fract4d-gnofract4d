@@ -35,6 +35,13 @@ def createDefaultDict():
         "real" : [ Func([Complex], Float, stdlib, "real")],
         "imag" : [ Func([Complex], Float, stdlib, "imag")],
         "recip": efl("recip", "[_] , _", [ Float, Complex]),
+        "abs" :  efl("abs", "[_], _", [Float, Complex]),
+        "sin" :  efl("sin", "[_], _", [Float, Complex]),
+        "cos" :  efl("cos", "[_], _", [Float, Complex]),
+        "tan" :  efl("tan", "[_], _", [Float, Complex]),
+        "sinh" :  efl("sinh", "[_], _", [Float, Complex]),
+        "cosh" :  efl("cosh", "[_], _", [Float, Complex]),
+        "tanh" :  efl("tanh", "[_], _", [Float, Complex]),
         
         # standard operators
 
