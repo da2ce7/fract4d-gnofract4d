@@ -58,6 +58,12 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
 [endsection]
 '''
 
+class WarningCatcher:
+    def __init__(self):
+        self.warnings = []
+    def warn(self,msg):
+        self.warnings.append(msg)
+        
 class FctTest(unittest.TestCase):
     def setUp(self):
         global g_comp
@@ -127,6 +133,47 @@ class FctTest(unittest.TestCase):
             d = abs(ra-rb)
             self.failUnless(d < epsilon,"%f != %f (by %f)" % (ra,rb,d))
 
+    def testLoadRGBColorizer(self):
+        'load an rgb colorizer (not supported)'
+        file='''gnofract4d parameter file
+version=1.6
+bailout=4
+x=-0.13125000000000000555
+y=-0.7562499999999999778
+z=0
+w=0
+size=0.4000000000000000222
+xy=0
+xz=0
+xw=0
+yz=0
+yw=0
+zw=0
+maxiter=1600
+antialias=1
+bailfunc=0
+inner=1
+outer=1
+[function]
+function=Mandelbrot
+[endsection]
+[colors]
+colorizer=0
+red=1
+green=0
+blue=0
+[endsection]
+'''
+        warning_catcher = WarningCatcher()
+        f = fractal.T(self.compiler);
+        rgb_file = StringIO.StringIO(file)
+        
+        f.warn = warning_catcher.warn
+        f.loadFctFile(rgb_file)
+        self.assertEqual(len(warning_catcher.warnings),1)
+        self.assertEqual(warning_catcher.warnings[0],
+                         "RGB Colorizers not supported. Colors will be wrong.")
+        
     def testSave(self):
         # load some settings
         f1 = fractal.T(self.compiler)
@@ -286,6 +333,23 @@ class FctTest(unittest.TestCase):
         self.assertEqual(f.title,"Hello World")
         self.assertEqual(f.initparams,[8.0,7.0,1.0])
 
+
+    def testFutureWarning(self):
+        'load a file from the future and check we complain'
+        file='''gnofract4d parameter file
+version=3.4
+'''
+        warning_catcher = WarningCatcher()
+        f = fractal.T(self.compiler);
+        future_file = StringIO.StringIO(file)
+        
+        f.warn = warning_catcher.warn
+        f.loadFctFile(future_file)
+        self.assertEqual(len(warning_catcher.warnings),1)
+        self.assertEqual(warning_catcher.warnings[0],
+            '''This file was created by a newer version of Gnofract 4D.
+The image may not display correctly. Please upgrade to version 3.4.''')
+
     def testCircle(self):
         f = fractal.T(self.compiler)
 
@@ -375,7 +439,9 @@ green=1
 blue=0.5543108971162746
 [endsection]
 '''
-        f = fractal.T(self.compiler);
+        f = fractal.T(self.compiler)
+        wc = WarningCatcher()
+        f.warn = wc.warn
         f.loadFctFile(StringIO.StringIO(file))
 
         self.assertEqual(f.initparams,[0.34,-0.28,4.0])

@@ -18,10 +18,15 @@ cmplx_re = re.compile(r'\((.*?),(.*?)\)')
 
 # generally useful funcs for reading in .fct files
 class FctUtils:
-    def __init__(self):
+    def __init__(self,parent=None):
         self.endsect = "[endsection]"
         self.tr = string.maketrans("[] ","___")
+        self.parent = parent
         
+    def warn(self,msg):
+        if self.parent:
+            self.parent.warn(msg)
+            
     def parseVal(self,name,val,f,sect=""):
         # try to find a method matching name        
         methname = "parse_" + sect + name.translate(self.tr)
@@ -61,10 +66,10 @@ class ParamBag(FctUtils):
             line = f.readline()
 
 class Colorizer(FctUtils):
-    def __init__(self):
-        FctUtils.__init__(self)
+    def __init__(self,parent=None):
+        FctUtils.__init__(self,parent)
         self.name = "default"
-        self.colorlist = []
+        self.colorlist = [ (0.0, 0,0,0, 255), (1.0, 255,255,255,255)]
         self.solids = [(0,0,0,255)]
         
     def load(self,f):
@@ -79,6 +84,7 @@ class Colorizer(FctUtils):
     def parse_colorizer(self,val,f):
         t = int(val)
         if t == 0:
+            self.warn("RGB Colorizers not supported. Colors will be wrong.")
             # FIXME
             #raise ValueError("Sorry, color ranges not currently supported")
             pass
@@ -351,7 +357,7 @@ class T(FctUtils):
         self.set_formula_defaults()
 
     def set_cmap(self,mapfile):
-        c = Colorizer()
+        c = Colorizer(self)
         file = open(mapfile)
         c.parse_map_file(file)
         self.colorlist = c.colorlist
@@ -629,9 +635,9 @@ class T(FctUtils):
         if self.format_version > 2.0:
             warning = \
 '''This file was created by a newer version of Gnofract 4D.
-The image may not display correctly. Please upgrade to version %f.''' 
+The image may not display correctly. Please upgrade to version %.1f.''' 
 
-            warn(warning % self.format_version)
+            self.warn(warning % self.format_version)
     def warn(self,msg):
         print msg
         
@@ -688,7 +694,7 @@ The image may not display correctly. Please upgrade to version %f.'''
         self.bailfunc = int(val)
 
     def parse__colors_(self,val,f):
-        cf = Colorizer()
+        cf = Colorizer(self)
         cf.load(f)        
         self.colorlist = cf.colorlist
         self.solids[0:len(cf.solids)] = cf.solids[:]
@@ -696,7 +702,7 @@ The image may not display correctly. Please upgrade to version %f.'''
         
     def parse__colorizer_(self,val,f):
         which_cf = int(val)
-        cf = Colorizer()
+        cf = Colorizer(self)
         cf.load(f)        
         if which_cf == 0:
             self.colorlist = cf.colorlist

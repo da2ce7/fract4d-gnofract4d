@@ -13,7 +13,8 @@ def show_colors(parent,f):
     if not _colors:
         _colors = ColorDialog(parent,f)
     _colors.show_all()
-
+    _colors.present()
+    
 class ColorDialog(gtk.Dialog):
     def __init__(self,main_window,f):
         global userPrefs
@@ -31,6 +32,7 @@ class ColorDialog(gtk.Dialog):
         sw = self.create_map_file_list()
         self.vbox.add(sw)
         self.connect('response',self.onResponse)
+        self.treeview.get_selection().unselect_all()
 
     def add_directory(self,dirname):
         if not os.path.isdir(dirname):
@@ -82,7 +84,6 @@ class ColorDialog(gtk.Dialog):
         selection.connect('changed',self.file_selection_changed)
 
         self.populate_file_list()
-
         
         return sw
 
