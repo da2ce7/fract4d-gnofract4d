@@ -37,6 +37,7 @@ fractFunc fractFuncTable[NFUNCS] = {
 void
 mandelbrot_iter(double *p)
 {
+
 	p[X2] = p[X] * p[X];
 	p[Y2] = p[Y] * p[Y];
 	double atmp = p[X2] - p[Y2] + p[CX];

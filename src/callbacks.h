@@ -38,9 +38,14 @@ typedef struct {
 	int num;
 } subfract_cb_data;
 		
-gboolean
+gint
 quit_cb                                (GtkWidget       *widget,
-                                        gpointer         user_data);
+                                        GdkEventAny     *event,
+					gpointer         user_data);
+
+gint
+menu_quit_cb                           (GtkWidget       *widget,
+					gpointer         user_data);
 
 void
 new_image_cb                           (GtkMenuItem     *menuitem,

@@ -73,7 +73,7 @@ static GnomeUIInfo file1_menu_uiinfo[] =
 		0, (enum GdkModifierType)'l', NULL
 	},
 	GNOMEUIINFO_SEPARATOR,
-	GNOMEUIINFO_MENU_EXIT_ITEM (quit_cb, NULL),
+	GNOMEUIINFO_MENU_EXIT_ITEM (menu_quit_cb, NULL),
 	GNOMEUIINFO_END
 };
 
@@ -85,7 +85,7 @@ static GnomeUIInfo param_tres1_menu_uiinfo[] =
 
 static GnomeUIInfo help1_menu_uiinfo[] =
 {
-	GNOMEUIINFO_HELP (PACKAGE),
+	GNOMEUIINFO_HELP ((void *)PACKAGE),
 	GNOMEUIINFO_END
 };
 
@@ -407,10 +407,15 @@ create_app (model_t *m)
 	gnome_app_set_statusbar (GNOME_APP (app), appbar1);
 
 	table = gtk_table_new (3,3,false);
+
 	gtk_widget_show (table);
 	gnome_app_set_contents (GNOME_APP (app), table);
 
+	gtk_widget_set_usize(table,640,480);
+
 	drawing_area = create_drawing_area(m);
+
+
 	gtk_widget_show (drawing_area);
 
 	gtk_table_attach(GTK_TABLE(table),drawing_area,1,2,1,2, 
@@ -426,13 +431,17 @@ create_app (model_t *m)
 	create_sub_drawing_area(m,table,5,0,2);
 	create_sub_drawing_area(m,table,6,1,2);
 	create_sub_drawing_area(m,table,7,2,2);
+
+	model_toggle_explore_mode(m);
+
 	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)), "parameters_changed",
 			   GTK_SIGNAL_FUNC(redraw_callback),
 			   m);
 
 	gtk_signal_connect (GTK_OBJECT (app), "delete_event",
 			    GTK_SIGNAL_FUNC (quit_cb),
-			    NULL);
+			    m);
+
 	gtk_signal_connect (GTK_OBJECT (app), "destroy_event",
 			    GTK_SIGNAL_FUNC (quit_cb),
 			    m);
@@ -1002,7 +1011,7 @@ create_propertybox (model_t *m)
   
 	gtk_signal_connect (GTK_OBJECT (propertybox), "help",
 			    GTK_SIGNAL_FUNC (propertybox_help),
-			    "preferences.html");
+			    (char *)"preferences.html");
 
 	gtk_signal_connect_object (GTK_OBJECT (propertybox), "destroy",
 				   GTK_SIGNAL_FUNC (propertybox_destroy),

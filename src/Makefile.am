@@ -17,8 +17,8 @@ gnofract4d_SOURCES = \
 	model.cpp model.h \
 	gf4d_angle.cpp gf4d_angle.h \
 	gf4d_fractal.cpp gf4d_fractal.h \
-	gundo.c gundo.h \
-	gundo_ui.c gundo_ui.h \
+	gundo.cpp gundo.h \
+	gundo_ui.cpp gundo_ui.h \
 	image.cpp image.h \
 	colorizer.cpp colorizer.h colorizer_public.h \
 	soi.h soi.cpp

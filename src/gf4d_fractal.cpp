@@ -1,9 +1,8 @@
-#include <gtk/gtkmain.h>
-#include <gtk/gtksignal.h>
-
 #include "gf4d_fractal.h"
 #include "image.h"
 #include "fract.h"
+#include <gtk/gtkmain.h>
+#include <gtk/gtksignal.h>
 
 static void gf4d_fractal_class_init               (Gf4dFractalClass    *klass);
 static void gf4d_fractal_init                     (Gf4dFractal         *dial);
@@ -245,6 +244,14 @@ void gf4d_fractal_flip2julia(Gf4dFractal *f, int x, int y)
 	f->f->flip2julia(dx,dy);
 }
 
+
+void gf4d_fractal_move(Gf4dFractal *f, param_t i, int direction)
+{
+    kill_slave_threads(f);
+
+    f->f->move(i,direction);
+
+}
 
 fractal_t *gf4d_fractal_copy_fract(Gf4dFractal *f)
 {

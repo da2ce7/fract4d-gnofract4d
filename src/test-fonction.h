@@ -59,6 +59,18 @@ int test_mandelbrot_double(
 int test_mandelbrot_cln(const dvec4& params, const d& eject, int nIters);
 
 void mandelbrot_iter(double *p);
+
+typedef enum 
+{
+	BAILOUT_MAG,
+	BAILOUT_MANH,
+	BAILOUT_OR,
+	BAILOUT_AND,
+} bailout_t;
+
+
+typedef void (*bailoutFunc_t)(double *p, int flags);
+	
 void mag_bailout(double *p, int flags);
 
 

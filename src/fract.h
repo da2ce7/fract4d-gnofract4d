@@ -54,7 +54,7 @@ private:
 	colorizer *cizer;
 	//colorfunc cfunc;
 	bool potential;
-
+	bailout_t bailout_type;
 public:
 	fractal();
 	fractal(const fractal& f); // copy ctor
@@ -67,6 +67,7 @@ public:
 	void calc(Gf4dFractal *gf4d, image *im);
 	void relocate(double x, double y, double zoom);
 	void flip2julia(double x, double y);
+        void move(param_t i, int direction);
 	bool write_params(const char *filename);
 	bool load_params(const char *filename);
 	char *get_param(param_t i);

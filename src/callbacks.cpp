@@ -62,31 +62,14 @@ void position_set_cb (GtkWidget *button, gpointer user_data)
 	double val;
 	double size;
 	set_cb_data *pdata = (set_cb_data *)user_data;
-	Gf4dFractal *f = model_get_fract(pdata->m);
-	char *current_val = gf4d_fractal_get_param(f ,pdata->pnum);
 
-	sscanf(current_val,"%lg",&val);
-	g_free(current_val);
-
-	current_val = gf4d_fractal_get_param(f,SIZE);
-	sscanf(current_val,"%lg",&size);
-	g_free(current_val);
-
-	/* z,w have more spectacular visual effects than x,y, 
-	   so do them more slowly */
-	if(pdata->pnum == XCENTER || pdata->pnum == YCENTER)
+	if(model_cmd_start(pdata->m))
 	{
-		val += size/ 6.0 * pdata->dir;
-	}
-	else
-	{
-		val += size/ 12.0 * pdata->dir;
-	}
-	sprintf(buf,"%g",val);
 
-	model_cmd_start(pdata->m);
-	gf4d_fractal_set_param(f,pdata->pnum, buf);
-	model_cmd_finish(pdata->m);
+	    Gf4dFractal *f = model_get_fract(pdata->m);
+	    gf4d_fractal_move(f,pdata->pnum,pdata->dir);
+	    model_cmd_finish(pdata->m);
+	}
 }
 
 void angle_set_cb (GtkAdjustment *adj, gpointer user_data)
@@ -94,9 +77,11 @@ void angle_set_cb (GtkAdjustment *adj, gpointer user_data)
 	char buf[100];
 	set_cb_data *pdata = (set_cb_data *)user_data;
 	sprintf(buf,"%g",adj->value);
-	model_cmd_start(pdata->m);
-	gf4d_fractal_set_param(model_get_fract(pdata->m),pdata->pnum, buf);
-	model_cmd_finish(pdata->m);
+	if(model_cmd_start(pdata->m))
+	{
+		gf4d_fractal_set_param(model_get_fract(pdata->m),pdata->pnum, buf);
+		model_cmd_finish(pdata->m);
+	}
 }
 
 void adjustment_update_callback(Gf4dFractal *gf, gpointer user_data)
@@ -128,9 +113,17 @@ void explore_cb(GtkWidget *widget, gpointer user_data)
 	model_toggle_explore_mode(m);
 }
 
-gboolean
+gint
 quit_cb(GtkWidget       *widget,
-        gpointer         user_data)
+        GdkEventAny     *event,
+	gpointer        user_data)
+{
+        return menu_quit_cb(widget,user_data);
+}
+
+gint
+menu_quit_cb(GtkWidget       *widget,
+	gpointer        user_data)
 {
 	model_t *m = (model_t *)user_data;
 	gf4d_fractal_interrupt(model_get_fract(m));
@@ -144,9 +137,11 @@ new_image_cb(GtkMenuItem     *menuitem,
              gpointer         user_data)
 {
 	model_t *m = (model_t *)user_data;
-	model_cmd_start(m);
-	gf4d_fractal_reset(model_get_fract(m));
-	model_cmd_finish(m);
+	if(model_cmd_start(m))
+	{
+		gf4d_fractal_reset(model_get_fract(m));
+		model_cmd_finish(m);
+	}
 }
 
 
@@ -245,12 +240,14 @@ propertybox_apply(GnomePropertyBox *gnomepropertybox,
 	if (arg1 != -1)
                  return;
 
-	model_cmd_start(m);
-	f = model_get_fract(m);
-	Gf4dFractal *shadow = GF4D_FRACTAL(gtk_object_get_data(GTK_OBJECT(pb),"shadow"));
-	*(f->f) = *(shadow->f);
+	if(model_cmd_start(m))
+	{
+		f = model_get_fract(m);
+		Gf4dFractal *shadow = GF4D_FRACTAL(gtk_object_get_data(GTK_OBJECT(pb),"shadow"));
+		*(f->f) = *(shadow->f);
 
-	model_cmd_finish(m);
+		model_cmd_finish(m);
+	}
 }
 
 
@@ -309,18 +306,22 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
 			y = (int)event->button.y;
 			new_x = x ; new_y = y;
 		}else if (event->button.button == 2) {
-			model_cmd_start(m);
-			gf4d_fractal_flip2julia(f, 
-				   (int)event->button.x,
-				   (int)event->button.y);
-			model_cmd_finish(m);
+			if(model_cmd_start(m))
+			{
+				gf4d_fractal_flip2julia(f, 
+							(int)event->button.x,
+							(int)event->button.y);
+				model_cmd_finish(m);
+			}
 		}else if (event->button.button == 3) {
-			model_cmd_start(m);
-			gf4d_fractal_relocate(f,
-				 (int)event->button.x,
-				 (int)event->button.y,
-				 (1.0/zoom) );
-			model_cmd_finish(m);
+			if(model_cmd_start(m))
+			{
+				gf4d_fractal_relocate(f,
+						      (int)event->button.x,
+						      (int)event->button.y,
+						      (1.0/zoom) );
+				model_cmd_finish(m);
+			}
 		}
 		break;
 
@@ -368,12 +369,14 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
 			x = (x + new_x)/2;
 			y = (y + new_y)/2;
 
-			model_cmd_start(m);
-			gf4d_fractal_relocate(f,
-				 x,
-				 y,
-				 this_zoom);
-			model_cmd_finish(m);
+			if(model_cmd_start(m))
+			{
+				gf4d_fractal_relocate(f,
+						      x,
+						      y,
+						      this_zoom);
+				model_cmd_finish(m);
+			}
 		}
 	default:
 		break;

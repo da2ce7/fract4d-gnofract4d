@@ -55,7 +55,9 @@ GtkObject*    gf4d_fractal_new(void);
 GtkType       gf4d_fractal_get_type(void);
 
 void gf4d_fractal_relocate(Gf4dFractal *f, int x, int y, double zoom);
-void gf4d_fractal_flip2julia(Gf4dFractal *fs, int x, int y);
+void gf4d_fractal_flip2julia(Gf4dFractal *f, int x, int y);
+void gf4d_fractal_move(Gf4dFractal *f, param_t i, int direction);
+
 void gf4d_fractal_calc(Gf4dFractal *f);
 
 void gf4d_fractal_reset(Gf4dFractal *f);

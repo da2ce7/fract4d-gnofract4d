@@ -30,6 +30,43 @@
 
 #include "support.h"
 
+GtkWidget *
+create_parameter_widget(GtkWidget *propertybox, gchar *name, gchar *combo_name)
+{
+	GtkWidget *entry = gnome_number_entry_new (NULL, NULL);
+	GtkWidget *combo; 
+	gtk_widget_set_name (entry, name);
+	gtk_widget_ref (entry);
+	gtk_object_set_data_full (GTK_OBJECT (propertybox), name, 
+				  entry,
+				  (GtkDestroyNotify) gtk_widget_unref);
+	
+	gtk_widget_show (entry);
+	
+	combo = gnome_number_entry_gtk_entry (GNOME_NUMBER_ENTRY (entry));
+
+	gtk_widget_set_name (combo, combo_name);
+	gtk_widget_ref (combo);
+	gtk_object_set_data_full (GTK_OBJECT (propertybox), combo_name, 
+				  combo,
+				  (GtkDestroyNotify) gtk_widget_unref);
+	gtk_widget_show (combo);
+
+	gtk_signal_connect_object (GTK_OBJECT(combo),"changed",
+                      GTK_SIGNAL_FUNC(gnome_property_box_changed),
+                      GTK_OBJECT(propertybox));
+
+	return entry;
+}
+
+void
+s_gnome_entry_set_text(GnomeNumberEntry *entry, const gchar *text)
+{
+	gtk_entry_set_text(GTK_ENTRY(gnome_number_entry_gtk_entry(entry)),
+			   text);
+}
+
+
 /* This is an internally used function to create pixmaps. */
 static GtkWidget* create_dummy_pixmap  (GtkWidget       *widget,
                                         gboolean         gnome_pixmap);

@@ -43,7 +43,7 @@ extern "C" {
 	//void model_update(model_t *m);
 
 	/* commands */
-	void model_cmd_start(model_t *m);
+	bool model_cmd_start(model_t *m);
 	void model_cmd_finish(model_t *m);
 	void model_undo(model_t *m);
 	void model_redo(model_t *m);

@@ -54,31 +54,47 @@ struct _model {
 	int interrupted;
 	bool explore_mode;
 	double weirdness;
+
+	bool commandInProgress;
 };
 
 static void 
 model_restore_old_fractal(gpointer undo_data)
 {
 	undo_action_data *p = (undo_action_data *)undo_data;
+	//g_print("restoring old %x on %x\n",p,pthread_self());
+	p->m->commandInProgress = true;
 	gf4d_fractal_set_fract(p->m->fract, p->old);
+	//g_print("restoring: set_fract\n");
 	gf4d_fractal_parameters_changed(p->m->fract);
+	//g_print("restoring: changed\n");
+	model_update_subfracts(p->m);	
+	//g_print("done restoring old %x\n",p);
+	p->m->commandInProgress = false;
 }
 
 static void
 model_restore_new_fractal(gpointer undo_data)
 {
 	undo_action_data *p = (undo_action_data *)undo_data;
+	p->m->commandInProgress = true;
+	//g_print("restoring new %x on %x\n",p,pthread_self());
 	gf4d_fractal_set_fract(p->m->fract, p->new_);
 	gf4d_fractal_parameters_changed(p->m->fract);
+	model_update_subfracts(p->m);
+	//g_print("done restoring new %x\n",p);
+	p->m->commandInProgress = false;
 }
 
 static void
 model_free_undo_data(gpointer undo_data)
 {
-	undo_action_data *p = (undo_action_data *)undo_data;
+  	undo_action_data *p = (undo_action_data *)undo_data;
+	//g_print("deleting %x on %x\n",p,pthread_self());
 	fract_delete(&(p->old));
 	fract_delete(&(p->new_));
 	delete p;
+	//g_print("done deleting %x\n",p);
 }
 
 model_t *
@@ -95,6 +111,7 @@ model_new(void)
 	m->weirdness = 0.5;
 	model_update_subfracts(m);
 	m->undo_seq = gundo_sequence_new();
+	m->commandInProgress = false;
 
 	m->undo_action.undo = model_restore_old_fractal;
 	m->undo_action.redo = model_restore_new_fractal;
@@ -138,9 +155,11 @@ int
 model_cmd_load(model_t *m, char *filename)
 {
 	int ret;
-	model_cmd_start(m);
-	ret = gf4d_fractal_load_params(m->fract,filename);
-	model_cmd_finish(m);
+	if(model_cmd_start(m))
+	{
+		ret = gf4d_fractal_load_params(m->fract,filename);
+		model_cmd_finish(m);
+	}
 	return ret;
 }
 
@@ -159,16 +178,21 @@ model_redo(model_t *m)
 	if(gundo_sequence_can_redo(m->undo_seq))
 	{
 		gundo_sequence_redo(m->undo_seq);
-		gf4d_fractal_parameters_changed(m->fract);
 	}
 }
 
 
-void
+bool
 model_cmd_start(model_t *m)
 {
+	if(m->commandInProgress) return false;
+
+	// g_print("do\n");
+	m->commandInProgress = true;
 	// invoke copy constructor to get original fractal before update
 	m->old_fract = gf4d_fractal_copy_fract(m->fract);
+	// g_print("done do\n");
+	return true;
 }
 
 Gf4dFractal *
@@ -187,16 +211,20 @@ model_get_subfract(model_t *m, int num)
 void
 model_set_subfract(model_t *m, int num)
 {
-	model_cmd_start(m);
-	gf4d_fractal_set_fract(m->fract,gf4d_fractal_copy_fract(m->subfracts[num]));
-	model_cmd_finish(m);
+	if(model_cmd_start(m))
+	{
+		gf4d_fractal_set_fract(m->fract,gf4d_fractal_copy_fract(m->subfracts[num]));
+		model_cmd_finish(m);
+	}
 }
 
 void
 model_cmd_finish(model_t *m)
 {
-	undo_action_data *p = new undo_action_data;
+	g_assert(m->commandInProgress);
 
+	undo_action_data *p = new undo_action_data;
+	// g_print("creating %x on %x\n",p,pthread_self());
 	p->m = m;
 	p->old = m->old_fract;
 	p->new_ = gf4d_fractal_copy_fract(m->fract);
@@ -205,6 +233,9 @@ model_cmd_finish(model_t *m)
 
 	gf4d_fractal_parameters_changed(m->fract);
 	model_update_subfracts(m);
+
+	m->commandInProgress=false;
+	// g_print("done creating %x\n",p);
 }
 
 void
@@ -264,3 +295,4 @@ model_set_weirdness_factor(model_t *m, gfloat weirdness)
 {
 	m->weirdness = weirdness;
 }
+

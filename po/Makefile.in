@@ -30,14 +30,14 @@ MKINSTALLDIRS = $(top_srcdir)/./mkinstalldirs
 
 CC = gcc
 GENCAT = 
-GMSGFMT = PATH=../src:$$PATH /usr/bin/msgfmt
-MSGFMT = /usr/bin/msgfmt
-XGETTEXT = PATH=../src:$$PATH /usr/bin/xgettext
+GMSGFMT = PATH=../src:$$PATH /usr/local/bin/msgfmt
+MSGFMT = /usr/local/bin/msgfmt
+XGETTEXT = PATH=../src:$$PATH /usr/local/bin/xgettext
 MSGMERGE = PATH=../src:$$PATH msgmerge
 
 DEFS = -DHAVE_CONFIG_H
 CFLAGS = -g -O2 -Wall -Wunused 
-CPPFLAGS =  -I/usr/X11R6/include -I/usr/lib/glib/include
+CPPFLAGS = -I/usr/local/include -I/usr/X11R6/include/gtk12 -I/usr/local/include/glib12 -I/usr/local/include -I/usr/X11R6/include
 
 INCLUDES = -I.. -I$(top_srcdir)/intl
 
@@ -51,7 +51,7 @@ stamp-cat-id $(POFILES) $(GMOFILES) $(SOURCES)
 
 POTFILES = \
 
-CATALOGS = 
+CATALOGS =  fr.gmo
 CATOBJEXT = .gmo
 INSTOBJEXT = .mo
 

@@ -57,6 +57,7 @@ fractal::fractal()
 	finished = false;
 	cizer = colorizer_new(COLORIZER_RGB);
 	potential=1;
+	bailout_type=BAILOUT_MAG;
 }
 
 /* dtor */
@@ -102,6 +103,7 @@ fractal::fractal(const fractal& f)
 
 	cizer = f.cizer->clone();
 	potential = f.potential;
+	bailout_type = f.bailout_type;
 }
 
 fractal&
@@ -125,6 +127,8 @@ fractal::operator=(const fractal& f)
 	colorizer_delete(&cizer);
 	cizer = f.cizer->clone();
 	potential = f.potential;
+	bailout_type = f.bailout_type;
+
 	return *this;
 }
 
@@ -504,6 +508,26 @@ fractal::flip2julia(double x, double y)
 	params[YWANGLE] += D_LIKE(rot_by,params[SIZE]);
 
 	rot_by = -rot_by;
+}
+
+void
+fractal::move(param_t i, int direction)
+{
+    int axis;
+
+    double d = (double)direction;
+
+    switch(i){
+    case XCENTER: axis = VX; break;
+    case YCENTER: axis = VY; break;
+	/* z & w axes have a more dramatic visual effect */
+    case ZCENTER: axis = VZ; d *= 0.5; break;
+    case WCENTER: axis = VW; d *= 0.5; break;
+    default: return;
+    }
+    update_matrix();
+    dvec4 delta = d * rot[axis]/params[SIZE];
+    recenter(delta);
 }
 
 class fract_rot {
