@@ -310,7 +310,7 @@ static GnomeUIInfo help1_menu_uiinfo[] =
 GnomeUIInfo menubar1_uiinfo[] =
 {
     GNOMEUIINFO_MENU_FILE_TREE (file1_menu_uiinfo),
-    GNOMEUIINFO_MENU_SETTINGS_TREE (parameters1_menu_uiinfo),
+    GNOMEUIINFO_MENU_EDIT_TREE (parameters1_menu_uiinfo),
     GNOMEUIINFO_MENU_HELP_TREE (help1_menu_uiinfo),
     GNOMEUIINFO_END
 };

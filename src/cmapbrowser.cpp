@@ -399,7 +399,6 @@ void colorbut_mouse_event(
 	gtk_widget_set_state(current_colorbut, GTK_STATE_NORMAL);
     }
     
-    //guint color = colorbut_get_color(widget);
     current_colorbut = widget;
     gtk_widget_set_state(widget, GTK_STATE_SELECTED);
 
@@ -449,7 +448,7 @@ void colorbut_set_event(GtkWidget *colorsel, gpointer user_data)
 GtkWidget *
 create_edit_colormap_page(GtkWidget *notebook, model_t *m)
 {
-    GtkWidget *table = gtk_table_new(2,3,FALSE);
+    GtkWidget *table = gtk_table_new(2,4,FALSE);
 
     GtkTooltips *tips = gtk_tooltips_new();
     gtk_tooltips_enable(tips);
@@ -467,20 +466,23 @@ create_edit_colormap_page(GtkWidget *notebook, model_t *m)
 		     (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0 , 0);
 
 
+    GtkWidget *up_button = gtk_button_new_with_label(_(">>"));
+    gtk_table_attach(GTK_TABLE(table), up_button, 0, 1, 1, 2, 
+                     (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
+
+
     GtkWidget * label = gtk_label_new(_("Click to apply to main fractal >>"));
-    gtk_widget_show(label);
-    gtk_table_attach(GTK_TABLE(table), label , 0, 1, 1, 2, 
+    gtk_table_attach(GTK_TABLE(table), label , 0, 1, 2, 3, 
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
     cmap_colorizer *cizer = new cmap_colorizer();
-    g_print("cizer for edit page is %p\n",cizer);
     GtkWidget *cmap_preview = create_cmap_browser_item(m, tips, cizer, "fred",true);
-    gtk_table_attach(GTK_TABLE(table), cmap_preview, 1, 2, 1, 2, 
+    gtk_table_attach(GTK_TABLE(table), cmap_preview, 1, 2, 2, 3, 
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
     GtkWidget *colorsel = gtk_color_selection_new();
 
-    gtk_table_attach(GTK_TABLE(table), colorsel, 0, 2, 2, 3, 
+    gtk_table_attach(GTK_TABLE(table), colorsel, 0, 2, 3, 4, 
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
 
