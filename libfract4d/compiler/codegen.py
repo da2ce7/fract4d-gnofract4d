@@ -70,6 +70,11 @@ class T:
             [ "[Var]" , T.var]
             ])
 
+    def emit_binop_const_exp(self,op,val,srcs,dst):
+        assem = "%%(d0)s = %d %s %%(s0)s" % (val, op)
+        self.out.append(Oper(assem, srcs , dst))
+        return dst
+    
     # action routines
     def binop_const_exp(self,t):
         s0 = t.children[0]
@@ -79,14 +84,11 @@ class T:
             d0 = self.symbols.newTemp(fracttypes.Float)
             d1 = self.symbols.newTemp(fracttypes.Float)
             dst = [d0,d1]
-            assem = "%%(d0)s = %d %s %%(s0)s" % (s0.value[0], t.op)
-            self.out.append(Oper(assem, [srcs[0]], [d0]))
-            assem = "%%(d0)s = %d %s %%(s0)s" % (s0.value[1], t.op)
-            self.out.append(Oper(assem, [srcs[1]], [d1]))
-        else: 
+            self.emit_binop_const_exp(t.op,s0.value[0], [srcs[0]], [d0])
+            self.emit_binop_const_exp(t.op,s0.value[1], [srcs[1]], [d1])
+        else:
             dst = [self.symbols.newTemp(t.datatype)]
-            assem = "%%(d0)s = %d %s %%(s0)s" % (s0.value, t.op)
-            self.out.append(Oper(assem, srcs , dst))
+            self.emit_binop_const_exp(t.op,s0.value,srcs,dst)
         return dst
     
     def binop_exp_const(self,t):
