@@ -9,12 +9,14 @@ Done in 2.7:
 * W	painter tool
 * B	painter shouldn't paint on click&drag
 * B	crash when allocate too large an image
+* B	should disable flip2julia if not is4D()
 
 todo:
+* B	collapsar preview different color from main image?
 * B	should start drawing straight away when image returns to normal size
 * B	weird behavior when using explorer mode & oversized image
 * B	incredibly slow when allocate very big image which fits in VM
-* B	fractint builtins with () in the name 
+* B	fractint builtin fns with () in the name 
 * B	painter produces wrong color sometimes?
 * B	painter doesn't understand solid
 * B	each fractal gets compiled twice, 2nd time with extra vars:
