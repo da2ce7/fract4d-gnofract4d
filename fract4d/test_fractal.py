@@ -310,7 +310,7 @@ colorlist=[
     def testCFParams(self):
         f = fractal.T(self.compiler)
 
-        self.assertEqual(f.cfunc_params[0],[1.0,0.0])
+        self.assertEqual(f.cfunc_params[0],[1.0,0.0,4.0])
         
         f.set_outer("test.cfrm", "Triangle")
 

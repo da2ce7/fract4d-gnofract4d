@@ -488,10 +488,13 @@ class T(gobject.GObject):
 
             fract4dc.image_resize(self.image, new_width, new_height)
 
-            self.widget.set_size_request(self.width,self.height)
+            self.widget.set_size_request(new_width,new_height)
+
             gtk.idle_add(self.changed)
         except MemoryError, err:
             gtk.idle_add(self.warn,str(err))
+            
+
         
     def reset(self):
         self.f.reset()
