@@ -34,6 +34,7 @@
 #include "colorizer.h"
 #include "preview.h"
 #include "gf4d_fractal.h"
+#include "interface.h"
 
 #include <dirent.h>
 
@@ -91,7 +92,7 @@ preview_status_callback(Gf4dFractal *f, gint val, void *user_data)
     g_assert(table);
 
     // for each preview item
-    GList *children = gtk_container_children(GTK_CONTAINER(table));
+    GList *children = gtk_container_get_children(GTK_CONTAINER(table));
     while(children)
     {
         if(GTK_IS_BUTTON(children->data))
@@ -599,7 +600,7 @@ create_which_colorizer_menu(GtkWidget *vbox, Gf4dFractal *shadow, model_t *m)
 	GTK_SIGNAL_FUNC(set_id_callback),
 	m);
     
-    gtk_menu_append(GTK_MENU(func_menu), menu_item);
+    gtk_menu_shell_append(GTK_MENU_SHELL(func_menu), menu_item);
     gtk_option_menu_set_menu(GTK_OPTION_MENU(func_type), func_menu);
 
     menu_item = gtk_menu_item_new_with_label("Inner");
@@ -626,7 +627,19 @@ create_which_colorizer_menu(GtkWidget *vbox, Gf4dFractal *shadow, model_t *m)
 
 }
 
+void
+cmap_browser_response_cb(GtkDialog *dialog, gint response, model_t *m)
+{
+    if(response == GTK_RESPONSE_ACCEPT)
+    {
+	gtk_widget_hide(GTK_WIDGET(dialog));
+    }
+    else if(response == GTK_RESPONSE_APPLY)
+    {
+	update_previews(GTK_WIDGET(dialog), m);
+    }
 
+}
 /* create or show the colormap browser */
 GtkWidget *
 create_cmap_browser(GtkMenuItem *menu, model_t *m)
@@ -639,26 +652,25 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
     }
 
     /* toplevel */
-    dialog = gnome_dialog_new(
-        _("Choose a colormap"), 
-        _("Update Previews"), GNOME_STOCK_BUTTON_CLOSE, NULL);
+    dialog = gtk_dialog_new_with_buttons(
+        _("Choose a color map"),
+	GTK_WINDOW(main_app_window),
+	(GtkDialogFlags)0,
+	_("Update Previews"),
+	GTK_RESPONSE_APPLY,
+	GTK_STOCK_CLOSE, 
+	GTK_RESPONSE_ACCEPT,
+	NULL);
 
-    gnome_dialog_button_connect(
-        GNOME_DIALOG(dialog), 0,
-        (GtkSignalFunc)update_previews,
-        m);
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
+    g_signal_connect (
+	G_OBJECT(dialog), "response",
+	GTK_SIGNAL_FUNC(cmap_browser_response_cb), m);
 
-    gnome_dialog_button_connect_object(
-        GNOME_DIALOG(dialog), 1,
-        (GtkSignalFunc)gnome_dialog_close,
-        GTK_OBJECT(dialog));
-
-    gnome_dialog_close_hides(GNOME_DIALOG(dialog), TRUE);
-    gtk_window_set_policy(GTK_WINDOW(dialog), TRUE, TRUE, FALSE);
     gtk_widget_show(dialog);
 
     /* retrieve vbox */
-    GtkWidget *vbox = GNOME_DIALOG(dialog)->vbox;
+    GtkWidget *vbox = GTK_DIALOG(dialog)->vbox;
 
     /* copy the main fractal and make a mini version */
     Gf4dFractal *f = gf4d_fractal_copy(model_get_fract(m));
@@ -681,7 +693,7 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
     GtkWidget *table2 = create_new_color_page(notebook, m);
 
     /* selector for which colorizer */
-    GtkWidget *selector = create_which_colorizer_menu(vbox,f,m);
+    create_which_colorizer_menu(vbox,f,m);
 
     // setup callbacks from fract's calculations
     

@@ -79,6 +79,12 @@ key_event(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
     return 0;
 }
 
+void 
+hide_dialog_cb(GtkDialog *dialog, gint, gpointer)
+{
+    gtk_widget_hide(GTK_WIDGET(dialog));
+}
+
 GtkWidget *main_app_window = NULL;
 
 GtkWidget *

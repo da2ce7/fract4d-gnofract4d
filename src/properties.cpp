@@ -1224,11 +1224,6 @@ update_main_fractal(Gf4dFractal *shadow, gpointer user_data)
     }
 }
 
-void 
-hide_dialog(GtkDialog *dialog, gint, gpointer)
-{
-    gtk_widget_hide(GTK_WIDGET(dialog));
-}
 
 void
 create_propertybox (model_t *m)
@@ -1254,6 +1249,8 @@ create_propertybox (model_t *m)
 	GTK_RESPONSE_ACCEPT,
 	NULL);
 
+    gtk_dialog_set_default_response(GTK_DIALOG(propertybox), GTK_RESPONSE_ACCEPT);
+ 
     vbox = GTK_DIALOG(propertybox)->vbox;
 
     GtkWidget *notebook = gtk_notebook_new();
@@ -1270,7 +1267,7 @@ create_propertybox (model_t *m)
     
     g_signal_connect (
 	G_OBJECT(propertybox), "response",
-	GTK_SIGNAL_FUNC(hide_dialog), NULL);
+	GTK_SIGNAL_FUNC(hide_dialog_cb), NULL);
 
     /* whenever the shadow fractal changes, update the main one */
     g_signal_connect (
