@@ -20,6 +20,8 @@ class CanonTest(unittest.TestCase):
     # convenience methods to make quick trees for testing
     def eseq(self,stms, exp):
         return ir.ESeq(stms, exp, self.fakeNode, Int)
+    def seq(self,stms):
+        return ir.Seq(stms,self.fakeNode)
     def var(self,name="a"):
         return ir.Var(name,self.fakeNode, Int)
     def const(self,value=0):
@@ -124,6 +126,21 @@ class CanonTest(unittest.TestCase):
         self.assertESeqsNotNested(ltree2,1)
         self.assertTreesEqual(ltree, ltree2)
 
+    def testSeq(self):
+        tree = self.seq([self.var("a"),self.var("b")])
+        ltree = self.canon.linearize(tree)
+        self.assertTreesEqual(tree,ltree)
+        self.assertESeqsNotNested(ltree,1)
+
+        tree = self.seq([self.seq([self.var("a"), self.var("b")]), self.var("c")])
+        ltree = self.canon.linearize(tree)
+        self.assertESeqsNotNested(ltree,1)
+        
+        tree2 = self.seq([self.var("a"), self.seq([self.var("b"), self.var("c")])])
+        ltree2 = self.canon.linearize(tree2)
+        self.assertESeqsNotNested(ltree2,1)
+        self.assertTreesEqual(ltree, ltree2)
+        
     def testCJump(self):
         tree = self.cjump(self.var(), self.var())
         ltree = self.canon.linearize(tree)
@@ -159,7 +176,6 @@ class CanonTest(unittest.TestCase):
                                     self.var("b")))
         ltree = self.canon.linearize(tree)
         self.assertESeqsNotNested(ltree,1)
-        print ltree.pretty()
         
     def assertESeqsNotNested(self,t,parentAllowsESeq):
         'check that no ESeqs are left below other nodes'
