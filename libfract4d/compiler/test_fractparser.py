@@ -61,7 +61,12 @@ class ParserTest(unittest.TestCase):
     def testErrorAfterFormula(self):
         tree = self.parse("t1{\n}\ngibberish")
         self.failUnless(absyn.CheckTree(tree))
-            
+
+    def testNoNewlineAtEnd(self):
+        t1 = self.parse("t1 {\n}")
+        self.assertIsValidParse(t1)
+        
+        self.assertIsValidParse
     def testPrecedence(self):
         self.assertParsesEqual(
             "x = 2 * 3 + 1 ^ -7 / 2 - |4 - 1|",
