@@ -41,7 +41,7 @@ class T:
 
 class Exp(T):
     def __init__(self, node, datatype):
-        assert(datatype != None)
+        assert(datatype in fracttypes.typeList)
         T.__init__(self, node, datatype)
 
 class Const(Exp):

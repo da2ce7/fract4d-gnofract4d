@@ -8,8 +8,9 @@ Bool = 0
 Int = 1
 Float = 2
 Complex = 3
-
 Color = 4
+
+typeList = [ Bool, Int, Float, Complex, Color]
 
 suffixOfType = {
     Int : "i",
