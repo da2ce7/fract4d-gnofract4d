@@ -43,6 +43,7 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     
     debug_precision(topleft[VX],"topleft");
     nhalfiters = ndoubleiters = k = 0;
+    lastIter = 0;
     clear();
 
     /* threading */
@@ -176,7 +177,8 @@ fractFunc::antialias(int x, int y)
         dvec4 pos = topleft; 
         for(j=0;j<depth;j++) {
             int p;
-            (*pf)(pos, f->maxiter,&ptmp,&p); 
+            (*pf)(pos, f->maxiter,periodGuess(),&ptmp,&p); 
+            periodSet(&p);
             pixel_r_val += ptmp.r;
             pixel_g_val += ptmp.g;
             pixel_b_val += ptmp.b;
@@ -203,14 +205,15 @@ fractFunc::pixel(int x, int y,int w, int h)
         I2D_LIKE(x, f->params[MAGNITUDE]) * deltax + 
         I2D_LIKE(y, f->params[MAGNITUDE]) * deltay;
 		
-    (*pf)(pos, f->maxiter,&pixel,ppos); 
-	
+    (*pf)(pos, f->maxiter,periodGuess(), &pixel,ppos); 
+    periodSet(ppos);
+
     // test for iteration depth
     if(f->auto_deepen && k++ % AUTO_DEEPEN_FREQUENCY == 0)
     {
         int i=0;
 
-        (*pf)(pos, f->maxiter*2,NULL,&i);
+        (*pf)(pos, f->maxiter*2,periodGuess(),NULL,&i);
 
         if( (i > f->maxiter/2) && (i < f->maxiter))
         {

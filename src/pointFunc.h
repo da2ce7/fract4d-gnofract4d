@@ -33,14 +33,14 @@ class pointFunc {
  public:
     virtual void operator()(
         // in params
-        const vec4<double>& params, int nIters,
+        const vec4<double>& params, int nIters, int nNoPeriodIters,
         // out params
         struct rgb *color, int *pnIters
         ) = 0;
 #ifdef HAVE_GMP
     virtual void operator()(
         // in params
-        const vec4<gmp::f>& params, int nIters,
+        const vec4<gmp::f>& params, int nIters, int nNoPeriodIters,
         // out params
         struct rgb *color, int *pnIters
         ) = 0;

@@ -37,7 +37,8 @@ gnofract4d_SOURCES = \
 	movie_editor.h movie_editor.cpp \
 	io.h io.cpp \
 	threadpool.h \
-	tls.h tls.cpp
+	tls.h tls.cpp \
+	compiler.h compiler.cpp
 
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) \
 	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)

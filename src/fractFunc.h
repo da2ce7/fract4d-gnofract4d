@@ -95,6 +95,19 @@ class fractFunc {
     int last_update_y; 
     int k;	// number of pixels calculated    
 
+    int lastIter; // how many iterations did last pixel take?
+
+    // try that many without periodicity checking if it did bail out,
+    // if it didn't bail, start periodicity checking immediately
+    inline int periodGuess() { 
+        return (lastIter == -1) ? 0 : lastIter;
+    }
+
+    // update whether last pixel bailed
+    inline void periodSet(int *ppos) {
+        lastIter = *ppos;
+    }
+
     fractal_t *f; // pointer to fract passed in to ctor
     image *im;    // pointer to image passed in to ctor
     pointFunc *pf; // function for calculating 1 point
@@ -129,7 +142,6 @@ class fractFunc {
 
     // calculate a row of boxes
     void box_row(int w, int y, int rsize);
-
     // ... in a worker thread
     void send_box_row(int w, int y, int rsize);
 
