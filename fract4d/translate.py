@@ -141,7 +141,9 @@ class TBase:
         return seq
 
     def paramsetting(self,node,var):
-        pass
+        name = node.children[0]
+        val = self.const_exp(node.children[1])
+        setattr(var,name.leaf,val)
         
     def param(self,node):
         v = Var(node.datatype, default_value(node.datatype), node.pos)

@@ -164,6 +164,10 @@ class TranslateTest(testbase.TestBase):
         exp_k = ["t__a_foo"]
         self.assertEqual(k,exp_k)        
 
+        foo = t.symbols["@foo"]
+        self.assertEqual(foo.caption.value, "Angle")
+        self.assertEqual(foo.default.value, 10.0)
+        
     def testStringErrors(self):
         t = self.translate('''t_se {
         init:
