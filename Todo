@@ -8,7 +8,7 @@ todo for 2.1
 * B	fractint doesn't reset vars between calls
 * B	parse continuation lines correctly
 * W	fmod, tdis, bof60, bof61, other fractint colorfuncs
-* BB	changing inner colormap modifies outer one
+* BB	changing inner colormap modifies outer appearance
 
 UI improvements 
 * BB	more robust error reporting
