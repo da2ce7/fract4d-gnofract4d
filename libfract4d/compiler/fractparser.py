@@ -66,7 +66,10 @@ def p_section_set(t):
 
 def p_setlist_set(t):
      'setlist : set'
-     t[0] = [ t[1] ]
+     if t[1].type == "empty":
+          t[0] = []
+     else:
+          t[0] = [ t[1] ]
 
 def p_setlist_2(t):
      'setlist : set NEWLINE setlist'
@@ -98,7 +101,11 @@ def p_section_stm(t):
 
 def p_stmlist_stm(t):
     'stmlist : stm'
-    t[0] = [ t[1] ]
+    if t[1].type == "empty":
+         t[0] = []
+    else:
+         t[0] = [ t[1] ]
+
 
 def p_stmlist_2(t):
     'stmlist : stm NEWLINE stmlist'

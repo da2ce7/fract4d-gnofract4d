@@ -78,7 +78,7 @@ default:
 
     def assertIsValidParse(self,t1):
         self.failUnless(absyn.CheckTree(t1))
-        errors = [ x for x in t1 if x.type == "error"]
+        errors = self.allNodesOfType(t1,"error")
         self.assertEqual(errors,[])
         
     def assertParsesEqual(self, s1, s2):
@@ -92,6 +92,9 @@ default:
         # are any nodes not equal?
         self.assertEqual(eqs.count(0),0, "should be no false matches")
 
+    def allNodesOfType(self, t1, type):
+        return [ n for n in t1 if n.type == type]
+        
     # shorthand for minimal formula defn containing exp
     def makeMinimalFormula(self,exp):
         return '''t2 {
