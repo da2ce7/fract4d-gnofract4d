@@ -26,6 +26,26 @@ class FCTest(testbase.TestBase):
     def tearDown(self):
         pass
 
+    def testLists(self):
+        fl = [x for (x,y) in self.compiler.formula_files()]
+        fl.sort()
+        self.assertEqual(fl,["gf4d.frm", "test.frm"])
+
+        cfl = [x for (x,y) in self.compiler.colorfunc_files()]
+        self.assertEqual(cfl,["gf4d.cfrm"])
+
+        file = self.compiler.files["gf4d.cfrm"]
+        names = file.get_formula_names()
+        self.assertEqual(names,file.formulas.keys())
+
+        inside_names = file.get_formula_names("OUTSIDE")
+        for f in inside_names:
+            self.assertNotEqual(file.formulas[f].symmetry, "OUTSIDE")
+
+        outside_names = file.get_formula_names("INSIDE")
+        for f in outside_names:            
+            self.assertNotEqual(file.formulas[f].symmetry, "INSIDE")
+            
     def testLoad(self):        
         ff = self.compiler.files["gf4d.frm"]
         self.assertNotEqual(string.index(ff.contents,"Modified for Gf4D"),-1)
