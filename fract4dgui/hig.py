@@ -29,6 +29,8 @@ class Alert(gtk.Dialog):
         
         if secondary_text and len(secondary_text) > 0:
             secondary_text = "\n\n" + secondary_text
+        else:
+            secondary_text = ""
         label_text = '<span weight="bold" size="larger">%s</span>%s' % \
                      (primary_text, secondary_text)
 
