@@ -20,7 +20,6 @@ todo for 2.0
 	save/save-as
 	run $EDITOR, refresh
 * W	i18n, gettext
-* W	keyboard shortcuts for all widgets
 * W	review human interface guidelines
 * B	warnings for several fractal types
 * B	other windows always in front - is that good?
@@ -54,6 +53,7 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* W	keyboard shortcuts for all widgets
 * B	fn1..4 appear in random order in dialog box
 * B	shrink image while drawing: python: fract4d/c/image.cpp:40: virtual void image::put(int, int, s_rgba): Assertion `off + 2 < bytes()' failed.
 * B	load frm not on search path, undo = IOError "can't find formula file"
