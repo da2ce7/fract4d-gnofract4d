@@ -118,12 +118,13 @@ class T(FctUtils):
         
         # formula support
         self.formula = None
+        self.funcName = "Mandelbrot"
         self.bailfunc = 0
         self.cfuncs = [None,None]
         self.compiler = compiler
         self.outputfile = None
         self.funcFile = "gf4d.frm"
-        self.set_formula("gf4d.frm","Mandelbrot")
+        self.set_formula("gf4d.frm",self.funcName)
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","default")
         self.dirtyFormula = True # formula needs recompiling
@@ -179,7 +180,6 @@ class T(FctUtils):
         self.initparams = []
 
         self.bailout = 4.0
-        self.funcName = "Mandelbrot"
         self.maxiter = 256
         self.antialias = 1
         self.rot_by = math.pi/2
