@@ -37,7 +37,7 @@ class SymbolTest(unittest.TestCase):
         self.failUnless(not self.t.is_user("z"))
 
     def test_expand(self):
-        l = symbol.efl("[_,_] , _", [Int, Float, Complex])
+        l = symbol.efl("foo", "[_,_] , _", [Int, Float, Complex])
         self.assertEqual(len(l),3)
         self.assertEqual(l[0].ret, Int)
         self.assertEqual(l[1].args, [Float,Float])
@@ -57,6 +57,11 @@ class SymbolTest(unittest.TestCase):
 
     def testAlias(self):
         self.assertEqual(self.t["#z"], self.t["z"])
+
+    def testReset(self):
+        self.t["fish"] = Var(Int, 1, 1)
+        self.t.reset()
+        self.assertRaises(KeyError, self.t.__getitem__, ("fish"))
         
 def suite():
     return unittest.makeSuite(SymbolTest,'test')

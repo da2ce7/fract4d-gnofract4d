@@ -245,12 +245,12 @@ def p_exp_funcall(t):
 
 def p_exp_complex(t):
      'exp : LPAREN exp COMMA exp RPAREN'
-     t[0] = absyn.Complex(t[2],t[4],t.lineno(1))
+     t[0] = absyn.Binop("complex",t[2],t[4],t.lineno(1))
 
 def p_exp_complex_i(t):
     'exp : COMPLEX'
     ln = t.lineno(1)
-    t[0] = absyn.Complex(absyn.Number("0.0",ln),absyn.Number(t[1],ln),ln)
+    t[0] = absyn.Binop("complex",absyn.Number("0.0",ln),absyn.Number(t[1],ln),ln)
     
 def p_exp_funcall_noargs(t):
     'exp : ID LPAREN RPAREN'
