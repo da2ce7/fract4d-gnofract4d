@@ -266,7 +266,7 @@ class FctTest(unittest.TestCase):
         tparams[f.YCENTER] += tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
         
         self.assertNearlyEqual(f.params(),tparams)
-
+        
     def testCopy(self):
         copy = self.f.copy_f()
         mag = self.f.get_param(self.f.MAGNITUDE)
