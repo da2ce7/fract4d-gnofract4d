@@ -58,6 +58,34 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
 [endsection]
 '''
 
+g_test2file='''gnofract4d parameter file
+version=2.0
+[function]
+formulafile=gf4d.frm
+function=Mandelbrot
+@bailfunc=cmag
+@bailout=1e20
+[endsection]
+[inner]
+formulafile=gf4d.cfrm
+function=zero
+[endsection]
+[outer]
+formulafile=standard.cfrm
+function=T2
+[endsection]
+[colors]
+colorizer=1
+solids=[
+000000ff
+000000ff
+]
+colorlist=[
+0.000000=00000000
+1.000000=ffffffff
+]
+'''
+
 class WarningCatcher:
     def __init__(self):
         self.warnings = []
@@ -78,7 +106,7 @@ class FctTest(unittest.TestCase):
         f = fractal.T(self.compiler);
         f.loadFctFile(StringIO.StringIO(file))
         self.assertExpectedValues(f)
-
+        
     def testUpsideDown(self):
         file = g_testfile
 
@@ -103,7 +131,8 @@ class FctTest(unittest.TestCase):
         self.assertEqual(f.params[f.YWANGLE],0.4)
         self.assertEqual(f.params[f.ZWANGLE],0.2)
 
-        self.assertEqual(f.initparams[f.order_of_name("@bailout")],5.1)
+        self.assertEqual(
+            f.initparams[f.order_of_name("@bailout", f.formula.symbols)],5.1)
         
         self.assertEqual(f.funcName,"Mandelbar")
         self.assertEqual(f.funcFile,"gf4d.frm")
@@ -122,13 +151,19 @@ class FctTest(unittest.TestCase):
         f.draw(image)
 
     def testLoadBadFileRaises(self):
-        f = fractal.T(self.compiler);
+        f = fractal.T(self.compiler)
         not_a_file = StringIO.StringIO("ceci n'est pas un file")
         self.assertRaises(Exception,f.loadFctFile,not_a_file)
 
     def testCFParams(self):
-        f = fractal.T(self.compiler);
+        f = fractal.T(self.compiler)
+
+        self.assertEqual(f.cfunc_params[0],[])
+        
         f.set_outer("test.cfrm", "Triangle")
+
+        self.assertEqual(f.cfunc_params[0],[ 1.0e20, 2.0])
+        
         cf0p = f.cfuncs[0].symbols.parameters()
         self.assertEqual(cf0p["t__a_bailout"].cname, "t__a_cf0bailout")
         p = f.formula.symbols.parameters()
@@ -142,10 +177,29 @@ class FctTest(unittest.TestCase):
         f.formula.merge(f.cfuncs[1],"cf1_")        
 
         p2 = f.formula.symbols.parameters()
-        self.assertEqual(len(p2),4) # 2 x bailout, bailfunc, power
+        self.assertEqual(len(p2),4) # 2 x bailout, bailfunc, size
         self.assertEqual(p2["t__a_bailout"].cname, "t__a_fbailout")
         self.assertEqual(p2["t__a_cf0bailout"].cname, "t__a_cf0bailout") 
-                
+
+        op2 = f.formula.symbols.order_of_params()
+        self.assertEqual(op2, {
+            't__a_bailout' : 0,
+            't__a_cf0bailout' : 1,
+            't__a_cf0power' : 2,
+            '__SIZE__' : 3
+            })
+        params = f.all_params()
+        self.assertEqual(params,[4.0,1.0e20,2.0])
+
+        # check for appropriate snippets in the code
+        cg.output_decls(f.formula)
+        c_code = cg.output_c(f.formula)
+        self.assertNotEqual( # init
+            c_code.find("double t__a_cf0bailout = t__pfo->p[1]"),-1)
+        self.assertNotEqual( # use
+            c_code.find("log(t__a_cf0bailout)"),-1)
+        #print c_code
+        
     def assertNearlyEqual(self,a,b):
         # check that each element is within epsilon of expected value
         epsilon = 1.0e-12
@@ -193,7 +247,37 @@ blue=0
         self.assertEqual(len(warning_catcher.warnings),1)
         self.assertEqual(warning_catcher.warnings[0],
                          "RGB Colorizers not supported. Colors will be wrong.")
+
+    def testSaveWithCFParams(self):
+        'load and save a file with a colorfunc which has parameters'
+        f1 = fractal.T(self.compiler)
+        file1 = StringIO.StringIO(g_test2file)
+        f1.loadFctFile(file1)
+
+        # save again
+        file2 = StringIO.StringIO()
+        f1.save(file2)
+        saved = file2.getvalue()
+        self.failUnless(saved.startswith("gnofract4d parameter file"))
         
+        # load it into another instance
+        file3 = StringIO.StringIO(saved)
+        f2 = fractal.T(self.compiler)
+        f2.loadFctFile(file3)
+
+        self.assertFractalsEqual(f1,f2)
+        
+    def assertFractalsEqual(self,f1,f2):
+        # check that they are equivalent
+        self.assertEqual(f1.params, f2.params)
+        self.assertEqual(f1.initparams,f2.initparams)
+        self.assertEqual(f1.funcName,f2.funcName)
+        self.assertEqual(f1.funcFile,f2.funcFile)
+        self.assertEqual(f1.cfunc_names, f2.cfunc_names)
+        self.assertEqual(f1.cfunc_files, f2.cfunc_files)
+        self.assertEqual(f1.cfunc_params, f2.cfunc_params)
+        
+
     def testSave(self):
         # load some settings
         f1 = fractal.T(self.compiler)
@@ -214,7 +298,7 @@ blue=0
         self.assertExpectedValues(f2)
         
         # check that they are equivalent
-        self.assertEqual(f1.params, f2.params)
+        self.assertFractalsEqual(f1,f2)
         
         
     def testRelocation(self):

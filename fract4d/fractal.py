@@ -155,6 +155,7 @@ class Colorizer(FctUtils):
 
     def parse_map_file(self,mapfile):
         i = 0
+        self.colorlist = []
         for line in mapfile:
             m = rgb_re.match(line)
             if m != None:
@@ -193,7 +194,7 @@ class T(FctUtils):
         self.cfuncs = [None,None]
         self.cfunc_names = [None,None]
         self.cfunc_files = [None,None]
-
+        self.cfunc_params = [[],[]]
         self.yflip = False
         self.auto_tolerance = False
         self.antialias = 1
@@ -240,6 +241,7 @@ class T(FctUtils):
         print >>file, "[%s]" % section
         print >>file, "formulafile=%s" % self.cfunc_files[index]
         print >>file, "function=%s" % self.cfunc_names[index]
+        self.save_formula_params(file,self.cfuncs[index])
         print >>file, "[endsection]"
         
     def save(self,file):
@@ -255,15 +257,9 @@ class T(FctUtils):
         print >>file, "[function]"
         print >>file, "formulafile=%s" % self.funcFile
         print >>file, "function=%s" % self.funcName
+        self.save_formula_params(file,self.formula)
         print >>file, "[endsection]"
         
-        print >>file, "[initparams]"
-        for name in self.func_names():
-            print >>file, "%s=%s" % (name, self.get_func_value(name))
-        for name in self.formula.symbols.param_names():
-            print >>file, "%s=%s" % (name, self.initvalue(name))
-        print >>file, "[endsection]"
-
         self.save_cfunc_info(1,"inner",file)
         self.save_cfunc_info(0,"outer",file)
         
@@ -278,10 +274,17 @@ class T(FctUtils):
         for col in self.colorlist:
             print >>file, "%f=%02x%02x%02x%02x" % col
         print >>file, "]"
+
+    def save_formula_params(self,file,formula):
+        for name in self.func_names(formula):
+            print >>file, "%s=%s" % (name, self.get_func_value(name,formula))
+        for name in formula.symbols.param_names():
+            print >>file, "%s=%s" % \
+                  (name, self.initvalue(name, formula.symbols))
         
-    def initvalue(self,name):
-        ord = self.order_of_name(name)
-        type = self.formula.symbols[name].type
+    def initvalue(self,name,symbol_table):
+        ord = self.order_of_name(name,symbol_table)
+        type = symbol_table[name].type
         
         if type == fracttypes.Complex:
             return "(%.17f,%.17f)"%(self.initparams[ord],self.initparams[ord+1])
@@ -297,12 +300,6 @@ class T(FctUtils):
         params = ParamBag()
         params.load(f)
         self.set_outer(params.dict["formulafile"],params.dict["function"])
-
-    def parse__initparams_(self,val,f):
-        params = ParamBag()
-        params.load(f)
-        for (name,val) in params.dict.items():
-            self.set_named_item(name,val)
 
     def set_named_item(self,name,val):
         sym = self.formula.symbols[name].first()
@@ -325,8 +322,8 @@ class T(FctUtils):
         
         c.set_formula(self.funcFile,self.funcName)
         # copy the function overrides
-        for name in self.func_names():
-            c.set_named_func(name,self.get_func_value(name))
+        for name in self.func_names(self.formula):
+            c.set_named_func(name,self.get_func_value(name,self.formula))
 
         c.initparams = copy.copy(self.initparams) # must be after set_formula
         c.bailfunc = self.bailfunc
@@ -428,20 +425,20 @@ class T(FctUtils):
         if func != None:
             self.set_func(func[0],funcname)            
 
-    def func_names(self):
-        return self.formula.symbols.func_names()
+    def func_names(self,formula):
+        return formula.symbols.func_names()
 
-    def param_names(self):
-        return self.formula.symbols.param_names()
+    def param_names(self,formula):
+        return formula.symbols.param_names()
     
     def set_named_func(self,func_to_set,val):
         fname = self.formula.symbols.demangle(func_to_set)
         func = self.formula.symbols.get(fname)
         self.set_func(func[0],val)            
 
-    def get_func_value(self,func_to_get):
-        fname = self.formula.symbols.demangle(func_to_get)        
-        func = self.formula.symbols.get(fname)
+    def get_func_value(self,func_to_get,formula):
+        fname = formula.symbols.demangle(func_to_get)        
+        func = formula.symbols.get(fname)
         return func[0].cname
     
     def changed(self):
@@ -466,7 +463,8 @@ class T(FctUtils):
         self.cfuncs[index] = func
         self.cfunc_files[index] = funcfile
         self.cfunc_names[index] = funcname
-
+        self.cfunc_params[index] = func.symbols.default_params()
+        
         self.dirtyFormula = True
         self.changed()
         
@@ -553,9 +551,6 @@ class T(FctUtils):
         else:
             deltay = self.mul_vs(m[axis+1],-dy)
 
-
-        #print "dx: %s dy: %s" % (deltax,deltay)
-        
         self.params[self.XCENTER] += deltax[0] + deltay[0]
         self.params[self.YCENTER] += deltax[1] + deltay[1]
         self.params[self.ZCENTER] += deltax[2] + deltay[2]
@@ -595,6 +590,9 @@ class T(FctUtils):
         #5% of the size of a pixel
         return self.params[self.MAGNITUDE]/(20.0 * max(w,h))
 
+    def all_params(self):
+        return self.initparams + self.cfunc_params[0] + self.cfunc_params[1]
+
     def draw(self,image):
         handle = fract4dc.pf_load(self.outputfile)
         pfunc = fract4dc.pf_create(handle)
@@ -602,7 +600,8 @@ class T(FctUtils):
         (r,g,b,a) = self.solids[0]
         fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
 
-        fract4dc.pf_init(pfunc,1.0E-9,self.initparams)
+        initparams = self.all_params()
+        fract4dc.pf_init(pfunc,1.0E-9,initparams)
 
         fract4dc.calc(self.params,self.antialias,self.maxiter,self.yflip,1,
                       pfunc,cmap,self.auto_deepen,image,self.site)
@@ -642,22 +641,20 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         print msg
         
     def parse__function_(self,val,f):
-        line = f.readline()
-        while line != "":
-            (name,val) = self.nameval(line)
-            if name != None:
-                if name == self.endsect: break
-                self.parseVal(name,val,f,"func_")
-            line = f.readline()
+        params = ParamBag()
+        params.load(f)
+        for (name,val) in params.dict.items():
+            if name == "formulafile":
+                self.funcFile = val
+                self.compiler.load_formula_file(self.funcFile)
+            elif name == "function":
+                self.funcName = val
+                self.set_formula(self.funcFile,self.funcName)
+            elif name == "a" or name =="b" or name == "c":
+                self.set_named_param("@" + name, val)
+            else:
+                self.set_named_item(name,val)
 
-    def parse_func_formulafile(self,val,f):
-        self.funcFile = val
-        self.compiler.load_formula_file(self.funcFile)
-        
-    def parse_func_function(self,val,f):
-        self.funcName = val
-        self.set_formula(self.funcFile,self.funcName)
-        
     def set_named_param(self,name,val):
         #print "named param %s : %s" % (name, val)
         op = self.formula.symbols.order_of_params()
@@ -680,15 +677,6 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         elif t == fracttypes.Float:
             self.initparams[ord] = float(val)
         
-    def parse_func_a(self,val,f):
-        self.set_named_param("@a",val)
-
-    def parse_func_b(self,val,f):
-        self.set_named_param("@b",val)
-
-    def parse_func_c(self,val,f):
-        self.set_named_param("@c",val)
-
     def parse_bailfunc(self,val,f):
         # can't set function directly because formula hasn't been parsed yet
         self.bailfunc = int(val)
@@ -770,9 +758,9 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         #self.antialias = int(val)
         pass
 
-    def order_of_name(self,name):
-        op = self.formula.symbols.order_of_params()
-        rn = self.formula.symbols.mangled_name(name)
+    def order_of_name(self,name,symbol_table):
+        op = symbol_table.order_of_params()
+        rn = symbol_table.mangled_name(name)
         ord = op.get(rn)
         if ord == None:
             #print "can't find %s (%s) in %s" % (name,rn,op)
@@ -784,7 +772,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         # in older files, we save it in self.bailout then apply to the
         # initparams later
         if self.bailout != 0.0:
-            ord = self.order_of_name("@bailout")
+            ord = self.order_of_name("@bailout",self.formula.symbols)
             if ord == None:
                 # no bailout value for this function
                 return

@@ -82,7 +82,6 @@ class T(gobject.GObject):
         drawing_area.connect('motion_notify_event', self.onMotionNotify)
         drawing_area.connect('button_release_event', self.onButtonRelease)
         drawing_area.connect('button_press_event', self.onButtonPress)
-        drawing_area.connect('key_release_event', self.onKeyRelease)
         drawing_area.connect('expose_event',self.onExpose)
 
         c = self.get_rgb_colormap()
@@ -113,9 +112,6 @@ class T(gobject.GObject):
         self.f.clean()
         return was_dirty
 
-    def onKeyRelease(self,event):
-        print "okr", event
-        
     def interrupt(self):
         #print "interrupted %d" % self.running
         if self.skip_updates:
@@ -145,8 +141,10 @@ class T(gobject.GObject):
         t = self.f.tolerance(width,height)
         if self.f.auto_tolerance:
             self.f.set_named_param("@epsilon",t)
-        
-        fract4dc.pf_init(self.f.pfunc,t,self.f.initparams)
+
+        initparams = self.all_params()
+
+        fract4dc.pf_init(self.f.pfunc,t,initparams)
 
         self.running = True
         fract4dc.async_calc(self.f.params,self.f.antialias,self.f.maxiter,
@@ -288,7 +286,7 @@ class T(gobject.GObject):
 
         def set_selected_function():
             try:
-                selected_func_name = self.f.get_func_value(name)
+                selected_func_name = self.f.get_func_value(name,self.f.formula)
                 index = funclist.index(selected_func_name)
             except ValueError, err:
                 # func.cname not in list
