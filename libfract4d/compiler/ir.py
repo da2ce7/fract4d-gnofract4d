@@ -50,13 +50,6 @@ class Const(Exp):
     def __str__(self):
         return "Const(%s" % self.value
     
-class Name(Exp):
-    def __init__(self, label, node, datatype):
-        Exp.__init__(self, node, datatype)
-        self.label = label
-    def __str__(self):
-        return "Name(%s" % self.label
-    
 class Temp(Exp):
     def __init__(self, temp, node, datatype):
         Exp.__init__(self, node, datatype)

@@ -73,10 +73,11 @@ def canBeCast(t1,t2):
         raise
     
 class Func:
-    def __init__(self,args,ret,pos=-1):
+    def __init__(self,args,ret,codegen,pos=-1):
         self.ret = ret
         self.pos = pos
         self.args = args
+        self.codegen = codegen
         
     def matchesArgs(self, potentialArgs):
         if len(potentialArgs) != len(self.args):

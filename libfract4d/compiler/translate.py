@@ -233,7 +233,7 @@ class T:
         expectedType = self.symbols[node.leaf].type
         rhs = self.exp(node.children[0])
         
-        lhs = ir.Name(node.leaf, node, node.datatype)
+        lhs = ir.Var(node.leaf, node, node.datatype)
         return ir.Move(lhs,self.coerce(rhs,expectedType),node,expectedType)
 
     def findOp(self, opnode, list):
@@ -256,11 +256,10 @@ class T:
                            node, node.datatype)
 
         try:
-            # fixme - get exp right instead of 0.0
             self.symbols[node.leaf] = Var(node.datatype,
                                           default_value(node.datatype), node.pos)
             return ir.Move(
-                ir.Name(node.leaf, node, node.datatype),                
+                ir.Var(node.leaf, node, node.datatype),                
                 self.coerce(exp, node.datatype),
                 node, node.datatype)
         
