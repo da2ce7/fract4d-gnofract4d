@@ -32,7 +32,7 @@ class mag_bailout : public bailFunc {
 public:
     virtual std::string bail_code(int flags) const 
         {
-            std::string bail;
+            std::string bail("");
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
                 bail = 
@@ -66,88 +66,99 @@ public:
     bool iter8_ok() const { return false; };
 };
 
-/*
+
 class real_bailout : public bailFunc {
 public:
-    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
+    virtual std::string bail_code(int flags) const     
         {
+            std::string bail("");
             if(!(flags & (HAS_X2)))
             {
-                p[X2] = p[X] * p[X];
+                bail = "pTemp[X2] = pIter[X] * pIter[X];";
             }            
-            p[EJECT_VAL] = p[X2];
+            
+            bail += "pTemp[EJECT_VAL] = pTemp[X2];";
+            return bail;
         };
-    bool iter8_ok() { return true; };
+    bool iter8_ok() const { return true; };
 };
 
 class imag_bailout : public bailFunc {
 public:
-    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
+    virtual std::string bail_code(int flags) const 
         {
+            std::string bail("");
             if(!(flags & (HAS_Y2)))
             {
-                p[Y2] = p[Y] * p[Y];
+                bail = "pTemp[Y2] = pIter[Y] * pIter[Y];";
             }            
-            p[EJECT_VAL] = p[Y2];
+            bail += "pTemp[EJECT_VAL] = pTemp[Y2];";
+            return bail;
         };
-    bool iter8_ok() { return true; };
+    bool iter8_ok() const { return true; };
 };
 
 class and_bailout : public bailFunc {
 public:
-    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
+    virtual std::string bail_code(int flags) const 
         {
+            std::string bail("");
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
-                p[X2] = p[X] * p[X];
-                p[Y2] = p[Y] * p[Y];
+                bail = 
+                    "pTemp[X2] = pIter[X] * pIter[X];"
+                    "pTemp[Y2] = pIter[Y] * pIter[Y];";
             }            
-            p[EJECT_VAL] = MIN(p[X2],p[Y2]);
+            bail += "pTemp[EJECT_VAL] = std::min(pTemp[X2],pTemp[Y2]);";
+            return bail;
         };
-    bool iter8_ok() { return true; };
+    bool iter8_ok() const { return true; };
 
 };
 
 class or_bailout : public bailFunc {
 public:
-    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
+    virtual std::string bail_code(int flags) const 
         {
+            std::string bail("");            
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
-                p[X2] = p[X] * p[X];
-                p[Y2] = p[Y] * p[Y];
-            }            
-            p[EJECT_VAL] = MAX(p[X2],p[Y2]);
+                bail = 
+                    "pTemp[X2] = pIter[X] * pIter[X];"
+                    "pTemp[Y2] = pIter[Y] * pIter[Y];";
+            }       
+            bail += "pTemp[EJECT_VAL] = std::max(pTemp[X2],pTemp[Y2]);";
+            return bail;
         }
-    bool iter8_ok() { return true; }
+    bool iter8_ok() const { return true; }
 
 };
 
 class manhattan2_bailout : public bailFunc {
 public:
-    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
+    virtual std::string bail_code(int flags) const 
         {
+            std::string bail("");
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
-                p[X2] = p[X] * p[X];
-                p[Y2] = p[Y] * p[Y];
+                bail = 
+                    "pTemp[X2] = pIter[X] * pIter[X];"
+                    "pTemp[Y2] = pIter[Y] * pIter[Y];";
             }            
-            double t = fabs(p[X2]) + fabs(p[Y2]);
-            p[EJECT_VAL] = t*t;
+            bail += "{double t = fabs(pTemp[X2]) + fabs(pTemp[Y2]); pTemp[EJECT_VAL] = t*t;}";
+            return bail;
         }
-    bool iter8_ok() { return false; }
+    bool iter8_ok() const { return false; }
 };
 
 class manhattan_bailout : public bailFunc {
 public:
-    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
+    virtual std::string bail_code(int flags) const 
         {
-            p[EJECT_VAL] = p[X] + p[Y];
+            return "pTemp[EJECT_VAL] = pIter[X] + pIter[Y];";
         }
-    bool iter8_ok() { return false; }
+    bool iter8_ok() const { return false; }
 };
-*/
-
 
 bailFunc *bailFunc_new(e_bailFunc e)
 {
@@ -156,7 +167,6 @@ bailFunc *bailFunc_new(e_bailFunc e)
     case BAILOUT_MAG:
         pbf = new mag_bailout;
         break;
-/*
     case BAILOUT_MANH:
         pbf = new manhattan_bailout;
         break;
@@ -175,7 +185,6 @@ bailFunc *bailFunc_new(e_bailFunc e)
     case BAILOUT_IMAG:
         pbf = new imag_bailout;
         break;
-*/
     case BAILOUT_DIFF:
         pbf = new diff_bailout;
         break;

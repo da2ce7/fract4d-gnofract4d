@@ -29,18 +29,6 @@
 #include <unistd.h>
 #include <dlfcn.h>
 
-//#define STATIC_FUNCTION
-
-#ifdef STATIC_FUNCTION
-
-#define ITER z = (2.0 *z*z*z + c)/ 3.0 * z * z
-#define DECL std::complex<double> z(pIter[X],pIter[Y]) , c(pInput[CX],pInput[CY]) 
-#define RET  pIter[X] = z.real(); pIter[Y] = z.imag()
-#define BAIL 
-
-#include "compiler_template.cpp"
-#endif
-
 pointFunc *pointFunc_new(
     iterFunc *iterType, 
     e_bailFunc bailType, 
@@ -54,16 +42,14 @@ pointFunc *pointFunc_new(
 #else
     bailFunc *b = bailFunc_new(bailType);
 
-    std::string iter = iterType->iter_code();
-    std::string decl = iterType->decl_code();
-    std::string ret  = iterType->ret_code();
-    std::string bail = b->bail_code(iterType->flags());
-    bool unroll_ok = b->iter8_ok();
-    void *dlHandle = g_pCompiler->getHandle(iter,decl,ret,bail,unroll_ok);
+    std::map<std::string,std::string> code_map;
+    iterType->get_code(code_map);
+    b->get_code(code_map, iterType->flags());
+    void *dlHandle = g_pCompiler->getHandle(code_map);
 
     pointFunc *(*pFunc)(
-        void *, double, colorizer *, e_colorFunc, e_colorFunc) = 
-        (pointFunc *(*)(void *, double, colorizer *, e_colorFunc, e_colorFunc)) 
+        void *, double, std::complex<double> *,colorizer *, e_colorFunc, e_colorFunc) = 
+        (pointFunc *(*)(void *, double, std::complex<double> *, colorizer *, e_colorFunc, e_colorFunc)) 
         dlsym(dlHandle, "create_pointfunc");
 
     if(NULL == pFunc)
@@ -71,7 +57,7 @@ pointFunc *pointFunc_new(
         return NULL;
     }
 
-    return pFunc(dlHandle, bailout, pcf, outerCfType, innerCfType);
+    return pFunc(dlHandle, bailout, iterType->opts(), pcf, outerCfType, innerCfType);
 #endif
 }
 

@@ -70,13 +70,15 @@ compiler::set_cache_dir(const char *s)
     }
 }
 std::string
-compiler::Dstring(std::string iter, std::string decl, std::string ret, std::string bail, bool unroll_ok)
+compiler::Dstring(std::map<std::string,std::string> defn_map)
 {
-    return "-DITER=\"" + iter + 
-        "\" -DDECL=\"" + decl + 
-        "\" -DRET=\""  + ret  + 
-        "\" -DBAIL=\"" + bail + "\"" + 
-        (unroll_ok ? " -DUNROLL" : "");
+    ostringstream os;
+    std::map<std::string,std::string>::iterator i;
+    for(i = defn_map.begin(); i != defn_map.end(); ++i)
+    {
+        os << "-D" << i->first << "=\"" << i->second << "\" ";
+    }
+    return os.str();
 }
 
 // TODO: replace all this with a fork/exec thingy so I can get exit status etc
@@ -122,9 +124,9 @@ compiler::invalidate_cache()
 }
 
 void * 
-compiler::getHandle(std::string iter, std::string decl, std::string ret, std::string bail, bool unroll_ok)
+compiler::getHandle(std::map<std::string,std::string> defn_map)
 {
-    std::string dflags = Dstring(iter, decl, ret, bail, unroll_ok);
+    std::string dflags = Dstring(defn_map);
     std::string find = flags + dflags;
 
     void *handle = NULL;

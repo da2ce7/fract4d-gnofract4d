@@ -25,6 +25,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <map>
 
 /* a bailfunc is a function object which determines whether to stop
    iterating */
@@ -33,6 +34,14 @@ class bailFunc {
  public:
     /* returns a code snippet which does bailout */
     virtual std::string bail_code(int flags) const = 0;
+
+    /* add the code snippet to this map */
+    virtual void get_code(std::map<std::string,std::string>& map, int flags) const
+        {
+            map["BAIL"] = bail_code(flags);
+            map["UNROLL"]= iter8_ok() ? "1" : "0";
+        }
+
     /* is it OK to unroll the loop with this bailout type? */
     virtual bool iter8_ok() const = 0;
 };

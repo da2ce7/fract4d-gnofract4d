@@ -29,6 +29,7 @@
 #include <iosfwd>
 #include <complex>
 #include <string>
+#include <map>
 
 // iter state
 #define X 0
@@ -53,16 +54,14 @@
 #define HAS_X2 1
 #define HAS_Y2 2
 
-/* a function which performs a single fractal iteration 
-   on the scratch space in p */
+/* a function which performs a single fractal iteration */
 
 class iterFunc {
  public:
     // return the fragments of C++ code which we'll interpolate
-    // into the template
-    virtual std::string decl_code() const = 0;
-    virtual std::string iter_code() const = 0;
-    virtual std::string ret_code() const = 0;
+    // into the template. They're added into the map 
+    // map contains DEFINE-NAME -> CODE
+    virtual void get_code(std::map<std::string,std::string>& ) const = 0;
 
     virtual int flags() const = 0;
     virtual const char *type() const = 0;
@@ -81,11 +80,19 @@ class iterFunc {
     // FIXME: no gmp options
     virtual void setOption(int n, std::complex<double> val) = 0;
     virtual std::complex<double> getOption(int n) const = 0;
+    virtual std::complex<double> *opts() = 0;
     virtual const char *optionName(int n) const = 0;
 
     // reset all options to standard values
     virtual void reset(double *fract_params) = 0;
     virtual e_bailFunc preferred_bailfunc(void) = 0;
+
+ protected:
+    virtual std::string decl_code() const = 0;
+    virtual std::string iter_code() const = 0;
+    virtual std::string ret_code() const = 0;
+    virtual std::string save_iter_code() const = 0;
+    virtual std::string restore_iter_code() const = 0;
 };
 
 

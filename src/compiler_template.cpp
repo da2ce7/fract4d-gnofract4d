@@ -19,15 +19,25 @@ private:
     double m_eject;
     colorizer *m_pcf;
     void *m_handle; // handle of .so which keeps us in memory
+#if N_OPTIONS > 0
+    std::complex<double> a[N_OPTIONS];
+#endif
 public:
     /* ctor */
     pointCalc(void *handle,
               double eject,
+              std::complex<double> *options,
               colorizer *pcf,
               e_colorFunc outerCfType,
               e_colorFunc innerCfType) 
         : m_eject(eject), m_pcf(pcf), m_handle(handle)
         {
+#if N_OPTIONS > 0
+            for(int i = 0; i < N_OPTIONS; ++i)
+            {
+                a[i] = options[i];
+            }
+#endif
             m_pOuterColor = colorFunc_new(outerCfType);
             m_pInnerColor = colorFunc_new(innerCfType);
         }
@@ -55,10 +65,10 @@ public:
     //template<class T>
     bool calcNoPeriod(int& iter, int maxIter)
         {
-#ifdef UNROLL
+#if UNROLL
             while(iter + 8 < maxIter)
             {
-                T lastx = pIter[X]; T lasty = pIter[Y];
+                SAVE_ITER;
                 DECL;
                 ITER; ITER; ITER; ITER; ITER; ITER; ITER; ITER; 
                 RET;
@@ -67,7 +77,7 @@ public:
                 {
                     // we bailed out somewhere in the last 8iters -
                     // go back to beginning and look one-by-one
-                    pIter[X] = lastx; pIter[Y] = lasty;
+                    RESTORE_ITER;
                     break;
                 }
                 iter += 8;
@@ -199,10 +209,11 @@ extern "C" {
     void *create_pointfunc(
         void *handle,
         double bailout,
-        colorizer *pcf,
+        std::complex<double> *params,
+        colorizer *pcf,        
         e_colorFunc outerCfType,
         e_colorFunc innerCfType)
     {
-        return new pointCalc(handle, bailout, pcf, outerCfType, innerCfType);
+        return new pointCalc(handle, bailout, params, pcf, outerCfType, innerCfType);
     }
 }
