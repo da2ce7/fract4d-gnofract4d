@@ -359,12 +359,12 @@ def createDefaultDict():
     return d
 
 
-def mangle(k):
+def mangle(k,prefix=""):
     l = string.lower(k)
     if l[0] == '#':
-        l = "t__h_" + l[1:]
+        l = "t__h_" + prefix + l[1:]
     elif l[0] == '@':
-        l = "t__a_" + l[1:]
+        l = "t__a_" + prefix + l[1:]
     return l
                
 class T(UserDict):
@@ -386,7 +386,7 @@ class T(UserDict):
                  hasattr(other.data[k],"cname") and \
                  self.data[k].cname != other.data[k].cname:
                     # FIXME can cause new clashes
-                    self.data[other.prefix + k] = other.data[k]
+                    self.data[self.insert_prefix(other.prefix,k)] = other.data[k]
                 
     def has_key(self,key):
         if self.data.has_key(mangle(key)):
@@ -399,15 +399,29 @@ class T(UserDict):
             val = self.default_dict.get(mangle(key))
         return val.pos != -1
 
+    def insert_prefix(self, prefix, key):
+        if key[0:5] == "t__a_":
+            return "t__a_" + prefix + key[5:]
+        if key[0:3] == "t__":
+            return "t__" + prefix + key[3:]
+        return prefix + key
+    
     def is_param(self,key):
         return key[0:5] == 't__a_'
 
     def is_private(self,key):
         return key[0:3] == "t__"
     
+    def mangled_name(self,key):
+        k = mangle(key)
+        return k
+    
     def realName(self,key):
         ' returns mangled key even if var not present for test purposes'
         k = mangle(key)
+        return self._realName(k)
+
+    def _realName(self,k):
         val = self.data.get(k,None)
         if val == None:
             val = self.default_dict.get(k)
@@ -448,7 +462,7 @@ class T(UserDict):
                   ("symbol '%s': only predefined symbols can begin with '#'" %key)
         self.data[k] = value
         if hasattr(value,"cname") and value.cname == None:
-            value.cname=self.prefix + k
+            value.cname=self.insert_prefix(self.prefix,k)
         
     def parameters(self,varOnly=False):
         params = {}

@@ -126,6 +126,26 @@ class FctTest(unittest.TestCase):
         not_a_file = StringIO.StringIO("ceci n'est pas un file")
         self.assertRaises(Exception,f.loadFctFile,not_a_file)
 
+    def testCFParams(self):
+        f = fractal.T(self.compiler);
+        f.set_outer("test.cfrm", "Triangle")
+        cf0p = f.cfuncs[0].symbols.parameters()
+        self.assertEqual(cf0p["t__a_bailout"].cname, "t__a_cf0bailout")
+        p = f.formula.symbols.parameters()
+        self.assertEqual(p["t__a_bailout"].cname, "t__a_fbailout")
+
+        cg = self.compiler.compile(f.formula)
+        self.compiler.compile(f.cfuncs[0])
+        self.compiler.compile(f.cfuncs[1])
+
+        f.formula.merge(f.cfuncs[0],"cf0_")        
+        f.formula.merge(f.cfuncs[1],"cf1_")        
+
+        p2 = f.formula.symbols.parameters()
+        self.assertEqual(len(p2),4) # 2 x bailout, bailfunc, power
+        self.assertEqual(p2["t__a_bailout"].cname, "t__a_fbailout")
+        self.assertEqual(p2["t__a_cf0bailout"].cname, "t__a_cf0bailout") 
+                
     def assertNearlyEqual(self,a,b):
         # check that each element is within epsilon of expected value
         epsilon = 1.0e-12
@@ -237,7 +257,6 @@ blue=0
         tparams[f.XZANGLE] = tparams[f.YWANGLE] = math.pi/2.0
         
         self.assertNearlyEqual(f.params,tparams)
-
 
         # equivalent Julia relocation using axis param
         f.reset()

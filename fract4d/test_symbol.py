@@ -18,6 +18,8 @@ class SymbolTest(unittest.TestCase):
         v = Var(Int,1)
         t["x"] = v
         self.assertEqual(t["x"].cname,"boox")
+        self.assertEqual(t.realName("@x"),"t__a_x")
+        self.assertEqual(t.mangled_name("@x"),"t__a_x")
         
     def testSqr(self):
         sqr_c = self.t[("sqr")][2];

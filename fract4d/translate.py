@@ -614,7 +614,7 @@ class TBase:
 
 class T(TBase):
     def __init__(self,f,dump=None):
-        TBase.__init__(self,"",dump)
+        TBase.__init__(self,"f",dump)
         try:
             self.main(f)
             if self.dumpPreCanon:
