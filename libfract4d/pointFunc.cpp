@@ -173,7 +173,7 @@ pointFunc *pointFunc::create(
 {
     if(NULL == dlHandle)
     {
-	return NULL;
+c	return NULL;
     }
 
     // get a pointer to the pf_new function in the new .so
