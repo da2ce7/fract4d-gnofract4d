@@ -12,6 +12,7 @@ import string
 # List of token names.   This is always required
 tokens = (
    'NUMBER',
+   'COMPLEX',
    'ID',
 
    'PLUS',
@@ -147,8 +148,12 @@ def t_FORM_ID(t):
     return t
 
 def t_NUMBER(t):
-    r'(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?'
-    t.value = float(t.value) # FIXME: detect integers
+    r'(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?i?'
+    if t.value[-1]=="i": # a complex constant
+        t.value = float(t.value[0:-1])
+        t.type = "COMPLEX" 
+    else:        
+        t.value = float(t.value) # FIXME: detect integers
     return t
 
 # these have to be functions to give them higher precedence than ID

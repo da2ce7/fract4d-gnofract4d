@@ -137,8 +137,8 @@ class ParserTest(unittest.TestCase):
                                 "unexpected endif 'endif'",3)
 
     def testDecls(self):
-        t1 = self.parse(self.makeMinimalFormula('''
-        bool a
+        t1 = self.parse(self.makeMinimalFormula(
+        '''bool a
         bool b = true
         bool c=false
         int d
@@ -146,11 +146,18 @@ class ParserTest(unittest.TestCase):
         float f
         float g = 2.0
         complex h
-        complex i = (2,3)
-        color j'''))
-        #print t1.pretty()
+        complex i = 3 + 1i + i
+        complex j = (2,3)
+        color k'''))
         self.assertIsValidParse(t1)
-
+        i = t1.children[0].children[0]
+        for node in i.children:
+            self.assertEqual(node.type, "decl")
+        complex_decl = [n for n in i.children[8]]
+        self.assertListTypesMatch(
+            complex_decl,
+            ["decl","binop","binop","const","complex","const","const","id"])
+        
     def testStrings(self):
         t1 = self.parse('''
         t1 {
@@ -224,6 +231,10 @@ default:
         #self.assertIsBadFormula("t1 {\nInit:\nx\n}\n",
         #                        "unknown section name 'Init'",2)
 
+
+    def assertListTypesMatch(self,nodes,types):
+        for (n,t) in zip(nodes,types):
+            self.assertEqual(n.type,t)
         
     def assertIsBadFormula(self,s,message,line):
         t1 = self.parse(s)
