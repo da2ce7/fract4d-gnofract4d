@@ -121,10 +121,17 @@ preview_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_da
 
     if(image)
     {
+	g_print("expose\n");
+	//gdk_window_clear_area (widget->window,
+	//		       event->area.x, event->area.y,
+	//		       event->area.width,
+	//		       event->area.height);
+	
         redraw_image_rect(
             widget, image, 
             event->area.x, event->area.y, 
-            event->area.width, event->area.height,
+            std::min(event->area.width, PREVIEW_SIZE), 
+	    std::min(event->area.height, PREVIEW_SIZE),
             PREVIEW_SIZE);
     }
     return FALSE;
@@ -169,11 +176,11 @@ create_cmap_browser_item(
 
     // make the drawable 
     GtkWidget *drawing_area=NULL;
-    //gtk_widget_push_visual (gdk_rgb_get_visual ());
     gtk_widget_push_colormap (gdk_rgb_get_cmap ());    
     drawing_area = gtk_drawing_area_new();
     gtk_widget_pop_colormap ();
-    //gtk_widget_pop_visual ();
+
+    gtk_widget_set_events (drawing_area, GDK_EXPOSURE_MASK);
 
     // resize
     gtk_widget_set_size_request(drawing_area, PREVIEW_SIZE, PREVIEW_SIZE);
@@ -186,8 +193,7 @@ create_cmap_browser_item(
 
     if(take_cizer_from_main)
     {
-	g_object_set_data(G_OBJECT(drawing_area), "get_from_main",
-			    m);
+	g_object_set_data(G_OBJECT(drawing_area), "get_from_main", m);
     }
 
     // get drawable to redraw itself properly

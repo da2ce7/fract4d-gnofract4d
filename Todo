@@ -36,8 +36,9 @@ netfract
 * WWW	write it
 
 gnofract4d
+* BB	hang changing back from explorer mode
+* B	explorer and deepen_now buttons missing images
 * B	setting image size in explorer mode is screwed
-* B	setting image size crashes
 * B	saved images have wrong type
 * W	add fractal params to image, add load image
 * W	remember .fct filenames and re-save to same place
@@ -84,6 +85,7 @@ CmapEditor
 * W 	remove debug printfs
 
 Done:
+* B	setting image size crashes
 * BB 	some images come out the wrong color (eg paramfiles/param.fct)
 * BB	stupid options dialog would be better as tabbed dialog
 * W	finish cmapeditor

@@ -234,8 +234,6 @@ create_drawing_area(model_t *m, GtkWidget *appbar)
 {
     GtkWidget *drawing_area=NULL;
 
- 
-
     gtk_widget_push_colormap (gdk_rgb_get_cmap ());    
     drawing_area = gtk_drawing_area_new();
     gtk_widget_pop_colormap ();

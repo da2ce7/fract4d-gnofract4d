@@ -1,0 +1,28 @@
+<?xml version="1.0" standalone="no"?>
+<omf>
+  <resource>
+    <creator>
+     edwin@sourceforge.net (Dan Mueth)
+    </creator>
+    <title>
+     Gnofract4d Manual
+    </title>
+    <date>
+     2003-10-15
+    </date>
+    <version identifier="1.8" date="2003-10-15" description="First Gnome 2 Version"/>
+    <subject category="System|Other"/>
+    <description>
+      This document describes how to use Gnofract 4D, a program for
+drawing fractal images.
+    </description>
+    <type>
+     manual
+    </type>
+    <format mime="text/xml" dtd="-//OASIS//DTD DocBook XML V4.1.2//EN"/>
+    <identifier url=""/>
+    <language code="C"/>
+    <relation seriesid="31a101ca-363a-11d6-93d3-b34a9c6ce2e6"/>
+    <rights type="GNU FDL" license.version="1.1" license="http://www.gnu.org/licenses/fdl.html" holder="Edwin Young"/>
+  </resource>
+</omf>

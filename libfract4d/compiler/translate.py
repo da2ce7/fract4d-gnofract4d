@@ -19,11 +19,15 @@ class T:
         self.errors = []
         self.warnings = []
         self.sections = {}
+        self.iterFunc = None
+        self.fakeNode = Empty(-1) # node used for code not written by user
+        
         self.dumpCanon = 0
         self.dumpDecorated = 0
         self.dumpProbs = 0
         self.dumpTranslation = 0
         self.dumpVars = 0
+        
         try:
             self.formula(f)
         except TranslationError, e:
@@ -75,6 +79,9 @@ class T:
         if s: self.bailout(s)
         #  ignore switch and builtin for now
 
+        if self.errors == []:
+            self.makeIterFunc()
+        
     def dupSectionWarning(self,sect):
         self.warning(
                     "formula contains a fractint-style implicit %s section\
@@ -119,6 +126,48 @@ class T:
         if self.dumpCanon:
             print f.pretty()
 
+    def sectionOrNone(self,sectname):
+        if self.sections.has_key(sectname):
+            return self.sections[sectname]
+        return None
+    
+    def makeIterFunc(self):
+        ''' iterFunc is
+            iter = 0
+            <init>; 
+            startloop:
+               loop;
+               iter = iter + 1
+               cjump(bailout, end, startloop)
+               cjump(iter >= maxiter, end, startloop)
+            end'''
+
+        startLabel = self.newLabel(self.fakeNode)
+        self.iterFunc = ir.Seq(
+            [ # iter = 0
+              ir.Move(ir.Var("iter",self.fakeNode, fracttypes.Int),
+                      ir.Const(0,self.fakeNode, fracttypes.Int),
+                      self.fakeNode, fracttypes.Int),
+              # init 
+              self.sectionOrNone("init"),
+              # startloop
+              startLabel,
+              # loop 
+              self.sectionOrNone("loop"),
+              # iter = iter + 1
+              ir.Move(ir.Var("iter",self.fakeNode, fracttypes.Int),
+                      ir.Binop("+",
+                               [ ir.Var("iter",self.fakeNode, fracttypes.Int),
+                                 ir.Const(1,self.fakeNode, fracttypes.Int) ],
+                               self.fakeNode, fracttypes.Int),
+                      self.fakeNode, fracttypes.Int)
+              # check bailout
+              
+            ], self.fakeNode)
+              
+        if 
+            pass
+            
     def default(self,node):
         self.sections["default"] = 1
 
@@ -218,6 +267,7 @@ class T:
         return ir.Move(lhs,self.coerce(rhs,expectedType),node,expectedType)
 
     def findOp(self, opnode, list):
+        ' find the most appropriate overload for this op'
         overloadList = self.symbols[opnode.leaf]
         typelist = map(lambda ir : ir.datatype , list)
         for ol in overloadList:
