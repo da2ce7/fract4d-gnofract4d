@@ -22,67 +22,24 @@
 #ifndef _POINTFUNC_PUBLIC_H_
 #define _POINTFUNC_PUBLIC_H_
 
-#include "colorizer_public.h"
-#include "state.h"
-
-#include <complex>
-
-/* an enumeration of the available bailout functions */
-// update table in properties.cpp:create_bailout_menu if this changes
-typedef enum 
-{
-    BAILOUT_MAG = 0,
-    BAILOUT_MANH,
-    BAILOUT_MANH2,
-    BAILOUT_OR,
-    BAILOUT_AND,
-    BAILOUT_REAL,
-    BAILOUT_IMAG,
-    BAILOUT_DIFF
-} e_bailFunc;
-
-
-/* an enumeration of the available color functions */
-typedef enum
-{
-    COLORFUNC_FLAT,
-    COLORFUNC_CONT,
-    COLORFUNC_ZERO,
-    COLORFUNC_ED,
-    COLORFUNC_DECOMP,
-    COLORFUNC_ANGLE
-} e_colorFunc;
-
-class iterFunc;
-class bailFunc;
-
 /* interface for function object which computes and/or colors a single point */
 class pointFunc {
  public:
     /* factory method for making new pointFuncs */
     static pointFunc *create(
-	void *dlHandle, // library containing compiled code
-	std::complex<double> *opts,
-	double eject,
-	double periodicity_tolerance,
-	colorizer **ppcf,
-	e_colorFunc outerCfType,    
-	e_colorFunc innerCfType,
-	const char *outerCtfType,
-	const char *innerCtfType);
+	pf_obj *pfo,
+	cmap_t *cmap);
 	
     virtual ~pointFunc() {};
-    //virtual pointFunc *clone() const = 0;
     virtual void calc(
         // in params. params points to [x,y,cx,cy]
         const double *params, int nIters, int nNoPeriodIters,
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        struct rgb *color, int *pnIters, void *out_buf
+        rgba_t *color, int *pnIters
         ) const = 0;
-    virtual rgb_t recolor(int iter, double eject, const void *buf) const = 0;
-    virtual int buffer_size() const = 0;
+    virtual rgba_t recolor(double dist) const = 0;
 };
 
 #endif

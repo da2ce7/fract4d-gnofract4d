@@ -82,7 +82,7 @@ class STFractWorker : public IFractWorker {
     void rectangle_with_iter(struct rgb pixel, int iter, int x, int y, int w, int h);
 
     // calculate this point using antialiasing
-    struct rgb antialias(int x, int y);
+    rgba_t antialias(int x, int y);
 
     void reset_counts();
     void stats(int *pnDoubleIters, int *pnHalfIters, int *pk);
