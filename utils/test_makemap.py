@@ -34,28 +34,63 @@ class Test(unittest.TestCase):
         mm = makemap.T(open("test000.png","rb"))
 
         min = [0,0,0]
-        max = [201,201,201]
+        length = 200
 
-        self.assertEqual(mm.mid(0,200),100)
-        self.assertEqual(mm.mid(0,201),100)
-
-        self.assertEqual(mm.adjust_dimension(min,max,7,0), False)
+        self.assertEqual(mm.adjust_dimension(min,length,7,0), False)
         self.assertEqual(min[0],0)
-        self.assertEqual(max[0],101)
 
-        self.assertEqual(mm.adjust_dimension(min,max,187,1), True)
+        self.assertEqual(mm.adjust_dimension(min,length,187,1), True)
         self.assertEqual(min[1],100)
-        self.assertEqual(max[1],201)
         
     def test_which_child(self):
         mm = makemap.T(open("test000.png","rb"))
 
         min = [0,0,0]
-        max = [201,201,201]
+        length = 200
 
-        self.assertEqual(mm.which_child(min,max,1,120,101), 3) # g & b, not r
+        # g & b, not r
+        self.assertEqual(mm.which_child(min,length,1,120,100), 3) 
         self.assertEqual(min,[0,100,100])
-        self.assertEqual(max,[101,201,201])
+
+    def test_insert_pixel(self):
+        mm = makemap.T(open("test000.png","rb"))
+
+        mm.root = makemap.Node()
+        mm.insert_pixel(0,0,255) # blue-only pixel
+
+        self.assertEqual(mm.root.n_tree_pixels,1)
+        self.assertEqual(mm.root.n_local_pixels,0)
+
+        self.assertChildSequence(mm.root,[1] * 8,1)
+
+        mm.insert_pixel(128,7,1) # other color
+        self.assertEqual(mm.root.n_tree_pixels,2)
+
+        red_bits =   [1,0,0,0,0,0,0,0]
+        green_bits = [0,0,0,0,0,1,1,1]
+        blue_bits =  [0,0,0,0,0,0,0,1]
+
+        search = []
+        for i in range(8):
+            index = 4 * red_bits[i] + 2 * green_bits[i] + blue_bits[i]
+            search.append(index)
+
+        self.assertChildSequence(mm.root, search,1)
+
+    def test_build_octree(self):
+        mm = makemap.T(open("test000.png","rb"))
+        mm.build_octree()
+
+        self.assertChildSequence(mm.root,[0] * 8, 50)
+        self.assertChildSequence(mm.root,[7] * 8, 50)
+        
+    def assertChildSequence(self,node,list,n):
+        if list == []:
+            self.assertEqual(node.n_local_pixels,n)
+            return
+
+        self.assertNotEqual(node.children[list[0]], None, list)
+        self.assertChildSequence(node.children[list[0]], list[1:],n)
         
 def suite():
     return unittest.makeSuite(Test,'test')
