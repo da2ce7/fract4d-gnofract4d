@@ -149,9 +149,9 @@ class FctTest(unittest.TestCase):
         self.assertEqual(f.cfunc_files, ["gf4d.cfrm"]*2)
         
         self.assertEqual(f.maxiter, 259)
-        self.assertEqual(len(f.colorlist),255)
-        self.assertEqual(f.colorlist[0][0],0.0)
-        self.assertEqual(f.colorlist[-1][0],1.0)
+        self.assertEqual(len(f.gradient.segments),254)
+        self.assertEqual(f.gradient.segments[0].left,0.0)
+        self.assertEqual(f.gradient.segments[-1].right,1.0)
         self.assertEqual(f.solids[0],(0,0,0,255))
         self.assertEqual(f.yflip,False)
         
@@ -288,36 +288,6 @@ colorlist=[
 
         f.loadFctFile(StringIO.StringIO(g_testfile))
         self.assertEqual(f.saved, True)
-
-    def testRandomColors(self):
-        'Test that generating random color schemes work'
-        f = fractal.T(self.compiler)
-        f.make_random_colors(7)
-        self.assertEqual(len(f.colorlist),7)
-        last_index = -1.0
-        for i in xrange(7):
-            (index,r,g,b,a) = f.colorlist[i]
-            self.failUnless(index > last_index)
-            last_index = index
-            self.failUnless(r >= 0 and r < 256)
-            self.failUnless(g >= 0 and g < 256)
-            self.failUnless(b >= 0 and b < 256)
-            self.failUnless(a == 255)
-
-    def disabled_testGradientColors(self):
-        'Test that generating gradients work'
-        f = fractal.T(self.compiler)
-        f.make_gradient_colors()
-        self.assertEqual(len(f.colorlist),256)
-        last_index = -1.0
-        for i in xrange(256):
-            (index,r,g,b,a) = f.colorlist[i]
-            self.failUnless(index > last_index)
-            last_index = index
-            self.failUnless(r >= 0 and r < 256)
-            self.failUnless(g >= 0 and g < 256)
-            self.failUnless(b >= 0 and b < 256)
-            self.failUnless(a == 255)
 
     def testLoadBadFileRaises(self):
         'Test we throw an exception when loading an invalid file'
@@ -801,7 +771,7 @@ The image may not display correctly. Please upgrade to version 3.4.''')
         self.check_diagonal_image(f2, ingrey, outgrey)
         
     def check_diagonal_image(self,f,ingrey,outgrey):
-        f.colorlist = [(0.0,0,0,0,255),(1.0,255,255,255,255)]
+        f.gradient.load_list([(0.0,0,0,0,255),(1.0,255,255,255,255)])
         f.compile()
         (w,h) = (30,30)
         im = fract4dc.image_create(w,h)
@@ -930,14 +900,15 @@ blue=0.5543108971162746
         self.assertNotEqual(formName,f.funcName)
 
         # test colors
-        colors = c.colorlist
-        c0 = colors[0]
+        colors = c.gradient.segments
+        c0 = colors[0].left_color
         for i in xrange(len(colors)):
-            self.assertEqual(colors[i],f.colorlist[i])
+            self.assertEqual(colors[i].left_color,
+                             f.gradient.segments[i].left_color)
 
-        f.colorlist[0] = (0.0,234,212,200)
-        self.assertEqual(c0,c.colorlist[0])
-        self.assertNotEqual(c0,f.colorlist[0])
+        f.gradient.segments[0].left_color = [0.7,0.3,0.6,0.5]
+        self.assertEqual(c0,c.gradient.segments[0].left_color)
+        self.assertNotEqual(c0,f.gradient.segments[0].left_color)
 
     def testCopy2(self):
         '''There was a bug where copy() would reset func values.

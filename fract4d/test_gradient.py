@@ -4,6 +4,8 @@ import unittest
 import sys
 import math
 import StringIO
+import copy
+import re
 
 import testbase
 
@@ -99,13 +101,41 @@ class Test(testbase.TestBase):
         self.checkColorMapAndGradientEquivalent(colorlist)
 
         # and a 256-color one
-        c = fractal.Colorizer()
         f = open("../maps/4zebbowx.map","r")
-        c.parse_map_file(f)
-        colorlist = c.colorlist
+        i = 0
+        colorlist = []
+        rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
+        for line in f:
+            m = rgb_re.match(line)
+            if m != None:
+                (r,g,b) = (int(m.group(1)),
+                           int(m.group(2)),
+                           int(m.group(3)))
+ 
+                if i == 0:
+                    # first color is inside solid color
+                    pass 
+                else:
+                    colorlist.append(((i-1)/255.0,r,g,b,255))
+            i += 1
 
         self.checkColorMapAndGradientEquivalent(colorlist)
 
+    def testCopy(self):
+        # check that copy.copy() doesn't share state
+        g1 = self.create_rgb_gradient()
+
+        s1 = g1.serialize()
+        g2 = copy.copy(g1)
+
+        s2 =g2.serialize()
+        self.assertEqual(s1,s2)
+
+        g1.segments[0].bmode = gradient.Blend.CURVED
+
+        s3=g2.serialize()
+        self.assertEqual(s2,s3)
+        
     def testGradientCmap(self):
         g = gradient.Gradient()
         self.checkCGradientAndPyGradientEquivalent(g)
