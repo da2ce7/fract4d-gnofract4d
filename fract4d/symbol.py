@@ -162,8 +162,9 @@ def createDefaultDict():
       flip(a,b) = (b,a).''')
 
     f("real",
-      [[Complex], Float],
-      doc='''Extract the real part of a complex number. real(a,b) = a.
+      [[[Complex], Float], [[Hyper], Float]],
+      doc='''Extract the real part of a complex or hypercomplex number.
+      real(a,b) = a.
       real() is unusual in that it can be assigned to: real(z) = 7 changes
       the real part of z.''')
 
@@ -175,8 +176,9 @@ def createDefaultDict():
       of files from older Gnofract 4D versions.''')
 
     f("imag",
-      [[Complex], Float],
-      doc='''Extract the imaginary part of a complex number. imag(a,b) = b.
+      [[[Complex], Float], [[Hyper], Float]],
+      doc='''Extract the imaginary part of a complex or hypercomplex number.
+      imag(a,b) = b.
       imag() is unusual in that it can be assigned to: imag(z) = 7 changes
       the imag part of z.''')
 
@@ -187,6 +189,16 @@ def createDefaultDict():
       While not a generally useful function, this is provided to ease porting
       of files from older Gnofract 4D versions.''')
 
+    f("imag_j",
+      [[Hyper], Float],
+      doc='''The 3rd component of a hypercomplex number. Can be assigned to.
+      imag_j(a,b,c,d) = c.''')
+
+    f("imag_k",
+      [[Hyper], Float],
+      doc='''The 4th component of a hypercomplex number. Can be assigned to.
+      imag_k(a,b,c,d) = d.''')
+      
     f("recip",
       cfl("[_] , _", [ Float, Complex]),
       doc='''The reciprocal of a number. recip(x) is equivalent to 1/x.''')
