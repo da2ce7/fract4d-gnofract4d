@@ -96,11 +96,27 @@ class TranslateTest(unittest.TestCase):
         ia = ib + ic
         }''')
         
-        print t13.sections["loop"].pretty()
+        #print t13.sections["loop"].pretty()
         self.assertNoProbs(t13)
         result = t13.sections["loop"]
         self.failUnless(isinstance(result.stms[-1],ir.Move))
         # some coercions
+        t = self.translate('''t_binop_2 {
+        loop:
+        complex a, complex b, complex c
+        int ia, int ib, int ic
+        float fa, float fb, float fc
+        a = fa + ia
+        fb = ib / ic
+        }''')
+        self.assertNoErrors(t)
+        (plus,div) = t.sections["loop"].stms[-2:]
+
+        self.assertEqual(div.children[1].datatype, fracttypes.Float)
+        self.assertEqual(div.children[1].children[0].children[0].datatype,
+                         fracttypes.Int)
+        
+        print plus.pretty()
         
         
     def testDecls(self):
