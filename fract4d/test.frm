@@ -13,6 +13,17 @@ float param bailout
 endparam
 }
 
+test_preprocessor {
+$define FOO
+init:
+	complex x
+$ifdef FOO
+	x = 2
+$else
+	x = 3
+$endif
+}
+
 test_builtin_func {
 loop:
 	z = @fn1(z) + #pixel

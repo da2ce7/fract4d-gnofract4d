@@ -239,4 +239,5 @@ def Error(type, value, pos):
                 "Syntax error: unexpected %s '%s' on line %d" %
                 (string.lower(type), value, pos))
 
-
+def PreprocessorError(value,pos):
+    return Node("error", pos, None, value)

@@ -134,7 +134,6 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         # this was too slow so turned it off
         f = self.compiler.get_formula("test.frm","frm:ny2004-4")
         self.assertEqual(len(f.errors),0)
-        print f.pretty()
         cg = self.compiler.compile(f)
         self.compiler.generate_code(f,cg,"test-evil.so",None)
         
@@ -143,6 +142,18 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         cg = self.compiler.compile(f)
         self.compiler.generate_code(f,cg,"test-evil.so",None)
 
+    def testPreprocessor(self):
+        f = self.compiler.get_formula("test.frm","test_preprocessor")
+        self.assertNoErrors(f)
+        cg = self.compiler.compile(f)
+        of = self.compiler.generate_code(f,cg)
+
+    def testPreprocessorError(self):
+        ff = self.compiler.load_formula_file("test_bad_pp.frm")
+        f = self.compiler.get_formula("test_bad_pp.frm","error")
+        self.assertEqual(len(f.errors),1)        
+        self.compiler.files["test_bad_pp.frm"] = None
+        
     def testColorFunc(self):
         'Compile inner + outer colorfuncs and merge'
         cf1 = self.compiler.get_colorfunc("gf4d.cfrm","default","cf0")

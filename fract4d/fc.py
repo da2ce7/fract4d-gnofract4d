@@ -37,6 +37,7 @@ import translate
 import codegen
 import fracttypes
 import absyn
+import preprocessor
 
 class FormulaFile:
     def __init__(self, formulas, contents,mtime,filename):
@@ -160,7 +161,17 @@ class Compiler:
 
     def parse_file(self,s):
         self.lexer.lineno = 1
-        result = self.parser.parse(s)
+        result = None
+        try:
+            pp = preprocessor.T(s)
+            result = self.parser.parse(pp.out())
+        except preprocessor.Error, err:
+            # create an Error formula listing the problem
+            result = self.parser.parse('error {\n}\n')
+
+            result.children[0].children[0] = absyn.PreprocessorError(str(err), -1)
+            #print result.pretty()
+            
         formulas = {}
         for formula in result.children:
             formulas[formula.leaf] = formula
