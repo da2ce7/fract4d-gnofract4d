@@ -7,6 +7,8 @@ import os
 import commands
 import sys
 
+gnofract4d_version = "2.3"
+
 if float(sys.version[:3]) < 2.2:
     print "Sorry, you need python 2.2 or higher to run Gnofract 4D."
     print "You have version %s. Please upgrade." % sys.version
@@ -109,7 +111,7 @@ def get_files(dir,ext):
     return [ os.path.join(dir,x) for x in os.listdir(dir) if x.endswith(ext)] 
 
 setup (name = 'gnofract4d',
-       version = '2.3',
+       version = gnofract4d_version,
        description = 'A program to draw fractals',
        long_description = \
 '''Gnofract 4D is a fractal browser. It can generate many different fractals, 
@@ -148,7 +150,8 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
            ('share/gnome/apps/Graphics/', ['gnofract4d.desktop']),
 
            # boring files
-           ('share/doc/gnofract4d-2.1/', ['COPYING', 'README'])
+           ('share/doc/gnofract4d-%s/' % gnofract4d_version,
+            ['COPYING', 'README'])
            ]
        )
 
