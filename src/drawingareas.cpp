@@ -298,12 +298,10 @@ GtkWidget *
 create_sub_drawing_area(model_t *m, GtkWidget *table, int num, int x, int y)
 {
     GtkWidget *drawing_area=NULL;
-    gtk_widget_push_visual (gdk_rgb_get_visual ());
     gtk_widget_push_colormap (gdk_rgb_get_cmap ());
 	
     drawing_area = gtk_drawing_area_new();
     gtk_widget_pop_colormap ();
-    gtk_widget_pop_visual ();
 
     gtk_widget_set_events (drawing_area, 
                            GDK_EXPOSURE_MASK |

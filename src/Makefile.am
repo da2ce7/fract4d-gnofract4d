@@ -28,7 +28,8 @@ gnofract4d_SOURCES = \
 	movie_editor.h movie_editor.cpp \
 	tls.h tls.cpp \
 	preferences.h preferences.cpp \
-	image.cpp image.h
+	image.cpp image.h \
+	marshallers.c
 
 marshallers.h: marshallers.list
 	( @GLIB_GENMARSHAL@ --prefix=gf4d_marshal marshallers.list --header > marshal.tmp && mv marshal.tmp marshallers.h ) || ( rm -f marshal.tmp && exit 1 )
@@ -48,4 +49,6 @@ CXXFLAGS = -g -O3 -ffast-math -Wall -D_REENTRANT -DCXX="\"$(CXX)\"" \
 	-DSYSCONFDIR=\""$(sysconfdir)"\" \
 	-DDATADIR=\""$(datadir)"\" \
 	-DLIBDIR=\""$(libdir)"\" \
-	$(GNOFRACT4D_CFLAGS) -DGTK_DISABLE_DEPRECATED -DGNOME_DISABLE_DEPRECATED
+	$(GNOFRACT4D_CFLAGS) #-DGTK_DISABLE_DEPRECATED -DGNOME_DISABLE_DEPRECATED
+
+CFLAGS = $(CXXFLAGS)

@@ -22,6 +22,7 @@
 #include <gtk/gtksignal.h>
 
 #include "gf4d_fourway.h"
+#include "marshallers.h"
 
 #define FOURWAY_DEFAULT_SIZE 32
 
@@ -59,22 +60,29 @@ static GtkWidgetClass *parent_klass = NULL;
 guint
 gf4d_fourway_get_type ()
 {
-    static guint fourway_type = 0;
+    static GType fourway_type = 0;
 
     if (!fourway_type)
     {
-        GtkTypeInfo fourway_info =
+        GTypeInfo fourway_info =
         {
-            "Gf4dFourway",
+	    sizeof (Gf4dFourwayClass),
+	    NULL,
+	    NULL,
+	    (GClassInitFunc) gf4d_fourway_class_init,
+            NULL,
+            NULL,
             sizeof (Gf4dFourway),
-            sizeof (Gf4dFourwayClass),
-            (GtkClassInitFunc) gf4d_fourway_class_init,
-            (GtkObjectInitFunc) gf4d_fourway_init,
-            NULL,
-            NULL,
+            0,            
+            (GInstanceInitFunc) gf4d_fourway_init,
         };
 
-        fourway_type = gtk_type_unique (gtk_widget_get_type (), &fourway_info);
+        fourway_type = g_type_register_static(
+	    GTK_TYPE_WIDGET,
+            "Gf4dFourway",
+	    &fourway_info,
+	    (GTypeFlags)0);
+
     }
 
     return fourway_type;
@@ -102,24 +110,26 @@ gf4d_fourway_class_init (Gf4dFourwayClass *klass)
     widget_klass->motion_notify_event = gf4d_fourway_motion_notify;
 
     fourway_signals[VALUE_SLIGHTLY_CHANGED] = 
-        gtk_signal_new("value_slightly_changed",
-                       GtkSignalRunType(GTK_RUN_FIRST | GTK_RUN_NO_RECURSE),
-                       GTK_CLASS_TYPE(object_klass),
-                       GTK_SIGNAL_OFFSET(Gf4dFourwayClass, value_slightly_changed),
-                       gtk_marshal_NONE__INT_INT,
-                       GTK_TYPE_NONE, 2,
-                       GTK_TYPE_INT,
-                       GTK_TYPE_INT);
+        g_signal_new("value_slightly_changed",
+		     G_TYPE_FROM_CLASS(klass),
+		     (GSignalFlags)(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
+		     G_STRUCT_OFFSET(Gf4dFourwayClass, value_slightly_changed),
+		     NULL, NULL,
+		     gf4d_marshal_VOID__INT_INT,
+		     G_TYPE_NONE, 2,
+		     G_TYPE_INT,
+		     G_TYPE_INT);
 
     fourway_signals[VALUE_CHANGED] = 
-        gtk_signal_new("value_changed",
-                       GtkSignalRunType(GTK_RUN_FIRST | GTK_RUN_NO_RECURSE),
-                       GTK_CLASS_TYPE(object_klass),
-                       GTK_SIGNAL_OFFSET(Gf4dFourwayClass, value_changed),
-                       gtk_marshal_NONE__INT_INT,
-                       GTK_TYPE_NONE, 2,
-                       GTK_TYPE_INT,
-                       GTK_TYPE_INT);
+        g_signal_new("value_changed",
+		     G_TYPE_FROM_CLASS(klass),
+		     (GSignalFlags)(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
+		     G_STRUCT_OFFSET(Gf4dFourwayClass, value_changed),
+		     NULL, NULL,
+		     gf4d_marshal_VOID__INT_INT,
+		     G_TYPE_NONE, 2,
+		     G_TYPE_INT,
+		     G_TYPE_INT);
     
     klass->value_slightly_changed = NULL;
     klass->value_changed = NULL;
@@ -140,7 +150,7 @@ gf4d_fourway_new (const gchar *label)
 {
     Gf4dFourway *fourway;
 
-    fourway = GF4D_FOURWAY(gtk_type_new (gf4d_fourway_get_type ()));
+    fourway = GF4D_FOURWAY(g_object_new (gf4d_fourway_get_type (), NULL));
 
     fourway->text = g_strdup(label);
 
