@@ -23,6 +23,7 @@ class T:
         self.dumpDecorated = 0
         self.dumpProbs = 0
         self.dumpTranslation = 1
+        self.dumpVars = 1
         try:
             self.formula(f)
         except TranslationError, e:
@@ -35,6 +36,11 @@ class T:
         if self.dumpDecorated:
             print f.pretty()
 
+        if self.dumpVars:
+            for (name,sym) in self.symbols.items():
+                if self.symbols.is_user(name):
+                    print name,": ",sym
+        
         if self.dumpTranslation:
             print f.leaf + "{"
             for (name,tree) in self.sections.items():

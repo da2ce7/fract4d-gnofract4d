@@ -36,7 +36,10 @@ class T(UserDict):
 
     def has_key(self,key):
         return self.data.has_key(mangle(key))
-        
+
+    def is_user(self,key):
+        return not self.data[mangle(key)].pos == -1
+    
     def __getitem__(self,key):
         return self.data[mangle(key)]
     def __setitem__(self,key,value):
