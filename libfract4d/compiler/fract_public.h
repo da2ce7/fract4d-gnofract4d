@@ -48,9 +48,9 @@ class IImage;
 // libfract4d. We use this to inform them of the progress
 // of an ongoing calculation
 
-// WARNING: these are called back on a different thread, possibly
-// several different threads at the same time. It is the callee's 
-// responsibility to handle mutexing.
+// WARNING: if nThreads > 1, these can be called back on a different
+// thread, possibly several different threads at the same time. It is
+// the callee's responsibility to handle mutexing.
 
 // member functions are do-nothing rather than abstract in case you
 // don't want to do anything with them

@@ -5,12 +5,16 @@ from distutils.core import setup, Extension
 module1 = Extension(
     'fract4d',
     sources = [
-    'fract4dmodule.c',
+    'fract4dmodule.cpp',
     'cmap.c',
     'pointFunc.cpp',
     'fractFunc.cpp',
     'STFractWorker.cpp',
-    'MTFractWorker.cpp'
+    'MTFractWorker.cpp',
+    'image.cpp'
+    ],
+    libraries = [
+    'stdc++'
     ])
 
 setup (name = 'fract4d',
