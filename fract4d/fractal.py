@@ -9,18 +9,6 @@ import math
 
 import fract4dc
 
-#typedef enum
-#
-#   BAILOUT_MAG = 0,
-#   BAILOUT_MANH,
-#   BAILOUT_MANH2,
-#   BAILOUT_OR,
-#   BAILOUT_AND,
-#   BAILOUT_REAL,
-#   BAILOUT_IMAG,
-#   BAILOUT_DIFF
-# e_bailFunc;
-
 rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
 cmplx_re = re.compile(r'\((.*?),(.*?)\)')
 
@@ -129,6 +117,7 @@ class T(FctUtils):
         
         # formula support
         self.formula = None
+        self.bailfunc = 0
         self.cfuncs = [None,None]
         self.compiler = compiler
         self.outputfile = None
@@ -216,6 +205,23 @@ class T(FctUtils):
             raise ValueError("no such formula: %s:%s" % (formulafile, func))
 
         self.initparams = self.formula.symbols.default_params()
+        self.set_bailfunc()
+        
+    def set_bailfunc(self):        
+        bailfuncs = [
+            "cmag", "manhattanish","manhattanish2",
+            "max2","min2",
+            "real2","imag2",
+            None # bailout
+            ]
+        funcname = bailfuncs[self.bailfunc]
+        if funcname == None:
+            # FIXME deal with diff
+            return
+
+        func = self.formula.symbols.get("@bailfunc")
+        if func != None:
+            self.set_func(func[0],funcname)            
 
     def set_func(self,func,fname):
         self.formula.symbols.set_std_func(func,fname)
@@ -355,6 +361,10 @@ class T(FctUtils):
 
     def parse_func_c(self,val,f):
         self.set_named_param("@c",val)
+
+    def parse_bailfunc(self,val,f):
+        # can't set function directly because formula hasn't been parsed yet
+        self.bailfunc = int(val)
 
     def parse__colors_(self,val,f):
         cf = Colorizer()

@@ -648,6 +648,8 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
               "manh2", "(3.5,3.7)"],
             [ "manh3 = (manhattanish2(2.0,-1.0),manhattanish2(0.1,-0.1))",
               "manh3", "(25,0.0004)"],
+            [ "mx2 = (max2(2,-3),max2(-3,0))", "mx2", "(9,9)"],
+            [ "mn2 = (min2(-1,-2),min2(7,4))", "mn2", "(1,16)"],
             [ "r2 = (real2(3,1),real2(-2.5,2))","r2","(9,6.25)"],
             [ "i2 = (imag2(3,2),imag2(2,-0))", "i2", "(4,0)"],
             
