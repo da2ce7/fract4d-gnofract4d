@@ -24,11 +24,11 @@ Productions
   Section -> 'init' ':' Newline Statements [Section: name, _, _, statements]
           |  'loop' ':' Newline Statements [Section: name, _, _, statements]
           |  'bailout' ':' Newline CondExp     [Section: name, _, _, exp]
-          |  'default' ':' Newline DefStatements [Section: name, _, _, statements]
+          |  'default' ':' Newline Defstatements [Section: name, _, _, statements]
           # global, transform, builtin, switch, final
  
   Defstatements -> Defstatement+    [Defstatements: defstatements]
-  Defstatement -> Setting
+  Defstatement -> Setting [^]
              | "param" Identifier Newline 
                   Settings
              | "endparam" Newline [Param: _,id,_,settings,_,_]
@@ -36,7 +36,8 @@ Productions
   Settings -> Setting+ [Settings: settings]
   Setting -> Identifier '=' Value Newline [Setting: id,_,value,_]
 
-  Value -> String | Exp
+  Value -> String [^]
+        |  Exp [^]
 
   Statements -> Statement+          [Statements: statements]
   # Statement  -> 'IF' Condition 'THEN' Newline
@@ -60,6 +61,7 @@ Productions
   
   CondExp -> Exp ('<' | '>' | '=' | '<=' | '>=' | '!=' ) Exp     
                                     [Condition: left, op, right]
+
   Exp       -> Number              [^]
 	     |  Identifier          [^]
 	     |  '(' Exp ')'        [^: _,expr,_]
