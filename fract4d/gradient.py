@@ -4,6 +4,7 @@ import math
 import re
 import StringIO
 import copy
+import random
 
 #Class definition for Gradients
 #These use the format defined by the GIMP
@@ -220,14 +221,17 @@ class Gradient:
         self.segments = new_segments
         self.name = name
 
-    def compare_colors(self, c1, c2):
+    def compare_colors(self, c1, c2, maxdiff=0):
         # return true if floating-point colors c1 and c2 are close
         # enough that they would be equal when truncated to 8 bits
-        c1_8 = map(lambda x : int(x * 255.0), c1)
-        c2_8 = map(lambda x : int(x * 255.0), c2)
-        return c1_8 == c2_8
+        for (a,b) in zip(c1, c2):
+            a8 = int(a * 255.0)
+            b8 = int(b * 255.0)
+            if abs(a8 - b8) > maxdiff:
+                return False
+        return True
     
-    def load_list(self,l):
+    def load_list(self,l, maxdiff=0):
         # a colorlist is a simplified gradient, of the form
         # (index, r, g, b, a) (colors are 0-255 ints)
         # each index is the left-hand end of the segment
@@ -248,7 +252,7 @@ class Gradient:
                     index,
                     color)
                 if self.compare_colors(
-                    test_segment.get_color_at(last_index), last_color):
+                    test_segment.get_color_at(last_index), last_color, maxdiff):
                     # can compress, update in place
                     new_segments[-1].right_color = color
                     new_segments[-1].right = index
@@ -268,7 +272,19 @@ class Gradient:
                 Segment(new_segments[-1].right, last_color, 1.0, last_color))
             
         self.segments = new_segments
-                
+
+    def randomize(self, length):
+        self.segments = []
+        last_index = 0.0
+        last_color = [random.random(), random.random(), random.random(), 1.0]
+        for i in xrange(length):
+            index = float(i+1)/length
+            color = [random.random(), random.random(), random.random(), 1.0]
+            self.segments.append(
+                Segment(last_index, last_color, index, color))
+            last_color = color
+            last_index = index
+
     def get_color_at(self, pos):
         # returns the color at position x (0 <= x <= 1.0) 
         seg = self.get_segment_at(pos)
