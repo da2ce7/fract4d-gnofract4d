@@ -44,30 +44,47 @@ class ParserTest(unittest.TestCase):
                             "bad error mesage line number") 
 
     def testPrecedence(self):
-        tree = self.parser.parse('''t2 {
-init:
-x = 2 * 3 + 1 ^ -7 / 2 - |4 - 1|
-}
-''')
-        explicit_tree = self.parser.parse('''t2 {
-init:
-x = ((2 * 3) + ((1 ^ -7) / 2)) - | 4 - 1|
-}
-''')
-        self.assertTreesEqual(tree, explicit_tree)
+        self.assertParsesEqual(
+            "x = 2 * 3 + 1 ^ -7 / 2 - |4 - 1|",
+            "x = ((2 * 3) + ((1 ^ (-7)) / 2)) - | 4 - 1|")
 
     def testBooleanPrecedence(self):
-        tree = self.parser.parse('''t2 {
+        self.assertParsesEqual(
+            "2 * 3 > 1 + 1 && x + 1 <= 4.0 || !d >= 2.0",
+            "(((2 * 3) > (1 + 1)) && ((x + 1) <= 4.0)) || ((!d) >= 2.0)")
+
+    def testAssociativity(self):
+        self.assertParsesEqual(
+            "a = b = c",
+            "a = (b = c)")
+        self.assertParsesEqual(
+            "a + b + c - d - e",
+            "(((a+b)+c)-d)-e")
+
+    def testSimpleMandelbrot(self):
+        t1 = self.parser.parse('''
+MyMandelbrot {
 init:
-2 * 3 > 1 + 1 && x + 1 <= 4.0 || !d >= 2.0
+    z = 0
+loop:
+    z = z * z + #pixel
+bailout:
+    |z| < 4
+default:
+    title = "My Mandelbrot"
 }
 ''')
-        explicit_tree = self.parser.parse('''t2 {
-init:
-(((2 * 3) > (1 + 1)) && ((x + 1) <= 4.0)) || ((!d) >= 2.0)
-}
-''')
-        self.assertTreesEqual(tree,explicit_tree)
+        self.assertIsValidParse(t1)
+
+    def assertIsValidParse(self,t1):
+        self.failUnless(absyn.CheckTree(t1))
+        errors = [ x for x in t1 if x.type == "error"]
+        self.assertEqual(errors,[])
+        
+    def assertParsesEqual(self, s1, s2):
+        t1 = self.parser.parse(self.makeMinimalFormula(s1))
+        t2 = self.parser.parse(self.makeMinimalFormula(s2))
+        self.assertTreesEqual(t1,t2)
         
     def assertTreesEqual(self, t1, t2):
         # linearize both trees and check that they're equivalent
@@ -75,7 +92,14 @@ init:
         # are any nodes not equal?
         self.assertEqual(eqs.count(0),0, "should be no false matches")
 
-
+    # shorthand for minimal formula defn containing exp
+    def makeMinimalFormula(self,exp):
+        return '''t2 {
+init:
+%s
+}
+''' % exp
+    
 def suite():
     return unittest.makeSuite(ParserTest,'test')
 
