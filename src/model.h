@@ -56,6 +56,11 @@ extern "C" {
     int model_cmd_reset(model_t *m);
     int model_cmd_save_image(model_t *m, const char *filename);
 
+    const char* model_get_name(model_t *m);
+    const char* model_get_display_name(model_t *m);
+
+    void model_set_name(model_t *m, const char *filename);
+
     int model_cmd_save(model_t *m, const char *filename);
     int model_cmd_load(model_t *m, const char *filename);
 

@@ -126,9 +126,9 @@ ensure_destruction(GtkFileSelection *f)
 GtkWidget*
 create_generic_file_dialog(
     model_t *m, 
-    gchar *title, 
-    gchar *default_name,
-    gchar *extension,
+    const gchar *title, 
+    const gchar *default_name,
+    const gchar *extension,
     GtkSignalFunc func)
 {
     GtkWidget *f;
@@ -153,21 +153,45 @@ create_generic_file_dialog(
 GtkWidget*
 create_save_image (model_t *m)
 {
+    const char *name = model_get_name(m);
+    if(NULL == name)
+    {
+	name = "image.fct";
+    }
+
+    // max len is 3 more if name is "foo."
+    gchar *img_filename = g_strndup(name,strlen(name)+3+1);
+    gchar *ext = strrchr(img_filename,'.');
+    if(NULL != ext)
+    {
+	sprintf(ext,".png");
+    }
+    else
+    {
+	g_free(img_filename);
+	img_filename = g_strdup(_("image.png"));
+    }
     return create_generic_file_dialog(
 	m,
-        _("Save Image as"), 
-        _("image.png"),
+        _("Save Image"), 
+        img_filename,
 	".png",			      
         GTK_SIGNAL_FUNC(save_image_ok_cb));
+    g_free(img_filename);
 }
 
 GtkWidget*
 create_save_param (model_t *m)
 {    
+    const char *name = model_get_name(m);
+    if(NULL == name)
+    {
+	name = "param.fct";
+    }
     return create_generic_file_dialog(
 	m,
-        _("Save Parameters as"), 
-        _("param.fct"),
+        _("Save Parameters"), 
+        name,
 	"*.fct",			      
         GTK_SIGNAL_FUNC(save_param_ok_cb));
 }
@@ -175,10 +199,15 @@ create_save_param (model_t *m)
 GtkWidget*
 create_load_param (model_t *m)
 {
+    const char *name = model_get_name(m);
+    if(NULL == name)
+    {
+	name = "param.fct";
+    }
     return create_generic_file_dialog(
 	m,
         _("Load Parameters"), 
-        _("param.fct"),
+        name,
 	"*.fct",			      
         GTK_SIGNAL_FUNC(load_param_ok_cb));
 }
@@ -228,11 +257,26 @@ save_image_cb(GtkMenuItem *menuitem,
 }
 
 void
-save_param_cb(GtkMenuItem *menuitem,
+save_param_as_cb(GtkMenuItem *menuitem,
               gpointer user_data)
 {
     gtk_widget_show (create_save_param ((model_t *)user_data));
 }
+
+void
+save_param_cb(GtkMenuItem *menuitem, gpointer user_data)
+{
+    model_t *m = (model_t *)user_data;
+    if(NULL == model_get_name(m))
+    {
+	save_param_as_cb(menuitem,user_data);
+    }
+    else
+    {
+	model_cmd_save(m,model_get_name(m));
+    }
+}
+
 
 void
 load_param_cb(GtkMenuItem *menuitem,
@@ -266,20 +310,9 @@ preferences_cb(GtkMenuItem *menuitem,
 
 static GnomeUIInfo file1_menu_uiinfo[] =
 {
-    {
-        GNOME_APP_UI_ITEM, N_("_Open Parameter File"),
-        NULL,
-        (void *)load_param_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GTK_STOCK_OPEN,
-        'o', GDK_CONTROL_MASK, NULL
-    },
-    {
-        GNOME_APP_UI_ITEM, N_("_Save Parameter File"),
-        NULL,
-        (void *)save_param_cb, NULL, NULL,
-        GNOME_APP_PIXMAP_STOCK, GTK_STOCK_SAVE,
-        's', GDK_CONTROL_MASK, NULL
-    },
+    GNOMEUIINFO_MENU_OPEN_ITEM((void *)load_param_cb, NULL),
+    GNOMEUIINFO_MENU_SAVE_ITEM((void *)save_param_cb, NULL),
+    GNOMEUIINFO_MENU_SAVE_AS_ITEM((void *)save_param_as_cb, NULL),
     {
         GNOME_APP_UI_ITEM, N_("Save _Image"),
         NULL,
