@@ -18,37 +18,26 @@ precedence = (
 )
 
 def p_formula(t):
-     'formula : FORM_ID sectlist FORM_END NEWLINE'
-     t[0] = absyn.Formula(t[1],t[2])
+     'formula : FORM_ID NEWLINE sectlist FORM_END NEWLINE'
+     t[0] = absyn.Formula(t[1],t[3])
 
-def p_sectlist(t):
-     'sectlist : section'
-     t[0] = [ t[1] ]
+def p_formula_2(t):
+     'formula : FORM_ID NEWLINE stmlist sectlist FORM_END NEWLINE'
+     sectlist = [ absyn.Stmlist("nameless",t[3]) ] + t[4]
+     t[0] = absyn.Formula(t[1],sectlist)
 
 def p_sectlist_2(t):
      'sectlist : section sectlist'
-     t[0] = [ t[1] ] + t[3]
-    
+     t[0] = [ t[1] ] + t[2]
+
+def p_sectlist_empty(t):
+     'sectlist : empty'
+     t[0] = [] # absyn.Empty() ]
+     
 def p_section_stm(t):
-     'section : SECT_STM stmlist'
-     t[0] = absyn.Stmlist(t[1],t[2])
+     'section : SECT_STM NEWLINE stmlist'
+     t[0] = absyn.Stmlist(t[1],t[3])
 
-def p_section_setting(t):
-    'section : SECT_SET settinglist'
-    t[0] = absyn.Settinglist(t[1],t[2])
-
-def p_section_empty(t):
-    'section : empty'
-    t[0] = absyn.Empty()
-
-def p_settinglist(t):
-    'settinglist : setting'
-    t[0] = [ t[1] ]
-
-def p_settinglist_2(t):
-    'settinglist : setting NEWLINE settinglist'
-    t[0] = [t[1]] + t[3]
-    
 def p_stmlist_stm(t):
     'stmlist : stm'
     t[0] = [ t[1] ]
@@ -56,25 +45,7 @@ def p_stmlist_stm(t):
 def p_stmlist_2(t):
     'stmlist : stm NEWLINE stmlist'
     t[0] = [t[1]] + t[3]
-
-def p_setting_empty(t):
-    'setting : empty'
-    t[0] = absyn.Empty()
-
-def p_setting_assign(t):
-    '''setting : ID ASSIGN STRING
-       setting : ID ASSIGN exp
-    '''
-    t[0] = absyn.Setting(t[1],t[3])
-
-def p_setting_paramblock(t):
-    'setting : PARAM ID NEWLINE settinglist ENDPARAM'
-    t[0] = absyn.Param(t[2], t[4], "complex")
-
-def p_setting_typed_paramblock(t):
-    'setting : ID PARAM ID NEWLINE settinglist ENDPARAM'
-    t[1] = absyn.Param(t[3],t[5],t[1])
-
+    
 def p_stm_exp(t):
     'stm : exp'
     t[0] = t[1]
@@ -82,6 +53,10 @@ def p_stm_exp(t):
 def p_stm_empty(t):
     'stm : empty'
     t[0] = t[1]
+    
+def p_empty(t):
+    'empty :'
+    t[0] = absyn.Empty()
     
 def p_stm_decl(t):
     'stm : ID ID'
@@ -153,12 +128,7 @@ def p_arglist_exp(t):
 def p_arglist_2(t):
     'arglist : arglist COMMA arglist' 
     t[0] = t[1] + t[3]
-
-def p_empty(t):
-    'empty :'
-    t[0] = absyn.Empty()
     
-
 # Error rule for syntax errors
 def p_error(t):
     print "Syntax error in input!" + t.type

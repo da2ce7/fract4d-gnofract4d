@@ -97,7 +97,7 @@ def t_SECT_SET(t):
     return t
 
 def t_SECT_STM(t):
-    r'((global)|(transform)|(builtin)|(init)|(loop)|(final)|(bailout))\s*:'
+    r'((global)|(transform)|(builtin)|(init)|(loop)|(final)|(bailout))?\s*:'
     return t
 
 def t_PARAM(t):
