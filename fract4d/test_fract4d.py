@@ -731,9 +731,6 @@ class PfTest(unittest.TestCase):
         cmap = fract4dc.cmap_create(colors)
         for i in xrange(256):
             self.assertEqual(fract4dc.cmap_lookup(cmap,i/255.0),colors[i][1:],i)
-
-        #fract4dc.cmap_set_solid(cmap,1,240,37,191,255)
-
     def testTransfers(self):
         # test fates
         cmap = fract4dc.cmap_create(

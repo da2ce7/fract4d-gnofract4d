@@ -87,7 +87,11 @@ class Test(testbase.TestBase):
         colorlist = c.colorlist
 
         self.checkColorMapAndGradientEquivalent(colorlist)
-        
+
+    def testGradientCmap(self):
+        g = gradient.Gradient()
+        cmap = fract4dc.cmap_create_gradient(g.segments)
+
     def create_rgb_gradient(self):
         # make a simple gradient which goes from R -> G -> B
         g = gradient.Gradient()

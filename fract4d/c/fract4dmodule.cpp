@@ -261,8 +261,9 @@ cmap_create(PyObject *self, PyObject *args)
 	PyErr_SetString(PyExc_ValueError,"Empty color array");
 	return NULL;
     }
-    
+
     cmap = new(std::nothrow)ListColorMap();
+
     if(!cmap)
     {
 	PyErr_SetString(PyExc_MemoryError,"Can't allocate colormap");
@@ -288,6 +289,67 @@ cmap_create(PyObject *self, PyObject *args)
 	    return NULL;
 	}
 	cmap->set(i,d,r,g,b,a);
+	Py_DECREF(pyitem);
+    }
+    pyret = PyCObject_FromVoidPtr(cmap,(void (*)(void *))cmap_delete);
+
+    return pyret;
+}
+
+static PyObject *
+cmap_create_gradient(PyObject *self, PyObject *args)
+{
+    /* args = an array of (index,r,g,b,a) tuples */
+    PyObject *pyarray, *pyret;
+    int len, i;
+    GradientColorMap *cmap;
+
+    if(!PyArg_ParseTuple(args,"O",&pyarray))
+    {
+	return NULL;
+    }
+
+    if(!PySequence_Check(pyarray))
+    {
+	return NULL;
+    }
+    
+    len = PySequence_Size(pyarray);
+    if(len == 0)
+    {
+	PyErr_SetString(PyExc_ValueError,"Empty color array");
+	return NULL;
+    }
+
+    cmap = new(std::nothrow)GradientColorMap();
+
+    if(!cmap)
+    {
+	PyErr_SetString(PyExc_MemoryError,"Can't allocate colormap");
+	return NULL;
+    }
+    if(! cmap->init(len))
+    {
+	PyErr_SetString(PyExc_MemoryError,"Can't allocate colormap array");
+	delete cmap;
+	return NULL;
+    }
+    for(i = 0; i < len; ++i)
+    {
+	double d;
+	int r, g, b, a;
+	PyObject *pyitem = PySequence_GetItem(pyarray,i);
+	if(!pyitem)
+	{
+	    return NULL; 
+	}
+	/*
+	if(!PyArg_ParseTuple(pyitem,"diiii",&d,&r,&g,&b,&a))
+	{
+	    return NULL;
+	}
+	cmap->set(i,d,r,g,b,a);
+	*/
 	Py_DECREF(pyitem);
     }
     pyret = PyCObject_FromVoidPtr(cmap,(void (*)(void *))cmap_delete);
@@ -1390,6 +1452,8 @@ static PyMethodDef PfMethods[] = {
 
     { "cmap_create", cmap_create, METH_VARARGS,
       "Create a new colormap"},
+    { "cmap_create_gradient", cmap_create_gradient, METH_VARARGS,
+      "Create a new gradient-based colormap"},
     { "cmap_lookup", cmap_pylookup, METH_VARARGS,
       "Get a color tuple from a distance value"},
     { "cmap_fate_lookup", cmap_pylookup_with_fate, METH_VARARGS,
