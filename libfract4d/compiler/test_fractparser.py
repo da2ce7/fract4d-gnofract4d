@@ -63,7 +63,7 @@ class ParserTest(unittest.TestCase):
         self.failUnless(absyn.CheckTree(tree))
 
     def testNoNewlineAtEnd(self):
-        t1 = self.parse("t1 {\n}")
+        t1 = self.parse("t1 {\n:\n}")
         self.assertIsValidParse(t1)
         
         self.assertIsValidParse
