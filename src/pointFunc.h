@@ -21,26 +21,7 @@
 #ifndef _POINTFUNC_H_
 #define _POINTFUNC_H_
 
-#include "pointFunc_public.h"
-#include "colorizer_public.h"
-
 #include <complex>
-class iterFunc;
-
-/* interface for function object which computes a single point */
-class pointFunc {
- public:
-    virtual void calc(
-        // in params
-        const double *params, int nIters, int nNoPeriodIters,
-	// only used for debugging
-	int x, int y, int aa,
-        // out params
-        struct rgb *color, int *pnIters, void *out_buf
-        ) = 0;
-    virtual rgb_t recolor(int iter, double eject, const void *buf) const = 0;
-    virtual int buffer_size() const = 0;
-};
  
 struct s_pf_vtable {
     void (*init)(
@@ -70,15 +51,6 @@ struct s_pf_data {
 typedef struct s_pf_vtable pf_vtable;
 typedef struct s_pf_data pf_obj;
 
-/* factory method for making new fractFuncs */
-pointFunc *pointFunc_new(
-    iterFunc *iterType, 
-    e_bailFunc bailType,
-    double eject,
-    double periodicity_tolerance,
-    colorizer *pcf,
-    e_colorFunc outerCfType,    
-    e_colorFunc innerCfType);
 
 #endif
 

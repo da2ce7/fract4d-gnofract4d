@@ -17,7 +17,7 @@ gnofract4d_SOURCES = \
 	drawingareas.h drawingareas.cpp \
 	callbacks.cpp callbacks.h \
 	fract.cpp fract.h fract_public.h fract_callbacks.h calc.h \
-	pointFunc.cpp pointFunc.h pointFunc_public.h \
+	pointFunc.cpp pointFunc.h pointFunc_public.h state.h \
 	vectors.h \
 	model.cpp model.h \
 	gf4d_angle.cpp gf4d_angle.h \
@@ -46,11 +46,8 @@ EXTRA_DIST=compiler_template.cpp
 
 Codedir = $(datadir)/gnofract4d
 Code_DATA= compiler_template.cpp \
-	colorizer.h \
-	colorizer_public.h \
 	pointFunc.h \
-	pointFunc_public.h \
-	colorFunc.h
+	state.h
 
 #itertest_SOURCES = \
 #	io.h io.cpp \

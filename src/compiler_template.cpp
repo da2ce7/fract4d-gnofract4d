@@ -1,8 +1,8 @@
 #include "pointFunc.h"
+#include "state.h"
 
 #include <math.h>
 #include <complex>
-#include <algorithm>
 #if TRACE
 #include <iostream>
 #include <fstream>

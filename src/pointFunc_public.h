@@ -22,6 +22,9 @@
 #ifndef _POINTFUNC_PUBLIC_H_
 #define _POINTFUNC_PUBLIC_H_
 
+#include "colorizer_public.h"
+#include "state.h"
+
 /* an enumeration of the available bailout functions */
 // update table in properties.cpp:create_bailout_menu if this changes
 typedef enum 
@@ -47,29 +50,32 @@ typedef enum
     COLORFUNC_ANGLE
 } e_colorFunc;
 
-/* bailout flags */
-#define HAS_X2 1
-#define HAS_Y2 2
-#define USE_COMPLEX 4
-#define NO_UNROLL 8
-#define NO_PERIOD 16
 
-// iter state
-#define X 0
-#define Y 1
+class iterFunc;
 
-// input state
-#define CX 2
-#define CY 3
-#define EJECT 4
+/* interface for function object which computes a single point */
+class pointFunc {
+ public:
+    virtual void calc(
+        // in params
+        const double *params, int nIters, int nNoPeriodIters,
+	// only used for debugging
+	int x, int y, int aa,
+        // out params
+        struct rgb *color, int *pnIters, void *out_buf
+        ) = 0;
+    virtual rgb_t recolor(int iter, double eject, const void *buf) const = 0;
+    virtual int buffer_size() const = 0;
+};
 
-
-// temp state
-#define X2 5
-#define Y2 6
-#define EJECT_VAL 7
-#define LASTX 8
-#define LASTY 9
-#define STATE_SPACE (LASTY+1)
+/* factory method for making new fractFuncs */
+pointFunc *pointFunc_new(
+    iterFunc *iterType, 
+    e_bailFunc bailType,
+    double eject,
+    double periodicity_tolerance,
+    colorizer *pcf,
+    e_colorFunc outerCfType,    
+    e_colorFunc innerCfType);
 
 #endif
