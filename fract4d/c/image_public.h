@@ -52,6 +52,13 @@ public:
     // accessors for fate data
     virtual fate_t getFate(int x, int y, int sub) = 0;
     virtual void setFate(int x, int y, int sub, fate_t fate) = 0;
+    // set all subpixels equal to zero'th one
+    virtual void fill_subpixels(int x, int y) = 0;
+
+    // accessors for index data
+    virtual float getIndex(int x, int y, int sub) = 0;
+    virtual void setIndex(int x, int y, int sub, float index) = 0;
+    
 };
 
 #endif /* IMAGE_PUBLIC_H_ */

@@ -185,14 +185,67 @@ class PfTest(unittest.TestCase):
         fate_buf = fract4dc.image_fate_buffer(image)
         i = 0
         for byte in fate_buf:
+            d = fract4dc.image_get_color_index(
+                    image,
+                    (i % (4 * xsize)) / 4,
+                    i / (4 * xsize),
+                    i % 4)
+            
             if i % 4 == 0:
                 # no-aa
                 self.assertNotEqual(ord(byte), 255,
                                     "pixel %d is %d" % (i,ord(byte)))
+                self.assertNotEqual("%g" % d,"inf")
             else:
                 self.assertEqual(ord(byte), 255)
+                self.assertEqual("%g" % d,"inf")
             i+= 1
-            
+
+    def testAACalc(self):
+        xsize = 64
+        ysize = int(xsize * 3.0/4.0)
+        image = fract4dc.image_create(xsize,ysize)
+        siteobj = FractalSite()
+        site = fract4dc.site_create(siteobj)
+
+        self.compileColorMandel()
+        handle = fract4dc.pf_load("./test-pfc.so")
+        pfunc = fract4dc.pf_create(handle)
+        fract4dc.pf_init(pfunc,0.001,[0.5])
+        cmap = fract4dc.cmap_create(
+            [(0.0,0,0,0,255),
+             (1/256.0,255,255,255,255),
+             (1.0, 255, 255, 255, 255)])
+        fract4dc.calc(
+            [0.0, 0.0, 0.0, 0.0,
+             4.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            1,
+            100,
+            0,
+            1,
+            pfunc,
+            cmap,
+            0,
+            1,
+            image,
+            site)
+
+        # fate of all pixels should be known
+        fate_buf = fract4dc.image_fate_buffer(image)
+        i = 0
+        for byte in fate_buf:
+            d = fract4dc.image_get_color_index(
+                    image,
+                    (i % (4 * xsize)) / 4,
+                    i / (4 * xsize),
+                    i % 4)
+
+            self.assertNotEqual("%g" % d,"inf")            
+            self.assertNotEqual(ord(byte), 255,
+                                "pixel %d is %d" % (i,ord(byte)))
+            i+= 1
+
     def print_fates(self,image,x,y):
         buf = fract4dc.image_fate_buffer(image)
         for i in xrange(len(buf)):

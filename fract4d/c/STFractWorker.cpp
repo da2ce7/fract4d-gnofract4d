@@ -188,6 +188,7 @@ STFractWorker::antialias(int x, int y)
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
     im->setFate(x,y,0,fate);
+    im->setIndex(x,y,0,index);
 
     // top right
     pos+=ff->delta_aa_x;
@@ -196,6 +197,7 @@ STFractWorker::antialias(int x, int y)
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
     im->setFate(x,y,1,fate);
+    im->setIndex(x,y,1,index);
 
     // bottom left
     pos = topleft + ff->delta_aa_y;
@@ -204,6 +206,7 @@ STFractWorker::antialias(int x, int y)
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
     im->setFate(x,y,2,fate);
+    im->setIndex(x,y,2,index);
 
     // bottom right
     pos+= ff->delta_aa_x;
@@ -212,6 +215,7 @@ STFractWorker::antialias(int x, int y)
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
     im->setFate(x,y,3,fate);
+    im->setIndex(x,y,3,index);
 
     ptmp.r = pixel_r_val / 4;
     ptmp.g = pixel_g_val / 4;
@@ -242,6 +246,7 @@ STFractWorker::pixel(int x, int y,int w, int h)
     periodSet(&iter);
     im->setIter(x,y,iter);
     im->setFate(x,y,0,fate);
+    im->setIndex(x,y,0,index);
 
     rectangle(pixel,x,y,w,h);
 
@@ -304,6 +309,7 @@ STFractWorker::pixel_aa(int x, int y)
         bFlat = isTheSame(bFlat,iter,pcol,x+1,y+1);
         if(bFlat) 	    
         {
+	    im->fill_subpixels(x,y);
             return;
         }
     }
@@ -344,7 +350,8 @@ STFractWorker::box(int x, int y, int rsize)
         // just draw a solid rectangle
         rgba_t pixel = im->get(x,y);
 	fate_t fate = im->getFate(x,y,0);
-        rectangle_with_iter(pixel,fate,iter,x+1,y+1,rsize-2,rsize-2);
+	float index = im->getIndex(x,y,0);
+        rectangle_with_iter(pixel,fate,iter,index,x+1,y+1,rsize-2,rsize-2);
     }
     else
     {
@@ -370,7 +377,8 @@ STFractWorker::rectangle(rgba_t pixel, int x, int y, int w, int h)
 
 inline void
 STFractWorker::rectangle_with_iter(
-    rgba_t pixel, fate_t fate, int iter, int x, int y, int w, int h)
+    rgba_t pixel, fate_t fate, int iter, float index, 
+    int x, int y, int w, int h)
 {
     for(int i = y ; i < y+h; i++)
     {
@@ -378,6 +386,7 @@ STFractWorker::rectangle_with_iter(
             im->put(j,i,pixel);
             im->setIter(j,i,iter);
 	    im->setFate(j,i,0,fate);
+	    im->setIndex(j,i,0,index);
         }
     }
 }
