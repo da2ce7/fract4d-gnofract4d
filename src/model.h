@@ -108,7 +108,11 @@ extern "C" {
     void model_set_dimensions(model_t *m, int width, int height);
     void model_set_width(model_t *m, int width);
     void model_set_height(model_t *m, int height);
-        
+     
+    // compiler properties
+    void model_set_compiler_location(model_t *m, char *location);
+    const char *model_get_compiler_location(model_t *m);
+
 #ifdef __cplusplus
 }
 #endif

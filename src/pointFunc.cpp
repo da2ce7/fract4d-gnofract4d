@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <dlfcn.h>
 
-#define STATIC_FUNCTION
+//#define STATIC_FUNCTION
 
 #ifdef STATIC_FUNCTION
 #define ITER pTemp[X2] = pIter[X] * pIter[X];pTemp[Y2] = pIter[Y] * pIter[Y];atmp = pTemp[X2] - pTemp[Y2] + pInput[CX];pIter[Y] = 2.0 * pIter[X] * pIter[Y] + pInput[CY];pIter[X] = atmp

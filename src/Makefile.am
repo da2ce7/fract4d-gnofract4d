@@ -38,9 +38,10 @@ gnofract4d_SOURCES = \
 	io.h io.cpp \
 	threadpool.h \
 	tls.h tls.cpp \
-	compiler.h compiler.cpp
+	compiler.h compiler.cpp \
+	preferences.h preferences.cpp
 
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) \
 	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)
 
-CXXFLAGS = -g -O2 -Wall -D_REENTRANT
+CXXFLAGS = -g -O2 -Wall -D_REENTRANT -DCXX="\"$(CXX)\""

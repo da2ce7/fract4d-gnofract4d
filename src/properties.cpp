@@ -1221,7 +1221,7 @@ create_propertybox (model_t *m)
     tooltips = gtk_tooltips_new ();
     
     global_propertybox = propertybox = gnome_dialog_new(
-        _("Fractal Properties"), GNOME_STOCK_BUTTON_CLOSE, NULL);
+        _("Fractal Settings"), GNOME_STOCK_BUTTON_CLOSE, NULL);
 
     vbox = GNOME_DIALOG(propertybox)->vbox;
 

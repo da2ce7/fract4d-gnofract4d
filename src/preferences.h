@@ -18,14 +18,12 @@
  *
  */
 
-#ifndef _PROPERTIES_H_
-#define _PROPERTIES_H_
+#ifndef _PREFERENCES_H_
+#define _PREFERENCES_H_
 
 #include <gtk/gtk.h>
 #include "model.h"
 
-void create_propertybox (model_t *m);
-void propertybox_refresh (model_t *m);
+void create_prefs_box (model_t *m);
 
-GtkWidget *create_page(GtkWidget *child, gchar *title);
-#endif /* _PROPERTIES_H_ */
+#endif /* _PREFERENCES_H_ */

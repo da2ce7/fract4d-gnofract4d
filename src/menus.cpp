@@ -25,6 +25,7 @@
 #include "menus.h"
 #include "model.h"
 #include "properties.h"
+#include "preferences.h"
 #include "cmapbrowser.h"
 #include "movie_editor.h"
 
@@ -208,10 +209,17 @@ pause_cb(GtkMenuItem *menuitem,
 }
 
 void
-preferences_cb(GtkMenuItem *menuitem,
+fractal_settings_cb(GtkMenuItem *menuitem,
                gpointer user_data)
 {
     create_propertybox((model_t *)user_data);
+}
+
+void 
+preferences_cb(GtkMenuItem *menuitem,
+               gpointer user_data)
+{
+    create_prefs_box((model_t *)user_data);
 }
 
 static GnomeUIInfo file1_menu_uiinfo[] =
@@ -266,6 +274,13 @@ static GnomeUIInfo file1_menu_uiinfo[] =
 static GnomeUIInfo parameters1_menu_uiinfo[] =
 {
     GNOMEUIINFO_MENU_PREFERENCES_ITEM (preferences_cb, NULL),
+    {
+        GNOME_APP_UI_ITEM, N_("_Fractal Settings..."),
+        NULL,
+        (void *)fractal_settings_cb, NULL, NULL,
+        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
+        0, (enum GdkModifierType) 'f', NULL
+    },
     {
         GNOME_APP_UI_ITEM, N_("_Colors..."),
         NULL,

@@ -204,7 +204,7 @@ model_free_undo_data(gpointer undo_data)
 }
 
 void
-model_init_compiler(compiler *pc)
+model_init_compiler(model_t *m,compiler *pc)
 {
     gchar *template_location = 
         gnome_config_get_string(PACKAGE "/Compiler/template");
@@ -217,6 +217,28 @@ model_init_compiler(compiler *pc)
     pc->in = template_location;
 
     //g_free(template_location);
+
+    gchar *compiler_location =
+        gnome_config_get_string(PACKAGE "/Compiler/path");
+    if(NULL == compiler_location)
+    {
+        compiler_location = g_strdup(CXX); // value set by flag set in Makefile.am
+    }
+    model_set_compiler_location(m,compiler_location);
+    g_free(compiler_location);
+}
+
+void
+model_set_compiler_location(model_t *m, char *location)
+{
+    g_pCompiler->cc = location;
+    gnome_config_set_string(PACKAGE "/Compiler/path", location);
+}
+
+const char *
+model_get_compiler_location(model_t *m)
+{
+    return g_pCompiler->cc.c_str();
 }
 
 model_t *
@@ -225,7 +247,7 @@ model_new(void)
     model_t *m = new model_t;
 
     g_pCompiler = new compiler();
-    model_init_compiler(g_pCompiler);
+    model_init_compiler(m,g_pCompiler);
 
     m->fract = GF4D_FRACTAL(gf4d_fractal_new());
     for(int i = 0; i < 8; i++)
