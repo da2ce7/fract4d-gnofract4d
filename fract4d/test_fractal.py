@@ -153,7 +153,39 @@ class FctTest(unittest.TestCase):
         image = fract4dc.image_create(40,30)
         f.draw(image)
 
-        
+    def testLoadFileWithBadFormula(self):
+        bad_testfile = '''gnofract4d parameter file
+version=2.0
+[function]
+formulafile=test.frm
+function=parse_error
+[endsection]
+[inner]
+formulafile=test.cfrm
+function=flat
+@myfunc=sqrt
+[endsection]
+[outer]
+formulafile=test.cfrm
+function=Triangle
+@power=3.0
+@bailout=1.0e12
+[endsection]
+[colors]
+colorizer=1
+solids=[
+000000ff
+000000ff
+]
+colorlist=[
+0.000000=00000000
+1.000000=ffffffff
+]
+'''
+        f = fractal.T(self.compiler)
+        self.assertRaises(ValueError,f.loadFctFile,
+                          (StringIO.StringIO(bad_testfile)))
+
     def testLoadBadFileRaises(self):
         f = fractal.T(self.compiler)
         not_a_file = StringIO.StringIO("ceci n'est pas un file")
@@ -724,7 +756,10 @@ blue=0.5543108971162746
         self.assertRaises(ValueError,f.set_formula,"gf4d.frm","xMandelbrot")
         self.assertRaises(ValueError,f.set_inner,"gf4d.cfrm","xdefault")
         self.assertRaises(ValueError,f.set_outer,"gf4d.cfrm","xzero")
-        self.assertRaises(ValueError,f.compile)
+
+        # none of these should have changed the fractal, which should still work
+        self.assertEqual(f.funcName,"Mandelbrot")
+        f.compile()
 
 def suite():
     return unittest.makeSuite(FctTest,'test')

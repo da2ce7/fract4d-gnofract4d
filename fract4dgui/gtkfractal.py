@@ -218,7 +218,8 @@ class T(gobject.GObject):
                 try:
                     f.set_initparam(order,entry.get_text(),param_type)
                 except Exception, err:
-                    gtk.idle_add(self.warn,str(err))
+                    msg = "Invalid value '%s': must be a number" %widget.get_text()
+                    gtk.idle_add(self.warn,msg)
                 return False
             
             set_entry(self)
@@ -340,7 +341,8 @@ class T(gobject.GObject):
                 i = int(widget.get_text())
                 self.set_maxiter(int(widget.get_text()))
             except ValueError, err:
-                gtk.idle_add(self.warn,str(err))
+                msg = "Invalid value '%s': must be a number" % widget.get_text()
+                gtk.idle_add(self.warn, msg)
                 
             return False
         
@@ -390,9 +392,7 @@ class T(gobject.GObject):
         self.set_maxiter(self.f.maxiter*2)
         
     def set_maxiter(self,new_iter):
-        print "try deepen(%d,%d)"% (self.f.maxiter, new_iter)
         if self.f.maxiter != new_iter:
-            print "deepen"
             self.f.maxiter = new_iter
             self.changed()
         
