@@ -177,7 +177,7 @@ image::clear_fate(int x, int y)
 #ifndef NDEBUG
 	// index is only meaningful if fate is known, but set this for
 	// testing purposes
-	index_buf[i] = 1e100; //std::numeric_limits<float>::infinity();
+	index_buf[i] = 1e30;
 #endif
     }
 }

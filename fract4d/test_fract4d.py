@@ -408,7 +408,7 @@ class PfTest(unittest.TestCase):
                 self.assertNotEqual("%g" % d,"inf")
             else:
                 self.assertEqual(ord(byte), 255)
-                self.assertEqual("%g" % d,"inf")
+                self.assertEqual("%g" % d,"1e+30")
             i+= 1
 
     def testAACalc(self):

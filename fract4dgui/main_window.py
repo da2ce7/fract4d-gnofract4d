@@ -834,7 +834,6 @@ class MainWindow:
 
     def load(self,file):
         try:
-	    print "loading '%s'" % file
             self.f.loadFctFile(open(file))
             #self.set_filename(file)
             return True
