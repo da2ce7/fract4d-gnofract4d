@@ -198,6 +198,17 @@ class ParserTest(unittest.TestCase):
         ''')
         self.assertIsValidParse(t1)
 
+    def testHeading(self):
+        t1 = self.parse('''
+        t1{
+        default:
+        heading
+         caption = "fish face heading"
+        endheading
+        }
+        ''')
+        self.assertIsValidParse(t1)
+        
     def testRepeat(self):
         t1 = self.parse(self.makeMinimalFormula(
         '''repeat
