@@ -351,10 +351,10 @@ main (int argc, char *argv[])
         model_load_autosave_file(m);
     }
     client = gnome_master_client();
-    gtk_signal_connect(GTK_OBJECT (client), "save_yourself",
-                       GTK_SIGNAL_FUNC( save_session_cb ), m);
-    gtk_signal_connect(GTK_OBJECT (client), "die",
-                       GTK_SIGNAL_FUNC( quit_session_cb ), m);
+    g_signal_connect(G_OBJECT (client), "save_yourself",
+		     G_CALLBACK( save_session_cb ), m);
+    g_signal_connect(G_OBJECT (client), "die",
+		     G_CALLBACK( quit_session_cb ), m);
 
     gdk_threads_enter();
     app = create_app (m);
