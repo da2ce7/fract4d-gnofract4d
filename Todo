@@ -16,6 +16,8 @@ Done in 2.6:
 * W	added initial fractint-builtin
 * BB	trigcentric.fct no longer works
 * B     related to failure in test_fc.testDoubleCompile?
+* B	use libdir for private path to clean up FreeBSD install
+* B	catch distutils exception on Mandrake
 
 todo:
 * B	each fractal gets compiled twice, 2nd time with extra vars:

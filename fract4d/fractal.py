@@ -837,7 +837,16 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         self.colorlist = cf.colorlist
         self.solids[0:len(cf.solids)] = cf.solids[:]
         self.changed(False)
-        
+
+    def make_random_colors(self, num):
+        new_list = []
+        width = 1.0 / num
+        for i in xrange(num):
+            color = (width*i, random.randrange(256), random.randrange(256), random.randrange(256),255)
+            new_list.append(color)
+        self.colorlist = new_list
+        self.changed(False)
+    
     def parse__colorizer_(self,val,f):
         which_cf = int(val)
         cf = Colorizer(self)

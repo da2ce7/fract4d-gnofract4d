@@ -332,6 +332,8 @@ class MainWindow:
              self.toggle_explorer, 0, '<ToggleItem>'),
             (_('/_Tools/Formula _Browser'), '<control>B',
              self.browser, 0, ''),
+            (_('/_Tools/_Randomize Colors'), '<control>R',
+             self.randomize_colors, 0, ''),
             
             (_('/_Help'), None,
              None, 0, '<Branch>'),
@@ -360,7 +362,10 @@ class MainWindow:
 
     def browser(self,action,menuitem):
         browser.show(self.window,self.f,browser.FRACTAL)
-    
+
+    def randomize_colors(self,action,menuitem):
+        self.f.make_random_colors(7)
+        
     def toggle_explorer(self, action, menuitem):
         self.set_explorer_state(menuitem.get_active())
         

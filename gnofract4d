@@ -39,7 +39,11 @@ if not pygtk_ok:
     print _("Sorry, your PyGTK version is too old. You need at least 1.99")
     sys.exit(1)
 
-libdir = distutils.sysconfig.get_config_var('LIBDIR')
+try:
+    libdir = distutils.sysconfig.get_config_var('LIBDIR')
+except distutils.errors.DistutilsPlatformError, err:
+    # we get this on Mandrake 10.0 - apparently python is set up strangely
+    libdir = '/usr/lib'
 
 try:
     # we install our libs privately instead of to site-packages
