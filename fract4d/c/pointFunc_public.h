@@ -18,7 +18,7 @@ class pointFunc {
     virtual ~pointFunc() {};
     virtual void calc(
         // in params. params points to [x,y,cx,cy]
-        const double *params, int nIters, int nNoPeriodIters,
+        const double *params, int nIters, bool checkPeriod,
 	// only used for debugging
 	int x, int y, int aa,
         // out params

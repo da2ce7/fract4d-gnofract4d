@@ -149,6 +149,7 @@ class PfTest(unittest.TestCase):
             pfunc,
             cmap,
             0,
+            1,
             image,
             site)
 
@@ -221,6 +222,7 @@ class PfTest(unittest.TestCase):
                 pfunc,
                 cmap,
                 0,
+                1,
                 image,
                 site)
 

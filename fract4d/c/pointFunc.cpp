@@ -35,7 +35,7 @@ public:
 	}
     virtual void calc(
         // in params
-        const double *params, int nIters, int nNoPeriodIters,
+        const double *params, int nIters, bool checkPeriod,
 	// only used for debugging
 	int x, int y, int aa,
         // out params
@@ -44,7 +44,8 @@ public:
 	    double dist; 
 	    int fate;
 	    int solid;
-	    if (nNoPeriodIters == 0)
+
+	    if (checkPeriod)
 	    {
 		m_pfo->vtbl->calc_period(m_pfo, params, nIters, 
 					 x, y, aa,
@@ -64,7 +65,7 @@ public:
 	    *color = cmap_lookup_with_transfer(m_cmap,fate,dist,solid);
 
 	    m_site->pixel_changed(
-		params,nIters, nNoPeriodIters,
+		params,nIters, checkPeriod,
 		x,y,aa,
 		dist,fate,*pnIters,
 		color->r, color->g, color->b, color->a);

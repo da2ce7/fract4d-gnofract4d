@@ -7,7 +7,7 @@ todo for 2.1
 * W	periodicity
 * B	fractint doesn't reset vars between calls
 * B	parse continuation lines correctly
-* W	fmod, tdis, bof60, bof61, other fractint colorfuncs
+* W	tdis, other fractint colorfuncs
 * BB	changing inner colormap modifies outer appearance
 
 UI improvements 

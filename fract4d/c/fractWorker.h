@@ -38,12 +38,13 @@ class STFractWorker : public IFractWorker {
 	reset_counts();
         lastIter = 0;
     }
-    // try that many without periodicity checking if it did bail out,
-    // if it didn't bail, start periodicity checking immediately
-    inline int periodGuess();
 
-    // period guesser for when we have the last count to hand (as for antialias pass)
-    inline int periodGuess(int last);
+    // heuristic to see if we should use periodicity checking for next point
+    inline bool periodGuess();
+
+    // periodicity guesser for when we have the last count to hand 
+    // (as for antialias pass)
+    inline bool periodGuess(int last);
 
     // update whether last pixel bailed
     inline void periodSet(int *ppos);
