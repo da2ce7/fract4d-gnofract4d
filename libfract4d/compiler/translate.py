@@ -109,10 +109,12 @@ class T:
         self.sections["default"] = 1
 
     def global_(self,node):
-        self.sections["global"] = 1
-        for child in node.children:
-            self.stm(child)
-            
+        self.sections["global"] = self.stmlist(node)
+
+    def stmlist(self, node):
+        seq = ir.Seq(map(lambda c: self.stm(c), node.children), None)
+        
+        
     def stm(self,node,expectedType=None):
         if node.type == "decl":
             self.decl(node, None)
@@ -205,19 +207,13 @@ class T:
         self.badCast(node,expectedType)
             
     def init(self,node):
-        self.sections["init"] = 1
-        for child in node.children:
-            self.stm(child)
+        self.sections["init"] = self.stmlist(node)
 
     def loop(self, node):
-        self.sections["loop"] = 1
-        for child in node.children:
-            self.stm(child)
+        self.sections["loop"] = self.stmlist(node)
 
     def bailout(self,node):
-        self.sections["bailout"] = 1
-        for child in node.children:
-            self.stm(child)
+        self.sections["bailout"] = self.stmlist(node)
 
     def badNode(self, node, rule):
         msg = "Internal Compiler Error: Unexpected node '%s' in %s" % \

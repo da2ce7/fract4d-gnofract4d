@@ -7,6 +7,7 @@ Float = 1
 Complex = 2
 Bool = 3
 Color = 4
+NoType = 5
 
 suffixOfType = {
     Int : "i",
@@ -21,7 +22,7 @@ _typeOfStr = {
     "float" : Float,
     "complex" : Complex,
     "bool" : Bool,
-    "color" : Color
+    "color" : Color,
     }
 
 _strOfType = {
