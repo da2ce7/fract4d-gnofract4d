@@ -149,7 +149,7 @@ fractal::copy(const fractal& f)
         colorFuncs[i] = f.colorFuncs[i];
 	colorTransferFuncs[i] = f.colorTransferFuncs[i];
     }
-    set_bailFunc(f.get_bailFunc());
+    set_bailType(f.get_bailType());
 }
 
 /* copy ctor */
@@ -232,7 +232,7 @@ fractal::set_fractal_type(const char *name)
 
     assert(pIterFunc > (void *)0x1000);
     pIterFunc->reset(params);
-    set_bailFunc(pIterFunc->preferred_bailfunc());
+    set_bailType(pIterFunc->preferred_bailfunc());
 }
 
 /* x & y vary by up to 50% of the MAGNITUDE */
@@ -458,7 +458,7 @@ fractal::load_params(const char *filename)
 	    // legacy support for old files. New ones have a bailFunc section
 	    e_bailFunc bf;
             vs >> (int&)bf;
-	    set_bailFunc(bf);
+	    set_bailType(bf);
 	}
         else if(FIELD_INNER==name)
             vs >> (int&)colorFuncs[INNER];
@@ -777,18 +777,24 @@ fractal::tolerance(IImage *im)
 }
 
 e_bailFunc
-fractal::get_bailFunc() const
+fractal::get_bailType() const
 {
     assert(bailout_type > (void *)0x4);
     return bailout_type->type();
 }
 
 void
-fractal::set_bailFunc(e_bailFunc bf)
+fractal::set_bailType(e_bailFunc bf)
 {
     delete bailout_type;
     bailout_type = bailFunc::create(bf);
     assert(bailout_type > (void *)0x4);
+}
+
+bailFunc *
+fractal::get_bailFunc() const
+{
+    return bailout_type;
 }
 
 void 
