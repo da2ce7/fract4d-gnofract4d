@@ -123,6 +123,11 @@ class Func:
         
             #print typed_fname
             self.genFunc = module.__dict__.get(typed_fname,typed_fname)
+        #print "set name to ", fname
+        #if fname == "sin":
+        #    import inspect
+        #    print inspect.stack()
+            
         self.cname = fname
         
     def matchesArgs(self, potentialArgs):

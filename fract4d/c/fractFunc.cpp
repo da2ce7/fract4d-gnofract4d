@@ -256,6 +256,7 @@ void fractFunc::draw(int rsize, int drawsize)
             goto done;
         }
     }
+ 
     // remaining lines
     for ( ; y < h ; y++)
     {

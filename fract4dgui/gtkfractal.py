@@ -251,7 +251,8 @@ class T(gobject.GObject):
                     
             def set_fractal(entry,event,f,order,param_type):
                 try:
-                    f.set_initparam(order,entry.get_text(),param_type)
+                    gtk.idle_add(f.set_initparam,order,
+                                 entry.get_text(),param_type)
                 except Exception, err:
                     # FIXME: produces too many errors
                     msg = "Invalid value '%s': must be a number" % \
@@ -302,7 +303,6 @@ class T(gobject.GObject):
             self.changed()
 
     def error(self,msg,err):
-        print "parent", self.parent
         if self.parent:
             self.parent.show_error_message(msg, err)
         else:
@@ -353,14 +353,17 @@ class T(gobject.GObject):
         widget = gtk.OptionMenu()
         (menu, funclist) = self.construct_function_menu(param,formula)
         widget.set_menu(menu)
-
+        
         def set_selected_function():
             try:
+                #print "finding value of %s", name
                 selected_func_name = self.f.get_func_value(name,formula)
+                #print "selected", selected_func_name
+                #print "name %s formula %s" % (name, formula)
                 index = funclist.index(selected_func_name)
             except ValueError, err:
                 # func.cname not in list
-                print "bad cname"
+                #print "bad cname"
                 return
             
             widget.set_history(index)
@@ -376,7 +379,7 @@ class T(gobject.GObject):
 
                 fname = list[index]
                 f.set_func(param,fname,formula)
-
+                
         set_selected_function()
 
         widget.update = set_selected_function
