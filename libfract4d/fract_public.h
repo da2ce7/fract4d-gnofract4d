@@ -51,6 +51,32 @@ class IImage;
 
 #include "pointFunc_public.h"
 
+// a type which must be implemeted by the user of 
+// libfract4d. We use this to inform them of the progress
+// of an ongoing calculation
+
+// WARNING: these are called back on a different thread, possibly
+// several different threads at the same time. It is the callee's 
+// responsibility to handle mutexing.
+
+class IFractalSite
+{
+ public:
+    virtual ~IFractalSite() {};
+
+    // the parameters have changed (usually due to auto-deepening)
+    virtual void parameters_changed() = 0;
+    // we've drawn a rectangle of image
+    virtual void image_changed(int x1, int x2, int y1, int y2) = 0;
+    // estimate of how far through current pass we are
+    virtual void progress_changed(float progress) = 0;
+    // one of the status values above
+    virtual void status_changed(int status_val) = 0;
+
+    // return true if we've been interrupted and are supposed to stop
+    virtual bool is_interrupted() = 0;
+};
+
 class IFractal
 {
 public:
@@ -71,7 +97,7 @@ public:
     virtual void set_mixed(const IFractal& f1, const IFractal& f2, double lambda) = 0;
 
     virtual void reset() = 0;
-    virtual void calc(Gf4dFractal *gf4d, IImage *im, fract_callbacks *fcb) = 0;
+    virtual void calc(IFractalSite *site, IImage *im) = 0;
 
     virtual void recolor(IImage *im) = 0;
     virtual void relocate(double x, double y, double zoom) = 0;

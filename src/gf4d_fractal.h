@@ -43,16 +43,17 @@ extern "C" {
 typedef struct _Gf4dFractal Gf4dFractal;
 typedef struct _Gf4dFractalClass Gf4dFractalClass;
 
-#include "fract_public.h"
-#include "colorizer_public.h"
-#include "pointFunc_public.h"
+#include "fract4d.h"
 #include "image.h"
+
+class fractal_site;
 
 struct _Gf4dFractal
 {
     GtkObject object;	
     IFractal *f;
     image *im;
+    fractal_site *site;
     pthread_t tid;
     pthread_mutex_t lock;
     pthread_mutex_t cond_lock;

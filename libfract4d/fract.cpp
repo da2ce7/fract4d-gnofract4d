@@ -654,13 +654,13 @@ fractal::move(param_t i, double dist)
 }
 
 void
-fractal::calc(Gf4dFractal *gf, IImage *im, fract_callbacks *fcb)
+fractal::calc(IFractalSite *site, IImage *im)
 {    
     if(eaa == AA_DEFAULT) 
     {
         eaa = antialias;
     }
-    fractFunc pr(this, im, gf, fcb);
+    fractFunc pr(this, im, site);
     
     if(!pr.ok)
     {

@@ -21,7 +21,6 @@
 #ifndef _FRACTFUNC_H_
 #define _FRACTFUNC_H_
 
-#include "fract_callbacks.h"
 #include "fract.h"
 #include "image_public.h"
 #include "pointFunc.h"
@@ -135,8 +134,7 @@ class fractFunc {
     fractFunc(
 	fractal_t *_f, 
 	IImage *_im, 
-	Gf4dFractal *_gf,
-	fract_callbacks *fcb);
+	IFractalSite *_site);
     ~fractFunc();
    
     void draw_all();
@@ -150,24 +148,23 @@ class fractFunc {
     // callback wrappers
     inline void parameters_changed()
 	{
-	    if(fcb->parameters_changed) fcb->parameters_changed(gf);
+	    site->parameters_changed();
 	}
     inline void image_changed(int x1, int x2, int y1, int y2)
 	{
-	    if(fcb->image_changed) fcb->image_changed(gf,x1,x2,y1,y2);
+	    site->image_changed(x1,x2,y1,y2);
 	}
     inline void progress_changed(float progress)
 	{
-	    if(fcb->progress_changed) fcb->progress_changed(gf,progress);
+	    site->progress_changed(progress);
 	}
     inline void status_changed(int status_val)
 	{
-	    if(fcb->status_changed) fcb->status_changed(gf,status_val);
+	    site->status_changed(status_val);
 	}
     inline bool try_finished_cond()
 	{
-	    if(fcb->try_finished_cond) return fcb->try_finished_cond(gf);
-	    return false; // if no callback, we can't be interrupted
+	    return site->is_interrupted();
 	}
 
  private:
@@ -182,7 +179,7 @@ class fractFunc {
     enum { AUTO_DEEPEN_FREQUENCY = 30 };
 
     // for callbacks
-    Gf4dFractal *gf;
+    IFractalSite *site;
 
     dmat4 rot; // scaled rotation matrix
     dvec4 deltax, deltay; // step from 1 pixel to the next in x,y directions
@@ -207,7 +204,6 @@ class fractFunc {
 
     fractal_t *f; // pointer to fract passed in to ctor
     IImage *im;    // pointer to image passed in to ctor
-    fract_callbacks *fcb; // callbacks for reporting progress
     pointFunc *pf; // function for calculating 1 point
 
     int nThreadFuncs;

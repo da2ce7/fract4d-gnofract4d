@@ -1,19 +1,16 @@
 Compiler
 * W	max size for .so cache
+* WW	introduce separate compiler backend
+* WWW	built-in compiler
 
 
-Other
-* W	Julia preview by moving around while holding button3
+libfract4d
+* W 	namespace
+* W	single top-level header
 * B	why is Barnsley so slow?
 * B	interrupt takes too long on deep-zoomed fractals
 * W	signal tpool conds after releasing mutex?
-* B	./gnofract4d --nthreads=1 -p foo.fct ignored input file (popt?)
-* W	make antialiasing a pref, not a setting
-* W	libgf4d
-* WW	visible history/undo buffer
-* B	SIGSEGV when changing mutant weirdness - hard to repro
 * W	sort out fractal types a bit
-* WW	MDI
 * W	associate with file type?
 * W	main toolbar: home, exit
 * W	make it work with GMP
@@ -21,23 +18,45 @@ Other
 * W	full-screen mode
 * W 	desktop mode
 * W 	demo mode
-* WWW 	no-X mode
 * WW	dirty/clean stuff won't work unless 
 	- eject val / (scratch?) is kept freach point
 	- can calc color without recalcing iter 
 * W	bookmarks
 * B	Mutants don't work at deep zooms
-* WW	plugins
 * W	fast single-undo
 * B	absolute paths in parameter save files
 * WW	preview .fcts in open dialog
 * B 	invalid bailfunc # = crash
 * W	parameterize buffalo
+* W	add exponent to mandelbar (buffalo?)
+* WW	critical values + multiple basins/color schemes
 * W	make sure inner function is sensible (itercount is pointless)
 * B	pause doesn't stop subfracts
 * BB	stupid options dialog would be better as tabbed dialog
 * W	pass colorFuncs by value instead of enum
+
+* W	is it really faster w/out HAS_X2 ?
+
+netfract
+* WWW	write it
+
+gnofract4d
 * W	remember .fct filenames and re-save to same place
+* W	Julia preview by moving around while holding button3
+* W	history window (move history inside library??)
+* B	SIGSEGV when changing mutant weirdness - hard to repro
+* WW	MDI
+
+fract4d
+* W	introduce image class
+* W	support calc()
+* W	parse command-line arguments
+* W	save .tga
+* WW	save .png
+
+xscreensaver version
+* W	auto random parameters
+* W	draw to root window
 
 Movies-
 * B	deadlock when render movie while image is being drawn
@@ -60,12 +79,9 @@ CmapEditor
 * W 	save new .map + add to preview list
 * W 	remove debug printfs
 
-Must do pre 1.7
+Done:
 * W	finish cmapeditor
 * W	update docs
-* W	is it really faster w/out HAS_X2 ?
-
-Done:
 * B	outer_cf not saved correctly - itercount changes to cont_potential
 * B 	something wrong with zero'th iteration with manzpower - unroll-related
 * B	nova, quadratic (options) doesn't work w gcc 2.96 unless -O0

@@ -7,7 +7,8 @@ bin_PROGRAMS = fract4d
 # itertest
 
 fract4d_SOURCES = \
-	main.cpp 
+	main.cpp \
+	image.cpp image.h
 
 fract4d_LDADD = ../libfract4d/libfract4d.la $(GNOME_LIBDIR) $(GTK_LIBS) \
 	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)

@@ -1,6 +1,5 @@
 #include "gf4d_fractal.h"
 #include "image.h"
-#include "fract.h"
 #include <gtk/gtkmain.h>
 #include <gtk/gtksignal.h>
 #include "gf4d_utils.h"
@@ -17,6 +16,30 @@ enum {
     STATUS_CHANGED,
     LAST_SIGNAL
 };
+
+
+class fractal_site : public IFractalSite
+{
+    Gf4dFractal *gf;
+
+public:
+    fractal_site(Gf4dFractal *gf_) : gf(gf_) {};
+
+    void parameters_changed() { gf4d_fractal_parameters_changed(gf); };
+    void image_changed(int x1, int x2, int y1, int y2) { 
+	gf4d_fractal_image_changed(gf,x1,x2,y1,y2); 
+    };
+    void progress_changed(float progress) {
+	gf4d_fractal_progress_changed(gf,progress);
+    };
+    void status_changed(int status_val) { 
+	gf4d_fractal_status_changed(gf,status_val);
+    };
+    bool is_interrupted() {
+	return gf4d_fractal_try_finished_cond(gf);
+    };
+};
+
 
 static guint fractal_signals[LAST_SIGNAL] = {0};
 
@@ -52,6 +75,7 @@ gf4d_fractal_init (Gf4dFractal *f)
 {
     f->f = IFractal::create();
     f->im = new image();
+    f->site = new fractal_site(f);
 
     f->tid=0;
     f->workers_running=0;
@@ -275,15 +299,6 @@ e_bailFunc gf4d_fractal_get_bailout_type(Gf4dFractal *gf)
     return gf->f->get_bailFunc();
 }
 
-static fract_callbacks gf4d_callbacks = 
-{
-    gf4d_fractal_parameters_changed,
-    gf4d_fractal_image_changed,
-    gf4d_fractal_progress_changed,
-    gf4d_fractal_status_changed,
-    gf4d_fractal_try_finished_cond
-};
-
 static void *
 calculation_thread(void *vdata) 
 {
@@ -292,7 +307,7 @@ calculation_thread(void *vdata)
     set_started_cond(f);
 
     try {
-        f->f->calc(f,f->im,&gf4d_callbacks);	
+        f->f->calc(f->site,f->im);
     }
     catch(...)
     {

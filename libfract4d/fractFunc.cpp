@@ -10,15 +10,13 @@ void worker(job_info_t& tdata, fractThreadFunc *pFunc)
 }
 
 fractFunc::fractFunc(
-    fractal_t *_f, 
-    IImage *_im, 
-    Gf4dFractal *_gf,
-    fract_callbacks *_fcb)
+    fractal_t *f_, 
+    IImage *im_, 
+    IFractalSite *site_)
 {
-    gf = _gf;
-    im = _im;
-    f = _f; 
-    fcb = _fcb;
+    site = site_;
+    im = im_;
+    f = f_; 
     ok = true;
 
     depth = f->eaa ? 2 : 1; 

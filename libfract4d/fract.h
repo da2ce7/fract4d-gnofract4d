@@ -22,7 +22,6 @@
 #define _FRACT_H_
 
 #include "fract_public.h"
-#include "fract_callbacks.h"
 #include "pointFunc_public.h"
 #include "colorizer_public.h"
 
@@ -88,7 +87,7 @@ public:
     void set_mixed(const IFractal& f1, const IFractal& f2, double lambda);
 
     void reset();
-    void calc(Gf4dFractal *gf4d, IImage *im, fract_callbacks *fcb);
+    void calc(IFractalSite *site, IImage *im);
 
     void recolor(IImage *im);
     void relocate(double x, double y, double zoom);
