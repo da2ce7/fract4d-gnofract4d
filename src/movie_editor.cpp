@@ -237,6 +237,15 @@ void update_movie_button_text(Gf4dMovie *mov, gint status, gpointer user_data)
     }
 }
 
+void save_image_callback(Gf4dMovie *mov, int frame, model_t *m)
+{
+    // save the image
+    gchar *savefile = g_strdup_printf("gf4d%03d.ppm",frame);
+    g_print("saved %s\n",savefile);
+    model_cmd_save_image(m,savefile);
+    g_free(savefile);
+}
+
 GtkWidget *create_movie_commands(GtkWidget *strip, model_t *m)
 {
     GtkWidget *hbox = gtk_hbox_new(TRUE, 0);
@@ -269,10 +278,14 @@ GtkWidget *create_movie_commands(GtkWidget *strip, model_t *m)
     gtk_signal_connect(GTK_OBJECT(mov), "status_changed",
                        (GtkSignalFunc)update_movie_button_text,render_button);
 
+    gtk_signal_connect(GTK_OBJECT(mov), "image_complete",
+		       (GtkSignalFunc)save_image_callback, m);
+
     gtk_widget_show_all(hbox);
 
     return hbox;
 }
+
 
 void update_movie_progress_bar(Gf4dMovie *mov, gfloat progress, gpointer user_data)
 {
@@ -301,6 +314,7 @@ void create_movie_editor(GtkWidget *menuitem, model_t *m)
     if(movie_editor)
     {
         gtk_widget_show(movie_editor);
+	gdk_window_raise(movie_editor->window);
         return;
     }
 

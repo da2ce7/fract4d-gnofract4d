@@ -59,22 +59,24 @@ class IImage;
 // several different threads at the same time. It is the callee's 
 // responsibility to handle mutexing.
 
+// member functions are do-nothing rather than abstract in case you
+// don't want to do anything with them
 class IFractalSite
 {
  public:
     virtual ~IFractalSite() {};
 
     // the parameters have changed (usually due to auto-deepening)
-    virtual void parameters_changed() = 0;
+    virtual void parameters_changed() {};
     // we've drawn a rectangle of image
-    virtual void image_changed(int x1, int x2, int y1, int y2) = 0;
+    virtual void image_changed(int x1, int x2, int y1, int y2) {};
     // estimate of how far through current pass we are
-    virtual void progress_changed(float progress) = 0;
+    virtual void progress_changed(float progress) {};
     // one of the status values above
-    virtual void status_changed(int status_val) = 0;
+    virtual void status_changed(int status_val) {};
 
     // return true if we've been interrupted and are supposed to stop
-    virtual bool is_interrupted() = 0;
+    virtual bool is_interrupted() { return false; };
 };
 
 class IFractal

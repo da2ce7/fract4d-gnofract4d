@@ -27,11 +27,17 @@
 #include <gtk/gtkmarshal.h>
 
 typedef int (*GtkSignal_NONE__FLOAT)(GtkObject* object, gfloat, gpointer user_data);
+typedef int (*GtkSignal_NONE__INT)(GtkObject* object, gint, gpointer user_data);
 
 /* local prototypes */
 void marshal_NONE__FLOAT(GtkObject*    object,
 			 GtkSignalFunc func,
 			 gpointer      func_data,
 			 GtkArg*       args);
+
+void marshal_NONE__INT(GtkObject*    object,
+		       GtkSignalFunc func,
+		       gpointer      func_data,
+		       GtkArg*       args);
 
 #endif /* _GF4D_UTILS_H_ */

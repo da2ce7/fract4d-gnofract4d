@@ -13,6 +13,7 @@ static void gf4d_movie_destroy                  (GtkObject        *object);
 enum {
     LIST_CHANGED,
     PROGRESS_CHANGED,
+    IMAGE_COMPLETE,
     STATUS_CHANGED,
     LAST_SIGNAL
 };
@@ -180,6 +181,15 @@ gf4d_movie_class_init (Gf4dMovieClass *klass)
                        GTK_TYPE_NONE, 1,
                        GTK_TYPE_FLOAT);
 
+    movie_signals[IMAGE_COMPLETE] =
+	gtk_signal_new("image_complete",
+		       GTK_RUN_FIRST,
+		       object_class->type,
+		       GTK_SIGNAL_OFFSET(Gf4dMovieClass, image_complete),
+		       marshal_NONE__INT,
+		       GTK_TYPE_NONE, 1,
+		       GTK_TYPE_INT);
+
     movie_signals[STATUS_CHANGED] = 
         gtk_signal_new("status_changed",
                        GTK_RUN_FIRST,
@@ -193,7 +203,8 @@ gf4d_movie_class_init (Gf4dMovieClass *klass)
     klass->list_changed=NULL;
     klass->progress_changed=NULL;
     klass->status_changed=NULL;
-	
+    klass->image_complete=NULL;
+
     gtk_object_class_add_signals(object_class, movie_signals, LAST_SIGNAL);
 }
 
@@ -254,6 +265,16 @@ void gf4d_movie_status_changed(Gf4dMovie *mov, int status_val)
     gf4d_movie_leave_callback(mov);
 }
 
+void gf4d_movie_image_complete(Gf4dMovie *mov, int frame)
+{
+    gf4d_movie_enter_callback(mov);
+
+    gtk_signal_emit(GTK_OBJECT(mov),
+                    movie_signals[IMAGE_COMPLETE],
+                    frame);
+    gf4d_movie_leave_callback(mov);
+}
+
 static void *
 calculation_thread(void *vdata) 
 {
@@ -310,7 +331,9 @@ calculation_thread(void *vdata)
 
             gf4d_fractal_set_auto(mov->output, FALSE);
             gf4d_fractal_calc(mov->output, 0);
-                
+
+	    gf4d_movie_image_complete(mov,key*10+i);
+
             if(try_finished_cond(mov))
             {
                 break;

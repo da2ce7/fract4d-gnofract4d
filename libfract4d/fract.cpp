@@ -282,18 +282,22 @@ fractal::set_inexact(const IFractal& f, double weirdness)
 }
 
 void 
-fractal::set_mixed(const IFractal& f1, const IFractal& f2, double lambda)
+fractal::set_mixed(const IFractal& if1, const IFractal& if2, double lambda)
 {
-    *this = f1; // FIXME - doesn't deal with mixed types etc
+    *this = if1; 
 
-    /* not up-to-date or used right now 
+    // FIXME - doesn't deal with mixed types etc
+    const fractal *f1 = (const fractal *)&if1;
+    const fractal *f2 = (const fractal *)&if2;
+
+    // FIXME: fix this to go round the short way for angles
     double nl = 1.0 - lambda;
     for(int i = 0 ; i < N_PARAMS; ++i)
     {
-        params[i] = lambda * f1.params[i] + nl * f2.params[i];
+        params[i] = lambda * f1->params[i] + nl * f2->params[i];
     }
-    maxiter = (int)(lambda * f1.maxiter + nl * f2.maxiter);
-    */
+    maxiter = (int)(lambda * f1->maxiter + nl * f2->maxiter);
+    
 }
 
 /* return to default parameters for this fractal type */
@@ -735,7 +739,7 @@ fractal::get_colorFunc(int which_cf) const
 void
 fractal::set_threads(int n)
 {
-    assert(nThreads >= 0);
+    assert(n >= 0);
     nThreads = n;
 }
 

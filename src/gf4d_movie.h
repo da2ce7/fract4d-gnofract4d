@@ -73,9 +73,10 @@ struct _Gf4dMovie
 struct _Gf4dMovieClass
 {
     GtkObjectClass parent_class;
-    void (* list_changed)       (Gf4dFractal *fract);
-    void (* progress_changed)   (Gf4dFractal *fract);
-    void (* status_changed)     (Gf4dFractal *fract); // equiv to message
+    void (* list_changed)       (Gf4dMovie *movie);
+    void (* progress_changed)   (Gf4dMovie *movie);
+    void (* image_complete)     (Gf4dMovie *movie, int frame);
+    void (* status_changed)     (Gf4dMovie *movie); // equiv to message
 };
 
 struct _Gf4dMovieFrame
