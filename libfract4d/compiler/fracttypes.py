@@ -29,7 +29,8 @@ _strOfType = {
     Float : "float",
     Complex : "complex",
     Bool : "bool",
-    Color : "color"
+    Color : "color",
+    None : "none"
    }
 
 def typeOfStr(tname):
