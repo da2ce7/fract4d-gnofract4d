@@ -27,7 +27,7 @@ Mandelbar {
 init:
 	; nothing to do here
 loop:
-	z = conj(z)^@p1 + #pixel
+	z = conj(z)^@a + #pixel
 bailout:
 	|z| < @bailout
 default:
@@ -40,7 +40,7 @@ Quadratic {
 init:
 	; nothing to do here
 loop:
-	z = (@p1 * z + @p2) * z + @p3 * #pixel
+	z = (@a * z + @b) * z + @c * #pixel
 bailout:
 	|z| < @bailout
 default:
@@ -53,7 +53,7 @@ Cubic Mandelbrot {
 init:
 	; nothing to do here
 loop:
-	z = z * z * (z - 3.0 * @p1) + #pixel
+	z = z * z * (z - 3.0 * @a) + #pixel
 bailout:
 	|z| < @bailout
 default:
@@ -64,7 +64,7 @@ endparam
 
 ManZPower {
 loop:
-	z = z^@p1 + #pixel
+	z = z^@a + #pixel
 bailout:
 	|z| < @bailout
 default:
@@ -209,7 +209,7 @@ init:
 	nm1 = @p1 - 1.0
 loop:
 	last = z
-	;z = z - (pow(z,@p1) - 1.0)/ (@p1 * pow(z,nm1))
+	;z = z - (pow(z,@a) - 1.0)/ (@a * pow(z,nm1))
 	z = z - (z*z*z - 1.0)/(3.0 * z * z)
 bailout:
 	|z - last| > 1.0e-9
@@ -218,7 +218,7 @@ bailout:
 Nova {
 loop:
 	last = z
-	z = z - (@p1 * z * z * z - @p2)/(@p3 * z * z) + #pixel
+	z = z - (@a * z * z * z - @b)/(@c * z * z) + #pixel
 bailout:
 	|z - last| > 1.0e-9
 }

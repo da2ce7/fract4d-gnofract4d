@@ -203,7 +203,9 @@ class T(FctUtils):
         self.formula = self.compiler.get_formula(formulafile,func)
         if self.formula == None:
             raise ValueError("no such formula: %s:%s" % (formulafile, func))
-        
+
+        self.initparams = self.formula.symbols.default_params()
+
     def set_inner(self,funcfile,func):
         self.cfuncs[1] = self.compiler.get_colorfunc(funcfile,func,"cf1")
         if self.cfuncs[1] == None:
@@ -314,29 +316,28 @@ class T(FctUtils):
         self.funcName = val
         self.set_formula(self.funcFile,self.funcName)
 
-    def parse_func_a(self,val,f):
-        # a complex arg in the form (x,y)
+    def set_named_param(self,name,val):
+        #print "named param %s : %s" % (name, val)
+        op = self.formula.symbols.order_of_params()
+        ord = op.get(self.formula.symbols.realName(name))
+        if ord == None:
+            print "Ignoring unknown param %s" % name
+            return
+        
         m = cmplx_re.match(val)
         if m != None:
             re = float(m.group(1)); im = float(m.group(2))
-            print "%g,%g" % (re,im)
-            self.initparams += [re,im]
+            self.initparams[ord] = re
+            self.initparams[ord+1] = im
+
+    def parse_func_a(self,val,f):
+        self.set_named_param("@a",val)
 
     def parse_func_b(self,val,f):
-        # a complex arg in the form (x,y)
-        m = cmplx_re.match(val)
-        if m != None:
-            re = float(m.group(1)); im = float(m.group(2))
-            print "%g,%g" % (re,im)
-            self.initparams += [re,im]
+        self.set_named_param("@b",val)
 
     def parse_func_c(self,val,f):
-        # a complex arg in the form (x,y)
-        m = cmplx_re.match(val)
-        if m != None:
-            re = float(m.group(1)); im = float(m.group(2))
-            print "%g,%g" % (re,im)
-            self.initparams += [re,im]
+        self.set_named_param("@c",val)
 
     def parse__colors_(self,val,f):
         cf = Colorizer()
