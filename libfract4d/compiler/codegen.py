@@ -236,6 +236,7 @@ return;
         
     def output_symbols(self,overrides):
         out = []
+        op = self.symbols.order_of_params()
         for (key,sym) in self.symbols.items():
             if isinstance(sym,fracttypes.Var):
                 t = fracttypes.ctype(sym.type)
@@ -243,8 +244,14 @@ return;
                 override = overrides.get(key,None)
                 if override == None:
                     if sym.type == fracttypes.Complex:
-                        out += [ Decl("%s %s_re = %.17f;" % (t,key,val[0])),
-                                 Decl("%s %s_im = %.17f;" % (t,key,val[1]))]
+                        ord = op.get(key,None)
+                        if ord == None:
+                            out += [ Decl("%s %s_re = %.17f;" % (t,key,val[0])),
+                                     Decl("%s %s_im = %.17f;" % (t,key,val[1]))]
+                        else:
+                            out += [ Decl("%s %s_re = params[%d];" %(t,key,ord*2)),
+                                     Decl("%s %s_im = params[%d];"%(t,key,ord*2+1))]
+                            
                     elif sym.type == fracttypes.Float:
                         out.append(Decl("%s %s = %.17f;" % (t,key,val)))
                     else:

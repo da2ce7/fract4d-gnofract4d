@@ -78,7 +78,9 @@ class CodegenTest(unittest.TestCase):
 
     def makeC(self,user_preamble="", user_postamble=""):
         # construct a C stub for testing
-        preamble = "#include <stdio.h>\nint main(){\n"
+        preamble = '''#include <stdio.h>\nint main(){
+        double params[20]= {0.0, 0.0, 0.0, 0.0};
+        '''
         decls = string.join(map(lambda x: x.format(),
                                 self.codegen.output_symbols({})),"\n")
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
