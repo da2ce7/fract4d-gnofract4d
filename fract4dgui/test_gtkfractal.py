@@ -123,11 +123,10 @@ class FctTest(unittest.TestCase):
 
         names = [x.get_text() for x in children if isinstance(x,gtk.Label)]
 
-        self.assertEqual(names[0],"_density")
-        self.assertEqual(names[1],"_offset")
-        self.assertEqual(names[2],"_transfer")
-        self.assertEqual(names[3],"myfunc")
-        self.assertEqual(names[4],"val")
+        self.assertEqual(
+            names,
+            [ "_density", "_offset", "_transfer", "ep", "i", "myfunc", "val",
+              "val2 (re)", "val2 (i)", "val2 (j)", "val2 (k)"])
 
     def testIntParamSetting(self):
         self.f.set_formula("testx.frm","fn_with_intparam")

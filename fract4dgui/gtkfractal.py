@@ -234,79 +234,132 @@ class T(gobject.GObject):
         if name[:5] == "t__a_":
             return name[5:]
         return name
+
+    def make_numeric_widget(
+        self, table, i, name, part, param, order, formula, param_type):
     
+        label = gtk.Label(self.param_display_name(name,param)+part)
+        label.set_justify(gtk.JUSTIFY_RIGHT)
+        table.attach(label,0,1,i,i+1,0,0,2,2)
+
+        if param.type == fracttypes.Int:
+            fmt = "%d"
+        else:
+            fmt = "%.17f"
+
+        widget = gtk.Entry()
+        widget.set_activates_default(True)
+
+        def set_entry(*args):
+            new_value = fmt % self.f.get_initparam(order,param_type)
+            if widget.get_text() != new_value:
+                widget.set_text(new_value)
+
+        def set_fractal(entry,event,f,order,param_type):
+            try:
+                gtk.idle_add(f.set_initparam,order,
+                             entry.get_text(),param_type)
+            except Exception, err:
+                # FIXME: produces too many errors
+                msg = "Invalid value '%s': must be a number" % \
+                      entry.get_text()
+                #gtk.idle_add(f.warn,msg)
+            return False
+
+        set_entry(self)
+
+        widget.set_data("update_function", set_entry)
+
+        widget.f = self
+        widget.connect('focus-out-event',
+                       set_fractal,self,order,param_type)
+
+        label.set_mnemonic_widget(widget)
+        return widget
+
+    def make_bool_widget(
+        self, name, param, order, formula, param_type):
+
+        widget = gtk.CheckButton(self.param_display_name(name,param))
+
+        def set_toggle(*args):
+            is_set = self.f.get_initparam(order,param_type)
+            widget.set_active(is_set)
+            if widget.get_active() != is_set:
+                widget.set_active(is_set)
+
+        def set_fractal(entry,f,order,param_type):
+            try:
+                gtk.idle_add(f.set_initparam,order,
+                             entry.get_active(),param_type)
+            except Exception, err:
+                msg = "error setting bool param: %s" % str(err)
+                print msg
+                gtk.idle_add(f.warn,msg)
+
+            return False
+
+        set_toggle(self)
+
+        widget.set_data("update_function", set_toggle)
+        widget.f = self
+        widget.connect('toggled', set_fractal, self, order, param_type)
+        return widget
+
+    def make_enumerated_widget(
+        self, table, i, name, part, param, order, formula, param_type):
+
+        label = gtk.Label(self.param_display_name(name,param))
+        label.set_justify(gtk.JUSTIFY_RIGHT)
+        table.attach(label,0,1,i,i+1,0,0,2,2)
+
+        widget = gtk.OptionMenu()
+        menu = self.construct_enum_menu(param.enum)
+        widget.set_menu(menu)
+
+        def set_selected_value(*args):
+            try:
+                index = self.f.get_initparam(order,param_type)
+            except ValueError, err:
+                print err
+                return
+
+            widget.set_history(index)
+            
+        def set_fractal(entry,f,order,param_type):
+            new_value = widget.get_history()
+            f.set_initparam(order, new_value,param_type)
+            
+        set_selected_value(self)
+
+        widget.set_data("update_function", set_selected_value)
+
+        widget.f = self
+        widget.connect('changed',
+                       set_fractal,self,order,param_type)
+
+        label.set_mnemonic_widget(widget)
+        return widget
+
     def add_formula_setting(
         self,table,i,name,part,param,order,formula,param_type):
         
-        if param.type == fracttypes.Int or \
-               param.type == fracttypes.Float or \
-               param.type == fracttypes.Complex or \
-               param.type == fracttypes.Hyper:
-
-
-            label = gtk.Label(self.param_display_name(name,param)+part)
-            label.set_justify(gtk.JUSTIFY_RIGHT)
-            table.attach(label,0,1,i,i+1,0,0,2,2)
-
-            if param.type == fracttypes.Int:
-                fmt = "%d"
+        if param.type == fracttypes.Int:
+            if hasattr(param,"enum"):
+                widget = self.make_enumerated_widget(
+                    table, i,name,part,param,order,formula,param_type)
             else:
-                fmt = "%.17f"
+                widget = self.make_numeric_widget(
+                    table, i,name,part,param,order,formula,param_type)
                 
-            widget = gtk.Entry()
-            widget.set_activates_default(True)
-            
-            def set_entry(*args):
-                new_value = fmt % self.f.get_initparam(order,param_type)
-                if widget.get_text() != new_value:
-                    widget.set_text(new_value)
-                    
-            def set_fractal(entry,event,f,order,param_type):
-                try:
-                    gtk.idle_add(f.set_initparam,order,
-                                 entry.get_text(),param_type)
-                except Exception, err:
-                    # FIXME: produces too many errors
-                    msg = "Invalid value '%s': must be a number" % \
-                          entry.get_text()
-                    #gtk.idle_add(f.warn,msg)
-                return False
-            
-            set_entry(self)
+        elif param.type == fracttypes.Float or \
+             param.type == fracttypes.Complex or \
+             param.type == fracttypes.Hyper:
 
-            widget.set_data("update_function", set_entry)
-            
-            widget.f = self
-            widget.connect('focus-out-event',
-                           set_fractal,self,order,param_type)
-
-            label.set_mnemonic_widget(widget)
-            
+            widget = self.make_numeric_widget(
+                table, i,name,part,param,order,formula,param_type)
         elif param.type == fracttypes.Bool:
-            widget = gtk.CheckButton(self.param_display_name(name,param)+part)
-
-            def set_toggle(*args):
-                is_set = self.f.get_initparam(order,param_type)
-                widget.set_active(is_set)
-                if widget.get_active() != is_set:
-                    widget.set_active(is_set)
-                    
-            def set_fractal(entry,f,order,param_type):
-                try:
-                    gtk.idle_add(f.set_initparam,order,
-                                 entry.get_active(),param_type)
-                except Exception, err:
-                    msg = "error setting bool param: %s" % str(err)
-                    print msg
-                    gtk.idle_add(f.warn,msg)
-                    
-                return False
-            
-            set_toggle(self)
-
-            widget.set_data("update_function", set_toggle)
-            widget.f = self
-            widget.connect('toggled', set_fractal, self, order, param_type)
+            widget = self.make_bool_widget(name,param,order,formula,param_type)
         else:
             raise "Unsupported parameter type"
 
@@ -323,6 +376,15 @@ class T(gobject.GObject):
             menu.append(mi)
 
         return (menu,funclist)
+
+    def construct_enum_menu(self,enum):
+        menu = gtk.Menu()
+        for val in enum.value:
+            print val
+            mi = gtk.MenuItem(val)
+            menu.append(mi)
+
+        return menu
 
     def set_nthreads(self, n):
         if self.nthreads != n:
