@@ -388,7 +388,7 @@ class T(FctUtils):
         
         self.set_bailfunc()
         self.dirtyFormula = True
-        self.dirty = True
+        self.changed()
         
     def set_bailfunc(self):        
         bailfuncs = [

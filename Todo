@@ -37,9 +37,19 @@ todo for 2.0
 * W	review human interface guidelines
 * B	undo/redo cause recompilation
 * W	make default fractal more interesting
-
+* B	starting colors dialog changes color scheme to 1st in list
+* B	defaults not applied when choose fractal
+* B	warnings for several fractal types
+* B	weird line breaks in "formula contains a fractint-style..."
+* B	mandelbar is a circle (?)
+* B	apply newton, nova -> unsubscriptable object in get_func_value
 
 done:
+* B	default size for browser is too small
+* B	really wide edit box in formula browser
+* B	apply "cubic burning ship", "lambda" -> list index out of range
+* BB	reset on fragment.fct -> blank screen
+* W	added defaults to gf4d.frm
 * W	save images
 * WW	save parameter files (define a format first)
 * B	set_initparam didn't trigger parameters-changed
