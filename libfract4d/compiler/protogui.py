@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 import sys
+import os
+import struct
+
 import gtk
 import gobject
 
@@ -22,9 +25,78 @@ g_comp.load_formula_file("gf4d.cfrm")
 #file = open(sys.argv[1])
 #f.loadFctFile(file)
 
-class GuiFractal(fractal.Threaded):
+class Threaded(fractal.T):
     def __init__(self,comp):
-        fractal.Threaded.__init__(self,comp)
+        (r,w) = os.pipe()
+        self.readfd = r
+        s = fract4d.fdsite_create(w)
+        fractal.T.__init__(self,comp,s)
+        self.msgformat = "5i"
+        self.msgsize = struct.calcsize(self.msgformat)
+
+        self.name_of_msg = [
+            "PARAMS",
+            "IMAGE",
+            "PROGRESS",
+            "STATUS",
+            "PIXEL"
+            ]
+
+        self.skip_updates = False
+
+    def interrupt(self):
+        print "interrupt"
+        fract4d.interrupt(self.site)
+        self.skip_updates = True
+
+        n = 0
+        # wait for stream from worker to flush
+        while self.running:
+            n += 1
+            gtk.main_iteration(True)
+        print "waited %d" % n
+        
+    def draw(self,image):
+        print "drawing with %s" % self.pfunc
+        self.cmap = fract4d.cmap_create(self.colorlist)
+        
+        fract4d.pf_init(self.pfunc,0.001,self.initparams)
+
+        self.skip_updates = False
+        self.running = True
+        fract4d.async_calc(self.params,self.antialias,self.maxiter,1,
+                           self.pfunc,self.cmap,1,image,self.site)
+
+    def onData(self,fd,condition):
+        #print "data!"
+        bytes = os.read(fd,self.msgsize)
+        if len(bytes) < self.msgsize:
+            print "bad message"
+            return
+
+        (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
+        m = self.name_of_msg[t] 
+        #print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
+        if t == 0:
+            if not self.skip_updates: self.parameters_changed()
+        elif t == 1:
+            self.image_changed(p1,p2,p3,p4)
+        elif t == 2:
+            self.progress_changed(float(p1))
+        elif t == 3:
+            if p1 == 0: # DONE
+                print "done"
+                self.running = False
+            self.status_changed(p1)
+        elif t == 4:
+            # FIXME pixel_changed
+            pass
+        else:
+            raise Exception("Unknown message from fractal thread")
+
+class GuiFractal(Threaded):
+    def __init__(self,comp):
+        Threaded.__init__(self,comp)
         gtk.input_add(self.readfd, gtk.gdk.INPUT_READ, self.onData)
         
         self.image = fract4d.image_create(640,480)
@@ -62,7 +134,8 @@ class GuiFractal(fractal.Threaded):
         print "click (%d,%d)" % (event.x, event.y)
         self.interrupt()        
         self.params[self.XCENTER] += 0.3
-        gtk.idle_add(self.draw_image,self)
+        self.draw_image(False)
+        #gtk.idle_add(self.draw_image,self)
         
     def redraw_rect(self,x,y,w,h):
         gc = self.widget.get_style().white_gc

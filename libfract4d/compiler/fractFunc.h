@@ -39,6 +39,7 @@ typedef mat4<d> dmat4;
    parcels up the work which is actually performed by the fractThreadFuncs
  */
 
+
 class fractFunc {
  public:
     fractFunc(
@@ -52,8 +53,6 @@ class fractFunc {
 	IFractalSite *_site);
     ~fractFunc();
    
-    void update_matrix(double *params);
-
     void draw_all();
     void draw(int rsize, int drawsize);    
     void draw_aa();
@@ -146,6 +145,9 @@ class fractFunc {
     // reset image
     void clear();
 };
+
+
+dmat4 rotated_matrix(double *params);
 
 #ifdef __cplusplus
 extern "C" {

@@ -6,6 +6,7 @@ import sys
 import fc
 import os.path
 import struct
+import math
 
 sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4d
@@ -154,6 +155,25 @@ class PfTest(unittest.TestCase):
 
         fract4d.image_save(image,"test.tga")
 
+    def testRotMatrix(self):
+        params = [0.0, 0.0, 0.0, 0.0,
+                 1.0,
+                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+        mat = fract4d.rot_matrix(params)
+        self.assertEqual(mat, ((1.0, 0.0, 0.0, 0.0),
+                               (0.0, 1.0, 0.0, 0.0),
+                               (0.0, 0.0, 1.0, 0.0),
+                               (0.0, 0.0, 0.0, 1.0)))
+
+        params[6] = math.pi/2.0
+        mat = fract4d.rot_matrix(params)
+        self.assertEqual(mat, ((0.0, 0.0, 1.0, 0.0),
+                               (0.0, 1.0, 0.0, 0.0),
+                               (-1.0, 0.0, 0.0, 0.0),
+                               (0.0, 0.0, 0.0, 1.0)))
+        
+        
     def testFDSite(self):
         xsize = 64
         ysize = xsize * 3.0/4.0
@@ -191,7 +211,7 @@ class PfTest(unittest.TestCase):
                 nb = 5*4
                 if nrecved == x:
                     print "hit message count"
-                    break
+                    fract4d.interrupt(site)
                 
                 bytes = os.read(rfd,nb)
                 if len(bytes) < nb:
