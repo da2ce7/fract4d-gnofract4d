@@ -35,8 +35,8 @@ class T(gobject.GObject):
         (self.readfd,self.writefd) = os.pipe()
         self.nthreads = 1        
 
-        s = fract4dc.fdsite_create(self.writefd)
-        f = fractal.T(comp,s)
+        self.site = fract4dc.fdsite_create(self.writefd)
+        f = fractal.T(comp,self.site)
         self.msgformat = "5i"
         self.msgsize = struct.calcsize(self.msgformat)
 
@@ -302,13 +302,13 @@ class T(gobject.GObject):
         self.emit('parameters-changed')
 
     def loadFctFile(self,file):
-        #new_f = Threaded(self.compiler,self.writefd)
-        #print "l1:" , self.f.running
-        #new_f.loadFctFile(file)
-        #print "l2:" , new_f.running
-        #self.set_fractal(new_f)
-        #print "l3:" , self.f.running
-        self.f.loadFctFile(file)
+        new_f = fractal.T(self.compiler,self.site)
+        print "l1:" , self.running
+        new_f.loadFctFile(file)
+        print "l2:" , self.running
+        self.set_fractal(new_f)
+        print "l3:" , self.running
+        #self.f.loadFctFile(file)
         self.emit('parameters-changed')
         
     def save_image(self,filename):

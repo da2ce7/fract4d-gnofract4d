@@ -330,6 +330,9 @@ class T(FctUtils):
     def set_param(self,n,val):
         self.params[n] = float(val)
 
+    def get_param(self,n):
+        return self.params[n]
+    
     def parse_gnofract4d_parameter_file(self,val,f):
         pass
 
@@ -447,6 +450,8 @@ class T(FctUtils):
     
     def loadFctFile(self,f):
         line = f.readline()
+        if line == None or not line.startswith("gnofract4d parameter file"):
+            raise Exception("Not a valid parameter file")
         while line != "":
             (name,val) = self.nameval(line)
             if name != None:             

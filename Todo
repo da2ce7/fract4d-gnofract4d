@@ -16,7 +16,6 @@ todo for 2.0
 * B	fractint doesn't reset vars between calls?
 * B	parse continuation lines correctly
 * BB	more robust error reporting
-* W	combine 2 classes in gtkfractal.py
 * W	command-line arguments
 * W	save images
 * WW	save parameter files (define a format first)
@@ -36,6 +35,7 @@ todo for 2.0
 * W	review human interface guidelines
 
 done:
+* W	combine 2 classes in gtkfractal.py
 * W	auto_deepen, antialiasing widgets
 * W	set size of diff_bailout check from periodicity info
 * W	SMP/nthreads > 1
