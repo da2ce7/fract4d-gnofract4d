@@ -36,6 +36,7 @@ netfract
 * WWW	write it
 
 gnofract4d
+* B	setting image size in explorer mode is screwed
 * W	remember .fct filenames and re-save to same place
 * W	Julia preview by moving around while holding button3
 * W	history window (move history inside library??)

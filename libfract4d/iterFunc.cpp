@@ -70,6 +70,11 @@ const double mandelBarOptDefaults[] = {
 const param_t mandelBarOverrides[] = { ZCENTER };
 const double mandelBarOverrideValues[] = { 1.0E-10 };
 
+const char *cubicOptNames[] = { "a" };
+const double cubicOptDefaults[] = {
+    0.0, 0.0 //a
+};
+
 #define NO_OPTIONS 0, NULL, NULL
 #define NO_OVERRIDES 0, NULL, NULL
 
@@ -190,6 +195,20 @@ iterFunc_data infoTable[] = {
 	"}",
 	DEFAULT_SIMPLE_CODE,
 	NO_OPTIONS,
+	NO_OVERRIDES
+    },
+    {
+	"Cubic Mandelbrot",
+	USE_COMPLEX, //flags
+	BAILOUT_MAG,
+	// decl code
+	"std::complex<double> z(p[X],p[Y]) , c(p[CX],p[CY])",
+	// iter code
+	"z = z * z * ( z - 3.0 * a[0]) + c",
+	DEFAULT_COMPLEX_CODE,
+	1,
+	cubicOptNames,
+	cubicOptDefaults,
 	NO_OVERRIDES
     },
     /* sentinel value */
@@ -574,31 +593,6 @@ public:
         }
 };
 
-// z <- z^3 + c
-class cubeFunc : public iterImpl<cubeFunc,0>
-{
-public:
-    enum {  FLAGS = HAS_X2 | HAS_Y2 };
-    cubeFunc() : iterImpl<cubeFunc,0>(name()) {}
-
-    static const char *name()
-        {
-            return "Cubic Mandelbrot";
-        }
-    std::string decl_code() const 
-        { 
-            return "double atmp";
-        }
-    std::string iter_code() const
-        {
-            return 
-                "p[X2] = p[X] * p[X];"
-                "p[Y2] = p[Y] * p[Y];"
-                "atmp = p[X2] * p[X] - 3.0 * p[X] * p[Y2] + p[CX];"
-                "p[Y] = 3.0 * p[X2] * p[Y] - p[Y2] * p[Y] + p[CY];"
-                "p[X] = atmp";
-        }
-};
 
 
 // computes z^a + c
