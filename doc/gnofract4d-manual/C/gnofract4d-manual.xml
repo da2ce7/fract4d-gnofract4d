@@ -101,7 +101,8 @@ dimensions, mutating the image.  </para>
 
 <para>
 
-&gf4d; uses several different types of file. These have different purposes as listed in the table below.
+&gf4d; uses several different types of file. These have different
+purposes as listed in the table below.
 
 <informaltable>
 <tgroup cols="3">
@@ -131,7 +132,6 @@ use it, you need to distribute the formula file as well.
 this purpose and &ultrafractal; uses <filename
 class="extension">.upr</filename>. Unfortunately &gf4d; can't read
 those formats (yet).
-
 </entry>
 </row>
 <row>
@@ -148,7 +148,9 @@ Image File
 output. <emphasis>No information about the fractal parameters is
 stored in the image file</emphasis>, so if you want to carry on
 exploring from a particular point you need to save a parameter file as
-well. &gf4d; can't load image files, only save them.</entry>
+well. &gf4d; can't load image files, only save them. Choose
+<guimenu>File</guimenu> &gt; <guimenuitem>Save Image</guimenuitem> to
+save an image.</entry>
 
 </row>
 
@@ -199,14 +201,8 @@ so far not very many.
 </tbody>
 </tgroup>
 </informaltable>
-
-If you find an
-interesting part of a fractal and want to keep a note of it and
-explore further later, choosing <guimenu>File</guimenu> &gt;
-<guimenuitem>Save</guimenuitem> to create a parameter file for future
-viewing. 
-
 </para>
+
 </sect2>
 
 <sect2 id="tools">
@@ -247,9 +243,8 @@ the Explorer button again.  </para>
 
 <para> The "weirdness slider"
 determines how different the mutants are from the standard image. If
-it's set to 1.0, they're almost unrecognizable - if it's 0.0, they're
-exactly the same. You can also generate more mutants with the refresh
-button.  
+it's set to 100, they're almost unrecognizable - if it's 0, they're
+exactly the same. 
 </para>
 
 </sect3>

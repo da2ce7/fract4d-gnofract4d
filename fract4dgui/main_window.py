@@ -11,7 +11,7 @@ from fract4d import fractal,fc,fract4dc
 
 
 import gtkfractal, model, preferences, autozoom, settings
-import colors, undo, browser
+import colors, undo, browser, fourway
 
 class MainWindow:
     def __init__(self):
@@ -358,7 +358,28 @@ class MainWindow:
             None,
             None
             )
+
+        xy_fourway = fourway.T(_("xy"))
+        self.toolbar.append_element(
+            gtk.TOOLBAR_CHILD_WIDGET,            
+            xy_fourway.widget,
+            _("Weirdness"),
+            _("How different to make the random mutant fractals"),
+            None,
+            None,
+            None,
+            None
+            )
+        xy_fourway.connect('value-slightly-changed', self.on_drag_fourway)
+        xy_fourway.connect('value-changed', self.on_release_fourway)
         
+    def on_drag_fourway(self,widget,dx,dy):
+        print "small change: (%d, %d)" % (dx,dy)
+
+    def on_release_fourway(self,widget,dx,dy):
+        print "change: (%d, %d)" % (dx,dy)
+        self.f.nudge(dx/10.0, dy/10.0, 0)
+            
     def save_file(self,file):
         try:
             self.f.save(open(file,'w'))
@@ -501,10 +522,10 @@ class MainWindow:
                 if self.load_formula(fs.get_filename()):
                     break
             else:
-                break
+                return
             
         fs.destroy()
-        
+        browser.show(self.window, self.f, browser.FRACTAL)
     
     def open(self,action,widget):
         fs = gtk.FileSelection(_("Open Parameter File"))
@@ -544,6 +565,8 @@ class MainWindow:
     def quit(self,action,widget=None):
         try:
             self.f.interrupt()
+            for f in self.subfracts:
+                f.interrupt()
             preferences.userPrefs.save()
             self.compiler.clear_cache()
         finally:
