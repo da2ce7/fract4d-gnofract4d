@@ -81,9 +81,9 @@ class ColorDialog(dialog.T):
                 
         self.model = _get_model()
         sw = self.create_map_file_list()
-        self.selected_segment = -1
         gradbox = self.create_editor()
-        
+        self.select_segment(-1)
+                
         hbox = gtk.HBox()
         hbox.pack_start(sw)
         hbox.pack_start(gradbox)
@@ -142,8 +142,15 @@ class ColorDialog(dialog.T):
 
     def select_segment(self,i):
         self.selected_segment = i
-        self.left_color_button.set_color(self.grad.segments[i].left_color)
-        self.right_color_button.set_color(self.grad.segments[i].right_color)
+        if i == -1:
+            self.left_color_button.set_color([0.5,0.5,0.5,1])
+            self.right_color_button.set_color([0.5,0.5,0.5,1])
+        else:
+            self.left_color_button.set_color(self.grad.segments[i].left_color)
+            self.right_color_button.set_color(self.grad.segments[i].right_color)
+        # buttons should be sensitive if selection is good
+        self.left_color_button.set_sensitive(i!= -1)
+        self.right_color_button.set_sensitive(i!= -1)
         
     def gradarea_mousedown(self, widget, event):
         pass
@@ -268,7 +275,7 @@ class ColorDialog(dialog.T):
         
         mapfile = model.get_value(iter,0)
         self.set_map_file(self.model.maps[mapfile])
-
+        
     def set_map_file(self, name):
         c = fractal.Colorizer()
         file = open(name)
@@ -277,6 +284,7 @@ class ColorDialog(dialog.T):
         if not self.grad.name:
             self.grad.name = name
 
+        self.select_segment(-1)
         self.redraw()
         
     def redraw(self):
