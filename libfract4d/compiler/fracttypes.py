@@ -45,11 +45,22 @@ _defaultOfType = {
     Color : [0,0,0,0]
     }
 
+_cTypeOfType = {
+    Int : "int",
+    Float : "double",
+    Complex : "double",
+    Bool : "int",
+    Color : "<Error>"
+    }
+
 def typeOfStr(tname):
     return _typeOfStr[string.lower(tname)]
 
 def strOfType(t):
     return _strOfType[t]
+
+def ctype(t):
+    return _cTypeOfType[t]
 
 def default_value(t):
     return _defaultOfType[t]

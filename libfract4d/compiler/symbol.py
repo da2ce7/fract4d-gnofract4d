@@ -15,7 +15,11 @@ def efl(template, tlist):
         f = "Func(%s,None)" % re.sub("_", str(t), template)
         list.append(eval(f))
     return list
-    
+
+class Alias:
+    def __init__(self,realName):
+        self.realName = realName
+        
 def createDefaultDict():
     d = {
         # standard library functions
@@ -52,9 +56,10 @@ def createDefaultDict():
         "||": [ Func([Bool, Bool], Bool, None) ],
         "!" : [ Func([Bool],Bool, None) ],
         
-        "#pixel": Var(Complex), 
-        "#z" : Var(Complex),
-        "z"  : Var(Complex), # FIXME: same as #z
+        "#pixel": Alias("pixel"),
+        "pixel" : Var(Complex), 
+        "#z" : Alias("z"),
+        "z"  : Var(Complex), 
 
         }
     return d
@@ -78,7 +83,12 @@ class T(UserDict):
         return not self.data[mangle(key)].pos == -1
     
     def __getitem__(self,key):
-        return self.data[mangle(key)]
+        val = self.data[mangle(key)]
+        if isinstance(val,Alias):
+            key = val.realName
+            val = self.data[mangle(key)]            
+        return val
+    
     def __setitem__(self,key,value):
         k = mangle(key)
         if self.data.has_key(k):

@@ -54,6 +54,9 @@ class SymbolTest(unittest.TestCase):
 
     def testZ(self):
         self.assertEqual(self.t["z"].type, Complex)
+
+    def testAlias(self):
+        self.assertEqual(self.t["#z"], self.t["z"])
         
 def suite():
     return unittest.makeSuite(SymbolTest,'test')
