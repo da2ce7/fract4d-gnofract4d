@@ -226,6 +226,7 @@ grad_find(double index, gradient_item_t *items, int ncolors)
 	    return i;
 	} 
     }
+    printf("No gradient for %g\n", index);
     assert(0 && "Didn't find an entry");
     return -1;
 }
@@ -285,9 +286,14 @@ calc_sphere_decreasing_factor (double middle,
 }
 
 rgba_t 
-GradientColorMap::lookup(double index) const
+GradientColorMap::lookup(double input_index) const
 {
-    index = index == 1.0 ? 1.0 : fmod(index,1.0);
+    double index = input_index == 1.0 ? 1.0 : fmod(input_index,1.0);
+    if(index < 0.0 || index > 1.0 || index != index)
+    {
+	// must be infinite or NaN
+	return black;
+    }
     int i = grad_find(index, items, ncolors); 
     assert(i >= 0 && i < ncolors);
 
