@@ -142,7 +142,8 @@ class SettingsDialog(gtk.Dialog):
             if self.table2 != None:
                 vbox.remove(self.table2)
 
-            self.table2 = self.f.populate_formula_settings()
+            self.table2 = self.f.populate_formula_settings(
+                self.f.formula, 0)
             self.table2.show_all()
             vbox.pack_start(self.table2)
             

@@ -5,8 +5,10 @@ todo for 2.0
 * BB	more robust error reporting
 * W	last-chance exception handler
 
-* B	untitled_5 doesn't load - need bailout for colorfunc (preview works, but not main image?)
-* WW	parameters for colorfuncs
+* B	untitled_5 displays weirdly - 
+	so do some combinations of bailout+colorfunc
+* W	UI for parameters for colorfuncs
+* B	max iterations widget is fucked
 
 * W	exact SMP equality test
 * W	end-to-end regression test vs V1.9

@@ -388,11 +388,23 @@ class T(FctUtils):
         self.colorlist = c.colorlist
         self.solids[0:len(c.solids)] = c.solids[:]
         self.changed()
-        
-    def set_initparam(self,n,val):
+
+    def get_initparam(self,n,param_type):
+        if param_type == 0:
+            params = self.initparams
+        else:
+            params = self.cfunc_params[param_type-1]
+        return params[n]
+    
+    def set_initparam(self,n,val,param_type):
         val = float(val)
-        if self.initparams[n] != val:
-            self.initparams[n] = val
+        if param_type == 0:
+            params = self.initparams
+        else:
+            params = self.cfunc_params[param_type-1]
+        
+        if params[n] != val:
+            params[n] = val
             self.changed()
 
     def set_formula_defaults(self):
