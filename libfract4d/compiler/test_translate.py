@@ -92,7 +92,7 @@ class TranslateTest(unittest.TestCase):
         }''')
         self.assertNoProbs(t13)
         
-    def x_testDecls(self):
+    def testDecls(self):
         t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")
         self.assertNoProbs(t1)
         self.assertVar(t1, "a", fracttypes.Int)

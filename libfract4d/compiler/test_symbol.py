@@ -29,6 +29,10 @@ class SymbolTest(unittest.TestCase):
         x = self.t["fish"]
         self.failUnless(isinstance(x,Var) and x.value == 1 and x.type == Int)
 
+    def test_user(self):
+        self.t["fish"] = Var(Int,1,1)
+        self.failUnless(self.t.is_user("fish"))
+        self.failUnless(not self.t.is_user("z"))
 
 def suite():
     return unittest.makeSuite(SymbolTest,'test')
