@@ -236,6 +236,7 @@ double pixel_re = params[0];
 double pixel_im = params[1];
 double z_re = params[2];
 double z_im = params[3];
+double t__h_index = 0.0;
 
 /* variable declarations */
 %(decls)s
@@ -261,6 +262,7 @@ t__end_final:
 /* fate of 0 = escaped, 1 = trapped */
 *t__p_pFate = (t__h_numiter >= t__p_nMaxIters);
 *t__p_pnIters = t__h_numiter;
+*t__p_pDist = t__h_index;
 
 return;
 }
@@ -330,7 +332,9 @@ pf_obj *pf_new()
     def output_symbols(self,user_overrides):
         overrides = {"z" : "",
                      "pixel" : "",
-                     "t__h_numiter" : ""}
+                     "t__h_numiter" : "",
+                     "t__h_index" : "",
+                     }
         for (k,v) in user_overrides.items():
             #print "%s = %s" % (k,v)
             overrides[k] = v

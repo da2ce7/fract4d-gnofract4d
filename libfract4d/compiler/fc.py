@@ -57,7 +57,7 @@ class Compiler:
             #print "Error parsing '%s' : %s" % (filename, err)
             raise
 
-    def generate_code(self,ir, outputfile,cfile):
+    def generate_code(self,ir, outputfile,cfile=None):
         cg = codegen.T(ir.symbols)
         cg.output_all(ir)
         self.c_code = cg.output_c(ir)
@@ -66,7 +66,7 @@ class Compiler:
         if cfile != None:
             open(cfile,"w").write(self.c_code)
         #print c_code
-        cmd = "gcc -Wall -fPIC -DPIC -O3 -shared %s -o %s -lm" % \
+        cmd = "gcc -Wall -fPIC -DPIC -g -O3 -shared %s -o %s -lm" % \
               (cFileName, outputfile)
         (status,output) = commands.getstatusoutput(cmd)
         if status != 0:

@@ -45,10 +45,12 @@ def createDefaultDict():
         "sin" :  efl("sin", "[_], _", [Float, Complex]),
         "cos" :  efl("cos", "[_], _", [Float, Complex]),
         "tan" :  efl("tan", "[_], _", [Float, Complex]),
+        "cotan": efl("cotan","[_], _", [Float, Complex]),
         "sinh" :  efl("sinh", "[_], _", [Float, Complex]),
         "cosh" :  efl("cosh", "[_], _", [Float, Complex]),
         "tanh" :  efl("tanh", "[_], _", [Float, Complex]),
-
+        "cotanh": efl("cotanh", "[_], _", [Float, Complex]),
+        
         "asin" :  efl("asin", "[_], _", [Float, Complex]),
         "acos" :  efl("acos", "[_], _", [Float, Complex]),
         "atan" :  efl("atan", "[_], _", [Float, Complex]),
@@ -101,8 +103,8 @@ def createDefaultDict():
         "pixel" : Var(Complex), 
         "t__h_z" : Alias("z"),
         "z"  : Var(Complex),
-        "t__h_index": Alias("*t__p_pDist"),
-        "t__h_numiter": Var(Float)
+        "t__h_index": Var(Float),
+        "t__h_numiter": Var(Int)
         }
     
     # predefined parameters

@@ -11,12 +11,11 @@ import pf
 
 class PfTest(unittest.TestCase):
     def setUp(self):
-        if os.path.exists("./test-pf.so"):
-            return
         compiler = fc.Compiler()
         compiler.load_formula_file("./gf4d.frm")
         f = compiler.get_formula("gf4d.frm","Mandelbrot")
         compiler.generate_code(f,"test-pf.so")
+        self.compiler = compiler
         
     def tearDown(self):
         pass
@@ -44,6 +43,17 @@ class PfTest(unittest.TestCase):
         pfunc = None
         handle = None
 
+    def testWithColors(self):
+        self.compiler.load_formula_file("./gf4d.cfrm")
+        f = self.compiler.get_formula("gf4d.frm","Mandelbrot",
+                                      "gf4d.cfrm","default")
+        self.compiler.generate_code(f,"test-pfc.so")
+        handle = pf.load("./test-pfc.so")
+        pfunc = pf.create(handle)
+        pf.init(pfunc,0.001,[])
+        result = pf.calc(pfunc,[1.5,0,0,0],100,100)
+        self.assertEqual(result,(2,0,2.0/256.0))
+                         
     def testMiniTextRender(self):
         handle = pf.load("./test-pf.so")
         pfunc = pf.create(handle)

@@ -37,7 +37,7 @@ class FCTest(unittest.TestCase):
         so = dl.open('./test-out.so', dl.RTLD_NOW)
         self.assertNotEqual(so.sym('pf_new'),0)
         self.assertNotEqual(so.call('pf_new'),0)
-        
+
     def testErrors(self):
         self.assertRaises(
             Exception, self.compiler.load_formula_file, "nonexistent.frm")
