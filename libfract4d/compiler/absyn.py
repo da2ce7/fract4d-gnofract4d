@@ -31,6 +31,23 @@ class Node:
     def __iter__(self):
         return NodeIter(self)
 
+    def __cmp__(self,other):
+        if self.type < other.type: return -1
+        if self.type > other.type: return 1
+
+        if self.leaf < other.leaf: return -1
+        if self.leaf > other.leaf: return 1
+        
+        #if len(self.children) < len(other.children): return -1
+        #if len(self.children) > len(other.children): return 1
+
+        if not self.children and not other.children: return 0
+        
+        for (child, otherchild) in zip(self.children,other.children):
+            eql = child.__cmp__(otherchild)
+            if eql: return eql
+        return eql
+    
 # not used or functional - might finish one day
 class NodeIter:
     def __init__(self,node):

@@ -87,10 +87,7 @@ default:
         self.assertTreesEqual(t1,t2)
         
     def assertTreesEqual(self, t1, t2):
-        # linearize both trees and check that they're equivalent
-        eqs = [ (x.leaf == y.leaf and x.type == y.type) for (x,y) in zip(t1, t2) ]
-        # are any nodes not equal?
-        self.assertEqual(eqs.count(0),0, "should be no false matches")
+        self.assertEqual(t1,t2, "should be equivalent")
 
     def allNodesOfType(self, t1, type):
         return [ n for n in t1 if n.type == type]
