@@ -31,6 +31,8 @@
 #include <stdio.h>
 #include <algorithm>
 
+const d PERIOD_TOLERANCE = 1.0E-10;
+
 class pointCalc : public pointFunc {
 private:
     /* members */
@@ -98,6 +100,46 @@ public:
             }while(true);
         }
 
+    template<class T>
+    bool calcSingleWithPeriod(
+        int &iter, int nMaxIters, 
+        T *pIter, T *pInput, T *pTemp)
+        {
+            int flags = m_pIter->flags();
+
+            /* periodicity vars */
+            d lastx = pIter[X], lasty=pIter[Y];
+            int k =1, m = 1;
+
+            do
+            {
+                (*m_pIter)(pIter,pInput,pTemp);
+                if(iter++ >= nMaxIters) 
+                {
+                    // ran out of iterations
+                    iter = -1; return false;
+                }
+                (*m_pBail)(pIter,pInput,pTemp,flags);            
+                if(pTemp[EJECT_VAL] >= m_eject)
+                {
+                    return true;
+                }
+                pIter[X] = pIter[X + (2*1)];
+                pIter[Y] = pIter[Y + (2*1)];
+                if(fabs(pIter[X] - lastx) < PERIOD_TOLERANCE &&
+                   fabs(pIter[Y] - lasty) < PERIOD_TOLERANCE)
+                {
+                    // period detected!
+                    iter = -1; return false;
+                }
+                if(--k == 0)
+                {
+                    lastx = pIter[X]; lasty = pIter[Y];
+                    m *= 2;
+                    k = m;
+                }
+            }while(1);
+        }
     template<class T> 
     int findExactIter(int iter, T *pIter, T *pInput, T *pTemp)
         {
@@ -133,9 +175,8 @@ public:
             pTemp[LASTX] = pTemp[LASTY] = DBL_MAX;
 
             int iter = 0;
-
+            bool bailed = false;
             /* periodicity vars */
-            const d PERIOD_TOLERANCE = 1.0E-10;
             d lastx = pIter[X], lasty=pIter[Y];
             int k =1, m = 1;
 
@@ -152,7 +193,7 @@ public:
                 // (the size of this chunk depends on whether the last point
                 // bailed or not)
 
-                bool bailed = calcNoPeriod(iter,nNoPeriod8Iters,pIter,pInput,pTemp);
+                bailed = calcNoPeriod(iter,nNoPeriod8Iters,pIter,pInput,pTemp);
                 if(!bailed)
                 {
                     if(iter < nMax8Iters)
@@ -204,36 +245,10 @@ public:
             }
 
         finished8:
-            // we finished the 8some iterations without bailing out
-            do
-            {
-                (*m_pIter)(pIter,pInput,pTemp);
-                if(iter++ >= nMaxIters) 
-                {
-                    // ran out of iterations
-                    iter = -1; break; 
-                }
-                (*m_pBail)(pIter,pInput,pTemp,flags);            
-                if(pTemp[EJECT_VAL] >= m_eject)
-                {
-                    break;
-                }
-                pIter[X] = pIter[X + (2*1)];
-                pIter[Y] = pIter[Y + (2*1)];
-                if(fabs(pIter[X] - lastx) < PERIOD_TOLERANCE &&
-                   fabs(pIter[Y] - lasty) < PERIOD_TOLERANCE)
-                {
-                    // period detected!
-                    //printf(".");
-                    iter = -1; break;
-                }
-                if(--k == 0)
-                {
-                    lastx = pIter[X]; lasty = pIter[Y];
-                    m *= 2;
-                    k = m;
-                }
-            }while(1);
+            // we finished the 8some iterations without bailing out,
+            // so finish off any remaining ones (could be all of them
+            // if iter8ok was false)
+            bailed = calcSingleWithPeriod(iter,nMaxIters,pIter,pInput,pTemp);
 
         finishedAll:
             *pnIters = iter;
