@@ -43,16 +43,78 @@ typedef enum {
     JOB_ROW_AA
 } job_type_t;
 
-/* bootstrap info for worker threads */
-typedef struct {
+/* per-worker-thread fractal info */
+class fractThreadFunc {
+ public:
     fractFunc *ff;
     job_type_t job;
     int x, y, param;
-} thread_data_t;
+
+    // n pixels correctly classified that would be wrong 
+    // if we halved iterations
+    int nhalfiters;
+    // n pixels misclassified that would be correct 
+    // if we doubled the iterations
+    int ndoubleiters; 
+    int k;	// number of pixels calculated    
+    int lastIter; // how many iterations did last pixel take?
+
+    fractThreadFunc() {
+        nhalfiters = ndoubleiters = k = 0;
+        lastIter = 0;
+    }
+    // try that many without periodicity checking if it did bail out,
+    // if it didn't bail, start periodicity checking immediately
+    inline int periodGuess();
+
+    // period guesser for when we have the last count to hand (as for antialias pass)
+    inline int periodGuess(int last);
+
+    // update whether last pixel bailed
+    inline void periodSet(int *ppos);
+
+    // top-level function for multi-threaded workers
+    void work();
+
+    // calculate a row of antialiased pixels
+    void row_aa(int x, int y, int n);
+
+    // calculate a row of pixels
+    void row(int x, int y, int n);
+
+    // calculate an rsize-by-rsize box of pixels
+    void box(int x, int y, int rsize);
+
+    // does the point at (x,y) have the same colour & iteration count
+    // as the target?
+    inline bool isTheSame(bool bFlat, int targetIter, int targetCol, int x, int y);
+
+    // make an int corresponding to an RGB triple
+    inline int RGB2INT(int y, int x);
+
+    // calculate a row of boxes
+    void box_row(int w, int y, int rsize);
+
+    // calculate a single pixel
+    void pixel(int x, int y, int h, int w);
+    // calculate a single pixel in aa-mode
+    void pixel_aa(int x, int y);
+
+    // draw a rectangle of this colour
+    void rectangle(struct rgb pixel, int x, int y, int w, int h);
+
+    // calculate this point using antialiasing
+    struct rgb antialias(int x, int y);
+
+    void reset_counts();
+
+};
 
 /* this contains stuff which is useful for drawing the fractal,
    but can be recalculated at will, so isn't part of the fractal's
-   persistent state. We create a new one each time we start drawing */
+   persistent state. We create a new one each time we start drawing. This one
+   parcels up the work which is actually performed by the fractThreadFuncs
+ */
 
 class fractFunc {
  public:
@@ -63,9 +125,7 @@ class fractFunc {
     void draw_aa();
     int updateiters();
 
-    // top-level function for multi-threaded workers
-    void work(thread_data_t *jobdata);
-
+    friend class fractThreadFunc;
  private:
     // MEMBER VARS
 
@@ -87,37 +147,22 @@ class fractFunc {
 
     // n pixels correctly classified that would be wrong 
     // if we halved iterations
-    int nhalfiters;
+    int nTotalHalfIters;
     // n pixels misclassified that would be correct 
     // if we doubled the iterations
-    int ndoubleiters; 
+    int nTotalDoubleIters; 
+    int nTotalK;	// number of pixels calculated    
+
     // last time we redrew the image to this line
     int last_update_y; 
-    int k;	// number of pixels calculated    
 
-    int lastIter; // how many iterations did last pixel take?
-
-    // try that many without periodicity checking if it did bail out,
-    // if it didn't bail, start periodicity checking immediately
-    inline int periodGuess() { 
-        return (lastIter == -1 && f->maxiter > 4096) ? 0 : f->maxiter; //lastIter;
-    }
-
-    // period guesser for when we have the last count to hand (as for antialias pass)
-    inline int periodGuess(int last) {
-        return (last == -1 /*&& f->maxiter > 4096*/) ? 0 : f->maxiter;
-    }
-
-    // update whether last pixel bailed
-    inline void periodSet(int *ppos) {
-        lastIter = *ppos;
-    }
 
     fractal_t *f; // pointer to fract passed in to ctor
     image *im;    // pointer to image passed in to ctor
     pointFunc *pf; // function for calculating 1 point
 
-    tpool<thread_data_t> *ptp;
+    tpool<fractThreadFunc> *ptp;
+    fractThreadFunc *ptf;
 
     /* wait for a ready thread then give it some work */
     void send_cmd(job_type_t job, int x, int y, int param);
@@ -125,28 +170,10 @@ class fractFunc {
 
     // MEMBER FUNCTIONS
     
-    // calculate a single pixel
-    void pixel(int x, int y, int h, int w);
-    // calculate a single pixel in aa-mode
-    void pixel_aa(int x, int y);
 
-    // calculate an 8-by-8 box of pixels...
-    void box(int x, int y, int rsize);
-    // ... in a worker thread
     void send_box(int x, int y, int rsize);
-
-    // calculate a row of pixels...
-    void row(int x, int y, int n);
-    // ... in a worker thread
     void send_row(int x, int y, int n);
-
-    // calculate a row of antialiased pixels
-    void row_aa(int x, int y, int n);
-    // ... in a worker thread
     void send_row_aa(int x, int y, int n);
-
-    // calculate a row of boxes
-    void box_row(int w, int y, int rsize);
     // ... in a worker thread
     void send_box_row(int w, int y, int rsize);
 
@@ -158,25 +185,12 @@ class fractFunc {
     void reset_counts();
     void reset_progress(float progress);
 
-    // draw a rectangle of this colour
-    void rectangle(struct rgb pixel, int x, int y, int w, int h);
-
-    // calculate this point using antialiasing
-    struct rgb antialias(int x, int y);
 
     // calculate the whole image using worker threads
     void draw_threads(int rsize, int drawsize);
 
     // reset image
     void clear();
-
-    // make an int corresponding to an RGB triple
-    inline int RGB2INT(int y, int x);
-
-    // does the point at (x,y) have the same colour & iteration count
-    // as the target?
-    inline bool isTheSame(bool bFlat, int targetIter, int targetCol, int x, int y);
-
 };
 
 #endif /* _FRACTFUNC_H_ */

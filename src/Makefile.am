@@ -32,7 +32,7 @@ gnofract4d_SOURCES = \
 	colorFunc.h colorFunc.cpp \
 	iterFunc.h iterFunc.cpp \
 	bailFunc.h bailFunc.cpp \
-	fractFunc.h fractFunc.cpp \
+	fractFunc.h fractFunc.cpp fractThreadFunc.cpp \
 	cmapbrowser.h cmapbrowser.cpp \
 	movie_editor.h movie_editor.cpp \
 	io.h io.cpp \

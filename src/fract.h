@@ -110,6 +110,7 @@ public:
     void update_matrix();
     dvec4 get_center();
     friend class fractFunc;
+    friend class fractThreadFunc;
 
     private:
     void recenter(const dvec4& delta);

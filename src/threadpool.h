@@ -213,6 +213,10 @@ class tpool {
             pthread_mutex_unlock(&queue_lock);
         }
 
+    T* work_data(int n)
+        {
+            return &queue[n].arg;
+        }
  private:
 
     /* pool characteristics */
@@ -232,6 +236,8 @@ class tpool {
 
     int queue_closed;
     int shutdown;
+
+
 };
 
 #endif /* _THREADPOOL_H_ */
