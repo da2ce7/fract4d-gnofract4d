@@ -42,7 +42,7 @@ fractFunc::fractFunc(
     /* threading */
     ptm = new MTFractWorker(f->nThreads,this,f,im);
 
-    if(ptm->ok)
+    if(ptm->ok())
     {
 	status_changed( GF4D_FRACTAL_CALCULATING);
     }
@@ -64,46 +64,6 @@ void
 fractFunc::clear()
 {
     im->clear();    
-}
-
-void
-fractFunc::send_cmd(job_type_t job, int x, int y, int param)
-{
-    //gf4d_fractal_try_finished_cond(gf);
-    job_info_t work;
-
-    work.job = job; 
-    work.x = x; work.y = y; work.param = param;
-
-    ptm->ptp->add_work(worker, work);
-}
-
-void
-fractFunc::send_row(int x, int y, int w)
-{
-    //cout << "sent ROW" << y << "\n";
-    send_cmd(JOB_ROW,x,y,w);
-}
-
-void
-fractFunc::send_box_row(int w, int y, int rsize)
-{
-    //cout << "sent BXR" << y << "\n";
-    send_cmd(JOB_BOX_ROW, w, y, rsize);
-}
-
-void
-fractFunc::send_box(int x, int y, int rsize)
-{
-    //cout << "sent BOX" << y << "\n";
-    send_cmd(JOB_BOX,x,y,rsize);
-}
-
-void
-fractFunc::send_row_aa(int x, int y, int w)
-{
-    //cout << "sent RAA" << y << "\n";
-    send_cmd(JOB_ROW_AA, x, y, w);
 }
 
 bool
@@ -179,10 +139,7 @@ void fractFunc::reset_counts()
 
 void fractFunc::reset_progress(float progress)
 {
-    if(ptm->ptp)
-    {
-        ptm->ptp->flush();
-    }
+    ptm->flush();
     image_changed(0,0,im->Xres(),im->Yres());
     progress_changed(progress);
 }

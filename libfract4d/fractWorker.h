@@ -42,6 +42,9 @@ public:
     virtual void stats(int *pnDoubleIters, int *pnHalfIters, int *pk) =0;
 
     virtual ~IFractWorker() {};
+
+    virtual void flush() = 0;
+    virtual bool ok() = 0;
 };
 
 /* per-worker-thread fractal info */
@@ -115,6 +118,9 @@ class STFractWorker : public IFractWorker {
     void reset_counts();
     void stats(int *pnDoubleIters, int *pnHalfIters, int *pk);
 
+    void flush() {};
+    bool ok() { return true; }
+ 
  private:
     // n pixels correctly classified that would be wrong 
     // if we halved iterations
@@ -150,9 +156,10 @@ class MTFractWorker : public IFractWorker
     virtual void reset_counts();
     virtual void stats(int *pnDoubleIters, int *pnHalfIters, int *pk);
 
-    tpool<job_info_t,STFractWorker> *ptp;
+    virtual void flush();
+
+    virtual bool ok();
     int nWorkers;
-    bool ok;
 private:
 
     /* wait for a ready thread then give it some work */
@@ -168,4 +175,6 @@ private:
     void send_box_row(int w, int y, int rsize);
 
     STFractWorker *ptf;
+    tpool<job_info_t,STFractWorker> *ptp;
+    bool m_ok;
 };
