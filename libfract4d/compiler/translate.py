@@ -282,8 +282,8 @@ class T:
             #               lab(fd),move(t,0),jmp(end),
             #               lab(end), t)
             if node.leaf == "&&":
-                # construct block of code to calc B and store in temp
-                calcBBlock = ir.Seq(
+                # code to calc B and store in temp
+                trueBlock = ir.Seq(
                     [trueDest, ir.Move(temp, children[1],node, node.datatype),
                      ir.Jump(doneDest.name, node)], node)
 
@@ -293,30 +293,28 @@ class T:
                      ir.Move(temp, ir.Const(0,Bool,node),node, node.datatype),
                      ir.Jump(doneDest.name, node)], node)
 
-                # construct actual if operation
-                test = ir.CJump(node.children[0].leaf,
-                                node.children[0].children[0],
-                                node.children[0].children[1],
-                                trueDest.name, falseDest.name, node)
             else:
                 # a || b = eseq(if(a) then t = true else t = (bool)b; t)
-                # construct block of code to calc B and store in temp
-
-                # FIXME: all wrong
-                calcBBlock = ir.Seq(
-                    [falseDest, ir.Move(temp, children[1],node, node.datatype),],
-                    node)
 
                 # code to set temp to true
-                trueBlock = self.seq_with_label(
-                    ir.Move(temp, ir.Const(1,Bool,node),node, node.datatype),
-                    trueDest, node)
-                
-                test = ir.CJump(node.children[0].leaf,
-                                trueBlock,
-                                calcBBlock,
-                                trueDest.name, falseDest.name, node)
-            r = ir.ESeq([test, calcBBlock, falseBlock, doneDest], temp, node, op.ret)
+                trueBlock = ir.Seq(
+                    [trueDest,
+                     ir.Move(temp, ir.Const(1,Bool,node),node, node.datatype),
+                     ir.Jump(doneDest.name, node)], node)
+
+                # set temp to (bool)b
+                falseBlock = ir.Seq(
+                    [falseDest,
+                     ir.Move(temp, children[1],node, node.datatype),
+                     ir.Jump(doneDest.name, node)], node)
+
+            # construct actual if operation
+            test = ir.CJump(node.children[0].leaf,
+                            node.children[0].children[0],
+                            node.children[0].children[1],
+                            trueDest.name, falseDest.name, node)
+
+            r = ir.ESeq([test, trueBlock, falseBlock, doneDest], temp, node, op.ret)
             return r
         else:
             children = map(lambda n : self.exp(n) , node.children)        
