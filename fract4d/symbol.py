@@ -207,8 +207,9 @@ def createDefaultDict():
       hyper_k(a,b,c,d) = d.''')
       
     f("recip",
-      cfl("[_] , _", [ Float, Complex]),
-      doc='''The reciprocal of a number. recip(x) is equivalent to 1/x.''')
+      cfl("[_] , _", [Float, Complex, Hyper]),
+      doc='''The reciprocal of a number. recip(x) is equivalent to 1/x.
+      Note that not all hypercomplex numbers have a proper reciprocal.''')
 
     f("trunc",
       [[[Float], Int], [[Complex], Complex]],
