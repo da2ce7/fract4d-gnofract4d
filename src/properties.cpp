@@ -578,9 +578,10 @@ create_cf_menu(Gf4dFractal *shadow, int whichCf)
 
     static const gchar *cf_names[] = 
     {
-        N_("Flat"),
+        N_("Iteration Count"),
         N_("Continuous Potential"),
-        N_("Color Zero")
+        N_("Color Zero"),
+        N_("Magnitude")
     };
 
     gtk_object_set_data(
@@ -688,12 +689,28 @@ create_propertybox_rendering_page(
                      (GtkAttachOptions)0, 
                      0, 2);
 
+    /* outer label */
+    GtkWidget *outerCfLabel = gtk_label_new(_("Outer"));
+    gtk_table_attach(GTK_TABLE(table), outerCfLabel, 0,1,3,4, 
+                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+                     (GtkAttachOptions)0, 
+                     0, 2);
+    gtk_widget_show(outerCfLabel);
+
     /* inner colorFunc type */
     GtkWidget *innerCfMenu = create_cf_menu(shadow,INNER);
     gtk_table_attach(GTK_TABLE(table), innerCfMenu, 1,2,4,5, 
                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
                      (GtkAttachOptions)0, 
                      0, 2);
+
+    /* inner label */
+    GtkWidget *innerCfLabel = gtk_label_new(_("Inner"));
+    gtk_table_attach(GTK_TABLE(table), innerCfLabel, 0,1,4,5, 
+                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+                     (GtkAttachOptions)0, 
+                     0, 2);
+    gtk_widget_show(innerCfLabel);
 
 }
 

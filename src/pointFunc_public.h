@@ -43,7 +43,8 @@ typedef enum
 {
     COLORFUNC_FLAT,
     COLORFUNC_CONT,
-    COLORFUNC_ZERO
+    COLORFUNC_ZERO,
+    COLORFUNC_MAG
 } e_colorFunc;
 
 #endif
