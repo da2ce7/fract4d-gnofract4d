@@ -107,6 +107,7 @@ class Compiler:
 
         if f != None:
             f = translate.ColorFunc(f,name)
+
         return f
         
 def usage():

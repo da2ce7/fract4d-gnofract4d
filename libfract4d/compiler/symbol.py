@@ -150,7 +150,12 @@ class T(UserDict):
         for k in other.data.keys():
             if self.data.get(k) == None:
                 self.data[k] = other.data[k]
-        
+            elif hasattr(self.data[k],"cname") and \
+                 hasattr(other.data[k],"cname") and \
+                 self.data[k].cname != other.data[k].cname:
+                    # FIXME can cause new clashes
+                    self.data[other.prefix + k] = other.data[k]
+                
     def has_key(self,key):
         if self.data.has_key(mangle(key)):
             return True        
@@ -177,7 +182,7 @@ class T(UserDict):
             val = self.default_dict.get(val.realName)
         if val != None:
             if val.cname == None:
-                print k
+                #print k
                 raise Exception("argh" + k)
             return val.cname
         return k

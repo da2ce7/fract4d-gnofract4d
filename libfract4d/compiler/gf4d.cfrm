@@ -17,6 +17,6 @@ final:
 
 continuous_potential {
 final:
-ed = 4.0/|z| ;FIXME - get real bailout
+float ed = 4.0/|z| ;FIXME - get real bailout
 #index = (#numiter + ed) / 256.0
 }

@@ -61,17 +61,14 @@ class Colorizer(FctUtils):
             line = f.readline()
 
     def parse_colorizer(self,val,f):
-        colorfunc_names = [
-            "default", 
-            "continuous_potential",
-            "zero",
-            "ejection_distance",
-            "decomposition",
-            "external_angle"]
-
-        self.name = colorfunc_names[int(val)]
-        #print "colorizer:", self.name
-
+        t = int(val)
+        if t == 0:
+            raise ValueError("Sorry, color ranges not currently supported")
+        elif t == 1:
+            pass
+        else:
+            raise ValueError("Unknown colorizer type %d" % t)
+        
     def parse_colordata(self,val,f):
         nc =len(val)//6
         i = 0
@@ -126,6 +123,15 @@ class T(FctUtils):
             (1.0, 255, 255, 255, 255)
             ]
 
+        # colorfunc lookup
+        self.colorfunc_names = [
+            "default", 
+            "continuous_potential",
+            "zero",
+            "ejection_distance",
+            "decomposition",
+            "external_angle"]
+
     def __del__(self):
         if self.outputfile:
             os.remove(self.outputfile)
@@ -136,13 +142,13 @@ class T(FctUtils):
             raise ValueError("no such formula: %s:%s" % (formulafile, func))
         
     def set_inner(self,funcfile,func):
-        self.cfuncs[0] = self.compiler.get_colorfunc(funcfile,func,"cf0")
-        if self.cfuncs[0] == None:
+        self.cfuncs[1] = self.compiler.get_colorfunc(funcfile,func,"cf1")
+        if self.cfuncs[1] == None:
             raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
 
     def set_outer(self,funcfile,func):
-        self.cfuncs[1] = self.compiler.get_colorfunc(funcfile,func,"cf1")
-        if self.cfuncs[1] == None:
+        self.cfuncs[0] = self.compiler.get_colorfunc(funcfile,func,"cf0")
+        if self.cfuncs[0] == None:
             raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
 
     def compile(self):
@@ -152,7 +158,7 @@ class T(FctUtils):
         self.compiler.compile(self.cfuncs[0])
         self.compiler.compile(self.cfuncs[1])
 
-        self.formula.merge(self.cfuncs[0],"cf0_")
+        self.formula.merge(self.cfuncs[0],"cf0_")        
         self.formula.merge(self.cfuncs[1],"cf1_")        
         self.outputfile = os.path.abspath(self.compiler.generate_code(self.formula, cg))
         return self.outputfile
@@ -213,11 +219,19 @@ class T(FctUtils):
         cf = Colorizer()
         cf.load(f)        
         if which_cf == 0:
-            self.set_outer("gf4d.cfrm",cf.name)
             self.colorlist = cf.colorlist
-        elif which_cf == 1:
-            self.set_inner("gf4d.cfrm",cf.name)        
-                
+        # ignore other colorlists for now
+
+    def parse_inner(self,val,f):
+        name = self.colorfunc_names[int(val)]
+        print "inner %s" % name
+        self.set_inner("gf4d.cfrm",name)
+
+    def parse_outer(self,val,f):
+        name = self.colorfunc_names[int(val)]
+        print "outer %s" % name
+        self.set_outer("gf4d.cfrm",name)
+        
     def parse_x(self,val,f):
         self.set_param(self.XCENTER,val)
 

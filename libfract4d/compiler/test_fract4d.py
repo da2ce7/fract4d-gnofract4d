@@ -217,10 +217,10 @@ class PfTest(unittest.TestCase):
             [(0.0,255,0,100,255), (1.0, 0, 255, 50, 255)])
 
         self.assertEqual(fract4d.cmap_lookup(cmap,0.0), (255,0,100,255))
+        self.assertEqual(fract4d.cmap_lookup(cmap,1.0-1e-10), (0,254,50,255))
         self.assertEqual(fract4d.cmap_lookup(cmap,1.0), (0,255,50,255))
         self.assertEqual(fract4d.cmap_lookup(cmap,0.5), (127,127,75,255))
-        self.assertEqual(fract4d.cmap_lookup(cmap,-784.1), (255,0,100,255))
-        self.assertEqual(fract4d.cmap_lookup(cmap,1.0E37), (0,255,50,255))
+        self.assertEqual(fract4d.cmap_lookup(cmap,0.00000001), (254,0,99,255))
         
         cmap = fract4d.cmap_create(
             [(0.0,255,0,100,255)])
@@ -235,7 +235,7 @@ class PfTest(unittest.TestCase):
 
         cmap = fract4d.cmap_create(colors)
         for i in xrange(256):
-            self.assertEqual(fract4d.cmap_lookup(cmap,i/255.0),colors[i][1:])
+            self.assertEqual(fract4d.cmap_lookup(cmap,i/255.0),colors[i][1:],i)
         
 def suite():
     return unittest.makeSuite(PfTest,'test')

@@ -364,7 +364,7 @@ goto t__end_init;''')
         cg_cf0 = codegen.T(tcf0.symbols)
         cg_cf0.output_all(tcf0)
 
-        tcf1 = self.translatecf('zero {\n #index = 0.0\n}', "cf1")
+        tcf1 = self.translatecf('zero {\n float d = 1.0\n#index = 0.0\n}', "cf1")
         cg_cf1 = codegen.T(tcf1.symbols)
         cg_cf1.output_all(tcf1)
 
