@@ -6,6 +6,7 @@ struct image
 	int Xres;
 	int Yres;
 	char *buffer;
+	int * iter_buf;
 
 	image();
 	~image();

@@ -493,14 +493,14 @@ public:
 
 		debug_precision(topleft[VX],"topleft");
 		nhalfiters = ndoubleiters = k = 0;
-		p = new int[im->Xres * im->Yres];
+		p = im->iter_buf;
 		for(int i = 0; i < im->Xres * im->Yres; i++) {
 			p[i]=-1;
 		}
 		last_update_y = 0;
 	};
 	~fract_rot() {
-		delete[] p;
+		
 	}
 	void pixel(int x, int y, int h, int w);
 	void check_update(int i);

@@ -65,7 +65,7 @@ gboolean gf4d_fractal_load_params(Gf4dFractal *f, const gchar *filename);
 
 /* accessor functions */
 int gf4d_fractal_get_max_iterations(Gf4dFractal *f);
-int gf4d_fractal_get_aa(Gf4dFractal *f);
+gboolean gf4d_fractal_get_aa(Gf4dFractal *f);
 int gf4d_fractal_get_auto(Gf4dFractal *f);
 char *gf4d_fractal_get_param(Gf4dFractal *f, param_t i);
 
@@ -79,7 +79,7 @@ void gf4d_fractal_interrupt(Gf4dFractal *f);
 /* update functions */
 void gf4d_fractal_set_max_iterations(Gf4dFractal *f, int val);
 void gf4d_fractal_set_param(Gf4dFractal *f, param_t i, char *val);
-void gf4d_fractal_set_aa(Gf4dFractal *f, int val);
+void gf4d_fractal_set_aa(Gf4dFractal *f, gboolean val);
 void gf4d_fractal_set_auto(Gf4dFractal *f, int val);
 int gf4d_fractal_set_precision(Gf4dFractal *f, int digits);
 

@@ -94,16 +94,17 @@ kill_slave_threads(Gf4dFractal *f)
 	gf4d_fractal_lock(f);
 	if(f->tid)
 	{
-		void *statusp;
 		int err = pthread_cancel(f->tid);
+		g_print("> %d\n",f->tid);
 		if(err)
 		{
-			g_print("error in cancel\n");
+			g_warning("error in cancel\n");
 		}
 		else
 		{
-			g_print("cancelled %d\n", f->tid);
-			pthread_join(f->tid,&statusp);
+			//g_print("cancelled %d\n", f->tid);
+			g_print("< %d\n",f->tid);
+			pthread_join(f->tid,NULL);
 		}
 	}
 	f->tid = 0;
@@ -230,12 +231,6 @@ static void *
 calculation_thread(void *vdata)
 {
 	Gf4dFractal *f = (Gf4dFractal *)vdata;
-	int last_type; // not used
-	int last_state; // not used
-
-	/* enable deferred cancellations */
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &last_type);
-	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &last_state);
 
 	f->f->calc(f,f->im);	
 	return NULL;
@@ -243,7 +238,7 @@ calculation_thread(void *vdata)
 
 void gf4d_fractal_calc(Gf4dFractal *f)
 {
-	g_print("calculating\n");
+	//g_print("calculating\n");
 
 	kill_slave_threads(f);
 
@@ -252,8 +247,7 @@ void gf4d_fractal_calc(Gf4dFractal *f)
 	{
 		g_print("Error, couldn't start thread\n");
 	}
-
-	g_print("created thread %d\n",f->tid);
+	//g_print("created thread %d\n",f->tid);
 	gf4d_fractal_unlock(f);
 }
 
@@ -297,9 +291,11 @@ double gf4d_fractal_get_b(Gf4dFractal *f)
 	return f->f->get_b();
 }
 
-int gf4d_fractal_get_aa(Gf4dFractal *f)
+gboolean gf4d_fractal_get_aa(Gf4dFractal *f)
 {
-	return f->f->get_aa();
+	int val = f->f->get_aa();
+	if(val > 1) return true;
+	else return false;
 }
 
 int gf4d_fractal_get_auto(Gf4dFractal *f)
@@ -327,11 +323,18 @@ void gf4d_fractal_set_param(Gf4dFractal *f, param_t i, char *val)
 	f->f->set_param(i,val);
 }
 
-void gf4d_fractal_set_aa(Gf4dFractal *f, int val)
+void gf4d_fractal_set_aa(Gf4dFractal *f, gboolean val)
 {
 	kill_slave_threads(f);
 
-	f->f->set_aa(val);
+	if(val)
+	{
+		f->f->set_aa(2);
+	}
+	else
+	{
+		f->f->set_aa(0);
+	}		
 }
 
 void gf4d_fractal_set_auto(Gf4dFractal *f, int val)
@@ -423,7 +426,7 @@ void gf4d_fractal_interrupt(Gf4dFractal *f)
 
 void gf4d_fractal_parameters_changed(Gf4dFractal *f)
 {
-	g_print("parameters changed: emit\n");
+	//g_print("parameters changed: emit\n");
 	gtk_signal_emit(GTK_OBJECT(f), fractal_signals[PARAMETERS_CHANGED]); 
 }
 
@@ -443,34 +446,37 @@ void gf4d_fractal_image_changed(Gf4dFractal *f, int x1, int y1, int x2, int y2)
 	fakeEvent.count = 0;
 
 	pthread_testcancel();
-
+	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,NULL);
 	gdk_threads_enter();
 	gtk_signal_emit(GTK_OBJECT(f), 
 			fractal_signals[IMAGE_CHANGED],
 			&fakeEvent);
 	gdk_threads_leave();
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 }
 
 void gf4d_fractal_progress_changed(Gf4dFractal *f, float progress)
 {
 	pthread_testcancel();
-
+	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,NULL);
 	gdk_threads_enter();
 	gtk_signal_emit(GTK_OBJECT(f),
 			fractal_signals[PROGRESS_CHANGED], 
 			progress);
 	gdk_threads_leave();
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 }
 
 void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val)
 {
 	pthread_testcancel();
-
+	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,NULL);
 	gdk_threads_enter();
 	gtk_signal_emit(GTK_OBJECT(f),
 			fractal_signals[STATUS_CHANGED],
 			status_val);
 	gdk_threads_leave();
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 }
 
 int gf4d_fractal_is_interrupted(Gf4dFractal *f)
