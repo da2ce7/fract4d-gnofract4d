@@ -73,6 +73,16 @@ class TranslateTest(unittest.TestCase):
         }''')
         self.assertWarning(t10,"conversion from int to float on line 4")
         self.assertError(t10, "invalid type float for const 1.0 on line 5, expecting int")
+
+    def testIDs(self):
+        t11 = self.translate('''t11 {
+        init: int a = 1, int b = 2
+        loop: a = b
+        }''')
+        self.assertNoProbs(t11)
+
+        t12 = self.translate('t12 {\ninit: a = b}')
+        self.assertWarning(t12, "Uninitialized variable b referenced on line 2")
         
     def testDecls(self):
         t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")
