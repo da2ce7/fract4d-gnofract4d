@@ -11,6 +11,7 @@ def show_settings(parent,f):
     if not _settings:
         _settings = SettingsDialog(parent,f)
     _settings.show_all()
+    _settings.present()
     #_settings.window.raise()
 
 class SettingsDialog(gtk.Dialog):

@@ -72,11 +72,15 @@ class T(gobject.GObject):
         drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
                                 gtk.gdk.BUTTON1_MOTION_MASK |
                                 gtk.gdk.POINTER_MOTION_HINT_MASK |
-                                gtk.gdk.BUTTON_PRESS_MASK)
+                                gtk.gdk.BUTTON_PRESS_MASK |
+                                gtk.gdk.KEY_PRESS_MASK |
+                                gtk.gdk.KEY_RELEASE_MASK
+                                )
         
         drawing_area.connect('motion_notify_event', self.onMotionNotify)
         drawing_area.connect('button_release_event', self.onButtonRelease)
         drawing_area.connect('button_press_event', self.onButtonPress)
+        drawing_area.connect('key_release_event', self.onKeyRelease)
         drawing_area.connect('expose_event',self.onExpose)
 
         c = self.get_rgb_colormap()
@@ -106,7 +110,10 @@ class T(gobject.GObject):
         was_dirty = self.f.dirty
         self.f.clean()
         return was_dirty
-    
+
+    def onKeyRelease(self,event):
+        print "okr", event
+        
     def interrupt(self):
         #print "interrupted %d" % self.running
         if self.skip_updates:

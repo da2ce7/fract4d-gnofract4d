@@ -273,7 +273,6 @@ class MainWindow:
         # need to gather a filename
         fs = gtk.FileSelection("Save Parameters")
         fs.show_all()
-        fs.complete("*.fct")
 
         name = None
         while True:
@@ -319,7 +318,6 @@ class MainWindow:
     def save_image(self,action,widget):
         fs = gtk.FileSelection("Save Image")
         fs.show_all()
-        fs.complete("*.png")
         
         name = None
         while True:
@@ -389,7 +387,6 @@ class MainWindow:
     def open_formula(self,action,widget):
         fs = gtk.FileSelection("Open Formula File")
         fs.show_all()
-        fs.complete("*.frm")
         
         while True:
             result = fs.run()            
@@ -405,7 +402,6 @@ class MainWindow:
     def open(self,action,widget):
         fs = gtk.FileSelection("Open Parameter File")
         fs.show_all()
-        fs.complete("*.fct")
         
         while True:
             result = fs.run()            
