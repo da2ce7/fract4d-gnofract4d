@@ -42,7 +42,8 @@ class MainWindow:
 
         self.accelgroup = gtk.AccelGroup()
         self.window.add_accel_group(self.accelgroup)
-
+        #self.window.connect('key-press-event', self.on_key_press)
+        
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
 
@@ -78,6 +79,9 @@ class MainWindow:
     def on_fractal_change(self,object):
         print "parameters changed"
         self.f.draw_image()
+
+    def on_key_press(self, event, *args):
+        print "key:", event.keyval
         
     def progress_changed(self,progress):
         self.bar.set_fraction(progress/100.0)
@@ -118,7 +122,7 @@ class MainWindow:
         menubar = item_factory.get_widget('<main>')
 
         self.vbox.pack_start(menubar, expand=gtk.FALSE)
-
+        
     def create_status_bar(self):
         self.bar = gtk.ProgressBar()
         self.vbox.pack_end(self.bar, expand=gtk.FALSE)
@@ -143,7 +147,8 @@ class MainWindow:
     def redo(self,action,widget):
         print "redo"
     def reset(self,action,widget):
-        print "reset"
+        self.f.reset()
+        
     def contents(self,action,widget):
         print "contents"
 
