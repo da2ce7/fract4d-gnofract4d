@@ -25,7 +25,6 @@ UF Incompatibilities
 UI improvements 
 * BB	more robust error reporting
 * W	last-chance exception handler
-* W	current angle in status bar
 * B	maxiter isn't updated due to auto-deepening
 * W	formula browser
 	manage search path (user prefs)
@@ -75,6 +74,7 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done in 2.2:
+* W	current angle in status bar
 * W	drop-down resolution chooser
 * B	method=multipass = compile error
 * W	sort formula files by name

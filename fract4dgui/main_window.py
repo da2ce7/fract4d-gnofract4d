@@ -3,6 +3,7 @@
 import sys
 import os
 import copy
+import math
 
 import gtk
 
@@ -631,6 +632,8 @@ class MainWindow:
         
     def on_angle_slightly_changed(self,widget,val):
         self.preview.set_param(widget.axis, val)
+        angle_in_degrees = "%.2f" % (float(val)*180.0/math.pi)
+        self.bar.set_text(angle_in_degrees)
         self.draw_preview()
 
     def on_angle_changed(self,widget,val):
