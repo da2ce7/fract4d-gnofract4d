@@ -41,6 +41,7 @@ init:
 	hyper c = (real(#pixel),imag(#pixel),real(#zwpixel), imag(#zwpixel)) 
 loop:
 	h = @hfunc(h) + c
+	z = hyper_ri(h) ; for coloring algorithms to use
 bailout:
 	|h| < @bailout
 default:
@@ -61,6 +62,7 @@ init:
 	hyper h = (real(#pixel),imag(#pixel),real(#zwpixel), imag(#zwpixel)) 
 loop:
 	h = @hfunc(h) + @c
+	z = hyper_ri(h) ; for coloring algorithms to use
 bailout:
 	|h| < @bailout
 default:
