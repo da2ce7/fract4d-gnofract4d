@@ -46,7 +46,8 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     clear();
 
     /* 0'th ftf is in this thread for calculations we don't want to offload */
-    int nThreadFuncs = f->nThreads > 1 ? f->nThreads + 1 : 1;
+    nThreadFuncs = f->nThreads > 1 ? f->nThreads + 1 : 1;
+
     ptf = new fractThreadFunc[nThreadFuncs];
     for(int i = 0; i < nThreadFuncs; ++i)
     {
@@ -135,19 +136,13 @@ fractFunc::update_image(int i)
 int
 fractFunc::updateiters()
 {
-    if(ptp)
+    // add up all the subtotals
+    for(int i = 0; i < nThreadFuncs; ++i)
     {
-        // add up all the subtotals
-        for(int i = 0; i < f->nThreads; ++i)
-        {
-            nTotalDoubleIters += ptp->thread_info(i)->ndoubleiters;
-            nTotalHalfIters += ptp->thread_info(i)->nhalfiters;
-            nTotalK += ptp->thread_info(i)->k;
-        }
+        nTotalDoubleIters += ptf[i].ndoubleiters;
+        nTotalHalfIters += ptf[i].nhalfiters;
+        nTotalK += ptf[i].k;
     }
-    nTotalDoubleIters += ptf->ndoubleiters;
-    nTotalHalfIters += ptf->nhalfiters;
-    nTotalK += ptf->k;
 
     double doublepercent = ((double)nTotalDoubleIters*AUTO_DEEPEN_FREQUENCY*100)/nTotalK;
     double halfpercent = ((double)nTotalHalfIters*AUTO_DEEPEN_FREQUENCY*100)/nTotalK;
@@ -199,14 +194,11 @@ void fractFunc::draw_aa()
 
 void fractFunc::reset_counts()
 {
-    if(ptp)
+    for(int i = 0; i < nThreadFuncs ; ++i)
     {
-        for(int i = 0; i < f->nThreads ; ++i)
-        {
-            ptp->thread_info(i)->reset_counts();
-        }
+        ptf[i].reset_counts();
     }
-    ptf->reset_counts();
+
     
     nTotalHalfIters = nTotalDoubleIters = nTotalK = 0;
 }

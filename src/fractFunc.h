@@ -63,6 +63,7 @@ class fractThreadFunc {
     int k;	// number of pixels calculated    
     int lastIter; // how many iterations did last pixel take?
 
+
     fractThreadFunc() {
         nhalfiters = ndoubleiters = k = 0;
         lastIter = 0;
@@ -165,8 +166,10 @@ class fractFunc {
     image *im;    // pointer to image passed in to ctor
     pointFunc *pf; // function for calculating 1 point
 
-    tpool<job_info_t,fractThreadFunc> *ptp;
+    int nThreadFuncs;
     fractThreadFunc *ptf;
+    tpool<job_info_t,fractThreadFunc> *ptp;
+
 
     /* wait for a ready thread then give it some work */
     void send_cmd(job_type_t job, int x, int y, int param);
