@@ -1,0 +1,17 @@
+comment {
+
+Standard Gnofract4D coloring algorithms
+
+}
+
+default {
+; the default is just to use the iteration count
+final:
+#index = #numiter / 256.0
+}
+
+zero {
+final:
+#index = 0.0
+}
+
