@@ -488,7 +488,22 @@ image_resize(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+static PyObject *
+image_save(PyObject *self,PyObject *args)
+{
+    PyObject *pyim;
+    char *fname;
+    if(!PyArg_ParseTuple(args,"Os",&pyim,&fname))
+    {
+	return NULL;
+    }
+    image *i = (image *)PyCObject_AsVoidPtr(pyim);
+    i->save(fname);
 
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+    
 static PyMethodDef PfMethods[] = {
     {"pf_load",  pf_load, METH_VARARGS, 
      "Load a new point function shared library"},
@@ -508,6 +523,8 @@ static PyMethodDef PfMethods[] = {
       "Create a new image buffer"},
     { "image_resize", image_resize, METH_VARARGS,
       "Change image dimensions - data is deleted" },
+    { "image_save", image_save, METH_VARARGS,
+      "save an image to .tga format"},
 
     { "site_create", pysite_create, METH_VARARGS,
       "Create a new site"},
