@@ -102,6 +102,124 @@ public:
         }
 };
 
+// z <- ( re(z) > 0 ? (z - 1) * c : (z + 1) * c)
+class barnsleyFunc: public noOptions
+{
+public:
+    barnsleyFunc() : noOptions(5) {};
+    void operator()(double *p) const
+        {
+            double x_cy = p[X] * p[CY], x_cx = p[X] * p[CX],
+                y_cy = p[Y] * p[CY], y_cx = p[Y] * p[CX];
+            
+            if(p[X] >= 0)
+            {
+                p[X] = (x_cx - p[CX] - y_cy );
+                p[Y] = (y_cx - p[CY] + x_cy );
+            }
+            else
+            {
+                p[X] = (x_cx + p[CX] - y_cy);
+                p[Y] = (y_cx + p[CY] + x_cy);
+            }
+        }
+    int flags() const
+        {
+            return 0;
+        }
+    char *name() const
+        {
+            return "Barnsley Type 1";
+        }
+    iterFunc *clone() const
+        {
+            return new barnsleyFunc(*this);
+        }
+    bool operator==(const iterFunc &c) const
+        {
+            const barnsleyFunc *p = dynamic_cast<const barnsleyFunc *>(&c);
+            if(!p) return false;
+            return true;
+        }
+};
+
+// z <- ( re(z) > 0 ? (z - 1) * c : (z + 1) * c)
+class barnsley2Func: public noOptions
+{
+public:
+    barnsley2Func() : noOptions(7) {};
+    void operator()(double *p) const
+        {
+            double x_cy = p[X] * p[CY], x_cx = p[X] * p[CX],
+                y_cy = p[Y] * p[CY], y_cx = p[Y] * p[CX];
+            
+            if(p[X]*p[CY] + p[Y]*p[CX] >= 0)
+            {
+                p[X] = (x_cx - p[CX] - y_cy );
+                p[Y] = (y_cx - p[CY] + x_cy );
+            }
+            else
+            {
+                p[X] = (x_cx + p[CX] - y_cy);
+                p[Y] = (y_cx + p[CY] + x_cy);
+            }
+        }
+    int flags() const
+        {
+            return 0;
+        }
+    char *name() const
+        {
+            return "Barnsley Type 2";
+        }
+    iterFunc *clone() const
+        {
+            return new barnsley2Func(*this);
+        }
+    bool operator==(const iterFunc &c) const
+        {
+            const barnsley2Func *p = dynamic_cast<const barnsley2Func *>(&c);
+            if(!p) return false;
+            return true;
+        }
+};
+
+// z <- lambda * z * ( 1 - z)
+class lambdaFunc: public noOptions
+{
+public:
+    lambdaFunc() : noOptions(6) {};
+    void operator()(double *p) const
+        {
+            p[X2] = p[X] * p[X]; p[Y2] = p[Y] * p[Y];
+
+            /* t <- z * (1 - z) */
+            double tx = p[X] - p[X2] + p[Y2];
+            double ty = p[Y] - 2.0 * p[X] * p[Y];
+
+            p[X] = p[CX] * tx - p[CY] * ty;
+            p[Y] = p[CX] * ty + p[CY] * tx;
+        }
+    int flags() const
+        {
+            return HAS_X2 | HAS_Y2;
+        }
+    char *name() const
+        {
+            return "Lambda";
+        }
+    iterFunc *clone() const
+        {
+            return new lambdaFunc(*this);
+        }
+    bool operator==(const iterFunc &c) const
+        {
+            const lambdaFunc *p = dynamic_cast<const lambdaFunc *>(&c);
+            if(!p) return false;
+            return true;
+        }
+};
+
 // z <- (|x| + i |y|)^2 + c
 class shipFunc: public noOptions
 {
@@ -209,6 +327,7 @@ public:
 
 // generalised quadratic mandelbrot
 // computes a[0] * z^2 + a[1] * z + a[2] * c
+// a[] array should be an array of complex numbers, really
 class quadFunc : public iterFunc
 {
 private:
@@ -290,7 +409,6 @@ iterFunc *iterFunc_new(int nFunc)
     switch(nFunc){
     case 0:
         return new mandFunc;
-
     case 1:
         return new shipFunc;
     case 2:
@@ -299,6 +417,12 @@ iterFunc *iterFunc_new(int nFunc)
         return new cubeFunc;
     case 4:
         return new quadFunc;
+    case 5:
+        return new barnsleyFunc;
+    case 6:
+        return new lambdaFunc;
+    case 7:
+        return new barnsley2Func;
     default:
         return NULL;
     }

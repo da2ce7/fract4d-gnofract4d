@@ -55,7 +55,7 @@ public:
         struct rgb *color, int *pnIters
         )
         {
-            int flags = HAS_X2 | HAS_Y2; // FIXME get from iterFunc
+            int flags = m_pIter->flags();
 
             scratch_space p;
             p[X] =  DOUBLE(params.n[VZ]); 
