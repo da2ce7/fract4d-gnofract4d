@@ -133,3 +133,13 @@ disabled periodicity, 8x iterations:
 
 periodicity back on:
 60.44user 0.31system 0:33.42elapsed 181%CPU (0text+0data 0max)k
+
+v1.7+ on rh8.0:
+
+valley_test:
+1.38user 0.08system 0:24.69elapsed 5%CPU (0text+0data 0max)k 
+param.fct:
+1.26user 0.06system 0:18.68elapsed 7%CPU (0text+0data 0max)k
+1.26user 0.07system 0:18.69elapsed 7%CPU (0text+0data 0max)k
+
+

@@ -50,7 +50,7 @@ typedef struct _Gf4dFractalClass Gf4dFractalClass;
 struct _Gf4dFractal
 {
     GtkObject object;	
-    fractal_t *f;
+    IFractal *f;
     image_t *im;
     pthread_t tid;
     pthread_mutex_t lock;
@@ -161,8 +161,8 @@ Gf4dFractal *gf4d_fractal_copy(Gf4dFractal *f);
 // is f2 the same as f?
 gboolean gf4d_fractal_is_equal(Gf4dFractal *f, Gf4dFractal *f2);
 
-fractal_t *gf4d_fractal_copy_fract(Gf4dFractal *f);
-void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f);
+IFractal *gf4d_fractal_copy_fract(Gf4dFractal *f);
+void gf4d_fractal_set_fract(Gf4dFractal *gf, IFractal * f);
 void gf4d_fractal_update_fract(Gf4dFractal *gf, Gf4dFractal *gf2);
 
 void gf4d_fractal_set_inexact(Gf4dFractal *gf_dst, Gf4dFractal *gf_src, double weirdness);

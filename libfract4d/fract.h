@@ -32,7 +32,8 @@
 class fractFunc;
 class iterFunc;
 
-struct fractal
+
+struct fractal : public IFractal
 {
     // member vars
 private:
@@ -45,8 +46,6 @@ private:
 
     // color params
     colorizer *cizer;
-
-public:
 
     e_bailFunc bailout_type;    
     e_colorFunc colorFuncs[N_COLORFUNCS];
@@ -72,17 +71,21 @@ public:
     fractal();
     fractal(const fractal& f); // copy ctor
     fractal& operator=(const fractal& f); // assignment op
+    IFractal& operator=(const IFractal& f);
     bool operator==(const fractal& f); // equality 
+    bool operator==(const IFractal& f); 
     ~fractal();
 
     // change the function type
     void set_fractal_type(const char *type);
+    iterFunc *get_iterFunc() const;
+    void set_iterFunc(iterFunc *);
 
     // make this fractal like f but weirder
-    void set_inexact(const fractal& f, double weirdness); 
+    void set_inexact(const IFractal& f, double weirdness); 
     // make this fractal into a mixture of f1 and f2, 
     // in the proportion lambda of f1 : 1-lambda of f2
-    void set_mixed(const fractal& f1, const fractal& f2, double lambda);
+    void set_mixed(const IFractal& f1, const IFractal& f2, double lambda);
 
     void reset();
     void calc(Gf4dFractal *gf4d, image *im, fract_callbacks *fcb);
@@ -93,20 +96,33 @@ public:
     void move(param_t i, double distance);
     bool write_params(const char *filename);
     bool load_params(const char *filename);
-    char *get_param(param_t i);
+    char *get_param(param_t i) const;
     bool set_param(param_t i, const char *val);
     void set_max_iterations(int val);
     void set_aa(e_antialias val);
+    e_antialias get_aa() const;
+    void set_effective_aa(e_antialias val);
+    e_antialias get_effective_aa() const ;
+
+    void set_threads(int n);
+    int get_threads() const;
+
     void set_auto(bool val);
-    int get_max_iterations();
-    e_antialias get_aa();
-    bool get_auto();
+    int get_max_iterations() const;
+
+    bool get_auto() const;
     bool check_precision();
     bool set_precision(int digits); 
 
     // color functions
-    colorizer_t *get_colorizer();
+    colorizer_t *get_colorizer() const ;
     void set_colorizer(colorizer_t *cizer);
+
+    e_bailFunc get_bailFunc() const;
+    void set_bailFunc(e_bailFunc bf);
+
+    void set_colorFunc(e_colorFunc cf, int which_cf);
+    e_colorFunc get_colorFunc(int which_cf) const;
 
     void update_matrix();
     dvec4 get_center();
@@ -116,12 +132,10 @@ public:
     // calculate the periodicity error tolerance
     d tolerance(image *im); 
 
-    private:
+private:
     void recenter(const dvec4& delta);
     // used by copy ctor and op=
     void copy(const fractal& f);
 };
-
-void fract_delete(fractal_t **f);
 
 #endif /* _FRACT_H_ */

@@ -1,6 +1,8 @@
 
 lib_LTLIBRARIES= libfract4d.la
 
+CXXFLAGS= -Wall -g -O0
+
 libfract4d_la_SOURCES=\
 	compiler.h \
 	compiler.cpp \

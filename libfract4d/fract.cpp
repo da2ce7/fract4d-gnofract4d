@@ -92,7 +92,14 @@ fractal::fractal()
     bailout_type=BAILOUT_MAG;
     colorFuncs[OUTER]=COLORFUNC_CONT;
     colorFuncs[INNER]=COLORFUNC_ZERO;
+
+    assert(pIterFunc > (void *)0x1000);
 }
+
+
+
+// this looks pointless but weirdly it won't link otherwise
+IFractal::~IFractal() {}
 
 /* dtor */
 fractal::~fractal()
@@ -101,13 +108,10 @@ fractal::~fractal()
     delete pIterFunc;
 }
 
-/* call destructor & set ptr to NULL */
-void
-fract_delete(fractal_t **fp)
+
+IFractal *IFractal::create()
 {
-    fractal_t *f = *fp;
-    delete f;
-    *fp = NULL;
+    return new fractal();
 }
 
 void
@@ -119,6 +123,7 @@ fractal::copy(const fractal& f)
     }
     maxiter = f.maxiter;
     pIterFunc = f.pIterFunc->clone();
+    assert(pIterFunc > (void *)0x1000);
     antialias = f.antialias;
     auto_deepen = f.auto_deepen;
     digits = f.digits;
@@ -135,6 +140,31 @@ fractal::copy(const fractal& f)
 }
 
 /* copy ctor */
+IFractal *IFractal::clone(const IFractal *f)
+{
+    IFractal *nf = IFractal::create();
+    for(int i = 0; i < N_PARAMS; ++i)
+    {
+	nf->set_param((param_t)i,f->get_param((param_t)i));
+    }
+    nf->set_max_iterations(f->get_max_iterations());
+    nf->set_iterFunc(f->get_iterFunc()->clone());
+    nf->set_aa(f->get_aa());
+    nf->set_auto(f->get_auto());
+    
+    // FIXME: doesn't copy digits, rot_by, rot, eaa
+    nf->set_colorizer(f->get_colorizer());
+    
+    for(int i = 0; i < N_COLORFUNCS; ++i)
+    {
+        nf->set_colorFunc(f->get_colorFunc(i),i);
+    }
+    
+    nf->set_bailFunc(f->get_bailFunc());
+    
+    return nf;
+}
+
 fractal::fractal(const fractal& f)
 {	
     copy(f);
@@ -148,8 +178,25 @@ fractal::operator=(const fractal& f)
         colorizer_delete(&cizer);
         delete pIterFunc;
         copy(f);
+
+	assert(pIterFunc > (void *)0x1000);
     }
     return *this;
+}
+
+IFractal&
+fractal::operator=(const IFractal& f)
+{
+    operator=((fractal&)f);
+
+    assert(pIterFunc > (void *)0x1000);
+    return *this;
+}
+
+bool
+fractal::operator==(const IFractal& f)
+{
+    return *this == (fractal&)f;
 }
 
 // equality 
@@ -180,6 +227,8 @@ fractal::set_fractal_type(const char *name)
 {
     delete pIterFunc;
     pIterFunc = iterFunc_new(name);
+
+    assert(pIterFunc > (void *)0x1000);
     pIterFunc->reset(params);
     bailout_type = pIterFunc->preferred_bailfunc();
 }
@@ -221,7 +270,7 @@ angle_random(double weirdness)
 }
 
 void
-fractal::set_inexact(const fractal& f, double weirdness)
+fractal::set_inexact(const IFractal& f, double weirdness)
 {
     *this = f; // invoke op=
     
@@ -242,16 +291,18 @@ fractal::set_inexact(const fractal& f, double weirdness)
 }
 
 void 
-fractal::set_mixed(const fractal& f1, const fractal& f2, double lambda)
+fractal::set_mixed(const IFractal& f1, const IFractal& f2, double lambda)
 {
     *this = f1; // FIXME - doesn't deal with mixed types etc
 
+    /* not up-to-date or used right now 
     double nl = 1.0 - lambda;
     for(int i = 0 ; i < N_PARAMS; ++i)
     {
         params[i] = lambda * f1.params[i] + nl * f2.params[i];
     }
     maxiter = (int)(lambda * f1.maxiter + nl * f2.maxiter);
+    */
 }
 
 /* return to default parameters for this fractal type */
@@ -282,7 +333,7 @@ fractal::reset()
 }
 
 colorizer_t *
-fractal::get_colorizer()
+fractal::get_colorizer() const
 {
     return cizer;
 }
@@ -420,7 +471,7 @@ fractal::set_max_iterations(int val)
 }
 
 int 
-fractal::get_max_iterations()
+fractal::get_max_iterations() const
 {
     return maxiter;
 }
@@ -432,9 +483,21 @@ fractal::set_aa(e_antialias val)
 }
 
 e_antialias
-fractal::get_aa()
+fractal::get_aa() const
 {
     return antialias;
+}
+
+void 
+fractal::set_effective_aa(e_antialias val)
+{
+    eaa = val;
+}
+
+e_antialias
+fractal::get_effective_aa() const
+{
+    return eaa;
 }
 
 void 
@@ -444,7 +507,7 @@ fractal::set_auto(bool val)
 }
 
 bool 
-fractal::get_auto()
+fractal::get_auto() const
 {
     return auto_deepen;
 }
@@ -498,7 +561,7 @@ fractal::set_param(param_t pnum, const char *val)
 }
 
 char *
-fractal::get_param(param_t pnum)
+fractal::get_param(param_t pnum) const
 {
     D2ADECL;
     if(pnum < 0 || pnum >= N_PARAMS) return NULL;
@@ -650,4 +713,55 @@ fractal::tolerance(image *im)
     // 10% of the size of a pixel
     d t = params[MAGNITUDE]/(2 * std::max(im->Xres(),im->Yres()) * 10.0);
     return t;
+}
+
+e_bailFunc
+fractal::get_bailFunc() const
+{
+    return bailout_type;
+}
+
+void
+fractal::set_bailFunc(e_bailFunc bf)
+{
+    bailout_type = bf;
+}
+
+void 
+fractal::set_colorFunc(e_colorFunc cf, int which_cf)
+{
+    colorFuncs[which_cf] = cf;
+}
+
+e_colorFunc 
+fractal::get_colorFunc(int which_cf) const
+{
+    return colorFuncs[which_cf];
+}
+
+void
+fractal::set_threads(int n)
+{
+    nThreads = n;
+}
+
+int 
+fractal::get_threads() const
+{
+    return nThreads;
+}
+
+iterFunc *
+fractal::get_iterFunc() const
+{
+    assert(pIterFunc > (void *)0x1000);
+    return pIterFunc;
+}
+
+void 
+fractal::set_iterFunc(iterFunc *f)
+{
+    assert(pIterFunc > (void *)0x1000 && f > (void *)0x1000);
+    pIterFunc = f;
+
 }

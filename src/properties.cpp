@@ -742,7 +742,7 @@ refresh_func_callback(Gf4dFractal *f, gpointer user_data)
     iterFunc *func = gf4d_fractal_get_func(f);
     const char *func_val = func->type();
 
-    // find an element with the same antialias value as the one the fractal has
+    // find an element with the same name as the one the fractal has
     while(list)
     {
         GtkMenuItem *mi = GTK_MENU_ITEM(list->data);

@@ -39,6 +39,7 @@ typedef enum
     BAILOUT_DIFF
 } e_bailFunc;
 
+
 /* an enumeration of the available color functions */
 typedef enum
 {

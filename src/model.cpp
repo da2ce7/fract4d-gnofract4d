@@ -30,7 +30,8 @@
 #include "gf4d_fractal.h"
 #include "gundo.h"
 #include "gundo_ui.h"
-#include "fract.h"
+#include "fract_public.h"
+#include "compiler.h"
 
 #include <iosfwd>
 #include <fstream>
@@ -45,8 +46,8 @@ double zoom=2;
 
 typedef struct {
     model_t *m;
-    fractal *old;
-    fractal *new_;
+    IFractal *old;
+    IFractal *new_;
 } undo_action_data ;
 
 /* real definition */
@@ -59,7 +60,7 @@ struct _model {
     GSList *explore_sensitive_widgets;
     GtkWidget *topWidget;
     GtkWidget *app;
-    fractal *old_fract;
+    IFractal *old_fract;
 
     bool explore_mode;
     double weirdness;
@@ -221,8 +222,8 @@ model_free_undo_data(gpointer undo_data)
 {
     undo_action_data *p = (undo_action_data *)undo_data;
     //g_print("deleting %x on %x\n",p,pthread_self());
-    fract_delete(&(p->old));
-    fract_delete(&(p->new_));
+    delete p->old; p->old = NULL;
+    delete p->new_; p->new_ = NULL;
     delete p;
     //g_print("done deleting %x\n",p);
 }

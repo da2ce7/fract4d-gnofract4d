@@ -50,7 +50,7 @@ gf4d_fractal_get_type ()
 static void
 gf4d_fractal_init (Gf4dFractal *f)
 {
-    f->f = new fractal();
+    f->f = IFractal::create();
     f->im = new image();
 
     f->tid=0;
@@ -246,13 +246,13 @@ void gf4d_fractal_move(Gf4dFractal *f, param_t i, double direction)
     f->f->move(i,direction);
 }
 
-fractal_t *gf4d_fractal_copy_fract(Gf4dFractal *f)
+IFractal *gf4d_fractal_copy_fract(Gf4dFractal *f)
 {
     kill_slave_threads(f);
-    return new fractal(*f->f);
+    return IFractal::clone(f->f);
 }
 
-void gf4d_fractal_set_fract(Gf4dFractal *gf, fractal_t * f)
+void gf4d_fractal_set_fract(Gf4dFractal *gf, IFractal * f)
 {
     kill_slave_threads(gf);
     *(gf->f) = *f;
@@ -267,12 +267,12 @@ void gf4d_fractal_update_fract(Gf4dFractal *gf, Gf4dFractal *gf2)
 void gf4d_fractal_set_bailout_type(Gf4dFractal *gf, e_bailFunc bailType)
 {
     kill_slave_threads(gf);
-    gf->f->bailout_type = bailType;
+    gf->f->set_bailFunc(bailType);
 }
 
 e_bailFunc gf4d_fractal_get_bailout_type(Gf4dFractal *gf)
 {
-    return gf->f->bailout_type;
+    return gf->f->get_bailFunc();
 }
 
 static fract_callbacks gf4d_callbacks = 
@@ -314,8 +314,8 @@ void gf4d_fractal_calc(Gf4dFractal *f, int nThreads, e_antialias effective_aa)
         gf4d_fractal_pause(f,TRUE);
     }
 
-    f->f->eaa = effective_aa;
-    f->f->nThreads = nThreads;
+    f->f->set_effective_aa(effective_aa);
+    f->f->set_threads(nThreads);
 
     if(nThreads)
     {
@@ -571,7 +571,7 @@ Gf4dFractal *gf4d_fractal_copy(Gf4dFractal *f)
 {
     /* not a full copy : doesn't get image buffer */
     Gf4dFractal *fnew = GF4D_FRACTAL(gf4d_fractal_new());
-    fnew->f = new fractal(*(f->f));
+    fnew->f = IFractal::clone(f->f);
 	
     fnew->im = new image();
     /*
@@ -583,12 +583,12 @@ Gf4dFractal *gf4d_fractal_copy(Gf4dFractal *f)
 
 e_colorFunc gf4d_fractal_get_colorFunc(Gf4dFractal *f, int type)
 {
-    return f->f->colorFuncs[type];
+    return f->f->get_colorFunc(type);
 }
 
 void gf4d_fractal_set_colorFunc(Gf4dFractal *f, e_colorFunc cf, int type)
 {
-    f->f->colorFuncs[type] = cf;
+    f->f->set_colorFunc(cf,type);
 }
 
 void gf4d_fractal_set_mixed(
@@ -609,7 +609,7 @@ void gf4d_fractal_set_inexact(Gf4dFractal *gf_dst, Gf4dFractal *gf_src, double w
 
 iterFunc *gf4d_fractal_get_func(Gf4dFractal *f)
 {
-    return f->f->pIterFunc;
+    return f->f->get_iterFunc();
 }
 
 void gf4d_fractal_set_func(Gf4dFractal *f, const char *type)
