@@ -7,6 +7,7 @@ import commands
 import math
 import cmath
 import sys
+import re
 
 import testbase
 
@@ -357,6 +358,35 @@ goto t__end_finit;''')
         out = self.codegen.output_symbols(self.codegen,{ "z" : "foo"})
         l = [x for x in out if x.assem == "foo"]
         self.failUnless(len(l)==1)
+
+    def testNoZ(self):
+        src = '''t_mandel{
+init:
+x = #zwpixel
+loop:
+x = x*x + pixel
+bailout:
+|x| < 4.0
+}'''
+        t = self.translate(src)
+        self.codegen.output_all(t)
+        self.codegen.output_decls(t)
+        
+        inserts = {
+            "loop_inserts":"printf(\"(%g,%g)\\n\",fx_re,fx_im);",
+            "main_inserts": self.main_stub
+            }
+        c_code = self.codegen.output_c(t,inserts)
+        #print c_code
+        output = self.compileAndRun(c_code)
+        lines = string.split(output,"\n")
+        # 1st point we try should bail out 
+        self.assertEqual(lines[0:3],["(1.5,0)","(3.75,0)", "(1,0,0)"],output)
+
+        # 2nd point doesn't
+        self.assertEqual(lines[3],"(0.02,0.26)",output)
+        self.assertEqual(lines[-1],"(20,1,0)",output)
+        self.assertEqual(lines[-2],lines[-3],output)        
 
     def testCF(self):
         tcf0 = self.translatecf('''
@@ -875,6 +905,39 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         output = self.compileAndRun(c_code)
         print output
 
+    def testPeriodicity(self):
+        src = '''t_mandel{
+init:
+z = 0
+float k = 0
+loop:
+z = z + 1.0/2^(k+1)
+k = k+1
+bailout:
+|z| < 1e100
+}'''
+        t = self.translate(src)
+        self.codegen.output_all(t)
+        self.codegen.output_decls(t)
+        
+        inserts = {
+            "done_inserts": 'printf(\"%g\\n\",fk);',
+            "main_inserts": self.main_stub
+            }
+        c_code = self.codegen.output_c(t,inserts)
+        output = self.compileAndRun(c_code)
+        lines = string.split(output,"\n")
+
+        self.assertEqual(lines[0],'16')
+        self.assertEqual(lines[1],'(100,1,0)')
+
+    def complexFromLine(self,str):
+        cmplx_re = re.compile(r'\((.*?),(.*?)\)')
+        m = cmplx_re.match(str)
+        self.failUnless(m != None)
+        real = float(m.group(1)); imag = float(m.group(2))
+        return real + imag * 1j
+
     def testMandel(self):
         src = '''t_mandel{
 init:
@@ -902,7 +965,13 @@ bailout:
         # 2nd point doesn't
         self.assertEqual(lines[3],"(0.02,0.26)",output)
         self.assertEqual(lines[-1],"(20,1,0)",output)
-        self.assertEqual(lines[-2],lines[-3],output)
+
+        # last 2 points should be within #tolerance of each other
+        p1 = self.complexFromLine(lines[-2])
+        p2 = self.complexFromLine(lines[-3])
+        
+        diff = max(math.fabs(p1.real - p2.real),math.fabs(p1.imag - p2.imag))
+        self.failUnless(diff < 0.001)
 
         # try again with sqr function and check results match
         src = '''t_mandel{
