@@ -151,7 +151,7 @@ def t_STRING(t):
     return t
     
 # A string containing ignored characters (spaces and tabs)
-t_ignore  = r' \t\r'
+t_ignore  = ' \t\r'
 
 # Error handling rule
 def t_error(t):
