@@ -37,7 +37,6 @@ class FctTest(unittest.TestCase):
         
     def quitloop(self,f,status):
         if status == 0:
-            print "done"
             gtk.main_quit()
 
     def testCreate(self):
@@ -46,9 +45,9 @@ class FctTest(unittest.TestCase):
         self.f.draw_image()
         self.wait()
 
-    def testZoom(self):
+    def testButton1(self):
         f = self.f
-        
+
         # check click updates member vars
         f.onButtonPress(f.widget,FakeEvent(x=17,y=88))
         self.assertEqual((f.x,f.y,f.newx,f.newy),(17,88,17,88))
@@ -73,7 +72,7 @@ class FctTest(unittest.TestCase):
         f.onButtonRelease(f.widget,FakeEvent(button=1))
         self.assertEqual(f.params,tparams)
 
-        # same if you do the corners the other way and get newy automatically
+        # same if you do the corners the other way and get newx automatically
         (wm1,hm1) = (f.width-1,f.height-1)
         f.onButtonPress(f.widget,FakeEvent(x=wm1,y=hm1))
         self.assertEqual((f.x,f.y,f.newx,f.newy),(wm1,hm1,wm1,hm1))
@@ -83,8 +82,57 @@ class FctTest(unittest.TestCase):
 
         f.onButtonRelease(f.widget,FakeEvent(button=1))
         self.assertEqual(f.params,tparams)
+
+    def testZooms(self):
+        # select each quarter of the screen to zoom into - check
+        # that resulting params look correct
+        f = self.f
+        tparams = copy.copy(f.params)
         
-        
+        # select the top LH quadrant zooms and recenters
+        f.onButtonPress(f.widget,FakeEvent(x=0,y=0))
+        f.onMotionNotify(f.widget,FakeEvent(x=f.width/2-1,y=f.height/2-1))
+        f.onButtonRelease(f.widget,FakeEvent(button=1))
+
+        tparams[f.XCENTER] -= tparams[f.MAGNITUDE]/4.0
+        tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
+        tparams[f.MAGNITUDE] /= 2.0
+
+        self.assertEqual(f.params,tparams)
+
+        # top RH quadrant
+        f.onButtonPress(f.widget,FakeEvent(x=f.width/2,y=0))
+        f.onMotionNotify(f.widget,FakeEvent(x=f.width-1,y=f.height/2-1))
+        f.onButtonRelease(f.widget,FakeEvent(button=1))
+
+        tparams[f.XCENTER] += tparams[f.MAGNITUDE]/4.0
+        tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
+        tparams[f.MAGNITUDE] /= 2.0
+
+        self.assertEqual(f.params,tparams)
+
+        # bottom LH quadrant
+        f.onButtonPress(f.widget,FakeEvent(x=0,y=f.height/2))
+        f.onMotionNotify(f.widget,FakeEvent(x=f.width/2-1,y=f.height-1))
+        f.onButtonRelease(f.widget,FakeEvent(button=1))
+
+        tparams[f.XCENTER] -= tparams[f.MAGNITUDE]/4.0
+        tparams[f.YCENTER] += tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
+        tparams[f.MAGNITUDE] /= 2.0
+
+        self.assertEqual(f.params,tparams)
+
+        # bottom RH quadrant
+        f.onButtonPress(f.widget,FakeEvent(x=f.width/2,y=f.height/2))
+        f.onMotionNotify(f.widget,FakeEvent(x=f.width-1,y=f.height-1))
+        f.onButtonRelease(f.widget,FakeEvent(button=1))
+
+        tparams[f.XCENTER] += tparams[f.MAGNITUDE]/4.0
+        tparams[f.YCENTER] += tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
+        tparams[f.MAGNITUDE] /= 2.0
+
+        self.assertEqual(f.params,tparams)
+
 def suite():
     return unittest.makeSuite(FctTest,'test')
 
