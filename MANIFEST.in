@@ -17,3 +17,4 @@ include fract4d/test.cfrm
 include testdata/test.fct
 include testdata/test_bail.fct
 include testdata/elfglow.fct
+include testdata/julfn.fct
