@@ -361,6 +361,7 @@ class TBase:
         
         # convert boolean operation
         children = map(lambda n : self.exp(n) , node.children[0].children)
+        children = self.expand_enums(node, children)
         op = self.findOp(node.children[0].leaf, node.children[0].pos,children)
         convertedChildren = self.coerceList(op.args,children)
 
@@ -557,12 +558,31 @@ class TBase:
         r = ir.ESeq([test, trueBlock, falseBlock, doneDest],
                     temp, node, op.ret)
         return r
-        
+
+    def expand_enums(self, node, children):
+        'special case for @foo <binop> "enum"'
+        lhs = children[0]
+        rhs = children[1]
+        if isinstance(lhs, ir.Var):
+            var = self.symbols[lhs.name]
+            if hasattr(var, "enum"):
+                if isinstance(rhs, ir.Const) and rhs.datatype == String:
+                    try:
+                        val = var.enum.value.index(rhs.value)
+                        children[1] = ir.Const(val,node,Int)
+                    except ValueError:
+                        msg = "%d: enum value '%s' invalid for param %s" % \
+                              (node.pos, rhs.value, lhs.name)
+                        raise TranslationError(msg)
+                    
+        return children
+    
     def binop(self, node):
         if self.isShortcut(node):
             return self.shortcut(node)
         else:
-            children = map(lambda n : self.exp(n) , node.children)        
+            children = map(lambda n : self.exp(n) , node.children)
+            children = self.expand_enums(node, children)
             op = self.findOp(node.leaf, node.pos,children)
             children = self.coerceList(op.args,children)
 

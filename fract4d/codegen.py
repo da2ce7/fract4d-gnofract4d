@@ -763,6 +763,7 @@ extern pf_obj *pf_new(void);
 
     # action routines
     def cast(self,t):
+        'Generate code to cast child of type child.datatype to t.datatype' 
         child = t.children[0]
         src = self.generate_code(child)
 

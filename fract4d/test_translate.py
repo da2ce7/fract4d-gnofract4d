@@ -120,6 +120,41 @@ default:
 
         self.assertNoErrors(t)
 
+    def testEnums(self):
+        t = self.translate('''
+        t1 {
+        init:
+        if @y == "foo"
+           x = 1
+        elseif @y == "bar"
+           x = 2
+        endif
+        bool b = @y == "bar"
+        default:
+        param y
+        enum = "foo" "bar"
+        endparam
+        }
+        ''')
+
+        self.assertNoErrors(t)
+
+    def testBadEnum(self):
+        t = self.translate('''
+        t1 {
+        init:
+        if @y == "xxx"
+           x = 1
+        endif          
+        default:
+        param y
+        enum = "foo" "bar"
+        endparam
+        }
+        ''')
+
+        self.assertError(t, "4: enum value 'xxx' invalid for param @y")
+
     def testImplicitParamTypes(self):
         # Some UF coloring algorithms cause problems. The
         # type of the param is implicitly set based on the default value
