@@ -373,7 +373,15 @@ class TranslateTest(unittest.TestCase):
 ''')
         self.assertNoErrors(t)
         self.assertWarning(t,"No bailout condition specified")
+
+    def testComplexBool(self):
+        t = self.translate('''t_cb{
+            float x=real(z), float y=imag(z)
+            bool chrH1 = x<-0.16646 || x>-0.13646; 
+            }''')
         
+        self.assertNoErrors(t)
+    
     def assertError(self,t,str):
         self.assertNotEqual(len(t.errors),0)
         for e in t.errors:
@@ -393,6 +401,7 @@ class TranslateTest(unittest.TestCase):
                          "Unexpected errors %s" % t.errors)
         for (name, item) in t.canon_sections.items():
             for stm in item:
+                #print stm.pretty()
                 self.assertESeqsNotNested(stm,1)
             self.assertValidTrace(item)
         self.assertWellTyped(t)

@@ -456,8 +456,8 @@ pf_obj *pf_new()
             pass
         
         if dst == None:
-            msg = "Invalid Cast from %s to %s" % \
-                  (fracttypes.strOfType(child.datatype),
+            msg = "%d: Invalid Cast from %s to %s" % \
+                  (t.node.pos,fracttypes.strOfType(child.datatype),
                    fracttypes.strOfType(t.datatype))
             raise fracttypes.TranslationError(msg)
         
