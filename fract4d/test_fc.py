@@ -6,6 +6,7 @@ import commands
 import re
 import dl
 import os
+import time
 
 import testbase
 
@@ -45,6 +46,47 @@ class FCTest(testbase.TestBase):
         outside_names = file.get_formula_names("INSIDE")
         for f in outside_names:            
             self.assertNotEqual(file.formulas[f].symmetry, "INSIDE")
+
+    def testFileTimeChecking(self):
+        try:
+            f2 = fc.Compiler()
+            
+            formulas = '''
+test_circle {
+loop:
+z = pixel
+bailout:
+|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+}
+test_square {
+loop:
+z = pixel
+bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
+}
+'''
+            f = open("fttest.frm","w")
+            f.write(formulas)
+            f.close()
+            
+            f2.load_formula_file("fttest.frm")
+            frm = f2.get_formula("fttest.frm","test_circle")
+            self.assertEqual(frm.symbols.default_params(),[4.0])
+
+            formulas = formulas.replace('4.0','6.0')
+            time.sleep(1.0) # ensure filesystem will have a different time
+            f = open("fttest.frm","w")
+            f.write(formulas)
+            f.close()
+
+            frm2 = f2.get_formula("fttest.frm","test_circle")
+            self.assertEqual(frm2.symbols.default_params(),[6.0])
+            
+        finally:
+            os.remove("fttest.frm")
             
     def testLoad(self):        
         ff = self.compiler.files["gf4d.frm"]

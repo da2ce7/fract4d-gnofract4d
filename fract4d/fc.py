@@ -26,6 +26,7 @@ import getopt
 import sys
 import commands
 import os.path
+import stat
 import random
 import md5
 import re
@@ -38,9 +39,13 @@ import fracttypes
 import absyn
 
 class FormulaFile:
-    def __init__(self, formulas, contents):
+    def __init__(self, formulas, contents,mtime,filename):
         self.formulas = formulas
         self.contents = contents
+        self.mtime = mtime
+        self.filename = filename
+    def out_of_date(self):
+        return os.stat(self.filename)[stat.ST_MTIME] > self.mtime
     def get_formula(self,formula):
         return self.formulas.get(formula)
     def get_formula_names(self, skip_type=None):
@@ -131,7 +136,8 @@ class Compiler:
                 formulas[formula.leaf] = formula
 
             basefile = os.path.basename(filename)
-            ff = FormulaFile(formulas,s)
+            mtime = os.stat(filename)[stat.ST_MTIME]
+            ff = FormulaFile(formulas,s,mtime,filename)
             self.files[basefile] = ff 
 
             return ff
@@ -145,6 +151,9 @@ class Compiler:
         if not ff:
             self.load_formula_file(filename)
             ff = self.files.get(basefile)
+        elif ff.out_of_date():
+            self.load_formula_file(filename)
+            ff = self.files.get(basefile)            
         return ff
     
     def compile(self,ir):
