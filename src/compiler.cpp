@@ -184,7 +184,7 @@ compiler::flow(std::string in)
     }
     ostringstream os;
 
-    os << "<" << in.substr(0,last_space_pos) << ">";
+    os << in.substr(0,last_space_pos);
 
     int this_space_pos;
     while((this_space_pos = in.find(' ', last_space_pos+1)) != string::npos)
