@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 /* redirect back to a member function */
-void worker(job_info_t& tdata, fractThreadFunc *pFunc)
+void worker(job_info_t& tdata, STFractWorker *pFunc)
 {
     pFunc->work(tdata);
 }
@@ -47,7 +47,7 @@ fractFunc::fractFunc(
 
     status_changed(GF4D_FRACTAL_COMPILING);
 
-    ptf = new fractThreadFunc[nThreadFuncs];
+    ptf = new STFractWorker[nThreadFuncs];
     for(int i = 0; i < nThreadFuncs; ++i)
     {
         if(!ptf[i].init(this,f,im))
@@ -69,7 +69,7 @@ fractFunc::fractFunc(
     /* threading */
     if(f->nThreads > 1)
     {
-        ptp = new tpool<job_info_t,fractThreadFunc>(f->nThreads,100,ptf);
+        ptp = new tpool<job_info_t,STFractWorker>(f->nThreads,100,ptf);
     }
     else
     {

@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     for(int i = 1; i < argc ; ++i)
     {
 	f->load_params(argv[i]);
-	f->set_effective_aa(AA_DEFAULT);
+	f->set_effective_aa(AA_FAST);
 	f->calc(site,im);
 	im->save("foo.tga");
     }

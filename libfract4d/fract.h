@@ -134,7 +134,7 @@ public:
     void update_matrix();
     dvec4 get_center();
     friend class fractFunc;
-    friend class fractThreadFunc;
+    friend class STFractWorker;
 
     // calculate the periodicity error tolerance
     d tolerance(IImage *im); 

@@ -47,7 +47,7 @@ class fractFunc {
     void draw_aa();
     int updateiters();
 
-    friend class fractThreadFunc;
+    friend class STFractWorker;
     friend class fractal;
 
     // callback wrappers
@@ -112,8 +112,8 @@ class fractFunc {
     pointFunc *pf; // function for calculating 1 point
 
     int nThreadFuncs;
-    fractThreadFunc *ptf;
-    tpool<job_info_t,fractThreadFunc> *ptp;
+    STFractWorker *ptf;
+    tpool<job_info_t,STFractWorker> *ptp;
 
 
     /* wait for a ready thread then give it some work */
