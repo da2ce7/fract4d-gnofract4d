@@ -52,6 +52,7 @@ class MainWindow:
                 "basic.map",
                 "maps",
                 "share/maps/gnofract4d"))
+            self.f.saved = True
         except:
             pass
             

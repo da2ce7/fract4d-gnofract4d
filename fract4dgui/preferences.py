@@ -93,6 +93,7 @@ class PrefsDialog(gtk.Dialog):
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
+        self.set_default_response(gtk.RESPONSE_CLOSE)
         self.f = f
         self.notebook = gtk.Notebook()
         self.vbox.add(self.notebook)
@@ -114,6 +115,7 @@ class PrefsDialog(gtk.Dialog):
     def create_width_entry(self):
         entry = gtk.Entry()
         self.tips.set_tip(entry,"The image's width in pixels")
+        entry.set_activates_default(True)
         
         def set_entry(*args):
             entry.set_text(self.prefs.get("display","width"))
@@ -142,6 +144,7 @@ class PrefsDialog(gtk.Dialog):
     def create_height_entry(self):
         entry = gtk.Entry()
         self.tips.set_tip(entry,"The image's height in pixels")
+        entry.set_activates_default(True)
         
         def set_entry(*args):
             entry.set_text(self.prefs.get("display","height"))
@@ -169,6 +172,7 @@ class PrefsDialog(gtk.Dialog):
 
     def create_compiler_entry(self,propname):
         entry = gtk.Entry()
+        entry.set_activates_default(True)
         
         def set_entry(*args):
             entry.set_text(self.prefs.get("compiler",propname))

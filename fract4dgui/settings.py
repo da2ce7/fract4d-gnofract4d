@@ -23,6 +23,7 @@ class SettingsDialog(gtk.Dialog):
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
+        self.set_default_response(gtk.RESPONSE_CLOSE)
         self.main_window = main_window
         self.f = f
         self.tooltips = gtk.Tooltips()
@@ -204,6 +205,7 @@ class SettingsDialog(gtk.Dialog):
         table.attach(label,0,1,row,row+1,0,0,2,2)
         
         entry = gtk.Entry()
+        entry.set_activates_default(True)
         table.attach(entry,1,2,row,row+1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         label.set_mnemonic_widget(entry)
         
