@@ -52,9 +52,56 @@ tokens = (
    'FORM_END',
    'SECT_SET',
    'SECT_STM',
+
+   # keywords
+   'ELSE',
+   'ELSEIF',
+   'ENDFUNC',
+   'ENDHEADING',
+   'ENDIF',
+   'ENDPARAM',
+   'ENDWHILE',
+   'FALSE',
+   'FUNC',
+   'HEADING',
+   'IF',
    'PARAM',
-   'ENDPARAM'
+   'REPEAT',
+   'TRUE',
+   'UNTIL',
+   'WHILE',
+
+   'TYPE'
 )
+
+# lookup table to convert IDs into keywords
+keywords = [ "else",
+             "elseif",
+             "endfunc",
+             "endheading",
+             "endif",
+             "endparam",
+             "endwhile",
+             "false",
+             "func",
+             "heading",
+             "if",
+             "param",
+             "repeat",
+             "true",
+             "until",
+             "while"]
+
+types = ["bool",
+         "color",
+         "complex",
+         "float",
+         "int"]
+
+lookup = {}
+for k in keywords: lookup[k] = string.upper(k)
+for t in types: lookup[t] = "TYPE"
+
 
 # Regular expression rules for simple tokens
 t_PLUS    = r'\+'
@@ -116,17 +163,10 @@ def t_SECT_STM(t):
     t.value = re.sub(":$","",t.value)
     return t
 
-def t_PARAM(t):
-    "param"
-    return t
-
-def t_ENDPARAM(t):
-    "endparam"
-    return t
-
 def t_ID(t):
     r'[@#]?[a-zA-Z_][a-zA-Z0-9]*'
-    # look up ID
+    global lookup
+    if lookup.has_key(t.value): t.type = lookup[t.value]
     return t
 
 # don't produce tokens for newlines preceded by \
