@@ -21,6 +21,7 @@
 #include <glib.h>
 #include "gundo.h"
 
+#include "marshallers.h"
 
 typedef struct _UndoAction UndoAction;
 struct _UndoAction {
@@ -54,21 +55,26 @@ static GundoActionType gundo_action_group = {
 
 
 guint gundo_sequence_get_type () {
-    static guint gundo_sequence_type = 0;
+    static GType gundo_sequence_type = 0;
     
     if( !gundo_sequence_type ) {
-        GtkTypeInfo type_info = {
-            "GundoSequence",
-            sizeof(GundoSequence),
+        GTypeInfo type_info = {
             sizeof(GundoSequenceClass),
-            (GtkClassInitFunc)gundo_sequence_class_init,
-            (GtkObjectInitFunc)gundo_sequence_init,
-            NULL,
-            NULL
+	    NULL,
+	    NULL,
+            (GClassInitFunc)gundo_sequence_class_init,
+	    NULL,
+	    NULL,
+            sizeof(GundoSequence),
+	    0,
+            (GInstanceInitFunc)gundo_sequence_init
         };
         
-        gundo_sequence_type = 
-            gtk_type_unique( gtk_object_get_type(), &type_info );
+        gundo_sequence_type = g_type_register_static( 
+	    GTK_TYPE_OBJECT,
+	    "GUndoSequence",
+	    &type_info,
+	    (GTypeFlags)0);
     }
     
     return gundo_sequence_type;
@@ -80,26 +86,28 @@ static void gundo_sequence_class_init( GundoSequenceClass *klass ) {
     base->destroy = gundo_sequence_destroy;
     
     gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_UNDO] = 
-        gtk_signal_new( "can_undo",
-                        GTK_RUN_FIRST,
-                        gundo_sequence_get_type(),
-                        GTK_SIGNAL_OFFSET( GundoSequenceClass, can_undo ),
-                        gtk_marshal_NONE__BOOL,
-                        GTK_TYPE_NONE, 1, GTK_TYPE_BOOL );
+        g_signal_new( "can_undo",
+		      G_TYPE_FROM_CLASS(klass),
+		      G_SIGNAL_RUN_FIRST,
+		      G_STRUCT_OFFSET( GundoSequenceClass, can_undo ),
+		      NULL,
+		      NULL,
+		      gf4d_marshal_VOID__BOOL,
+		      G_TYPE_NONE, 1, G_TYPE_BOOLEAN );
     
     gundo_sequence_signals[UNDO_SEQUENCE_SIGNAL_CAN_REDO] = 
-        gtk_signal_new( "can_redo",
-                        GTK_RUN_FIRST,
-                        gundo_sequence_get_type(),
-                        GTK_SIGNAL_OFFSET( GundoSequenceClass, can_redo ),
-                        gtk_marshal_NONE__BOOL,
-                        GTK_TYPE_NONE, 1, GTK_TYPE_BOOL );
+        g_signal_new( "can_redo",
+		     G_TYPE_FROM_CLASS(klass),
+		      G_SIGNAL_RUN_FIRST,
+		      G_STRUCT_OFFSET( GundoSequenceClass, can_redo ),
+		      NULL,
+		      NULL,
+		      gf4d_marshal_VOID__BOOL,
+		      G_TYPE_NONE, 1, G_TYPE_BOOLEAN );
     
     klass->can_undo = NULL;
     klass->can_redo = NULL;
-    
-    base_class = (GtkObjectClass *)gtk_type_class( gtk_object_get_type() );
-}
+    }
 
 static void gundo_sequence_init( GundoSequence *seq ) {
     seq->actions = g_array_new( FALSE, FALSE, sizeof(UndoAction) );
@@ -124,7 +132,7 @@ static void gundo_sequence_destroy( GtkObject *object ) {
 
 
 GundoSequence *gundo_sequence_new() {
-    return GUNDO_SEQUENCE( gtk_type_new( gundo_sequence_get_type() ) );
+    return GUNDO_SEQUENCE( g_object_new( gundo_sequence_get_type(), NULL ));
 }
 
 

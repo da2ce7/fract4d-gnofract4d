@@ -139,16 +139,18 @@ deepen_now_cb(GtkWidget *button, model_t *m)
 void
 create_deepen_widget(GtkToolbar *toolbar, model_t *m)
 {
-    GtkWidget *deepen_pixmap = gtk_image_new_from_file(
-        gnome_program_locate_file(
-	    NULL,
-	    GNOME_FILE_DOMAIN_APP_DATADIR,
-	    PACKAGE "/deepen_now.png",
-	    TRUE,
-	    NULL));
+    gchar *filename = gnome_program_locate_file(
+	NULL,
+	GNOME_FILE_DOMAIN_APP_DATADIR,
+	PACKAGE "/pixmaps/deepen_now.png",
+	TRUE,
+	NULL);
+
+    //g_print("%s\n",filename);
+    GtkWidget *deepen_pixmap = gtk_image_new_from_file(filename);
 
     GtkWidget *deepen_widget = gtk_toolbar_append_item(
-        toolbar,NULL,
+        toolbar,_("Deepen"),
         _("Increase the maximum number of iterations"),
         NULL, deepen_pixmap, 
         GTK_SIGNAL_FUNC(deepen_now_cb), m);        
@@ -271,7 +273,7 @@ create_explore_widgets(GtkToolbar *toolbar, model_t *m)
 	gnome_program_locate_file(
 	    NULL,
 	    GNOME_FILE_DOMAIN_APP_DATADIR,
-	    PACKAGE "/explorer_mode.png",
+	    PACKAGE "/pixmaps/explorer_mode.png",
 	    TRUE,
 	    NULL));
 
