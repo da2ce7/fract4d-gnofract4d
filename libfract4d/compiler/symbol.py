@@ -201,7 +201,7 @@ class T(UserDict):
         del self.data[mangle(key)]
         
     def reset(self):
-        self.data = {} #copy.copy(T.default_dict)
+        self.data = {} 
 
     def newLabel(self):
         label = "label%d" % self.nextlabel
