@@ -435,6 +435,11 @@ def hyper_j_h_f(gen,t,srcs):
 def hyper_k_h_f(gen,t,srcs):
     return srcs[0].parts[3]
 
+red_C_f = real_h_f
+green_C_f = imag_h_f
+blue_C_f = hyper_j_h_f
+alpha_C_f = hyper_k_h_f
+
 def hyper_ri_h_c(gen,t,srcs):
     return ComplexArg(srcs[0].parts[0], srcs[0].parts[1])
 
@@ -885,9 +890,7 @@ conj_h_h = make_hyper_func(conj_c_c)
 sqr_h_h = make_hyper_func(sqr_c_c)
 
 def rgb_fff_C(gen,t,srcs):
-    return clamp_C_C(
-        gen,t,
-        [ColorArg(srcs[0], srcs[1], srcs[2], ConstFloatArg(1.0))])
+    return ColorArg(srcs[0], srcs[1], srcs[2], ConstFloatArg(1.0))
 
 def rgba_ffff_C(gen,t,srcs):
-    return clamp_C_C(gen,t,[ColorArg(srcs[0], srcs[1], srcs[2], srcs[3])])
+    return ColorArg(srcs[0], srcs[1], srcs[2], srcs[3])

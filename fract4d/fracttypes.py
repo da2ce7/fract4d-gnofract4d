@@ -51,7 +51,7 @@ _defaultOfType = {
     Float : 0.0,
     Complex : [0.0, 0.0],
     Bool : 0,
-    Color : [0.0,0.0,0.0,0.0],
+    Color : [0.0, 0.0, 0.0, 0.0],
     String : "",
     Hyper : [0.0, 0.0, 0.0, 0.0]
     }
