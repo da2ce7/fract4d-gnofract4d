@@ -91,17 +91,17 @@ int main()
         self.codegen = codegen.T(symbol.T())
         self.codegen.generate_code(t)
 
-    def translate(self,s,cf=None,dump=None):
+    def translate(self,s,dump=None):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
         #print pt.pretty()
-        t = translate.T(pt.children[0],cf,dump)
+        t = translate.T(pt.children[0],dump)
         self.assertNoErrors(t)
         self.codegen = codegen.T(t.symbols,dump)
         return t
     
     def sourceToAsm(self,s,section,cf=None,dump=None):
-        t = self.translate(s,cf,dump)
+        t = self.translate(s,dump)
         self.codegen.generate_all_code(t.canon_sections[section])
         if dump != None and dump.get("dumpAsm") == 1:
             self.printAsm()

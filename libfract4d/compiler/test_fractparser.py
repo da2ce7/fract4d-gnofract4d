@@ -65,6 +65,10 @@ class ParserTest(unittest.TestCase):
     def testNoNewlineAtEnd(self):
         t1 = self.parse("t1 {\n:\n}")
         self.assertIsValidParse(t1)
+
+    def testOneStm(self):
+        t1 = self.parse("t1 {\nt=1\n}")
+        self.assertIsValidParse(t1)
         
     def testIfdefMessage(self):
         self.assertIsBadFormula(self.makeMinimalFormula("$define foo"),

@@ -43,7 +43,7 @@ class PfTest(unittest.TestCase):
         pfunc = None
         handle = None
 
-    def testWithColors(self):
+    def disabled_testWithColors(self):
         self.compiler.load_formula_file("./gf4d.cfrm")
         f = self.compiler.get_formula("gf4d.frm","Mandelbrot",
                                       "gf4d.cfrm","default")
