@@ -44,11 +44,34 @@ def strOfType(t):
 def default(t):
     return 0.0
 
+_canBeCast = [
+    # Bool Int Float Complex Color
+    [ 1,   1,  1,    1,      0], # Bool
+    [ 1,   1,  1,    1,      0], # Int
+    [ 1,   0,  1,    1,      0], # Float
+    [ 1,   0,  0,    1,      0], # Complex
+    [ 0,   0,  0,    0,      1]  # Color
+    ]
+
+def canBeCast(t1,t2):
+    ' can t1 be cast to t2?'
+    return _canBeCast[t1][t2]
+
 class Func:
     def __init__(self,args,ret,pos=-1):
         self.ret = ret
         self.pos = pos
         self.args = args
+        
+    def matchesArgs(self, potentialArgs):
+        if len(potentialArgs) != len(self.args):
+            return 0
+        i = 0
+        for arg in self.args:
+            if not canBeCast(potentialArgs[i],arg):
+                return 0
+            i = i + 1
+        return 1            
 
 class Var:
     def __init__(self,type,value,pos=-1):

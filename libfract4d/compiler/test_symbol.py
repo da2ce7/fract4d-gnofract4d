@@ -41,6 +41,12 @@ class SymbolTest(unittest.TestCase):
         self.assertEqual(len(l),3)
         self.assertEqual(l[0].ret, Int)
         self.assertEqual(l[1].args, [Float,Float])
+
+    def test_matches(self):
+        times = self.t["*"]
+        times_i = times[0]
+        self.failUnless(times_i.matchesArgs([Int,Int]))
+        self.failUnless(not times_i.matchesArgs([Int,Color]))
         
 def suite():
     return unittest.makeSuite(SymbolTest,'test')
