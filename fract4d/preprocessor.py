@@ -1,6 +1,7 @@
 import re
 
-ifdef_re = re.compile(r'\s*\$ifdef\s+([a-z][a-z0-9_]*)', re.IGNORECASE)
+ifdef_re = re.compile(r'\s*\$ifdef(\s+(?P<var>[a-z][a-z0-9_]*))?',
+                      re.IGNORECASE)
 endif_re = re.compile(r'\s*\$endif', re.IGNORECASE)
 
 class Error(Exception):
@@ -15,8 +16,13 @@ class T:
         out_lines = []
         i = 1
         for line in lines:
-            if ifdef_re.match(line):
-                ifdef_stack.append(i)
+            m = ifdef_re.match(line)
+            if m:
+                var = m.group("var")
+                if var:
+                    ifdef_stack.append(i)
+                else:
+                    raise Error("%d: $IFDEF without variable" % i)
             elif endif_re.match(line):
                 if ifdef_stack == []:
                     raise Error("%d: $ENDIF without $IFDEF" % i)

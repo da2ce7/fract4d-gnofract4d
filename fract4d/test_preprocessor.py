@@ -27,7 +27,6 @@ class Test(unittest.TestCase):
             self.fail("Should have raised an exception")
         except preprocessor.Error, err:
             self.assertEqual(str(err), "2: $IFDEF without $ENDIF")
-            pass
 
     def testEndifWithoutIf(self):
         try:
@@ -42,8 +41,18 @@ class Test(unittest.TestCase):
             self.fail("Should have raised an exception")
         except preprocessor.Error, err:
             self.assertEqual(str(err), "7: $ENDIF without $IFDEF")
-            pass
-        
+
+    def testIfdefWithoutVar(self):
+        try:
+            pp = preprocessor.T('''
+            $IFDEF
+            foo
+            $ENDIF
+            ''')
+            self.fail("Should have raised an exception")
+        except preprocessor.Error, err:
+            self.assertEqual(str(err), "2: $IFDEF without variable")
+            
 def suite():
     return unittest.makeSuite(Test,'test')
 
