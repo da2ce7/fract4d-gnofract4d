@@ -186,6 +186,7 @@ class MainWindow:
             w = w //2 ; h = h // 2
             for f in self.subfracts:
                 f.set_size(w//2, h//2)
+            w += 2; h += 2
         self.f.set_size(w,h)
 
     def on_prefs_changed(self,prefs):
@@ -363,8 +364,10 @@ class MainWindow:
         self.toolbar.set_border_width(1)
         
         # preview
+        self.toolbar.append_space()
+        
         self.preview = gtkfractal.SubFract(self.compiler)
-        self.preview.set_size(64,64)
+        self.preview.set_size(48,48)
         self.update_preview(self.f)
         self.f.connect('parameters-changed', self.update_preview)
         self.f.connect('pointer-moved', self.update_preview_on_pointer)
@@ -574,7 +577,8 @@ class MainWindow:
             if index != -1:
                 (w,h) = self.resolutions[index]
                 preferences.userPrefs.set_size(w,h)
-            
+                self.update_subfracts()
+                
         set_selected_resolution(preferences.userPrefs)
         res_menu.connect('changed', set_resolution)
 

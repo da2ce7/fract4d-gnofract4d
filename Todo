@@ -36,6 +36,7 @@ UI improvements
 * W	connect identically-named params in different parts of formula
 * W	autosave
 * W	make easier to use on click-to-focus systems
+* W	click-and-release on angle,fourway - may require pointer_grab, though
 
 Data gathering
 * WW	SQM
