@@ -269,6 +269,10 @@ def p_exp_complex(t):
      'exp : LPAREN exp COMMA exp RPAREN'
      t[0] = absyn.Binop("complex",t[2],t[4],t.lineno(1))
 
+def p_exp_hyper(t):
+     'exp : LPAREN exp COMMA exp COMMA exp COMMA exp RPAREN'
+     t[0] = absyn.Funcall("hyper", [ t[2], t[4], t[6], t[8] ], t.lineno(1))
+     
 def p_exp_complex_i(t):
     'exp : COMPLEX'
     ln = t.lineno(1)

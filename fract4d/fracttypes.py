@@ -11,8 +11,9 @@ Float = 2
 Complex = 3
 Color = 4
 String = 5
+Hyper = 6
 
-typeList = [ Bool, Int, Float, Complex, Color, String]
+typeList = [ Bool, Int, Float, Complex, Color, String, Hyper]
 
 suffixOfType = {
     Int : "i",
@@ -20,7 +21,8 @@ suffixOfType = {
     Complex : "c",
     Bool : "b",
     Color : "C",
-    String : "S"
+    String : "S",
+    Hyper : "H"
     }
 
 _typeOfStr = {
@@ -30,6 +32,7 @@ _typeOfStr = {
     "bool" : Bool,
     "color" : Color,
     "string" : String,
+    "hyper" : Hyper
     }
 
 _strOfType = {
@@ -39,7 +42,8 @@ _strOfType = {
     Bool : "bool",
     Color : "color",
     None : "none",
-    String : "string"
+    String : "string",
+    Hyper : "hyper"
    }
 
 _defaultOfType = {
@@ -48,13 +52,15 @@ _defaultOfType = {
     Complex : [0.0, 0.0],
     Bool : 0,
     Color : [0,0,0,0],
-    String : ""
+    String : "",
+    Hyper : [0.0, 0.0, 0.0, 0.0]
     }
 
 _cTypeOfType = {
     Int : "int",
     Float : "double",
     Complex : "double",
+    Hyper : "double",
     Bool : "int",
     Color : "<Error>",
     String : "<Error>"
@@ -75,13 +81,14 @@ def default_value(t):
 
 _canBeCast = [
     # rows are from, columns are to
-    # Bool Int Float Complex Color String
-    [ 1,   1,  1,    1,      0,    0], # Bool
-    [ 1,   1,  1,    1,      0,    0], # Int
-    [ 1,   0,  1,    1,      0,    0], # Float
-    [ 1,   0,  0,    1,      0,    0], # Complex
-    [ 0,   0,  0,    0,      1,    0], # Color
-    [ 0,   0,  0,    0,      0,    1]  # String
+    # Bool Int Float Complex Color String Hyper
+    [ 1,   1,  1,    1,      0,    0,     1 ], # Bool
+    [ 1,   1,  1,    1,      0,    0,     1 ], # Int
+    [ 1,   0,  1,    1,      0,    0,     1 ], # Float
+    [ 1,   0,  0,    1,      0,    0,     1 ], # Complex
+    [ 0,   0,  0,    0,      1,    0,     0 ], # Color
+    [ 0,   0,  0,    0,      0,    1,     0 ], # String
+    [ 1,   0,  0,    0,      0,    0,     1 ]
     ]
 
 def canBeCast(t1,t2):

@@ -228,6 +228,12 @@ int main()
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
         self.assertEqual(op.format(),"t__temp0 = 0 + a;",op.format())
 
+    def testHyperGen(self):
+        tree = self.var("h",Hyper)
+        x = self.codegen.generate_code(tree)
+        print tree
+        self.assertEqual(isinstance(x,codegen.HyperArg),1)
+        
     def testComplexAdd(self):
         # (1,3) + a
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"+",Complex)
