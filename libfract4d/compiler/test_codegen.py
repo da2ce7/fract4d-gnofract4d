@@ -341,7 +341,10 @@ goto t__end_init;''')
             # code to run, var to inspect, result
             [ "cj = conj(y)", "cj", "(1,-2)"],
             [ "fl = flip(y)", "fl", "(2,1)"],
-            [ "ri = (imag(y),real(y))","ri", "(2,1)"]
+            [ "ri = (imag(y),real(y))","ri", "(2,1)"],
+            [ "m = |y|","m","(5,0)"],
+            [ "d1 = y/(1,0)","d1","(1,2)"],
+            [ "d2 = y/y","d2","(1,0)"]
             ]
 
         src = 't_c6{\ninit: y = (1,2)\n' + \
