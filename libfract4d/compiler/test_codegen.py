@@ -26,8 +26,8 @@ class CodegenTest(unittest.TestCase):
         if value == None:
             value = default_value(type)
         return ir.Const(value, self.fakeNode, type)
-    def binop(self,stms,op="+"):
-        return ir.Binop(op,stms,self.fakeNode, Int)
+    def binop(self,stms,op="+",type=Int):
+        return ir.Binop(op,stms,self.fakeNode, type)
     def move(self,dest,exp):
         return ir.Move(dest, exp, self.fakeNode, Int)
     def cjump(self,e1,e2,trueDest="trueDest",falseDest="falseDest"):
@@ -69,9 +69,8 @@ class CodegenTest(unittest.TestCase):
         self.assertEqual(len(self.codegen.out),1)
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
 
-    def testGenComplex(self):
-        tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)])
-        tree.datatype = Complex
+    def testComplexAdd(self):
+        tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"+",Complex)
         self.codegen.generate_code(tree)
         self.assertEqual(len(self.codegen.out),2)
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
@@ -79,9 +78,22 @@ class CodegenTest(unittest.TestCase):
         self.assertEqual(self.codegen.out[0].format(), "t__temp0 = 1 + a_re")
         self.assertEqual(self.codegen.out[1].format(), "t__temp1 = 3 + a_im")
 
+    def testComplexMul(self):
+        tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"*",Complex)
+        self.codegen.generate_code(tree)
+        self.assertEqual(len(self.codegen.out),6)
+        exp = '''t__temp0 = 1 * a_re
+t__temp1 = 3 * a_im
+t__temp2 = 3 * a_re
+t__temp3 = 1 * a_im
+t__temp4 = t__temp0 - t__temp1
+t__temp5 = t__temp2 + t__temp3'''
+        str_output = map(lambda x : x.format(), self.codegen.out)
+        self.assertEqual(exp, string.join(str_output,"\n"))
+        
     def printAsm(self):
         for i in self.codegen.out:
-            print i
+            print i.format()
         
 def suite():
     return unittest.makeSuite(CodegenTest,'test')
