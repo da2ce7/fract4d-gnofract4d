@@ -22,8 +22,8 @@ class T:
         self.dumpCanon = 0
         self.dumpDecorated = 0
         self.dumpProbs = 0
-        self.dumpTranslation = 1
-        self.dumpVars = 1
+        self.dumpTranslation = 0
+        self.dumpVars = 0
         try:
             self.formula(f)
         except TranslationError, e:
@@ -149,7 +149,7 @@ class T:
         
         lhs = ir.Name(node.leaf, node.pos, expectedType)
         rhs = e
-        return self.coerce(lhs,rhs)
+        return self.coerce(lhs,rhs,node.children[0])
     
     def decl(self,node,expectedType):
         if expectedType != None:
@@ -168,7 +168,7 @@ class T:
             self.symbols[node.leaf] = Var(node.datatype, 0.0,node.pos) # fixme exp
             return self.coerce(
                 ir.Name(node.leaf, node.pos, node.datatype),
-                exp)
+                exp, node)
         
         except KeyError, e:
             self.error("Invalid declaration on line %d: %s" % (node.pos,e))
@@ -210,7 +210,7 @@ class T:
     def const(self,node,expectedType):
         return ir.Const(node.leaf, node.pos, node.datatype)        
     
-    def coerce(self, lhs, rhs):
+    def coerce(self, lhs, rhs, node):
         '''insert code to assign rhs to lhs, even if they are different types,
            or produce an error if conversion is not permitted'''
 
@@ -259,7 +259,7 @@ class T:
             return ir.Move(lhs,rhs,lhs.pos,lhs.datatype)
         
         # if we didn't cast successfully, fall through to here
-        self.badCast(rhs,lhs.datatype)
+        self.badCast(node,lhs.datatype)
             
     def init(self,node):
         self.sections["init"] = self.stmlist(node)
