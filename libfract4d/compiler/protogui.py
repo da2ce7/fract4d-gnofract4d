@@ -9,13 +9,15 @@ import fc
 sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4d
 
+#gtk.gdk.threads_init()
+
 # centralized to speed up tests
 g_comp = fc.Compiler()
 g_comp.load_formula_file("./gf4d.frm")
 g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")
 
-f = fractal.T(g_comp)
+f = fractal.Threaded(g_comp)
 file = open(sys.argv[1])
 f.loadFctFile(file)
 f.compile()

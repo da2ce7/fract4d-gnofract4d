@@ -289,9 +289,13 @@ cmap_pylookup(PyObject *self, PyObject *args)
     return pyret;
 }
 
-
+#ifdef THREADS
 #define GET_LOCK PyEval_RestoreThread(state)
 #define RELEASE_LOCK state = PyEval_SaveThread()
+#else
+#define GET_LOCK
+#define RELEASE_LOCK
+#endif
 
 class PySite :public IFractalSite
 {
@@ -414,10 +418,88 @@ public:
 	    Py_DECREF(site);
 	}
 
-    PyThreadState *state;
+    //PyThreadState *state;
 private:
     PyObject *site;
     bool has_pixel_changed_method;
+};
+
+typedef enum
+{
+    PARAMS,
+    IMAGE,
+    PROGRESS,
+    STATUS,
+    PIXEL
+} msg_type_t;
+    
+typedef struct
+{
+    msg_type_t type;
+    int p1,p2,p3,p4;
+} msg_t;
+
+// write the callbacks to a file descriptor
+class FDSite :public IFractalSite
+{
+public:
+    FDSite(int fd_) : fd(fd_)
+	{
+
+	}
+
+    virtual void parameters_changed()
+	{
+	    msg_t m = { PARAMS, 0, 0, 0, 0};
+	    write(fd,&m,sizeof(m));
+	}
+    
+    // we've drawn a rectangle of image
+    virtual void image_changed(int x1, int y1, int x2, int y2)
+	{
+	    msg_t m = { IMAGE };
+	    m.p1 = x1; m.p2 = y1; m.p3 = x2; m.p4 = y2;
+	    write(fd,&m,sizeof(m));
+	}
+    // estimate of how far through current pass we are
+    virtual void progress_changed(float progress)
+	{
+	    msg_t m = { PROGRESS };
+	    m.p1 = (int) (100.0 * progress);
+	    m.p2 = m.p3 = m.p4 = 0;
+	    write(fd,&m,sizeof(m));
+	}
+    // one of the status values above
+    virtual void status_changed(int status_val)
+	{
+	    msg_t m = { STATUS };
+	    m.p1 = status_val;
+	    m.p2 = m.p3 = m.p4 = 0;
+	    write(fd,&m,sizeof(m));
+	}
+
+    // return true if we've been interrupted and are supposed to stop
+    virtual bool is_interrupted()
+	{
+	    return false; // FIXME
+	}
+
+    // pixel changed
+    virtual void pixel_changed(
+	const double *params, int maxIters, int nNoPeriodIters,
+	int x, int y, int aa,
+	double dist, int fate, int nIters,
+	int r, int g, int b, int a) 
+	{
+	    return; // FIXME
+	};
+
+    ~FDSite()
+	{
+	    close(fd);
+	}
+private:
+    int fd;
 };
 
 static void
@@ -447,6 +529,22 @@ pysite_create(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+pyfdsite_create(PyObject *self, PyObject *args)
+{
+    int fd;
+    if(!PyArg_ParseTuple(args,"i", &fd))
+    {
+	return NULL;
+    }
+
+    IFractalSite *site = new FDSite(fd);
+
+    PyObject *pyret = PyCObject_FromVoidPtr(site,(void (*)(void *))site_delete);
+
+    return pyret;
+}
+
+static PyObject *
 pycalc(PyObject *self, PyObject *args)
 {
     PyObject *pypfo, *pycmap, *pyim, *pysite;
@@ -457,7 +555,7 @@ pycalc(PyObject *self, PyObject *args)
     cmap_t *cmap;
     IImage *im;
     IFractalSite *site;
-
+ 
     if(!PyArg_ParseTuple(
 	   args,
 	   "(ddddddddddd)iiiOOiOO",
@@ -482,9 +580,9 @@ pycalc(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    ((PySite *)site)->state = PyEval_SaveThread();
+    //((PySite *)site)->state = PyEval_SaveThread();
     calc(params,eaa,maxiter,nThreads,pfo,cmap,auto_deepen,im,site);
-    PyEval_RestoreThread(((PySite *)site)->state);
+    //PyEval_RestoreThread(((PySite *)site)->state);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -593,6 +691,8 @@ static PyMethodDef PfMethods[] = {
 
     { "site_create", pysite_create, METH_VARARGS,
       "Create a new site"},
+    { "fdsite_create", pyfdsite_create, METH_VARARGS,
+      "Create a new file-descriptor site"},
 
     { "calc", pycalc, METH_VARARGS,
       "Calculate a fractal image"},

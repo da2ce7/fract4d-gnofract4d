@@ -5,6 +5,7 @@ import string
 import sys
 import fc
 import os.path
+import struct
 
 sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4d
@@ -65,6 +66,13 @@ class PfTest(unittest.TestCase):
     def setUp(self):
         compiler = fc.Compiler()
         self.compiler = compiler
+        self.name_of_msg = [
+            "PARAMS",
+            "IMAGE",
+            "PROGRESS",
+            "STATUS",
+            "PIXEL"
+            ]
         
     def tearDown(self):
         pass
@@ -144,6 +152,48 @@ class PfTest(unittest.TestCase):
         self.failUnless(siteobj.status_list[0]== 1 and \
                          siteobj.status_list[-1]== 0)
 
+        fract4d.image_save(image,"test.tga")
+
+    def testFDSite(self):
+        xsize = 64
+        ysize = xsize * 3.0/4.0
+        image = fract4d.image_create(xsize,ysize)
+        (rfd,wfd) = os.pipe()
+        site = fract4d.fdsite_create(wfd)
+
+        self.compileColorMandel()
+        handle = fract4d.pf_load("./test-pfc.so")
+        pfunc = fract4d.pf_create(handle)
+        fract4d.pf_init(pfunc,0.001,[0.5])
+        cmap = fract4d.cmap_create(
+            [(0.0,0,0,0,255),
+             (1/256.0,255,255,255,255),
+             (1.0, 255, 255, 255, 255)])
+        fract4d.calc(
+            [0.0, 0.0, 0.0, 0.0,
+             4.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            0,
+            100,
+            1,
+            pfunc,
+            cmap,
+            0,
+            image,
+            site)
+
+        while True:
+            nb = 5*4
+            bytes = os.read(rfd,nb)
+            if len(bytes) < nb:
+                break
+            (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
+            m = self.name_of_msg[t] 
+            print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
+            if m == "STATUS" and p1 == 0:
+                #done
+                break
+            
         fract4d.image_save(image,"test.tga")
         
     def disabled_testWithColors(self):
