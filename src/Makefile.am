@@ -48,11 +48,11 @@ $(gnofract4d_OBJECTS): marshallers.h marshallers.c
 gnofract4d_LDADD = ../libfract4d/libfract4d.la $(GNOFRACT4D_CFLAGS) \
 	$(GNOFRACT4D_LIBS)
 
-CXXFLAGS = -O3 -ffast-math -Wall -D_REENTRANT -DCXX="\"$(CXX)\"" \
+AM_CXXFLAGS = -D_REENTRANT -DCXX="\"$(CXX)\"" \
 	-DPREFIX=\""$(prefix)"\" \
 	-DSYSCONFDIR=\""$(sysconfdir)"\" \
 	-DDATADIR=\""$(datadir)"\" \
 	-DLIBDIR=\""$(libdir)"\" \
 	$(GNOFRACT4D_CFLAGS) -DGTK_DISABLE_DEPRECATED -DGNOME_DISABLE_DEPRECATED
 
-CFLAGS = $(CXXFLAGS)
+AM_CFLAGS = $(AM_CXXFLAGS)

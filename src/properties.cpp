@@ -868,7 +868,7 @@ set_func_parameter_cb(GtkWidget * entry, GdkEventFocus *, model_t *m)
         func->setOption(index/2,newVal);
         model_cmd_finish(m,"set_func_param");
     }
-    return TRUE;
+    return FALSE;
 }
 
 void make_func_label(const char *name, const char *part_name, GtkWidget *table, int i)

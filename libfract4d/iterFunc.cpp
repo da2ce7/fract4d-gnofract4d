@@ -152,7 +152,7 @@ iterFunc_data infoTable[] = {
     /* quadratic mandelbrot: z <- A z^2 + B z + C c */
     {
 	"Quadratic",
-	USE_COMPLEX, //flags
+	USE_COMPLEX | NO_UNROLL, //flags
 	BAILOUT_MAG,
 	// decl code
 	"std::complex<double> z(p[X],p[Y]);" 
@@ -169,7 +169,7 @@ iterFunc_data infoTable[] = {
     /* cubic mandelbrot: z <- z^3 -3 A z^2 + c */
     {
 	"Cubic Mandelbrot",
-	USE_COMPLEX, //flags
+	USE_COMPLEX | NO_UNROLL, //flags
 	BAILOUT_MAG,
 	// decl code
 	"std::complex<double> z(p[X],p[Y]) , c(p[CX],p[CY])",
@@ -187,7 +187,7 @@ iterFunc_data infoTable[] = {
     { 
 	"Mandelbar",
 	// flags
-	USE_COMPLEX,
+	USE_COMPLEX | NO_UNROLL,
 	// bailFunc
 	BAILOUT_MAG,
 	// decl code
@@ -301,7 +301,7 @@ iterFunc_data infoTable[] = {
     /* buffalo: z <- a[0] * (|x| + i |y|)^2 + a[1] * (|x| + i|y|) + a[2] * c */
     {
 	"Buffalo",
-	0,
+	NO_UNROLL,
 	BAILOUT_MAG,
 	"T atmp",
 	//iter code
@@ -346,7 +346,7 @@ iterFunc_data infoTable[] = {
     /* lambda */
     {
 	"Lambda",
-	0,
+	NO_UNROLL,
 	BAILOUT_MAG,
 	"T tx, ty",
 	//iter code
@@ -652,6 +652,8 @@ public:
             code_map["RESTORE_ITER"]=restore_iter_code();
             code_map["XPOS"]= flags() & USE_COMPLEX ? "z.real()" : "p[X]";
             code_map["YPOS"]= flags() & USE_COMPLEX ? "z.imag()" : "p[Y]";
+	    code_map["CXPOS"] = flags() & USE_COMPLEX ? "c.real()" : "p[CX]";
+	    code_map["CYPOS"] = flags() & USE_COMPLEX ? "c.imag()" : "p[CY]";
 	    code_map["SETCV"] = cv_code();
         }
     
