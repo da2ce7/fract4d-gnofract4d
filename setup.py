@@ -106,7 +106,7 @@ def get_files(dir,ext):
     return [ os.path.join(dir,x) for x in os.listdir(dir) if x.endswith(ext)] 
 
 setup (name = 'gnofract4d',
-       version = '2.0',
+       version = '2.1',
        description = 'A program to draw fractals',
        long_description = \
 '''Gnofract 4D is a fractal browser. It can generate many different fractals, 
@@ -145,7 +145,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
            ('share/gnome/apps/Graphics/', ['gnofract4d.desktop']),
 
            # boring files
-           ('share/doc/gnofract4d-2.0/', ['COPYING', 'README'])
+           ('share/doc/gnofract4d-2.1/', ['COPYING', 'README'])
            ]
        )
 

@@ -711,18 +711,23 @@ class MainWindow:
     def open_formula(self,action,widget):
         fs = gtk.FileSelection(_("Open Formula File"))
         fs.show_all()
+        filename = ""
         
         while True:
             result = fs.run()            
             if result == gtk.RESPONSE_OK:
-                if self.load_formula(fs.get_filename()):
+                filename = fs.get_filename()
+                if self.load_formula(filename):
                     break
             else:
                 fs.destroy()
                 return
             
         fs.destroy()
-        browser.show(self.window, self.f, browser.FRACTAL)
+        if fc.Compiler.isCFRM.search(filename):
+            browser.show(self.window, self.f, browser.OUTER)
+        else:
+            browser.show(self.window, self.f, browser.FRACTAL)
     
     def open(self,action,widget):
         fs = gtk.FileSelection(_("Open Parameter File"))

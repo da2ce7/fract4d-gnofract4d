@@ -125,7 +125,7 @@ class PfTest(unittest.TestCase):
         
     def testCalc(self):
         xsize = 64
-        ysize = xsize * 3.0/4.0
+        ysize = int(xsize * 3.0/4.0)
         image = fract4dc.image_create(xsize,ysize)
         siteobj = FractalSite()
         site = fract4dc.site_create(siteobj)
@@ -194,7 +194,7 @@ class PfTest(unittest.TestCase):
                 
     def testFDSite(self):
         xsize = 64
-        ysize = xsize * 3.0/4.0
+        ysize = int(xsize * 3.0/4.0)
         image = fract4dc.image_create(xsize,ysize)
         (rfd,wfd) = os.pipe()
         site = fract4dc.fdsite_create(wfd)
