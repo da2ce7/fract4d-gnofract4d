@@ -293,79 +293,57 @@ cmap_pylookup(PyObject *self, PyObject *args)
 class PySite :public IFractalSite
 {
 public:
-    PySite(
-	PyObject *parameters_changed_cb_,
-	PyObject *image_changed_cb_,
-	PyObject *progress_changed_cb_,
-	PyObject *status_changed_cb_,
-	PyObject *is_interrupted_cb_)
+    PySite(PyObject *site_)
 	{
-	    parameters_changed_cb = parameters_changed_cb_;
-	    image_changed_cb =image_changed_cb_;
-	    progress_changed_cb = progress_changed_cb_;
-	    status_changed_cb = status_changed_cb_;
-	    is_interrupted_cb = is_interrupted_cb_;
-	    
-	    Py_INCREF(parameters_changed_cb);
-	    Py_INCREF(image_changed_cb);
-	    Py_INCREF(progress_changed_cb);
-	    Py_INCREF(status_changed_cb);
-	    Py_INCREF(is_interrupted_cb);
+	    site = site_;
+
+	    Py_INCREF(site);
 	}
 
     virtual void parameters_changed()
 	{
-	    PyObject *args = Py_BuildValue("()");
-	    PyObject *ret = PyEval_CallObject(parameters_changed_cb,args);
+	    PyObject *ret = PyObject_CallMethod(
+		site,
+		"parameters_changed",
+		NULL);
 	    Py_XDECREF(ret);
 	}
     
     // we've drawn a rectangle of image
     virtual void image_changed(int x1, int x2, int y1, int y2)
 	{
-	    PyObject *args = Py_BuildValue("(iiii)",x1,x2,y1,y2);
-	    PyObject *ret = PyEval_CallObject(image_changed_cb,args);
+	    PyObject *ret = PyObject_CallMethod(
+		site,
+		"image_changed",
+		"iiii",x1,x2,y1,y2);
 	    Py_XDECREF(ret);
 	}
     // estimate of how far through current pass we are
     virtual void progress_changed(float progress)
 	{
 	    double d = (double)progress;
-	    PyObject *args = Py_BuildValue("(d)",d);
-	    if(NULL == args)
-	    {
-		printf("bad progress\n");
-		PyErr_Print();
-	    }
-	    PyObject *ret = PyEval_CallObject(progress_changed_cb,args);
+	    PyObject *ret = PyObject_CallMethod(
+		site,
+		"progress_changed",
+		"d",d);
 	    Py_XDECREF(ret);
-
 	}
     // one of the status values above
     virtual void status_changed(int status_val)
 	{
 	    assert(this != NULL && status_changed_cb != NULL);
-	    printf("sc: %p %p\n",this,this->status_changed_cb);
-	    if(PyErr_Occurred())
-	    {
-		printf("bad status 0\n");
-		PyErr_Print();
-	    }
+	    //printf("sc: %p %p\n",this,this->status_changed_cb);
 
-	    PyObject *args = Py_BuildValue("(i)",status_val);
-	    if(PyErr_Occurred())
-	    {
-		printf("bad status 1\n");
-		PyErr_Print();
-	    }
+	    PyObject *ret = PyObject_CallMethod(
+		site,
+		"status_changed",
+		"i", status_val);
 
-	    PyObject *ret = PyEval_CallObject(status_changed_cb,args);
 	    if(PyErr_Occurred())
 	    {
 		printf("bad status 2\n");
 		PyErr_Print();
 	    }
-	    Py_XDECREF(args);
 	    Py_XDECREF(ret);
 
 	}
@@ -373,19 +351,15 @@ public:
     // return true if we've been interrupted and are supposed to stop
     virtual bool is_interrupted()
 	{
-	    PyObject *args = Py_BuildValue("()");
-	    if(PyErr_Occurred())
-	    {
-		printf("bad interrupt 0\n");
-		PyErr_Print();
-	    }
-	    PyObject *pyret = PyEval_CallObject(is_interrupted_cb,args);
+	    PyObject *pyret = PyObject_CallMethod(
+		site,
+		"is_interrupted",NULL);
 
 	    bool ret = false;
 	    if(PyInt_Check(pyret))
 	    {
 		long i = PyInt_AsLong(pyret);
-		printf("ret: %ld\n",i);
+		//printf("ret: %ld\n",i);
 		ret = (i != 0);
 	    }
 
@@ -395,19 +369,11 @@ public:
 
     ~PySite()
 	{
-	    printf("dtor %p\n",this);
-	    Py_DECREF(parameters_changed_cb);
-	    Py_DECREF(image_changed_cb);
-	    Py_DECREF(progress_changed_cb);
-	    Py_DECREF(status_changed_cb);
-	    Py_DECREF(is_interrupted_cb);
+	    //printf("dtor %p\n",this);
+	    Py_DECREF(site);
 	}
 private:
-    PyObject *parameters_changed_cb;
-    PyObject *image_changed_cb;
-    PyObject *progress_changed_cb;
-    PyObject *status_changed_cb;
-    PyObject *is_interrupted_cb;
+    PyObject *site;
 };
 
 static void
@@ -419,40 +385,16 @@ site_delete(IFractalSite *site)
 static PyObject *
 pysite_create(PyObject *self, PyObject *args)
 {
-    PyObject *parameters_changed_cb;
-    PyObject *image_changed_cb;
-    PyObject *progress_changed_cb;
-    PyObject *status_changed_cb;
-    PyObject *is_interrupted_cb;
-
+    PyObject *pysite;
     if(!PyArg_ParseTuple(
 	   args,
-	   "OOOOO",
-	   &parameters_changed_cb,
-	   &image_changed_cb,
-	   &progress_changed_cb,
-	   &status_changed_cb,
-	   &is_interrupted_cb))
+	   "O",
+	   &pysite))
     {
 	return NULL;
     }
 
-    if(!PyCallable_Check(parameters_changed_cb) ||
-       !PyCallable_Check(image_changed_cb) ||
-       !PyCallable_Check(progress_changed_cb) ||
-       !PyCallable_Check(status_changed_cb) ||
-       !PyCallable_Check(is_interrupted_cb))
-    {
-	PyErr_SetString(PyExc_ValueError,"All arguments must be callable");
-	return NULL;
-    }
-
-    IFractalSite *site = new PySite(
-	parameters_changed_cb,
-	image_changed_cb,
-	progress_changed_cb,
-	status_changed_cb,
-	is_interrupted_cb);
+    IFractalSite *site = new PySite(pysite);
 
     printf("pysite_create: %p\n",site);
     PyObject *pyret = PyCObject_FromVoidPtr(site,(void (*)(void *))site_delete);
