@@ -4,6 +4,7 @@
 import yacc
 import fractlexer
 import absyn
+import types
 
 tokens = fractlexer.tokens
 
@@ -16,8 +17,6 @@ precedence = (
     ('left', 'TIMES', 'DIVIDE','MOD'),
     ('right', 'BOOL_NEG', 'UMINUS', 'POWER')
 )
-
-lasterror = None
 
 def p_file(t):
      'file : formlist'
@@ -36,22 +35,28 @@ def p_formlist_empty(t):
      t[0] = []
 
 def p_formula(t):
-     'formula : FORM_ID NEWLINE sectlist FORM_END'
-     t[0] = absyn.Formula(t[1],t[3])
+     'formula : FORM_ID formbody'
+     t[0] = absyn.Formula(t[1],t[2])
 
 def p_formula_err(t):
-     'formula : error FORM_ID NEWLINE sectlist FORM_END'
-     t[0] = absyn.Formula(t[2],t[4])
+     'formula : error FORM_ID formbody'
+     t[0] = absyn.Formula(t[2],t[3])
 
-def p_formula_2(t):
-     'formula : FORM_ID NEWLINE stmlist sectlist FORM_END'
-     sectlist = [ absyn.Stmlist("nameless",t[3]) ] + t[4]
-     t[0] = absyn.Formula(t[1],sectlist)
+def p_formbody_2(t):
+     'formbody : NEWLINE stmlist sectlist FORM_END'
+     t[0] = [ absyn.Stmlist("nameless",t[2]) ] + t[3]
 
-def p_bad_formula(t):
-     'formula : FORM_ID error FORM_END'
-     t[0] = absyn.Formula(t[1],[lasterror])
+def p_formbody_err(t):
+     'formbody : error FORM_END'
+     if(isinstance(t[1],types.StringType)):
+          t[0] = [absyn.Error2(t[1],t.lineno(1))]
+     else:
+          t[0] = [absyn.Error(t[1].type, t[1].value, t[1].lineno)]
 
+def p_formbody_sectlist(t):
+     'formbody : NEWLINE sectlist FORM_END'
+     t[0] = t[2]
+     
 def p_sectlist_2(t):
      'sectlist : section sectlist'
      t[0] = [ t[1] ] + t[2]
@@ -200,15 +205,8 @@ def p_arglist_2(t):
 
 # Error rule for syntax errors outside a formula
 def p_error(t):
-     global lasterror
-     lasterror = absyn.Error(t.type,t.value,t.lineno)
-     return t
-     # look for start of next formula
-     #while 1:
-     #     tok = yacc.token()
-     #     if not tok or tok.type == 'FORM_ID': break
-     #yacc.errok()
-     #return tok #restart parsing including this last token
+     #print "error ",t
+     pass
 
 parser = yacc.yacc()
      
