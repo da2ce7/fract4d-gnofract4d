@@ -3,11 +3,13 @@
 # test harness for translate module
 
 import translate
-import unittest
 import fractparser
 import fractlexer
 import fracttypes
+import ir
+
 import string
+import unittest
 
 class TranslateTest(unittest.TestCase):
     def setUp(self):
@@ -85,13 +87,21 @@ class TranslateTest(unittest.TestCase):
         self.assertWarning(t12, "Uninitialized variable b referenced on line 2")
 
     def testBinops(self):
+        # simple ops with no coercions
         t13 = self.translate('''t13 {
         loop:
         complex a, complex b, complex c
+        int ia, int ib, int ic
         a = b + c
+        ia = ib + ic
         }''')
-        #print t13.sections["loop"].pretty()
+        
+        print t13.sections["loop"].pretty()
         self.assertNoProbs(t13)
+        result = t13.sections["loop"]
+        self.failUnless(isinstance(result.stms[-1],ir.Move))
+        # some coercions
+        
         
     def testDecls(self):
         t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")

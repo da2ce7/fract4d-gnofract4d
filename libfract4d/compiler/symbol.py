@@ -9,9 +9,9 @@ import types
 
 def createDefaultDict():
     d = {
-        "sqr_i": Func(Int),
-        "sqr_f": Func(Float),
-        "sqr_c": Func(Complex),
+        "sqr": [ Func([Int],Int),
+                 Func([Float], Float),
+                 Func([Complex], Complex)],
         "#pixel": Var(Complex,0.0), # fixme, value 
         "#z" : Var(Complex,0.0),
         "z"  : Var(Complex,0.0) # same as #z
@@ -20,14 +20,8 @@ def createDefaultDict():
 
 
 def mangle(k):
-    if isinstance(k,types.StringType):
-        return string.lower(k)
-    
-    s = string.lower(k[0]) + "_"
-    for t in k[1]:
-        s += suffixOfType[t]
-    return s
-           
+    return string.lower(k)
+               
 class T(UserDict):
     default_dict = createDefaultDict()
     def __init__(self):
@@ -45,10 +39,10 @@ class T(UserDict):
     def __setitem__(self,key,value):
         k = mangle(key)
         if self.data.has_key(k):
-            l = self.data[k].pos
-            if l==-1:
+            if T.default_dict.has_key(k):
                 msg = "is predefined"
             else:
+                l = self.data[k].pos
                 msg = ("was already defined on line %d" % l)
             
             raise KeyError, ("symbol '%s' %s" % (key,msg))

@@ -14,11 +14,13 @@ class SymbolTest(unittest.TestCase):
         pass
 
     def testSqr(self):
-        self.failUnless(isinstance(self.t[("sqr",[Complex])], Func))
-        self.failUnless(isinstance(self.t[("sqR",[Int])], Func))
+        sqr_c = self.t[("sqr")][2];
+        sqr_i = self.t[("sqR")][0];
+        self.failUnless(isinstance(sqr_c, Func) and sqr_c.ret == Complex)
+        self.failUnless(isinstance(sqr_i, Func) and sqr_i.args == [Int])
 
     def testNoOverride(self):
-        self.assertRaises(KeyError,self.t.__setitem__,("sqr",[Complex]),1)
+        self.assertRaises(KeyError,self.t.__setitem__,("sqr"),1)
         self.t["#wombat"] = Var(Int,1,7)
         self.assertRaises(KeyError,self.t.__setitem__,"#wombat",1)
         
