@@ -70,7 +70,7 @@ public:
     const char *get_flags() { return flags.c_str(); };
 
     void *compile(IFractal *f);
-    void *getHandle(std::map<std::string,std::string> defn_map);
+    void *getHandle(const std::map<std::string,std::string>& defn_map);
 
  private:
     void on_error(std::string message, std::string extra_info) { 
@@ -88,7 +88,7 @@ public:
     std::string so_cache_dir;
 
     void *compile(std::string commandLine);
-    std::string Dstring(std::map<std::string,std::string> defn_map);
+    std::string Dstring(const std::map<std::string,std::string>& defn_map);
 
     void invalidate_cache();
     std::string flow(std::string in);
@@ -139,10 +139,10 @@ compiler::set_cache_dir(const char *s)
     }
 }
 std::string
-compiler::Dstring(std::map<std::string,std::string> defn_map)
+compiler::Dstring(const std::map<std::string,std::string>& defn_map)
 {
     std::ostringstream os;
-    std::map<std::string,std::string>::iterator i;
+    std::map<std::string,std::string>::const_iterator i;
     for(i = defn_map.begin(); i != defn_map.end(); ++i)
     {
         os << "-D" << i->first << "=\"" << i->second << "\" ";
@@ -205,30 +205,19 @@ compiler::compile(IFractal *f)
     bailFunc *bfunc = f->get_bailFunc();
 
     ifunc->get_code(code_map);
-
-    // use internal fract stuff for now
-    fractal *rf = dynamic_cast<fractal *>(f);
-    if(!rf)
-    {
-	on_error("Invalid arg to compile, must be a real fract");
-	return NULL;
-    }
-
-    
     bfunc->get_code(code_map, ifunc->flags());
 
-    /*
     // disable periodicity if inner function will show its effect
-    if(rf->colorFuncs[INNER] != COLORFUNC_ZERO)
+    if(f->get_colorFunc(INNER) != COLORFUNC_ZERO)
     {
 	code_map["NOPERIOD"]="1";
     }
-    */
-    return NULL;
+
+    return getHandle(code_map);
 }
 
 void * 
-compiler::getHandle(std::map<std::string,std::string> defn_map)
+compiler::getHandle(const std::map<std::string,std::string>& defn_map)
 {
     std::string dflags = Dstring(defn_map);
     std::string find = flags + dflags;
@@ -239,6 +228,7 @@ compiler::getHandle(std::map<std::string,std::string> defn_map)
     t_cache::iterator i = cache.find(find);
     if(i == cache.end())
     {
+	// not found
         std::ostringstream os;
         os << so_cache_dir << "/fract" << (next_so++) << ".so";
         out = os.str();
@@ -263,6 +253,7 @@ compiler::getHandle(std::map<std::string,std::string> defn_map)
     }
     else
     {
+	// we've compiled this before
         if(i->second == "##error")
         {
             /* an error occurred last time we compiled this */
