@@ -25,6 +25,7 @@ def suite():
         test_browser.suite(),
         test_settings.suite(),
         test_painter.suite(),
+        test_grkgradient.suite(),
         test_main_window.suite())
     return unittest.TestSuite(tests)
 
