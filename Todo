@@ -1,5 +1,6 @@
 DeprecationWarnings:
-main_window:344 (use gtk.UIManager), 398, 414, 418, 649, 439, 684, 447, 463, 581 (use ComboBox), 475, 479, 487, 497, 502, 519, 548
+main_window:344 (use gtk.UIManager), 545 (use combobox)
+toolbar.py: 85 (using deprecated + new not allowed) 
 browser.py: 269 (use ComboBox)
 gtkfractal.py: 307
 preferences.py: 251
