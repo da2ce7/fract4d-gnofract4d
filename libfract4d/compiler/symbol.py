@@ -29,10 +29,11 @@ def createDefaultDict():
         "sqr": efl("sqr", "[_] , _",  [Int, Float, Complex]),
         "complex" : [ Func([Float, Float], Complex,
                            stdlib, "complex")],
-        "conj" : [Func([Complex], Complex, stdlib, "conj")],
-        "flip" : [Func([Complex], Complex, stdlib, "flip")],
+        "conj" : [ Func([Complex], Complex, stdlib, "conj")],
+        "flip" : [ Func([Complex], Complex, stdlib, "flip")],
         "real" : [ Func([Complex], Float, stdlib, "real")],
         "imag" : [ Func([Complex], Float, stdlib, "imag")],
+        "recip": efl("recip", "[_] , _", [ Float, Complex]),
         
         # standard operators
 
