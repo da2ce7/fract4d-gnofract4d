@@ -1,6 +1,6 @@
 MAPS = $(wildcard *.map)
 
-Mapsdir = $(DESTDIR)@PACKAGE_MAPS_DIR@
+Mapsdir = $(datadir)/@PACKAGE@/maps
 Maps_DATA = $(MAPS)
 
 EXTRA_DIST= $(MAPS)
