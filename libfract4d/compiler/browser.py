@@ -15,10 +15,12 @@ class MainWindow:
         self.lexer = fractlexer.lexer
 
         self.formula_list = gtk.ListStore(gobject.TYPE_STRING)
+        self.formulas = {}
         
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
         self.window.set_default_size(640,400)
+        self.window.set_title('formula browser')
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
 
@@ -37,7 +39,7 @@ class MainWindow:
             ('/File/sep1', None, None, 0, '<Separator>'),
             ('/File/_Quit', '<control>Q', self.quit, 0, ''),   
             ('/_Preferences', None, None, 0, '<Branch>'),
-            ('/_Help', None, None, 0, '<LastBranch>'),
+            ('/_Help', None, None, 0, '<Branch>'),
             ('/Help/_About', None, self.about, 0, ''),
             )
     
@@ -49,15 +51,15 @@ class MainWindow:
         self.vbox.pack_start(menubar, expand=gtk.FALSE)
 
     def create_panes(self):
-        vpaned = gtk.VPaned()
-        self.vbox.pack_start(vpaned, gtk.TRUE, gtk.TRUE)
-        vpaned.set_border_width(5)
+        panes = gtk.HPaned()
+        self.vbox.pack_start(panes, gtk.TRUE, gtk.TRUE)
+        panes.set_border_width(5)
 
+        # left-hand pane displays formula list
         sw = gtk.ScrolledWindow ()
         sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
         sw.set_policy (gtk.POLICY_NEVER,
                        gtk.POLICY_AUTOMATIC)
-        vpaned.add1(sw)
 
         self.treeview = gtk.TreeView (self.formula_list)
         sw.add(self.treeview)
@@ -66,6 +68,29 @@ class MainWindow:
         column = gtk.TreeViewColumn ('Formula', renderer, text=0)
         self.treeview.append_column (column)
 
+        selection = self.treeview.get_selection()
+        selection.connect('changed',self.selection_changed)
+        
+        panes.add1(sw)
+
+        # right-hand pane is details of current formula
+        sw = gtk.ScrolledWindow ()
+        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
+        sw.set_policy (gtk.POLICY_AUTOMATIC,
+                       gtk.POLICY_AUTOMATIC)
+
+        self.text = gtk.TextView()
+        sw.add(self.text)
+        
+        panes.add2(sw)
+
+    def selection_changed(self,selection):
+        (model,iter) = selection.get_selected()
+        title = model.get_value(iter,0)
+        formula = self.formulas[title]
+        buffer = self.text.get_buffer()
+        buffer.set_text(formula.pretty(),-1)
+        
     def quit(self,action,widget=None):
         gtk.main_quit()
         
@@ -77,11 +102,10 @@ class MainWindow:
         self.lexer.lineno = 1
         result = self.parser.parse(s)
 
-
         for formula in result.children:
             iter = self.formula_list.append ()
             self.formula_list.set (iter, 0, formula.leaf)
-
+            self.formulas[formula.leaf] = formula
         
     def about(self,action,widget):
         print "about"
