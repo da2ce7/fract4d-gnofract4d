@@ -142,6 +142,18 @@ class ParserTest(unittest.TestCase):
         color j'''))
         #print t1.pretty()
         self.assertIsValidParse(t1)
+
+    def testStrings(self):
+        t1 = self.parse('''
+        t1 {
+        default:
+        x = ""
+        y = "hi"
+        z = "hello" "world" "long list"
+        }
+        ''')
+        self.assertIsValidParse(t1)
+        self.assertEqual(len(self.allNodesOfType(t1,"string")),5)
         
     def testSimpleMandelbrot(self):
         t1 = self.parse('''

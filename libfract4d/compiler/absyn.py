@@ -98,7 +98,7 @@ def Formlist(list):
     return Node("formlist", list, "")
 
 def Set(id,s):
-    return Node("set",[s],id)
+    return Node("set",s,id)
 
 def Number(n):
     return Node("const", None, n)

@@ -81,13 +81,21 @@ def p_setlist_2(t):
      t[0] = [t[1]] + t[3]
 
 def p_set_exp(t):
-     '''set : ID ASSIGN exp'''     
-     t[0] = absyn.Set(t[1],t[3])
+     'set : ID ASSIGN exp'     
+     t[0] = absyn.Set(t[1],[t[3]])
 
 def p_set_string(t):
-     '''set : ID ASSIGN STRING'''
-     t[0] = absyn.Set(t[1],absyn.String(t[3]))
-     
+     'set : ID ASSIGN STRING stringlist'
+     t[0] = absyn.Set(t[1],[absyn.String(t[3])] + t[4])
+
+def p_stringlist_string(t):
+     'stringlist : STRING stringlist'
+     t[0] = [ absyn.String(t[1]) ] + t[2]
+
+def p_stringlist_empty(t):
+     'stringlist : empty'
+     t[0] = []
+
 def p_set_empty(t):
      'set : empty'
      t[0] = t[1]
@@ -110,7 +118,6 @@ def p_stmlist_stm(t):
          t[0] = []
     else:
          t[0] = [ t[1] ]
-
 
 def p_stmlist_2(t):
     'stmlist : stm NEWLINE stmlist'
