@@ -208,6 +208,7 @@ message_callback(Gf4dFractal *f, gint val, void *user_data)
                               gf4d_fractal_get_max_iterations(f)); break;
     case GF4D_FRACTAL_ANTIALIASING: msg = _("antialiasing..."); break;
     case GF4D_FRACTAL_CALCULATING: msg = _("calculating..."); break;
+    case GF4D_FRACTAL_PAUSED: msg = _("paused"); break;
     default: msg = _("error"); break;
     };
     gnome_appbar_push(GNOME_APPBAR(user_data), msg);

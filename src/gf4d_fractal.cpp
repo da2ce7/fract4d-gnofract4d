@@ -61,7 +61,10 @@ gf4d_fractal_init (Gf4dFractal *f)
     f->workers_running=0;
     pthread_mutex_init(&f->lock,NULL);
     pthread_mutex_init(&f->cond_lock,NULL);
+    pthread_mutex_init(&f->pause_lock,NULL);
     pthread_cond_init(&f->running_cond,NULL);
+    f->status = GF4D_FRACTAL_DONE;
+    f->paused = FALSE;
 }
 
 GtkObject*
@@ -107,6 +110,16 @@ try_finished_cond(Gf4dFractal *f)
 }
 
 static void
+try_paused_cond(Gf4dFractal *f)
+{
+    // if we've been paused, we'll end up waiting here until 
+    // the main thread releases the mutex again
+    pthread_mutex_lock(&f->pause_lock);
+
+    pthread_mutex_unlock(&f->pause_lock);
+}
+
+static void
 set_started_cond(Gf4dFractal *f)
 {
     gf4d_fractal_cond_lock(f);
@@ -119,6 +132,7 @@ set_started_cond(Gf4dFractal *f)
 void
 kill_slave_threads(Gf4dFractal *f)
 {
+    gboolean wasPaused = gf4d_fractal_pause(f, FALSE);
     if(f->tid)
     {
         set_finished_cond(f);
@@ -127,6 +141,13 @@ kill_slave_threads(Gf4dFractal *f)
         gdk_threads_leave();
         pthread_join(f->tid,NULL);
         gdk_threads_enter();
+    }
+    /* if we changed some parameters while paused, the user
+       presumably wants to change some more before explicitly
+       starting the calculation */
+    if(wasPaused)
+    {
+        f->paused = TRUE;
     }
     f->tid = 0;
 }
@@ -292,6 +313,14 @@ void gf4d_fractal_calc(Gf4dFractal *f, int nThreads)
 {
     kill_slave_threads(f);
 
+    /* if we're paused, lock the pause mutex before starting the 
+       calculation thread
+    */
+    if(f->paused)
+    {
+        gf4d_fractal_pause(f,TRUE);
+    }
+
     if(pthread_create(&f->tid,NULL,calculation_thread,(void *)f))
     {
         g_warning("Error, couldn't start thread\n");
@@ -431,6 +460,34 @@ void gf4d_fractal_interrupt(Gf4dFractal *f)
     kill_slave_threads(f);
 }
 
+/* returns previous pause status */
+gboolean gf4d_fractal_pause(Gf4dFractal *f, gboolean pause)
+{
+    gboolean previous_pause_state = f->paused;
+    if(pause)
+    {
+        gtk_signal_emit(
+            GTK_OBJECT(f), 
+            fractal_signals[STATUS_CHANGED],
+            GF4D_FRACTAL_PAUSED);
+
+        pthread_mutex_lock(&f->pause_lock);
+        f->paused = TRUE;
+    }
+    else
+    {
+        // restore previous status
+        gtk_signal_emit(
+            GTK_OBJECT(f),
+            fractal_signals[STATUS_CHANGED],
+            f->status);
+
+        pthread_mutex_unlock(&f->pause_lock);
+        f->paused = FALSE;
+    }
+    return previous_pause_state;
+}
+
 void 
 gf4d_fractal_parameters_changed(Gf4dFractal *f)
 {
@@ -445,6 +502,7 @@ gboolean gf4d_fractal_is_equal(Gf4dFractal *f, Gf4dFractal *f2)
 static void
 gf4d_fractal_enter_callback(Gf4dFractal *f)
 {
+    try_paused_cond(f);
     try_finished_cond(f);
     gdk_threads_enter();
 }
@@ -489,6 +547,7 @@ void gf4d_fractal_progress_changed(Gf4dFractal *f, float progress)
 
 void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val)
 {
+    f->status = status_val;
     gf4d_fractal_enter_callback(f);
 
     gtk_signal_emit(GTK_OBJECT(f),

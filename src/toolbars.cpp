@@ -18,6 +18,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include  <config.h>
+#endif
+
 #include "toolbars.h"
 #include "callbacks.h"
 #include "angles.h"
@@ -114,13 +118,73 @@ create_param_button(char *label_text, param_t data, model_t *m)
     return vbox;
 }
 
+void
+pause_status_callback(Gf4dFractal *f, gint val, void *user_data)
+{
+    GtkWidget *pause_widget = GTK_WIDGET(user_data);
+    GtkWidget *pause_pixmap = GTK_BIN(pause_widget)->child;
+    switch(val)
+    {
+    case GF4D_FRACTAL_CALCULATING: 
+        //gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pause_widget), FALSE);
+        gtk_widget_set_sensitive(pause_widget, TRUE); 
+        break;
+    case GF4D_FRACTAL_DONE:
+        //gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pause_widget), FALSE);
+        gtk_widget_set_sensitive(pause_widget, FALSE); 
+        break;        
+    default:
+        // do nothing
+        ;
+    }
+}
+
+void
+pause_toggled_callback(GtkToggleButton *button, gpointer user_data)
+{
+    Gf4dFractal *f = GF4D_FRACTAL(user_data);
+    gf4d_fractal_pause(f,gtk_toggle_button_get_active(button));
+}
+
+void
+add_pause_widget(GtkWidget *toolbar, model_t *m)
+{
+    GtkWidget *pause_pixmap = gnome_pixmap_new_from_file(
+        gnome_pixmap_file(PACKAGE "/pause.png"));
+
+    GtkWidget *pause_widget = gtk_toggle_button_new();
+    gtk_container_add(GTK_CONTAINER(pause_widget),pause_pixmap);
+
+    gtk_toolbar_append_widget (GTK_TOOLBAR(toolbar),
+                               pause_widget,
+                               _("Pause"),
+                               _("Pause the current calculation"));
+
+    // connect the fractal's stop/start calculation callbacks to 
+    // the pause button's sensitivity
+    Gf4dFractal *f = model_get_fract(m);
+
+    gtk_signal_connect(GTK_OBJECT(f),
+                       "status_changed",
+                       (GtkSignalFunc)pause_status_callback,
+                       pause_widget);
+
+    // connect the pause button's signal to the fractal
+    gtk_signal_connect(GTK_OBJECT(pause_widget),
+                       "toggled",
+                       (GtkSignalFunc)pause_toggled_callback,
+                       f);
+
+    // initially insensitive
+    gtk_widget_set_sensitive(pause_widget, FALSE);
+
+    gtk_widget_show_all(pause_widget);
+}
+
 GtkWidget*
 create_move_toolbar (model_t *m, GtkWidget *appbar)
 {
     GtkWidget *toolbar;
-    GtkWidget *undo_widget;
-    GtkWidget *redo_widget;
-
     toolbar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
 
     gtk_toolbar_append_widget (
@@ -180,11 +244,11 @@ create_move_toolbar (model_t *m, GtkWidget *appbar)
 
     gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 
-    undo_widget = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_UNDO);
-    redo_widget = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_REDO);
+    /* UNDO */
+    GtkWidget *undo_widget = gnome_stock_new_with_icon(
+        GNOME_STOCK_PIXMAP_UNDO);
 
     model_make_undo_sensitive(m,undo_widget);
-    model_make_redo_sensitive(m,redo_widget);
 
     gtk_toolbar_append_item (GTK_TOOLBAR(toolbar), 
                              _("Undo"),
@@ -194,6 +258,11 @@ create_move_toolbar (model_t *m, GtkWidget *appbar)
                              (GtkSignalFunc)undo_cb,
                              m);
 
+    /* REDO */
+    GtkWidget *redo_widget = gnome_stock_new_with_icon(
+        GNOME_STOCK_PIXMAP_REDO);
+
+
     gtk_toolbar_append_item (GTK_TOOLBAR(toolbar), 
                              _("Redo"),
                              _("Redo the last action"),
@@ -202,9 +271,16 @@ create_move_toolbar (model_t *m, GtkWidget *appbar)
                              (GtkSignalFunc)redo_cb,
                              m);
 
+    model_make_redo_sensitive(m,redo_widget);
+
+    /* PAUSE */
+    add_pause_widget(toolbar, m);
+
     gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 
-    GtkWidget *explore_widget = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_SEARCH);
+    GtkWidget *explore_widget = 
+        gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_SEARCH);
+    
     gtk_toolbar_append_item (GTK_TOOLBAR(toolbar),
                              _("Explore"),
                              _("Toggle Explorer mode"),

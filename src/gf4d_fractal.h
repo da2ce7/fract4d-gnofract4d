@@ -37,11 +37,15 @@ struct _Gf4dFractal
     pthread_t tid;
     pthread_mutex_t lock;
     pthread_mutex_t cond_lock;
+    pthread_mutex_t pause_lock;
     pthread_cond_t running_cond;
     // are any workers going?
     int workers_running;
     // how many workers in total? (no, these can't be the same var!)
     int nWorkers;
+    // what's our current status? (only used to restore it after a pause)
+    int status; 
+    gboolean paused;
 };
 
 struct _Gf4dFractalClass
@@ -85,6 +89,9 @@ char *gf4d_fractal_get_param(Gf4dFractal *f, param_t i);
 
 /* stop calculating now! */
 void gf4d_fractal_interrupt(Gf4dFractal *f);
+
+/* stop calculation until told to continue */
+gboolean gf4d_fractal_pause(Gf4dFractal *f, gboolean pause);
 
 /* update functions */
 void gf4d_fractal_set_max_iterations(Gf4dFractal *f, int val);
