@@ -110,18 +110,33 @@ class PfTest(unittest.TestCase):
         fract4dc.image_resize(image,80,60)
         buf = fract4dc.image_buffer(image)
         self.assertEqual(len(buf),80*60*3)
+
+        fate_buf = fract4dc.image_fate_buffer(image)
+        self.assertEqual(len(fate_buf),80*60*4)
+        
         bytes = list(buf)
         self.assertEqual(ord(bytes[0]),200)
         self.assertEqual(ord(bytes[1]),178)
         self.assertEqual(ord(bytes[2]),98)
 
+        fate_bytes = list(fate_buf)
+        for fb in fate_bytes:
+            self.assertEqual(ord(fb), 255)
+            
         self.assertRaises(ValueError,fract4dc.image_buffer, image, -1, 0)
         self.assertRaises(ValueError,fract4dc.image_buffer, image, 80, 0)
         self.assertRaises(ValueError,fract4dc.image_buffer, image, 41, 67)
 
+        self.assertRaises(ValueError,fract4dc.image_fate_buffer, image, -1, 0)
+        self.assertRaises(ValueError,fract4dc.image_fate_buffer, image, 80, 0)
+        self.assertRaises(ValueError,fract4dc.image_fate_buffer, image, 41, 67)
+
         buf = fract4dc.image_buffer(image,5,10)
         self.assertEqual(len(buf),80*60*3 - (10*80+5)*3)
         
+        buf = fract4dc.image_fate_buffer(image,5,10)
+        self.assertEqual(len(buf),80*60*4 - (10*80+5)*4)
+
         
     def testCalc(self):
         xsize = 64

@@ -62,7 +62,10 @@ public:
 	    {
 		*pnIters = -1;
 	    }
+
 	    *color = cmap_lookup_with_transfer(m_cmap,fate,dist,solid);
+	    *pFate = (fate_t) fate;
+	    *pIndex = (float) dist;
 
 	    m_site->pixel_changed(
 		params,nIters, checkPeriod,
