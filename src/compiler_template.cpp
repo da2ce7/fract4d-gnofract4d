@@ -73,8 +73,6 @@ public:
                 {
                     return true;
                 }
-                pIter[X] = pIter[X + (2*1)];
-                pIter[Y] = pIter[Y + (2*1)];
             }while(true);
         }
 
@@ -102,8 +100,6 @@ public:
                 {
                     return true;
                 }
-                pIter[X] = pIter[X + (2*1)];
-                pIter[Y] = pIter[Y + (2*1)];
                 if(fabs(pIter[X] - lastx) < PERIOD_TOLERANCE &&
                    fabs(pIter[Y] - lasty) < PERIOD_TOLERANCE)
                 {
@@ -125,7 +121,7 @@ public:
         struct rgb *color, int *pnIters
         )
         {
-            T pIter[ITER_SPACE*(8+1)], pInput[INPUT_SPACE], pTemp[TEMP_SPACE];
+            T pIter[ITER_SPACE], pInput[INPUT_SPACE], pTemp[TEMP_SPACE];
             pIter[X] =  params.n[VZ]; 
             pIter[Y] =  params.n[VW];
             pInput[CX] = params.n[VX];
