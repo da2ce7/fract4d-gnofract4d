@@ -20,7 +20,6 @@ todo for 2.0
 * W	end-to-end regression test vs V1.9
 * W 	enums, int parameters
 * W	formula browser
-	load formula file
 	manage search path (user prefs)
 	color funcs vs normal funcs
 	edit & continue
@@ -38,6 +37,7 @@ todo for 2.0
 * WW	docs
 
 done:
+* W	formula browser : load formula file
 * BBB	crash when edit fractal parameters: G_IS_OBJECT(object) failed
 * W	make default fractal more interesting
 * B	Reset changes antialiasing

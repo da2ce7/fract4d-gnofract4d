@@ -13,21 +13,12 @@ import types
 import gtk
 import gobject
 
-# so we can run without installing.
-# FIXME is there a better way?
-sys.path.append("..")
-
 # fractal calculation modules
 from fract4d import fractal,fc,fract4dc
 
 # gui modules
-import gtkfractal
-import settings
-import preferences
-import autozoom
-import model
-import colors
-import browser
+from gui import gtkfractal, model, preferences, autozoom, settings, browser
+from gui import colors, undo
 
 # We don't use GDK threads because RedHat seem to compile pygtk
 # without thread support. Grrr.
@@ -39,7 +30,7 @@ class MainWindow:
         # create fractal compiler and load standard formula and
         # coloring algorithm files
         self.compiler = fc.Compiler()
-        self.compiler.file_path.append("../fract4d")
+        self.compiler.file_path.append("fract4d")
         self.compiler.load_formula_file("gf4d.frm")
         self.compiler.load_formula_file("gf4d.cfrm")
 
