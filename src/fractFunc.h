@@ -59,7 +59,7 @@ class fractThreadFunc {
     image *im;    
 
     /* not a ctor because we always create a whole array then init them */
-    void init(fractFunc *ff, fractal_t *f, image *im);
+    bool init(fractFunc *ff, fractal_t *f, image *im);
 
     ~fractThreadFunc();
 
@@ -145,8 +145,14 @@ class fractFunc {
     int updateiters();
 
     friend class fractThreadFunc;
+    friend class fractal;
+
  private:
     // MEMBER VARS
+
+    bool ok; // did this instance get constructed ok?
+    // (* this should really be done with exns but they are unreliable 
+    //  * in the presence of pthreads - grrr *)
 
     // do every nth pixel twice as deep as the others to
     // see if we need to auto-deepen

@@ -226,19 +226,29 @@ model_init_compiler(model_t *m,compiler *pc)
     }
     model_set_compiler_location(m,compiler_location);
     g_free(compiler_location);
+
+    pc->set_err_callback((void (*)(void *,const char *))model_on_error, (void *)m);
+}
+
+void
+model_on_error(model_t *m, const char *message)
+{
+    gdk_threads_enter();
+    gnome_error_dialog(message);
+    gdk_threads_leave();
 }
 
 void
 model_set_compiler_location(model_t *m, char *location)
 {
-    g_pCompiler->cc = location;
+    g_pCompiler->set_cc(location);
     gnome_config_set_string(PACKAGE "/Compiler/path", location);
 }
 
 const char *
 model_get_compiler_location(model_t *m)
 {
-    return g_pCompiler->cc.c_str();
+    return g_pCompiler->get_cc();
 }
 
 model_t *

@@ -599,37 +599,40 @@ fractal::move(param_t i, double dist)
 
 void
 fractal::calc(Gf4dFractal *gf, image *im)
-{
+{    
+    if(eaa == AA_DEFAULT) 
     {
-        if(eaa == AA_DEFAULT) 
-        {
-            eaa = antialias;
-        }
-        fractFunc pr(this, im, gf);
-
-        gf4d_fractal_status_changed(gf,GF4D_FRACTAL_CALCULATING);
-
-        pr.draw(8,8);
-
-        int deepen;
-        while((deepen = pr.updateiters()) > 0)
-        {
-            gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DEEPENING);
-            maxiter *= 2;
-            pr.draw(8,1);
-        }
-	
-        if(eaa > AA_NONE) {
-            gf4d_fractal_status_changed(gf,GF4D_FRACTAL_ANTIALIASING);
-            pr.draw_aa();
-        }
-	
-        // we do this after antialiasing because otherwise sometimes the
-        // aa pass makes the image shallower, which is distracting
-        if(deepen < 0)
-        {
-            maxiter /= 2;
-        }
+        eaa = antialias;
+    }
+    fractFunc pr(this, im, gf);
+    
+    if(!pr.ok)
+    {
+        gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DONE);
+        return;
+    }
+    gf4d_fractal_status_changed(gf,GF4D_FRACTAL_CALCULATING);
+    
+    pr.draw(8,8);
+    
+    int deepen;
+    while((deepen = pr.updateiters()) > 0)
+    {
+        gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DEEPENING);
+        maxiter *= 2;
+        pr.draw(8,1);
+    }
+    
+    if(eaa > AA_NONE) {
+        gf4d_fractal_status_changed(gf,GF4D_FRACTAL_ANTIALIASING);
+        pr.draw_aa();
+    }
+    
+    // we do this after antialiasing because otherwise sometimes the
+    // aa pass makes the image shallower, which is distracting
+    if(deepen < 0)
+    {
+        maxiter /= 2;
     }
     gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DONE);
     gf4d_fractal_progress_changed(gf,0.0);

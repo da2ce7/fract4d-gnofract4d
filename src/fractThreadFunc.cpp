@@ -3,7 +3,7 @@
 #include "iterFunc.h"
 #include <stdio.h>
 
-void
+bool
 fractThreadFunc::init(fractFunc *ff_,fractal_t *f_, image *im_)
 {
     ff = ff_;
@@ -18,11 +18,16 @@ fractThreadFunc::init(fractFunc *ff_,fractal_t *f_, image *im_)
         f->colorFuncs[OUTER],
         f->colorFuncs[INNER]);
 
+    if(NULL == pf)
+    {
+        return false;
+    }
+    return true;
 }
 
 fractThreadFunc::~fractThreadFunc()
 {
-    delete pf;
+    pointFunc_delete(pf);
 }
 
 /* we're in a worker thread */

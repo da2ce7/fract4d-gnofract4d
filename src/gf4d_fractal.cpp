@@ -218,7 +218,6 @@ gf4d_fractal_class_init (Gf4dFractalClass *klass)
     klass->image_changed=NULL;
     klass->progress_changed=NULL;
     klass->status_changed=NULL;
-	
     gtk_object_class_add_signals(object_class, fractal_signals, LAST_SIGNAL);
 }
 
@@ -508,7 +507,7 @@ gf4d_fractal_enter_callback(Gf4dFractal *f)
 static void
 gf4d_fractal_leave_callback(Gf4dFractal *f)
 {
-    gdk_threads_leave();    
+    gdk_threads_leave();
 }
 
 void gf4d_fractal_image_changed(Gf4dFractal *f, int x1, int y1, int x2, int y2)

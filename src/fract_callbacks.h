@@ -33,6 +33,7 @@ extern "C" {
     void gf4d_fractal_image_changed(Gf4dFractal *f, int x1, int x2, int y1, int y2);
     void gf4d_fractal_progress_changed(Gf4dFractal *f, float progress);
     void gf4d_fractal_status_changed(Gf4dFractal *f, int status_val);
+    void gf4d_fractal_error_occurred(Gf4dFractal *f, char *message);
 
     // returns true if we've been interrupted and are supposed to stop
     bool gf4d_fractal_try_finished_cond(Gf4dFractal *f);

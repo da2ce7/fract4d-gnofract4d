@@ -18,14 +18,15 @@ private:
     colorFunc *m_pOuterColor, *m_pInnerColor;
     double m_eject;
     colorizer *m_pcf;
-
+    void *m_handle; // handle of .so which keeps us in memory
 public:
     /* ctor */
-    pointCalc(double eject,
+    pointCalc(void *handle,
+              double eject,
               colorizer *pcf,
               e_colorFunc outerCfType,
               e_colorFunc innerCfType) 
-        : m_eject(eject), m_pcf(pcf)
+        : m_eject(eject), m_pcf(pcf), m_handle(handle)
         {
             m_pOuterColor = colorFunc_new(outerCfType);
             m_pInnerColor = colorFunc_new(innerCfType);
@@ -185,15 +186,20 @@ public:
 
             return colorize(iter, &inputSpace[0], &iterSpace[0], &tempSpace[0]);
         }
+    virtual void *handle()
+        {
+            return m_handle;
+        }
 };
 
 extern "C" {
     void *create_pointfunc(
-            double bailout,
-            colorizer *pcf,
-            e_colorFunc outerCfType,
-            e_colorFunc innerCfType)
+        void *handle,
+        double bailout,
+        colorizer *pcf,
+        e_colorFunc outerCfType,
+        e_colorFunc innerCfType)
     {
-        return new pointCalc(bailout, pcf, outerCfType, innerCfType);
+        return new pointCalc(handle, bailout, pcf, outerCfType, innerCfType);
     }
 }

@@ -113,6 +113,9 @@ extern "C" {
     void model_set_compiler_location(model_t *m, char *location);
     const char *model_get_compiler_location(model_t *m);
 
+    // report an error
+    void model_on_error(model_t *m, const char *message);
+
 #ifdef __cplusplus
 }
 #endif

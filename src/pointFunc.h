@@ -46,6 +46,7 @@ class pointFunc {
         ) = 0;
 #endif
     virtual rgb_t recolor(int iter) = 0;
+    virtual void *handle() = 0;
 };
 
 /* factory method for making new fractFuncs */
@@ -56,6 +57,8 @@ pointFunc *pointFunc_new(
     colorizer *pcf,
     e_colorFunc outerCfType,    
     e_colorFunc innerCfType);
+
+void pointFunc_delete(pointFunc *pF);
 
 #endif
 

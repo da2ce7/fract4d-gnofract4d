@@ -14,7 +14,8 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     gf = _gf;
     im = _im;
     f = _f; 
-    
+    ok = true;
+
     depth = f->eaa ? 2 : 1; 
     
     f->update_matrix();
@@ -44,7 +45,11 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     ptf = new fractThreadFunc[nThreadFuncs];
     for(int i = 0; i < nThreadFuncs; ++i)
     {
-        ptf[i].init(this,f,im);
+        if(!ptf[i].init(this,f,im))
+        {
+            // failed to create - mark this dead 
+            ok = false;
+        }
     }
 
     /* threading */

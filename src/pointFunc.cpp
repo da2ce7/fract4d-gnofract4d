@@ -60,8 +60,8 @@ pointFunc *pointFunc_new(
     void *dlHandle = g_pCompiler->getHandle(iter,decl,ret,bail);
 
     pointFunc *(*pFunc)(
-        double, colorizer *, e_colorFunc, e_colorFunc) = 
-        (pointFunc *(*)(double, colorizer *, e_colorFunc, e_colorFunc)) 
+        void *, double, colorizer *, e_colorFunc, e_colorFunc) = 
+        (pointFunc *(*)(void *, double, colorizer *, e_colorFunc, e_colorFunc)) 
         dlsym(dlHandle, "create_pointfunc");
 
     if(NULL == pFunc)
@@ -69,7 +69,20 @@ pointFunc *pointFunc_new(
         return NULL;
     }
 
-    return pFunc(bailout, pcf, outerCfType, innerCfType);
+    return pFunc(dlHandle, bailout, pcf, outerCfType, innerCfType);
 #endif
+}
+
+/* can't just call dtor because we need to free the handle to the .so
+   - and we can't do that *inside* the .so or Bad Things will happen */
+void
+pointFunc_delete(pointFunc *pF)
+{
+    if(NULL != pF)
+    {
+        void *handle = pF->handle();
+        delete pF;
+        dlclose(handle);
+    }
 }
 
