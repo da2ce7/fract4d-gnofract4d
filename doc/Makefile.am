@@ -10,10 +10,13 @@ GIFS = julia_perturbed.png julia_standard.png \
 	mandelbrot_perturbed.png mandelbrot_standard.png \
 	xw_plane.png hybrid.png
 
+STYLESHEET_GIFS=gnofract4d/stylesheet-images/caution.gif
+
 EXTRA_DIST = \
 	$(SGML_FILES) \
 	topic.dat \
-	$(GIFS)
+	$(GIFS) \
+	$(STYLESHEET_GIFS)
 
 all:
 
@@ -24,16 +27,24 @@ gnofract4d/gnofract4d.html: $(SGML_FILES)
 	-db2html gnofract4d.sgml
 
 dist-hook:
-	mkdir $(distdir)/gnofract4d
-	-cp gnofract4d/*.html gnofract4d/*.css $(distdir)/gnofract4d
+	mkdir -p $(distdir)/gnofract4d
+	mkdir -p $(distdir)/gnofract4d/stylesheet-images
+	-cp gnofract4d/*.html *.css $(distdir)/gnofract4d
 	-cp gnofract4d.html $(distdir)
+	-cp gnofract4d/stylesheet-images/*.gif $(distdir)/gnofract4d/stylesheet-images
 
 install-data-local: gnofract4d.html
 	$(mkinstalldirs) $(gnofract4d_helpdir)/images
-	-for file in $(srcdir)/gnofract4d/*.html $(srcdir)/gnofract4d/*.css $(srcdir)/*.gif ; do \
+	$(mkinstalldirs) $(gnofract4d_helpdir)/stylesheet-images
+	-for file in $(srcdir)/gnofract4d/*.html $(srcdir)/gnofract4d/*.css $(srcdir)/*.png ; do \
 		basefile=`basename $$file`; \
 		echo $$basefile; \
 		$(INSTALL_DATA) $(srcdir)/$$file $(gnofract4d_helpdir)/$$basefile; \
+	done
+	-for file in $(srcdir)/gnofract4d/stylesheet-images/*.gif ; do \
+		basefile=`basename $$file`; \
+		echo $$basefile; \
+		$(INSTALL_DATA) $(srcdir)/$$file $(gnofract4d_helpdir)/stylesheet-images/$$basefile; \
 	done
 
 gnofract4d.ps: gnofract4d.sgml

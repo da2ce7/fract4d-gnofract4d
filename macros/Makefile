@@ -1,7 +1,7 @@
 # Generated automatically from Makefile.in by configure.
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
 
-# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -57,12 +57,16 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+host_alias = i686-pc-linux-gnu
+host_triplet = i686-pc-linux-gnu
+BUILD_INCLUDED_LIBINTL = no
 CATALOGS =  fr.gmo
 CATOBJEXT = .gmo
 CC = gcc
 CXX = c++
 DATADIRNAME = share
-GENCAT = 
+GENCAT = gencat
+GLIBC21 = yes
 GMOFILES =  fr.gmo
 GMSGFMT = /usr/bin/msgfmt
 GNOMEGNORBA_LIBS = -rdynamic -lgnorba -lORBitCosNaming -lORBit -lIIOP -lORBitutil -lnsl -lgnomeui -lart_lgpl -lgdk_imlib -lSM -lICE -lgtk -lgdk -lgmodule -lXi -lXext -lX11 -lgnome -lgnomesupport -lesd -laudiofile -lm -ldb1 -lglib -ldl
@@ -79,13 +83,12 @@ GTKXMHTML_LIBS = -rdynamic -lgtkxmhtml -lXpm -ljpeg -lpng -lz -lSM -lICE -lgtk -
 GTK_CFLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -D_REENTRANT -I/usr/X11R6/include
 GTK_CONFIG = /usr/bin/gtk-config
 GTK_LIBS = -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lgthread -lglib -lpthread -ldl -lXi -lXext -lX11 -lm
-GT_NO = 
-GT_YES = #YES#
-INCLUDE_LOCALE_H = #include <locale.h>
 INSTOBJEXT = .mo
-INTLDEPS = 
+INTLBISON = bison
 INTLLIBS = 
 INTLOBJS = 
+INTL_LIBTOOL_SUFFIX_PREFIX = 
+LIBICONV = 
 MAKEINFO = makeinfo
 MKINSTALLDIRS = ./mkinstalldirs
 MSGFMT = /usr/bin/msgfmt
@@ -102,22 +105,43 @@ PTHREAD_LIB = -lpthread
 RANLIB = ranlib
 USE_INCLUDED_LIBINTL = no
 USE_NLS = yes
-VERSION = 1.5
+VERSION = 1.6
 XPM_LIBS = -lXpm
 ZVT_LIBS = -rdynamic -lzvt -lutil -lSM -lICE -lgdk_imlib -lgtk -lgdk -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm
 cflags_set = yes
 cxxflags_set = @cxxflags_set@
-l = 
 
-MACROS =    aclocal-include.m4				  compiler-flags.m4				  curses.m4					  gnome-bonobo-check.m4				  gnome-fileutils.m4				  gnome-gettext.m4				  gnome-ghttp-check.m4				  gnome-gnorba-check.m4				  gnome-guile-checks.m4				  gnome-libgtop-check.m4			  gnome-objc-checks.m4				  gnome-orbit-check.m4				  gnome-print-check.m4				  gnome-pthread-check.m4			  gnome-support.m4				  gnome-undelfs.m4				  gnome-vfs.m4					  gnome-x-checks.m4				  gnome-xml-check.m4				  gnome.m4					  linger.m4					  need-declaration.m4
+MACROS = \
+  aclocal-include.m4				\
+  compiler-flags.m4				\
+  curses.m4					\
+  gnome-bonobo-check.m4				\
+  gnome-fileutils.m4				\
+  gnome-gettext.m4				\
+  gnome-ghttp-check.m4				\
+  gnome-gnorba-check.m4				\
+  gnome-guile-checks.m4				\
+  gnome-libgtop-check.m4			\
+  gnome-objc-checks.m4				\
+  gnome-orbit-check.m4				\
+  gnome-print-check.m4				\
+  gnome-pthread-check.m4			\
+  gnome-support.m4				\
+  gnome-undelfs.m4				\
+  gnome-vfs.m4					\
+  gnome-x-checks.m4				\
+  gnome-xml-check.m4				\
+  gnome.m4					\
+  linger.m4					\
+  need-declaration.m4
 
 
 EXTRA_DIST = $(MACROS) gnome-common.m4 autogen.sh
 MAINTAINERCLEANFILES = macros.dep
 
-#gnome_aclocaldir = $(datadir)/aclocal/gnome
+#gnome_aclocaldir = #$(datadir)/aclocal/gnome
 
-#gnome_aclocal_DATA = $(MACROS) gnome-macros.dep gnome-common.m4 autogen.sh
+#gnome_aclocal_DATA = #$(MACROS) gnome-macros.dep gnome-common.m4 autogen.sh
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -133,9 +157,9 @@ GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps macros/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu macros/Makefile
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -167,10 +191,15 @@ distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 subdir = macros
 
 distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu macros/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
