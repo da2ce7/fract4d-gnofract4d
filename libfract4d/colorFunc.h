@@ -37,7 +37,8 @@ class colorFunc {
  public:
     virtual int buffer_size() const = 0;
     virtual void extract_state(const double *in_buf, void *out_buf) const = 0;
-    virtual double operator()(int iter, double eject_val, const void *p) const = 0;
+    virtual double operator()(int iter, double eject_val, const void *p) const = 0; 
+    virtual ~colorFunc() {};
 };
 
 // factory method to construct color function objects 

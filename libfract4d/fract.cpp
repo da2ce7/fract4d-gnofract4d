@@ -96,6 +96,9 @@ fractal::fractal()
     colorFuncs[OUTER]=COLORFUNC_CONT;
     colorFuncs[INNER]=COLORFUNC_ZERO;
 
+    colorTransferFuncs[OUTER]="Linear";
+    colorTransferFuncs[INNER]="Linear";
+
     assert(bailout_type > (void *)0x4);
 }
 
@@ -136,6 +139,7 @@ fractal::copy(const fractal& f)
     for(int i = 0; i < N_COLORFUNCS; ++i)
     {
         colorFuncs[i] = f.colorFuncs[i];
+	colorTransferFuncs[i] = f.colorTransferFuncs[i];
     }
     set_bailFunc(f.get_bailFunc());
 }
@@ -198,7 +202,10 @@ fractal::operator==(const fractal& f) const
 
     if(!(*cizer == *f.cizer)) return false;
     if(colorFuncs[OUTER] != f.colorFuncs[OUTER]) return false;
-    if(colorFuncs[INNER] != f.colorFuncs[INNER]) return false;    
+    if(colorFuncs[INNER] != f.colorFuncs[INNER]) return false;
+    if(colorTransferFuncs[OUTER] != f.colorTransferFuncs[OUTER]) return false;
+    if(colorTransferFuncs[INNER] != f.colorTransferFuncs[INNER]) return false;
+
     if(bailout_type->type() != f.bailout_type->type()) return false;
     
     return true;
@@ -690,7 +697,9 @@ fractal::recolor(IImage *im)
         tolerance(im),
         cizer,
         colorFuncs[OUTER],
-        colorFuncs[INNER]);
+        colorFuncs[INNER],
+	colorTransferFuncs[OUTER],
+	colorTransferFuncs[INNER]);
 
     int width = im->Xres();
     int height = im->Yres();
@@ -742,6 +751,20 @@ fractal::get_colorFunc(int which_cf) const
 {
     assert(which_cf >= 0 && which_cf < N_COLORFUNCS);
     return colorFuncs[which_cf];
+}
+
+void 
+fractal::set_colorTransferFunc(const char *name, int which_cf)
+{
+    assert(which_cf >= 0 && which_cf < N_COLORFUNCS);
+    colorTransferFuncs[which_cf] = name;
+}
+
+const char *
+fractal::get_colorTransferFunc(int which_cf) const
+{
+    assert(which_cf >= 0 && which_cf < N_COLORFUNCS);
+    return colorTransferFuncs[which_cf];
 }
 
 void

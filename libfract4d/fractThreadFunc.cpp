@@ -18,7 +18,9 @@ fractThreadFunc::init(fractFunc *ff_,fractal_t *f_, IImage *im_)
         f->tolerance(im),
         f->cizer, 
         f->colorFuncs[OUTER],
-        f->colorFuncs[INNER]);
+        f->colorFuncs[INNER],
+	f->colorTransferFuncs[OUTER],
+	f->colorTransferFuncs[INNER]);
 
     if(NULL == pf)
     {

@@ -46,8 +46,9 @@ private:
     // color params
     colorizer *cizer;
 
-
     e_colorFunc colorFuncs[N_COLORFUNCS];
+    const char *colorTransferFuncs[N_COLORFUNCS];
+
     iterFunc *pIterFunc;
 
     // parameters beyond this point aren't saved
@@ -125,6 +126,9 @@ public:
 
     void set_colorFunc(e_colorFunc cf, int which_cf);
     e_colorFunc get_colorFunc(int which_cf) const;
+
+    void set_colorTransferFunc(const char *name, int which_cf);
+    const char *get_colorTransferFunc(int which_cf) const;
 
     void update_matrix();
     dvec4 get_center();

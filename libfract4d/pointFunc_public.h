@@ -51,7 +51,6 @@ typedef enum
     COLORFUNC_ANGLE
 } e_colorFunc;
 
-
 class iterFunc;
 class bailFunc;
 
@@ -66,7 +65,9 @@ class pointFunc {
 	double periodicity_tolerance,
 	colorizer *pcf,
 	e_colorFunc outerCfType,    
-	e_colorFunc innerCfType);
+	e_colorFunc innerCfType,
+	const char *outerCtfType,
+	const char *innerCtfType);
 	
     virtual ~pointFunc() {};
     //virtual pointFunc *clone() const = 0;

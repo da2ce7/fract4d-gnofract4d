@@ -17,6 +17,7 @@
  *
  */
 
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -27,6 +28,7 @@
 #include "compiler.h"
 #include "colorizer.h"
 #include "colorFunc.h"
+#include "colorTransferFunc.h" 
 
 #include <unistd.h>
 #include <dlfcn.h>
@@ -39,9 +41,12 @@ private:
     void *m_handle; 
     colorFunc *m_pOuterColor;
     colorFunc *m_pInnerColor;
+    colorTransferFunc *m_pOuterCTF;    
+    colorTransferFunc *m_pInnerCTF;
+
     pf_obj *m_pfo;
     void *one_space;
-
+    
 public:
     pf_wrapper(
 	pf_obj *pfo,
@@ -49,13 +54,18 @@ public:
 	double period_tolerance,
 	std::complex<double> *params,
 	colorizer *pcizer, 
-	void *dlHandle, e_colorFunc outerCfType, e_colorFunc innerCfType) : 
+	void *dlHandle, 
+	e_colorFunc outerCfType, e_colorFunc innerCfType,
+	const char *outerCtfType, const char *innerCtfType
+	) : 
 	m_pcizer(pcizer), m_handle(dlHandle), m_pfo(pfo)
 	{
 	    m_pfo->vtbl->init(m_pfo,bailout,period_tolerance,params);
 
             m_pOuterColor = colorFunc_new(outerCfType);
             m_pInnerColor = colorFunc_new(innerCfType);
+	    m_pOuterCTF = colorTransferFunc::create(outerCtfType);
+	    m_pInnerCTF = colorTransferFunc::create(innerCtfType);
 
 	    one_space = malloc(buffer_size());
 	}
@@ -63,6 +73,8 @@ public:
 	{
             delete m_pOuterColor;
             delete m_pInnerColor;
+	    delete m_pOuterCTF;
+	    delete m_pInnerCTF;
 
 	    free(one_space);
 
@@ -107,19 +119,34 @@ public:
 		return m_pOuterColor;
 	    }
 	}
+    inline colorTransferFunc *getColorTransferFunc(int iter) const
+	{
+	    if(iter == -1)
+	    {
+		return m_pInnerCTF;
+	    }
+	    else
+	    {
+		return m_pOuterCTF;
+	    }
+	}
+
     inline double colorize(int iter, const double *p, void *out_buf) const
         {
             double colorDist;
 	    colorFunc *pcf = getColorFunc(iter);
 	    pcf->extract_state(p,out_buf);
 	    colorDist = (*pcf)(iter, p[EJECT],out_buf);
-
+	    colorTransferFunc *pctf = getColorTransferFunc(iter);
+	    colorDist = pctf->calc(colorDist);
             return colorDist; 
         }
     virtual rgb_t recolor(int iter, double eject, const void *buf) const
 	{
 	    colorFunc *pcf = getColorFunc(iter);
 	    double dist = (*pcf)(iter, eject, buf);
+	    colorTransferFunc *pctf = getColorTransferFunc(iter);
+	    dist = pctf->calc(dist);
             return m_pcizer->calc(dist);
 	}
     virtual int buffer_size() const
@@ -137,7 +164,9 @@ pointFunc *pointFunc::create(
     double periodicity_tolerance,
     colorizer *pcf,
     e_colorFunc outerCfType,
-    e_colorFunc innerCfType)
+    e_colorFunc innerCfType,
+    const char *outerCtfType,
+    const char *innerCtfType)
 {
     std::map<std::string,std::string> code_map;
     iterType->get_code(code_map);
@@ -167,5 +196,8 @@ pointFunc *pointFunc::create(
 	bailout,
 	periodicity_tolerance,
 	iterType->opts(),
-	pcf, dlHandle, outerCfType, innerCfType);
+	pcf, dlHandle, 
+	outerCfType, innerCfType,
+	outerCtfType, innerCtfType);
 }
+

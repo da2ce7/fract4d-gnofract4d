@@ -141,6 +141,9 @@ public:
     virtual void set_colorFunc(e_colorFunc cf, int which_cf) = 0;
     virtual e_colorFunc get_colorFunc(int which_cf) const = 0;
 
+    virtual void set_colorTransferFunc(const char *name, int which_ctf) = 0;
+    virtual const char *get_colorTransferFunc(int which_ctf) const = 0;
+
     virtual void set_threads(int n) = 0;
     virtual int get_threads() const = 0;
 

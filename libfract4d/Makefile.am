@@ -13,6 +13,7 @@ libfract4d_la_SOURCES=\
 	image_public.h \
 	colorizer.cpp colorizer.h colorizer_public.h \
 	colorFunc.h colorFunc.cpp \
+	colorTransferFunc.h colorTransferFunc.cpp \
 	iterFunc.h iterFunc.cpp \
 	bailFunc.h bailFunc.cpp \
 	fractFunc.h fractFunc.cpp fractThreadFunc.cpp \

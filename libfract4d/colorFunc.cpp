@@ -59,7 +59,8 @@ public:
     double operator()(int iter, double eject, const void *p) const
         {
 	    float eject_val = *(float *)p;
-            return ((double) iter) + eject/eject_val;
+	    double val = ((double) iter)+ eject/eject_val;
+            return val;
         }
 };
 
