@@ -18,6 +18,7 @@ todo for 2.2
 * B	browse fhq.ufm - invalid UTF8 string passed to pango_layout
 * B	dmj.ufm:DHNovaJulka - '#magn' - no symbol starting with t__ is allowed
 * B	dmj.udm:dmj-ManyJulia - looks like 3 quadrants are wrong somehow
+* B	jock.ufm:neptwona = "complex z = #pixel", eg redeclare z
 
 UI improvements 
 * BB	more robust error reporting
@@ -70,6 +71,7 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* B	method=multipass = compile error
 * W	sort formula files by name
 * B	jgr.ufm:Birch - compiler bug!
 * B	open formula file on .cfrm should go to correct page in browser
