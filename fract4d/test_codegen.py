@@ -390,6 +390,35 @@ bailout:
         self.assertEqual(lines[-1],"(20,1,0)",output)
         self.assertEqual(lines[-2],lines[-3],output)        
 
+    def testBirch(self):
+        'Test whether a UF formula which used to be problematic works'
+        src = '''Birch {
+init:
+  z=fn1(fn2((#pixel^@power)))
+loop:
+  
+bailout:
+  @inside
+default:
+  title = "Birch (Pixel)"
+  maxiter = 1
+  param inside
+    caption = "Inside"
+    default = true
+  endparam
+  param power
+    caption = "Power"
+    default = (2,0)
+  endparam
+}
+'''
+        t = self.translate(src)
+
+        #print "b", t.sections["bailout"].pretty()
+        cg = codegen.T(t.symbols)
+        cg.output_all(t)
+        c = cg.output_c(t)
+        
     def testCF(self):
         tcf0 = self.translatecf('''
         biomorph {

@@ -5,6 +5,7 @@
 import string
 import tempfile
 import copy
+import os
 
 import ir
 import symbol
@@ -641,7 +642,8 @@ extern pf_obj *pf_new(void);
     def writeToTempFile(self,data=None,suffix=""):
         'try mkstemp or mktemp if missing'
         try:
-            (cFile,cFileName) = tempfile.mkstemp("gf4d",suffix)
+            (fileno,cFileName) = tempfile.mkstemp(suffix,"gf4d")
+            cFile = os.fdopen(fileno,"w")
         except AttributeError, err:
             # this python is too antique for mkstemp
             cFileName = tempfile.mktemp(suffix)

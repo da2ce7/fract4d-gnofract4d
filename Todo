@@ -1,4 +1,4 @@
-todo for 2.1
+todo for 2.2
 * WW	cmap browser
 * WW	cmap editor - brightness/contrast/gamma/HSV/RGB
 * W	recoloring
@@ -9,12 +9,20 @@ todo for 2.1
 * B	parse continuation lines correctly
 * BB	changing inner colormap modifies outer appearance
 * W	warn if overwrite/always save as/clear name on major change
+* WW	include formula in .fct file
+* W	when loading new formula, highlight in list
+* B	can't have boolean args in initparams
+* B	jgr.ufm:Oak - compiler bug!
+* B? 	jgr.ufm:Rowan - default is blank
+* B	jgr.ufm:Willow - '@fn1' is predefined (in switch)
+* B	browse fhq.ufm - invalid UTF8 string passed to pango_layout
+* B	dmj.ufm:DHNovaJulka - '#magn' - no symbol starting with t__ is allowed
+* B	dmj.udm:dmj-ManyJulia - looks like 3 quadrants are wrong somehow
 
 UI improvements 
 * BB	more robust error reporting
 * W	last-chance exception handler
 * W	current angle in status bar
-* B	open formula file on .cfrm should go to correct page in browser
 * B	maxiter isn't updated due to auto-deepening
 * W	formula browser
 	manage search path (user prefs)
@@ -25,7 +33,7 @@ UI improvements
 * W	connect identically-named params in different parts of formula
 * W	autosave
 
-
+Data gathering
 * WW	SQM
 * WW	Watson
 * WW	Content Watson
@@ -62,6 +70,10 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* W	sort formula files by name
+* B	jgr.ufm:Birch - compiler bug!
+* B	open formula file on .cfrm should go to correct page in browser
+* B	multiple copies of same filename
 * W	auto-list all formula files on path, parse on first click
 * B	prompt if not saved
 * W	tdis, other fractint colorfuncs

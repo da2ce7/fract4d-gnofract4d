@@ -596,10 +596,14 @@ class TBase:
             raise TranslationError("Internal Compiler Error: conflicting bailouts")
         bailList = self.stmlist(node)
         try:
-            bailList.children[-1] = self.coerce(bailList.children[-1],Bool)
+            bail_stm = self.coerce(bailList.children[-1],Bool)
+            if isinstance(bail_stm,ir.Var):
+                # manufacture a Move so not discarded by codegen
+                bail_stm = ir.Move(bail_stm,bail_stm,node,Bool)
+            bailList.children[-1] = bail_stm            
             self.sections["bailout"] = bailList
         except IndexError:
-            self.warnings.append("No bailout expression found. Calculation will never terminate.")
+            self.warnings.append("No bailout expression found. Calculation will never bail out.")
 
     def badNode(self, node, rule):
         msg = "Internal Compiler Error: Unexpected node '%s' in %s" % \

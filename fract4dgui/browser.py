@@ -15,6 +15,9 @@ OUTER = 2
 
 _browser = None
 
+def stricmp(a,b):
+    return cmp(a.lower(),b.lower())
+
 def show(parent, f,type):
     global _browser
     if not _browser:
@@ -186,8 +189,9 @@ class BrowserDialog(gtk.Dialog):
             files = self.compiler.find_formula_files()
         else:
             files = self.compiler.find_colorfunc_files()
-            
-        for (fname,formulalist) in files:
+
+        files.sort(stricmp)
+        for fname in files:
             iter = self.file_list.append ()
             self.file_list.set (iter, 0, fname)
 
@@ -202,7 +206,7 @@ class BrowserDialog(gtk.Dialog):
         exclude = [None, "OUTSIDE", "INSIDE"]
         
         form_names = ff.get_formula_names(exclude[self.func_type])
-        form_names.sort()        
+        form_names.sort(stricmp)        
         for formula_name in form_names:
             iter = self.formula_list.append()
             self.formula_list.set(iter,0,formula_name)

@@ -300,7 +300,7 @@ class T(FctUtils):
             return "%.17f" % params[ord]
 
     def parse_periodicity(self,val,f):
-        self.set_periodicity(int(val))
+        self.set_periodicity(bool(val))
         
     def parse__inner_(self,val,f):
         params = ParamBag()

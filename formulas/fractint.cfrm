@@ -1,5 +1,5 @@
 ; Contains code to mimic the "coloring functions" built in to Fractint:
-; fmod, bof60, bof61, zmag, period, atan
+; fmod, bof60, bof61, tdis, zmag 
 
 fmod (INNER) {
 init:
