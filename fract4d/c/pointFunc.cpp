@@ -69,7 +69,14 @@ public:
 		*pnIters = -1;
 	    }
 
-	    *color = m_cmap->lookup_with_transfer(fate,dist,solid);
+	    if(fUseColors)
+	    {
+		*color = m_cmap->lookup_with_dca(fate, solid, colors);
+	    }
+	    else
+	    {
+		*color = m_cmap->lookup_with_transfer(fate,dist,solid);
+	    }
 
 	    if (solid)
 	    {
