@@ -149,6 +149,40 @@ iterFunc_data infoTable[] = {
 	NO_OVERRIDES,
 	DEFAULT_CRITICAL_VALUES
     },
+    /* quadratic mandelbrot: z <- A z^2 + B z + C c */
+    {
+	"Quadratic",
+	USE_COMPLEX, //flags
+	BAILOUT_MAG,
+	// decl code
+	"std::complex<double> z(p[X],p[Y]);" 
+	"std::complex<double> c(p[CX],p[CY]);",
+	// iter code
+	"z = (a[0] * z + a[1]) * z + a[2] * c;",
+	DEFAULT_COMPLEX_CODE,
+	3,
+	quadraticOptNames,
+	quadraticOptDefaults,
+	NO_OVERRIDES,
+	DEFAULT_CRITICAL_VALUES
+    },
+    /* cubic mandelbrot: z <- z^3 -3 A z^2 + c */
+    {
+	"Cubic Mandelbrot",
+	USE_COMPLEX, //flags
+	BAILOUT_MAG,
+	// decl code
+	"std::complex<double> z(p[X],p[Y]) , c(p[CX],p[CY])",
+	// iter code
+	"z = z * z * ( z - 3.0 * a[0]) + c",
+	DEFAULT_COMPLEX_CODE,
+	1,
+	cubicOptNames,
+	cubicOptDefaults,
+	NO_OVERRIDES,
+	2,
+	"cv[0] = -a[0]; cv[1] = a[0]"
+    },
     /* mandelBarFunc : z <- conj(z)^2 + c */
     { 
 	"Mandelbar",
@@ -169,45 +203,23 @@ iterFunc_data infoTable[] = {
 	mandelBarOverrideValues,
 	DEFAULT_CRITICAL_VALUES
     },
-    /* newtFunc */
+    /* mandelPower: z <- z^A + c */
     {
-	"Newton",
-	// flags
-	USE_COMPLEX,
-	// bailFunc
-	BAILOUT_DIFF,
+	"ManZPower",
+	USE_COMPLEX, //flags
+	BAILOUT_MAG,
 	// decl code
-	"std::complex<double> z(p[X],p[Y]) , c(p[CX],p[CY]), n_minus_one(a[0] - 1.0)",
+	"std::complex<double> z(p[X],p[Y]);" 
+	"std::complex<double> c(p[CX],p[CY]);",
 	// iter code
-	"z = z - (pow(z,a[0]) - 1.0)/ (a[0] * pow(z,n_minus_one))",
-	// ret code, save iter code, restore iter code
+	"z = pow(z,a[0]) + c;",
 	DEFAULT_COMPLEX_CODE,
 	1,
-	newtonOptNames,
-	newtonOptDefaults,
-	3,
-	newtonOverrides,
-	newtonOverrideValues,
-	DEFAULT_CRITICAL_VALUES
-    },
-    /* novaFunc: z <- (Az^3-B)/C z^2 + c */
-    {
-	"Nova",
-	// flags
-	USE_COMPLEX | NO_UNROLL,
-	// bailFunc
-	BAILOUT_DIFF,
-	// decl code
-	"std::complex<double> z(p[X],p[Y]), c(p[CX],p[CY])",
-	// iter code
-	"z = z - (a[0] * z*z*z - a[1])/(a[2] * z * z) + c",
-	DEFAULT_COMPLEX_CODE,
-	3,
-	novaOptNames,
-	novaOptDefaults,
-	2,
-	novaOverrides,
-	novaOverrideValues,
+	mandelPowerOptNames,
+	mandelPowerOptDefaults,
+	1,
+	mandelPowerOverrides,
+	mandelPowerOverrideValues,
 	DEFAULT_CRITICAL_VALUES
     },
     /* barnsley t1: z <- ( re(z) > 0 ? (z - 1) * c : (z + 1) * c) */
@@ -286,26 +298,26 @@ iterFunc_data infoTable[] = {
 	NO_OVERRIDES,
 	DEFAULT_CRITICAL_VALUES
     },
-    /* lambda */
+    /* buffalo: z <- a[0] * (|x| + i |y|)^2 + a[1] * (|x| + i|y|) + a[2] * c */
     {
-	"Lambda",
+	"Buffalo",
 	0,
 	BAILOUT_MAG,
-	"T tx, ty",
+	"T atmp",
 	//iter code
-	"p[X2] = p[X] * p[X]; p[Y2] = p[Y] * p[Y];"
-    
-	/* t <- z * (1 - z) */
-	"tx = p[X] - p[X2] + p[Y2];"
-	"ty = p[Y] - 2.0 * p[X] * p[Y];"
-    
-	"p[X] = p[CX] * tx - p[CY] * ty;"
-	"p[Y] = p[CX] * ty + p[CY] * tx",
+	"p[X] = fabs(p[X]);"
+	"p[Y] = fabs(p[Y]);"
+   
+	"p[X2] = p[X] * p[X];"
+	"p[Y2] = p[Y] * p[Y];"
+	"atmp = p[X2] - p[Y2] - p[X] + p[CX];"
+	"p[Y] = 2.0 * p[X] * p[Y] - p[Y] + p[CY];"
+	"p[X] = atmp",
 	DEFAULT_SIMPLE_CODE,
 	NO_OPTIONS,
-	3,
-	lambdaOverrides,
-	lambdaOverrideValues,
+	1,
+	buffaloOverrides,
+	buffaloOverrideValues,
 	DEFAULT_CRITICAL_VALUES
     },
     /* burning ship */
@@ -331,27 +343,26 @@ iterFunc_data infoTable[] = {
 	shipOverrideValues,
 	DEFAULT_CRITICAL_VALUES
     },
-
-    /* buffalo: z <- a[0] * (|x| + i |y|)^2 + a[1] * (|x| + i|y|) + a[2] * c */
+    /* lambda */
     {
-	"Buffalo",
+	"Lambda",
 	0,
 	BAILOUT_MAG,
-	"T atmp",
+	"T tx, ty",
 	//iter code
-	"p[X] = fabs(p[X]);"
-	"p[Y] = fabs(p[Y]);"
-   
-	"p[X2] = p[X] * p[X];"
-	"p[Y2] = p[Y] * p[Y];"
-	"atmp = p[X2] - p[Y2] - p[X] + p[CX];"
-	"p[Y] = 2.0 * p[X] * p[Y] - p[Y] + p[CY];"
-	"p[X] = atmp",
+	"p[X2] = p[X] * p[X]; p[Y2] = p[Y] * p[Y];"
+    
+	/* t <- z * (1 - z) */
+	"tx = p[X] - p[X2] + p[Y2];"
+	"ty = p[Y] - 2.0 * p[X] * p[Y];"
+    
+	"p[X] = p[CX] * tx - p[CY] * ty;"
+	"p[Y] = p[CX] * ty + p[CY] * tx",
 	DEFAULT_SIMPLE_CODE,
 	NO_OPTIONS,
-	1,
-	buffaloOverrides,
-	buffaloOverrideValues,
+	3,
+	lambdaOverrides,
+	lambdaOverrideValues,
 	DEFAULT_CRITICAL_VALUES
     },
     /* Magnet 1: z <- ((z^2 + c - 1)/(2z + c -2))^2 */
@@ -391,60 +402,45 @@ iterFunc_data infoTable[] = {
 	magnet2OverrideValues,
 	DEFAULT_CRITICAL_VALUES
     },
-
-    /* quadratic mandelbrot: z <- A z^2 + B z + C c */
+    /* newtFunc */
     {
-	"Quadratic",
-	USE_COMPLEX, //flags
-	BAILOUT_MAG,
+	"Newton",
+	// flags
+	USE_COMPLEX,
+	// bailFunc
+	BAILOUT_DIFF,
 	// decl code
-	"std::complex<double> z(p[X],p[Y]);" 
-	"std::complex<double> c(p[CX],p[CY]);",
+	"std::complex<double> z(p[X],p[Y]) , c(p[CX],p[CY]), n_minus_one(a[0] - 1.0)",
 	// iter code
-	"z = (a[0] * z + a[1]) * z + a[2] * c;",
+	"z = z - (pow(z,a[0]) - 1.0)/ (a[0] * pow(z,n_minus_one))",
+	// ret code, save iter code, restore iter code
 	DEFAULT_COMPLEX_CODE,
+	1,
+	newtonOptNames,
+	newtonOptDefaults,
 	3,
-	quadraticOptNames,
-	quadraticOptDefaults,
-	NO_OVERRIDES,
+	newtonOverrides,
+	newtonOverrideValues,
 	DEFAULT_CRITICAL_VALUES
     },
-
-    /* cubic mandelbrot: z <- z^3 -3 A z^2 + c */
+    /* novaFunc: z <- (Az^3-B)/C z^2 + c */
     {
-	"Cubic Mandelbrot",
-	USE_COMPLEX, //flags
-	BAILOUT_MAG,
+	"Nova",
+	// flags
+	USE_COMPLEX | NO_UNROLL,
+	// bailFunc
+	BAILOUT_DIFF,
 	// decl code
-	"std::complex<double> z(p[X],p[Y]) , c(p[CX],p[CY])",
+	"std::complex<double> z(p[X],p[Y]), c(p[CX],p[CY])",
 	// iter code
-	"z = z * z * ( z - 3.0 * a[0]) + c",
+	"z = z - (a[0] * z*z*z - a[1])/(a[2] * z * z) + c",
 	DEFAULT_COMPLEX_CODE,
-	1,
-	cubicOptNames,
-	cubicOptDefaults,
-	NO_OVERRIDES,
+	3,
+	novaOptNames,
+	novaOptDefaults,
 	2,
-	"cv[0] = -a[0]; cv[1] = a[0]"
-    },
-
-    /* mandelPower: z <- z^A + c */
-    {
-	"ManZPower",
-	USE_COMPLEX, //flags
-	BAILOUT_MAG,
-	// decl code
-	"std::complex<double> z(p[X],p[Y]);" 
-	"std::complex<double> c(p[CX],p[CY]);",
-	// iter code
-	"z = pow(z,a[0]) + c;",
-	DEFAULT_COMPLEX_CODE,
-	1,
-	mandelPowerOptNames,
-	mandelPowerOptDefaults,
-	1,
-	mandelPowerOverrides,
-	mandelPowerOverrideValues,
+	novaOverrides,
+	novaOverrideValues,
 	DEFAULT_CRITICAL_VALUES
     },
     /* tetrate: z <- c^z */

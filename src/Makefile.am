@@ -48,7 +48,7 @@ $(gnofract4d_OBJECTS): marshallers.h marshallers.c
 gnofract4d_LDADD = ../libfract4d/libfract4d.la $(GNOFRACT4D_CFLAGS) \
 	$(GNOFRACT4D_LIBS)
 
-CXXFLAGS = -g -O3 -ffast-math -Wall -D_REENTRANT -DCXX="\"$(CXX)\"" \
+CXXFLAGS = -O3 -ffast-math -Wall -D_REENTRANT -DCXX="\"$(CXX)\"" \
 	-DPREFIX=\""$(prefix)"\" \
 	-DSYSCONFDIR=\""$(sysconfdir)"\" \
 	-DDATADIR=\""$(datadir)"\" \
