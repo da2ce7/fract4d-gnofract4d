@@ -140,6 +140,51 @@ public:
                 }
             }while(1);
         }
+
+    template<class T>
+    bool calcWithPeriod(
+        int &iter, int nMaxIters, 
+        T *pIter, T *pInput, T *pTemp)
+        {
+            int flags = m_pIter->flags();
+
+            /* periodicity vars */
+            d lastx = pIter[X], lasty=pIter[Y];
+            int k =1, m = 1;
+
+            
+            do
+            {
+                m_pIter->iter8(pIter,pInput,pTemp);
+                if((iter+= 8) >= nMaxIters)
+                {
+                    return false;
+                }                    
+                for(int i = ITER_SPACE; i < 9*ITER_SPACE; i+= ITER_SPACE)
+                {
+                    if(fabs(pIter[X+i] - lastx) < PERIOD_TOLERANCE &&
+                       fabs(pIter[Y+i] - lasty) < PERIOD_TOLERANCE)
+                    {
+                        // period detected!
+                        iter = -1; return true;
+                    }
+                }
+                if(--k == 0)
+                {
+                    lastx = pIter[X]; lasty = pIter[Y];
+                    m *= 2;
+                    k = m;
+                }                    
+                (*m_pBail)(pIter,pInput,pTemp,flags);  
+                if(pTemp[EJECT_VAL] >= m_eject)
+                {
+                    return true;
+                }
+                pIter[X] = pIter[X + (2*8)];
+                pIter[Y] = pIter[Y + (2*8)];                    
+            }while(true);
+        }
+
     template<class T> 
     int findExactIter(int iter, T *pIter, T *pInput, T *pTemp)
         {
@@ -164,8 +209,6 @@ public:
         struct rgb *color, int *pnIters
         )
         {
-            int flags = m_pIter->flags();
-
             T pIter[ITER_SPACE*(8+1)], pInput[INPUT_SPACE], pTemp[TEMP_SPACE];
             pIter[X] =  params.n[VZ]; 
             pIter[Y] =  params.n[VW];
@@ -176,9 +219,6 @@ public:
 
             int iter = 0;
             bool done = false;
-            /* periodicity vars */
-            d lastx = pIter[X], lasty=pIter[Y];
-            int k =1, m = 1;
 
             assert(nNoPeriodIters <= nMaxIters);
             /* to save on bailout tests and function call overhead, we
@@ -200,41 +240,12 @@ public:
                     // periodicity
                     iter -= 8;                    
                     
-                    do
-                    {
-                        m_pIter->iter8(pIter,pInput,pTemp);
-                        if((iter+= 8) >= nMax8Iters)
-                        {
-                            break;
-                        }                    
-                        for(int i = ITER_SPACE; i < 9*ITER_SPACE; i+= ITER_SPACE)
-                        {
-                            if(fabs(pIter[X+i] - lastx) < PERIOD_TOLERANCE &&
-                               fabs(pIter[Y+i] - lasty) < PERIOD_TOLERANCE)
-                            {
-                                // period detected!
-                                done = true;
-                                iter = -1; goto finishedAll;
-                            }
-                        }
-                        if(--k == 0)
-                        {
-                            lastx = pIter[X]; lasty = pIter[Y];
-                            m *= 2;
-                            k = m;
-                        }                    
-                        (*m_pBail)(pIter,pInput,pTemp,flags);  
-                        if(pTemp[EJECT_VAL] >= m_eject)
-                        {
-                            done = true;
-                            break;
-                        }
-                        pIter[X] = pIter[X + (2*8)];
-                        pIter[Y] = pIter[Y + (2*8)];                    
-                    }while(true);
+                    done = calcWithPeriod(iter,nMax8Iters,pIter,pInput,pTemp);
                 }
-                if(done)
+                if(done && iter != -1)
                 {
+                    // we bailed out some time in the past 8 iters, 
+                    // and we need to know on exactly which iteration
                     iter = findExactIter(iter, pIter, pInput, pTemp);
                 }
             }
@@ -247,7 +258,6 @@ public:
                 done = calcSingleWithPeriod(iter,nMaxIters,pIter,pInput,pTemp);
             }
 
-        finishedAll:
             *pnIters = iter;
             if(color)
             {
