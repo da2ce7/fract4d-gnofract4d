@@ -121,17 +121,11 @@ preview_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_da
 
     if(image)
     {
-	g_print("expose\n");
-	//gdk_window_clear_area (widget->window,
-	//		       event->area.x, event->area.y,
-	//		       event->area.width,
-	//		       event->area.height);
-	
         redraw_image_rect(
             widget, image, 
             event->area.x, event->area.y, 
-            std::min(event->area.width, PREVIEW_SIZE), 
-	    std::min(event->area.height, PREVIEW_SIZE),
+            std::min(event->area.width, PREVIEW_SIZE - event->area.x), 
+	    std::min(event->area.height, PREVIEW_SIZE - event->area.y),
             PREVIEW_SIZE);
     }
     return FALSE;
