@@ -12,7 +12,7 @@
 # - Modified by jacob berkman <jacob@ximian.com> to install
 #   Makefile.in.in and po2tbl.sed.in for use with glib-gettextize
 
-GETTEXT_PACKAGE = @GETTEXT_PACKAGE@
+GETTEXT_PACKAGE = gnofract4d
 PACKAGE = gnofract4d
 VERSION = 1.8
 
@@ -42,8 +42,8 @@ GENCAT = @GENCAT@
 GMSGFMT = /usr/bin/msgfmt
 MSGFMT = /usr/bin/msgfmt
 XGETTEXT = /usr/bin/xgettext
-INTLTOOL_UPDATE = @INTLTOOL_UPDATE@
-INTLTOOL_EXTRACT = @INTLTOOL_EXTRACT@
+INTLTOOL_UPDATE = $(top_builddir)/intltool-update
+INTLTOOL_EXTRACT = $(top_builddir)/intltool-extract
 MSGMERGE = INTLTOOL_EXTRACT=$(INTLTOOL_EXTRACT) $(INTLTOOL_UPDATE) --gettext-package $(GETTEXT_PACKAGE) --dist
 GENPOT   = INTLTOOL_EXTRACT=$(INTLTOOL_EXTRACT) $(INTLTOOL_UPDATE) --gettext-package $(GETTEXT_PACKAGE) --pot
 
@@ -63,24 +63,25 @@ $(POFILES) $(GMOFILES) $(SOURCES)
 
 POTFILES = \
 	../src/angles.cpp \
-	../src/bailFunc.cpp \
 	../src/callbacks.cpp \
-	../src/colorizer.cpp \
+	../src/cmapbrowser.cpp \
 	../src/drawingareas.cpp \
-	../src/fract.cpp \
-	../src/fractFunc.cpp \
 	../src/gf4d_angle.cpp \
+	../src/gf4d_fourway.cpp \
 	../src/gf4d_fractal.cpp \
+	../src/gf4d_movie.cpp \
 	../src/gundo.cpp \
 	../src/gundo_ui.cpp \
 	../src/image.cpp \
 	../src/interface.cpp \
-	../src/iterFunc.cpp \
+	../src/iter_harness.cpp \
 	../src/main.cpp \
 	../src/menus.cpp \
 	../src/model.cpp \
-	../src/pointFunc.cpp \
+	../src/preferences.cpp \
+	../src/preview.cpp \
 	../src/properties.cpp \
+	../src/tls.cpp \
 	../src/toolbars.cpp
 
 CATALOGS = 

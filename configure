@@ -7334,6 +7334,128 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 
 
+if test -n "0.21"; then
+    echo "$as_me:$LINENO: checking for intltool >= 0.21" >&5
+echo $ECHO_N "checking for intltool >= 0.21... $ECHO_C" >&6
+
+    INTLTOOL_REQUIRED_VERSION_AS_INT=`echo 0.21 | awk -F. '{ printf "%d", $1 * 100 + $2; }'`
+    INTLTOOL_APPLIED_VERSION=`awk -F\" '/\\$VERSION / { printf $2; }'  < ${srcdir}/intltool-update.in`
+
+    INTLTOOL_APPLIED_VERSION_AS_INT=`awk -F\" '/\\$VERSION / { split($2, VERSION, "."); printf "%d\n", VERSION[1] * 100 + VERSION[2];}' < ${srcdir}/intltool-update.in`
+
+
+    if test "$INTLTOOL_APPLIED_VERSION_AS_INT" -ge "$INTLTOOL_REQUIRED_VERSION_AS_INT"; then
+	echo "$as_me:$LINENO: result: $INTLTOOL_APPLIED_VERSION found" >&5
+echo "${ECHO_T}$INTLTOOL_APPLIED_VERSION found" >&6
+    else
+	echo "$as_me:$LINENO: result: $INTLTOOL_APPLIED_VERSION found. Your intltool is too old.  You need intltool 0.21 or later." >&5
+echo "${ECHO_T}$INTLTOOL_APPLIED_VERSION found. Your intltool is too old.  You need intltool 0.21 or later." >&6
+	exit 1
+    fi
+fi
+
+  INTLTOOL_DESKTOP_RULE='%.desktop:   %.desktop.in   $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -d -u -c $(top_builddir)/po/.intltool-merge-cache'
+INTLTOOL_DIRECTORY_RULE='%.directory: %.directory.in $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -d -u -c $(top_builddir)/po/.intltool-merge-cache'
+     INTLTOOL_KEYS_RULE='%.keys:      %.keys.in      $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -k -u -c $(top_builddir)/po/.intltool-merge-cache'
+      INTLTOOL_OAF_RULE='%.oaf:       %.oaf.in       $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -o -p'
+     INTLTOOL_PONG_RULE='%.pong:      %.pong.in      $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -x -u -c $(top_builddir)/po/.intltool-merge-cache'
+   INTLTOOL_SERVER_RULE='%.server:    %.server.in    $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -o -u -c $(top_builddir)/po/.intltool-merge-cache'
+    INTLTOOL_SHEET_RULE='%.sheet:     %.sheet.in     $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -x -u -c $(top_builddir)/po/.intltool-merge-cache'
+INTLTOOL_SOUNDLIST_RULE='%.soundlist: %.soundlist.in $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -d -u -c $(top_builddir)/po/.intltool-merge-cache'
+       INTLTOOL_UI_RULE='%.ui:        %.ui.in        $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -x -u -c $(top_builddir)/po/.intltool-merge-cache'
+      INTLTOOL_XML_RULE='%.xml:       %.xml.in       $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -x -u -c $(top_builddir)/po/.intltool-merge-cache'
+    INTLTOOL_CAVES_RULE='%.caves:     %.caves.in     $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -d -u -c $(top_builddir)/po/.intltool-merge-cache'
+    INTLTOOL_SCHEMAS_RULE='%.schemas: %.schemas.in   $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -s -u -c $(top_builddir)/po/.intltool-merge-cache'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Use the tools built into the package, not the ones that are installed.
+
+INTLTOOL_EXTRACT='$(top_builddir)/intltool-extract'
+INTLTOOL_MERGE='$(top_builddir)/intltool-merge'
+INTLTOOL_UPDATE='$(top_builddir)/intltool-update'
+
+
+
+
+
+# Extract the first word of "perl", so it can be a program name with args.
+set dummy perl; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_INTLTOOL_PERL+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $INTLTOOL_PERL in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_INTLTOOL_PERL="$INTLTOOL_PERL" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_INTLTOOL_PERL="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  ;;
+esac
+fi
+INTLTOOL_PERL=$ac_cv_path_INTLTOOL_PERL
+
+if test -n "$INTLTOOL_PERL"; then
+  echo "$as_me:$LINENO: result: $INTLTOOL_PERL" >&5
+echo "${ECHO_T}$INTLTOOL_PERL" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+if test -z "$INTLTOOL_PERL"; then
+   { { echo "$as_me:$LINENO: error: perl not found; required for intltool" >&5
+echo "$as_me: error: perl not found; required for intltool" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "`$INTLTOOL_PERL -v | fgrep '5.' 2> /dev/null`"; then
+   { { echo "$as_me:$LINENO: error: perl 5.x required for intltool" >&5
+echo "$as_me: error: perl 5.x required for intltool" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+# Remove file type tags (using []) from po/POTFILES.
+
+
+
+
+
+
+
+# Manually sed perl in so people don't have to put the intltool scripts in AC_OUTPUT.
+
+ac_config_commands="$ac_config_commands default-1"
+
+
+
+
+
         echo "$as_me:$LINENO: checking for strerror in -lcposix" >&5
 echo $ECHO_N "checking for strerror in -lcposix... $ECHO_C" >&6
 if test "${ac_cv_lib_cposix_strerror+set}" = set; then
@@ -8910,6 +9032,7 @@ GETTEXT_PACKAGE=gnofract4d
 cat >>confdefs.h <<\_ACEOF
 #define GETTEXT_PACKAGE "gnofract4d"
 _ACEOF
+
 
 
 ALL_LINGUAS=""
@@ -10926,7 +11049,7 @@ echo "${ECHO_T}found xgettext program is not GNU xgettext; ignore it" >&6
     # We need to process the po/ directory.
     POSUB=po
 
-    ac_config_commands="$ac_config_commands default-1"
+    ac_config_commands="$ac_config_commands default-2"
 
 
                 for lang in $ALL_LINGUAS; do
@@ -11202,6 +11325,13 @@ echo "$as_me: error: conditional \"AMDEP\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
+
+
+        mv -f po/POTFILES po/POTFILES.tmp
+        sed -e 's/\[.*\] *//' < po/POTFILES.tmp > po/POTFILES
+        rm -f po/POTFILES.tmp
+
+
 
 : ${CONFIG_STATUS=./config.status}
 ac_clean_files_save=$ac_clean_files
@@ -11597,6 +11727,7 @@ cat >>$CONFIG_STATUS <<_ACEOF
 #
 
 AMDEP_TRUE="$AMDEP_TRUE" ac_aux_dir="$ac_aux_dir"
+INTLTOOL_PERL=${INTLTOOL_PERL}
 
 
 _ACEOF
@@ -11620,6 +11751,7 @@ do
   "maps/Makefile" ) CONFIG_FILES="$CONFIG_FILES maps/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "default-1" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default-1" ;;
+  "default-2" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default-2" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -11748,6 +11880,22 @@ s,@RANLIB@,$RANLIB,;t t
 s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
 s,@CPP@,$CPP,;t t
 s,@LIBTOOL@,$LIBTOOL,;t t
+s,@INTLTOOL_DESKTOP_RULE@,$INTLTOOL_DESKTOP_RULE,;t t
+s,@INTLTOOL_DIRECTORY_RULE@,$INTLTOOL_DIRECTORY_RULE,;t t
+s,@INTLTOOL_KEYS_RULE@,$INTLTOOL_KEYS_RULE,;t t
+s,@INTLTOOL_OAF_RULE@,$INTLTOOL_OAF_RULE,;t t
+s,@INTLTOOL_PONG_RULE@,$INTLTOOL_PONG_RULE,;t t
+s,@INTLTOOL_SERVER_RULE@,$INTLTOOL_SERVER_RULE,;t t
+s,@INTLTOOL_SHEET_RULE@,$INTLTOOL_SHEET_RULE,;t t
+s,@INTLTOOL_SOUNDLIST_RULE@,$INTLTOOL_SOUNDLIST_RULE,;t t
+s,@INTLTOOL_UI_RULE@,$INTLTOOL_UI_RULE,;t t
+s,@INTLTOOL_XML_RULE@,$INTLTOOL_XML_RULE,;t t
+s,@INTLTOOL_CAVES_RULE@,$INTLTOOL_CAVES_RULE,;t t
+s,@INTLTOOL_SCHEMAS_RULE@,$INTLTOOL_SCHEMAS_RULE,;t t
+s,@INTLTOOL_EXTRACT@,$INTLTOOL_EXTRACT,;t t
+s,@INTLTOOL_MERGE@,$INTLTOOL_MERGE,;t t
+s,@INTLTOOL_UPDATE@,$INTLTOOL_UPDATE,;t t
+s,@INTLTOOL_PERL@,$INTLTOOL_PERL,;t t
 s,@CXX@,$CXX,;t t
 s,@CXXFLAGS@,$CXXFLAGS,;t t
 s,@ac_ct_CXX@,$ac_ct_CXX,;t t
@@ -11755,6 +11903,7 @@ s,@CXXDEPMODE@,$CXXDEPMODE,;t t
 s,@PKG_CONFIG@,$PKG_CONFIG,;t t
 s,@GNOFRACT4D_CFLAGS@,$GNOFRACT4D_CFLAGS,;t t
 s,@GNOFRACT4D_LIBS@,$GNOFRACT4D_LIBS,;t t
+s,@GETTEXT_PACKAGE@,$GETTEXT_PACKAGE,;t t
 s,@ALLOCA@,$ALLOCA,;t t
 s,@USE_NLS@,$USE_NLS,;t t
 s,@MSGFMT@,$MSGFMT,;t t
@@ -12339,7 +12488,37 @@ done; }
   done
 done
  ;;
-    default-1 ) case "$CONFIG_FILES" in *po/Makefile.in*)
+    default-1 )
+
+sed -e "s:@INTLTOOL_PERL@:${INTLTOOL_PERL}:;" < ${srcdir}/intltool-extract.in > intltool-extract.out
+if cmp -s intltool-extract intltool-extract.out 2>/dev/null; then
+  rm -f intltool-extract.out
+else
+  mv -f intltool-extract.out intltool-extract
+fi
+chmod ugo+x intltool-extract
+chmod u+w intltool-extract
+
+sed -e "s:@INTLTOOL_PERL@:${INTLTOOL_PERL}:;" < ${srcdir}/intltool-merge.in > intltool-merge.out
+if cmp -s intltool-merge intltool-merge.out 2>/dev/null; then
+  rm -f intltool-merge.out
+else
+  mv -f intltool-merge.out intltool-merge
+fi
+chmod ugo+x intltool-merge
+chmod u+w intltool-merge
+
+sed -e "s:@INTLTOOL_PERL@:${INTLTOOL_PERL}:;" < ${srcdir}/intltool-update.in > intltool-update.out
+if cmp -s intltool-update intltool-update.out 2>/dev/null; then
+  rm -f intltool-update.out
+else
+  mv -f intltool-update.out intltool-update
+fi
+chmod ugo+x intltool-update
+chmod u+w intltool-update
+
+ ;;
+    default-2 ) case "$CONFIG_FILES" in *po/Makefile.in*)
         sed -e "/POTFILES =/r po/POTFILES" po/Makefile.in > po/Makefile
       esac ;;
   esac

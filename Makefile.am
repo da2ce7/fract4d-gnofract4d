@@ -3,7 +3,17 @@
 SUBDIRS = po libfract4d fract4d src doc pixmaps maps
 
 EXTRA_DIST = config.rpath  \
-	gnofract4d.desktop 
+	gnofract4d.spec\
+	gnofract4d.desktop \
+	intltool-extract.in	\
+	intltool-merge.in	\
+	intltool-update.in
+
+DISTCLEANFILES = \
+	intltool-extract	\
+	intltool-merge		\
+	intltool-update
+
 
 Graphicsdir= $(datadir)/gnome/apps/Graphics
 Graphics_DATA=gnofract4d.desktop
