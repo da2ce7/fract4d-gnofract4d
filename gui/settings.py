@@ -29,6 +29,7 @@ class SettingsDialog(gtk.Dialog):
         self.vbox.add(self.notebook)
 
         self.create_formula_parameters_page()
+        self.create_outer_page()
         self.create_location_page()
         self.create_angle_page()
 
@@ -53,6 +54,28 @@ class SettingsDialog(gtk.Dialog):
         self.create_param_entry(table,4,"YW :", self.f.YWANGLE)
         self.create_param_entry(table,5,"ZW :", self.f.ZWANGLE)
 
+    def create_outer_page(self):
+        vbox = gtk.VBox()
+        table = gtk.Table(5,2,gtk.FALSE)
+        vbox.pack_start(table)
+
+        self.notebook.append_page(vbox,gtk.Label("Outer"))
+
+        table.attach(gtk.Label("Colorfunc :"), 0,1,0,1,0,0,2,2)
+        label = gtk.Label(self.f.cfunc_names[0])
+
+        def set_label(*args):
+            label.set_text(self.f.cfunc_names[0])
+            
+        self.f.connect('parameters-changed',set_label)
+
+        hbox = gtk.HBox(False,1)
+        hbox.pack_start(label)
+        button = gtk.Button("Browse...")
+        button.connect('clicked', self.show_browser)
+        hbox.pack_start(button)
+        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
+
     def create_formula_parameters_page(self):
         vbox = gtk.VBox()
         table = gtk.Table(5,2,gtk.FALSE)
@@ -72,7 +95,7 @@ class SettingsDialog(gtk.Dialog):
         # weird hack. We need to change the set of widgets when
         # the formula changes and change the values of the widgets
         # when the parameters change. When I connected the widgets
-        # directly to the fraftal's parameters-changed signal they
+        # directly to the fractal's parameters-changed signal they
         # would still get signalled even after they were obsolete.
         # This works around that problem
         def update_all_widgets(*args):

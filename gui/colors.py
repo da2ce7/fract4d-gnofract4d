@@ -48,7 +48,7 @@ class ColorDialog(gtk.Dialog):
                 self.map_list.set (iter, 0, f)
                 
     def populate_file_list(self):
-        self.add_directory("../maps")
+        self.add_directory("maps")
         self.add_directory(os.path.join(sys.exec_prefix,"share/maps/gnofract4d"))
         
     def file_selection_changed(self,selection):

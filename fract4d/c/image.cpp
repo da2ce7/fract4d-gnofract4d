@@ -27,12 +27,6 @@ image::image()
     data_size = 0;
 }
 
-inline int
-image::row_length() const
-{
-    return m_Xres * 3;
-}
-
 int
 image::bytes() const
 {

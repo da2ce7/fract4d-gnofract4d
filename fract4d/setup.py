@@ -2,6 +2,8 @@
 
 import shutil
 from distutils.core import setup, Extension
+import distutils.sysconfig
+import os
 
 module1 = Extension(
     'fract4dc',
@@ -35,9 +37,18 @@ setup (name = 'fract4dc',
        description = 'A module for calling fractal functions built on-the-fly by Gnofract4D',
        ext_modules = [module1])
 
-# to make testing easier and allow us to run without installing,
-# copy new module to current dir
+# I need to find the file I just built and copy it up out of the build
+# location so it's possible to run without installing. Can't find a good
+# way to extract the actual target directory out of distutils, hence
+# this egregious hack
 
-#FIXME find file properly
-shutil.copy("build/lib.linux-i686-2.2/fract4dc.so","fract4dc.so") 
+so_extension = distutils.sysconfig.get_config_var("SO")
+
+def copy_libs(dummy,dirpath,namelist):
+    for name in namelist:
+        if name.endswith(so_extension):
+            shutil.copy(os.path.join(dirpath, name), name)
+            
+os.path.walk("build",copy_libs,None)
+
 
