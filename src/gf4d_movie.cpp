@@ -89,9 +89,11 @@ gf4d_movie_new ()
 }
 
 static void 
-set_finished_cond(Gf4dMovie *f)
+set_finished_cond(Gf4dMovie *mov)
 {
-    f->workers_running=0;
+    g_print("interrupt\n");
+    mov->workers_running=0;
+    gf4d_fractal_interrupt(mov->output);
 }
 
 static void
@@ -103,6 +105,7 @@ try_finished_cond(Gf4dMovie *f)
 
     if(f->workers_running==0) 
     {
+        g_print("finished in movie\n");
         // we've been signalled
         throw(1);
     }
@@ -117,7 +120,7 @@ set_started_cond(Gf4dMovie *f)
     gf4d_movie_cond_unlock(f);
 }
 
-void
+static void
 kill_slave_threads(Gf4dMovie *f)
 {
     if(f->tid)
@@ -125,9 +128,9 @@ kill_slave_threads(Gf4dMovie *f)
         set_finished_cond(f);
 
         // wait until worker has stopped running
-        gdk_threads_leave();
+        // gdk_threads_leave();
         pthread_join(f->tid,NULL);
-        gdk_threads_enter();
+        //gdk_threads_enter();
     }
 
     f->tid = 0;
@@ -192,48 +195,6 @@ gf4d_movie_class_init (Gf4dMovieClass *klass)
     gtk_object_class_add_signals(object_class, movie_signals, LAST_SIGNAL);
 }
 
-static void *
-calculation_thread(void *vdata) 
-{
-    Gf4dMovie *mov = (Gf4dMovie *)vdata;
-
-    set_started_cond(mov);
-
-    try {
-        GList *keyframes = mov->keyframes;
-
-        if(!keyframes)
-        {
-            // warn;
-            return NULL;
-        }
-    
-        Gf4dFractal *last_fractal = GF4D_FRACTAL(keyframes->data);
-        keyframes = keyframes->next;
-
-        while(keyframes)
-        {
-            Gf4dFractal *current_fractal = GF4D_FRACTAL(keyframes->data);
-
-            for(int i = 0; i < 10; ++i)
-            {
-                gf4d_fractal_set_mixed(
-                    mov->output,last_fractal,current_fractal, 1.0 - i / 9.0);
-
-                g_print("calculating\n");
-                gf4d_fractal_calc(mov->output, 0);
-                g_print("calc done\n");
-            }
-            last_fractal = current_fractal;
-            keyframes = keyframes->next;
-        }
-    }
-    catch(...)
-    {
-        
-    }
-    return NULL;
-}
 
 void await_slave_start(Gf4dMovie *f)
 {
@@ -245,19 +206,6 @@ void await_slave_start(Gf4dMovie *f)
     gf4d_movie_cond_unlock(f);
 }
 
-void gf4d_movie_calc(Gf4dMovie *f, int nThreads)
-{
-    kill_slave_threads(f);
-
-    if(pthread_create(&f->tid,NULL,calculation_thread,(void *)f))
-    {
-        g_warning("Error, couldn't start thread\n");
-        return;
-    }
-	
-    // check that it really has started (and set workers) before returning
-    await_slave_start(f);
-}
 
 /* stop calculating now! */
 void gf4d_movie_interrupt(Gf4dMovie *f)
@@ -276,11 +224,13 @@ gf4d_movie_enter_callback(Gf4dMovie *f)
 {
     try_finished_cond(f);
     gdk_threads_enter();
+    g_print("movie on %x owns lock\n", pthread_self());
 }
 
 static void
 gf4d_movie_leave_callback(Gf4dMovie *f)
 {
+    g_print("movie on %x freeing lock\n",pthread_self());
     gdk_threads_leave();
 }
 
@@ -303,6 +253,75 @@ void gf4d_movie_status_changed(Gf4dMovie *f, int status_val)
                     movie_signals[STATUS_CHANGED],
                     status_val);
     gf4d_movie_leave_callback(f);
+}
+
+static void *
+calculation_thread(void *vdata) 
+{
+    Gf4dMovie *mov = (Gf4dMovie *)vdata;
+
+    set_started_cond(mov);
+
+    int nFrames = g_list_length(mov->keyframes) - 1;
+    int key =0;
+
+    try {
+
+        GList *keyframes = mov->keyframes;
+
+        if(!keyframes)
+        {
+            // warn;
+            return NULL;
+        }
+    
+        Gf4dFractal *last_fractal = GF4D_FRACTAL(keyframes->data);
+        keyframes = keyframes->next;
+
+        while(keyframes)
+        {
+            Gf4dFractal *current_fractal = GF4D_FRACTAL(keyframes->data);
+
+            for(int i = 0; i < 10; ++i)
+            {
+                double pos = (10.0 - i)/9.0;
+
+                gf4d_fractal_set_mixed(
+                    mov->output,last_fractal,current_fractal, pos);
+
+                gf4d_fractal_calc(mov->output, 0);
+                
+                try_finished_cond(mov);
+                float progress = (key * 10.0 + i +1)/(nFrames * 10.0);
+
+                gf4d_movie_progress_changed(mov,progress);
+            }
+            last_fractal = current_fractal;
+            keyframes = keyframes->next;
+            key++;
+        }
+        gf4d_movie_progress_changed(mov,0.0);
+    }
+    catch(...)
+    {
+        
+    }
+
+    return NULL;
+}
+
+void gf4d_movie_calc(Gf4dMovie *f, int nThreads)
+{
+    kill_slave_threads(f);
+
+    if(pthread_create(&f->tid,NULL,calculation_thread,(void *)f))
+    {
+        g_warning("Error, couldn't start thread\n");
+        return;
+    }
+	
+    // check that it really has started (and set workers) before returning
+    await_slave_start(f);
 }
 
 void gf4d_movie_add(Gf4dMovie *mov, Gf4dFractal *f, Gf4dFractal *f_after)
@@ -346,6 +365,7 @@ void gf4d_movie_remove(Gf4dMovie *mov, Gf4dFractal *f)
         list = list->next;
     }
 }
+
 
 
 

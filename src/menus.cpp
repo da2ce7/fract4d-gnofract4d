@@ -166,6 +166,18 @@ reset_cb(GtkMenuItem     *menuitem,
 }
 
 void
+reset_zoom_cb(GtkMenuItem *menuitem, gpointer user_data)
+{
+    model_t *m = (model_t *)user_data;
+    if(model_cmd_start(m,"reset_zoom"))
+    {
+        Gf4dFractal *f = model_get_fract(m);
+        gf4d_fractal_set_param(f, MAGNITUDE, "4.0");
+        model_cmd_finish(m,"reset_zoom");
+    }
+    
+}
+void
 save_image_cb(GtkMenuItem     *menuitem,
               gpointer         user_data)
 {
@@ -208,6 +220,13 @@ static GnomeUIInfo file1_menu_uiinfo[] =
         reset_cb, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_HOME,
         0, (enum GdkModifierType)'m', NULL
+    },
+    {
+        GNOME_APP_UI_ITEM, N_("_Reset Zoom"),
+        NULL,
+        reset_zoom_cb, NULL, NULL,
+        GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
+        0, (enum GdkModifierType) 'z', NULL
     },
     {
         GNOME_APP_UI_ITEM, N_("Save _parameters"),

@@ -167,8 +167,20 @@ void add_button_callback(GtkWidget *button, model_t *m)
 
 void render_button_callback(GtkWidget *button, model_t *m)
 {
+    static bool bStartRendering = true;
     Gf4dMovie *mov = model_get_movie(m);
-    gf4d_movie_calc(mov, 1);
+
+    if(bStartRendering)
+    {
+        gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child), _("Cancel"));
+        gf4d_movie_calc(mov, 1);        
+    }
+    else
+    {
+        gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child), _("Render"));
+        gf4d_movie_interrupt(mov);
+    }
+    bStartRendering = !bStartRendering;
 }
 
 void remove_button_callback(GtkWidget *button, model_t *m)
@@ -211,6 +223,13 @@ GtkWidget *create_movie_commands(GtkWidget *strip, model_t *m)
     return hbox;
 }
 
+void update_movie_progress_bar(Gf4dFractal *f, gfloat progress, gpointer user_data)
+{
+    GtkProgressBar *bar = GTK_PROGRESS_BAR(user_data);
+
+    gtk_progress_bar_update(bar, progress);
+}
+
 void create_movie_editor(GtkWidget *menuitem, model_t *m)
 {
     if(movie_editor)
@@ -229,15 +248,23 @@ void create_movie_editor(GtkWidget *menuitem, model_t *m)
     gnome_dialog_close_hides(GNOME_DIALOG(movie_editor), TRUE);
 
     GtkWidget *film_strip = create_film_strip(m);
-
-    GtkWidget *commands = create_movie_commands(film_strip, m);
-
     GtkWidget *window = gtk_scrolled_window_new(NULL,NULL);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(window), film_strip);
     gtk_widget_set_usize(window, 300, 200);
 
+    GtkWidget *commands = create_movie_commands(film_strip, m);
+
+    GtkWidget *progress_bar = gtk_progress_bar_new();
+    
+    gtk_signal_connect(GTK_OBJECT(model_get_movie(m)), "progress_changed",
+                       (GtkSignalFunc) update_movie_progress_bar, progress_bar);
+
     GtkWidget *vbox = GNOME_DIALOG(movie_editor)->vbox;
     gtk_box_pack_start(GTK_BOX(vbox), window, TRUE, TRUE, 1);
     gtk_box_pack_start(GTK_BOX(vbox), commands, TRUE, TRUE, 1);
+    gtk_box_pack_start(GTK_BOX(vbox), progress_bar, TRUE, TRUE, 1);
     gtk_widget_show_all(movie_editor);
 }
+
+
+

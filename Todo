@@ -1,31 +1,49 @@
-* W 	Different fractal types
+* W	sort out fractal types a bit
+* W	parameterized types
 * W 	Keyboard
 *		- Cursors : left/right/up/down
-* W	Session remembers last parameters
-* W	finish cmd-line arguments
 * WW	MDI
 * W	associate with file type?
 * B	can't resize to smaller than toolbar or current size
 * W	separate main/ motion toolbars
 * W	proper toolbar widgets
-* W	main toolbar: home, pause, exit
-* B	make it work with CLN again
-* W	faster CLN (get at internals during loop, maybe?)
+* W	main toolbar: home, exit
+* B	make it work with GMP
+* W	faster GMP (get at internals during loop, maybe?)
 * W	full-screen mode
 * W 	desktop mode
 * W 	demo mode
 * W 	no-X mode
-* B	reading fractal params doesn't work
-* B	annoying precision message
 * W	dirty/clean stuff won't work unless 
 	- eject val / (scratch?) is kept freach point
 	- can calc color without recalcing iter 
 * W	lower priority for drawing threads?
+* B 	deepening black square bug
+* B	deadlock when render movie while image is being drawn
+* B	movies turn off AA
+* W	implement frames/image
+* W	implement curves
+* W	load/save movies
+* B	antialiasing/auto-deepen broken for movies
+* W 	actually save movie images -> disk
+* W	move keyframes up/down 
+* W	Documentation
+* W	Update Screenshots
+* B	Mutants don't work at deep zooms
+* W	SMP rendering
+* W	plugins
+* W	fast single-undo
 
 Done:
 Undo/Redo Zoom
 Online Help
-* W	Documentation
+* B	iter8 incorrect with non-magnitude bailout functions
+* B	off-by-one on iter8? (eg 65 iters == 64 iters on previous version)
+* W 	Different fractal types
+* W	pause
+* W	finish cmd-line arguments
+* B	annoying precision message
+* W	Session remembers last parameters
 * B	Applying a colour sometimes moves image: properties not in sync?
 * B 	do/undo printfs
 * B	*.c -> *.cpp

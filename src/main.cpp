@@ -292,7 +292,7 @@ main (int argc, char *argv[])
     app = create_app (m);
     gtk_widget_show (app);
 
-    create_movie_editor(NULL,m);
+    //create_movie_editor(NULL,m);
 
     gtk_main ();
     gdk_threads_leave();

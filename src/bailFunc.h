@@ -13,6 +13,9 @@ class bailFunc {
 #ifdef HAVE_GMP
     virtual void operator()(gmp::f *p, int flags)= 0;
 #endif
+    /* manhattan function can't cope with iter8 since it can bail out then back in 
+       again */
+    virtual bool iter8_ok(void) = 0;
 };
 
 // factory method to construct bailout function objects 

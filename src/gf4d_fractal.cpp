@@ -124,7 +124,7 @@ set_started_cond(Gf4dFractal *f)
 }
 
 
-void
+static void
 kill_slave_threads(Gf4dFractal *f)
 {
     gboolean wasPaused = gf4d_fractal_pause(f, FALSE);
@@ -284,6 +284,7 @@ calculation_thread(void *vdata)
     {
         
     }
+
     return NULL;
 }
 
@@ -497,7 +498,7 @@ gf4d_fractal_enter_callback(Gf4dFractal *f)
 static void
 gf4d_fractal_leave_callback(Gf4dFractal *f)
 {
-    gdk_threads_leave();
+    gdk_threads_leave();    
 }
 
 void gf4d_fractal_image_changed(Gf4dFractal *f, int x1, int y1, int x2, int y2)

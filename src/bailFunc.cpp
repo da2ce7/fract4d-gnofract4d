@@ -17,7 +17,8 @@ public:
                 p[Y2] = p[Y] * p[Y];
             }            
             p[EJECT_VAL] = p[X2] + p[Y2];
-        }
+        };
+    bool iter8_ok() { return true; };
 };
 
 class and_bailout : public bailFunc {
@@ -25,7 +26,9 @@ public:
     void operator()(double *p, int flags)
         {
             p[EJECT_VAL] = MIN(p[X2],p[Y2]);
-        }
+        };
+    bool iter8_ok() { return true; };
+
 };
 
 class or_bailout : public bailFunc {
@@ -34,6 +37,8 @@ public:
         {
             p[EJECT_VAL] = MAX(p[X2],p[Y2]);
         }
+    bool iter8_ok() { return true; }
+
 };
 
 class manhattan2_bailout : public bailFunc {
@@ -43,13 +48,17 @@ public:
             double t = fabs(p[X2]) + fabs(p[Y]);
             p[EJECT_VAL] = t*t;
         }
+    bool iter8_ok() { return false; }
 };
+
 class manhattan_bailout : public bailFunc {
 public:
     void operator()(double *p, int flags)
         {
             p[EJECT_VAL] = p[X] + p[Y];
         }
+    bool iter8_ok() { return false; }
+
 };
 
 bailFunc *bailFunc_new(e_bailFunc e)

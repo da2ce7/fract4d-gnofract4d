@@ -7,10 +7,11 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <complex>
 
 #define IO_DECLS(className) \
-    friend std::ostream& operator<<(std::ostream& s, const className& m); \
-    friend std::istream& operator>>(std::istream& s, className& m); \
+    friend std::ostream& operator<< <>(std::ostream& s, const className& m); \
+    friend std::istream& operator>> <>(std::istream& s, className& m); \
     std::ostream& put(std::ostream& s) const { return s << *this; } \
     std::istream& get(std::istream& s) { return s >> *this;  } 
 
@@ -32,35 +33,57 @@ operator>>(std::istream& s, iterFunc& iter)
 /* This class eases the implementation of fractal types which 
    have no options */
 
-class noOptions : public iterFunc
+template<class T, int NOPTIONS>
+class iterImpl : public iterFunc
 {
-private:
+protected:
     const char *m_type;
+    double a[NOPTIONS];
 public:
-    noOptions(const char *type) : m_type(type) {}
+    iterImpl(const char *type) : m_type(type) {}
 
     int nOptions() const
         { 
-            return 0; 
+            return NOPTIONS; 
         }
-    void setOption(int n, double val) 
+    virtual void setOption(int n, double val) 
         {
-            // no options to set
+            if(n < 0 || n >= NOPTIONS) return;
+            a[n] = val;
         }
-    double getOption(int n) const
+    virtual double getOption(int n) const
         {
-            // no real options
-            return 0.0; 
+            if(n < 0 || n >= NOPTIONS) return 0.0; 
+            return a[n];
         }
     const char *type() const
         {
             return m_type;
         }
-    IO_DECLS(noOptions)
+    int flags() const
+        {
+            return T::FLAGS;
+        }
+    iterFunc *clone() const
+        {
+            return new T((const T&)*this);
+        }
+    bool operator==(const iterFunc &c) const
+        {
+            const T *p = dynamic_cast<const T *>(&c);
+            if(!p) return false;
+            for(int i = 0; i < NOPTIONS; ++i)
+            {
+                if(p->a[i] != a[i]) return false;
+            }
+            return true;
+        }
+    IO_DECLS(iterImpl)
 };
 
+template<class T, int NOPTIONS>
 std::ostream& 
-operator<<(std::ostream& s, const noOptions& m) 
+operator<<(std::ostream& s, const iterImpl<T,NOPTIONS>& m) 
 { 
     write_field(s,FIELD_FUNCTION);
     s << m.type() << "\n";
@@ -68,8 +91,9 @@ operator<<(std::ostream& s, const noOptions& m)
     return s; 
 } 
 
+template<class T, int NOPTIONS>
 std::istream& 
-operator>>(std::istream& s, noOptions& m) 
+operator>>(std::istream& s, iterImpl<T, NOPTIONS>& m) 
 { 
     /* don't need to read anything - just eat lines until SECTION_STOP */
     while(s)
@@ -83,10 +107,11 @@ operator>>(std::istream& s, noOptions& m)
 }
 
 // z <- z^2 +c
-class mandFunc : public noOptions
+class mandFunc : public iterImpl<mandFunc,0>
 {
 public:
-    mandFunc() : noOptions(name()) {}
+    enum {  FLAGS = HAS_X2 | HAS_Y2 };
+    mandFunc() : iterImpl(name()) {}
 
 #define ITER \
             p[X2] = p[X] * p[X]; \
@@ -124,31 +149,47 @@ public:
             calc<gmp::f>(p);        
         }
 #endif
-    int flags() const
-        {
-            return HAS_X2 | HAS_Y2;
-        }
     static char *name()
         {
             return "Mandelbrot";
         }
-    iterFunc *clone() const
-        {
-            return new mandFunc(*this);
-        }
-    bool operator==(const iterFunc &c) const
-        {
-            const mandFunc *p = dynamic_cast<const mandFunc *>(&c);
-            if(!p) return false;
-            return true;
-        }
 };
 
+// z <- (z^3-1)/3 z^2 + c
+class novaFunc : public iterImpl<novaFunc,0>
+{
+#define ITER z = z - (z*z*z - 1.0)/(3.0 * z * z) + c
+public:
+    enum {  FLAGS = 0 };
+    novaFunc() : iterImpl(name()) {};
+    void operator()(double *p) const
+        {
+            complex<double> z(p[X],p[Y]), c(p[CX],p[CY]);
+
+            ITER;
+            p[X] = z.real(); p[Y] = z.imag();
+        }
+    void iter8(double *p) const
+        {
+            complex<double> z(p[X],p[Y]), c(p[CX],p[CY]);
+    
+            ITER; ITER; ITER; ITER; 
+            ITER; ITER; ITER; ITER;
+            p[X] = z.real(); p[Y] = z.imag();
+        }
+    static char *name()
+        {
+            return "Nova";
+        }
+#undef ITER
+};
+                               
 // z <- ( re(z) > 0 ? (z - 1) * c : (z + 1) * c)
-class barnsleyFunc: public noOptions
+class barnsleyFunc: public iterImpl<barnsleyFunc,0>
 {
 public:
-    barnsleyFunc() : noOptions(name()) {};
+    enum {  FLAGS = 0 };
+    barnsleyFunc() : iterImpl(name()) {};
     void operator()(double *p) const
         {
             double x_cy, x_cx, y_cy, y_cx;
@@ -177,30 +218,16 @@ public:
             ITER; ITER; ITER; ITER;
             ITER; ITER; ITER; ITER;
         }
-    int flags() const
-        {
-            return 0;
-        }
     static char *name()
         {
             return "Barnsley Type 1";
-        }
-    iterFunc *clone() const
-        {
-            return new barnsleyFunc(*this);
-        }
-    bool operator==(const iterFunc &c) const
-        {
-            const barnsleyFunc *p = dynamic_cast<const barnsleyFunc *>(&c);
-            if(!p) return false;
-            return true;
         }
 };
 
 #undef ITER
 
 // 
-class barnsley2Func: public noOptions
+class barnsley2Func: public iterImpl<barnsley2Func,0>
 {
 #define ITER \
             x_cy = p[X] * p[CY]; x_cx = p[X] * p[CX]; \
@@ -218,7 +245,8 @@ class barnsley2Func: public noOptions
             }
 
 public:
-    barnsley2Func() : noOptions(name()) {};
+    enum {  FLAGS = 0 };
+    barnsley2Func() : iterImpl(name()) {};
     void operator()(double *p) const
         {
             double x_cy, x_cx, y_cy, y_cx;
@@ -232,29 +260,15 @@ public:
             ITER; ITER; ITER; ITER;
             ITER; ITER; ITER; ITER;
         }
-    int flags() const
-        {
-            return 0;
-        }
     static const char *name()
         {
             return "Barnsley Type 2";
-        }
-    iterFunc *clone() const
-        {
-            return new barnsley2Func(*this);
-        }
-    bool operator==(const iterFunc &c) const
-        {
-            const barnsley2Func *p = dynamic_cast<const barnsley2Func *>(&c);
-            if(!p) return false;
-            return true;
         }
 #undef ITER
 };
 
 // z <- lambda * z * ( 1 - z)
-class lambdaFunc: public noOptions
+class lambdaFunc: public iterImpl<lambdaFunc,0>
 {
 #define ITER \
     p[X2] = p[X] * p[X]; p[Y2] = p[Y] * p[Y]; \
@@ -267,7 +281,8 @@ class lambdaFunc: public noOptions
     p[Y] = p[CX] * ty + p[CY] * tx
 
 public:
-    lambdaFunc() : noOptions(name()) {};
+    enum {  FLAGS = HAS_X2 | HAS_Y2 };
+    lambdaFunc() : iterImpl(name()) {};
     void operator()(double *p) const
         {
             double tx, ty;
@@ -279,29 +294,15 @@ public:
             ITER; ITER; ITER; ITER;
             ITER; ITER; ITER; ITER;
         }
-    int flags() const
-        {
-            return HAS_X2 | HAS_Y2;
-        }
     static const char *name()
         {
             return "Lambda";
-        }
-    iterFunc *clone() const
-        {
-            return new lambdaFunc(*this);
-        }
-    bool operator==(const iterFunc &c) const
-        {
-            const lambdaFunc *p = dynamic_cast<const lambdaFunc *>(&c);
-            if(!p) return false;
-            return true;
         }
 #undef ITER
 };
 
 // z <- (|x| + i |y|)^2 + c
-class shipFunc: public noOptions
+class shipFunc: public iterImpl<shipFunc,0>
 {
 #define ITER \
             p[X] = fabs(p[X]); \
@@ -314,7 +315,8 @@ class shipFunc: public noOptions
             p[X] = atmp
 
 public:
-    shipFunc() : noOptions(name()) {};
+    enum {  FLAGS = HAS_X2 | HAS_Y2 };
+    shipFunc() : iterImpl(name()) {};
     void operator()(double *p) const 
         {
             double atmp;
@@ -330,25 +332,11 @@ public:
         {
             return "Burning Ship";
         }
-    int flags() const
-        {
-            return HAS_X2 | HAS_Y2;
-        }
-    iterFunc *clone() const
-        {
-            return new shipFunc(*this);
-        }
-    bool operator==(const iterFunc &c) const
-        {
-            const shipFunc *p = dynamic_cast<const shipFunc *>(&c);
-            if(!p) return false;
-            return true;
-        }
 #undef ITER
 };
 
 // z <- (|x| + i |y|)^2 + (|x| + i|y|) + c
-class buffaloFunc: public noOptions
+class buffaloFunc: public iterImpl<buffaloFunc,0>
 {
 #define ITER \
     p[X] = fabs(p[X]); \
@@ -361,7 +349,8 @@ class buffaloFunc: public noOptions
     p[X] = atmp
 
 public:
-    buffaloFunc() : noOptions(name()) {}
+    enum {  FLAGS = HAS_X2 | HAS_Y2 };
+    buffaloFunc() : iterImpl(name()) {}
     virtual void operator()(double *p) const
         {
             double atmp;
@@ -373,29 +362,15 @@ public:
             ITER; ITER; ITER; ITER;
             ITER; ITER; ITER; ITER;
         }
-    virtual int flags() const
-        {
-            return HAS_X2 | HAS_Y2;
-        }
     static const char *name()
         {
             return "Buffalo";
-        }
-    iterFunc *clone() const
-        {
-            return new buffaloFunc(*this);
-        }
-    bool operator==(const iterFunc &c) const
-        {
-            const buffaloFunc *p = dynamic_cast<const buffaloFunc *>(&c);
-            if(!p) return false;
-            return true;
         }
 #undef ITER
 };
 
 // z <- z^3 + c
-class cubeFunc : public noOptions
+class cubeFunc : public iterImpl<cubeFunc,0>
 {
 #define ITER  \
     p[X2] = p[X] * p[X]; \
@@ -405,7 +380,8 @@ class cubeFunc : public noOptions
     p[X] = atmp
 
 public:
-    cubeFunc() : noOptions(name()) {}
+    enum {  FLAGS = 0 };
+    cubeFunc() : iterImpl(name()) {}
     virtual void operator()(double *p) const
         {
             double atmp;
@@ -417,23 +393,9 @@ public:
             ITER;ITER;ITER;ITER;
             ITER;ITER;ITER;ITER;
         }
-    virtual int flags() const 
-        {
-            return 0;
-        }
     static const char *name()
         {
             return "Cubic Mandelbrot";
-        }
-    iterFunc *clone() const
-        {
-            return new cubeFunc(*this);
-        }
-    bool operator==(const iterFunc &c) const
-        {
-            const cubeFunc *p = dynamic_cast<const cubeFunc *>(&c);
-            if(!p) return false;
-            return true;
         }
 #undef ITER
 };
@@ -441,7 +403,7 @@ public:
 // generalised quadratic mandelbrot
 // computes a[0] * z^2 + a[1] * z + a[2] * c
 // a[] array should be an array of complex numbers, really
-class quadFunc : public iterFunc
+class quadFunc : public iterImpl<quadFunc,3>
 {
 #define ITER \
     p[X2] = p[X] * p[X]; \
@@ -450,10 +412,9 @@ class quadFunc : public iterFunc
     p[Y] = a[0] * (2.0 * p[X] * p[Y]) + a[1] * p[Y] + a[2] * p[CY]; \
     p[X] = atmp
 
-private:
-    double a[3];
 public:
-    quadFunc() {
+    enum { FLAGS = HAS_X2 | HAS_Y2 };
+    quadFunc() : iterImpl(name()) {
         // default is z^2 - z + c
         a[0] = 1.0;
         a[1] = 1.0;
@@ -470,41 +431,13 @@ public:
             ITER; ITER; ITER; ITER; 
             ITER; ITER; ITER; ITER; 
         }
-    virtual int flags() const
-        {
-            return HAS_X2 | HAS_Y2;
-        }
     static char *name()
         {
             return "Quadratic";
         }
-    virtual int nOptions() const
-        { 
-            return 3; 
-        }
-    virtual void setOption(int n, double val) 
-        {
-            if(n < 0 || n > 2) return;
-            a[n] = val;
-        }
-    virtual double getOption(int n) const
-        {
-            if(n < 0 || n > 2) return 0.0; 
-            return a[n];
-        }
     const char *type() const 
         {
             return name();
-        }
-    iterFunc *clone() const
-        {
-            return new quadFunc(*this);
-        }
-    bool operator==(const iterFunc &c) const
-        {
-            const quadFunc *p = dynamic_cast<const quadFunc *>(&c);
-            if(!p) return false;
-            return p->a[0] == a[0] && p->a[1] == a[1] && p->a[2] == a[2];
         }
     IO_DECLS(quadFunc)
 };
@@ -560,6 +493,7 @@ const char * const *iterFunc_names()
         barnsleyFunc::name(),
         barnsley2Func::name(),
         lambdaFunc::name(),
+        novaFunc::name(),
         NULL
     };
 
@@ -587,6 +521,8 @@ iterFunc *iterFunc_new(const char *name)
         return new lambdaFunc;
     if(0 == strcmp(name,barnsley2Func::name()))
         return new barnsley2Func;
+    if(0 == strcmp(name,novaFunc::name()))
+        return new novaFunc;
 
     // unknown type
     return NULL;

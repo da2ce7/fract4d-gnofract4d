@@ -68,24 +68,27 @@ public:
             p[EJECT] = m_eject;
 
             int iter = 0;
-            int nMax8Iters = (nMaxIters/8) * 8;
 
-            do
+            if(m_pBail->iter8_ok())
             {
-                save[X] = p[X];
-                save[Y] = p[Y];
-                m_pIter->iter8(p);
-                if((iter+= 8) >= nMax8Iters)
+                int nMax8Iters = (nMaxIters/8) * 8;
+                do
                 {
-                    goto finished8;
-                }
-                (*m_pBail)(p,flags);            
-            }while(p[EJECT_VAL] < m_eject);
+                    save[X] = p[X];
+                    save[Y] = p[Y];
+                    m_pIter->iter8(p);
+                    if((iter+= 8) > nMax8Iters)
+                    {
+                        goto finished8;
+                    }
+                    (*m_pBail)(p,flags);            
+                }while(p[EJECT_VAL] < m_eject);
 
-            // we bailed out - need to go back to saved position & 
-            // recalculate
-            p[X] = save[X]; p[Y] = save[Y];
-            iter -= 8;
+                // we bailed out - need to go back to saved position & 
+                // recalculate
+                p[X] = save[X]; p[Y] = save[Y];
+                iter -= 8;
+            }
 
         finished8:
             // we finished the 8some iterations without bailing out
