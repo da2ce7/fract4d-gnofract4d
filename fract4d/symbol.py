@@ -252,9 +252,8 @@ class T(UserDict):
             defval = getattr(param,"default",None)
             if not defval: continue
             if param.type == Complex:
-                print "c:", defval.__class__.__name__
-                #defaults[i] = defval.value.children[0]
-                #defaults[i+1] = defval.value.children[1]
+                defaults[i] = defval.value[0].value
+                defaults[i+1] = defval.value[1].value
             else:
                 defaults[i] = defval.value
         return defaults
