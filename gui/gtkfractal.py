@@ -186,17 +186,17 @@ class T(gobject.GObject):
             def set_entry(*args):
                 widget.set_text("%.17f" % self.initparams[order])
                     
-            def set_fractal(*args):
+            def set_fractal(entry,event,f,order):
                 print "set"
-                self.set_initparam(order,widget.get_text())
+                f.set_initparam(order,entry.get_text())
                 print "done"
                 return False
             
             set_entry(self)
 
             widget.update = set_entry
-            
-            widget.connect('focus-out-event',set_fractal)
+            widget.f = self
+            widget.connect('focus-out-event',set_fractal,self,order)
         else:
             raise "Unsupported parameter type"
 
@@ -269,19 +269,24 @@ class T(gobject.GObject):
             
             widget.set_history(index)
             
-        def set_fractal_function(om,*args):
+        def set_fractal_function(om,f,param):
             index = om.get_history()
             if index != -1:
-                fname = funclist[index]
-                self.set_func(param,fname)
-                
+                # this shouldn't be necessary but I got weird errors
+                # trying to reuse the old funclist
+                list = f.formula.symbols.available_param_functions(
+                    param.ret,param.args)
+                list.sort()
+
+                fname = list[index]
+                f.set_func(param,fname)
+
         set_selected_function()
 
         widget.update = set_selected_function
-        
-        #self.connect('parameters-changed',set_selected_function)
-        
-        widget.connect('changed',set_fractal_function)
+
+        print "set callback", funclist
+        widget.connect('changed',set_fractal_function,self,param)
         
         table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL,0,2,2)
 

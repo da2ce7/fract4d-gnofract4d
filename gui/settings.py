@@ -61,21 +61,11 @@ class SettingsDialog(gtk.Dialog):
         self.table2 = None
         def update_formula_parameters(*args):
             if self.table2 != None:
-                print "premove"
                 vbox.remove(self.table2)
-                print "removed"
 
-            print "create new"
             self.table2 = self.f.populate_formula_settings()
-            print "created"
-
-            print "show"
             self.table2.show_all()
-            print "shown"
-
-            print "pack"
             vbox.pack_start(self.table2)
-            print "packed"
             
         update_formula_parameters()
 
