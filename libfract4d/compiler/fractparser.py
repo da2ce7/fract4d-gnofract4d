@@ -112,6 +112,10 @@ def p_set_func(t):
      'set : FUNC ID NEWLINE setlist ENDFUNC'
      t[0] = absyn.Func(t[2],t[4])
 
+def p_set_heading(t):
+     'set : HEADING NEWLINE setlist ENDHEADING'
+     t[0] = absyn.Heading(t[3])
+     
 def p_section_stm(t):
      'section : SECT_STM NEWLINE stmlist'
      t[0] = absyn.Stmlist(t[1],t[3])
