@@ -99,7 +99,6 @@ class fractFunc {
     dvec4 delta_aa_x, delta_aa_y; // offset between subpixels
     dvec4 topleft; // top left corner of screen
     dvec4 aa_topleft; // topleft - offset to 1st subpixel to draw
-    d ddepth;     
 
     // params from ctor
     int depth;    
