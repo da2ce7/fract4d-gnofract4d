@@ -56,7 +56,6 @@ void tls_join_thread(pthread_t tid)
         gdk_threads_leave();
     }
 
-    printf("joining thread %d\n",tid);
     pthread_join(tid,NULL);
     
     if(tls_is_gtk_thread())

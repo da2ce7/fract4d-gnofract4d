@@ -41,7 +41,7 @@ class iterImpl : public iterFunc
 {
 protected:
     const char *m_type;
-    complex<double> a[NOPTIONS+1];
+    std::complex<double> a[NOPTIONS+1];
 public:
     iterImpl(const char *type) : m_type(type) {}
 
@@ -49,13 +49,13 @@ public:
         { 
             return NOPTIONS; 
         }
-    virtual void setOption(int n, complex<double> val) 
+    virtual void setOption(int n, std::complex<double> val) 
         {
             if(n < 0 || n >= NOPTIONS) return;
             //cout << "option " << n << " set to " << val << "\n";
             a[n] = val;
         }
-    virtual complex<double> getOption(int n) const
+    virtual std::complex<double> getOption(int n) const
         {
             if(n < 0 || n >= NOPTIONS) return 0.0; 
             return a[n];
@@ -152,7 +152,7 @@ operator>>(std::istream& s, iterImpl<T, NOPTIONS>& m)
             if(0 == strcmp(name.c_str(),m.optionName(i)))
             {
                 std::istrstream vs(val.c_str());
-                complex<double> opt;
+                std::complex<double> opt;
                 vs >> opt;
                 m.setOption(i,opt);
                 break;
@@ -244,8 +244,8 @@ public:
 // z <- (z^2 + A)/2z
 class newtFunc : public iterImpl<newtFunc,0>
 {
-#define NEWT_DECL complex<double> z(p[X],p[Y]) , c(p[CX],p[CY])
-#define NEWT_ITER z = (2*z*z*z + c)/ 3.0 * z * z
+#define NEWT_DECL std::complex<double> z(p[X],p[Y]) , c(p[CX],p[CY])
+#define NEWT_ITER z = (2.0 *z*z*z + c)/ 3.0 * z * z
 #define NEWT_RET  p[X] = z.real(); p[Y] = z.imag()
 
  public:
@@ -265,7 +265,7 @@ class newtFunc : public iterImpl<newtFunc,0>
 // z <- (Az^3-B)/C z^2 + c
 class novaFunc : public iterImpl<novaFunc,3>
 {
-#define NOVA_DECL complex<double> z(p[X],p[Y]), c(p[CX],p[CY])
+#define NOVA_DECL std::complex<double> z(p[X],p[Y]), c(p[CX],p[CY])
 #define NOVA_ITER z = z - (a[0] * z*z*z - a[1])/(a[2] * z * z) + c
 #define NOVA_RET  p[X] = z.real(); p[Y] = z.imag()
 
@@ -305,9 +305,9 @@ public:
     void reset_opts()
         {
             // default is z - (z^3 - 1) / 3z^2 + c
-            a[0] = complex<double>(1.0,0.0);
-            a[1] = complex<double>(1.0,0.0);
-            a[2] = complex<double>(3.0,0.0);
+            a[0] = std::complex<double>(1.0,0.0);
+            a[1] = std::complex<double>(1.0,0.0);
+            a[2] = std::complex<double>(3.0,0.0);
         }
 };
                                
@@ -492,7 +492,7 @@ public:
 // computes a[0] * z^2 + a[1] * z + a[2] * c
 class quadFunc : public iterImpl<quadFunc,3>
 {
-#define QUAD_DECL complex<double> z(p[X],p[Y]) , c(p[CX],p[CY]);
+#define QUAD_DECL std::complex<double> z(p[X],p[Y]) , c(p[CX],p[CY]);
 #define QUAD_ITER z = (a[0] * z + a[1]) * z + a[2] * c
 #define QUAD_RET p[X] = z.real(); p[Y] = z.imag()
 
@@ -526,9 +526,9 @@ private:
     void reset_opts()
         {
             // default is z^2 - z + c
-            a[0] = complex<double>(1.0,0.0);
-            a[1] = complex<double>(1.0,0.0);
-            a[2] = complex<double>(1.0,0.0);
+            a[0] = std::complex<double>(1.0,0.0);
+            a[1] = std::complex<double>(1.0,0.0);
+            a[2] = std::complex<double>(1.0,0.0);
         }
 };
 

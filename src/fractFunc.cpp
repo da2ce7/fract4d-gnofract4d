@@ -104,7 +104,7 @@ fractFunc::work(thread_data_t *jobdata)
         nRows=1;
         break;
     default:
-        cerr << "Unknown job id" << (int) jobdata->job << "\n";
+        printf("Unknown job id %d ignored\n", (int) jobdata->job);
     }
     gf4d_fractal_image_changed(gf,0,jobdata->y,im->Xres(),jobdata->y+ nRows);
     gf4d_fractal_progress_changed(gf,(float)jobdata->y/(float)im->Yres());

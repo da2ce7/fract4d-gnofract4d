@@ -71,8 +71,8 @@ class iterFunc {
     virtual int nOptions() const = 0;
 
     // FIXME: no gmp options
-    virtual void setOption(int n, complex<double> val) = 0;
-    virtual complex<double> getOption(int n) const = 0;
+    virtual void setOption(int n, std::complex<double> val) = 0;
+    virtual std::complex<double> getOption(int n) const = 0;
     virtual const char *optionName(int n) const = 0;
 
     // reset all options to standard values

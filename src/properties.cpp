@@ -741,18 +741,18 @@ set_func_parameter_cb(GtkWidget * entry, GdkEventFocus *, model_t *m)
     const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
 
     double newPart = strtod(text,NULL);
-    complex<double> oldVal = func->getOption(index/2);
-    complex<double> newVal;
+    std::complex<double> oldVal = func->getOption(index/2);
+    std::complex<double> newVal;
 
     if(index % 2)
     {
         // odd index = imaginary part
-        newVal = complex<double>(oldVal.real(),newPart);
+        newVal = std::complex<double>(oldVal.real(),newPart);
     }
     else
     {
         // real part
-        newVal = complex<double>(newPart,oldVal.imag());
+        newVal = std::complex<double>(newPart,oldVal.imag());
     }
     
     if(newVal != oldVal && model_cmd_start(m,"set_func_param"))
@@ -780,7 +780,7 @@ void refresh_funcparam_cb(Gf4dFractal *f, GtkWidget *entry)
     int index = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(entry),"index"));
     iterFunc *func = gf4d_fractal_get_func(f);
     
-    complex<double> newVal = func->getOption(index/2);
+    std::complex<double> newVal = func->getOption(index/2);
     double d;
     if(index % 2)
     {
@@ -841,9 +841,9 @@ fourway_set_param_cb(
         int index = GPOINTER_TO_INT(
             gtk_object_get_data(GTK_OBJECT(fourway),"index"));
         
-        complex<double> oldVal = func->getOption(index);
-        complex<double> delta(deltax / 100.0 , deltay / 100.0);
-        complex<double> newVal = oldVal + delta;
+        std::complex<double> oldVal = func->getOption(index);
+        std::complex<double> delta(deltax / 100.0 , deltay / 100.0);
+        std::complex<double> newVal = oldVal + delta;
 
         func->setOption(index,newVal);
         model_cmd_finish(m, "func_param");
@@ -863,9 +863,9 @@ fourway_preview_param_cb(
     int index = GPOINTER_TO_INT(
         gtk_object_get_data(GTK_OBJECT(fourway),"index"));
     
-    complex<double> oldVal = func->getOption(index);
-    complex<double> delta(deltax / 100.0 , deltay / 100.0);
-    complex<double> newVal = oldVal + delta;
+    std::complex<double> oldVal = func->getOption(index);
+    std::complex<double> delta(deltax / 100.0 , deltay / 100.0);
+    std::complex<double> newVal = oldVal + delta;
 
     func->setOption(index,newVal);
     gf4d_fractal_calc(f,1);
@@ -884,7 +884,7 @@ make_func_edit_widgets(
     make_func_label(name,_("imag"),table,2*i+1);
     
     /* entry widgets for changing params */
-    complex<double> opt = func->getOption(i);
+    std::complex<double> opt = func->getOption(i);
     
     make_func_entry(shadow, opt.real(),table,2*i);
     make_func_entry(shadow, opt.imag(),table,2*i+1);

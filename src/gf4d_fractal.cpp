@@ -325,8 +325,6 @@ void gf4d_fractal_calc(Gf4dFractal *f, int nThreads, e_antialias effective_aa)
             pthread_cond_wait(&f->running_cond,&f->cond_lock);
         }
         gf4d_fractal_cond_unlock(f);
-
-        printf("created thread %d\n",f->tid);
     }
     else
     {
