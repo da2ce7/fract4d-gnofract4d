@@ -112,6 +112,16 @@ class FCTest(testbase.TestBase):
         ofile = self.compiler.generate_code(f,cg)
         self.failUnless(os.path.exists(ofile))
 
+    def testDoubleCompile(self):
+        f = self.compiler.get_formula("gf4d.frm","Mandelbrot")
+        cg = self.compiler.compile(f)
+        of1 = self.compiler.generate_code(f,cg)
+
+        cg2 = self.compiler.compile(f)
+        of2 = self.compiler.generate_code(f,cg2)
+
+        self.assertEqual(of1,of2)
+        
 def suite():
     return unittest.makeSuite(FCTest,'test')
 

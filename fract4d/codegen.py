@@ -4,6 +4,7 @@
 
 import string
 import tempfile
+import copy
 
 import ir
 import symbol
@@ -171,7 +172,7 @@ class Formatter:
 class T:
     'code generator'
     def __init__(self,symbols,dump=None):
-        self.symbols = symbols
+        self.symbols = copy.copy(symbols)
         self.out = []
         # a list of templates and associated actions
         # this must be ordered with largest, most efficient templates first

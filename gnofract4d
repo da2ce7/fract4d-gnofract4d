@@ -5,12 +5,9 @@
 # python stdlib
 import sys
 import os
-import struct
-import math
-import types
 
 # gettext
-import os, gettext
+import gettext
 os.environ.setdefault('LANG', 'en')
 if os.path.isdir('po'):
     gettext.install('gnofract4d','po')
@@ -44,8 +41,16 @@ def main():
     mainWindow = main_window.MainWindow()
     if len(sys.argv) > 1:
         mainWindow.load(sys.argv[1])
-
+    else:
+        mainWindow.on_fractal_change()
+        
     gtk.main()
     
 if __name__ == '__main__':
-    main()
+    if os.environ.get("DO_GF4D_PROFILE"):
+        import hotshot
+        prof = hotshot.Profile("gf4d.prof")
+        prof.runcall(main)
+        prof.close()
+    else:
+        main()

@@ -2,6 +2,7 @@
 
 import sys
 import os
+import copy
 
 import gtk
 
@@ -41,6 +42,7 @@ class MainWindow:
         self.window.add(self.vbox)
         
         self.f = gtkfractal.T(self.compiler)
+        self.create_subfracts(self.f)
         
         self.set_filename(None)
         
@@ -58,9 +60,6 @@ class MainWindow:
         preferences.userPrefs.connect('preferences-changed',
                                       self.on_prefs_changed)
 
-        self.update_compiler_prefs(preferences.userPrefs)
-        self.update_image_prefs(preferences.userPrefs)
-        
         self.create_menu()
         self.create_toolbar()
         self.create_fractal(self.f)
@@ -68,25 +67,88 @@ class MainWindow:
         
         self.window.show_all()
 
+        self.update_subfract_visibility(False)
+
+        self.update_compiler_prefs(preferences.userPrefs)
+        self.update_image_prefs(preferences.userPrefs)
+        
+
         self.statuses = [ _("Done"),
                           _("Calculating"),
                           _("Deepening (%d iterations)"),
                           _("Antialiasing"),
                           _("Paused") ]
 
+    def update_subfract_visibility(self,visible):
+        if visible:
+            for f in self.subfracts:
+                f.widget.show()
+        else:
+            for f in self.subfracts:
+                f.widget.hide()
+                
+        self.show_subfracts = visible
+        self.update_image_prefs(preferences.userPrefs)
+        
+    def update_subfracts(self):
+        if not self.show_subfracts:
+            return
+        
+        for f in self.subfracts:
+            f.set_fractal(self.f.copy_f())
+            aa = preferences.userPrefs.getint("display","antialias")
+            auto_deepen = preferences.userPrefs.getint("display","autodeepen")
+            f.draw_image(aa,auto_deepen)
+        
+    def create_subfracts(self,f):
+        self.subfracts = [ None ] * 12
+        for i in xrange(12):
+            self.subfracts[i] = gtkfractal.T(
+                self.compiler,self.f.width//4,self.f.height//4)
+        
+    def attach_subfract(self,i,x,y):
+        self.ftable.attach(
+            self.subfracts[i].widget,
+            x, x+1, y, y+1,
+            gtk.EXPAND | gtk.FILL,
+            gtk.EXPAND | gtk.FILL,
+            0,0)
+            
     def create_fractal(self,f):
         window = gtk.ScrolledWindow()
         window.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
         
         f.connect('parameters-changed', self.on_fractal_change)
-
-        self.draw()
         
         window.set_size_request(640+2,480+2)
-        window.add_with_viewport(self.f.widget)
+
+        self.ftable = gtk.Table(4,4,False)
+        self.ftable.attach(
+            f.widget,
+            1,3,1,3,
+            gtk.EXPAND | gtk.FILL,
+            gtk.EXPAND | gtk.FILL,
+            0,0)
+
+        self.attach_subfract(0,0,0)
+        self.attach_subfract(1,1,0)
+        self.attach_subfract(2,2,0)
+        self.attach_subfract(3,3,0)
+        
+        self.attach_subfract(4,0,1)
+        self.attach_subfract(5,3,1)
+        self.attach_subfract(6,0,2)
+        self.attach_subfract(7,3,2)
+        
+        self.attach_subfract(8,0,3)
+        self.attach_subfract(9,1,3)
+        self.attach_subfract(10,2,3)
+        self.attach_subfract(11,3,3)
+
+        window.add_with_viewport(self.ftable)
         f.connect('progress_changed', self.progress_changed)
         f.connect('status_changed',self.status_changed)
-        
+
         self.vbox.pack_start(window)
 
     def draw(self):
@@ -103,6 +165,10 @@ class MainWindow:
     def update_image_prefs(self,prefs):
         (w,h) = (prefs.getint("display","width"),
                  prefs.getint("display","height"))
+        if self.show_subfracts:
+            w = w //2 ; h = h // 2
+            for f in self.subfracts:
+                f.set_size(w//2, h//2)
         self.f.set_size(w,h)
 
     def on_prefs_changed(self,prefs):
@@ -119,9 +185,10 @@ class MainWindow:
             title = self.filename
         self.window.set_title(title)
         
-    def on_fractal_change(self,object):
+    def on_fractal_change(self,*args):
         self.draw()
         self.set_window_title()
+        self.update_subfracts()
         
     def set_filename(self,name):
         self.filename = name
@@ -200,9 +267,11 @@ class MainWindow:
 
             (_('/_Tools'), None,
              None, 0, '<Branch>'),
-            (_('/_Tools/_Autozoom'), '<control>A',
+            (_('/_Tools/_Autozoom...'), '<control>A',
              self.autozoom, 0, ''),
-
+            (_('/_Tools/_Explorer'), '<control>E',
+             self.toggle_explorer, 0, '<ToggleItem>'),
+            
             (_('/_Help'), None,
              None, 0, '<Branch>'),
             (_('/_Help/_Contents'), 'F1',
@@ -225,6 +294,10 @@ class MainWindow:
         # later disappear randomly - some sort of bug in pygtk, python, or gtk
         self.save_factory = item_factory
         self.vbox.pack_start(menubar, gtk.FALSE, gtk.TRUE, 0)
+
+    def toggle_explorer(self, action, menuitem):
+        self.update_subfract_visibility(menuitem.get_active())
+        self.update_subfracts()
         
     def create_status_bar(self):
         self.bar = gtk.ProgressBar()

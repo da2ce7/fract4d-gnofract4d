@@ -99,8 +99,7 @@ class Compiler:
             if os.path.exists(f):
                 return f
 
-        return self.last_chance(filename)
-        
+        return self.last_chance(filename)        
         
     def load_formula_file(self, filename):
         try:
@@ -154,8 +153,7 @@ class Compiler:
             outputfile = self.makefilename(hash,".so")
             if os.path.exists(outputfile):
                 # skip compilation - we already have this code
-                #return outputfile
-                pass
+                return outputfile
         
         if cfile == None:
             cfile = self.makefilename(hash,".c")
@@ -165,7 +163,7 @@ class Compiler:
         # -march=i686 for 10% speed gain
         cmd = "%s %s %s -o %s %s" % \
               (self.compiler_name, cfile, self.flags, outputfile, self.libs)
-        #print "cmd: %s" % cmd
+        print "cmd: %s" % cmd
         (status,output) = commands.getstatusoutput(cmd)
         if status != 0:
             raise fracttypes.TranslationError(
@@ -245,7 +243,7 @@ def main():
             outputfile = val
         elif arg=="-c" or arg=="--colorfunc":
             colorfunc = val
-        elif arg=="-C" or arg=="--colorile":
+        elif arg=="-C" or arg=="--colorfile":
             colorfile = val
         elif arg=="-S":
             cfile = "out.c"

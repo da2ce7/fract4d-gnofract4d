@@ -912,8 +912,16 @@ pycalc_async(PyObject *self, PyObject *args)
     cargs->site->start(cargs);
 
     pthread_t tid;
-    //printf("create thread %d for %p\n",tid,cargs);
-    pthread_create(&tid,NULL,calculation_thread,(void *)cargs);
+
+    /* create low-priority attribute block */
+    pthread_attr_t lowprio_attr;
+    struct sched_param lowprio_param;
+    pthread_attr_init(&lowprio_attr);
+    lowprio_param.sched_priority = sched_get_priority_min(SCHED_OTHER);
+    pthread_attr_setschedparam(&lowprio_attr, &lowprio_param);
+
+    /* start the calculation thread */
+    pthread_create(&tid,&lowprio_attr,calculation_thread,(void *)cargs);
     assert(tid != 0);
 
     cargs->site->set_tid(tid);
