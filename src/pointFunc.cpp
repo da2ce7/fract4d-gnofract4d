@@ -45,14 +45,13 @@ private:
 public:
     pf_wrapper(
 	inner_pointFunc *pf, colorizer *pcizer, 
-	void *dlHandle, e_colorFunc innerCfType, e_colorFunc outerCfType) : 
+	void *dlHandle, e_colorFunc outerCfType, e_colorFunc innerCfType) : 
 	m_pf(pf), m_pcizer(pcizer), m_handle(dlHandle)
 	{
             m_pOuterColor = colorFunc_new(outerCfType);
             m_pInnerColor = colorFunc_new(innerCfType);
 
 	    one_space = malloc(buffer_size());
-
 	}
     virtual ~pf_wrapper()
 	{
@@ -80,17 +79,42 @@ public:
 
 	    if(NULL == out_buf) out_buf = one_space;
 
+	    double *pIterData;
 	    m_pf->calc(params,nIters, nNoPeriodIters, x , y, aa, 
-		       &colorDist, pnIters, out_buf);
+		       &colorDist, pnIters, &pIterData);
+
+
+	    colorDist = colorize(*pnIters,pIterData,out_buf);
 
 	    if(color)
 	    {
 		*color = m_pcizer->calc(colorDist);
 	    }
 	}
+    inline colorFunc *getColorFunc(int iter) const
+	{
+	    if(iter == -1)
+	    {
+		return m_pInnerColor;
+	    }
+	    else
+	    {
+		return m_pOuterColor;
+	    }
+	}
+    inline double colorize(int iter, const double *p, void *out_buf)
+        {
+            double colorDist;
+	    colorFunc *pcf = getColorFunc(iter);
+	    pcf->extract_state(p,out_buf);
+	    colorDist = (*pcf)(iter, p[EJECT],out_buf);
+
+            return colorDist; 
+        }
     virtual rgb_t recolor(int iter, double eject, const void *buf) const
 	{
-	    double dist = m_pf->recolor(iter, eject, buf);
+	    colorFunc *pcf = getColorFunc(iter);
+	    double dist = (*pcf)(iter, eject, buf);
             return m_pcizer->calc(dist);
 	}
     virtual int buffer_size() const
@@ -119,10 +143,8 @@ pointFunc *pointFunc_new(
     inner_pointFunc *(*pFunc)(
         double, 
         double, 
-        std::complex<double> *,
-        e_colorFunc, 
-        e_colorFunc) = 
-        (inner_pointFunc *(*)(double, double, std::complex<double> *, e_colorFunc, e_colorFunc)) 
+        std::complex<double> *) = 
+        (inner_pointFunc *(*)(double, double, std::complex<double> *)) 
         dlsym(dlHandle, "create_pointfunc");
 
     if(NULL == pFunc)
@@ -132,7 +154,7 @@ pointFunc *pointFunc_new(
 
     inner_pointFunc *inner_pf = pFunc(
 	bailout, periodicity_tolerance, 
-	iterType->opts(), outerCfType, innerCfType);
+	iterType->opts());
 
     return new pf_wrapper(inner_pf, pcf, dlHandle, outerCfType, innerCfType);
 }

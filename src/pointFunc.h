@@ -49,9 +49,8 @@ class inner_pointFunc {
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        double *colorDist, int *pnIters, void *out_buf
+        double *colorDist, int *pnIters, double **out_buf
         ) = 0;
-    virtual double recolor(int iter, double eject, const void *buf) const = 0;
 };
 
 

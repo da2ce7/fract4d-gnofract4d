@@ -1,6 +1,4 @@
 #include "pointFunc.h"
-#include "colorFunc.h"
-#include "colorizer.h"
 
 #include <math.h>
 #include <complex>
@@ -21,11 +19,8 @@ enum {VX, VY, VZ, VW};		    // axes
 
 class pointCalc : public inner_pointFunc {
 private:
-    /* members */
-    colorFunc *m_pOuterColor, *m_pInnerColor;
     double m_eject;
     T m_period_tolerance;
-    colorizer *m_pcizer;
 
 #if N_OPTIONS > 0
     std::complex<double> a[N_OPTIONS];
@@ -37,9 +32,7 @@ public:
     /* ctor */
     pointCalc(double eject,
               double period_tolerance,
-              std::complex<double> *options,
-              e_colorFunc outerCfType,
-              e_colorFunc innerCfType) 
+              std::complex<double> *options)
         : m_eject(eject), m_period_tolerance(period_tolerance)
         {
 #if N_OPTIONS > 0
@@ -51,36 +44,12 @@ public:
 #if TRACE
             out = NULL;
 #endif
-            m_pOuterColor = colorFunc_new(outerCfType);
-            m_pInnerColor = colorFunc_new(innerCfType);
         }
     virtual ~pointCalc()
         {
-            delete m_pOuterColor;
-            delete m_pInnerColor;
 #if TRACE
             delete out;
 #endif
-        }
-    inline colorFunc *getColorFunc(int iter) const
-	{
-	    if(iter == -1)
-	    {
-		return m_pInnerColor;
-	    }
-	    else
-	    {
-		return m_pOuterColor;
-	    }
-	}
-    inline double colorize(int iter, const T*p, void *out_buf)
-        {
-            double colorDist;
-	    colorFunc *pcf = getColorFunc(iter);
-	    pcf->extract_state(p,out_buf);
-	    colorDist = (*pcf)(iter, p[EJECT],out_buf);
-
-            return colorDist; 
         }
 
     /* do some iterations without periodicity */
@@ -204,8 +173,7 @@ public:
     void calc(
         const T *params, int nMaxIters, int nNoPeriodIters,
 	int x, int y, int aa,
-        double *colorDist, int *pnIters, void *out_buf
-        )
+        double *colorDist, int *pnIters, T **out_buf)
         {
 #if TRACE
             if(out == NULL)
@@ -262,30 +230,20 @@ public:
 #if TRACE
             (*out) << iter << "\n";
 #endif
-	    *colorDist = colorize(iter,p,out_buf);
+	    *out_buf = &p[0];
         };
     
-    virtual double recolor(int iter, double eject, const void *buf) const
-        {
-	    colorFunc *pcf = getColorFunc(iter);
-	    double dist = (*pcf)(iter, eject, buf);
-	    return dist;
-        }
 };
 
 extern "C" {
     void *create_pointfunc(
         double bailout,
         double period_tolerance,
-        std::complex<double> *params,
-        e_colorFunc outerCfType,
-        e_colorFunc innerCfType)
+        std::complex<double> *params)
     {
         return new pointCalc(
             bailout, 
             period_tolerance, 
-            params, 
-            outerCfType, 
-            innerCfType);
+            params);
     }
 }
