@@ -2,9 +2,12 @@
 
 # a browser to examine fractal functions
 import string
+import os
 
 import gobject
 import gtk
+
+import preferences
 
 FRACTAL = 0
 INNER = 1
@@ -26,13 +29,15 @@ def update():
         _browser.populate_file_list()
     
 class BrowserDialog(gtk.Dialog):
+    RESPONSE_EDIT = 1
     def __init__(self,main_window,f):
         gtk.Dialog.__init__(
             self,
             _("Formula Browser"),
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
-            (gtk.STOCK_APPLY, gtk.RESPONSE_APPLY,
+            (_("_Edit..."), BrowserDialog.RESPONSE_EDIT,
+             gtk.STOCK_APPLY, gtk.RESPONSE_APPLY,
              gtk.STOCK_OK, gtk.RESPONSE_OK,
              gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
@@ -67,11 +72,22 @@ class BrowserDialog(gtk.Dialog):
         elif id == gtk.RESPONSE_OK:
             self.onApply()
             self.hide()
+        elif id == BrowserDialog.RESPONSE_EDIT:
+            self.onEdit()
         else:
             print "unexpected response %d" % id
 
+    def onEdit(self):
+        editor = preferences.userPrefs.get("editor","name")
+        file = self.compiler.find_file(self.current_fname)
+        os.system("%s %s &" % (editor, file))
+        
     def onApply(self):
         self.f.freeze()
+        if not self.current_formula or not self.current_fname:
+            #can't apply
+            return
+        
         if self.func_type == FRACTAL:
             self.f.set_formula(self.current_fname,self.current_formula)
             self.f.reset()
@@ -96,10 +112,18 @@ class BrowserDialog(gtk.Dialog):
         
     def disable_apply(self):
         self.set_response_sensitive(gtk.RESPONSE_APPLY,False)
+        self.set_response_sensitive(gtk.RESPONSE_OK,False)
+        self.set_edit_sensitivity()
 
+    def set_edit_sensitivity(self):
+        is_editable = hasattr(self,"current_fname") and self.current_fname != None
+        self.set_response_sensitive(BrowserDialog.RESPONSE_EDIT,is_editable)
+        
     def enable_apply(self):
         self.set_response_sensitive(gtk.RESPONSE_APPLY,True)
-
+        self.set_response_sensitive(gtk.RESPONSE_OK,True)
+        self.set_edit_sensitivity()
+        
     def create_file_list(self):
         sw = gtk.ScrolledWindow ()
 
@@ -179,7 +203,8 @@ class BrowserDialog(gtk.Dialog):
 
         textview = gtk.TextView()
         self.tooltips.set_tip(textview, tip)
-
+        textview.set_editable(False)
+        
         sw.add(textview)
         return (textview,sw)
 
@@ -270,7 +295,8 @@ class BrowserDialog(gtk.Dialog):
         text = self.compiler.files[self.current_fname].contents
         self.sourcetext.get_buffer().set_text(text,-1)
         self.populate_formula_list(self.current_fname)
-
+        self.set_edit_sensitivity()
+        
     def clear_selection(self):
         self.text.get_buffer().set_text("",-1)
         self.transtext.get_buffer().set_text("",-1)
