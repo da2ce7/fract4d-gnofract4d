@@ -57,7 +57,8 @@ class Colorizer(FctUtils):
         FctUtils.__init__(self)
         self.name = "default"
         self.colorlist = []
-
+        self.solid = (0,0,0,255)
+        
     def load(self,f):
         line = f.readline()
         while line != "":
@@ -84,9 +85,15 @@ class Colorizer(FctUtils):
         self.colorlist = []
         while i < nc:
             pos = i*6
-            (r,g,b) = (val[pos:pos+2],val[pos+2:pos+4],val[pos+4:pos+6])
-            c = (float(i)/(nc-1),int(r,16),int(g,16),int(b,16),255)
-            self.colorlist.append(c)
+            (r,g,b) = (int(val[pos:pos+2],16),
+                       int(val[pos+2:pos+4],16),
+                       int(val[pos+4:pos+6],16))
+            if i == 0:
+                # first color is inside solid color
+                self.solid = (r,g,b,255)
+            else:
+                c = (float(i-1)/(nc-2),r,g,b,255)
+                self.colorlist.append(c)
             i+= 1
         
     def parse_file(self,val,f):
@@ -96,11 +103,15 @@ class Colorizer(FctUtils):
         for line in mapfile:
             m = rgb_re.match(line)
             if m != None:
-                self.colorlist.append((i/256.0,
-                                       int(m.group(1)),
-                                       int(m.group(2)),
-                                       int(m.group(3)),
-                                       255))
+                (r,g,b) = (int(m.group(1)),
+                           int(m.group(2)),
+                           int(m.group(3)))
+ 
+                if i == 0:
+                    # first color is inside solid color
+                    self.solid = (r,g,b,255)
+                else:
+                    self.colorlist.append((i-1/255.0,r,g,b,255))
             i += 1
 
         
@@ -133,13 +144,13 @@ class T(FctUtils):
         # interaction with fract4d library
         self.site = site or fract4dc.site_create(self)
 
-        # default 
+        # default is just white outside
         self.colorlist = [
-            (0.0,0.5,0,0,255),
-            (1/256.0,255,255,255,255),
             (1.0, 255, 255, 255, 255)
             ]
 
+        self.solids = [(0,0,0,255),(0,0,0,255)]
+        
         # colorfunc lookup
         self.colorfunc_names = [
             "default", 
@@ -285,7 +296,9 @@ class T(FctUtils):
         handle = fract4dc.pf_load(self.outputfile)
         pfunc = fract4dc.pf_create(handle)
         cmap = fract4dc.cmap_create(self.colorlist)
-
+        (r,g,b,a) = self.solids[0]
+        fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
+        
         fract4dc.pf_init(pfunc,0.001,self.initparams)
 
         fract4dc.calc(self.params,self.antialias,self.maxiter,1,
@@ -345,6 +358,7 @@ class T(FctUtils):
         cf = Colorizer()
         cf.load(f)        
         self.colorlist = cf.colorlist
+        self.solids[0] = cf.solid
         
     def parse__colorizer_(self,val,f):
         which_cf = int(val)
@@ -352,6 +366,7 @@ class T(FctUtils):
         cf.load(f)        
         if which_cf == 0:
             self.colorlist = cf.colorlist
+            self.solids[0] = cf.solid
         # ignore other colorlists for now
 
     def parse_inner(self,val,f):

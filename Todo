@@ -1,24 +1,35 @@
-Compiler
-* W	max size for .so cache
-* WW	introduce separate compiler backend
-* WWW	built-in compiler
+fract4d 2.0
+* W	max size for .so cache, compiler properties
+* W	store user preferences
+* BB	deeper.fct doesn't load properly?
+* WW	support different bailout functions
+* B	fractint doesn't reset vars between calls?
+* B	parse continuation lines correctly
+* W	work out how to exclude color 0 (or others?) from cycle
+* WW	more robust error reporting
+* W	combine 2 classes in gtkfractal.py
+* W	command-line arguments
+* W	save images
+* WW	save parameter files
+* WW	undo/redo
+* W	explorer mode
+* W	image size
+* WW	cmap browser
+* W	SMP/nthreads > 1
+* B	exception if you open and choose OK without selecting a file
+* WW	bailFuncs
+* W	set size of periodicity check
+* B	hyperstructure looks wrong
+* WW	parameters for colorfuncs
+* B	test_fract4d.testMiniTextRender unreliable
 
-
-libfract4d
-* BB	assert 'colorizer.cpp:263: virtual rgb_t cmap_colorizer::calc(double) const: Assertion `n != 0 && n2 != 0' failed.' while changing inner under load
-* BB	deeper.fct doesn't load properly
-* BB 	(lt-gnofract4d:11413): GLib-GObject-WARNING **: invalid uninstantiatable type `(null)' in cast to `GObject'
-
-(lt-gnofract4d:11413): GLib-GObject-CRITICAL **: file gobject.c: line 1370 (g_object_get_data): assertion `G_IS_OBJECT (object)' failed
-
-(lt-gnofract4d:11413): GLib-GObject-WARNING **: invalid cast from (NULL) pointer to `Gf4dFractal'
-* W 	namespace
-* W	single top-level header
-* B	why is Barnsley so slow?
+later
+* W	logmap
+* W	periodicity
 * B	interrupt takes too long on deep-zoomed fractals
 * W	signal tpool conds after releasing mutex?
-* W	sort out fractal types a bit
 * W	associate with file type?
+* WW	register mime info?
 * W	make it work with GMP
 * W	faster GMP (get at internals during loop, maybe?)
 * W	full-screen mode
@@ -30,14 +41,11 @@ libfract4d
 * W	bookmarks
 * B	Mutants don't work at deep zooms
 * W	fast single-undo
-* B 	invalid bailfunc # = crash
-* W	parameterize buffalo
-* W	add exponent to mandelbar (buffalo?)
 * WW	critical values + multiple basins/color schemes
 * W	make sure inner function is sensible (itercount is pointless)
-* W	pass colorFuncs by value instead of enum
-* W	is it really faster w/out HAS_X2 ?
-* WW	make cizer per-fate (initially inner, outer) + combine with transfer, colorfunc
+* WW	import .par files
+* WW	import .upr files
+* W	import ultrafractal gradient files
 * WW	gimp gradient files:
 GIMP Gradient
 Possibly Name: %s
@@ -57,11 +65,6 @@ type for segment" menus of the gradient editor menu.
 
 This information is available in app/gradient.c and
 app/gradient_header.h.
-* WW	move threadpooling out of libfract4d
-
-
-netfract
-* WWW	write it
 
 gnofract4d
 * W	there is no warning before files are overwritten (parameter files +
@@ -69,7 +72,6 @@ gnofract4d
 * W	automatic addition of file extensions and
 * W	automatic saving of picture and parameters at the same time 
 * WW	How about colour cycling?
-* WW	register mime info?
 * B	image size should be persisted and kept under Preferences.
 * B	aspect ratio locked with -i and -j params
 * BB	hang changing back from explorer mode

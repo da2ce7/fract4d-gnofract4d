@@ -23,10 +23,11 @@ class SettingsDialog(gtk.Dialog):
         self.f = f
         self.notebook = gtk.Notebook()
         self.vbox.add(self.notebook)
-        
-        self.create_location_page()
+
         self.create_formula_parameters_page()
-        
+        self.create_location_page()
+        self.create_angle_page()
+
         self.connect('response',self.onResponse)
 
     def create_location_page(self):
@@ -38,6 +39,16 @@ class SettingsDialog(gtk.Dialog):
         self.create_param_entry(table,3,"W (Im) :", self.f.WCENTER)
         self.create_param_entry(table,4,"Size :", self.f.MAGNITUDE)
 
+    def create_angle_page(self):
+        table = gtk.Table(5,2,gtk.FALSE)
+        self.notebook.append_page(table,gtk.Label("Angles"))
+        self.create_param_entry(table,0,"XY :", self.f.XYANGLE)
+        self.create_param_entry(table,1,"XZ :", self.f.XZANGLE)
+        self.create_param_entry(table,2,"XW :", self.f.XWANGLE)
+        self.create_param_entry(table,3,"YZ :", self.f.YZANGLE)
+        self.create_param_entry(table,4,"YW :", self.f.YWANGLE)
+        self.create_param_entry(table,5,"ZW :", self.f.ZWANGLE)
+                
     def create_formula_parameters_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
         self.notebook.append_page(table,gtk.Label("Formula"))
