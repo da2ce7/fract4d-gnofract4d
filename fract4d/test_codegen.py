@@ -974,6 +974,9 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
                "%s%s_re, %s%s_i, %s%s_j, %s%s_k);") % \
                (name,prefix,name,prefix,name,prefix,name,prefix,name)
 
+    def inspect_color(self,name,prefix="f"):
+        return self.inspect_hyper(name, prefix)
+    
     def predict(self,f,arg1=0,arg2=1):
         # compare our compiler results to Python stdlib
         try:
@@ -1056,7 +1059,21 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         # then a main body which passes in a set of different values
         # and construct a set of expected outputs to go with it.
         pass
-    
+
+    def test_colors(self):
+        '''Do a bunch of color-related bits and bobs'''
+
+        src = '''t {
+        init:
+        color black = rgb(0,0,0)
+        color something = rgb(0.4, 0.7, 0.3) 
+        }'''
+
+        check = "\n".join([self.inspect_color("black"),
+                           self.inspect_color("something")])
+        exp = "black = (0,0,0,1)\nsomething = (0.4,0.7,0.3,1)"
+        self.assertCSays(src,"init",check,exp)
+        
     def test_stdlib(self):
         '''This is the slowest test, due to how much compilation it does.
         Calls standard functions with a variety

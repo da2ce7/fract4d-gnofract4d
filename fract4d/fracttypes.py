@@ -62,7 +62,7 @@ _cTypeOfType = {
     Complex : "double",
     Hyper : "double",
     Bool : "int",
-    Color : "<Error>",
+    Color : "double",
     String : "<Error>"
     }
 
@@ -128,11 +128,7 @@ class Func:
         
             #print typed_fname
             self.genFunc = module.__dict__.get(typed_fname,typed_fname)
-        #print "set name to ", fname
-        #if fname == "sin":
-        #    import inspect
-        #    print inspect.stack()
-            
+
         self.cname = fname
         self.module = module
         self.fname = fname
