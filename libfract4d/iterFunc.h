@@ -35,6 +35,7 @@
 
 class iterFunc {
  public:
+    virtual ~iterFunc() {};
     // return the fragments of C++ code which we'll interpolate
     // into the template. They're added into the map 
     // map contains DEFINE-NAME -> CODE

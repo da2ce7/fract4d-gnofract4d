@@ -90,7 +90,7 @@ fractal::fractal()
     digits = 0;
 	
     cizer = colorizer_new(COLORIZER_RGB);
-    bailout_type=BAILOUT_MAG;
+    bailout_type=bailFunc_new(BAILOUT_MAG);
     colorFuncs[OUTER]=COLORFUNC_CONT;
     colorFuncs[INNER]=COLORFUNC_ZERO;
 }
@@ -100,6 +100,7 @@ fractal::~fractal()
 {
     colorizer_delete(&cizer);
     delete pIterFunc;
+    delete bailout_type;
 }
 
 
@@ -131,7 +132,7 @@ fractal::copy(const fractal& f)
     {
         colorFuncs[i] = f.colorFuncs[i];
     }
-    bailout_type = f.bailout_type;
+    set_bailFunc(f.get_bailFunc());
 }
 
 /* copy ctor */
@@ -209,7 +210,7 @@ fractal::operator==(const fractal& f) const
     if(!(*cizer == *f.cizer)) return false;
     if(colorFuncs[OUTER] != f.colorFuncs[OUTER]) return false;
     if(colorFuncs[INNER] != f.colorFuncs[INNER]) return false;    
-    if(bailout_type != f.bailout_type) return false;
+    if(bailout_type->type() != f.bailout_type->type()) return false;
     
     return true;
 }
@@ -222,7 +223,7 @@ fractal::set_fractal_type(const char *name)
 
     assert(pIterFunc > (void *)0x1000);
     pIterFunc->reset(params);
-    bailout_type = pIterFunc->preferred_bailfunc();
+    set_bailFunc(pIterFunc->preferred_bailfunc());
 }
 
 /* x & y vary by up to 50% of the MAGNITUDE */
@@ -678,18 +679,14 @@ fractal::calc(IFractalSite *site, IImage *im)
 void 
 fractal::recolor(IImage *im)
 {
-    bailFunc *b = bailFunc_new(bailout_type);
-
     pointFunc *p = pointFunc::create(
         pIterFunc,
-        b,
+        bailout_type,
         params[BAILOUT],
         tolerance(im),
         cizer,
         colorFuncs[OUTER],
         colorFuncs[INNER]);
-
-    delete b;
 
     int width = im->Xres();
     int height = im->Yres();
@@ -717,13 +714,14 @@ fractal::tolerance(IImage *im)
 e_bailFunc
 fractal::get_bailFunc() const
 {
-    return bailout_type;
+    return bailout_type->type();
 }
 
 void
 fractal::set_bailFunc(e_bailFunc bf)
 {
-    bailout_type = bf;
+    delete bailout_type;
+    bailout_type = bailFunc_new(bf);
 }
 
 void 

@@ -46,6 +46,9 @@ class bailFunc {
             map["NOPERIOD"] = period_ok() && !(flags & NO_PERIOD) ? "0" : "1";
         }
 
+    // what kind of bailFunc is this anyway? (for persistence)
+    virtual e_bailFunc type() const = 0;
+
     /* is it OK to unroll the loop with this bailout type? */
     virtual bool iter8_ok() const = 0;
 

@@ -46,7 +46,7 @@ private:
     // color params
     colorizer *cizer;
 
-    e_bailFunc bailout_type;    
+    bailFunc *bailout_type;    
     e_colorFunc colorFuncs[N_COLORFUNCS];
     iterFunc *pIterFunc;
 
