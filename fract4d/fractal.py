@@ -165,7 +165,8 @@ class T(FctUtils):
         self.maxiter = 256
         self.antialias = 1
         self.rot_by = math.pi/2
-
+        self.title = self.funcName
+        
         self.set_formula_defaults()
         
     def set_formula_defaults(self):
@@ -173,6 +174,8 @@ class T(FctUtils):
             return
         
         for (name,val) in self.formula.defaults.items():
+            # FIXME helpfile,helptopic,method,periodicity,precision,
+            #render,skew,stretch
             if name == "maxiter":
                 self.maxiter = int(val.value)
             elif name == "center" or name == "xycenter":
@@ -185,6 +188,8 @@ class T(FctUtils):
                 self.params[self.XYANGLE] = float(val.value)
             elif name == "magn":
                 self.params[self.MAGNITUDE] = float(val.value)
+            elif name == "title":
+                self.title = val.value
             else:
                 if hasattr(self,name.upper()):
                     self.params[getattr(self,name.upper())] = float(val.value)
