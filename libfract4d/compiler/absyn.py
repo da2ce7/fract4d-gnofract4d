@@ -3,16 +3,17 @@
 #from __future__ import generators
 import types
 import string
-
+import fracttypes
 
 class Node:
-    def __init__(self,type,children=None,leaf=None):
+    def __init__(self,type,children=None,leaf=None,datatype=None):
          self.type = type
          if children:
               self.children = children
          else:
               self.children = [ ]
          self.leaf = leaf
+         self.datatype = datatype
          
     def __str__(self):
         return "[%s : %s]" % (self.type , self.leaf)
@@ -144,7 +145,7 @@ def Decl(type, id, exp=None):
         l = None
     else:
         l = [exp]
-    return Node("decl", l , (id,type))
+    return Node("decl", l , id, fracttypes.typeOfStr(type))
 
 def Stmlist(id, list):
     return Node("stmlist", list, id)
@@ -159,10 +160,10 @@ def Formula(id, stmlist):
     return Node("formula", stmlist, id)
 
 def Param(id,settinglist,type):
-    return Node("param", settinglist, (id,type))
+    return Node("param", settinglist, id, fracttypes.typeOfStr(type))
 
 def Func(id,settinglist,type):
-    return Node("func", settinglist, (id,type))
+    return Node("func", settinglist, id, fracttypes.typeOfStr(type))
 
 def Heading(settinglist):
     return Node("heading", settinglist)

@@ -1,5 +1,6 @@
+# fract compiler datatypes
 
-# datatypes
+import string
 
 Int = 0
 Float = 1
