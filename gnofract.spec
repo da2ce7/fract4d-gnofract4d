@@ -1,4 +1,4 @@
-%define ver     1.7 
+%define ver     1.8 
 %define RELEASE 1
 %define prefix  /usr      
 
@@ -11,7 +11,7 @@ Group: Applications/Graphics
 Source: ftp://gnofract4d.sourceforge.net/gnofract4d-%{PACKAGE_VERSION}.tar.gz
 BuildRoot: /var/tmp/gnofract4d-%{PACKAGE_VERSION}-root
 URL: http://gnofract4d.sourceforge.net/
-Requires: gnome-libs >= 1.0.12  gcc-c++ >= 2.95
+Requires: gnome-libs >= 2.0.0  gcc-c++ >= 2.95
 Docdir: %{prefix}/doc
 Prefix: %prefix
 
@@ -34,6 +34,7 @@ make
 make prefix=$RPM_BUILD_ROOT%{prefix} install
 
 # hack to get gnome-config-relative stuff into build dir. ugh.
+# FIXME: shouldn't use gnome-config here - how to make a relocatable rpm?
 mkdir -p $RPM_BUILD_ROOT/%{prefix}/share/maps/gnofract4d
 mkdir -p $RPM_BUILD_ROOT/%{prefix}/share/pixmaps/gnofract4d
 cp `gnome-config --datadir`/maps/gnofract4d/* $RPM_BUILD_ROOT/%{prefix}/share/maps/gnofract4d
