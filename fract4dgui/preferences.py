@@ -99,8 +99,16 @@ class PrefsDialog(gtk.Dialog):
         
         self.create_image_options_page()
         self.create_compiler_options_page()
-        
+
+        self.set_size_request(500,-1)
         self.connect('response',self.onResponse)
+
+    def show_error(self,message):
+        d = gtk.MessageDialog(self, gtk.DIALOG_MODAL,
+                              gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+                              message)
+        d.run()
+        d.destroy()
 
     def create_width_entry(self):
         entry = gtk.Entry()
@@ -109,7 +117,15 @@ class PrefsDialog(gtk.Dialog):
 
         def set_prefs(*args):
             height = self.f.height
-            width = int(entry.get_text())
+            try:
+                width = int(entry.get_text())
+            except ValueError:
+                gtk.idle_add(
+                    self.show_error,
+                    "Invalid value for width: '%s'. Must be an integer" % \
+                    entry.get_text())
+                return False
+            
             if self.fix_ratio.get_active():
                 height = int(width * float(height)/self.f.width)
             self.prefs.set_size(width, height)
@@ -126,7 +142,15 @@ class PrefsDialog(gtk.Dialog):
             entry.set_text(self.prefs.get("display","height"))
 
         def set_prefs(*args):
-            height = int(entry.get_text())
+            try:
+                height = int(entry.get_text())
+            except ValueError:
+                gtk.idle_add(
+                    self.show_error,
+                    "Invalid value for height: '%s'. Must be an integer" % \
+                    entry.get_text())
+                return False
+                
             width = self.f.width
             if self.fix_ratio.get_active():
                 width = int(height * float(self.f.width)/self.f.height)

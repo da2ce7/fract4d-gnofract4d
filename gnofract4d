@@ -302,6 +302,13 @@ class MainWindow:
         else:
             return True
 
+    def show_warning(self,message):
+        d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
+                              gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                              message)
+        d.run()
+        d.destroy()
+        
     def show_error_message(self,message):
         d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                               gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
