@@ -86,6 +86,11 @@ def create_color(r,g,b):
         # old gtk doesn't have direct color constructor
         return gtk.gdk.color_parse("#%04X%04X%04X" % (r*65535,g*65535,b*65535))
 
+def floatColorFrom256(rgba):
+    return [ rgba[0]/255.0, rgba[1]/255.0, rgba[2]/255.0, rgba[3]/255.0]
+
+def updateColor256FromFloat(r,g,b,color):
+    return (int(r*255), int(g*255), int(b*255), color[3])
 
 class ColorButton:
     def __init__(self,rgb, changed_cb, is_left):

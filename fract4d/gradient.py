@@ -353,20 +353,6 @@ class Gradient:
             
         self.segments.pop(segindex)
         
-    def broken_getSegFromHandle(self, handle):
-        seg = handle/2
-        if handle/2.0 == seg:
-            return self.segments[seg], 'left'
-        else:
-            return self.segments[seg], 'right'
-    
-    def broken_getDataFromHandle(self, handle):
-        seg = handle/2
-        if handle/2.0 == seg:
-            return self.segments[seg].left
-        else:
-            return self.segments[seg].right
-
     def clamp(self,a,min,max):
         if a > max:
             return max
@@ -463,19 +449,8 @@ class Gradient:
                     self.segments[segindex+1].left.pos=self.segments[segindex+1].right.pos
                     seg.right.pos=self.segments[segindex+1].right.pos
 
-    def getCList(self):
-        return self.clist
-    def getOffset(self):
-        return self.offset
-    def setOffset(self, newoffset):
-        self.offset=newoffset
-    def getAlt(self):
-        return self.alternate
-    def setAlt(self, newalt):
-        self.alternate=newalt
-
-#These two are shtolen from libgimpcolor/gimpcolorspace.c
-#No longer! they are NOW adapted from the algorithms at http://www.cs.rit.edu/~ncs/color/t_convert.html
+# These two are adapted from the algorithms at
+# http://www.cs.rit.edu/~ncs/color/t_convert.html
 def RGBtoHSV(rgba):
     hsv = [0,0,0,rgb[3]]
     trgb = rgb[0:3]
