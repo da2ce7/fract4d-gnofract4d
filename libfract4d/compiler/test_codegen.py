@@ -290,6 +290,7 @@ a_im = t__temp3;
 goto t__end_init;''')
         
     def testSymbols(self):
+        z = self.codegen.symbols["z"] # ping z to get it in output list
         out = self.codegen.output_symbols({})
         l = [x for x in out if x.assem == "double z_re = 0.00000000000000000;"]
         self.failUnless(len(l)==1)

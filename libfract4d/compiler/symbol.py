@@ -84,10 +84,14 @@ class T(UserDict):
         self.nextTemp = 0
         
     def has_key(self,key):
-        return self.data.has_key(mangle(key))
+        if self.data.has_key(mangle(key)):
+            return True        
+        return self.default_dict.has_key(mangle(key))
 
     def is_user(self,key):
-        val = self.data[mangle(key)]
+        val = self.data.get(mangle(key),None)
+        if val == None:
+            val = self.default_dict.get(mangle(key))
         if isinstance(val,types.ListType):
             val = val[0]
         return val.pos != -1
@@ -96,38 +100,42 @@ class T(UserDict):
         ' returns mangled key even if var not present for test purposes'
         k = mangle(key)
         val = self.data.get(k,None)
+        if val == None:
+            val = self.default_dict.get(k,None)
         if isinstance(val,Alias):
             k = val.realName
         return k
     
     def __getitem__(self,key):
-        val = self.data[mangle(key)]
-        if isinstance(val,Alias):
-            key = val.realName
-            val = self.data[mangle(key)]            
+        val = self.data.get(mangle(key),None)
+        if val == None:
+            val = self.default_dict[mangle(key)]
+            if isinstance(val,Alias):
+                key = val.realName
+                val = self.default_dict[mangle(key)]
+            self.data[mangle(key)] = val
+            
         return val
     
     def __setitem__(self,key,value):
         k = mangle(key)
         if self.data.has_key(k):
-            if T.default_dict.has_key(k):
-                msg = "is predefined"
-            else:
-                l = self.data[k].pos
-                msg = ("was already defined on line %d" % l)
-            
+            l = self.data[k].pos
+            msg = ("was already defined on line %d" % l)
             raise KeyError, ("symbol '%s' %s" % (key,msg))
-
-        if string.find(k,"t__",0,3)==0:
+        elif T.default_dict.has_key(k):
+            msg = "is predefined"
+            raise KeyError, ("symbol '%s' %s" % (key,msg))
+        elif string.find(k,"t__",0,3)==0:
             raise KeyError, \
                 ("symbol '%s': no symbol starting with t__ is allowed" % key)
-
         self.data[mangle(key)] = value
+        
     def __delitem__(self,key):
         del self.data[mangle(key)]
         
     def reset(self):
-        self.data = copy.copy(T.default_dict)
+        self.data = {} #copy.copy(T.default_dict)
 
     def newLabel(self):
         label = "label%d" % self.nextlabel
