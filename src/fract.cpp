@@ -654,7 +654,7 @@ fractal::recolor(image *im)
         for( int j = 0; j < width; ++j)
         {
             rgb_t result = p->recolor(im->getIter(i,j));
-            im->put(j,i,result);
+            im->put(i,j,result);
         }
     }
 
