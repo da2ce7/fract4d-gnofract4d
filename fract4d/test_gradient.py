@@ -8,6 +8,7 @@ import StringIO
 import testbase
 
 import gradient
+import fract4dc
 
 from gradient import Blend, ColorMode
 
@@ -25,12 +26,58 @@ class Test(testbase.TestBase):
     def tearDown(self):
         pass
 
-    def testLoad(self):
+    def testCreate(self):
         g = gradient.Gradient()
 
         self.assertEqual(len(g.segments), 1)
         self.assertWellFormedGradient(g)
 
+    def checkColorMapAndGradientEquivalent(self,colorlist):
+        grad = gradient.Gradient()
+        grad.load_list(colorlist)
+
+        cmap = fract4dc.cmap_create(colorlist)
+        for i in xrange(1000):
+            fi = i / 1000.0
+            (r,g,b,a) = grad.get_color_at(fi)
+            cmap_color = fract4dc.cmap_lookup(cmap, fi)
+            grad_color = (int(r*255.0), int(g*255.0),
+                          int(b*255.0), int(a*255.0))
+            self.assertNearlyEqual(
+                grad_color,
+                cmap_color,
+                "colorlist(%s) = %s but gradient(%s) = %s" % \
+                (fi, cmap_color, fi, grad_color), 1.5)
+            
+    def testFromColormap(self):
+        # check that creating a gradient from a colormap produces the same
+        # output
+        colorlist = [(0.0, 255,255,255, 255), (1.0, 0,0,0,255)]
+        g = gradient.Gradient()
+        g.load_list(colorlist)
+        self.assertEqual(len(g.segments),1)
+        self.assertEqual(g.segments[0].left_color, self.white)
+        self.assertEqual(g.segments[0].right_color, self.black)
+
+        self.checkColorMapAndGradientEquivalent(colorlist)
+        
+        # create a longer one
+        colorlist = [
+            (0.0, 255,0,0, 255),
+            (0.5, 0,255,0, 255),
+            (1.0, 0, 0, 255, 255)]
+        g = gradient.Gradient()
+        g.load_list(colorlist)
+        self.assertWellFormedGradient(g)
+        self.assertEqual(len(g.segments),2)
+        self.assertEqual(g.segments[0].left_color, self.red)
+        self.assertEqual(g.segments[0].right_color, self.green)
+        self.assertEqual(g.segments[1].left, 0.5)
+        self.assertEqual(g.segments[1].left_color, self.green)
+        self.assertEqual(g.segments[1].right_color, self.blue)
+
+        self.checkColorMapAndGradientEquivalent(colorlist)
+                
     def create_rgb_gradient(self):
         # make a simple gradient which goes from R -> G -> B
         g = gradient.Gradient()
@@ -374,9 +421,8 @@ Name: Wood 2
         self.assertWellFormedGradient(g)
         self.assertEqual(g.segments[1].left, 1.0/3.0)
         
-    def assertNearlyEqual(self,a,b,msg):
+    def assertNearlyEqual(self,a,b,msg, epsilon=1.0e-12):
         # check that each element is within epsilon of expected value
-        epsilon = 1.0e-12
         for (ra,rb) in zip(a,b):
             d = abs(ra-rb)
             self.failUnless(d < epsilon,msg)

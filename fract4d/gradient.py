@@ -198,7 +198,24 @@ class Gradient:
         
         self.segments = new_segments
         self.name = name
-        
+
+    def load_list(self,l):
+        # a colorlist is a simplified gradient, of the form
+        # (index, r, g, b, a) (colors are 0-255 ints)
+
+        # each colorlist entry is mapped to a segment endpoint
+        new_segments = []
+        last_index = 0.0
+        last_color = [0.0,0.0,0.0,1.0]
+        for (index,r,g,b,a) in l:
+            color = [r/255.0, g/255.0, b/255.0, a/255.0]
+            if index != last_index:
+                new_segments.append(
+                    Segment(last_index, last_color, index, color))
+            last_color = color
+            last_index = index
+        self.segments = new_segments
+    
     def broken_compute(self):
         num=255
         detail=1.0/num
