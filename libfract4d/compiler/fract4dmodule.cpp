@@ -201,7 +201,9 @@ pf_calc(PyObject *self, PyObject *args)
     }
 
     pfh = (struct pfHandle *)PyCObject_AsVoidPtr(pyobj);
+#ifdef DEBUG_THREADS
     printf("%p : PF : CALC\n",pfh);
+#endif
     pfh->pfo->vtbl->calc(pfh->pfo,params,
 		    nIters,nNoPeriodIters,
 		    x,y,aa,
@@ -580,13 +582,17 @@ public:
 
     virtual void interrupt() 
 	{
+#ifdef DEBUG_THREADS
 	    printf("%p : CA : INT(%d)\n", this, tid);
+#endif
 	    interrupted = true;
 	}
     
     virtual void start(calc_args *params_) 
 	{
+#ifdef DEBUG_THREADS
 	    printf("clear interruption\n");
+#endif
 	    interrupted = false;
 	    if(params != NULL)
 	    {
@@ -597,7 +603,9 @@ public:
 
     virtual void set_tid(int tid_) 
 	{
+#ifdef DEBUG_THREADS
 	    printf("%p : CA : SET(%d)\n", this,tid_);
+#endif
 	    tid = tid_;
 	}
 
@@ -605,7 +613,9 @@ public:
 	{
 	    if(tid != 0)
 	    {
+#ifdef DEBUG_THREADS
 		printf("%p : CA : WAIT(%d)\n", this,tid);
+#endif
 		pthread_join(tid,NULL);
 	    }
 	}
@@ -739,11 +749,17 @@ calculation_thread(void *vdata)
 {
     calc_args *args = (calc_args *)vdata;
 
+#ifdef DEBUG_THREADS
     printf("%p : CA : CALC(%d)\n",args,pthread_self());
+#endif
+
     calc(args->params,args->eaa,args->maxiter,
 	 args->nThreads,args->pfo,args->cmap,
 	 args->auto_deepen,args->im,args->site);
+
+#ifdef DEBUG_THREADS 
     printf("%p : CA : ENDCALC(%d)\n",args,pthread_self());
+#endif
 
     return NULL;
 }
@@ -860,13 +876,21 @@ image_buffer(PyObject *self, PyObject *args)
     PyObject *pyim;
     PyObject *pybuf;
 
-    if(!PyArg_ParseTuple(args,"O",&pyim))
+    int x=0,y=0;
+    if(!PyArg_ParseTuple(args,"O|ii",&pyim,&x,&y))
     {
 	return NULL;
     }
+
     image *i = (image *)PyCObject_AsVoidPtr(pyim);
 
-    pybuf = PyBuffer_FromReadWriteMemory(i->getBuffer(),i->bytes());
+    if(x < 0 || x >= i->Xres() || y < 0 || y >= i->Yres())
+    {
+	PyErr_SetString(PyExc_ValueError,"request for buffer outside image bounds");
+	return NULL;
+    }
+    int offset = 3 * (y * i->Xres() + x);
+    pybuf = PyBuffer_FromReadWriteMemory(i->getBuffer()+offset,i->bytes()-offset);
     Py_XINCREF(pybuf);
 
     return pybuf;
