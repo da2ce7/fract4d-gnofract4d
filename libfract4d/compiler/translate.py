@@ -268,62 +268,65 @@ class T:
         op = self.findOp(node,children)
         children = self.coerceList(op.args,children)
         return ir.Unop(node.leaf, children, node, op.ret)
-    
+
+    def shortcut(self, node):
+        # convert into an if-expression
+        trueDest = self.newLabel(node)
+        falseDest = self.newLabel(node)
+        doneDest = self.newLabel(node)
+        temp = self.newTemp(node)
+        
+        node.children[0] = self.makeCompare(node.children[0])
+
+        children = map(lambda n : self.exp(n) , node.children)        
+        op = self.findOp(node,children)
+        children = self.coerceList(op.args,children)
+            
+        # a && b = eseq(if(a) then t = (bool)b else t = false; t)
+        #        = eseq(cjump(==,a,0,td,fd),
+        #               lab(td),move(t,b),jmp(end),
+        #               lab(fd),move(t,0),jmp(end),
+        #               lab(end), t)
+        if node.leaf == "&&":
+            # code to calc B and store in temp
+            trueBlock = ir.Seq(
+                [trueDest, ir.Move(temp, children[1],node, node.datatype),
+                 ir.Jump(doneDest.name, node)], node)
+            
+            # code to set temp to false
+            falseBlock = ir.Seq(
+                [falseDest,
+                 ir.Move(temp, ir.Const(0,Bool,node),node, node.datatype),
+                 ir.Jump(doneDest.name, node)], node)
+            
+        else:
+            # a || b = eseq(if(a) then t = true else t = (bool)b; t)
+
+            # code to set temp to true
+            trueBlock = ir.Seq(
+                [trueDest,
+                 ir.Move(temp, ir.Const(1,Bool,node),node, node.datatype),
+                 ir.Jump(doneDest.name, node)], node)
+
+            # set temp to (bool)b
+            falseBlock = ir.Seq(
+                [falseDest,
+                 ir.Move(temp, children[1],node, node.datatype),
+                 ir.Jump(doneDest.name, node)], node)
+            
+        # construct actual if operation
+        test = ir.CJump(node.children[0].leaf,
+                        node.children[0].children[0],
+                        node.children[0].children[1],
+                        trueDest.name, falseDest.name, node)
+        
+        r = ir.ESeq([test, trueBlock, falseBlock, doneDest],
+                    temp, node, op.ret)
+        return r
+        
     def binop(self, node):
-
-        if self.isShortcut(node):            
-            # convert into an if-expression
-            trueDest = self.newLabel(node)
-            falseDest = self.newLabel(node)
-            doneDest = self.newLabel(node)
-            temp = self.newTemp(node)
-            
-            node.children[0] = self.makeCompare(node.children[0])
-
-            children = map(lambda n : self.exp(n) , node.children)        
-            op = self.findOp(node,children)
-            children = self.coerceList(op.args,children)
-            
-            # a && b = eseq(if(a) then t = (bool)b else t = false; t)
-            #        = eseq(cjump(==,a,0,td,fd),
-            #               lab(td),move(t,b),jmp(end),
-            #               lab(fd),move(t,0),jmp(end),
-            #               lab(end), t)
-            if node.leaf == "&&":
-                # code to calc B and store in temp
-                trueBlock = ir.Seq(
-                    [trueDest, ir.Move(temp, children[1],node, node.datatype),
-                     ir.Jump(doneDest.name, node)], node)
-
-                # code to set temp to false
-                falseBlock = ir.Seq(
-                    [falseDest,
-                     ir.Move(temp, ir.Const(0,Bool,node),node, node.datatype),
-                     ir.Jump(doneDest.name, node)], node)
-
-            else:
-                # a || b = eseq(if(a) then t = true else t = (bool)b; t)
-
-                # code to set temp to true
-                trueBlock = ir.Seq(
-                    [trueDest,
-                     ir.Move(temp, ir.Const(1,Bool,node),node, node.datatype),
-                     ir.Jump(doneDest.name, node)], node)
-
-                # set temp to (bool)b
-                falseBlock = ir.Seq(
-                    [falseDest,
-                     ir.Move(temp, children[1],node, node.datatype),
-                     ir.Jump(doneDest.name, node)], node)
-
-            # construct actual if operation
-            test = ir.CJump(node.children[0].leaf,
-                            node.children[0].children[0],
-                            node.children[0].children[1],
-                            trueDest.name, falseDest.name, node)
-
-            r = ir.ESeq([test, trueBlock, falseBlock, doneDest], temp, node, op.ret)
-            return r
+        if self.isShortcut(node):
+            return self.shortcut(node)
         else:
             children = map(lambda n : self.exp(n) , node.children)        
             op = self.findOp(node,children)
