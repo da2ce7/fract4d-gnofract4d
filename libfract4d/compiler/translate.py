@@ -391,7 +391,8 @@ class T:
             self.warning(
                 "Uninitialized variable %s referenced on line %d" % \
                 (node.leaf, node.pos))
-            self.symbols[node.leaf] = Var(fracttypes.Complex, 0.0, node.pos)
+            self.symbols[node.leaf] = Var(
+                fracttypes.Complex, default_value(Complex), node.pos)
             node.datatype = fracttypes.Complex
 
         return ir.Var(node.leaf, node, node.datatype)

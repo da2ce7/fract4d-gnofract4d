@@ -322,6 +322,17 @@ goto t__end_init;''')
         self.assertCSays(src,"init","printf(\"(%g,%g)\\n\", z_re, z_im);",
                          "(0,0)")
 
+    def testParams(self):
+        # this ought to fail, but more cleanly
+        src = 't_cp0{\ninit: complex @p = (2,1)\n}'
+        self.assertCSays(src,"init",self.inspect_complex("t__a_p"),
+                         "t__a_p = (2,1)")
+
+    def testUseBeforeAssign(self):
+        src = 't_uba0{\ninit: z = z - x\n}'
+        self.assertCSays(src,"init",self.inspect_complex("z"),
+                         "z = (0,0)")
+        
     def inspect_complex(self,name):
         return "printf(\"%s = (%%g,%%g)\\n\", %s_re, %s_im);" % (name,name,name)
     

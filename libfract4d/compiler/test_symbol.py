@@ -53,6 +53,10 @@ class SymbolTest(unittest.TestCase):
     def testStartsWithHash(self):
         self.assertRaises(KeyError,self.t.__setitem__,"#wombat",1)
 
+    def testAt(self):
+        self.t["@foo"] = Var(Int, 1, 0)
+        self.assertEqual(self.t.realName("@foo"), "t__a_foo")
+        
     def testZ(self):
         self.assertEqual(self.t["z"].type, Complex)
 
