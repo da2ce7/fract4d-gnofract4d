@@ -236,7 +236,7 @@ class Gradient:
         new_segments = []
         last_index = 0.0
         last_color = [0.0,0.0,0.0,1.0]
-        before_last_color = [-1.0, -1.0 , -1.0, -1.0] # meaningless color
+        before_last_color = [-1000.0, -1000.0 , -1000.0, -1000.0] # meaningless color
         before_last_index = -1.0
         
         for (index,r,g,b,a) in l:

@@ -193,10 +193,10 @@ class Colorizer(FctUtils):
         for line in mapfile:
             m = rgb_re.match(line)
             if m != None:
-                (r,g,b) = (int(m.group(1)),
-                           int(m.group(2)),
-                           int(m.group(3)))
- 
+                (r,g,b) = (min(255, int(m.group(1))),
+                           min(255, int(m.group(2))),
+                           min(255, int(m.group(3))))
+                
                 if i == 0:
                     # first color is inside solid color
                     self.solids[0] = (r,g,b,255)
