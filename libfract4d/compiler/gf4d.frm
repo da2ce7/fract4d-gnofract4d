@@ -167,6 +167,6 @@ loop:
 	;z = z - (pow(z,@p1) - 1.0)/ (@p1 * pow(z,nm1))
 	z = z - (z*z*z - 1.0)/(3.0 * z * z)
 bailout:
-	|z - last| > 1.0e9
+	|z - last| > 1.0e-9
 }
 
