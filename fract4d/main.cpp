@@ -4,12 +4,8 @@
 
 #include "image.h"
 
-void err_cb(void *data, const char *msg, const char *detail)
-{
-    fprintf(stderr,"Compiler error: %s\nDetails:%s\n", msg, detail);
-}
 
-class callbacks : public IFractalSite
+class callbacks : public IFractalSite, public ICompilerSite
 {
     // the parameters have changed (usually due to auto-deepening)
     virtual void parameters_changed() {};
@@ -23,16 +19,21 @@ class callbacks : public IFractalSite
     virtual void status_changed(int status_val) {
 	printf("status %d\n",status_val);	
     };
+
+    // compiler warns us of an error
+    void err_callback(const char *msg, const char *detail) {
+	fprintf(stderr,"Compiler error: %s\nDetails:%s\n", msg, detail);
+    }
+
 };
 
 int main(int argc, char **argv)
 {
-    IFractal *f = IFractal::create();
-    g_pCompiler = new compiler();
-    g_pCompiler->set_err_callback(err_cb, NULL);
-    g_pCompiler->set_cache_dir(".");
-    image *im = new image();
     IFractalSite *site = new callbacks();
+    IFractal *f = IFractal::create();
+    g_pCompiler = ICompiler::create((ICompilerSite *)site);
+    //g_pCompiler->set_cache_dir(".");
+    image *im = new image();
 
     im->set_resolution(640,480);
 

@@ -28,51 +28,36 @@
 
 #include "pthread.h"
 
-class compiler
+// implemented by client 
+class ICompilerSite
 {
-    std::string cc;
-    void *err_callback_data;
-    void (*err_callback)(void *,const char *, const char *);
-public:
-    void set_err_callback(void (*cb)(void *, const char *, const char *), 
-			  void *cbdata) 
-	{
-	    err_callback = cb; err_callback_data = cbdata;
-	}
-    void set_cc(const char *s);
-    void set_cache_dir(const char *s); 
-    const char *get_cc() { return cc.c_str(); }
-    std::string flags; 
-    std::string in;
-    std::string out;
+ public:
+    // called by compiler to indicate a compile error occurred
+    virtual void err_callback(const char *msg, const char *details) = 0;
+    virtual ~ICompilerSite() {};
+};
 
-    compiler();
+class ICompiler
+{
+ public:
+    static ICompiler *create(ICompilerSite *pcs);
 
-    void *getHandle(std::map<std::string,std::string> defn_map);
+    virtual void set_cache_dir(const char *dir) = 0;
+    virtual void *getHandle(std::map<std::string,std::string> defn_map) = 0;
 
- private:
-    void on_error(std::string message, std::string extra_info) { 
-        assert(err_callback != NULL); 
-        (*err_callback)(err_callback_data, message.c_str(), extra_info.c_str()); 
-    }
-    void on_error(std::string message) {
-	assert(err_callback != NULL);
-	(*err_callback)(err_callback_data,message.c_str(), NULL);
-    }
-    typedef std::map<std::string,std::string> t_cache;
-    t_cache cache;
-    int next_so;
-    pthread_mutex_t cache_lock;
-    std::string so_cache_dir;
+    virtual void set_cc(const char *s) = 0;
+    virtual const char *get_cc() = 0;
 
-    void *compile(std::string commandLine);
-    std::string Dstring(std::map<std::string,std::string> defn_map);
+    virtual void set_in(const char *s) = 0;
+    virtual const char *get_in() = 0;
 
-    void invalidate_cache();
-    std::string flow(std::string in);
+    virtual void set_flags(const char *flags) = 0;
+    virtual const char *get_flags() = 0;
+
+    virtual ~ICompiler() {};
 };
 
 // pointer to global compiler instance
-extern compiler *g_pCompiler;
+extern ICompiler *g_pCompiler;
 
 #endif /* COMPILER_H_ */

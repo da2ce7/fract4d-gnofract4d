@@ -52,6 +52,17 @@ typedef struct {
     IFractal *new_;
 } undo_action_data ;
 
+class compiler_callbacks : public ICompilerSite
+{
+    model_t *m;
+public:
+    compiler_callbacks(model_t *m_) { m = m_; };
+
+    void err_callback(const char *msg, const char *details) {
+	model_on_error(m,msg,details);
+    }
+};
+
 /* real definition */
 struct _model {
     GundoSequence *undo_seq;
@@ -63,6 +74,7 @@ struct _model {
     GtkWidget *topWidget;
     GtkWidget *app;
     IFractal *old_fract;
+    compiler_callbacks *pcc;
 
     bool explore_mode;
     double weirdness;
@@ -245,7 +257,7 @@ static void fatal_config_error(char *msg)
 }
 
 void
-model_init_compiler(model_t *m,compiler *pc)
+model_init_compiler(model_t *m, ICompiler *pc)
 {
     gchar *template_location = 
         gnome_config_get_string(PACKAGE "/Compiler/template");
@@ -264,7 +276,7 @@ model_init_compiler(model_t *m,compiler *pc)
     {
 	fatal_config_error(_("Can't find compiler_template.cpp. Please reinstall."));
     }
-    pc->in = template_location;
+    pc->set_in(template_location);
 
     g_free(template_location);
 
@@ -291,8 +303,6 @@ model_init_compiler(model_t *m,compiler *pc)
         g_get_home_dir(),".gnome/" PACKAGE "-cache", NULL);
     pc->set_cache_dir(cache_dir);
     g_free(cache_dir);
-
-    pc->set_err_callback((void (*)(void *,const char *, const char *))model_on_error, (void *)m);
 }
 
 void 
@@ -381,7 +391,7 @@ model_get_compiler_location(model_t *m)
 void
 model_set_compiler_flags(model_t *m, const char *flags, bool save)
 {
-    g_pCompiler->flags = flags;
+    g_pCompiler->set_flags(flags);
     if(save)
     {
         gnome_config_set_string(PACKAGE "/Compiler/flags", flags);
@@ -391,7 +401,7 @@ model_set_compiler_flags(model_t *m, const char *flags, bool save)
 const char *
 model_get_compiler_flags(model_t *m)
 {
-    return g_pCompiler->flags.c_str();
+    return g_pCompiler->get_flags();
 }
 
 model_t *
@@ -399,7 +409,8 @@ model_new(void)
 {
     model_t *m = new model_t;
 
-    g_pCompiler = new compiler();
+    m->pcc = new compiler_callbacks(m);
+    g_pCompiler = ICompiler::create(m->pcc);
     model_init_compiler(m,g_pCompiler);
 
     m->fract = GF4D_FRACTAL(gf4d_fractal_new());

@@ -40,16 +40,74 @@
 #include <iostream>
 #include <sstream>
 
-// global compiler instance
-compiler *g_pCompiler;
 
-compiler::compiler()
+class compiler : public ICompiler
+{
+    std::string cc;
+    void *err_callback_data;
+    ICompilerSite *pcs;
+    std::string flags; 
+    std::string in;
+    std::string out;
+
+public:
+
+    compiler(ICompilerSite *pcs);
+
+    void set_cc(const char *s);
+    const char *get_cc() { return cc.c_str(); }
+
+    void set_cache_dir(const char *s); 
+
+    void set_in(const char *s) { in = s; };
+    const char *get_in() { return in.c_str(); };
+
+    void set_flags(const char *flags_) { flags = flags_; };
+    const char *get_flags() { return flags.c_str(); };
+
+
+    void *getHandle(std::map<std::string,std::string> defn_map);
+
+ private:
+    void on_error(std::string message, std::string extra_info) { 
+        assert(pcs != NULL); 
+        pcs->err_callback(message.c_str(), extra_info.c_str()); 
+    }
+    void on_error(std::string message) {
+	assert(pcs != NULL);
+	pcs->err_callback(message.c_str(), NULL);
+    }
+    typedef std::map<std::string,std::string> t_cache;
+    t_cache cache;
+    int next_so;
+    pthread_mutex_t cache_lock;
+    std::string so_cache_dir;
+
+    void *compile(std::string commandLine);
+    std::string Dstring(std::map<std::string,std::string> defn_map);
+
+    void invalidate_cache();
+    std::string flow(std::string in);
+};
+
+// global compiler instance
+ICompiler *g_pCompiler;
+
+ICompiler *
+ICompiler::create(ICompilerSite *pcs)
+{
+    return new compiler(pcs);
+}
+
+compiler::compiler(ICompilerSite *pcs_)
 {
     pthread_mutex_init(&cache_lock,NULL);
     flags = "-shared -O3 -ffast-math";
     in = "compiler_template.cpp";
     next_so = 0;    
+    so_cache_dir = "/tmp";
     set_cc("g++");
+    pcs = pcs_;
 }
 
 void

@@ -48,7 +48,7 @@ fractFunc::fractFunc(
 
 fractFunc::~fractFunc()
 {
-    delete worker;
+
 }
 
 void 
