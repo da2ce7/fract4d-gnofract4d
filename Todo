@@ -4,11 +4,17 @@ browser.py: 269 (use ComboBox)
 gtkfractal.py: 307
 preferences.py: 251
 
+done in 2.4:
+* B	error messages not showing up
+* W	cosxx function
+* B	missing power in Newton function
+* BB	fixed formula load
+
 todo for 2.4
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
 
-* B	error messages not showing up
+* B	compiler error on start won't let gf4d open
 * B	make transition <-> explorer mode less slow + ugly
 * WW	cmap browser
 * WW	cmap editor - brightness/contrast/gamma/HSV/RGB
@@ -102,10 +108,6 @@ differences from fractint:
 * B	fn(z)+c: acos, acosh - think Fractint may be wrong
 * B	fn(z*z)+c : acos, acosh 
 * W	fractint-builtins.frm
-
-done in 2.4:
-* W	cosxx function
-* B	missing power in Newton function
 
 done in 2.2:
 * W	speed up 'instant recolor'

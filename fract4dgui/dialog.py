@@ -18,7 +18,7 @@ class T(gtk.Dialog):
     def clear_global(self,*args):
         global _dialogs
         _dialogs[self.__class__] = None
-
+    
     def reveal(type,*args):
         global _dialogs
         if not _dialogs.get(type):
@@ -36,3 +36,7 @@ class T(gtk.Dialog):
             self.hide()
         else:
             print "unexpected response %d" % id
+
+def get(type):
+    global _dialogs
+    return _dialogs.get(type)

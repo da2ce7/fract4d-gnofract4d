@@ -8,6 +8,7 @@ import test_preferences
 import test_fourway
 import test_angle
 import test_hig
+import test_browser
 
 def suite():
     tests = (
@@ -17,7 +18,8 @@ def suite():
         test_preferences.suite(),
         test_fourway.suite(),
         test_angle.suite(),
-        test_hig.suite())
+        test_hig.suite(),
+        test_browser.suite())
     return unittest.TestSuite(tests)
 
 def main():
