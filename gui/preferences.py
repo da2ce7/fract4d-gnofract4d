@@ -30,7 +30,8 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
 
         ConfigParser.ConfigParser.__init__(self)
 
-        self.read(os.path.expanduser(file))
+        self.file = os.path.expanduser(file)
+        self.read(self.file)
 
         # we don't use the normal ConfigParser default stuff because
         # we want sectionized defaults
@@ -63,6 +64,9 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
     def changed(self):
         self.emit('preferences-changed')
 
+    def save(self):
+        self.write(open(self.file,"w"))
+    
 # explain our existence to GTK's object system
 gobject.type_register(Preferences)
 
