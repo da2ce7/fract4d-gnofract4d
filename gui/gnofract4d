@@ -42,7 +42,6 @@ class MainWindow:
         self.compiler = g_comp
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
-        self.window.set_title('Gnofract 4D')
         
         self.accelgroup = gtk.AccelGroup()
         self.window.add_accel_group(self.accelgroup)
@@ -50,13 +49,13 @@ class MainWindow:
         
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
-
+        
         self.f = gtkfractal.T(self.compiler)
 
         if len(sys.argv) > 1:
             self.load(sys.argv[1])
 
-
+        self.set_filename(None)
         self.model = model.Model(self.f)
 
         preferences.userPrefs.connect('preferences-changed',
@@ -116,6 +115,14 @@ class MainWindow:
     def on_fractal_change(self,object):
         self.f.draw_image()
 
+    def set_filename(self,name):
+        self.filename = name
+        if self.filename == None:
+            title = "(Untitled %s)" % self.f.funcName
+        else:
+            title = self.filename
+        self.window.set_title(title)
+        
     def on_key_press(self, event, *args):
         print "key:", event.keyval
         
@@ -312,6 +319,7 @@ class MainWindow:
     def load(self,file):
         try:
             self.f.loadFctFile(open(file))
+            self.set_filename(file)
             return True
         except Exception, err:
             self.show_error_message("Error opening %s: '%s'" % (file, err))
