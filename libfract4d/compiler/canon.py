@@ -171,7 +171,50 @@ class T:
                     blocks.append(block)
                     block = []
         return blocks
+
+    def successors(self, block):
+        jump = block[-1]
+        if isinstance(jump,ir.Jump):
+            return [jump.dest]
+        else:
+            return [jump.falseDest, jump.trueDest]
+
+    def add_block_to_trace(self, trace, block):
+        # TODO: remove pointless jumps, arrange cjumps
+        trace += block
+
+    def marked(self,hash,name):
+        return not hash.has_key(name) # name of label at start
+
+    def mark(self,hash,block):
+        del hash[block[0].name]
+
+    def hash_of_blocks(self,blocks):
+        hash = {}
+        for b in blocks:
+            hash[b[0].name] = b
+        return hash
     
+    def schedule_trace(self,blocks):
+        # converts a list of basic blocks into a linear trace,
+        # where every cjump is followed by its false case
+        
+        # we don't try to make an optimal trace - any one will do
+        marks = self.hash_of_blocks(blocks)
+        queue = copy.copy(blocks)
+        trace = []
+        while queue != []:
+            b = queue[0]
+            del queue[0]
+            while not self.marked(marks, b[0].name):
+                self.mark(marks,b)
+                self.add_block_to_trace(trace,b)
+                for succ in self.successors(b):
+                    if not self.marked(marks,succ):
+                        b = hash_of_blocks[succ]
+                        break
+        return trace
+                
 def commutes(t1,t2):
     '''true iff it doesn\'t matter which of t1 and t2 is done first'''
     # t1, t2 may be lists
