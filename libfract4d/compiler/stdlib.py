@@ -165,6 +165,13 @@ def sqrt_f_f(gen,t,srcs):
 def sin_f_f(gen,t,srcs):
     return gen.emit_func('sin', srcs, Float)
 
+def sin_c_c(gen,t,srcs):
+    # sin(a+ib) = (sin(a) * cosh(b), cos(a) * sinh(b))
+    a = srcs[0].re ; b = srcs[0].im
+    re = gen.emit_binop('*', [ sin_f_f(gen,t,[a]), cosh_f_f(gen,t,[b])], Float)
+    im = gen.emit_binop('*', [ cos_f_f(gen,t,[a]), sinh_f_f(gen,t,[b])], Float)
+    return ComplexArg(re,im)
+
 def cos_f_f(gen,t,srcs):
     return gen.emit_func('cos', srcs, Float)
 
