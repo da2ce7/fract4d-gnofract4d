@@ -290,6 +290,9 @@ cmap_pylookup(PyObject *self, PyObject *args)
 }
 
 
+#define GET_LOCK PyEval_RestoreThread(state)
+#define RELEASE_LOCK state = PyEval_SaveThread()
+
 class PySite :public IFractalSite
 {
 public:
@@ -305,31 +308,38 @@ public:
 
     virtual void parameters_changed()
 	{
+	    GET_LOCK;
 	    PyObject *ret = PyObject_CallMethod(
 		site,
 		"parameters_changed",
 		NULL);
 	    Py_XDECREF(ret);
+	    RELEASE_LOCK;
 	}
     
     // we've drawn a rectangle of image
     virtual void image_changed(int x1, int y1, int x2, int y2)
 	{
+	    GET_LOCK;
 	    PyObject *ret = PyObject_CallMethod(
 		site,
 		"image_changed",
 		"iiii",x1,y1,x2,y2);
 	    Py_XDECREF(ret);
+	    RELEASE_LOCK;
 	}
     // estimate of how far through current pass we are
     virtual void progress_changed(float progress)
 	{
 	    double d = (double)progress;
+
+	    GET_LOCK;
 	    PyObject *ret = PyObject_CallMethod(
 		site,
 		"progress_changed",
 		"d",d);
 	    Py_XDECREF(ret);
+	    RELEASE_LOCK;
 	}
     // one of the status values above
     virtual void status_changed(int status_val)
@@ -337,6 +347,7 @@ public:
 	    assert(this != NULL && status_changed_cb != NULL);
 	    //printf("sc: %p %p\n",this,this->status_changed_cb);
 
+	    GET_LOCK;
 	    PyObject *ret = PyObject_CallMethod(
 		site,
 		"status_changed",
@@ -348,12 +359,13 @@ public:
 		PyErr_Print();
 	    }
 	    Py_XDECREF(ret);
-
+	    RELEASE_LOCK;
 	}
 
     // return true if we've been interrupted and are supposed to stop
     virtual bool is_interrupted()
 	{
+	    GET_LOCK;
 	    PyObject *pyret = PyObject_CallMethod(
 		site,
 		"is_interrupted",NULL);
@@ -367,6 +379,7 @@ public:
 	    }
 
 	    Py_XDECREF(pyret);
+	    RELEASE_LOCK;
 	    return ret;
 	}
 
@@ -379,6 +392,7 @@ public:
 	{
 	    if(has_pixel_changed_method)
 	    {
+		GET_LOCK;
 		PyObject *pyret = PyObject_CallMethod(
 		    site,
 		    "pixel_changed",
@@ -390,6 +404,7 @@ public:
 		   r,g,b,a);
 
 		Py_XDECREF(pyret);
+		RELEASE_LOCK;
 	    }
 	};
 
@@ -398,6 +413,8 @@ public:
 	    //printf("dtor %p\n",this);
 	    Py_DECREF(site);
 	}
+
+    PyThreadState *state;
 private:
     PyObject *site;
     bool has_pixel_changed_method;
@@ -465,8 +482,9 @@ pycalc(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    //printf("pycalc: %p\n",site);
+    ((PySite *)site)->state = PyEval_SaveThread();
     calc(params,eaa,maxiter,nThreads,pfo,cmap,auto_deepen,im,site);
+    PyEval_RestoreThread(((PySite *)site)->state);
 
     Py_INCREF(Py_None);
     return Py_None;

@@ -334,6 +334,11 @@ class T(FctUtils):
             
             line = f.readline()
 
+def Threaded(T):
+    def __init__(self,comp):
+        T.__init__(comp)
+        
+    
 if __name__ == '__main__':
     import sys
     import fc
