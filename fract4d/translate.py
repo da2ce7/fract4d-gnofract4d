@@ -187,16 +187,19 @@ class TBase:
         # FIXME should compute full constant expressions
         if node.type == "const":
             return self.const(node)
-        elif node.type == "binop" and \
-             node.leaf == "complex" and \
-             node.children[0].type == "const" and \
-             node.children[1].type == "const":
+        elif node.type == "binop" and node.leaf == "complex": 
             return ir.Const(
-                [self.const(node.children[0]),self.const(node.children[1])],
-                node,fracttypes.Complex)        
+                [self.const_exp(node.children[0]),
+                 self.const_exp(node.children[1])],
+                node,fracttypes.Complex)
+        elif node.type == "unop" and node.leaf == "t__neg":
+            val = self.const_exp(node.children[0])
+            val.value = -val.value
+            return val
         elif node.type == "string":
             return self.string(node)
         else:
+            print node.pretty()
             self.error("%d: only constants can be used in default sections" %
                        node.pos)
 

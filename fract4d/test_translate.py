@@ -161,13 +161,26 @@ class TranslateTest(testbase.TestBase):
         foo = t.symbols["@foo"]
         self.assertEqual(foo.default.value[0].value,1.0)
         self.assertEqual(foo.default.value[1].value,2.0)
+
+    def disable_testMixedImplicitAndNamedParams(self):
+        t = self.translate('''t_mix {
+        init:
+        x = @p1 + @myparam1 + @myparam2
+        default:
+        param myparam2
+        default = (1.0,2.0)
+        endparam
+        }''')
+
+        print t.symbols.parameters(True)
+        print t.symbols.default_params()
         
     def testDefaultSection(self):
         t = self.translate('''t_d1 {
         default:
         maxiter = 100
         xyangle = 4.9
-        center = (8.1,2.0)
+        center = (8.1,-2.0)
         title = "Hello World"
         param foo
             caption = "Angle"
@@ -185,7 +198,7 @@ class TranslateTest(testbase.TestBase):
         self.assertEqual(t.defaults["maxiter"].value,100)
         self.assertEqual(t.defaults["xyangle"].value,4.9)
         self.assertEqual(t.defaults["center"].value[0].value,8.1)
-        self.assertEqual(t.defaults["center"].value[1].value,2.0)
+        self.assertEqual(t.defaults["center"].value[1].value,-2.0)
         self.assertEqual(t.defaults["title"].value,"Hello World")
 
         k = t.symbols.parameters().keys()

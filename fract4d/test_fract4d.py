@@ -82,10 +82,7 @@ class PfTest(unittest.TestCase):
         handle = fract4dc.pf_load("./test-pf.so")
         pfunc = fract4dc.pf_create(handle)
 
-        # 1 param
-        fract4dc.pf_init(pfunc,0.001,[0.5])
-        # empty param array
-        fract4dc.pf_init(pfunc,0.001,[])
+        fract4dc.pf_init(pfunc,0.001,[4.0, 0.5])
 
         # a point which doesn't bail out
         result = fract4dc.pf_calc(pfunc,[0.15, 0.0, 0.0, 0.0],100,100,0,0,0)
