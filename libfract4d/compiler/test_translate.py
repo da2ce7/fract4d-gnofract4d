@@ -161,6 +161,8 @@ class TranslateTest(unittest.TestCase):
 
         self.failUnless(len(ifseq.children[2].children)==1)
 
+        expectedLabs = ['CJ:label0,label1', 'L:label0', 'J:label2', 'L:label1', 'CJ:label3,label4', 'L:label3', 'J:label5', 'L:label4', 'L:label5', 'L:label2']
+
         t = self.translate('''t_if_3 {
         loop:
         if a == 1
@@ -172,7 +174,23 @@ class TranslateTest(unittest.TestCase):
         endif
         }''')
 
+        self.assertNoErrors(t)        
+        self.assertJumpsAndLabs(t, expectedLabs)
+
+        t = self.translate('''t_if_4 {
+        loop:
+        if a == 1
+        else
+           if a == 2
+              a = 4
+           endif
+        endif
+        }''')
+
         self.assertNoErrors(t)
+        self.assertJumpsAndLabs(t, expectedLabs)
+        
+    def assertJumpsAndLabs(self,t,expected):
         jumps_and_labs = []
         for n in t.sections["loop"].children[0]:
             if isinstance(n,ir.Jump):
@@ -182,7 +200,7 @@ class TranslateTest(unittest.TestCase):
             elif isinstance(n,ir.Label):                
                 jumps_and_labs.append("L:%s" % n.name)
 
-        self.assertEqual(jumps_and_labs, ['CJ:label0,label1', 'L:label0', 'J:label2', 'L:label1', 'CJ:label3,label4', 'L:label3', 'J:label5', 'L:label4', 'L:label5', 'L:label2'])
+        self.assertEqual(jumps_and_labs, expected)
 
         
     def testDecls(self):
