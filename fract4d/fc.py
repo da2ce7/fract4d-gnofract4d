@@ -27,6 +27,7 @@ import sys
 import commands
 import os.path
 import random
+import md5
 
 import fractparser
 import fractlexer
@@ -48,7 +49,13 @@ class Compiler:
         self.files = {}
         self.c_code = ""
         self.file_path = []
+        self.cache_dir = "/tmp"
+        self.init_cache()
 
+    def init_cache(self):
+        if not os.path.exists(self.cache_dir):
+            os.makedirs(self.cache_dir)
+         
     def find_file(self,filename):
         if os.path.exists(filename):
             return filename
@@ -82,24 +89,31 @@ class Compiler:
         cg.output_all(ir)
         return cg
 
-    def makefilename(self):
-        # FIXME
-        return "fract%d.so" % random.randrange(0,sys.maxint)
-    
+    def makefilename(self,name,ext):
+        return os.path.join(self.cache_dir, "fract4d_%s%s" % (name, ext))
+
+    def hashcode(self,c_code):
+        return md5.new(c_code).hexdigest()
+        
     def generate_code(self,ir, cg, outputfile=None,cfile=None):
         cg.output_decls(ir)
         self.c_code = cg.output_c(ir)
-        
-        cFileName = cg.writeToTempFile(self.c_code,".c")
-        if cfile != None:
-            open(cfile,"w").write(self.c_code)
-        #print c_code
 
+        hash = self.hashcode(self.c_code)
+        
         if outputfile == None:
-            outputfile = self.makefilename()
+            outputfile = self.makefilename(hash,".so")
+            if os.path.exists(outputfile):
+                # skip compilation - we already have this code
+                return outputfile
+        
+        if cfile == None:
+            cfile = self.makefilename(hash,".c")
+            
+        open(cfile,"w").write(self.c_code)
             
         cmd = "gcc -Wall -fPIC -DPIC -g -O3 -shared %s -o %s -lm" % \
-              (cFileName, outputfile)
+              (cfile, outputfile)
         (status,output) = commands.getstatusoutput(cmd)
         if status != 0:
             raise fracttypes.TranslationError(

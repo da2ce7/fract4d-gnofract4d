@@ -156,7 +156,7 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         f.compile()
         image = fract4dc.image_create(64,48)
         f.draw(image)
-        fract4dc.image_save(image,"mandel3.tga")
+        #fract4dc.image_save(image,"mandel3.tga")
 
         
     def testFractalBadness(self):
