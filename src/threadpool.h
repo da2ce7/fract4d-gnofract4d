@@ -184,18 +184,16 @@ class tpool {
         {
             pthread_mutex_lock(&queue_lock);
             total_work_done++;
-            //printf("work done: %d\n",total_work_done);
+
             while( cur_queue_size == 0 && !(shutdown))
             {
                 if(total_work_done == target_work_done)
                 {
-                    printf("work complete sent\n");
                     pthread_cond_signal(&queue_work_complete);
                 }
                 pthread_cond_wait(&queue_not_empty,&queue_lock);
                 if(total_work_done == target_work_done)
                 {
-                    printf("work complete sent\n");
                     pthread_cond_signal(&queue_work_complete);
                 }
             }
@@ -249,7 +247,6 @@ class tpool {
             target_work_done = work_queued;
 
             // this signal in case all work already done
-            printf("sent queue not empty from flush\n");
             pthread_cond_broadcast(&queue_not_empty); 
 
             while(total_work_done != target_work_done)
@@ -257,7 +254,6 @@ class tpool {
                 pthread_cond_wait(&queue_work_complete,&queue_lock);
             }
 
-            printf("reset work done (%d,%d)\n",target_work_done,work_queued);
             target_work_done = INT_MAX;
             total_work_done = 0;
             work_queued=0;

@@ -1092,7 +1092,7 @@ create_propertybox_image_page(
     model_t *m)
 {
     GtkWidget *table = gtk_table_new (2, 2, FALSE);    
-    GtkWidget *image_page = create_page(table,_("Image"));
+    GtkWidget *image_page = create_page(table,_("Image Size"));
     
     gtk_box_pack_start( GTK_BOX (main_vbox), image_page, 1, 1, 0 );
     

@@ -67,13 +67,16 @@ create_app (model_t *m)
         GTK_POLICY_AUTOMATIC);
     gtk_widget_show(scrolled_window);
 
+    // terrible hack to get initial window size roughly right
+    gtk_widget_set_usize(scrolled_window,640+8,480+8);
+
     table = gtk_table_new (3,3,false);
     
     gtk_widget_show (table);
     
     fixed = gtk_fixed_new();
     gtk_widget_show(fixed);
-    //gtk_widget_set_usize(table,640,480);
+
     gtk_fixed_put(GTK_FIXED(fixed),table,0,0);
 
     gtk_scrolled_window_add_with_viewport(
