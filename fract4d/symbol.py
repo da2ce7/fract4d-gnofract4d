@@ -413,6 +413,9 @@ class T(UserDict):
 
     def is_private(self,key):
         return key[0:3] == "t__"
+
+    def is_local_param(self,key):
+        return self[key].cname.startswith("t__a_" + self.prefix)
     
     def mangled_name(self,key):
         k = mangle(key)
@@ -499,6 +502,7 @@ class T(UserDict):
         for (name,param) in params.items():
             if isinstance(param,Var):
                 names.append(self.demangle(name))
+
         return names
 
     def func_names(self):

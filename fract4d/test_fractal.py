@@ -256,7 +256,11 @@ blue=0
         file1 = StringIO.StringIO(g_test2file)
         f1.loadFctFile(file1)
 
+        f1.compile()
+        
         self.assertEqual(f1.cfunc_params[0],[1.0e12,3.0])
+        # FIXME self.assertEqual(f1.get_func_value("@myfunc",f1.cfuncs[0]),"abs")
+        
         # save again
         file2 = StringIO.StringIO()
         f1.save(file2)
@@ -597,7 +601,13 @@ blue=0.5543108971162746
 
     def testCopy(self):
         f = fractal.T(self.compiler)
+        f.set_outer("test.cfrm","flat")
         c = copy.copy(f)
+
+        self.assertEqual(c.initparams,f.initparams)
+        self.assertEqual(c.cfunc_names, f.cfunc_names)
+        self.assertEqual(c.cfunc_params, f.cfunc_params)
+        self.assertEqual(c.cfunc_files, f.cfunc_files)
 
         # test a parameter        
         mag = c.get_param(c.MAGNITUDE)
@@ -624,9 +634,6 @@ blue=0.5543108971162746
         f.colorlist[0] = (0.0,234,212,200)
         self.assertEqual(c0,c.colorlist[0])
         self.assertNotEqual(c0,f.colorlist[0])
-
-        # TODO: test formula parameters etc
-
 
     def assertDirty(self,f):
         self.assertEqual(f.dirty,True)
