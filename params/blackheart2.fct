@@ -39,7 +39,7 @@ function=zero
 @_density=1.00000000000000000
 [endsection]
 [outer]
-formulafile=standard.cfrm
+formulafile=standard.ucl
 function=DistanceEstimator
 @_transfer=ident
 @_offset=0.00000000000000000

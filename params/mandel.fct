@@ -23,7 +23,7 @@ formulafile=test.cfrm
 function=flat
 [endsection]
 [outer]
-formulafile=standard.cfrm
+formulafile=standard.ucl
 function=T2
 [endsection]
 [colors]

@@ -28,7 +28,7 @@ function=zero
 @_density=1.00000000000000000
 [endsection]
 [outer]
-formulafile=standard.cfrm
+formulafile=standard.ucl
 function=Smooth
 @_transfer=log
 @_offset=0.00000000000000000
