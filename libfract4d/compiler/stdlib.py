@@ -10,6 +10,17 @@ def reals(l):
 def imags(l):
     return [x.im for x in l]
 
+# unary negation
+def neg_i_i(gen,t,srcs):
+    return gen.emit_func('-', srcs, t.datatype)
+
+neg_f_f = neg_i_i
+
+def neg_c_c(gen,t,srcs):
+    return ComplexArg(
+        neg_i_i(gen,t,[srcs[0].re]),
+        neg_i_i(gen,t,[srcs[0].im]))
+
 # basic binary operation
 def add_ff_f(gen,t,srcs):
     return gen.emit_binop(t.op,srcs,t.datatype)
@@ -48,7 +59,7 @@ sub_cc_c = add_cc_c
 def div_cc_c(gen,t,srcs):
     # (a+ib)/(c+id) = (a+ib)*(c-id) / (c+id)*(c-id)
     # = (ac + bd + i(bc - ad))/mag(c+id)
-    denom = mag_c_f(gen,'mag', srcs[1])
+    denom = mag_c_f(gen,'mag', [srcs[1]])
     ac = gen.emit_binop('*', [srcs[0].re, srcs[1].re], Float)
     bd = gen.emit_binop('*', [srcs[0].im, srcs[1].im], Float)
     bc = gen.emit_binop('*', [srcs[0].im, srcs[1].re], Float)
@@ -67,8 +78,9 @@ def div_cf_c(gen,t,srcs):
 
 mul_cf_c = div_cf_c
 
-def mag_c_f(gen,t,src):
+def mag_c_f(gen,t,srcs):
     # |x| = x_re * x_re + x_im * x_im
+    src = srcs[0]
     re_2 = gen.emit_binop('*',[src.re,src.re],Float)
     im_2 = gen.emit_binop('*',[src.im,src.im],Float)
     return gen.emit_binop('+',[re_2,im_2],Float)
@@ -157,12 +169,13 @@ def cos_f_f(gen,t,srcs):
     return gen.emit_func('cos', srcs, Float)
 
 def cos_c_c(gen,t,srcs):
-    # cos(a+ib) = (cos(a) * cosh(b), -sin(a) * sinh(b))
+    # cos(a+ib) = (cos(a) * cosh(b), -(sin(a) * sinh(b)))
     a = srcs[0].re ; b = srcs[0].im
     re = gen.emit_binop('*', [ cos_f_f(gen,t,[a]), cosh_f_f(gen,t,[b])], Float)
     im = gen.emit_binop('*', [ sin_f_f(gen,t,[a]), sinh_f_f(gen,t,[b])], Float)
-    im = gen.emit_binop('-', [ConstFloatArg(0.0), im], Float)
-    return ComplexArg(re,im)
+    
+    nim = gen.emit_func('-',[im], Float)
+    return ComplexArg(re,nim)
         
 def tan_f_f(gen,t,srcs):
     return gen.emit_func('tan', srcs, Float)
