@@ -108,6 +108,17 @@ class T:
                     stms.append(stm)
             newtree = copy.copy(tree)
             newtree.children = stms
+        elif isinstance(tree, ir.Cast):
+            if isinstance(children[0],ir.ESeq):                
+                # cast(eseq(stms,e)) => eseq(stms,cast(e))
+                eseq = children[0]
+                stms = self.stms(eseq)
+                e = eseq.children[-1]
+                newtree = ir.ESeq(stms,ir.Cast(e,tree.node, tree.datatype),
+                                  eseq.node, tree.datatype)
+            else:
+                newtree = copy.copy(tree)
+                newtree.children = children
         else:
             newtree = copy.copy(tree)
             newtree.children = children
