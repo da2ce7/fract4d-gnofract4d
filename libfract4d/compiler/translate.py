@@ -22,7 +22,7 @@ class T:
         self.dumpCanon = 0
         self.dumpDecorated = 0
         self.dumpProbs = 0
-        
+        self.dumpTranslation = 1
         try:
             self.formula(f)
         except TranslationError, e:
@@ -34,7 +34,14 @@ class T:
             
         if self.dumpDecorated:
             print f.pretty()
-        
+
+        if self.dumpTranslation:
+            for (name,tree) in self.sections.items():
+                if tree != None:
+                    print name + "("
+                    print tree.pretty(1)
+                    print ")\n"
+                
     def error(self,msg):
         self.errors.append(msg)
     def warning(self,msg):
@@ -113,7 +120,7 @@ class T:
 
     def stmlist(self, node):
         seq = ir.Seq(map(lambda c: self.stm(c), node.children), None)
-        
+        return seq
         
     def stm(self,node,expectedType=None):
         if node.type == "decl":
@@ -142,21 +149,29 @@ class T:
                 self.badCast(node, expectedType)
 
         if node.children:
-            self.stm(node.children[0],node.datatype)
+            exp = self.stm(node.children[0],node.datatype)
+        else:
+            # default initializer
+            exp = ir.Const(fracttypes.default(node.datatype), node.datatype)
+
         try:
             self.symbols[node.leaf] = Var(node.datatype, 0.0,node.pos) # fixme exp
+            return ir.Move(ir.Name(node.leaf, node.datatype),exp, node.datatype)
+        
         except KeyError, e:
             self.error("Invalid declaration on line %d: %s" % (node.pos,e))
 
     def exp(self,node,expectedType):
         if node.type == "const":
-            self.const(node,expectedType)
+            r = self.const(node,expectedType)
         elif node.type == "id":
-            self.id(node,expectedType)
+            r = self.id(node,expectedType)
         elif node.type == "binop":
-            self.binop(node,expectedType)
+            r = self.binop(node,expectedType)
         else:
             self.badNode(node,"exp")
+
+        return r
 
     def binop(self, node, expectedType):
         # todo - detect and special-case logical operations
@@ -174,28 +189,45 @@ class T:
                 (node.leaf, node.pos))
             self.symbols[node.leaf] = Var(fracttypes.Complex, 0.0, node.pos)
             node.datatype = fracttypes.Complex
-            
-        node = self.coerce(node, expectedType)
+
+        if expectedType == node.datatype:
+            return ir.Var(node.leaf, node.datatype)
+        else:
+            return self.coerce(node, expectedType)
         
     def const(self,node,expectedType):
-        node = self.coerce(node, expectedType)
-
+        if node.datatype == expectedType:
+            return ir.Const(node.leaf, node.datatype)
+        else:
+            return self.coerce(node, expectedType)
+    
     def coerce(self, node, expectedType):
         '''insert code to convert node from actual to expected type, or
            produce an error if conversion is not permitted'''
+        # fixme - rewrite exp with coercion
         if node.datatype == None:
             raise TranslationError("Internal Compiler Error: coercing an untyped node %s" % node)
         elif node.datatype == expectedType:
-            return node
+            raise TranslationError("Internal Compiler Error: coercing to same type on node %s" % node)
+            
         elif node.datatype == Bool:
-            if expectedType == Int or expectedType == Float or expectedType == Complex:
+            if expectedType == Int:
                 self.warnCast(node,expectedType)
-                # fixme - rewrite exp with coercion
-                return node
+            elif expectedType == Float:
+                self.warnCast(node,expectedType)
+            elif expectedType == Complex:
+                self.warnCast(node,expectedType)
+
+            return node
         elif node.datatype == Int:
-            if expectedType == Bool or expectedType == Float or expectedType == Complex:
+            if expectedType == Bool:
                 self.warnCast(node,expectedType)
-                return node
+            elif expectedType == Float:
+                self.warnCast(node,expectedType)
+            elif expectedType == Complex:
+                self.warnCast(node,expectedType)
+
+            return node
         elif node.datatype == Float:
             if expectedType == Bool or expectedType == Complex:
                 self.warnCast(node, expectedType)

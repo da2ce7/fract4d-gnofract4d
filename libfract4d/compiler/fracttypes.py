@@ -40,6 +40,9 @@ def typeOfStr(tname):
 def strOfType(t):
     return _strOfType[t]
 
+def default(t):
+    return 0.0
+
 class Func:
     def __init__(self,ret,pos=-1):
         self.ret = ret
