@@ -634,7 +634,7 @@ Newton4(XYAXIS) {; Mark Peterson
         cFileName = self.codegen.writeToTempFile(c_code,".c")
         oFileName = self.codegen.writeToTempFile(None,".so")
         #print c_code
-        cmd = "gcc -Wall -fPIC -dPIC -shared %s -o %s -lm" % (cFileName, oFileName)
+        cmd = "gcc -Wall -fPIC -DPIC -shared %s -o %s -lm" % (cFileName, oFileName)
         (status,output) = commands.getstatusoutput(cmd)
         self.assertEqual(status,0,"C error:\n%s\nProgram:\n%s\n" % \
                          ( output,c_code))

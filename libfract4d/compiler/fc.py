@@ -66,7 +66,7 @@ class Compiler:
         if cfile != None:
             open(cfile,"w").write(self.c_code)
         #print c_code
-        cmd = "gcc -Wall -fPIC -dPIC -O3 -shared %s -o %s -lm" % \
+        cmd = "gcc -Wall -fPIC -DPIC -O3 -shared %s -o %s -lm" % \
               (cFileName, outputfile)
         (status,output) = commands.getstatusoutput(cmd)
         if status != 0:
