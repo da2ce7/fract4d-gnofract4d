@@ -531,6 +531,24 @@ image_save(PyObject *self,PyObject *args)
     return Py_None;
 }
     
+static PyObject *
+image_buffer(PyObject *self, PyObject *args)
+{
+    PyObject *pyim;
+    PyObject *pybuf;
+
+    if(!PyArg_ParseTuple(args,"O",&pyim))
+    {
+	return NULL;
+    }
+    image *i = (image *)PyCObject_AsVoidPtr(pyim);
+
+    pybuf = PyBuffer_FromReadWriteMemory(i->getBuffer(),i->bytes());
+    Py_XINCREF(pybuf);
+
+    return pybuf;
+}
+
 static PyMethodDef PfMethods[] = {
     {"pf_load",  pf_load, METH_VARARGS, 
      "Load a new point function shared library"},
@@ -552,6 +570,8 @@ static PyMethodDef PfMethods[] = {
       "Change image dimensions - data is deleted" },
     { "image_save", image_save, METH_VARARGS,
       "save an image to .tga format"},
+    { "image_buffer", image_buffer, METH_VARARGS,
+      "get the rgb data from the image"},
 
     { "site_create", pysite_create, METH_VARARGS,
       "Create a new site"},

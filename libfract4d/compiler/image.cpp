@@ -29,7 +29,7 @@ image::row_length() const
     return m_Xres * 3;
 }
 
-inline int
+int
 image::bytes() const
 {
     return row_length() * m_Yres;
@@ -77,6 +77,17 @@ bool image::set_resolution(int x, int y)
     buffer = new char[bytes()];
     iter_buf = new int[m_Xres * m_Yres];
     data_buf = malloc(data_size * m_Xres * m_Yres);
+
+    rgba_t pixel = { 200, 178, 98, 255};
+
+    for(int i = 0; i < y; ++i)
+    {
+	for(int j = 0; i < x; ++i)
+	{
+	    put(j,i,pixel);
+	}
+    }
+
     return 1;
 }
 
