@@ -248,7 +248,18 @@ return 0;
         inserts["bailout_var"] = bailout_insn.dst[0].format()
         f = Formatter(self,t,inserts)
         return self.output_template % f
-        
+
+    def findOp(self,t):
+        ' find the most appropriate overload for this op'
+        overloadList = self.symbols[t.op]
+        typelist = map(lambda n : n.datatype , t.children)
+        for ol in overloadList:
+            if ol.matchesArgs(typelist):
+                return ol
+        raise TranslationError(
+            "Internal Compiler Error: Invalid argument types %s for %s" % \
+            (typelist, opnode.leaf))
+
     # action routines
     def cast(self,t):
         child = t.children[0]
@@ -323,22 +334,12 @@ return 0;
         s0 = t.children[0]
         s1 = t.children[1]
         srcs = [self.generate_code(s0), self.generate_code(s1)]
+        op = self.findOp(t)
         if t.datatype == fracttypes.Complex:
             assert(isinstance(srcs[0],ComplexArg)==1,srcs[0])
             assert(isinstance(srcs[1],ComplexArg)==1,srcs[1])
-            if t.op=="+" or t.op == "-":
-                dst = ComplexArg(
-                    self.emit_binop(t.op,reals(srcs), Float),
-                    self.emit_binop(t.op,imags(srcs), Float))
-            elif t.op=="*":
-                # (a+ib) * (c+id) = ac - bd + i(bc + ad)
-                ac = self.emit_binop(t.op, [srcs[0].re, srcs[1].re], Float)
-                bd = self.emit_binop(t.op, [srcs[0].im, srcs[1].im], Float)
-                bc = self.emit_binop(t.op, [srcs[0].im, srcs[1].re], Float)
-                ad = self.emit_binop(t.op, [srcs[0].re, srcs[1].im], Float)
-                dst = ComplexArg(
-                    self.emit_binop('-', [ac, bd], Float),
-                    self.emit_binop('+', [bc, ad], Float))
+            if t.op=="+" or t.op == "-" or t.op == "*" or t.op == "complex":
+                dst = op.genFunc(self,t,srcs)
             elif t.op==">" or t.op==">=" or t.op=="<" or t.op == "<=":
                 # compare real parts only
                 dst = self.emit_binop(t.op,reals(srcs), Bool)

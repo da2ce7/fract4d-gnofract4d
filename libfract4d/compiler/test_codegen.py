@@ -301,12 +301,16 @@ goto t__end_init;''')
         src = '''t_c2{\ninit:int a = 1 + 3 * 7\n}'''
         self.assertCSays(src,"init","printf(\"%d\\n\",a);","22")
 
-        src = 't_c3{\ninit: b = 1 + 3 * 7\n}'
-        self.assertCSays(src,"init","printf(\"%g\\n\",b_re);","22")
+        src = 't_c3{\ninit: b = 1 + 3 * 7 - 2\n}'
+        self.assertCSays(src,"init","printf(\"%g\\n\",b_re);","20")
 
         src = 't_c4{\ninit: bool x = |z| < 4.0\n}'
         self.assertCSays(src,"init","printf(\"%d\\n\",x);","1")
 
+        src = 't_c5{\ninit: complex x = (1,3), complex y = (2.5,1.5)\n' + \
+              'z = x - y\n}'
+        self.assertCSays(src,"init","printf(\"(%g,%g)\\n\", z_re, z_im);",
+                         "(-1.5,1.5)")
     def testMandel(self):
         src = '''t_mandel{
 init:

@@ -7,12 +7,21 @@ from UserDict import UserDict
 import string
 import types
 import re
+import stdlib
 
-def efl(template, tlist):
+def efl(fname, template, tlist):
     'short-hand for expandFuncList - just reduces the amount of finger-typing'
     list = []
     for t in tlist:
-        f = "Func(%s,None)" % re.sub("_", str(t), template)
+        typed_fname = fname + "_"
+        for ch in template:
+            if ch == "_":
+                typed_fname = typed_fname + strOfType(t)[0]
+        if stdlib.__dict__.get(typed_fname,None) == None:
+            typed_fname = None
+        else:
+            typed_fname = "stdlib." + typed_fname
+        f = "Func(%s,%s)" % (re.sub("_", str(t), template), typed_fname)
         list.append(eval(f))
     return list
 
@@ -20,34 +29,36 @@ class Alias:
     def __init__(self,realName):
         self.realName = realName
         self.pos = -1
-        
+
 def createDefaultDict():
     d = {
         # standard library functions
         
-        "sqr": efl("[_] , _",  [Int, Float, Complex]),
+        "sqr": efl("sqr", "[_] , _",  [Int, Float, Complex]),
+        "complex" : [ Func([Float, Float], Complex,
+                           stdlib.complex_ffc)],
         
         # standard operators
 
         # comparison
-        "!=": efl("[_,_] , Bool", [Int, Float, Complex, Bool]),
-        "==": efl("[_,_] , Bool", [Int, Float, Complex, Bool]),
+        "!=": efl("noteq", "[_,_] , Bool", [Int, Float, Complex, Bool]),
+        "==": efl("eq",    "[_,_] , Bool", [Int, Float, Complex, Bool]),
         
         # fixme - issue a warning for complex compares
-        ">":  efl("[_,_] , Bool", [Int, Float, Complex]),
-        ">=": efl("[_,_] , Bool", [Int, Float, Complex]),
-        "<":  efl("[_,_] , Bool", [Int, Float, Complex]),
-        "<=": efl("[_,_] , Bool", [Int, Float, Complex]),
+        ">":  efl("gt",    "[_,_] , Bool", [Int, Float, Complex]),
+        ">=": efl("gte",   "[_,_] , Bool", [Int, Float, Complex]),
+        "<":  efl("lt",    "[_,_] , Bool", [Int, Float, Complex]),
+        "<=": efl("lte",   "[_,_] , Bool", [Int, Float, Complex]),
 
         # arithmetic
-        "%":  efl("[_,_] , _", [Int, Float]),
-        "/":  efl("[_,_] , _", [Float, Complex]) + \
+        "%":  efl("mod",   "[_,_] , _", [Int, Float]),
+        "/":  efl("div",   "[_,_] , _", [Float, Complex]) + \
               [ Func([Color, Float], Float, None)],
-        "*":  efl("[_,_] , _", [Int, Float, Complex]) + \
+        "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex]) + \
               [ Func([Color, Float], Float, None)],
-        "+":  efl("[_,_] , _", [Int, Float, Complex, Color]),
-        "-":  efl("[_,_] , _", [Int, Float, Complex, Color]),
-        "^":  efl("[_,_] , _", [Float, Complex]),
+        "+":  efl("add",   "[_,_] , _", [Int, Float, Complex, Color]),
+        "-":  efl("sub",   "[_,_] , _", [Int, Float, Complex, Color]),
+        "^":  efl("pow",   "[_,_] , _", [Float, Complex]),
         "mag":[ Func([Complex], Float, None)],
         
         # unary negation already factored out
@@ -113,7 +124,7 @@ class T(UserDict):
         del self.data[mangle(key)]
         
     def reset(self):
-        self.data = copy.deepcopy(T.default_dict)
+        self.data = copy.copy(T.default_dict)
 
     def newLabel(self):
         label = "label%d" % self.nextlabel

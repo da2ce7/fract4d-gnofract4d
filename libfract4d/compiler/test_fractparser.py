@@ -169,7 +169,7 @@ class ParserTest(unittest.TestCase):
         complex_decl = [n for n in i.children[8]]
         self.assertListTypesMatch(
             complex_decl,
-            ["decl","binop","binop","const","complex","const","const","id"])
+            ["decl","binop","binop","const","binop","const","const","id"])
 
     def testArrays(self):
         # arrays aren't supported yet - make sure errors are nice
