@@ -1,8 +1,6 @@
 # Intermediate representation. The Translate module converts an Absyn tree
 # into an IR tree.
 
-# this representation copied largely from Appel Chapter 7
-
 import types
 import string
 import fracttypes
@@ -15,8 +13,14 @@ def d(depth,s=""):
 class T:
     def __init__(self, node, datatype):
         self.datatype = datatype
-        self.node = node
-
+        self.node = node # the absyn node we were constructed from
+        self.children = None
+    def pretty_children(self,depth):
+        r = ""
+        for child in self.children:
+            r += child.pretty(depth+1)
+        return r
+    
 # exp and subtypes
 # an exp computes a value
 
@@ -51,8 +55,8 @@ class Binop(Exp):
         (self.op, self.children) = (op,children)
     def pretty(self, depth=0):
         return d(depth) + "Binop(" + self.op + "\n" + \
-               self.children[0].pretty(depth+1) + \
-               self.children[1].pretty(depth+1) + d(depth,")\n")
+               self.pretty_children(depth) + \
+               d(depth,")\n")
     
 class Var(Exp):
     def __init__(self, name, node, datatype):
@@ -78,17 +82,16 @@ class Cast(Exp):
                     fracttypes.strOfType(self.datatype))  
         return d(depth) + \
                cast_str + \
-               self.children[0].pretty(depth+1) + d(depth,")\n")
+               self.pretty_children(depth) + d(depth,")\n")
     
 class Call(Exp):
     def __init__(self, func, args, node, datatype):
         Exp.__init__(self, node, datatype)
         self.func = func
-        self.args = args
+        self.children = args
     def pretty(self, depth=0):
         r = d(depth) + "Call(" + self.func + "\n"
-        for arg in self.args:
-            r += arg.pretty(depth+1)
+        r += self.pretty_children(depth) 
         r += d(depth,")\n")
         return r
         
@@ -115,7 +118,7 @@ class Move(Stm):
         self.children = [dest,exp]
     def pretty(self, depth=0):
         return d(depth) + "Move(\n" + \
-               self.children[0].pretty(depth+1) + self.children[1].pretty(depth+1) + \
+               self.pretty_children(depth) + \
                d(depth,")\n")
     
 class SExp(Stm):
