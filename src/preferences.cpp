@@ -24,6 +24,7 @@
 
 #include "preferences.h"
 #include "properties.h" // for create_page
+#include "interface.h"
 
 GtkWidget *global_prefs_box = NULL;
 
@@ -111,18 +112,27 @@ void create_prefs_box (model_t *m)
 
     GtkTooltips *tooltips = gtk_tooltips_new ();
 
-    global_prefs_box = gnome_dialog_new(
-        _("User Preferences"), GNOME_STOCK_BUTTON_CLOSE, NULL);
+    global_prefs_box = gtk_dialog_new_with_buttons(
+        _("User Preferences"),
+	GTK_WINDOW(main_app_window),
+	(GtkDialogFlags)0,
+	GTK_STOCK_CLOSE, 
+	GTK_RESPONSE_ACCEPT,
+	NULL);
 
-    GtkWidget *vbox = (GNOME_DIALOG(global_prefs_box))->vbox;
+    gtk_dialog_set_default_response(GTK_DIALOG(global_prefs_box), 
+				    GTK_RESPONSE_ACCEPT);
+
+    GtkWidget *vbox = (GTK_DIALOG(global_prefs_box))->vbox;
 
     GtkWidget *notebook = gtk_notebook_new();
     gtk_container_add(GTK_CONTAINER(vbox),notebook);
 
     create_prefs_compiler_page(m,notebook,tooltips);
 
-    gnome_dialog_set_close(GNOME_DIALOG(global_prefs_box), TRUE);
-    gnome_dialog_close_hides(GNOME_DIALOG(global_prefs_box), TRUE);
+    g_signal_connect (
+	G_OBJECT(global_prefs_box), "response",
+	GTK_SIGNAL_FUNC(hide_dialog_cb), NULL);
 
     gtk_widget_show_all(global_prefs_box);
 }

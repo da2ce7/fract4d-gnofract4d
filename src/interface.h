@@ -28,6 +28,8 @@ GtkWidget* create_app (model_t *);
 
 extern GtkWidget* main_app_window;
 
+void hide_dialog_cb(GtkDialog *dialog, gint, gpointer);
+
 #endif /* _INTERFACE_H_ */
 
 
