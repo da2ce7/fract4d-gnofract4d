@@ -36,6 +36,12 @@ class SymbolTest(unittest.TestCase):
         self.failUnless(self.t.is_user("fish"))
         self.failUnless(not self.t.is_user("z"))
 
+    def test_expand(self):
+        l = symbol.efl("[_,_] , _", [Int, Float, Complex])
+        self.assertEqual(len(l),3)
+        self.assertEqual(l[0].ret, Int)
+        self.assertEqual(l[1].args, [Float,Float])
+        
 def suite():
     return unittest.makeSuite(SymbolTest,'test')
 

@@ -6,12 +6,52 @@ import copy
 from UserDict import UserDict
 import string
 import types
+import re
 
+def efl(template, tlist):
+    'short-hand for expandFuncList - just reduces the amount of finger-typing'
+    list = []
+    for t in tlist:
+        f = "Func(%s)" % re.sub("_", str(t), template)
+        list.append(eval(f))
+    return list
+    
 def createDefaultDict():
     d = {
-        "sqr": [ Func([Int],Int),
-                 Func([Float], Float),
-                 Func([Complex], Complex)],
+        # standard library functions
+        
+        "sqr": efl("[_] , _",  [Int, Float, Complex]),
+        
+        # standard operators
+
+        # comparison
+        "!=": efl("[_,_] , Bool", [Int, Float, Complex, Bool]),
+        "==": efl("[_,_] , Bool", [Int, Float, Complex, Bool]),
+        
+        # fixme - issue a warning for complex compares
+        ">":  efl("[_,_] , Bool", [Int, Float, Complex]),
+        ">=": efl("[_,_] , Bool", [Int, Float, Complex]),
+        "<":  efl("[_,_] , Bool", [Int, Float, Complex]),
+        "<=": efl("[_,_] , Bool", [Int, Float, Complex]),
+
+        # arithmetic
+        "%":  efl("[_,_] , _", [Int, Float]),
+        "/":  efl("[_,_] , _", [Float, Complex]) + \
+              [ Func([Color, Float], Float)],
+        "*":  efl("[_,_] , _", [Int, Float, Complex]) + \
+              [ Func([Color, Float], Float)],
+        "+":  efl("[_,_] , _", [Int, Float, Complex, Color]),
+        "-":  efl("[_,_] , _", [Int, Float, Complex, Color]),
+        "^":  efl("[_,_] , _", [Float, Complex]),
+        "mag":[ Func([Complex], Float)],
+        
+        # unary negation already factored out
+
+        # logical ops
+        "&&": Func([Bool, Bool], Bool),
+        "||": Func([Bool, Bool], Bool),
+        "!" : Func([Bool],Bool),
+        
         "#pixel": Var(Complex,0.0), # fixme, value 
         "#z" : Var(Complex,0.0),
         "z"  : Var(Complex,0.0) # same as #z
