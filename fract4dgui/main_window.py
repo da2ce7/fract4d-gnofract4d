@@ -11,7 +11,7 @@ from fract4d import fractal,fc,fract4dc
 
 
 import gtkfractal, model, preferences, autozoom, settings
-import colors, undo, browser, fourway
+import colors, undo, browser, fourway, angle
 
 class MainWindow:
     def __init__(self):
@@ -389,6 +389,19 @@ class MainWindow:
             _("warp"),
             _("Mutate the image by moving along the other 2 axes"), 2)
 
+        xy_angle = angle.T(_("xy"))
+
+        self.toolbar.append_element(
+            gtk.TOOLBAR_CHILD_WIDGET,            
+            xy_angle.widget,
+            _("Angle in the XY plane"),
+            None,
+            None,
+            None,
+            None,
+            None
+            )
+                           
     def on_drag_fourway(self,widget,dx,dy):
         self.preview.nudge(dx/10.0,dy/10.0, widget.axis)
         self.draw_preview()
