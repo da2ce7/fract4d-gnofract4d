@@ -298,7 +298,7 @@ t__temp9 = t__temp4 * c_im;
 t__temp10 = t__temp6 - t__temp7;
 t__temp11 = t__temp8 + t__temp9;'''
         self.assertOutputMatch(expAdd)
-        
+
     def testCompare(self):
         tree = self.binop([self.const(3,Int),self.var("a",Int)],">",Bool)
         self.generate_code(tree)
@@ -327,23 +327,23 @@ int a = 1
 loop:
 z = z + a
 }''', "loop")
-        self.assertOutputMatch('''t__start_loop:
-t__temp0 = ((double)a);
-t__temp1 = 0.0;
-t__temp2 = z_re + t__temp0;
-t__temp3 = z_im + t__temp1;
-z_re = t__temp2;
-z_im = t__temp3;
-goto t__end_loop;''')
+        self.assertOutputMatch('''t__start_floop:
+t__ftemp0 = ((double)fa);
+t__ftemp1 = 0.0;
+t__ftemp2 = z_re + t__ftemp0;
+t__ftemp3 = z_im + t__ftemp1;
+z_re = t__ftemp2;
+z_im = t__ftemp3;
+goto t__end_floop;''')
 
         asm = self.sourceToAsm('t_s2a_2{\ninit: a = -1.5\n}',"init")
-        self.assertOutputMatch('''t__start_init:
-t__temp0 = -(1.50000000000000000);
-t__temp1 = t__temp0;
-t__temp2 = 0.0;
-a_re = t__temp1;
-a_im = t__temp2;
-goto t__end_init;''')
+        self.assertOutputMatch('''t__start_finit:
+t__ftemp0 = -(1.50000000000000000);
+t__ftemp1 = t__ftemp0;
+t__ftemp2 = 0.0;
+fa_re = t__ftemp1;
+fa_im = t__ftemp2;
+goto t__end_finit;''')
     
     def testSymbols(self):
         self.codegen.symbols["q"] = Var(Complex)
@@ -449,13 +449,13 @@ goto t__end_init;''')
         self.assertCSays(src,"loop","printf(\"%g,%g\\n\",z_re,z_im);","1,0")
         
         src = '''t_c2{\ninit:int a = 1 + 3 * 7 + 4 % 2\n}'''
-        self.assertCSays(src,"init","printf(\"%d\\n\",a);","22")
+        self.assertCSays(src,"init","printf(\"%d\\n\",fa);","22")
 
         src = 't_c3{\ninit: b = 1 + 3 * 7 - 2\n}'
-        self.assertCSays(src,"init","printf(\"%g\\n\",b_re);","20")
+        self.assertCSays(src,"init","printf(\"%g\\n\",fb_re);","20")
 
         src = 't_c4{\ninit: bool x = |z| < 4.0\n}'
-        self.assertCSays(src,"init","printf(\"%d\\n\",x);","1")
+        self.assertCSays(src,"init","printf(\"%d\\n\",fx);","1")
 
         src = 't_c5{\ninit: complex x = (1,3), complex y = (2.5,1.5)\n' + \
               'z = x - y\n}'
@@ -488,7 +488,7 @@ goto t__end_init;''')
             y = 3
         endif
         }'''
-        self.assertCSays(src,"init","printf(\"%d\\n\",y);","2")
+        self.assertCSays(src,"init","printf(\"%d\\n\",fy);","2")
 
         # casts to & from bool
         src = '''t_c7{
@@ -550,8 +550,8 @@ goto t__end_init;''')
 
     def testParams(self):
         src = 't_cp0{\ninit: complex @p = (2,1)\n}'
-        self.assertCSays(src,"init",self.inspect_complex("t__a_p"),
-                         "t__a_p = (2,1)")
+        self.assertCSays(src,"init",self.inspect_complex("t__a_fp",""),
+                         "t__a_fp = (2,1)")
 
         src = '''t_params {
         init: complex x = @p1 + p2 + @my_param
@@ -563,7 +563,7 @@ goto t__end_init;''')
         self.codegen.generate_all_code(t.canon_sections["init"])
 
         check = self.inspect_complex("x") + self.inspect_complex("y")
-        postamble = "t__end_%s:\n%s\n" % ("init",check)
+        postamble = "t__end_f%s:\n%s\n" % ("init",check)
         c_code = self.makeC("", postamble)        
         output = self.compileAndRun(c_code)
         self.assertEqual(output,"x = (0,0)\ny = (5,-1)")
@@ -576,7 +576,7 @@ goto t__end_init;''')
         self.codegen.generate_all_code(t.canon_sections["init"])
 
         check = self.inspect_complex("x") + self.inspect_complex("y")
-        postamble = "t__end_%s:\n%s\n" % ("init",check)
+        postamble = "t__end_f%s:\n%s\n" % ("init",check)
         c_code = self.makeC("", postamble)        
         output = self.compileAndRun(c_code)
         self.assertEqual(output,"x = (0,0)\ny = (7,1)")
@@ -627,20 +627,21 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
 
     def testUseBeforeAssign(self):
         src = 't_uba0{\ninit: z = z - x\n}'
-        self.assertCSays(src,"init",self.inspect_complex("z"),
+        self.assertCSays(src,"init",self.inspect_complex("z",""),
                          "z = (0,0)")
 
     def inspect_bool(self,name):
-        return "printf(\"%s = %%d\\n\", %s);" % (name,name)
+        return "printf(\"%s = %%d\\n\", f%s);" % (name,name)
 
     def inspect_float(self,name):
-        return "printf(\"%s = %%g\\n\", %s);" % (name,name)
+        return "printf(\"%s = %%g\\n\", f%s);" % (name,name)
 
     def inspect_int(self,name):
-        return "printf(\"%s = %%d\\n\", %s);" % (name,name)
+        return "printf(\"%s = %%d\\n\", f%s);" % (name,name)
 
-    def inspect_complex(self,name):
-        return "printf(\"%s = (%%g,%%g)\\n\", %s_re, %s_im);" % (name,name,name)
+    def inspect_complex(self,name,prefix="f"):
+        return "printf(\"%s = (%%g,%%g)\\n\", %s%s_re, %s%s_im);" % \
+               (name,prefix,name,prefix,name)
 
     def predict(self,f,arg1=0,arg2=1):
         # compare our compiler results to Python stdlib
@@ -866,7 +867,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         x = g_x or "(1,0)"        
         src = 't_test {\ninit:\nx = %s\nresult = %s\n}' % (x,g_exp)
         asm = self.sourceToAsm(src,"init",{})
-        postamble = "t__end_init:\nprintf(\"(%g,%g)\\n\",result_re,result_im);"
+        postamble = "t__end_finit:\nprintf(\"(%g,%g)\\n\",result_re,result_im);"
         c_code = self.makeC("", postamble)
         output = self.compileAndRun(c_code)
         print output
@@ -954,7 +955,7 @@ float t = #tolerance
         
         inserts = {
             "main_inserts": self.main_stub,
-            "done_inserts": "printf(\"(%g,%g,%g)\\n\",z_re,z_im,t);",
+            "done_inserts": "printf(\"(%g,%g,%g)\\n\",z_re,z_im,ft);",
             "pre_final_inserts": "printf(\"(%g,%g)\\n\",z_re,z_im);"
             }
         c_code = self.codegen.output_c(t,inserts)
@@ -989,12 +990,20 @@ Newton4(XYAXIS) {; Mark Peterson
         self.assertEqual(status,0,"C error:\n%s\nProgram:\n%s\n" % \
                          ( output,c_code))
 
-        
+    def testReservedWords(self):
+        '''Check that user vars don\'t clash with C reserved words''' 
+        src = '''t_foo {
+        init:
+        int for
+        float double
+        bool main
+        }'''
+        self.assertCSays(src,"init","","")
 
     # assertions
     def assertCSays(self,source,section,check,result,dump=None):
         asm = self.sourceToAsm(source,section,dump)
-        postamble = "t__end_%s:\n%s\n" % (section,check)
+        postamble = "t__end_f%s:\n%s\n" % (section,check)
         c_code = self.makeC("", postamble)        
         output = self.compileAndRun(c_code)
         if isinstance(result,types.ListType):

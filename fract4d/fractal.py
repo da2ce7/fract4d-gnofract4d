@@ -661,7 +661,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
     def set_named_param(self,name,val):
         #print "named param %s : %s" % (name, val)
         op = self.formula.symbols.order_of_params()
-        ord = op.get(self.formula.symbols.realName(name))
+        ord = op.get(self.formula.symbols.mangled_name(name))
         if ord == None:
             #print "Ignoring unknown param %s" % name
             return
@@ -772,7 +772,11 @@ The image may not display correctly. Please upgrade to version %.1f.'''
 
     def order_of_name(self,name):
         op = self.formula.symbols.order_of_params()
-        ord = op.get(self.formula.symbols.realName(name))
+        rn = self.formula.symbols.mangled_name(name)
+        ord = op.get(rn)
+        if ord == None:
+            #print "can't find %s (%s) in %s" % (name,rn,op)
+            pass
         return ord
     
     def fix_bailout(self):

@@ -500,13 +500,13 @@ default:
         ifseq = t.sections["loop"].children[0]
 
         self.failUnless(ifseq.children[0].op == ">" and \
-                        ifseq.children[0].trueDest == "label0" and \
-                        ifseq.children[0].falseDest == "label1")
+                        ifseq.children[0].trueDest == "flabel0" and \
+                        ifseq.children[0].falseDest == "flabel1")
 
-        self.failUnless(ifseq.children[1].children[0].name == "label0" and \
-                        ifseq.children[1].children[-1].dest == "label2" and \
-                        ifseq.children[2].children[0].name == "label1" and \
-                        ifseq.children[3].name == "label2")
+        self.failUnless(ifseq.children[1].children[0].name == "flabel0" and \
+                        ifseq.children[1].children[-1].dest == "flabel2" and \
+                        ifseq.children[2].children[0].name == "flabel1" and \
+                        ifseq.children[3].name == "flabel2")
 
         t = self.translate('''t_if_2 {
         loop:
@@ -519,14 +519,24 @@ default:
         ifseq = t.sections["loop"].children[0]
         self.failUnless(ifseq.children[0].op == "!=")
         
-        self.failUnless(ifseq.children[1].children[0].name == "label0" and \
-                        ifseq.children[1].children[-1].dest == "label2" and \
-                        ifseq.children[2].children[0].name == "label1" and \
-                        ifseq.children[3].name == "label2")
+        self.failUnless(ifseq.children[1].children[0].name == "flabel0" and \
+                        ifseq.children[1].children[-1].dest == "flabel2" and \
+                        ifseq.children[2].children[0].name == "flabel1" and \
+                        ifseq.children[3].name == "flabel2")
 
         self.failUnless(len(ifseq.children[2].children)==1)
 
-        expectedLabs = ['CJ:label0,label1', 'L:label0', 'J:label2', 'L:label1', 'CJ:label3,label4', 'L:label3', 'J:label5', 'L:label4', 'L:label5', 'L:label2']
+        expectedLabs = [
+            'CJ:flabel0,flabel1',
+            'L:flabel0',
+            'J:flabel2',
+            'L:flabel1',
+            'CJ:flabel3,flabel4',
+            'L:flabel3',
+            'J:flabel5',
+            'L:flabel4',
+            'L:flabel5',
+            'L:flabel2']
 
         t = self.translate('''t_if_3 {
         loop:

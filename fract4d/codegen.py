@@ -248,7 +248,7 @@ int t__h_solid = 0;
 %(decls)s
 int t__h_numiter = 0;
 %(init)s
-t__end_init:
+t__end_finit:
 %(cf0_init)s
 t__end_cf0init:
 %(cf1_init)s
@@ -256,10 +256,10 @@ t__end_cf1init:
 do
 {
     %(loop)s
-    t__end_loop:
+    t__end_floop:
     %(loop_inserts)s
     %(bailout)s
-    t__end_bailout:
+    t__end_fbailout:
     %(bailout_inserts)s
     if(!%(bailout_var)s) break;
     %(cf0_loop)s
@@ -271,7 +271,7 @@ do
 
 %(pre_final_inserts)s
 %(final)s
-t__end_final:
+t__end_ffinal:
 %(done_inserts)s
 
 /* fate of 0 = escaped, 1 = trapped */
