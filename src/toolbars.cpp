@@ -291,6 +291,7 @@ create_explore_widgets(GtkToolbar *toolbar, model_t *m)
     GtkWidget *explore_weirdness = 
         gtk_hscale_new(GTK_ADJUSTMENT(explore_adj));
 
+    gtk_widget_set_size_request(explore_weirdness, 80, 40);
     gtk_range_set_update_policy(GTK_RANGE(explore_weirdness), GTK_UPDATE_DISCONTINUOUS);
     g_signal_connect(
         GTK_OBJECT(explore_adj),
