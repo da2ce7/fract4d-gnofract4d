@@ -8,6 +8,8 @@ import fractparser
 import fractlexer
 import exceptions
 import ir
+import canon
+
 from fracttypes import *
 
 class TranslationError(exceptions.Exception):
@@ -83,7 +85,7 @@ class T:
         self.warning(
                     "formula contains a fractint-style implicit %s section\
                     and an explicit UltraFractal %s section. \
-                    Using explict section." % (sect,sect))
+                    Using explicit section." % (sect,sect))
         
     def canonicalizeSections(self,f):        
         '''a nameless section (started by ':') is the same as a loop
@@ -369,9 +371,9 @@ class T:
         '''insert code to cast exp to expectedType 
            or produce an error if conversion is not permitted'''
 
-        if exp.datatype == None or expectedType == None:
-            raise TranslationError("Internal Compiler Error: coercing an untyped node")
-        elif exp.datatype == expectedType:
+        #if exp.datatype == None or expectedType == None:
+        #    raise TranslationError("Internal Compiler Error: coercing an untyped node")
+        if exp.datatype == expectedType:
             return exp
 
         if fracttypes.canBeCast(exp.datatype, expectedType):
@@ -387,7 +389,13 @@ class T:
         self.sections["loop"] = self.stmlist(node)
 
     def bailout(self,node):
-        self.sections["bailout"] = self.stmlist(node)
+        # ensure that last stm is a book
+        bailList = self.stmlist(node)
+        try:
+            bailList.children[-1] = self.coerce(bailList.children[-1],Bool)
+            self.sections["bailout"] = bailList
+        except IndexError:
+            self.warnings.append("No bailout expression found. Calculation will never terminate.")
 
     def badNode(self, node, rule):
         msg = "Internal Compiler Error: Unexpected node '%s' in %s" % \

@@ -51,8 +51,26 @@ class TranslateTest(unittest.TestCase):
                  c=3
                  }''')
         self.assertEquivalentTranslations(t1,t3)
-        self.assertEqual(len(t3.warnings),7,t3.warnings)
+        self.assertEqual(len(t3.warnings),8,t3.warnings)
 
+    def testBailout(self):
+        # empty bailout
+        t = self.translate('''t_bail_1 {
+        bailout:
+        }''')
+
+        self.assertWarning(t, "No bailout expression found" )
+        self.assertNoErrors(t)
+
+        # uncastable bailout
+        t = self.translate('''t_bail_2 {
+        bailout:
+        if 1 > 2
+        endif
+        }''')
+
+        self.assertError(t, "invalid type none")
+        
     def testAssign(self):
         # correct declarations
         t9 = self.translate('''t9 {
