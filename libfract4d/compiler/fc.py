@@ -29,8 +29,7 @@ class Compiler:
     def __init__(self):
         self.parser = fractparser.parser
         self.lexer = fractlexer.lexer
-        self.formula = None
-        self.formulafile = None
+        self.files = {}
         print "new compiler"
         
     def usage(self):
@@ -39,9 +38,16 @@ class Compiler:
 
     def load_formula_file(self, filename):
         try:
-            s = open(self.formulafile,"r").read() # read in a whole file
-        except IOError, err:
-            print "Couldn't open '%s': %s" % (self.formulafile, err)
+            s = open(filename,"r").read() # read in a whole file
+            self.lexer.lineno = 1
+            result = self.parser.parse(s)
+            formulas = {}
+            for formula in result.children:
+                formulas[formula.leaf] = formula
+
+            self.files[filename] = (formulas,s)
+        except Exception, err:
+            print "Error parsing '%s' : %s" % (filename, err)
             raise
         
     def main(self):
@@ -60,20 +66,11 @@ class Compiler:
         if len(args) < 1:
             self.usage()
 
-        self.formulafile = args[0]
-        
         try:
             self.load_formula_file(args[0])
         except IOError, err:
             sys.exit(1)
             
-        try:
-            self.lexer.lineno = 1
-            result = self.parser.parse(s)
-        except TranslationError, err:
-            print "Error parsing '%s' : %s" % (self.formulafile, err)
-            sys.exit(1)
-        
         # find the function we want
         self.ast = None
         for formula in result.children:
