@@ -57,7 +57,6 @@ class T:
         return val
     
     def adjust_dimension(self, min, length, val, dim):
-        length //= 2
         mid = min[dim] + length
         if val < mid:
             # lower half
@@ -70,6 +69,7 @@ class T:
     def which_child(self,min,length, r, g, b):
         'index into child array where this pixel should go'
         child = 0
+        
         if self.adjust_dimension(min, length, r, T.R):
             child += 4
         if self.adjust_dimension(min, length, g, T.G):
@@ -87,13 +87,13 @@ class T:
         pos = self.root
         x = 0
         while length > 1:
+            length //= 2
             pos.increment_children()
             child = self.which_child(min,length,r,g,b)
             if pos.children[child] == None:
                 pos.children[child] = Node()
 
             pos = pos.children[child]
-            length //= 2
             
         pos.increment()
                 

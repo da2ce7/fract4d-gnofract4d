@@ -30,6 +30,8 @@ todo:
 * B	recoloring during deepening can make things shallower
 * BB	intermittently failing test in test_fract4d
 * B     var called 'loat' would clash with C reserved word
+* WWW	create colormap from picture (eg digital photo)
+* W	create random colormap
 
 UF Incompatibilities
 * W	boolean, int, enum params 

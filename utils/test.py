@@ -14,5 +14,10 @@ def main():
     unittest.main(defaultTest='suite')
     
 if __name__ == '__main__':
-    main()
+    import hotshot
+    prof = hotshot.Profile("makemap.prof")
+    prof.runcall(main)
+    prof.close()
+
+    #main()
 

@@ -106,7 +106,12 @@ class Func:
         self.args = args
         self.ret = ret
         self.pos = pos
-        self.set_func(module,fname)        
+        self.set_func(module,fname)
+
+    def __copy__(self):
+        c = Func(self.args,self.ret,self.module,self.fname,self.pos)
+        return c
+    
     def first(self):
         return self
         
@@ -129,6 +134,8 @@ class Func:
         #    print inspect.stack()
             
         self.cname = fname
+        self.module = module
+        self.fname = fname
         
     def matchesArgs(self, potentialArgs):
         if len(potentialArgs) != len(self.args):

@@ -9,6 +9,8 @@ import string
 import types
 import re
 import math
+import copy
+import inspect
 
 from fracttypes import *
 import stdlib
@@ -19,7 +21,15 @@ class OverloadList(UserList):
         self.pos = -1
         self._is_operator = kwds.get("operator")
         self.__doc__ = kwds.get("doc")
-        
+
+    def __copy__(self):
+        copied_data = [ copy.copy(x) for x in self.data]
+        c = OverloadList(copied_data)
+        c.pos = self.pos
+        c._is_operator = self._is_operator
+        c.__doc__ = self.__doc__
+        return c
+    
     def first(self):
         return self[0]
 
@@ -416,19 +426,32 @@ class T(UserDict):
         self.nextTemp = 0
         self.prefix = prefix
 
+    def x__copy__(self):
+        print "__copy__(symbols)", inspect.stack()
+        c = T(self.prefix)
+        c.nextlabel = self.nextlabel
+        c.nextTemp = self.nextTemp
+        for k in self.data.keys():
+            #print k
+            c.data[k] = copy.copy(self.data[k])
+            
+        return c
+    
     def merge(self,other):
         # self = union(self,other)
         # any clashes are won by self
         for k in other.data.keys():
             if self.data.get(k) == None:
                 if self.is_param(k):
-                    self.data[self.insert_prefix(other.prefix,k)] = other.data[k]
+                    new_key = self.insert_prefix(other.prefix,k)
+                    self.data[new_key] = other.data[k]
                 else:
                     self.data[k] = other.data[k]
             elif hasattr(self.data[k],"cname") and \
                  hasattr(other.data[k],"cname") and \
                  self.data[k].cname != other.data[k].cname:
-                    self.data[self.insert_prefix(other.prefix,k)] = other.data[k]
+                    new_key = self.insert_prefix(other.prefix,k)
+                    self.data[new_key] = other.data[k]
 
     def has_user_key(self,key):
         return self.data.has_key(mangle(key))

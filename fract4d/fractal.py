@@ -355,7 +355,6 @@ class T(FctUtils):
         # override shallow-copy to do a deeper copy than normal,
         # but still don't try and copy *everything*
 
-        print "1", self.get_func_value("@fn1",self.formula)
         c = T(self.compiler,self.site)
 
         c.maxiter = self.maxiter
@@ -363,12 +362,8 @@ class T(FctUtils):
 
         c.bailfunc = self.bailfunc
 
-        print "2", self.get_func_value("@fn1",self.formula)
-        
         c.set_formula(self.funcFile,self.funcName)
 
-        print "3", self.get_func_value("@fn1",self.formula)
-        
         # copy the function overrides
         for name in self.func_names(self.formula):
             c.set_named_func(name,
@@ -499,12 +494,6 @@ class T(FctUtils):
             self.cfunc_params[i] = self.cfuncs[i].symbols.default_params()
         
     def set_formula(self,formulafile,func):
-
-        try:
-            print "2a", self.get_func_value("@fn1",self.formula)
-        except:
-            pass
-        
         formula = self.compiler.get_formula(formulafile,func)
         if formula == None:
             raise ValueError("no such formula: %s:%s" % (formulafile, func))
@@ -513,21 +502,14 @@ class T(FctUtils):
             raise ValueError("invalid formula '%s':\n%s" % \
                              (func, "\n".join(formula.errors)))
 
-        try:
-            print "2b", self.get_func_value("@fn1",self.formula)
-        except:
-            pass
-        
         self.formula = formula
+        #self.formula.symbols = copy.copy(formula.symbols)
         self.funcName = func
         self.funcFile = formulafile
 
-        print "2c", self.get_func_value("@fn1",self.formula)
-        
         self.initparams = self.formula.symbols.default_params()
         self.set_bailfunc()
 
-        print "2d", self.get_func_value("@fn1",self.formula)
         self.formula_changed()
         self.changed()
 
@@ -582,9 +564,7 @@ class T(FctUtils):
         if func.cname != fname:
             formula.symbols.set_std_func(func,fname)
             self.dirtyFormula = True
-            print "before", func, func.cname
             self.changed()
-            print "after", func, func.cname
             
     def set_periodicity(self,periodicity):
         if self.periodicity != periodicity:

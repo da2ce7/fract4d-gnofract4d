@@ -34,7 +34,7 @@ class Test(unittest.TestCase):
         mm = makemap.T(open("test000.png","rb"))
 
         min = [0,0,0]
-        length = 200
+        length = 200//2
 
         self.assertEqual(mm.adjust_dimension(min,length,7,0), False)
         self.assertEqual(min[0],0)
@@ -46,7 +46,7 @@ class Test(unittest.TestCase):
         mm = makemap.T(open("test000.png","rb"))
 
         min = [0,0,0]
-        length = 200
+        length = 200//2
 
         # g & b, not r
         self.assertEqual(mm.which_child(min,length,1,120,100), 3) 
@@ -83,6 +83,10 @@ class Test(unittest.TestCase):
 
         self.assertChildSequence(mm.root,[0] * 8, 50)
         self.assertChildSequence(mm.root,[7] * 8, 50)
+
+    def test_larger_tree(self):
+        mm = makemap.T(open("tattered.jpg","rb"))
+        mm.build_octree()
         
     def assertChildSequence(self,node,list,n):
         if list == []:
@@ -91,7 +95,13 @@ class Test(unittest.TestCase):
 
         self.assertNotEqual(node.children[list[0]], None, list)
         self.assertChildSequence(node.children[list[0]], list[1:],n)
+
+    def test_reduction(self):
+        mm = makemap.T(open("test001.png","rb"))
+        # contains 50 black, 10 white, 15 d80000, 25 ff0000 pixels
         
+        pass
+    
 def suite():
     return unittest.makeSuite(Test,'test')
 

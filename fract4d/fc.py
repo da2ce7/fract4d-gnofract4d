@@ -57,6 +57,7 @@ class FormulaFile:
     
     def get_formula(self,formula):
         return self.formulas.get(formula)
+    
     def get_formula_names(self, skip_type=None):
         '''return all the coloring funcs except those marked as only suitable
         for the OTHER kind (inside vs outside)'''

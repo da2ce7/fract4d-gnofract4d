@@ -872,7 +872,7 @@ blue=0.5543108971162746
         self.assertEqual(c0,c.colorlist[0])
         self.assertNotEqual(c0,f.colorlist[0])
 
-    def x_testCopy2(self):
+    def testCopy2(self):
         '''There was a bug where copy() would reset func values.
         Check for recurrence'''
         f = fractal.T(self.compiler)

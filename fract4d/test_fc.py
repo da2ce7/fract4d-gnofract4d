@@ -102,6 +102,7 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         self.assertEqual(f.errors, [])
         commands.getoutput("rm -f test-out.so")
         cg = self.compiler.compile(f)
+        print cg.symbols.has_key("t__ftemp5")
         self.compiler.generate_code(f,cg,"test-out.so",None)
         # check the output contains the right functions
         (status,output) = commands.getstatusoutput('nm test-out.so')

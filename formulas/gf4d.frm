@@ -508,3 +508,17 @@ endparam
 zwcenter = (0.02,0.01)
 }
 
+CubicConnectednessLocus {
+; a cubic mandelbrot where we iterate both critical points
+; and render based on the results
+init:
+k = #zwpixel
+z1 = k
+z2 = -k
+_3k = 3.0 * k
+loop:
+z1 = z1*z1*z1 - _3k * z1 + #pixel
+z2 = z2*z2*z2 - _3k * z2 + #pixel
+bailout:
+|z1| < bailout || |z2| < bailout
+}
