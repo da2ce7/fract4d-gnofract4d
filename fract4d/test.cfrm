@@ -1,11 +1,23 @@
 flat {
 final:
-#index = @myfunc(@val)
+#index = real(@myfunc(@val))
 default:
 float param val
 	default = 0.4
 endparam
 func myfunc
+	default = abs()
+endfunc
+} 
+
+flat2 {
+final:
+#index = real(@myfunc(@val))
+default:
+float param val
+	default = 0.4
+endparam
+float func myfunc
 	default = abs()
 endfunc
 } 

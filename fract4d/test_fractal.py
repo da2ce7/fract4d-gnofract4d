@@ -433,6 +433,11 @@ blue=0
 
         f.params[f.XCENTER] = 777.0
         f.set_formula("test.frm","test_defaults")
+        f.set_named_item("@bailout",7.1, f.formula, f.initparams)
+
+        f.set_inner("test.cfrm", "flat")
+        f.set_named_item("@val",0.2, f.cfuncs[1], f.cfunc_params[1])
+
         f.reset()
         self.assertEqual(f.maxiter,200)
         self.assertEqual(f.params[f.XCENTER],1.0)
@@ -445,7 +450,7 @@ blue=0
         self.assertEqual(f.params[f.XZANGLE],0.789)
         self.assertEqual(f.title,"Hello World")
         self.assertEqual(f.initparams,[8.0,7.0,1.0])
-
+        self.assertEqual(f.cfunc_params[1],[0.4])
 
     def testFutureWarning(self):
         'load a file from the future and check we complain'
@@ -516,6 +521,47 @@ The image may not display correctly. Please upgrade to version 3.4.''')
                     # pixels on boundary should be antialiased to 25% grey
                     # because 3 subpixels are white and 1 black
                     self.assertColor(buf,x,y,w,(255*3)/4)
+
+    def testDiagonalWithColorFuncs(self):
+        f = fractal.T(self.compiler)
+        #f.pixel_changed = f._pixel_changed
+        f.set_formula("test.frm","test_simpleshape")
+        f.set_inner("test.cfrm","flat")
+        f.set_outer("test.cfrm","flat")
+        f.set_named_item("@val",0.7, f.cfuncs[0], f.cfunc_params[0])
+        f.set_named_item("@myfunc","sqrt", f.cfuncs[0], f.cfunc_params[0])
+
+        f.set_named_item("@val",0.2, f.cfuncs[1], f.cfunc_params[1])
+        f.set_named_item("@myfunc","sin", f.cfuncs[1], f.cfunc_params[1])
+
+        outgrey = int(math.sqrt(0.7) * 255)
+        ingrey = int(math.sin(0.2) * 255)
+
+        self.check_diagonal_image(f, ingrey, outgrey)
+
+        # check all this stuff survives serialization
+        saved = f.serialize()
+
+        f2 = fractal.T(self.compiler)
+        f2.loadFctFile(StringIO.StringIO(saved))
+        self.check_diagonal_image(f2, ingrey, outgrey)
+        
+    def check_diagonal_image(self,f,ingrey,outgrey):
+        f.colorlist = [(0.0,0,0,0,255),(1.0,255,255,255,255)]
+        f.compile()
+        (w,h) = (30,30)
+        im = fract4dc.image_create(w,h)
+        f.antialias = False
+        f.draw(im)
+
+        buf = fract4dc.image_buffer(im,0,0)
+        
+        for y in xrange(h):
+            for x in xrange(w):
+                if x >= y:
+                    self.assertColor(buf,x,y,w,outgrey)
+                else:
+                    self.assertColor(buf,x,y,w,ingrey)
         
     def testCubicRead(self):
         file = '''gnofract4d parameter file

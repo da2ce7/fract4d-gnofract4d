@@ -17,12 +17,12 @@ final:
 
 continuous_potential {
 final:
-float ed = 4.0/|z| 
+float ed = @bailout/|z| 
 #index = (#numiter + ed) / 256.0
-;default:
-;float param bailout
-;	default = 4.0
-;endparam
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 
 external_angle {
@@ -48,11 +48,11 @@ endif
 
 ejection_distance {
 final:
-float ed = 4.0/|z| 
+float ed = @bailout/|z| 
 #index = ed
-;default:
-;float param bailout
-;	default = 4.0
-;endparam
+default:
+float param bailout
+	default = 4.0
+endparam
 }
 

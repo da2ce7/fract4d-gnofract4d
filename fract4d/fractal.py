@@ -421,6 +421,9 @@ class T(FctUtils):
                     self.params[getattr(self,name.upper())] = float(val.value)
                 else:
                     print "ignored unknown parameter %s" % name
+
+        for i in xrange(2):
+            self.cfunc_params[i] = self.cfuncs[i].symbols.default_params()
         
     def set_formula(self,formulafile,func):
         self.formula = self.compiler.get_formula(formulafile,func)
@@ -666,13 +669,13 @@ The image may not display correctly. Please upgrade to version %.1f.'''
     def parse__function_(self,val,f):
         params = ParamBag()
         params.load(f)
+        file = params.dict.get("formulafile",self.funcFile)
+        func = params.dict.get("function", self.funcName)
+        self.set_formula(file,func)
+            
         for (name,val) in params.dict.items():
-            if name == "formulafile":
-                self.funcFile = val
-                self.compiler.load_formula_file(self.funcFile)
-            elif name == "function":
-                self.funcName = val
-                self.set_formula(self.funcFile,self.funcName)
+            if name == "formulafile" or name == "function":
+                pass
             elif name == "a" or name =="b" or name == "c":
                 self.set_named_param("@" + name, val,
                                      self.formula, self.initparams)
@@ -797,11 +800,18 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         # in older files, we save it in self.bailout then apply to the
         # initparams later
         if self.bailout != 0.0:
-            ord = self.order_of_name("@bailout",self.formula.symbols)
-            if ord == None:
-                # no bailout value for this function
-                return
-            self.initparams[ord] = self.bailout
+            self.update_bailout_param(self.formula.symbols,self.initparams)
+            self.update_bailout_param(
+                self.cfuncs[0].symbols,self.cfunc_params[0])
+            self.update_bailout_param(
+                self.cfuncs[1].symbols,self.cfunc_params[1])
+            
+    def update_bailout_param(self,symbols,params):
+        ord = self.order_of_name("@bailout",symbols)
+        if ord == None:
+            # no bailout value for this function
+            return
+        params[ord] = self.bailout
             
     def loadFctFile(self,f):
         line = f.readline()
