@@ -145,7 +145,8 @@ int main()
         pf_fake t__f;
         t__f.p = params;
         pf_fake *t__pfo = &t__f;
-        double z_re = 0.0, z_im = 0.0, pixel_re = 0.0, pixel_im = 0.0;
+        double pixel_re = 0.0, pixel_im = 0.0;
+        double t__h_zwpixel_re = 0.0, t__h_zwpixel_im = 0.0;
         '''
         decls = string.join(map(lambda x: x.format(),
                                 self.codegen.output_symbols({})),"\n")
@@ -824,6 +825,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
     def testMandel(self):
         src = '''t_mandel{
 init:
+z = #zwpixel
 loop:
 z = z*z + pixel
 bailout:
@@ -852,6 +854,7 @@ bailout:
         # try again with sqr function and check results match
         src = '''t_mandel{
 init:
+z = #zwpixel
 loop:
 z = sqr(z) + pixel
 bailout:
@@ -869,6 +872,7 @@ bailout:
         # and again with ^2
         src = '''t_mandel{
 init:
+z = #zwpixel
 loop:
 z = z^2 + pixel
 bailout:
