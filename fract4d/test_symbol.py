@@ -87,6 +87,14 @@ class SymbolTest(unittest.TestCase):
         self.t["fish"] = Var(Int, 1, 1)
         self.t.reset()
         self.assertRaises(KeyError, self.t.__getitem__, ("fish"))
+
+    def testAvailable(self):
+        fnames = self.t.available_param_functions()
+        self.assertEqual(fnames.count("ident"),1)
+        self.assertEqual(fnames.count("flip"),1)
+        self.assertEqual(fnames.count("cabs"),0)
+        self.assertEqual(fnames.count("t__a_fn1"),0)
+        self.assertEqual(fnames.count("t__neg"),0)
         
 def suite():
     return unittest.makeSuite(SymbolTest,'test')

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# import Gnofract4d 1.4-1.9 .fct files
 
 import string
 import re
@@ -218,6 +217,10 @@ class T(FctUtils):
 
         self.initparams = self.formula.symbols.default_params()
 
+    def set_func(self,func,fname):
+        self.formula.symbols.set_std_func(func,fname)
+        self.compile()
+        
     def set_inner(self,funcfile,func):
         self.cfuncs[1] = self.compiler.get_colorfunc(funcfile,func,"cf1")
         if self.cfuncs[1] == None:

@@ -13,7 +13,7 @@ import fractparser
 import fractlexer
 import fracttypes
 import ir
-
+import stdlib
 
 class TranslateTest(testbase.TestBase):
     def setUp(self):
@@ -280,6 +280,31 @@ class TranslateTest(testbase.TestBase):
             self.assertEqual(op[key],var_k.index(key)*2)
 
 
+    def testFuncParam(self):
+        t =self.translate('''test_func {
+        loop:
+        z = @myfunc(z) + #pixel
+        bailout:
+        |z| < @bailout
+        default:
+        float param bailout
+	    default = 4.0
+        endparam
+        func myfunc
+	    default = sqr()
+            caption = "hello there"
+        endfunc
+        func myotherfunc
+            default = sqr
+            hint = "not used"
+        endfunc
+        }
+        ''')
+        self.assertNoErrors(t)
+
+        self.assertEqual(t.symbols["@myfunc"][0].genFunc,stdlib.sqr_c_c)
+        self.assertEqual(t.symbols["@myotherfunc"][0].genFunc,stdlib.sqr_c_c)
+        
     def testBadFunc(self):
         t = self.translate('t_badfunc {\nx= badfunc(0):\n}')
         self.assertError(t,"Unknown function badfunc on line 2")
