@@ -629,7 +629,25 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         vals = [ 0+0j, 0+1j, 1+0j, 1+1j, 3+2j, 1-0j, 0-1j, -3+2j, -2-2j ]
         return map(lambda (x,y) : self.make_test(myfunc,pyfunc,x,y), \
                    zip(vals,range(1,len(vals))))
-                                
+
+    def cotantests(self):
+        def mycotan(z):
+            return cmath.cos(z)/cmath.sin(z)
+
+        tests = self.manufacture_tests("cotan",mycotan)
+        
+        # CONSIDER: comes out as -0,1.31304 in python, but +0 in C++ and gf4d
+        # think Python's probably in error, but not 100% sure
+        tests[6][2] = "(0,1.31304)"
+        
+        return tests
+
+    def logtests(self):
+        tests = self.manufacture_tests("log",cmath.log)
+                    
+        tests[0][2] = "(-inf,0)" # log(0+0j) is overflow in python
+        return tests
+
     def test_stdlib(self):
 
         # additions to python math stdlib
@@ -638,9 +656,6 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         
         def myfcotanh(x):
             return math.cosh(x)/math.sinh(x)
-
-        def mycotan(z):
-            return cmath.cos(z)/cmath.sin(z)
 
         def mycotanh(z):
             return cmath.cosh(z)/cmath.sinh(z)
@@ -713,33 +728,18 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests += self.manufacture_tests("sqrt",cmath.sqrt)
 
         tests += self.manufacture_tests("cotanh",mycotanh)        
-        cottests = self.manufacture_tests("cotan",mycotan)
-
+        tests += self.cotantests()
+        tests += self.logtests()
         
-        # CONSIDER: comes out as -0,1.31304 in python, but +0 in C++ and gf4d
-        # think Python's probably in error, but not 100% sure
-        cottests[6][2] = "(0,1.31304)" 
-        tests += cottests
-        
-        logtests = self.manufacture_tests("log",cmath.log)
-        
-
-            
-        logtests[0][2] = "(-inf,0)" # log(0+0j) is overflow in python
-        tests += logtests
-
         # FIXME: asin,acos,atan,atan2, asinh, acosh, atanh
-        
+
+        # construct a formula calculating all of the above,
+        # run it and compare results with expected values
         src = 't_c6{\ninit: y = (1,2)\n' + \
               string.join(map(lambda x : x[0], tests),"\n") + "\n}"
 
-
-
         check = string.join(map(lambda x :self.inspect_complex(x[1]),tests),"\n")
-
-        #check = check + "printf(\"temp52 = %g\\\n\", t__temp52);"
         exp = map(lambda x : "%s = %s" % (x[1],x[2]), tests)
-
         self.assertCSays(src,"init",check,exp)
 
     def testExpression(self):
