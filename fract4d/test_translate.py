@@ -152,6 +152,9 @@ default:
   param implicit_int
     default = 7
   endparam
+  param complex_of_ints
+    default = (2,0)
+  endparam
 }
         ''')
 
@@ -163,6 +166,11 @@ default:
                          fracttypes.Complex)
         self.assertEqual(t.symbols["@implicit_bool"].type, fracttypes.Bool)
         self.assertEqual(t.symbols["@implicit_int"].type, fracttypes.Int)
+        self.assertEqual(t.symbols["@complex_of_ints"].type, fracttypes.Complex)
+
+        defval_re = t.symbols["@complex_of_ints"].default.value[0].value
+        
+        self.failUnless(isinstance(defval_re,types.FloatType))
         
     def testFractintSections(self):
         t1 = self.translate("t1 {\na=1,a=2:\nb=2\nc=3}")

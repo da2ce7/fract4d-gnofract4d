@@ -1,16 +1,13 @@
 todo for 2.0
-* BB	giger.fct - results of extangle are different vs 1.9
-* BB	horrible_drawing_bug.fct - zoom out & it looks very different
  
 * BB	more robust error reporting
 * W	last-chance exception handler
 
 * B	untitled_5 displays weirdly - 
 	so do some combinations of bailout+colorfunc
-* BB	setting val for inner=flat changes bailout for formula 
-	(but not visibly in GUI)
+* BB	giger.fct - results of extangle are different vs 1.9
+* BB	horrible_drawing_bug.fct - zoom out & it looks very different
 
-* W	exact SMP equality test
 * W	end-to-end regression test vs V1.9
 * W	regression test vs fractint
 
@@ -21,14 +18,15 @@ todo for 2.0
 	run $EDITOR, refresh
 * W	i18n, gettext
 * W	review human interface guidelines
-* B	warnings for several fractal types
-* B	other windows always in front - is that good?
 
 * WW	doc
 
+* B	open formula file on .cfrm should go to correct page in browser
+* B	maxiter isn't updated due to auto-deepening
 * B	change width or setting to something which isn't a number/float: 
 	ValueError in set_prefs, set_initparam etc
 * B	click on GaussianInteger cfrm = print out some stuff
+* B	standard.cfrm:triangle = all black
 * B	opening color browser sometimes applies 1st item
 * B	translationerror on load doesn't pop up
 
@@ -43,6 +41,9 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* B	standard.cfrm:smooth = error "all parameters must be floats"
+* BB	setting val for inner=flat changes bailout for formula 
+	(but not visibly in GUI)
 * W	UI for parameters for colorfuncs
 * BB	tower_of_thorns doesn't load 
 * B	rest doesn't change colorfunc paramsx
@@ -117,6 +118,9 @@ done:
 	pictures)
 
 postponed
+* B	warnings for several fractal types
+* B	other windows always in front - is that good?
+* W	exact SMP equality test
 * B	reset doesn't affect function params
 * W	tie menu-based and toolbar-based explorer toggling
 * W	regenerate for explorer mode 
