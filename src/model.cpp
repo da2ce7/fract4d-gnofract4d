@@ -282,7 +282,36 @@ model_on_error(model_t *m, const char *message, const char *extra_info)
     gdk_threads_enter();
     if(extra_info)
     {
-	
+	GtkWidget *dialog = 
+	    gnome_dialog_new(_("Gnofract4D Error"),
+			     GNOME_STOCK_BUTTON_OK,
+			     NULL);
+
+	GtkWidget *label = gtk_label_new(message);
+	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(dialog)->vbox),
+			   label, TRUE, TRUE, 1);
+
+
+	GtkWidget *scrolled = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
+					GTK_POLICY_AUTOMATIC,
+					GTK_POLICY_AUTOMATIC);
+
+	GtkWidget *text = gtk_text_new(NULL,NULL);
+	gtk_widget_set_usize(scrolled,320,400);
+	int pos=0;
+
+	gtk_editable_insert_text(GTK_EDITABLE(text),
+				 extra_info,strlen(extra_info),&pos);
+				 
+	gtk_container_add(GTK_CONTAINER(scrolled),text);
+
+	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(dialog)->vbox),
+			   scrolled, TRUE, TRUE, 1);
+
+	gtk_widget_show_all(dialog);
+
+	gnome_dialog_run_and_close(GNOME_DIALOG(dialog));
     }
     else
     {

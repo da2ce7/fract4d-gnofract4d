@@ -114,11 +114,13 @@ compiler::compile(std::string commandLine)
     void *dlHandle = dlopen(out.c_str(), RTLD_NOW);
     if(!dlHandle)
     {
-        on_error(std::string("Error '") + strerror(errno) + 
-                 "' compiling fractal code.", "using command:\n\n" +
-                 flow(commandLine) + "\n\nCompiler output was:\n\n" +
-                 flow(complaints) + 
-		 "\n\nPlease ensure your compiler settings are correct");
+        on_error(
+	    std::string("Error compiling fractal code. "
+                        "Check your compiler settings.'"),
+	    std::string("Error was: '") + strerror(errno) + 
+			"'\n\n" + "Command used was:\n\n" +
+			commandLine + "\n\nCompiler output was:\n\n" +
+			complaints);
     }
     return dlHandle;
 }
