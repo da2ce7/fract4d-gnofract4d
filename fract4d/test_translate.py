@@ -162,6 +162,34 @@ class TranslateTest(testbase.TestBase):
         self.assertEqual(foo.default.value[0].value,1.0)
         self.assertEqual(foo.default.value[1].value,2.0)
 
+    def testSectionClashWarnings(self):
+        t = self.translate('''t_sections {
+        x = 1 : x = x + 1, x < 10
+        init:
+        x= 2
+        loop:
+        x = x + 2
+        bailout:
+        x < 8
+        default:
+        }''')
+
+        self.assertNoErrors(t)
+        self.assertWarning(t, "implicit bailout section")
+        self.assertWarning(t, "implicit init section")
+        self.assertWarning(t, "implicit loop section")
+
+        t2 = self.translate('''t_sections {
+        ; this comment shouldnt cause alarm 
+        init:
+        int x= 2
+        loop:
+        x = x + 2
+        bailout:
+        x < 8
+        }''')
+        self.assertNoProbs(t2)
+        
     def disable_testMixedImplicitAndNamedParams(self):
         t = self.translate('''t_mix {
         init:

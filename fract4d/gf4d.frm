@@ -49,6 +49,10 @@ endparam
 float func bailfunc
 	default = cmag
 endfunc
+complex param a
+	title = "Power"
+	default = (2.0,0.0)
+endparam
 zcenter=1.0e-10
 }
 
@@ -89,6 +93,9 @@ endparam
 float func bailfunc
 	default = cmag
 endfunc
+complex param a
+	default = (0.0,0.0)
+endparam
 }
 
 ManZPower {
