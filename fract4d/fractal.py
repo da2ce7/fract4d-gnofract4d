@@ -497,6 +497,12 @@ class T(FctUtils):
             params[n] = val
             self.changed()
 
+    def set_solids(self, solids):
+        if self.solids[0] == solids[0] and self.solids[1] == solids[1]:
+            return
+        self.solids = solids
+        self.changed(False)
+        
     def set_gradient(self, g):
         # FIXME: compare for equality
         self.gradient = g
@@ -800,7 +806,9 @@ class T(FctUtils):
         cmap = fract4dc.cmap_create_gradient(self.gradient.segments)
         (r,g,b,a) = self.solids[0]
         fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
-
+        (r,g,b,a) = self.solids[1]
+        fract4dc.cmap_set_solid(cmap,1,r,g,b,a)
+        
         initparams = self.all_params()
         fract4dc.pf_init(pfunc,1.0E-9,initparams)
 

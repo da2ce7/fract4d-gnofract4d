@@ -17,13 +17,14 @@ sys.path.append("..")
 
 from fract4d import gradient, fc, fractal
 import colors
+import gtkfractal
 
 class Test(unittest.TestCase):
     def setUp(self):
         self.compiler = fc.Compiler()
         self.compiler.file_path.append("../formulas")
         
-        self.f = fractal.T(self.compiler,self)
+        self.f = gtkfractal.T(self.compiler,self)
     
     def tearDown(self):
         pass

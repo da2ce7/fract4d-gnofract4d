@@ -159,6 +159,8 @@ class T(gobject.GObject):
         self.cmap = fract4dc.cmap_create_gradient(self.gradient.segments)
         (r,g,b,a) = self.f.solids[0]
         fract4dc.cmap_set_solid(self.cmap,0,r,g,b,a)
+        (r,g,b,a) = self.f.solids[1]
+        fract4dc.cmap_set_solid(self.cmap,1,r,g,b,a)
 
         t = self.f.tolerance(width,height)
         if self.f.auto_tolerance:

@@ -78,7 +78,8 @@ class ColorDialog(dialog.T):
         
         self.f = f
         self.grad= copy.copy(self.f.gradient)
-                
+        self.solids = copy.copy(self.f.solids)
+        
         self.model = _get_model()
         sw = self.create_map_file_list()
         gradbox = self.create_editor()
@@ -133,7 +134,9 @@ class ColorDialog(dialog.T):
         self.gradarea.connect('button-release-event', self.gradarea_clicked)
         self.gradarea.connect('motion-notify-event', self.gradarea_mousemoved)
 
-        buttonbox = gtk.HButtonBox()
+        gradbox.add(self.gradarea)
+        
+        buttonbox = gtk.HBox()
 
         self.left_color_button = utils.ColorButton(
             self.grad.segments[0].left_color, self.color_changed, True)
@@ -156,10 +159,28 @@ class ColorDialog(dialog.T):
         self.copy_right_button = gtk.Button(_(">"))
         buttonbox.add(self.copy_right_button)
         self.copy_right_button.connect('clicked', self.copy_right)
-        gradbox.add(self.gradarea)
+
         gradbox.add(buttonbox)
+        
+        solid_box = gtk.HBox()
+        self.inner_solid_button = utils.ColorButton(
+            utils.floatColorFrom256(self.solids[1]),
+            self.solid_color_changed, 1)
+
+        self.outer_solid_button = utils.ColorButton(
+            utils.floatColorFrom256(self.solids[0]),
+            self.solid_color_changed, 0)
+
+        solid_box.add(self.inner_solid_button.widget)
+        solid_box.add(self.outer_solid_button.widget)
+        gradbox.add(solid_box)
+
         return gradbox
 
+    def solid_color_changed(self, r, g, b, index):
+        self.solids[index] = \
+            utils.updateColor256FromFloat(r,g,b, self.solids[index])
+        
     def color_changed(self,r,g,b, is_left):
         #print "color changed", r, g, b, is_left
         if self.selected_segment == -1:
@@ -362,7 +383,11 @@ class ColorDialog(dialog.T):
         print "not implemented"
 
     def onApply(self):
+        self.f.freeze()
         self.f.set_gradient(copy.copy(self.grad))
+        self.f.set_solids(copy.copy(self.solids))
+        if self.f.thaw():
+            self.f.changed(False)
         
     def onResponse(self,widget,id):
         if id == gtk.RESPONSE_CLOSE or \
