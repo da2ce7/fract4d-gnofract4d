@@ -175,6 +175,8 @@ fractal::set_fractal_type(const char *name)
 {
     delete pIterFunc;
     pIterFunc = iterFunc_new(name);
+    pIterFunc->reset(params);
+    bailout_type = pIterFunc->preferred_bailfunc();
 }
 
 /* x & y vary by up to 50% of the MAGNITUDE */
@@ -244,32 +246,33 @@ fractal::set_mixed(const fractal& f1, const fractal& f2, double lambda)
     {
         params[i] = lambda * f1.params[i] + nl * f2.params[i];
     }
+    maxiter = (int)(lambda * f1.maxiter + nl * f2.maxiter);
 }
 
-/* return to mandelbrot set */
+/* return to default parameters for this fractal type */
 void 
 fractal::reset()
 {
-    digits=10;
-    d zero = D(0.0);
-    d four = D(4.0);
-    params[XCENTER] = zero;
-    params[YCENTER] = zero;
-    params[ZCENTER] = zero;
-    params[WCENTER] = zero;
-	
-    params[MAGNITUDE] = four;
-    params[BAILOUT] = four;
-    for(int i = XYANGLE; i < ZWANGLE+1; i++) {
-        params[i] = zero;
-    }
-
     maxiter = 256;
     rot_by = M_PI/2.0;
     
     if(pIterFunc)
     {
-        pIterFunc->reset();
+        pIterFunc->reset(params);
+    }
+    else
+    {
+        // FIXME: probably not needed?
+        params[XCENTER] = 0.0;
+        params[YCENTER] = 0.0;
+        params[ZCENTER] = 0.0;
+        params[WCENTER] = 0.0;
+	
+        params[MAGNITUDE] = 4.0;
+        params[BAILOUT] = 4.0;
+        for(int i = XYANGLE; i < ZWANGLE+1; i++) {
+            params[i] = 0.0;
+        }
     }
 }
 
@@ -409,7 +412,6 @@ fractal::get_max_iterations()
 void 
 fractal::set_aa(e_antialias val)
 {
-
     antialias = val;
 }
 
@@ -585,6 +587,10 @@ void
 fractal::calc(Gf4dFractal *gf, image *im)
 {
     {
+        if(eaa == AA_DEFAULT) 
+        {
+            eaa = antialias;
+        }
         fractFunc pr(this, im, gf);
 
         gf4d_fractal_status_changed(gf,GF4D_FRACTAL_CALCULATING);
@@ -599,7 +605,7 @@ fractal::calc(Gf4dFractal *gf, image *im)
             pr.draw(8,1);
         }
 	
-        if(antialias > AA_NONE) {
+        if(eaa > AA_NONE) {
             gf4d_fractal_status_changed(gf,GF4D_FRACTAL_ANTIALIASING);
             pr.draw_aa();
         }
@@ -618,15 +624,15 @@ fractal::calc(Gf4dFractal *gf, image *im)
 void 
 fractal::recolor(image *im)
 {
-    int width = im->Xres;
-    int height = im->Yres;
+    int width = im->Xres();
+    int height = im->Yres();
     for( int i = 0 ; i < height; ++i)
     {
         for( int j = 0; j < width; ++j)
         {
             // fake scratch space
             d s[SCRATCH_SPACE]= { 0.0 };
-            rgb_t result = (*cizer)(im->iter_buf[i * width + j ], s, false);
+            rgb_t result = (*cizer)(im->getIter(i,j), s, false);
             im->put(j,i,result);
         }
     }

@@ -1,10 +1,12 @@
 #include "fractFunc.h"
 #include "pointFunc.h"
+#include "iterFunc.h"
+#include <stdio.h>
 
 /* redirect back to a member function */
-void worker(thread_data_t *tdata)
+void worker(thread_data_t &tdata)
 {
-    tdata->ff->work(tdata);
+    tdata.ff->work(&tdata);
 }
 
 fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
@@ -19,10 +21,10 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
         f->cizer, 
         f->potential);
     
-    depth = f->antialias ? 2 : 1; 
+    depth = f->eaa ? 2 : 1; 
     
     f->update_matrix();
-    rot = f->rot/D_LIKE(im->Xres,f->params[MAGNITUDE]);
+    rot = f->rot/D_LIKE(im->Xres(),f->params[MAGNITUDE]);
     deltax = rot[VX];
     deltay = rot[VY];
     ddepth = D_LIKE((double)(depth*2),f->params[MAGNITUDE]);
@@ -32,8 +34,8 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     debug_precision(deltax[VX],"deltax");
     debug_precision(f->params[XCENTER],"center");
     topleft = f->get_center() -
-        deltax * D_LIKE(im->Xres / 2.0, f->params[MAGNITUDE])  -
-        deltay * D_LIKE(im->Yres / 2.0, f->params[MAGNITUDE]);
+        deltax * D_LIKE(im->Xres() / 2.0, f->params[MAGNITUDE])  -
+        deltay * D_LIKE(im->Yres() / 2.0, f->params[MAGNITUDE]);
 
     d depthby2 = ddepth/D_LIKE(2.0,ddepth);
     aa_topleft = topleft - (delta_aa_y + delta_aa_x) * depthby2;
@@ -45,7 +47,7 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     /* threading */
     if(f->nThreads > 1)
     {
-        ptp = new tpool(2,200);
+        ptp = new tpool<thread_data_t>(2,100);
     }
     else
     {
@@ -69,72 +71,86 @@ fractFunc::clear()
 void
 fractFunc::work(thread_data_t *jobdata)
 {
-    int nRows;
+    int nRows=0;
 
-    gf4d_fractal_try_finished_cond(gf);
+    printf("working\n");
+    return;
+
+    if(gf4d_fractal_try_finished_cond(gf))
+    {
+        // interrupted - just return without doing anything
+        // this is less efficient than clearing the queue but easier
+        printf("returning\n");
+        return;
+    }
 
     /* carry them out */
     switch(jobdata->job)
     {
     case JOB_BOX:
-        //cout << "box on thread " << pthread_self() << "\n";
+        //cout << "BOX " << jobdata->y << " " << pthread_self() << "\n";
         box(jobdata->x,jobdata->y,jobdata->param);
         nRows = jobdata->param;
         break;
     case JOB_ROW:
-        //cout << "row on thread " << pthread_self() << "\n";
+        //cout << "ROW " << jobdata->y << " " << pthread_self() << "\n";
         row(jobdata->x,jobdata->y,jobdata->param);
         nRows=1;
         break;
     case JOB_BOX_ROW:
+        //cout << "BXR " << jobdata->y << " " << pthread_self() << "\n";
         box_row(jobdata->x, jobdata->y, jobdata->param);
         nRows = jobdata->param;
         break;
     case JOB_ROW_AA:
-        //cout << "aa row on thread " << pthread_self() << "\n";        
+        // cout << "RAA " << jobdata->y << " " << pthread_self() << "\n";
         row_aa(jobdata->x,jobdata->y,jobdata->param);
         nRows=1;
         break;
     default:
-        cerr << "Unknown job id" << jobdata->job << "\n";
+        cerr << "Unknown job id" << (int) jobdata->job << "\n";
     }
-    gf4d_fractal_image_changed(gf,0,jobdata->y,im->Xres,jobdata->y+ nRows);
-    gf4d_fractal_progress_changed(gf,(float)jobdata->y/(float)im->Yres);
+    gf4d_fractal_image_changed(gf,0,jobdata->y,im->Xres(),jobdata->y+ nRows);
+    gf4d_fractal_progress_changed(gf,(float)jobdata->y/(float)im->Yres());
 }
 
 void
 fractFunc::send_cmd(job_type_t job, int x, int y, int param)
 {
-    gf4d_fractal_try_finished_cond(gf);
-    thread_data_t *work = new thread_data_t;
+    //gf4d_fractal_try_finished_cond(gf);
+    thread_data_t work;
 
-    work->job = job; work->ff = this;
-    work->x = x; work->y = y; work->param = param;
+    work.job = job; work.ff = this;
+    work.x = x; work.y = y; work.param = param;
 
-    ptp->add_work((void (*)(void *))worker, work);
+    ptp->add_work(worker, work);
 }
 
 void
 fractFunc::send_row(int x, int y, int w)
 {
+    //cout << "sent ROW" << y << "\n";
     send_cmd(JOB_ROW,x,y,w);
 }
 
 void
 fractFunc::send_box_row(int w, int y, int rsize)
 {
+    //cout << "sent BXR" << y << "\n";
     send_cmd(JOB_BOX_ROW, w, y, rsize);
 }
 
 void
 fractFunc::send_box(int x, int y, int rsize)
 {
+    //cout << "sent BOX" << y << "\n";
     send_cmd(JOB_BOX,x,y,rsize);
 }
 
 void
 fractFunc::send_row_aa(int x, int y, int w)
 {
+    //cout << "sent RAA" << y << "\n";
     send_cmd(JOB_ROW_AA, x, y, w);
 }
 
@@ -149,13 +165,15 @@ fractFunc::rectangle(struct rgb pixel, int x, int y, int w, int h)
     }
 }
 
-inline struct rgb
-fractFunc::antialias(const dvec4& cpos)
+rgb_t
+fractFunc::antialias(int x, int y)
 {
+    dvec4 topleft = aa_topleft + I2D_LIKE(x, f->params[MAGNITUDE]) * deltax + 
+        I2D_LIKE(y, f->params[MAGNITUDE]) * deltay;
+
     struct rgb ptmp;
     unsigned int pixel_r_val=0, pixel_g_val=0, pixel_b_val=0;
     int i,j;
-    dvec4 topleft = cpos;
 
     for(i=0;i<depth;i++) {
         dvec4 pos = topleft; 
@@ -178,7 +196,7 @@ fractFunc::antialias(const dvec4& cpos)
 inline void 
 fractFunc::pixel(int x, int y,int w, int h)
 {
-    int *ppos = im->iter_buf + y*im->Xres + x;
+    int *ppos = im->iter_buf + y*im->Xres() + x;
     struct rgb pixel;
 
     if(*ppos != -1) return;
@@ -193,7 +211,7 @@ fractFunc::pixel(int x, int y,int w, int h)
     // test for iteration depth
     if(f->auto_deepen && k++ % AUTO_DEEPEN_FREQUENCY == 0)
     {
-        int i;
+        int i=0;
 
         (*pf)(pos, f->maxiter*2,NULL,&i);
 
@@ -217,18 +235,15 @@ fractFunc::pixel(int x, int y,int w, int h)
 inline void
 fractFunc::pixel_aa(int x, int y)
 {
-    dvec4 pos = aa_topleft + I2D_LIKE(x, f->params[MAGNITUDE]) * deltax + 
-        I2D_LIKE(y, f->params[MAGNITUDE]) * deltay;
-
     struct rgb pixel;
 
     // if aa type is fast, short-circuit some points
-    if(f->antialias == AA_FAST &&
-       x > 0 && x < im->Xres-1 && y > 0 && y < im->Yres-1)
+    if(f->eaa == AA_FAST &&
+       x > 0 && x < im->Xres()-1 && y > 0 && y < im->Yres()-1)
     {
         // check to see if this point is surrounded by others of the same colour
         // if so, don't bother recalculating
-        int iter = im->iter_buf[y * im->Xres + x];
+        int iter = im->getIter(x,y);
         int pcol = RGB2INT(y,x);
         bool bFlat = true;
 
@@ -246,7 +261,7 @@ fractFunc::pixel_aa(int x, int y)
             return;
         }
     }
-    pixel = antialias(pos);
+    pixel = antialias(x,y);
 
     rectangle(pixel,x,y,1,1);
 }
@@ -260,18 +275,19 @@ fractFunc::row(int x, int y, int n)
     }
 }
 
-void
+bool
 fractFunc::update_image(int i)
 {
-    gf4d_fractal_image_changed(gf,0,last_update_y,im->Xres,i);
-    gf4d_fractal_progress_changed(gf,(float)i/(float)im->Yres);
+    gf4d_fractal_image_changed(gf,0,last_update_y,im->Xres(),i);
+    gf4d_fractal_progress_changed(gf,(float)i/(float)im->Yres());
     last_update_y = i;
+    return gf4d_fractal_try_finished_cond(gf);
 }
 
-// see if the image needs more (or less) iterations to display properly
-// returns +ve if more are required, -ve if less are required, 0 if 
-// it's correct. This is very heuristic - a histogram approach would
-// be better
+// see if the image needs more (or less) iterations to display
+// properly returns +ve if more are required, -ve if less are
+// required, 0 if it's correct. This is a very poor heuristic - a
+// histogram approach would be better
 
 int
 fractFunc::updateiters()
@@ -298,8 +314,8 @@ fractFunc::updateiters()
 
 void fractFunc::draw_aa()
 {
-    int w = im->Xres;
-    int h = im->Yres;
+    int w = im->Xres();
+    int h = im->Yres();
 
     reset_counts();
 
@@ -313,7 +329,10 @@ void fractFunc::draw_aa()
         else
         {
             row_aa(0,y,w);
-            update_image(y);
+            if(update_image(y))
+            {
+                break;
+            }
         }
     }
 
@@ -333,7 +352,7 @@ inline bool fractFunc::isTheSame(
     if(bFlat)
     {
         // does this point have the target # of iterations?
-        if(im->iter_buf[y * im->Xres + x] != targetIter) return false;
+        if(im->getIter(x,y) != targetIter) return false;
         // if we're using continuous potential, does it have
         // the same colour too?
         if(f->potential && RGB2INT(y,x) != targetCol) return false;
@@ -354,7 +373,7 @@ void fractFunc::reset_progress(float progress)
     {
         ptp->flush();
     }
-    gf4d_fractal_image_changed(gf,0,0,im->Xres,im->Yres);
+    gf4d_fractal_image_changed(gf,0,0,im->Xres(),im->Yres());
     gf4d_fractal_progress_changed(gf,progress);
 }
 
@@ -407,8 +426,8 @@ void fractFunc::draw(int rsize, int drawsize)
     }
 
     int x,y;
-    int w = im->Xres;
-    int h = im->Yres;
+    int w = im->Xres();
+    int h = im->Yres();
 
     /* reset progress indicator & clear screen */
     reset_counts();
@@ -428,13 +447,21 @@ void fractFunc::draw(int rsize, int drawsize)
         {
             row (x, y2, w-x);
         }
-        update_image(y);
+        if(update_image(y)) 
+        {
+            printf("interrupt 1\n");
+            goto done;
+        }
     }
     // remaining lines
     for ( ; y < h ; y++)
     {
         row(0,y,w);
-        update_image(y);
+        if(update_image(y)) 
+        {
+            printf("interrupt 2\n");
+            goto done;
+        }
     }
 
     reset_counts();
@@ -449,14 +476,22 @@ void fractFunc::draw(int rsize, int drawsize)
                 pixel(x2,y,1,1);
             }
         }        
-        update_image(y);
+        if(update_image(y))
+        {
+            printf("interrupt 3\n");
+            goto done;
+        }
     }
 
     reset_counts();
 
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
-        update_image(y);
+        if(update_image(y))
+        {
+            printf("interrupt 4\n");
+            goto done;
+        }
 
         // calculate left edge of the row
         for(int y2 = y+1; y2 < y + rsize; ++y2)
@@ -469,15 +504,17 @@ void fractFunc::draw(int rsize, int drawsize)
         }		
     }
 
+ done:
     /* refresh entire image & reset progress bar */
+    printf("finished image\n");
     reset_progress(1.0);
 }
 
 void fractFunc::draw_threads(int rsize, int drawsize)
 {
     int x,y;
-    int w = im->Xres;
-    int h = im->Yres;
+    int w = im->Xres();
+    int h = im->Yres();
 
     reset_counts();
     reset_progress(0.0);

@@ -27,6 +27,7 @@
 
 #include <math.h>
 #include <iostream>
+#include <float.h>
 
 class pointCalc : public pointFunc {
 private:
@@ -60,15 +61,20 @@ public:
         {
             int flags = m_pIter->flags();
 
-            T p[SCRATCH_SPACE], save[SCRATCH_SPACE];
+            T p[SCRATCH_SPACE];
+            T save[SCRATCH_SPACE];
             p[X] =  params.n[VZ]; 
             p[Y] =  params.n[VW];
             p[CX] = params.n[VX];
             p[CY] = params.n[VY];
             p[EJECT] = m_eject;
+            p[LASTX] = p[LASTY] = DBL_MAX;
 
             int iter = 0;
 
+            /* to save on bailout tests and function call overhead, we
+               try to calculate 8 iterations at a time. Some bailout
+               functions don't allow this, however */
             if(m_pBail->iter8_ok())
             {
                 int nMax8Iters = (nMaxIters/8) * 8;
@@ -77,11 +83,11 @@ public:
                     save[X] = p[X];
                     save[Y] = p[Y];
                     m_pIter->iter8(p);
-                    if((iter+= 8) > nMax8Iters)
+                    if((iter+= 8) >= nMax8Iters)
                     {
                         goto finished8;
                     }
-                    (*m_pBail)(p,flags);            
+                    (*m_pBail)(p,flags);  
                 }while(p[EJECT_VAL] < m_eject);
 
                 // we bailed out - need to go back to saved position & 

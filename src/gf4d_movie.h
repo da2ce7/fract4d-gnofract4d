@@ -1,3 +1,23 @@
+/* Gnofract4D -- a little fractal generator-browser program
+ * Copyright (C) 1999-2001 Edwin Young
+ *
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ */
+
 /* an object to hold a movie in the process of being rendered. As with
  * gf4d_fractal, this is an object rather than a widget. 
  */
@@ -13,8 +33,6 @@
 
 #ifdef __cplusplus
 extern "C" {
-#else if 0
-} // just to keep emacs indenter happy!
 #endif
 
 #define GF4D_TYPE_MOVIE                 (gf4d_movie_get_type())
@@ -25,6 +43,7 @@ extern "C" {
 
 typedef struct _Gf4dMovie Gf4dMovie;
 typedef struct _Gf4dMovieClass Gf4dMovieClass;
+typedef struct _Gf4dMovieFrame Gf4dMovieFrame;
 
 enum {
     GF4D_MOVIE_CALCULATING,
@@ -59,6 +78,12 @@ struct _Gf4dMovieClass
     void (* status_changed)     (Gf4dFractal *fract); // equiv to message
 };
 
+struct _Gf4dMovieFrame
+{
+    Gf4dFractal *f;
+    int nFrames;
+};
+
 // basic functions
 GtkObject*    gf4d_movie_new(void);
 GtkType       gf4d_movie_get_type(void);
@@ -74,12 +99,24 @@ void gf4d_movie_calc(Gf4dMovie *mov, int nThreads);
 gboolean gf4d_movie_write_params(Gf4dMovie *mov, const gchar *filename);
 gboolean gf4d_movie_load_params(Gf4dMovie *mov, const gchar *filename);
 
+/* are we currently calculating? */
+gboolean gf4d_movie_is_calculating(Gf4dMovie *mov);
+
 /* stop calculating now! */
 void gf4d_movie_interrupt(Gf4dMovie *mov);
 
 /* add f to the list after "f_after", or at the end if f_after is NULL */
-void gf4d_movie_add(Gf4dMovie *mov, Gf4dFractal *f, Gf4dFractal *f_after);
+void gf4d_movie_add(Gf4dMovie *mov, 
+    Gf4dMovieFrame *fr, 
+    Gf4dMovieFrame *fr_after);
+
 /* remove "f" */
-void gf4d_movie_remove(Gf4dMovie *mov, Gf4dFractal *f);
+void gf4d_movie_remove(Gf4dMovie *mov, Gf4dMovieFrame *fr);
+
+/* default number of tweened frames between keyframes */
+#define DEFAULT_FRAMES 10 
+
+Gf4dMovieFrame *gf4d_movie_frame_new(Gf4dFractal *f, int nFrames);
+void gf4d_movie_frame_set_frames(Gf4dMovieFrame *fr, int nFrames);
 
 #endif /* _GF4D_MOVIE_H_ */

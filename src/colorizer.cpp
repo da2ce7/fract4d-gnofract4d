@@ -28,7 +28,7 @@ colorizer_new(e_colorizer type)
 colorizer_t *
 colorizer_read(std::istream& is)
 {
-    colorizer *cizer;
+    colorizer *cizer = NULL;
 
     std::string name, value;
 
@@ -144,7 +144,7 @@ rgb_colorizer::operator()(int n, double *scratch, bool potential) const
 std::ostream& 
 operator<<(std::ostream& s, const rgb_colorizer& cizer)
 {
-    s << "colorizer=" << cizer.type() << "\n"
+    s << "colorizer=" << (int) cizer.type() << "\n"
       << FIELD_RED << "=" << cizer.r << "\n" 
       << FIELD_GREEN << "=" << cizer.g << "\n" 
       << FIELD_BLUE << "=" << cizer.b << "\n" 
@@ -246,12 +246,21 @@ cmap_colorizer::operator()(int n, double *scratch, bool potential) const
         return cmap[0];
     }
     rgb_t mix;
-    
-    n %= 255;
-    double pos = potential ? scratch[EJECT]/scratch[EJECT_VAL] : 0.0;
-    mix.r = (unsigned char)(cmap[n].r * (1.0 - pos) + cmap[n+1].r * pos);
-    mix.g = (unsigned char)(cmap[n].g * (1.0 - pos) + cmap[n+1].g * pos);
-    mix.b = (unsigned char)(cmap[n].b * (1.0 - pos) + cmap[n+1].b * pos);
+
+    /* a number in [1,255] - don't want to include color zero */
+    n %= 255; n++;
+    if(potential)
+    {
+        double pos = scratch[EJECT]/scratch[EJECT_VAL];
+        int n2 = (n == 255 ? 1 : n+1);
+        mix.r = (unsigned char)(cmap[n].r * (1.0 - pos) + cmap[n2].r * pos);
+        mix.g = (unsigned char)(cmap[n].g * (1.0 - pos) + cmap[n2].g * pos);
+        mix.b = (unsigned char)(cmap[n].b * (1.0 - pos) + cmap[n2].b * pos);
+    }
+    else
+    {
+        mix = cmap[n];
+    }
     return mix;
 }
 
@@ -260,7 +269,7 @@ cmap_colorizer::operator()(int n, double *scratch, bool potential) const
 std::ostream& 
 operator<<(std::ostream& s, const cmap_colorizer& cizer)
 {
-    s << FIELD_COLORIZER << "=" << cizer.type()<< "\n";
+    s << FIELD_COLORIZER << "=" << (int) cizer.type()<< "\n";
     s << FIELD_FILENAME << "=" << cizer.name << "\n";
     s << SECTION_STOP << "\n";
     return s;

@@ -301,12 +301,6 @@ int model_load_autosave_file(model_t *m)
     return ret;
 }
 
-void
-model_add_fract_to_movie(model_t *m, Gf4dFractal *f_after)
-{
-    gf4d_movie_add(m->movie, m->fract, f_after);
-}
-
 int
 model_cmd_save_image(model_t *m, char *filename)
 {
@@ -331,7 +325,7 @@ model_cmd_save(model_t *m, char *filename)
 int 
 model_cmd_load(model_t *m, char *filename)
 {
-    int ret;
+    int ret = 0;
     if(model_cmd_start(m,"load"))
     {
         ret = model_nocmd_load(m,filename);

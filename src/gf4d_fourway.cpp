@@ -44,11 +44,6 @@ static gint gf4d_fourway_button_release           (GtkWidget        *widget,
 static gint gf4d_fourway_motion_notify            (GtkWidget        *widget,
 						 GdkEventMotion   *event);
 static void gf4d_fourway_update_mouse             (Gf4dFourway *fourway, gint x, gint y);
-static void gf4d_fourway_update                   (Gf4dFourway *fourway);
-static void gf4d_fourway_adjustment_changed       (GtkAdjustment    *adjustment,
-						 gpointer          data);
-static void gf4d_fourway_adjustment_value_changed (GtkAdjustment    *adjustment,
-						 gpointer          data);
 
 /* Local data */
 enum {
@@ -75,8 +70,8 @@ gf4d_fourway_get_type ()
             sizeof (Gf4dFourwayClass),
             (GtkClassInitFunc) gf4d_fourway_class_init,
             (GtkObjectInitFunc) gf4d_fourway_init,
-            (GtkArgSetFunc) NULL,
-            (GtkArgGetFunc) NULL,
+            NULL,
+            NULL,
         };
 
         fourway_type = gtk_type_unique (gtk_widget_get_type (), &fourway_info);
@@ -244,7 +239,6 @@ gf4d_fourway_expose (GtkWidget      *widget,
 		   GdkEventExpose *event)
 {
     Gf4dFourway *fourway;
-    gdouble s,c;
     gint xc, yc;
 
     g_return_val_if_fail (widget != NULL, FALSE);
@@ -268,7 +262,6 @@ gf4d_fourway_expose (GtkWidget      *widget,
     if(fourway->text)
     {
         gint l = gdk_string_width(widget->style->font,fourway->text);
-        gint h = gdk_string_height(widget->style->font, fourway->text);
 		
         gtk_draw_string(widget->style,
                         widget->window,

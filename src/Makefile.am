@@ -35,8 +35,10 @@ gnofract4d_SOURCES = \
 	cmapbrowser.h cmapbrowser.cpp \
 	movie_editor.h movie_editor.cpp \
 	io.h io.cpp \
-	threadpool.h threadpool.cpp
+	threadpool.h \
+	tls.h tls.cpp
 
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) \
 	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)
 
+CXXFLAGS = -g -O2 -Wall -D_REENTRANT

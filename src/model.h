@@ -76,9 +76,6 @@ extern "C" {
     Gf4dMovie   *model_get_movie(model_t *m);
     Gf4dFractal *model_get_subfract(model_t *m, int num);
 
-    /* add current fractal to movie after f (can be NULL) */
-    void model_add_fract_to_movie(model_t *m, Gf4dFractal *f);
-
     /* copy subfract n onto main fract */
     void model_set_subfract(model_t *m, int num);
 

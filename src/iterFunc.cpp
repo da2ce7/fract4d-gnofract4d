@@ -41,7 +41,7 @@ class iterImpl : public iterFunc
 {
 protected:
     const char *m_type;
-    complex<double> a[NOPTIONS];
+    complex<double> a[NOPTIONS+1];
 public:
     iterImpl(const char *type) : m_type(type) {}
 
@@ -72,9 +72,24 @@ public:
         {
             return T::FLAGS;
         }
-    virtual void reset()
+    virtual void reset(double *params)
         {
+            /* suitable defaults for most types */
+            // FIXME : duplicated in fractal.cpp
+            params[XCENTER] = 0.0;
+            params[YCENTER] = 0.0;
+            params[ZCENTER] = 0.0;
+            params[WCENTER] = 0.0;
             
+            params[MAGNITUDE] = 4.0;
+            params[BAILOUT] = 4.0;
+            for(int i = XYANGLE; i < ZWANGLE+1; i++) {
+                params[i] = 0.0;
+            }
+        }
+    virtual e_bailFunc preferred_bailfunc(void)
+        {
+            return BAILOUT_MAG;
         }
     /* utility functions */
 
@@ -149,7 +164,7 @@ operator>>(std::istream& s, iterImpl<T, NOPTIONS>& m)
 }
 
 #ifdef HAVE_GMP
-#define GMP_FUNC_OP \ 
+#define GMP_FUNC_OP \
     void operator()(gmp::f *p) const \
         { \
             calc<gmp::f>(p);\
@@ -207,7 +222,7 @@ class mandFunc : public iterImpl<mandFunc,0>
 {
 public:
     enum { FLAGS = HAS_X2 | HAS_Y2 };
-    mandFunc() : iterImpl(name()) {}
+    mandFunc() : iterImpl<mandFunc,0>(name()) {} 
 
 #define MAND_DECL T atmp
 #define MAND_ITER \
@@ -219,27 +234,80 @@ public:
 
     ITER_DECLS(MAND_DECL,MAND_ITER)
 
-    static char *name()
+    static const char *name()
         {
             return "Mandelbrot";
         }
 };
 
-// z <- (z^3-1)/3 z^2 + c
-class novaFunc : public iterImpl<novaFunc,0>
+// Newton's method for a quadratic complex polynomial
+// z <- (z^2 + A)/2z
+class newtFunc : public iterImpl<newtFunc,0>
+{
+#define NEWT_DECL complex<double> z(p[X],p[Y]) , c(p[CX],p[CY])
+#define NEWT_ITER z = (2*z*z*z + c)/ 3.0 * z * z
+#define NEWT_RET  p[X] = z.real(); p[Y] = z.imag()
+
+ public:
+    enum { FLAGS = 0 };
+    newtFunc() : iterImpl<newtFunc,0>(name()){};
+    static const char *name() 
+        {
+            return "Newton";
+        }
+    virtual e_bailFunc preferred_bailfunc(void)
+        {
+            return BAILOUT_DIFF;
+        }
+    ITER_DECLS_RET(NEWT_DECL,NEWT_ITER, NEWT_RET)    
+};
+
+// z <- (Az^3-B)/C z^2 + c
+class novaFunc : public iterImpl<novaFunc,3>
 {
 #define NOVA_DECL complex<double> z(p[X],p[Y]), c(p[CX],p[CY])
-#define NOVA_ITER z = z - (z*z*z - 1.0)/(3.0 * z * z) + c
+#define NOVA_ITER z = z - (a[0] * z*z*z - a[1])/(a[2] * z * z) + c
 #define NOVA_RET  p[X] = z.real(); p[Y] = z.imag()
 
 public:
     enum {  FLAGS = 0 };
-    novaFunc() : iterImpl(name()) {};
+    novaFunc() : iterImpl<novaFunc,3>(name()) 
+        { 
+            reset_opts(); 
+        };
 
     ITER_DECLS_RET(NOVA_DECL,NOVA_ITER, NOVA_RET)
     static char *name()
         {
             return "Nova";
+        }
+    const char *optionName(int i) const
+        {
+            static const char *optNames[] =
+            {
+                "a", "b", "c"
+            };
+            if(i < 0 || i >= 3) return NULL;
+            return optNames[i];
+        }
+    virtual void reset(double *params)
+        {
+            reset_opts();
+            iterImpl<novaFunc,3>::reset(params);
+            // start at Julia
+            params[XZANGLE] = params[YWANGLE] = M_PI/2.0;
+        }
+    virtual e_bailFunc preferred_bailfunc(void)
+        {
+            return BAILOUT_DIFF;
+        }
+ private:
+    void reset_opts()
+        {
+            // default is z - (z^3 - 1) / 3z^2 + c
+            a[0] = complex<double>(1.0,0.0);
+            a[1] = complex<double>(1.0,0.0);
+            a[2] = complex<double>(3.0,0.0);
         }
 };
                                
@@ -264,7 +332,7 @@ class barnsleyFunc: public iterImpl<barnsleyFunc,0>
 
 public:
     enum {  FLAGS = 0 };
-    barnsleyFunc() : iterImpl(name()) {};
+    barnsleyFunc() : iterImpl<barnsleyFunc,0>(name()) {};
 
     ITER_DECLS(BARNSLEY_DECL, BARNSLEY_ITER)
     static char *name()
@@ -293,7 +361,7 @@ class barnsley2Func: public iterImpl<barnsley2Func,0>
 
 public:
     enum {  FLAGS = 0 };
-    barnsley2Func() : iterImpl(name()) {};
+    barnsley2Func() : iterImpl<barnsley2Func,0>(name()) {};
 
     ITER_DECLS(BARNSLEY2_DECL, BARNSLEY2_ITER)
     static const char *name()
@@ -318,12 +386,20 @@ class lambdaFunc: public iterImpl<lambdaFunc,0>
 
 public:
     enum {  FLAGS = HAS_X2 | HAS_Y2 };
-    lambdaFunc() : iterImpl(name()) {};
+    lambdaFunc() : iterImpl<lambdaFunc,0>(name()) {};
 
     ITER_DECLS(LAMBDA_DECL, LAMBDA_ITER)
     static const char *name()
         {
             return "Lambda";
+        }
+    virtual void reset(double *params)
+        {
+            iterImpl<lambdaFunc,0>::reset(params);
+            // override some defaults for a prettier picture
+            params[XCENTER] = 1.0;
+            params[ZCENTER] = 0.5;
+            params[MAGNITUDE] = 8.0;
         }
 };
 
@@ -343,12 +419,19 @@ class shipFunc: public iterImpl<shipFunc,0>
 
 public:
     enum {  FLAGS = HAS_X2 | HAS_Y2 };
-    shipFunc() : iterImpl(name()) {};
+    shipFunc() : iterImpl<shipFunc,0>(name()) {};
 
     ITER_DECLS(SHIP_DECL, SHIP_ITER)
     static const char *name()
         {
             return "Burning Ship";
+        }
+    virtual void reset(double *params)
+        {
+            iterImpl<shipFunc,0>::reset(params);
+            // override some defaults for a prettier picture
+            params[XCENTER] = -0.5;
+            params[YCENTER] = -0.5;
         }
 };
 
@@ -368,12 +451,18 @@ class buffaloFunc: public iterImpl<buffaloFunc,0>
 
 public:
     enum {  FLAGS = HAS_X2 | HAS_Y2 };
-    buffaloFunc() : iterImpl(name()) {}
+    buffaloFunc() : iterImpl<buffaloFunc,0>(name()) {}
 
     ITER_DECLS(BUFFALO_DECL, BUFFALO_ITER)
     static const char *name()
         {
             return "Buffalo";
+        }
+    virtual void reset(double *params)
+        {
+            iterImpl<buffaloFunc,0>::reset(params);
+            // override some defaults for a prettier picture
+            params[MAGNITUDE] = 6.0;
         }
 };
 
@@ -390,7 +479,7 @@ class cubeFunc : public iterImpl<cubeFunc,0>
 
 public:
     enum {  FLAGS = HAS_X2 | HAS_Y2 };
-    cubeFunc() : iterImpl(name()) {}
+    cubeFunc() : iterImpl<cubeFunc,0>(name()) {}
 
     ITER_DECLS(CUBE_DECL, CUBE_ITER)
     static const char *name()
@@ -409,8 +498,8 @@ class quadFunc : public iterImpl<quadFunc,3>
 
 public:
     enum { FLAGS = 0 };
-    quadFunc() : iterImpl(name()) {
-        reset();
+    quadFunc() : iterImpl<quadFunc,3>(name()) {
+        reset_opts();
     }
 
     ITER_DECLS_RET(QUAD_DECL, QUAD_ITER, QUAD_RET)
@@ -427,7 +516,14 @@ public:
             if(i < 0 || i >= 3) return NULL;
             return optNames[i];
         }
-    virtual void reset()
+    virtual void reset(double *params)
+        {
+            reset_opts();
+            iterImpl<quadFunc,3>::reset(params);
+            params[XCENTER]=-0.75;
+        }
+private:
+    void reset_opts()
         {
             // default is z^2 - z + c
             a[0] = complex<double>(1.0,0.0);
@@ -435,6 +531,30 @@ public:
             a[2] = complex<double>(1.0,0.0);
         }
 };
+
+/*
+// Taylor series approximation to exp
+class taylorFunc : public iterImpl<taylorFunc,0>
+{
+#define CUBE_DECL double atmp
+#define CUBE_ITER  \
+    p[X2] = p[X] * p[X]; \
+    p[Y2] = p[Y] * p[Y]; \
+    atmp = p[X2] * p[X] - 3.0 * p[X] * p[Y2] + p[CX]; \
+    p[Y] = 3.0 * p[X2] * p[Y] - p[Y2] * p[Y] + p[CY]; \
+    p[X] = atmp
+
+public:
+    enum {  FLAGS = HAS_X2 | HAS_Y2 };
+    cubeFunc() : iterImpl<cubeFunc,0>(name()) {}
+
+    ITER_DECLS(CUBE_DECL, CUBE_ITER)
+    static const char *name()
+        {
+            return "Cubic Mandelbrot";
+        }
+};
+*/
 
 #define CTOR_TABLE_ENTRY(className) \
     { className::name(), className::create }
@@ -449,6 +569,7 @@ ctorInfo ctorTable[] = {
     CTOR_TABLE_ENTRY(barnsley2Func),
     CTOR_TABLE_ENTRY(lambdaFunc),
     CTOR_TABLE_ENTRY(novaFunc),
+    CTOR_TABLE_ENTRY(newtFunc),
     { NULL, NULL}
 };
 

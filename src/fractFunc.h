@@ -1,3 +1,23 @@
+/* Gnofract4D -- a little fractal generator-browser program
+ * Copyright (C) 1999-2001 Edwin Young
+ *
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ */
+
 #ifndef _FRACTFUNC_H_
 #define _FRACTFUNC_H_
 
@@ -79,7 +99,7 @@ class fractFunc {
     image *im;    // pointer to image passed in to ctor
     pointFunc *pf; // function for calculating 1 point
 
-    tpool *ptp;
+    tpool<thread_data_t> *ptp;
 
     /* wait for a ready thread then give it some work */
     void send_cmd(job_type_t job, int x, int y, int param);
@@ -114,7 +134,8 @@ class fractFunc {
     void send_box_row(int w, int y, int rsize);
 
     // redraw the image to this line
-    void update_image(int i);
+    // also checks for interruptions & returns true if we should stop
+    bool update_image(int i);
 
     // clear auto-deepen and last_update
     void reset_counts();
@@ -124,7 +145,7 @@ class fractFunc {
     void rectangle(struct rgb pixel, int x, int y, int w, int h);
 
     // calculate this point using antialiasing
-    struct rgb antialias(const dvec4& pos);
+    struct rgb antialias(int x, int y);
 
     // calculate the whole image using worker threads
     void draw_threads(int rsize, int drawsize);

@@ -1,3 +1,23 @@
+/* Gnofract4D -- a little fractal generator-browser program
+ * Copyright (C) 1999-2001 Edwin Young
+ *
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ */
+
 /* an object to hold the fractal data. This is an *object*, not a
  * widget - it doesn't display anything. It just holds the fractal's
  * state and provides "changed" signal notifications to keep the UI in
@@ -12,8 +32,6 @@
 
 #ifdef __cplusplus
 extern "C" {
-#else if 0
-} // just to keep emacs indenter happy!
 #endif
 
 #define GF4D_TYPE_FRACTAL                 (gf4d_fractal_get_type())
@@ -40,12 +58,13 @@ struct _Gf4dFractal
     pthread_mutex_t pause_lock;
     pthread_cond_t running_cond;
     // are any workers going?
-    int workers_running;
+    volatile int workers_running;
     // how many workers in total? (no, these can't be the same var!)
     int nWorkers;
     // what's our current status? (only used to restore it after a pause)
     int status; 
     gboolean paused;
+    gboolean fOnGTKThread;
 };
 
 struct _Gf4dFractalClass
@@ -72,7 +91,20 @@ void gf4d_fractal_relocate(Gf4dFractal *f, int x, int y, double zoom);
 void gf4d_fractal_flip2julia(Gf4dFractal *f, int x, int y);
 void gf4d_fractal_move(Gf4dFractal *f, param_t i, double direction);
 
-void gf4d_fractal_calc(Gf4dFractal *f, int nThreads);
+/* if the fractal is on the main GTK thread, it needs to yield the gdk
+ * mutex before waiting for other threads, to avoid deadlock.  By
+ * default this is assumed to be the case. If calling methods from
+ * another thread (as in the movie code), set this to false
+ * first. This property is NOT copied with the rest of the fractal by
+ * gf4d_fractal_copy et al
+ * 
+ * Apologies for this horrendous mess!  */
+void gf4d_fractal_set_on_gui_thread(Gf4dFractal *f, gboolean fOnThread);
+gboolean gf4d_fractal_is_on_gui_thread(Gf4dFractal *f);
+
+
+void gf4d_fractal_calc(Gf4dFractal *f, 
+    int nThreads, e_antialias effective_aa=AA_DEFAULT);
 
 // temporary method: not threaded, just works out new colors
 void gf4d_fractal_recolor(Gf4dFractal *f); 

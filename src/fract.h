@@ -50,11 +50,11 @@ public:
     e_bailFunc bailout_type;    
     iterFunc *pIterFunc;
 
-    // not saved
+    // parameters beyond this point aren't saved
     int nThreads;
+    e_antialias eaa;
 
 private:
-    // parameters which aren't saved
 
     // direction to move in for flip2julia
     double rot_by;
@@ -86,6 +86,7 @@ public:
 
     void reset();
     void calc(Gf4dFractal *gf4d, image *im);
+
     void recolor(image *im);
     void relocate(double x, double y, double zoom);
     void flip2julia(double x, double y);

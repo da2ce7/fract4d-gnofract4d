@@ -13,7 +13,8 @@ enum {
 typedef enum {
     AA_NONE = 0,
     AA_FAST,
-    AA_BEST
+    AA_BEST,
+    AA_DEFAULT /* used only for effective_aa - means use aa from fractal */
 } e_antialias;
 
 typedef enum {

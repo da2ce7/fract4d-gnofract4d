@@ -1,4 +1,25 @@
+/* Gnofract4D -- a little fractal generator-browser program
+ * Copyright (C) 1999-2001 Edwin Young
+ *
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ */
+
 /* different iteration functions expressed as function objects */
+
 #ifndef _ITERFUNC_H_
 #define _ITERFUNC_H_
 
@@ -17,7 +38,9 @@
 #define Y2 5
 #define EJECT 6
 #define EJECT_VAL 7
-#define PARAM_SIZE 8
+#define LASTX 8
+#define LASTY 9
+#define SCRATCH_SPACE LASTY+1
 
 /* bailout flags */
 #define HAS_X2 1
@@ -51,8 +74,10 @@ class iterFunc {
     virtual void setOption(int n, complex<double> val) = 0;
     virtual complex<double> getOption(int n) const = 0;
     virtual const char *optionName(int n) const = 0;
+
     // reset all options to standard values
-    virtual void reset() = 0;
+    virtual void reset(double *fract_params) = 0;
+    virtual e_bailFunc preferred_bailfunc(void) = 0;
 };
 
 
@@ -70,4 +95,4 @@ iterFunc *iterFunc_read(std::istream& s);
 std::ostream& operator<<(std::ostream& s, const iterFunc& iter);
 std::istream& operator>>(std::istream& s, iterFunc& iter);
 
-#endif _ITERFUNC_H_
+#endif /* _ITERFUNC_H_ */

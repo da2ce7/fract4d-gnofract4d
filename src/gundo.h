@@ -53,7 +53,7 @@ extern "C" {
     {
         GtkObject base;
         GArray *actions;
-        int next_redo;
+        unsigned int next_redo;
         GundoSequence *group;
     };
 

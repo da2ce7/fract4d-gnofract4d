@@ -79,8 +79,8 @@ gf4d_angle_get_type ()
             sizeof (Gf4dAngleClass),
             (GtkClassInitFunc) gf4d_angle_class_init,
             (GtkObjectInitFunc) gf4d_angle_init,
-            (GtkArgSetFunc) NULL,
-            (GtkArgGetFunc) NULL,
+            NULL,
+            NULL,
         };
 
         dial_type = gtk_type_unique (gtk_widget_get_type (), &dial_info);

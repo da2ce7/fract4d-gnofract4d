@@ -63,8 +63,8 @@ guint gundo_sequence_get_type () {
             sizeof(GundoSequenceClass),
             (GtkClassInitFunc)gundo_sequence_class_init,
             (GtkObjectInitFunc)gundo_sequence_init,
-            (GtkArgSetFunc)NULL,
-            (GtkArgGetFunc)NULL
+            NULL,
+            NULL
         };
         
         gundo_sequence_type = 

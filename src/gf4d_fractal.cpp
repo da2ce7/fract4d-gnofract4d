@@ -4,6 +4,7 @@
 #include <gtk/gtkmain.h>
 #include <gtk/gtksignal.h>
 #include "gf4d_utils.h"
+#include "tls.h"
 
 static void gf4d_fractal_class_init               (Gf4dFractalClass    *klass);
 static void gf4d_fractal_init                     (Gf4dFractal         *dial);
@@ -35,8 +36,8 @@ gf4d_fractal_get_type ()
             sizeof (Gf4dFractalClass),
             (GtkClassInitFunc) gf4d_fractal_class_init,
             (GtkObjectInitFunc) gf4d_fractal_init,
-            (GtkArgSetFunc) NULL,
-            (GtkArgGetFunc) NULL,
+            NULL,
+            NULL,
             (GtkClassInitFunc) NULL
         };
 
@@ -60,6 +61,7 @@ gf4d_fractal_init (Gf4dFractal *f)
     pthread_cond_init(&f->running_cond,NULL);
     f->status = GF4D_FRACTAL_DONE;
     f->paused = FALSE;
+    f->fOnGTKThread = TRUE;
 }
 
 GtkObject*
@@ -87,21 +89,25 @@ gf4d_fractal_cond_unlock(Gf4dFractal *f)
 static void 
 set_finished_cond(Gf4dFractal *f)
 {
+    g_print("set_finished_cond\n");
     f->workers_running=0;
 }
 
-void
+bool
 gf4d_fractal_try_finished_cond(Gf4dFractal *f)
 {
     // this doesn't do any locking, but is safe:
     // if we miss it this time, we'll catch it next
     // time, and won't do any harm in the meantime
 
+    //g_print("try_finished\n");
     if(f->workers_running==0) 
     {
+        //g_print("noticed a signal");
         // we've been signalled
-        throw(1);
+        return true;
     }
+    return false;
 }
 
 static void
@@ -123,6 +129,11 @@ set_started_cond(Gf4dFractal *f)
     gf4d_fractal_cond_unlock(f);
 }
 
+static void await_slave_death(Gf4dFractal *f)
+{
+    // wait until worker has stopped running
+    tls_join_thread(f->tid);
+}
 
 static void
 kill_slave_threads(Gf4dFractal *f)
@@ -132,11 +143,9 @@ kill_slave_threads(Gf4dFractal *f)
     {
         set_finished_cond(f);
 
-        // wait until worker has stopped running
-        gdk_threads_leave();
-        pthread_join(f->tid,NULL);
-        gdk_threads_enter();
+        await_slave_death(f);
     }
+
     /* if we changed some parameters while paused, the user
        presumably wants to change some more before explicitly
        starting the calculation */
@@ -220,8 +229,8 @@ void gf4d_fractal_relocate(Gf4dFractal *f, int x, int y, double zoom)
 {
     kill_slave_threads(f);
 
-    double dx = ((double)(x - f->im->Xres/2))/f->im->Xres;
-    double dy = ((double)(y - f->im->Yres/2))/f->im->Xres;
+    double dx = ((double)(x - f->im->Xres()/2))/f->im->Xres();
+    double dy = ((double)(y - f->im->Yres()/2))/f->im->Xres();
     f->f->relocate(dx,dy,zoom);
 }
 
@@ -229,8 +238,8 @@ void gf4d_fractal_flip2julia(Gf4dFractal *f, int x, int y)
 {
     kill_slave_threads(f);
 
-    double dx = ((double)(x - f->im->Xres/2))/f->im->Xres;
-    double dy = ((double)(y - f->im->Yres/2))/f->im->Xres;
+    double dx = ((double)(x - f->im->Xres()/2))/f->im->Xres();
+    double dy = ((double)(y - f->im->Yres()/2))/f->im->Xres();
     f->f->flip2julia(dx,dy);
 }
 
@@ -288,10 +297,12 @@ calculation_thread(void *vdata)
     return NULL;
 }
 
-void gf4d_fractal_calc(Gf4dFractal *f, int nThreads)
+void gf4d_fractal_calc(Gf4dFractal *f, int nThreads, e_antialias effective_aa)
 {
+    g_print("waiting for previous slave's death throes\n");
     kill_slave_threads(f);
 
+    g_print("starting new calculation\n");
     /* if we're paused, lock the pause mutex before starting the 
        calculation thread
     */
@@ -300,6 +311,7 @@ void gf4d_fractal_calc(Gf4dFractal *f, int nThreads)
         gf4d_fractal_pause(f,TRUE);
     }
 
+    f->f->eaa = effective_aa;
     f->f->nThreads = nThreads;
 
     if(nThreads)
@@ -324,6 +336,7 @@ void gf4d_fractal_calc(Gf4dFractal *f, int nThreads)
         /* blocking calculation in current thread */
         calculation_thread((void *)f);
     }
+    g_print("calculation has finished starting\n");
 }
 
 void gf4d_fractal_recolor(Gf4dFractal *f)
@@ -408,17 +421,17 @@ int gf4d_fractal_set_precision(Gf4dFractal *f, int digits)
 /* image-related functions: to be removed */
 int gf4d_fractal_get_xres(Gf4dFractal *f)
 {
-    return f->im->Xres;
+    return f->im->Xres();
 }
 
 int gf4d_fractal_get_yres(Gf4dFractal *f)
 {
-    return f->im->Yres;
+    return f->im->Yres();
 }
 
 guchar *gf4d_fractal_get_image(Gf4dFractal *f)
 {
-    return (guchar *)f->im->buffer;
+    return (guchar *)f->im->getBuffer();
 }
 
 double gf4d_fractal_get_ratio(Gf4dFractal *f)
@@ -483,6 +496,7 @@ gboolean gf4d_fractal_pause(Gf4dFractal *f, gboolean pause)
 void 
 gf4d_fractal_parameters_changed(Gf4dFractal *f)
 {
+    g_print("parameters changed\n");
     gtk_signal_emit(GTK_OBJECT(f), fractal_signals[PARAMETERS_CHANGED]); 
 }
 
@@ -495,7 +509,6 @@ static void
 gf4d_fractal_enter_callback(Gf4dFractal *f)
 {
     try_paused_cond(f);
-    gf4d_fractal_try_finished_cond(f);
     gdk_threads_enter();
 }
 
@@ -521,6 +534,7 @@ void gf4d_fractal_image_changed(Gf4dFractal *f, int x1, int y1, int x2, int y2)
     fakeEvent.count = 0;
 
     gf4d_fractal_enter_callback(f);
+
     gtk_signal_emit(GTK_OBJECT(f), 
                     fractal_signals[IMAGE_CHANGED],
                     &fakeEvent);
@@ -555,8 +569,10 @@ Gf4dFractal *gf4d_fractal_copy(Gf4dFractal *f)
     fnew->f = new fractal(*(f->f));
 	
     fnew->im = new image();
+    /*
     fnew->im->Xres = f->im->Xres;
     fnew->im->Yres = f->im->Yres;
+    */
     return fnew;
 }
 
@@ -596,4 +612,14 @@ void gf4d_fractal_set_func(Gf4dFractal *f, const char *type)
 {
     kill_slave_threads(f);
     f->f->set_fractal_type(type);
+}
+
+void gf4d_fractal_set_on_gui_thread(Gf4dFractal *f, gboolean fOnThread)
+{
+    f->fOnGTKThread = fOnThread;
+}
+
+gboolean gf4d_fractal_is_on_gui_thread(Gf4dFractal *f)
+{
+    return f->fOnGTKThread;
 }

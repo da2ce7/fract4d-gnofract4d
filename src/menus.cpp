@@ -219,47 +219,47 @@ static GnomeUIInfo file1_menu_uiinfo[] =
     {
         GNOME_APP_UI_ITEM, N_("_Save image"),
         NULL,
-        save_image_cb, NULL, NULL,
+        (void *)save_image_cb, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE,
         0, (enum GdkModifierType)'s', NULL
     },
     {
         GNOME_APP_UI_ITEM, N_("_Reset parameters"),
         NULL,
-        reset_cb, NULL, NULL,
+        (void *)reset_cb, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_HOME,
         0, (enum GdkModifierType)'m', NULL
     },
     {
         GNOME_APP_UI_ITEM, N_("_Reset Zoom"),
         NULL,
-        reset_zoom_cb, NULL, NULL,
+        (void *)reset_zoom_cb, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
         0, (enum GdkModifierType) 'z', NULL
     },
     {
         GNOME_APP_UI_ITEM, N_("Save _parameters"),
         NULL,
-        save_param_cb, NULL, NULL,
+        (void *)save_param_cb, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE_AS,
         0, (enum GdkModifierType)'p', NULL
     },
     {
         GNOME_APP_UI_ITEM, N_("_Load parameters"),
         NULL,
-        load_param_cb, NULL, NULL,
+        (void *)load_param_cb, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_OPEN,
         0, (enum GdkModifierType)'l', NULL
     },
     {
         GNOME_APP_UI_TOGGLEITEM, N_("P_ause"),
         NULL,
-        pause_cb, NULL, NULL,
+        (void *)pause_cb, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
         0, (enum GdkModifierType)'a', NULL
     },
     GNOMEUIINFO_SEPARATOR,
-    GNOMEUIINFO_MENU_EXIT_ITEM (menu_quit_cb, NULL),
+    GNOMEUIINFO_MENU_EXIT_ITEM ((void *)menu_quit_cb, NULL),
     GNOMEUIINFO_END
 };
 
@@ -269,19 +269,17 @@ static GnomeUIInfo parameters1_menu_uiinfo[] =
     {
         GNOME_APP_UI_ITEM, N_("_Colors..."),
         NULL,
-        create_cmap_browser, NULL, NULL,
+        (void *)create_cmap_browser, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
         0, (enum GdkModifierType) 'c', NULL
     },
-    /*
     {
         GNOME_APP_UI_ITEM, N_("_Movie Editor..."),
         NULL,
-        create_movie_editor, NULL, NULL,
+        (void *)create_movie_editor, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
         0, (enum GdkModifierType)'m', NULL
     },
-    */
     GNOMEUIINFO_END
 };
 

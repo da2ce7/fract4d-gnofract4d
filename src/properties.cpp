@@ -295,7 +295,10 @@ GtkWidget *create_bailout_menu(Gf4dFractal *shadow)
         N_("Manhattan Distance"),
         N_("Manhattan Variant"),
         N_("Or"),
-        N_("And")
+        N_("And"),
+        N_("Real part"),
+        N_("Imaginary part"),
+        N_("Difference")
     };
 
     for(unsigned int i=0; i < sizeof(bailout_names)/sizeof(bailout_names[0]); ++i)
@@ -804,7 +807,7 @@ void make_func_entry(Gf4dFractal *shadow, double d, GtkWidget *table, int i)
     
     gtk_table_attach(
         GTK_TABLE(table), entry, 1,2,i,i+1, 
-        (GtkAttachOptions)(0, GTK_EXPAND | GTK_FILL), 
+        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
         (GtkAttachOptions)0, 
         0, 2);
     
@@ -977,7 +980,7 @@ create_propertybox_func_parameters_page(
     
     gtk_box_pack_start( GTK_BOX (vbox), general_page, 1, 1, 0 );
 
-    gtk_object_set_data(GTK_OBJECT(table), "type", "");
+    gtk_object_set_data(GTK_OBJECT(table), "type", (gpointer)"");
     gtk_object_set_data(GTK_OBJECT(table), "model", (gpointer)m);
 
     gtk_signal_connect(

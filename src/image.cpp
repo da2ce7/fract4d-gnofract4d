@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "image.h"
+#include "iterFunc.h"
 
 // byte order in a DIB is, obviously, as fucked up as everything else
 #ifdef _WIN32
@@ -21,7 +22,7 @@ image::~image()
 
 image::image()
 {
-    Xres = Yres = 0;
+    m_Xres = m_Yres = 0;
     buffer = NULL;
     iter_buf = NULL;
 
@@ -35,18 +36,18 @@ image::row_length()
 {
 #ifdef _XX_WIN32
 	// round up to nearest multiple of 4 
-	int adj = (Xres * 3) % 4;
-	return Xres * 3 + adj;
+	int adj = (m_Xres * 3) % 4;
+	return m_Xres * 3 + adj;
 #else
 	// GdkRGB needs no such steenkin' adjustment
-	return Xres * 3;
+	return m_Xres * 3;
 #endif
 }
 
 inline int
 image::bytes()
 {
-	return row_length() * Yres;
+	return row_length() * m_Yres;
 }
 
 void 
@@ -82,7 +83,7 @@ image::get(int x, int y)
 int 
 image::getIter(int x, int y)
 {
-    return iter_buf[x + y * Xres];
+    return iter_buf[x + y * m_Xres];
 }
 
 #ifdef _WIN32
@@ -90,8 +91,8 @@ void
 image::resetDIB()
 {
 	m_bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	m_bmi.bmiHeader.biWidth = Xres;
-	m_bmi.bmiHeader.biHeight = Yres;
+	m_bmi.bmiHeader.biWidth = m_Xres;
+	m_bmi.bmiHeader.biHeight = m_Yres;
 	m_bmi.bmiHeader.biPlanes = 1;
 	m_bmi.bmiHeader.biBitCount = 24;
 	m_bmi.bmiHeader.biCompression = BI_RGB; // no compression
@@ -111,21 +112,21 @@ image::resetDIB()
 #endif
 image::image(const image& im)
 {
-    Xres = im.Xres;
-    Yres = im.Yres;
+    m_Xres = im.m_Xres;
+    m_Yres = im.m_Yres;
     buffer = new char[bytes()];
-    iter_buf = new int[Xres * Yres];
+    iter_buf = new int[m_Xres * m_Yres];
 }
 
 bool image::set_resolution(int x, int y)
 {
-    if(buffer && Xres == x && Yres == y) return 0;
-    Xres = x;
-    Yres = y;
+    if(buffer && m_Xres == x && m_Yres == y) return 0;
+    m_Xres = x;
+    m_Yres = y;
     delete[] buffer;
     delete[] iter_buf;
     buffer = new char[bytes()];
-    iter_buf = new int[Xres * Yres];
+    iter_buf = new int[m_Xres * m_Yres];
 #ifdef _WIN32
 	resetDIB();
 #endif
@@ -134,13 +135,13 @@ bool image::set_resolution(int x, int y)
 
 double image::ratio()
 {
-    return ((double)Yres / Xres);
+    return ((double)m_Yres / m_Xres);
 }
 
 void image::clear()
 {
 	// no need to clear image buffer
-    for(int i = 0; i < Xres * Yres; i++) {
+    for(int i = 0; i < m_Xres * m_Yres; i++) {
         iter_buf[i]=-1;
     }
 }

@@ -29,6 +29,7 @@
 #include "interface.h"
 #include "gf4d_fractal.h"
 #include "movie_editor.h"
+#include "tls.h"
 
 static char *g_param_file = NULL;
 static char *g_params[N_PARAMS] = { NULL };
@@ -267,7 +268,8 @@ main (int argc, char *argv[])
     model_t *m;
 
     g_thread_init(NULL);
-    
+    tls_init();
+
     bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
     textdomain (PACKAGE);
     

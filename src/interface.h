@@ -18,9 +18,15 @@
  *
  */
 
+/* top-level user interface  */
+
+#ifndef _INTERFACE_H_
+#define _INTERFACE_H_
+
+/* create the interface for the main window */
 GtkWidget* create_app (model_t *);
 
-
+#endif /* _INTERFACE_H_ */
 
 
 
