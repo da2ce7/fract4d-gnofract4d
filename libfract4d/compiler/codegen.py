@@ -243,6 +243,10 @@ double t__h_index = 0.0;
 int t__h_numiter = 0;
 %(init)s
 t__end_init:
+%(cf0_init)s
+t__end_cf0_init:
+%(cf1_init)s
+t__end_cf1_init:
 do
 {
     %(loop)s
@@ -251,8 +255,13 @@ do
     %(bailout)s
     t__end_bailout:
     %(bailout_inserts)s
+    if(!%(bailout_var)s) break;
+    %(cf0_loop)s
+    t__end_cf0_loop:
+    %(cf1_loop)s
+    t__end_cf1_loop:
     t__h_numiter++;
-}while(%(bailout_var)s && t__h_numiter < t__p_nMaxIters);
+}while(t__h_numiter < t__p_nMaxIters);
 
 %(pre_final_inserts)s
 %(final)s
@@ -262,7 +271,14 @@ t__end_final:
 /* fate of 0 = escaped, 1 = trapped */
 *t__p_pFate = (t__h_numiter >= t__p_nMaxIters);
 *t__p_pnIters = t__h_numiter;
-*t__p_pDist = t__h_index;
+if(*t__p_pFate == 0)
+{
+    %(cf0_final)s
+}
+else
+{
+    %(cf1_final)s
+}
 
 return;
 }
