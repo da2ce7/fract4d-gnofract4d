@@ -2,14 +2,14 @@
 
 # A compiler from UltraFractal or Fractint formula files to C code
 
-# The UltraFractal manual is the canonical description of the file
+# The UltraFractal manual is the best current description of the file
 # format. You can download it from http://www.ultrafractal.com/uf3-manual.zip
 
 # The implementation is based on the outline in "Modern Compiler
 # Implementation in ML: basic techniques" (Appel 1997, Cambridge)
 
 # Overall structure:
-# fractlexer.py and fractparser.py are the lexer and parser, respectively
+# fractlexer.py and fractparser.py are the lexer and parser, respectively.
 # They use the PLY package to do lexing and SLR parsing, and produce as
 # output an abstract syntax tree (defined in the Absyn module).
 
@@ -87,6 +87,14 @@ class Compiler:
             #print "Error parsing '%s' : %s" % (filename, err)
             raise
 
+    def get_file(self,filename):
+        basefile = os.path.basename(filename)
+        ff = self.files.get(basefile)
+        if not ff:
+            self.load_formula_file(filename)
+            ff = self.files.get(basefile)
+        return ff
+    
     def compile(self,ir):
         cg = codegen.T(ir.symbols)
         cg.output_all(ir)
@@ -132,7 +140,7 @@ class Compiler:
         return outputfile
 
     def get_parsetree(self,filename,formname):
-        ff = self.files.get(os.path.basename(filename))
+        ff = self.get_file(filename)
         if ff == None : return None
         return ff.get_formula(formname)
         
@@ -142,9 +150,9 @@ class Compiler:
         if f != None:
             f = translate.T(f)
         return f
-
+        
     def get_colorfunc(self,filename, formula, name):
-        ff = self.files.get(os.path.basename(filename))
+        ff = self.get_file(filename)
         if ff == None : return None
         f = ff.get_formula(formula)
 

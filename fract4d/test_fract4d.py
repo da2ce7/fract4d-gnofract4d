@@ -39,14 +39,15 @@ class FractalSite:
 class PfTest(unittest.TestCase):
 
     def compileMandel(self):
-        self.compiler.load_formula_file("./gf4d.frm")
+        self.compiler.file_path.append('../formulas')
+        self.compiler.load_formula_file("gf4d.frm")
         f = self.compiler.get_formula("gf4d.frm","Mandelbrot")
         cg = self.compiler.compile(f)
         self.compiler.generate_code(f,cg,"test-pf.so")
 
     def compileColorMandel(self):
-        self.compiler.load_formula_file("./gf4d.frm")
-        self.compiler.load_formula_file("./gf4d.cfrm")
+        self.compiler.load_formula_file("../formulas/gf4d.frm")
+        self.compiler.load_formula_file("../formulas/gf4d.cfrm")
         cf1 = self.compiler.get_colorfunc("gf4d.cfrm","default","cf0")
         self.assertEqual(len(cf1.errors),0)
         self.compiler.compile(cf1)
@@ -243,7 +244,7 @@ class PfTest(unittest.TestCase):
                     
     def disabled_testWithColors(self):
         self.compileMandel()
-        self.compiler.load_formula_file("./gf4d.cfrm")
+        self.compiler.load_formula_file("../formulas/gf4d.cfrm")
         f = self.compiler.get_formula("gf4d.frm","Mandelbrot",
                                       "gf4d.cfrm","default")
         cg = self.compiler.compile(f)

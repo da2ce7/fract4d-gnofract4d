@@ -99,7 +99,7 @@ setup (name = 'gnofract4d',
 
            # formulas
            ('share/formulas/gnofract4d',
-            ['fract4d/gf4d.frm', 'fract4d/gf4d.cfrm']),
+            get_files("formulas","frm")),
 
            # documentation
            ('share/gnome/help/gnofract4d/C',
