@@ -86,9 +86,9 @@ class FCTest(testbase.TestBase):
         f.merge(cf1,"cf0_")
         f.merge(cf2,"cf1_")
 
-        self.compiler.generate_code(f,cg,"test-cf.so",None)
-        
-        
+        ofile = self.compiler.generate_code(f,cg)
+        print ofile
+
 def suite():
     return unittest.makeSuite(FCTest,'test')
 
