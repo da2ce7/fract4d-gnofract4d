@@ -196,18 +196,19 @@ fractThreadFunc::antialias(int x, int y)
 void 
 fractThreadFunc::pixel(int x, int y,int w, int h)
 {
-    int *ppos = im->iter_buf + y*im->Xres() + x;
+    int iter = im->getIter(x,y);
     struct rgb pixel;
 
-    if(*ppos != -1) return;
+    if(iter != -1) return;
 
     // calculate coords of this point
     dvec4 pos = ff->topleft + 
         I2D_LIKE(x, f->params[MAGNITUDE]) * ff->deltax + 
         I2D_LIKE(y, f->params[MAGNITUDE]) * ff->deltay;
 		
-    (*(pf))(pos, f->maxiter,periodGuess(), x,y,0,&pixel,ppos); 
-    periodSet(ppos);
+    (*(pf))(pos, f->maxiter,periodGuess(), x,y,0,&pixel,&iter); 
+    periodSet(&iter);
+    im->setIter(x,y,iter);
 
     // test for iteration depth
     if(f->auto_deepen && k++ % ff->AUTO_DEEPEN_FREQUENCY == 0)
@@ -338,7 +339,7 @@ fractThreadFunc::rectangle_with_iter(
     {
         for(int j = x; j < x+w; j++) {
             im->put(j,i,pixel);
-            im->iter_buf[i*im->Xres() + j] = iter;            
+            im->setIter(j,i,iter);
         }
     }
 }

@@ -34,21 +34,21 @@
 // iter state
 #define X 0
 #define Y 1
-#define ITER_SPACE (Y+1)
+
 
 // input state
-#define CX 0
-#define CY 1
-#define EJECT 2
-#define INPUT_SPACE (EJECT+1)
+#define CX 2
+#define CY 3
+#define EJECT 4
+
 
 // temp state
-#define X2 0
-#define Y2 1
-#define EJECT_VAL 2
-#define LASTX 3
-#define LASTY 4
-#define TEMP_SPACE (LASTY+1)
+#define X2 5
+#define Y2 6
+#define EJECT_VAL 7
+#define LASTX 8
+#define LASTY 9
+#define STATE_SPACE (LASTY+1)
 
 /* a function which performs a single fractal iteration */
 

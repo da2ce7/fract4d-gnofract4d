@@ -28,17 +28,19 @@
 // just returns the number of iterations, cast to a double
 class flat_colorFunc : public colorFunc {
 public:
-    double operator()(int iter, const double *pIter, const double *pInput, const double *pTemp) const
+    int buffer_size() const
+	{ 
+	    return 0;
+	}
+    void extract_state(const double *in_buf, void *out_buf) const
+	{
+	    // nop
+	}
+    double operator()(int iter, double eject, const void *p) const
         {
             return (double) iter;
         }
 
-#ifdef HAVE_GMP
-    double operator()(int iter, gmp::f *pIter, double *pInput, double *pTemp) const
-        {
-            return (double) iter;
-        }
-#endif
 };
 
 // return the iteration count plus a fractional part which ranges
@@ -46,44 +48,54 @@ public:
 // this smooths the color bands which would otherwise appear
 class cont_colorFunc : public colorFunc {
 public:
-    double operator()(int iter, const double *pIter, const double *pInput, const double *pTemp) const
+    int buffer_size() const
+	{ 
+	    return sizeof(float);
+	}
+    void extract_state(const double *in_buf, void *out_buf) const
+	{
+	    *(float *) out_buf = (float) in_buf[EJECT_VAL];
+	}
+    double operator()(int iter, double eject, const void *p) const
         {
-            return ((double) iter) + pInput[EJECT]/pTemp[EJECT_VAL];
+	    float eject_val = *(float *)p;
+            return ((double) iter) + eject/eject_val;
         }
-
-#ifdef HAVE_GMP
-    double operator()(int iter, gmp::f *pIter, const double *pInput, const double *pTemp) const
-        {
-            ((double) iter) + scratch[EJECT]/scratch[EJECT_VAL];
-        }
-#endif
-
 };
 
 // just return zero, whatever - used by default for the inside of the Mset
 class zero_colorFunc : public colorFunc {
 public:
-    double operator()(int iter, const double *pIter, const double *pInput, const double *pTemp) const
+    int buffer_size() const
+	{ 
+	    return 0;
+	}
+    void extract_state(const double *in_buf, void *out_buf) const
+	{
+	    // nop
+	}
+    double operator()(int iter, double eject, const void *p) const
         {
             return (double) 0.0;
         }
-
-#ifdef HAVE_GMP
-    double operator()(int iter, gmp::f *pIter, const double *pInput, const double *pTemp) const
-        {
-            return (double) 0.0;
-        }
-#endif
-
 };
 
 // use just the ejection distance, without using the number of
 // iterations.
 class ejectDist_colorFunc : public colorFunc {
 public:
-    double operator()(int iter, const double *pIter, const double *pInput, const double *pTemp) const
+    int buffer_size() const
+	{ 
+	    return sizeof(float);
+	}
+    void extract_state(const double *in_buf, void *out_buf) const
+	{
+	    *(float *) out_buf = (float) in_buf[EJECT_VAL];
+	}
+    double operator()(int iter, double eject, const void *in_buf) const
         {
-            return 256.0 * pInput[EJECT]/pTemp[EJECT_VAL];
+	    float eject_val = *(float *)in_buf;
+            return 256.0 * eject/eject_val;
         }
 };
 

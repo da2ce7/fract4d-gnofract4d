@@ -36,10 +36,9 @@ drawing */
 // abstract base class
 class colorFunc {
  public:
-    virtual double operator()(int iter, const double *pIter, const double *pInput, const double *pTemp) const = 0;
-#ifdef HAVE_GMP
-    virtual double operator()(int iter, gmp::f *scratch) const = 0;
-#endif
+    virtual int buffer_size() const = 0;
+    virtual void extract_state(const double *in_buf, void *out_buf) const = 0;
+    virtual double operator()(int iter, double eject_val, const void *p) const = 0;
 };
 
 // factory method to construct color function objects 

@@ -21,7 +21,7 @@ private:
     colorFunc *m_pOuterColor, *m_pInnerColor;
     double m_eject;
     T m_period_tolerance;
-    colorizer *m_pcf;
+    colorizer *m_pcizer;
     void *m_handle; // handle of .so which keeps us in memory
 
 #if N_OPTIONS > 0
@@ -36,10 +36,10 @@ public:
               double eject,
               double period_tolerance,
               std::complex<double> *options,
-              colorizer *pcf,
+              colorizer *pcizer,
               e_colorFunc outerCfType,
               e_colorFunc innerCfType) 
-        : m_eject(eject), m_period_tolerance(period_tolerance), m_pcf(pcf), m_handle(handle)
+        : m_eject(eject), m_period_tolerance(period_tolerance), m_pcizer(pcizer), m_handle(handle)
         {
 #if N_OPTIONS > 0
             for(int i = 0; i < N_OPTIONS; ++i)
@@ -61,18 +61,26 @@ public:
             delete out;
 #endif
         }
-    inline rgb_t colorize(int iter, const T*pIter, const T*pInput, const T*pTemp)
+    inline colorFunc *getColorFunc(int iter) const
+	{
+	    if(iter == -1)
+	    {
+		return m_pInnerColor;
+	    }
+	    else
+	    {
+		return m_pOuterColor;
+	    }
+	}
+    inline rgb_t colorize(int iter, const T*p)
         {
             double colorDist;
-            if(iter == -1)
-            {
-                colorDist = (*m_pInnerColor)(iter, pIter, pInput, pTemp);
-            }
-            else
-            {
-                colorDist = (*m_pOuterColor)(iter, pIter, pInput, pTemp);
-            }
-            return (*m_pcf)(colorDist);
+	    colorFunc *pcf = getColorFunc(iter);
+	    float buf;
+	    pcf->extract_state(p,&buf);
+	    colorDist = (*pcf)(iter, p[EJECT],&buf);
+
+            return (*m_pcizer)(colorDist);
         }
 
     /* do some iterations without periodicity */
@@ -101,7 +109,7 @@ public:
 #endif 
 
                 BAIL;
-                if(pTemp[EJECT_VAL] >= m_eject)
+                if(p[EJECT_VAL] >= m_eject)
                 {
                     // we bailed out somewhere in the last 8iters -
                     // go back to beginning and look one-by-one
@@ -118,7 +126,7 @@ public:
                 (*out) << "1:" << XPOS << "," << YPOS << "\n";
 #endif 
                 BAIL;
-                if(pTemp[EJECT_VAL] >= m_eject)
+                if(p[EJECT_VAL] >= m_eject)
                 {
                     RET;
 #if TRACE
@@ -140,7 +148,7 @@ public:
         int &iter, int nMaxIters)
         {
             /* periodicity vars */
-            d lastx = pIter[X], lasty=pIter[Y];
+            d lastx = p[X], lasty=p[Y];
             int k =1, m = 1;
             
             // single iterations
@@ -155,7 +163,7 @@ public:
                 (*out) << "p:" << XPOS << "," << YPOS << "\n";
 #endif 
                 BAIL;
-                if(pTemp[EJECT_VAL] >= m_eject)
+                if(p[EJECT_VAL] >= m_eject)
                 {
                     RET;
 #if TRACE
@@ -191,7 +199,7 @@ public:
             }while(1);
         }
 
-    T pIter[ITER_SPACE], pInput[INPUT_SPACE], pTemp[TEMP_SPACE];
+  T p[STATE_SPACE];
          
     //template<class T>
     inline void calc(
@@ -211,12 +219,12 @@ public:
                 (*out) << std::setprecision(17);
             }
 #endif
-            pIter[X] =  params.n[VZ]; 
-            pIter[Y] =  params.n[VW];
-            pInput[CX] = params.n[VX];
-            pInput[CY] = params.n[VY];
-            pInput[EJECT] = m_eject;
-            pTemp[LASTX] = pTemp[LASTY] = DBL_MAX/4.0;
+            p[X] =  params.n[VZ]; 
+            p[Y] =  params.n[VW];
+            p[CX] = params.n[VX];
+            p[CY] = params.n[VY];
+            p[EJECT] = m_eject;
+            p[LASTX] = p[LASTY] = DBL_MAX/4.0;
 
             int iter = 0;
             bool done = false;
@@ -257,7 +265,7 @@ public:
 #endif
             if(color)
             {
-                *color = colorize(iter,pIter,pInput,pTemp);
+                *color = colorize(iter,p);
             }
         };
 
@@ -279,15 +287,11 @@ public:
         }
 #endif
     
-    virtual rgb_t recolor(int iter)
+    virtual rgb_t recolor(int iter, double eject, const void *buf) const
         {
-            // fake the calculation state for recoloration
-            const T inputSpace[INPUT_SPACE]= { 0.0 };
-            const T iterSpace[ITER_SPACE] = { 0.0 };
-            // set ejectval = 1.0 , otherwise we have 0/0 = NaN for some colorFuncs
-            const T tempSpace[TEMP_SPACE] = { 0.0, 0.0, 1.0, 0.0, 0.0 };
-
-            return colorize(iter, &inputSpace[0], &iterSpace[0], &tempSpace[0]);
+	    colorFunc *pcf = getColorFunc(iter);
+	    double dist = (*pcf)(iter, eject, buf);
+            return (*m_pcizer)(dist);
         }
     virtual void *handle()
         {
@@ -301,7 +305,7 @@ extern "C" {
         double bailout,
         double period_tolerance,
         std::complex<double> *params,
-        colorizer *pcf,        
+        colorizer *pcizer,        
         e_colorFunc outerCfType,
         e_colorFunc innerCfType)
     {
@@ -310,7 +314,7 @@ extern "C" {
             bailout, 
             period_tolerance, 
             params, 
-            pcf, 
+            pcizer, 
             outerCfType, 
             innerCfType);
     }

@@ -40,10 +40,10 @@ class image
     /* the RGB colours of the image */
     char *buffer;
 
- public:
     /* the iteration count for each (antialiased) pixel */
     int * iter_buf;
 
+public:
     image();
     ~image();
 
@@ -60,7 +60,13 @@ class image
     void put(int x, int y, rgb_t pixel);
     rgb_t get(int x, int y);
 
-    int getIter(int x, int y);
+    int getIter(int x, int y){
+      return iter_buf[x + y * m_Xres];
+    };
+
+    void setIter(int x, int y, int iter) { 
+      iter_buf[x + y * m_Xres] = iter;
+    };
 
     image(const image& im);
     bool set_resolution(int x, int y);

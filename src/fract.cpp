@@ -653,7 +653,8 @@ fractal::recolor(image *im)
     {
         for( int j = 0; j < width; ++j)
         {
-            rgb_t result = p->recolor(im->getIter(i,j));
+	    float buf=0.4; // FIXME
+            rgb_t result = p->recolor(im->getIter(i,j),params[EJECT],&buf);
             im->put(i,j,result);
         }
     }

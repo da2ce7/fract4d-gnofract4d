@@ -80,12 +80,6 @@ image::get(int x, int y)
 	return pixel;
 }
 
-int 
-image::getIter(int x, int y)
-{
-    return iter_buf[x + y * m_Xres];
-}
-
 #ifdef _WIN32
 void
 image::resetDIB()

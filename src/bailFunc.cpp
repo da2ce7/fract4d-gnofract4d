@@ -37,17 +37,17 @@ public:
             /* produces weird results, but I don't understand why...
             if(flags & USE_COMPLEX)
             {
-                return "pTemp[EJECT_VAL] = norm(z)";
+                return "p[EJECT_VAL] = norm(z)";
             }
             */
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
                 bail = 
-                    "pTemp[X2] = XPOS * XPOS;"
-                    "pTemp[Y2] = YPOS * YPOS;";
+                    "p[X2] = XPOS * XPOS;"
+                    "p[Y2] = YPOS * YPOS;";
             }
 
-            bail += "pTemp[EJECT_VAL] = pTemp[X2] + pTemp[Y2];";
+            bail += "p[EJECT_VAL] = p[X2] + p[Y2];";
             return bail;
         } 
     void init(void) {};
@@ -62,14 +62,14 @@ public:
         {
             return 
                 "double epsilon = 0.01;"
-                "double diffx = XPOS - pTemp[LASTX];"
-                "double diffy = YPOS - pTemp[LASTY];"
+                "double diffx = XPOS - p[LASTX];"
+                "double diffy = YPOS - p[LASTY];"
 
                 "double diff = diffx * diffx + diffy * diffy;"
 
-                "pTemp[LASTX] = XPOS; pTemp[LASTY] = YPOS;"
+                "p[LASTX] = XPOS; p[LASTY] = YPOS;"
                 // FIXME: continuous potential doesn't work well with this
-                "pTemp[EJECT_VAL] = pInput[EJECT] + epsilon - diff;";
+                "p[EJECT_VAL] = p[EJECT] + epsilon - diff;";
         }
     bool iter8_ok() const { return false; };
     bool period_ok() const { return false; };
@@ -83,11 +83,11 @@ public:
             std::string bail("");
             if(!(flags & (HAS_X2)))
             {
-                bail = "pTemp[X2] = XPOS * XPOS;";
+                bail = "p[X2] = XPOS * XPOS;";
             }            
             
             bail += 
-                "pTemp[EJECT_VAL] = pTemp[X2];";
+                "p[EJECT_VAL] = p[X2];";
             return bail;
         };
     bool iter8_ok() const { return false; };
@@ -101,9 +101,9 @@ public:
             std::string bail("");
             if(!(flags & (HAS_Y2)))
             {
-                bail = "pTemp[Y2] = YPOS * YPOS;";
+                bail = "p[Y2] = YPOS * YPOS;";
             }            
-            bail += "pTemp[EJECT_VAL] = pTemp[Y2];";
+            bail += "p[EJECT_VAL] = p[Y2];";
             return bail;
         };
     bool iter8_ok() const { return false; };
@@ -118,10 +118,10 @@ public:
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
                 bail = 
-                    "pTemp[X2] = XPOS * XPOS;"
-                    "pTemp[Y2] = YPOS * YPOS;";
+                    "p[X2] = XPOS * XPOS;"
+                    "p[Y2] = YPOS * YPOS;";
             }            
-            bail += "pTemp[EJECT_VAL] = std::min(pTemp[X2],pTemp[Y2]);";
+            bail += "p[EJECT_VAL] = std::min(p[X2],p[Y2]);";
             return bail;
         };
     bool iter8_ok() const { return true; };
@@ -136,10 +136,10 @@ public:
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
                 bail = 
-                    "pTemp[X2] = XPOS * XPOS;"
-                    "pTemp[Y2] = YPOS * YPOS;";
+                    "p[X2] = XPOS * XPOS;"
+                    "p[Y2] = YPOS * YPOS;";
             }       
-            bail += "pTemp[EJECT_VAL] = std::max(pTemp[X2],pTemp[Y2]);";
+            bail += "p[EJECT_VAL] = std::max(p[X2],p[Y2]);";
             return bail;
         }
     bool iter8_ok() const { return true; }
@@ -154,10 +154,10 @@ public:
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
                 bail = 
-                    "pTemp[X2] = XPOS * XPOS;"
-                    "pTemp[Y2] = YPOS * YPOS;";
+                    "p[X2] = XPOS * XPOS;"
+                    "p[Y2] = YPOS * YPOS;";
             }            
-            bail += "{double t = fabs(pTemp[X2]) + fabs(pTemp[Y2]); pTemp[EJECT_VAL] = t*t;}";
+            bail += "{double t = fabs(p[X2]) + fabs(p[Y2]); p[EJECT_VAL] = t*t;}";
             return bail;
         }
     bool iter8_ok() const { return false; }
@@ -169,7 +169,7 @@ class manhattan_bailout : public bailFunc {
 public:
     virtual std::string bail_code(int flags) const 
         {
-            return "pTemp[EJECT_VAL] = XPOS + YPOS;";
+            return "p[EJECT_VAL] = XPOS + YPOS;";
         }
     bool iter8_ok() const { return false; }
     bool period_ok() const { return true; };

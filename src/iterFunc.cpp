@@ -123,10 +123,10 @@ public:
         }
     virtual std::string ret_code()  const { return ""; };
     virtual std::string save_iter_code() const {
-        return "T lastx = pIter[X]; T lasty = pIter[Y]";
+        return "T lastx = p[X]; T lasty = p[Y]";
     }
     virtual std::string restore_iter_code() const {
-        return "pIter[X] = lastx; pIter[Y] = lasty";
+        return "p[X] = lastx; p[Y] = lasty";
     }
     
     virtual void get_code(std::map<std::string,std::string>& code_map) const 
@@ -139,8 +139,8 @@ public:
             code_map["N_OPTIONS"]= os.str();
             code_map["SAVE_ITER"]=save_iter_code();
             code_map["RESTORE_ITER"]=restore_iter_code();
-            code_map["XPOS"]= flags() & USE_COMPLEX ? "z.real()" : "pIter[X]";
-            code_map["YPOS"]= flags() & USE_COMPLEX ? "z.imag()" : "pIter[Y]";
+            code_map["XPOS"]= flags() & USE_COMPLEX ? "z.real()" : "p[X]";
+            code_map["YPOS"]= flags() & USE_COMPLEX ? "z.imag()" : "p[Y]";
         }
     IO_DECLS(iterImpl)
 };
@@ -217,11 +217,11 @@ public:
     std::string iter_code() const 
         { 
             return 
-                "pTemp[X2] = pIter[X] * pIter[X];"
-                "pTemp[Y2] = pIter[Y] * pIter[Y];"
-                "atmp = pTemp[X2] - pTemp[Y2] + pInput[CX];"
-                "pIter[Y] = 2.0 * pIter[X] * pIter[Y] + pInput[CY];"
-                "pIter[X] = atmp";
+                "p[X2] = p[X] * p[X];"
+                "p[Y2] = p[Y] * p[Y];"
+                "atmp = p[X2] - p[Y2] + p[CX];"
+                "p[Y] = 2.0 * p[X] * p[Y] + p[CY];"
+                "p[X] = atmp";
         }
 };
 
@@ -245,7 +245,7 @@ class newtFunc : public iterImpl<newtFunc,1>
         }
     std::string decl_code() const 
         { 
-            return "std::complex<double> z(pIter[X],pIter[Y]) , c(pInput[CX],pInput[CY]), n_minus_one(a[0] - 1.0)";
+            return "std::complex<double> z(p[X],p[Y]) , c(p[CX],p[CY]), n_minus_one(a[0] - 1.0)";
         }
     std::string iter_code() const 
         { 
@@ -253,7 +253,7 @@ class newtFunc : public iterImpl<newtFunc,1>
         }
     std::string ret_code()  const 
         { 
-            return "pIter[X] = z.real(); pIter[Y] = z.imag()"; 
+            return "p[X] = z.real(); p[Y] = z.imag()"; 
         }
     std::string save_iter_code() const
         {
@@ -308,7 +308,7 @@ public:
         }
     std::string decl_code() const 
         { 
-            return "std::complex<double> z(pIter[X],pIter[Y]), c(pInput[CX],pInput[CY])";
+            return "std::complex<double> z(p[X],p[Y]), c(p[CX],p[CY])";
         }
     std::string iter_code() const 
         { 
@@ -316,7 +316,7 @@ public:
         }
     std::string ret_code() const
         {
-            return "pIter[X] = z.real(); pIter[Y] = z.imag()";
+            return "p[X] = z.real(); p[Y] = z.imag()";
         }
     std::string save_iter_code() const
         {
@@ -376,18 +376,18 @@ public:
     std::string iter_code() const 
         { 
             return 
-                "x_cy = pIter[X] * pInput[CY]; x_cx = pIter[X] * pInput[CX];"
-                "y_cy = pIter[Y] * pInput[CY]; y_cx = pIter[Y] * pInput[CX];"
+                "x_cy = p[X] * p[CY]; x_cx = p[X] * p[CX];"
+                "y_cy = p[Y] * p[CY]; y_cx = p[Y] * p[CX];"
                 
-                "if(pIter[X] >= 0)"
+                "if(p[X] >= 0)"
                 "{"
-                    "pIter[X] = (x_cx - pInput[CX] - y_cy );"
-                    "pIter[Y] = (y_cx - pInput[CY] + x_cy );"
+                    "p[X] = (x_cx - p[CX] - y_cy );"
+                    "p[Y] = (y_cx - p[CY] + x_cy );"
                 "}"
                 "else"
                 "{"
-                    "pIter[X] = (x_cx + pInput[CX] - y_cy);"
-                    "pIter[Y] = (y_cx + pInput[CY] + x_cy);"
+                    "p[X] = (x_cx + p[CX] - y_cy);"
+                    "p[Y] = (y_cx + p[CY] + x_cy);"
                 "}";
         }
 };
@@ -410,18 +410,18 @@ public:
     std::string iter_code() const 
         { 
             return 
-                "x_cy = pIter[X] * pInput[CY]; x_cx = pIter[X] * pInput[CX];"
-                "y_cy = pIter[Y] * pInput[CY]; y_cx = pIter[Y] * pInput[CX]; "
+                "x_cy = p[X] * p[CY]; x_cx = p[X] * p[CX];"
+                "y_cy = p[Y] * p[CY]; y_cx = p[Y] * p[CX]; "
     
-                "if(pIter[X]*pInput[CY] + pIter[Y]*pInput[CX] >= 0) "
+                "if(p[X]*p[CY] + p[Y]*p[CX] >= 0) "
                 "{" 
-                    "pIter[X] = (x_cx - pInput[CX] - y_cy );"
-                    "pIter[Y] = (y_cx - pInput[CY] + x_cy );"
+                    "p[X] = (x_cx - p[CX] - y_cy );"
+                    "p[Y] = (y_cx - p[CY] + x_cy );"
                 "}" 
                 "else"
                 "{" 
-                    "pIter[X] = (x_cx + pInput[CX] - y_cy);"
-                    "pIter[Y] = (y_cx + pInput[CY] + x_cy);" 
+                    "p[X] = (x_cx + p[CX] - y_cy);"
+                    "p[Y] = (y_cx + p[CY] + x_cy);" 
                 "}";
         }
 };
@@ -453,14 +453,14 @@ public:
     std::string iter_code() const 
         { 
             return
-                "pTemp[X2] = pIter[X] * pIter[X]; pTemp[Y2] = pIter[Y] * pIter[Y];"
+                "p[X2] = p[X] * p[X]; p[Y2] = p[Y] * p[Y];"
     
                 /* t <- z * (1 - z) */
-                "tx = pIter[X] - pTemp[X2] + pTemp[Y2];"
-                "ty = pIter[Y] - 2.0 * pIter[X] * pIter[Y];"
+                "tx = p[X] - p[X2] + p[Y2];"
+                "ty = p[Y] - 2.0 * p[X] * p[Y];"
     
-                "pIter[X] = pInput[CX] * tx - pInput[CY] * ty;"
-                "pIter[Y] = pInput[CX] * ty + pInput[CY] * tx";
+                "p[X] = p[CX] * tx - p[CY] * ty;"
+                "p[Y] = p[CX] * ty + p[CY] * tx";
         }
 };
 
@@ -478,15 +478,15 @@ public:
     std::string iter_code() const 
         { 
             return
-                "pIter[X] = fabs(pIter[X]);"
-                "pIter[Y] = fabs(pIter[Y]);"
+                "p[X] = fabs(p[X]);"
+                "p[Y] = fabs(p[Y]);"
 
                 /* same as mbrot from here */
-                "pTemp[X2] = pIter[X] * pIter[X];"
-                "pTemp[Y2] = pIter[Y] * pIter[Y];"
-                "atmp = pTemp[X2] - pTemp[Y2] + pInput[CX];"
-                "pIter[Y] = 2.0 * pIter[X] * pIter[Y] + pInput[CY];"
-                "pIter[X] = atmp";
+                "p[X2] = p[X] * p[X];"
+                "p[Y2] = p[Y] * p[Y];"
+                "atmp = p[X2] - p[Y2] + p[CX];"
+                "p[Y] = 2.0 * p[X] * p[Y] + p[CY];"
+                "p[X] = atmp";
         }
     std::string decl_code() const 
         { 
@@ -519,14 +519,14 @@ public:
     std::string iter_code() const
         {
             return 
-                "pIter[X] = fabs(pIter[X]);"
-                "pIter[Y] = fabs(pIter[Y]);"
+                "p[X] = fabs(p[X]);"
+                "p[Y] = fabs(p[Y]);"
    
-                "pTemp[X2] = pIter[X] * pIter[X];"
-                "pTemp[Y2] = pIter[Y] * pIter[Y];"
-                "atmp = pTemp[X2] - pTemp[Y2] - pIter[X] + pInput[CX];"
-                "pIter[Y] = 2.0 * pIter[X] * pIter[Y] - pIter[Y] + pInput[CY];"
-                "pIter[X] = atmp";
+                "p[X2] = p[X] * p[X];"
+                "p[Y2] = p[Y] * p[Y];"
+                "atmp = p[X2] - p[Y2] - p[X] + p[CX];"
+                "p[Y] = 2.0 * p[X] * p[Y] - p[Y] + p[CY];"
+                "p[X] = atmp";
         }
     virtual void reset(double *params)
         {
@@ -554,11 +554,11 @@ public:
     std::string iter_code() const
         {
             return 
-                "pTemp[X2] = pIter[X] * pIter[X];"
-                "pTemp[Y2] = pIter[Y] * pIter[Y];"
-                "atmp = pTemp[X2] * pIter[X] - 3.0 * pIter[X] * pTemp[Y2] + pInput[CX];"
-                "pIter[Y] = 3.0 * pTemp[X2] * pIter[Y] - pTemp[Y2] * pIter[Y] + pInput[CY];"
-                "pIter[X] = atmp";
+                "p[X2] = p[X] * p[X];"
+                "p[Y2] = p[Y] * p[Y];"
+                "atmp = p[X2] * p[X] - 3.0 * p[X] * p[Y2] + p[CX];"
+                "p[Y] = 3.0 * p[X2] * p[Y] - p[Y2] * p[Y] + p[CY];"
+                "p[X] = atmp";
         }
 };
 
@@ -577,8 +577,8 @@ public:
     std::string decl_code() const 
         { 
             return 
-                "std::complex<double> z(pIter[X],pIter[Y]);" 
-                "std::complex<double> c(pInput[CX],pInput[CY]);";
+                "std::complex<double> z(p[X],p[Y]);" 
+                "std::complex<double> c(p[CX],p[CY]);";
         }
     std::string iter_code() const
         {
@@ -587,7 +587,7 @@ public:
         }
     std::string ret_code() const
         {
-            return "pIter[X] = z.real(); pIter[Y] = z.imag()";
+            return "p[X] = z.real(); p[Y] = z.imag()";
         }
     std::string save_iter_code() const
         {
@@ -634,8 +634,8 @@ public:
     std::string decl_code() const 
         { 
             return 
-                "std::complex<double> z(pIter[X],pIter[Y]);" 
-                "std::complex<double> c(pInput[CX],pInput[CY]);";
+                "std::complex<double> z(p[X],p[Y]);" 
+                "std::complex<double> c(p[CX],p[CY]);";
         }
     std::string iter_code() const
         {
@@ -644,7 +644,7 @@ public:
         }
     std::string ret_code() const
         {
-            return "pIter[X] = z.real(); pIter[Y] = z.imag()";
+            return "p[X] = z.real(); p[Y] = z.imag()";
         }
     std::string save_iter_code() const
         {
@@ -686,11 +686,11 @@ class taylorFunc : public iterImpl<taylorFunc,0>
 {
 #define CUBE_DECL double atmp
 #define CUBE_ITER "
-    pTemp[X2] = pIter[X] * pIter[X];"
-    pTemp[Y2] = pIter[Y] * pIter[Y];"
-    atmp = pTemp[X2] * pIter[X] - 3.0 * pIter[X] * pTemp[Y2] + pInput[CX];"
-    pIter[Y] = 3.0 * pTemp[X2] * pIter[Y] - pTemp[Y2] * pIter[Y] + pInput[CY];"
-    pIter[X] = atmp
+    p[X2] = p[X] * p[X];"
+    p[Y2] = p[Y] * p[Y];"
+    atmp = p[X2] * p[X] - 3.0 * p[X] * p[Y2] + p[CX];"
+    p[Y] = 3.0 * p[X2] * p[Y] - p[Y2] * p[Y] + p[CY];"
+    p[X] = atmp
 
 public:
     enum {  FLAGS = HAS_X2 | HAS_Y2 };

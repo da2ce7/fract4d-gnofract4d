@@ -47,7 +47,7 @@ class pointFunc {
         struct rgb *color, int *pnIters
         ) = 0;
 #endif
-    virtual rgb_t recolor(int iter) = 0;
+    virtual rgb_t recolor(int iter, double eject, const void *buf) const = 0;
     virtual void *handle() = 0;
 };
 
