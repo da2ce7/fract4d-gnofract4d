@@ -75,6 +75,29 @@ public:
             return (*m_pcf)(colorDist);
         }
 
+    /* do a set of 8some iterations without periodicity */
+    template<class T>
+    bool calcNoPeriod(int& iter, int maxIter, T *pIter, T *pInput, T *pTemp)
+        {
+            int flags = m_pIter->flags();
+
+            do
+            {
+                m_pIter->iter8(pIter,pInput,pTemp);
+                if((iter+= 8) >= maxIter)
+                {   
+                    return false;
+                }                    
+                (*m_pBail)(pIter,pInput,pTemp,flags);  
+                if(pTemp[EJECT_VAL] >= m_eject)
+                {
+                    return true;
+                }
+                pIter[X] = pIter[X + (2*8)];
+                pIter[Y] = pIter[Y + (2*8)];
+            }while(true);
+        }
+
     template<class T>inline void calc(
         const vec4<T>& params, int nMaxIters, int nNoPeriodIters,
         struct rgb *color, int *pnIters
@@ -107,36 +130,26 @@ public:
                 int nNoPeriod8Iters = min<int>((nNoPeriodIters/8) *8, nMax8Iters);
 
                 // do the first chunk of iterations without periodicity
-                // the size of this chunk depends on whether the last point
-                // bailed or not
-                
-                do
-                {
-                    m_pIter->iter8(pIter,pInput,pTemp);
-                    if((iter+= 8) >= nNoPeriod8Iters)
-                    {   
-                        iter -= 8;
-                        goto finished8;
+                // (the size of this chunk depends on whether the last point
+                // bailed or not)
 
-                        if(iter < nMax8Iters)
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            goto finished8;
-                        }
-                    }                    
-                    (*m_pBail)(pIter,pInput,pTemp,flags);  
-                    if(pTemp[EJECT_VAL] >= m_eject)
-                    {
-                        goto bailedOut;
-                    }
-                    pIter[X] = pIter[X + (2*8)];
-                    pIter[Y] = pIter[Y + (2*8)];
-                }while(true);
+                bool bailed = calcNoPeriod(iter,nNoPeriod8Iters,pIter,pInput,pTemp);
+                if(bailed)
+                {
+                    goto bailedOut;
+                }
+                if(iter < nMax8Iters)
+                {
+                    iter -= 8;                    
+                }
+                else
+                {
+                    goto finished8;
+                }
 
                 // do remaining 8iter chunks with periodicity
+                // bailed = calcPeriod(iter,nMax8Iters,pIter,pInput,pTemp);
+
                 do
                 {
                     m_pIter->iter8(pIter,pInput,pTemp);
