@@ -493,7 +493,7 @@ int main()
     int nFate=0;
     double dist=0.0;
     pf_obj *pf = pf_new();
-    pf->vtbl->init(pf,0.001,initparams);
+    pf->vtbl->init(pf,0.001,initparams,2);
     
     pf->vtbl->calc(
          pf,

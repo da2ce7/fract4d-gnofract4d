@@ -18,7 +18,7 @@ class PfTest(unittest.TestCase):
     def testLoad(self):
         handle = pf.load("./test-out.so")
         pfunc = pf.create(handle)
-        print pfunc
+        pf.init(pfunc,0.001,[0.5])
         pfunc = None
         handle = None
 
