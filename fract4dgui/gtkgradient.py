@@ -125,7 +125,7 @@ class GradientDialog(dialog.T):
 		
 	def update_color(self, color):
 		seg, index = self.grad.getSegFromHandle(self.grad.cur)
-		seg[index][1] = [color.red/255, color.green/255, color.blue/255]
+		getattr(seg,index).color = [color.red/255, color.green/255, color.blue/255]
 		self.grad.compute()
 		self.gradarea.queue_draw()
 		self.f.colorlist=self.grad.clist
