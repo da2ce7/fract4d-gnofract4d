@@ -2,6 +2,8 @@
 
 # Generate C code from a linearized IR trace
 
+import string
+
 import ir
 import symbol
 import re
@@ -85,7 +87,31 @@ class Move(Insn):
         self.dst = dst
     def __str__(self):
         return "MOVE(%s,%s,%s)" % (self.assem, self.src, self.dst)
-    
+
+class Decl(Insn):
+    ' a variable declaration'
+    def __init__(self,assem):
+        Insn.__init__(self,assem)
+        self.src = None
+        self.dst = None
+        
+class Formatter:
+    ' fed to print to fill the output template'
+    def __init__(self, codegen, tree, lookup):
+        self.codegen = codegen
+        self.lookup = lookup
+        self.tree = tree
+    def __getitem__(self,key):
+        try:
+            out = self.tree.output_sections[key]
+            print out
+            str_output = string.join(map(lambda x : x.format(), out),"\n")
+            return str_output
+
+        except KeyError, err:
+            print "missed %s" % key
+            return self.lookup.get(key,"")
+
 class T:
     'code generator'
     def __init__(self,symbols,dump=None):
@@ -104,7 +130,29 @@ class T:
             [ "[Cast]", T.cast],
             [ "[Unop]", T.unop]
             ])
-
+        self.output_template = '''
+#include <stdio.h>
+int main()
+{
+/* variable declarations */
+%(decls)s
+int nMaxIters = 16, nIters = 0;
+%(init)s
+t__end_init:
+while(nIters < nMaxIters)
+{
+    %(loop)s
+    t__end_loop:
+    %(loop_inserts)s
+    %(bailout)s
+    t__end_bailout:
+    %(bailout_inserts)s
+    if(%(bailout_var)s) break;
+    nIters++;
+}
+%(done_inserts)s
+return 0;
+}'''
 
     def emit_binop(self,op,s0,index1,s1,index2,srcs,type):
         dst = self.symbols.newTemp(type)
@@ -127,17 +175,34 @@ class T:
                 t = fracttypes.ctype(sym.type)
                 val = sym.value
                 if sym.type == fracttypes.Complex:
-                    out += [ "%s %s_re = %.17f;" % (t,key,val[0]),
-                             "%s %s_im = %.17f;" % (t,key,val[1])]
+                    out += [ Decl("%s %s_re = %.17f;" % (t,key,val[0])),
+                             Decl("%s %s_im = %.17f;" % (t,key,val[1]))]
                 elif sym.type == fracttypes.Float:
-                    out.append("%s %s = %.17f;" % (t,key,val))
+                    out.append(Decl("%s %s = %.17f;" % (t,key,val)))
                 else:
-                    out.append("%s %s = %d;" % (t,key,val))
+                    out.append(Decl("%s %s = %d;" % (t,key,val)))
             else:
                 #print "Weird symbol %s: %s" %( key,sym)
                 pass
         return out
+
+    def output_section(self,t,section):
+        self.out = []
+        self.generate_all_code(t.canon_sections[section])
+        t.output_sections[section] = self.out
     
+    def output_all(self,t):
+        t.output_sections["decls"] = self.output_symbols()
+        for k in t.canon_sections.keys():
+            self.output_section(t,k)
+
+    def output_c(self,t,inserts={}):
+        # find bailout variable
+        bailout_insn = t.output_sections["bailout"][-2]
+        inserts["bailout_var"] = bailout_insn.dst[0]
+        f = Formatter(self,t,inserts)
+        return self.output_template % f
+        
     # action routines
     def cast(self,t):
         child = t.children[0]

@@ -18,6 +18,8 @@ class T:
         self.errors = []
         self.warnings = []
         self.sections = {}
+        self.canon_sections = {}
+        self.output_sections = {}
         self.fakeNode = Empty(-1) # node used for code not written by user
         
         self.dumpCanon = 0
@@ -104,7 +106,7 @@ class T:
         for (k,tree) in self.sections.items():
             startLabel = "t__start_" + k
             endLabel = "t__end_" + k
-            self.sections["c_" + k] = self.canon.canonicalize(tree,startLabel,endLabel)
+            self.canon_sections[k] = self.canon.canonicalize(tree,startLabel,endLabel)
 
     def dupSectionWarning(self,sect):
         self.warning(

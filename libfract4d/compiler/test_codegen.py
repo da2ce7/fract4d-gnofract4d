@@ -50,15 +50,19 @@ class CodegenTest(unittest.TestCase):
     def generate_code(self,t):
         self.codegen = codegen.T(symbol.T())
         self.codegen.generate_code(t)
-        
-    def sourceToAsm(self,s,section,dump=None):
+
+    def translate(self,s,dump=None):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
         #print pt.pretty()
-        ir = translate.T(pt.children[0],dump)
-        self.assertNoErrors(ir)
-        self.codegen = codegen.T(ir.symbols,dump)
-        self.codegen.generate_all_code(ir.sections["c_" + section])
+        t = translate.T(pt.children[0],dump)
+        self.assertNoErrors(t)
+        self.codegen = codegen.T(t.symbols,dump)
+        return t
+    
+    def sourceToAsm(self,s,section,dump=None):
+        t = self.translate(s,dump)
+        self.codegen.generate_all_code(t.canon_sections[section])
         if dump != None and dump["dumpAsm"] == 1:
             self.printAsm()
         return self.codegen.out
@@ -74,7 +78,7 @@ class CodegenTest(unittest.TestCase):
     def makeC(self,user_preamble="", user_postamble=""):
         # construct a C stub for testing
         preamble = "#include <stdio.h>\nint main(){\n"
-        decls = string.join(self.codegen.output_symbols(),"\n")
+        decls = string.join(map(lambda x: x.format(), self.codegen.output_symbols()),"\n")
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
         postamble = "\nreturn 0;}\n"
 
@@ -227,16 +231,13 @@ goto t__end_loop;''')
 
     def testSymbols(self):
         out = self.codegen.output_symbols()
-        self.failUnless("double z_re = 0.00000000000000000;" in out)
+        l = [x for x in out if x.assem == "double z_re = 0.00000000000000000;"]
+        self.failUnless(len(l)==1)
 
     def testC(self):
         # basic end-to-end testing. Compile a code fragment + instrumentation,
         # run it and check output
-        src = '''t_c1 {
-loop:
-int a = 1
-z = z + a
-}'''
+        src = 't_c1 {\nloop: int a = 1\nz = z + a\n}'
         self.assertCSays(src,"loop","printf(\"%g,%g\\n\",z_re,z_im);","1,0")
         
         src = '''t_c2{\ninit:int a = 1 + 3 * 7\n}'''
@@ -246,8 +247,21 @@ z = z + a
         self.assertCSays(src,"init","printf(\"%g\\n\",b_re);","22")
 
         src = 't_c4{\ninit: bool x = |z| < 4.0\n}'
-        self.assertCSays(src,"init","printf(\"%d\\n\",x);","1",
-                         {"dumpAsm" : 1} )
+        self.assertCSays(src,"init","printf(\"%d\\n\",x);","1")
+
+    def testMandel(self):
+        src = '''t_mandel{
+init:
+z = 0,c = 0
+loop:
+z = z*z + c
+bailout:
+|z| > 4.0
+}'''
+        t = self.translate(src)
+        self.codegen.output_all(t)
+        c_code = self.codegen.output_c(t)
+        print c_code
         
     # assertions
     def assertCSays(self,source,section,check,result,dump=None):
