@@ -12,7 +12,6 @@ libfract4d
 * W	signal tpool conds after releasing mutex?
 * W	sort out fractal types a bit
 * W	associate with file type?
-* W	main toolbar: home, exit
 * W	make it work with GMP
 * W	faster GMP (get at internals during loop, maybe?)
 * W	full-screen mode
@@ -24,17 +23,12 @@ libfract4d
 * W	bookmarks
 * B	Mutants don't work at deep zooms
 * W	fast single-undo
-* B	absolute paths in parameter save files
-* WW	preview .fcts in open dialog
 * B 	invalid bailfunc # = crash
 * W	parameterize buffalo
 * W	add exponent to mandelbar (buffalo?)
 * WW	critical values + multiple basins/color schemes
 * W	make sure inner function is sensible (itercount is pointless)
-* B	pause doesn't stop subfracts
-* BB	stupid options dialog would be better as tabbed dialog
 * W	pass colorFuncs by value instead of enum
-
 * W	is it really faster w/out HAS_X2 ?
 
 netfract
@@ -46,6 +40,9 @@ gnofract4d
 * W	history window (move history inside library??)
 * B	SIGSEGV when changing mutant weirdness - hard to repro
 * WW	MDI
+* B	pause doesn't stop subfracts
+* BB	stupid options dialog would be better as tabbed dialog
+* WW	preview .fcts in open dialog
 
 fract4d
 * W	introduce image class
@@ -68,6 +65,9 @@ Movies-
 * W 	actually save movie images -> disk
 * W	move keyframes up/down 
 * B	lines are ugly
+* W 	"constant zoom speed" mode?
+* WW	run mpeg encoder?
+* W	draw image all-at-once for movies?
 
 CmapEditor
 * W	put "click to apply" right next to preview

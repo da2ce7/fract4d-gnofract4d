@@ -54,11 +54,11 @@ typedef enum
 
 class iterFunc;
 
-/* interface for function object which computes a single point */
+/* interface for function object which computes and/or colors a single point */
 class pointFunc {
  public:
     virtual void calc(
-        // in params
+        // in params. params points to [x,y,cx,cy]
         const double *params, int nIters, int nNoPeriodIters,
 	// only used for debugging
 	int x, int y, int aa,
@@ -69,7 +69,7 @@ class pointFunc {
     virtual int buffer_size() const = 0;
 };
 
-/* factory method for making new fractFuncs */
+/* factory method for making new pointFuncs */
 pointFunc *pointFunc_new(
     iterFunc *iterType, 
     e_bailFunc bailType,
