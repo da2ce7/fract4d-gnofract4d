@@ -32,12 +32,22 @@ class FctUtils:
         methname = "parse_" + sect + name.translate(self.tr)
         meth = None
         try:
-            meth = eval("self.%s" % methname)
-        except Exception:
+            klass = self.__class__
+            while True:
+                meth = klass.__dict__.get(methname)
+                if meth != None:
+                    break
+                bases = klass.__bases__
+                if len(bases) > 0:                    
+                    klass = bases[0]
+                else:
+                    break
+        except Exception, err:
             print "ignoring unknown attribute %s" % methname
-
+            print err
+            
         if meth:
-            return meth(val,f)
+            return meth(self,val,f)
 
     def nameval(self,line):
         x = line.rstrip().split("=",1)

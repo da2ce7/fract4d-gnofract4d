@@ -20,9 +20,10 @@ UF Incompatibilities
 * B	dmj.udm:dmj-ManyJulia - looks like 3 quadrants are wrong somehow
 * B	jock.ufm:neptwona = "complex z = #pixel", eg redeclare z
 * W	raise/remove limit on number of parameters
-* W	if #zwpixel not used, disable 4D in toolbar and explorer
 
 UI improvements 
+* W	if #zwpixel not used, disable 4D in toolbar and explorer
+* W	tooltips for custom widgets in toolbar
 * BB	more robust error reporting
 * W	last-chance exception handler
 * B	maxiter isn't updated due to auto-deepening

@@ -395,7 +395,10 @@ class T(UserDict):
                  hasattr(other.data[k],"cname") and \
                  self.data[k].cname != other.data[k].cname:
                     self.data[self.insert_prefix(other.prefix,k)] = other.data[k]
-                
+
+    def has_user_key(self,key):
+        return self.data.has_key(mangle(key))
+    
     def has_key(self,key):
         if self.data.has_key(mangle(key)):
             return True        

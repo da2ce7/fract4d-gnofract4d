@@ -208,6 +208,32 @@ default:
         t4 = self.translate('t_c3{\n:init: a = 1 + 3 * 7\n}')
         self.assertNoErrors(t4)
 
+    def testIs4D(self):
+        'Check convenience function to report if formula is 4D-enabled'
+        t1 = self.translate('''
+        no_zw {
+        init:
+        z = #zwpixel
+        loop:
+        z = sqr(z) + #pixel
+        bailout:
+        |z| < 4
+        }''')
+
+        self.assertEqual(t1.is4D(), True)
+
+        t2 = self.translate('''
+        no_zw {
+        init:
+        z = 0
+        loop:
+        z = sqr(z) + #pixel
+        bailout:
+        |z| < 4
+        }''')
+
+        self.assertEqual(t2.is4D(), False)
+
     def testImplicitConversionToComplex(self):
         t_icc = self.translate('''t11 {
         init: x = exp(1.0,0.0)

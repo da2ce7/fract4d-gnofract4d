@@ -188,6 +188,42 @@ endparam
             self.assertEqual(f.get_initparam(0,0), 6.0)
         finally:
             os.remove("fracttest.frm")
+
+    def testLoadMaliciousFile(self):
+        'Try to inject code into a file'
+        bad_testfile = '''gnofract4d parameter file
+version(2.0,None)+open("foo.txt","w")=2.0
+[function]
+formulafile=test.frm
+function=parse_error
+[endsection]
+[inner]
+formulafile=test.cfrm
+function=flat
+@myfunc=sqrt
+[endsection]
+[outer]
+formulafile=test.cfrm
+function=Triangle
+@power=3.0
+@bailout=1.0e12
+[endsection]
+[colors]
+colorizer=1
+solids=[
+000000ff
+000000ff
+]
+colorlist=[
+0.000000=00000000
+1.000000=ffffffff
+]
+'''
+        f = fractal.T(self.compiler)
+        self.assertRaises(ValueError,f.loadFctFile,
+                          (StringIO.StringIO(bad_testfile)))
+
+        self.assertEqual(os.path.exists('foo.txt'),False)
         
     def testLoadFileWithBadFormula(self):
         bad_testfile = '''gnofract4d parameter file
