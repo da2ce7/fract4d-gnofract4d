@@ -40,6 +40,10 @@
 #include <iostream>
 #include <sstream>
 
+#include "fract_public.h"
+#include "iterFunc.h"
+#include "fract.h"
+#include "bailFunc.h"
 
 class compiler : public ICompiler
 {
@@ -65,7 +69,7 @@ public:
     void set_flags(const char *flags_) { flags = flags_; };
     const char *get_flags() { return flags.c_str(); };
 
-
+    void *compile(IFractal *f);
     void *getHandle(std::map<std::string,std::string> defn_map);
 
  private:
@@ -189,6 +193,38 @@ compiler::invalidate_cache()
     pthread_mutex_lock(&cache_lock);
     cache.clear();
     pthread_mutex_unlock(&cache_lock);
+}
+
+void *
+compiler::compile(IFractal *f)
+{
+    assert(f !=NULL);
+    std::map<std::string,std::string> code_map;
+    
+    iterFunc *ifunc = f->get_iterFunc();
+    bailFunc *bfunc = f->get_bailFunc();
+
+    ifunc->get_code(code_map);
+
+    // use internal fract stuff for now
+    fractal *rf = dynamic_cast<fractal *>(f);
+    if(!rf)
+    {
+	on_error("Invalid arg to compile, must be a real fract");
+	return NULL;
+    }
+
+    
+    bfunc->get_code(code_map, ifunc->flags());
+
+    /*
+    // disable periodicity if inner function will show its effect
+    if(rf->colorFuncs[INNER] != COLORFUNC_ZERO)
+    {
+	code_map["NOPERIOD"]="1";
+    }
+    */
+    return NULL;
 }
 
 void * 

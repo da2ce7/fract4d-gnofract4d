@@ -122,8 +122,9 @@ public:
     colorizer_t *get_colorizer(int which_cizer) const ;
     void set_colorizer(colorizer_t *cizer, int which_cizer);
 
-    e_bailFunc get_bailFunc() const;
-    void set_bailFunc(e_bailFunc bf);
+    e_bailFunc get_bailType() const;
+    void set_bailType(e_bailFunc bf);
+    bailFunc *get_bailFunc() const;
 
     void set_colorFunc(e_colorFunc cf, int which_cf);
     e_colorFunc get_colorFunc(int which_cf) const;

@@ -135,8 +135,9 @@ public:
     virtual bool set_precision(int digits) = 0; 
     virtual bool check_precision() = 0;
 
-    virtual void set_bailFunc(e_bailFunc bf) = 0;
-    virtual e_bailFunc get_bailFunc() const = 0;
+    virtual void set_bailType(e_bailFunc bf) = 0;
+    virtual e_bailFunc get_bailType() const = 0;
+    virtual bailFunc *get_bailFunc() const = 0;
 
     virtual void set_colorFunc(e_colorFunc cf, int which_cf) = 0;
     virtual e_colorFunc get_colorFunc(int which_cf) const = 0;

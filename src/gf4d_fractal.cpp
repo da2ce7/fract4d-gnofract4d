@@ -301,12 +301,12 @@ void gf4d_fractal_update_fract(Gf4dFractal *gf, Gf4dFractal *gf2)
 void gf4d_fractal_set_bailout_type(Gf4dFractal *gf, e_bailFunc bailType)
 {
     kill_slave_threads(gf);
-    gf->f->set_bailFunc(bailType);
+    gf->f->set_bailType(bailType);
 }
 
 e_bailFunc gf4d_fractal_get_bailout_type(Gf4dFractal *gf)
 {
-    return gf->f->get_bailFunc();
+    return gf->f->get_bailType();
 }
 
 static void *
