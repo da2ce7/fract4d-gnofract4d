@@ -80,8 +80,7 @@ public:
         {
             int flags = m_pIter->flags();
 
-            T pIter[ITER_SPACE], pInput[INPUT_SPACE], pTemp[TEMP_SPACE];
-            T save[ITER_SPACE];
+            T pIter[ITER_SPACE*(8+1)], pInput[INPUT_SPACE], pTemp[TEMP_SPACE];
             pIter[X] =  params.n[VZ]; 
             pIter[Y] =  params.n[VW];
             pInput[CX] = params.n[VX];
@@ -99,20 +98,34 @@ public:
                 int nMax8Iters = (nMaxIters/8) * 8;
                 do
                 {
-                    save[X] = pIter[X];
-                    save[Y] = pIter[Y];
                     m_pIter->iter8(pIter,pInput,pTemp);
                     if((iter+= 8) >= nMax8Iters)
                     {
                         goto finished8;
                     }
                     (*m_pBail)(pIter,pInput,pTemp,flags);  
-                }while(pTemp[EJECT_VAL] < m_eject);
+                    if(pTemp[EJECT_VAL] >= m_eject)
+                    {
+                        break;
+                    }
+                    pIter[X] = pIter[X + (2*8)];
+                    pIter[Y] = pIter[Y + (2*8)];                    
+                }while(true);
 
-                // we bailed out - need to go back to saved position & 
-                // recalculate
-                pIter[X] = save[X]; pIter[Y] = save[Y];
-                iter -= 8;
+                // we bailed out - need to look through the list to
+                // see where (could do binary search, but can't be bothered)
+                int i = 0;
+                for(; i < 9; ++i)
+                {
+                    // 0 for flags because X2, Y2 data not up to date
+                    (*m_pBail)(pIter + 2*i, pInput, pTemp, 0);
+                    if(pTemp[EJECT_VAL] >= m_eject)
+                    {
+                        iter = iter - 8 + i;
+                        goto finishedAll;
+                    }
+                }
+                assert(false && "we must bailout before reaching this point");
             }
 
         finished8:
@@ -126,8 +139,15 @@ public:
                     iter = -1; break; 
                 }
                 (*m_pBail)(pIter,pInput,pTemp,flags);            
-            }while(pTemp[EJECT_VAL] < m_eject);
+                if(pTemp[EJECT_VAL] >= m_eject)
+                {
+                    break;
+                }
+                pIter[X] = pIter[X + (2*1)];
+                pIter[Y] = pIter[Y + (2*1)];
+            }while(1);
 
+        finishedAll:
             *pnIters = iter;
             if(color)
             {

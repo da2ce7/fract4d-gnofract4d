@@ -230,13 +230,14 @@ public:
     enum { FLAGS = HAS_X2 | HAS_Y2 };
     mandFunc() : iterImpl<mandFunc,0>(name()) {} 
 
-#define MAND_DECL T atmp
+#define MAND_DECL T atmp;
 #define MAND_ITER \
     pTemp[X2] = pIter[X] * pIter[X]; \
     pTemp[Y2] = pIter[Y] * pIter[Y]; \
     atmp = pTemp[X2] - pTemp[Y2] + pInput[CX]; \
-    pIter[Y] = 2.0 * pIter[X] * pIter[Y] + pInput[CY]; \
-    pIter[X] = atmp
+    pIter[Y+ITER_SPACE] = 2.0 * pIter[X] * pIter[Y] + pInput[CY]; \
+    pIter[X+ITER_SPACE] = atmp; \
+    pIter += 2;
 
     ITER_DECLS(MAND_DECL,MAND_ITER)
 
