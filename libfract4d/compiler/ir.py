@@ -67,7 +67,7 @@ class Move(Stm):
     def __init__(self, dest, exp, datatype):
         Stm.__init__(self, datatype)
         self.dest = dest
-        sel.exp = exp
+        self.exp = exp
 
 class SExp(Stm):
     def __init__(self, exp, datatype):
