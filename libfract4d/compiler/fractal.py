@@ -4,6 +4,10 @@
 import string
 import re
 import os
+import sys
+
+sys.path.append("build/lib.linux-i686-2.2") # FIXME
+import fract4d
 
 
 class T:
@@ -40,6 +44,16 @@ class T:
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","default")
 
+        # interaction with fract4d library
+        self.site = fract4d.site_create(self)
+
+        # default 
+        self.colorlist = [
+            (0.0,0.5,0,0,255),
+            (1/256.0,255,255,255,255),
+            (1.0, 255, 255, 255, 255)
+            ]
+
     def __del__(self):
         if self.outputfile:
             os.remove(self.outputfile)
@@ -68,8 +82,42 @@ class T:
 
         self.formula.merge(self.cfuncs[0],"cf0_")
         self.formula.merge(self.cfuncs[1],"cf1_")        
-        self.outputfile = self.compiler.generate_code(self.formula, cg)
+        self.outputfile = os.path.abspath(self.compiler.generate_code(self.formula, cg))
         return self.outputfile
+
+    # status callbacks
+    def status_changed(self,val):
+        #print "status: %d" % val
+        #self.status_list.append(val)
+        pass
+    
+    def progress_changed(self,d):
+        #print "progress:", d
+        #self.progress_list.append(d)
+        pass
+    
+    def is_interrupted(self):
+        return False
+
+    def parameters_changed(self):
+        #print "params changed"
+        #self.parameters_times += 1
+        pass
+    
+    def image_changed(self,x1,y1,x2,y2):
+        #print "image: %d %d %d %d" %  (x1, x2, y1, y2)
+        #self.image_list.append((x1,y1,x2,y2))
+        pass
+    
+    def draw(self,image):
+        handle = fract4d.pf_load(self.outputfile)
+        pfunc = fract4d.pf_create(handle)
+        cmap = fract4d.cmap_create(self.colorlist)
+        
+        fract4d.pf_init(pfunc,0.001,[])
+
+        fract4d.calc(self.params,self.antialias,self.maxiter,1,
+                     pfunc,cmap,1,image,self.site)
 
     def parseVal(self,name,val,f,sect=""):
         # try to find a method matching name        

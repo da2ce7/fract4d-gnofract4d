@@ -66,6 +66,13 @@ class IFractalSite
     // one of the status values above
     virtual void status_changed(int status_val) {};
 
+    // per-pixel callback for debugging
+    virtual void pixel_changed(
+	const double *params, int maxIters, int nNoPeriodIters,
+	int x, int y, int aa,
+	double dist, int fate, int nIters,
+	int r, int g, int b, int a) {};
+ 
     // return true if we've been interrupted and are supposed to stop
     virtual bool is_interrupted() { return false; };
 };

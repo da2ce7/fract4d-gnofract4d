@@ -312,7 +312,7 @@ calc(
     IImage *im, 
     IFractalSite *site)
 {
-    IFractWorker *worker = IFractWorker::create(nThreads,pfo,cmap,im);
+    IFractWorker *worker = IFractWorker::create(nThreads,pfo,cmap,im,site);
 
     if(worker && worker->ok())
     {
