@@ -1,7 +1,7 @@
 # The fractal standard library, including operators
 import math
 
-from codegen import ComplexArg, ConstFloatArg, ConstIntArg, TempArg
+from codegen import ComplexArg, ConstFloatArg, ConstIntArg, TempArg, HyperArg
 from fracttypes import *
 
 class Constants:
@@ -21,6 +21,9 @@ def reals(l):
 
 def imags(l):
     return [x.im for x in l]
+
+def parts(n,l):
+    return [x.parts[n] for x in l]
 
 # unary negation
 def neg_i_i(gen,t,srcs):
@@ -65,6 +68,9 @@ def complex_ff_c(gen,t,srcs):
     # construct a complex number from two real parts
     return ComplexArg(srcs[0],srcs[1])
 
+def hyper_ffff_h(gen,t,srcs):
+    return HyperArg(srcs[0],srcs[1],srcs[2],srcs[3])
+
 def add_cc_c(gen,t,srcs):
     # add 2 complex numbers
     dst = ComplexArg(
@@ -72,6 +78,15 @@ def add_cc_c(gen,t,srcs):
         gen.emit_binop('+',imags(srcs), Float))
     return dst
 
+def add_hh_h(gen,t,srcs):
+    # add 2 hyper numbers
+    dst = HyperArg(
+        gen.emit_binop('+',parts(0,srcs), Float),
+        gen.emit_binop('+',parts(1,srcs), Float),
+        gen.emit_binop('+',parts(2,srcs), Float),
+        gen.emit_binop('+',parts(3,srcs), Float))
+    return dst
+    
 def sub_cc_c(gen,t,srcs):
     # subtract 2 complex numbers
     dst = ComplexArg(

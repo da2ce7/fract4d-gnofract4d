@@ -270,9 +270,12 @@ default:
         int i
         float f
         complex c
+        hyper h
         loop:
         i = 1
         f = 1.0
+        c = (2.1, 2.3)
+        h = (1.0,2.0,3.0,4.0)
         }''')
         self.assertNoProbs(t9)
 
@@ -285,6 +288,18 @@ default:
         }''')
         self.assertWarning(t10,"conversion from int to float on line 4")
         self.assertError(t10, "invalid type float for 1.0 on line 5, expecting int")
+
+        # basic warnings and errors
+        t11 = self.translate('''t11 {
+        init: complex c, hyper h
+        loop:
+        h = c ; upcast - warning
+        c = h ; downcast - error
+        }''')
+        self.assertWarning(t11,"conversion from complex to hyper on line 4")
+        self.assertError(
+            t11,
+            "invalid type hyper for h on line 5, expecting complex")
 
     def testBadTypeForParam(self):
         t = self.translate('''t_badparam {
@@ -667,11 +682,22 @@ default:
 
         self.assertNoErrors(t)
 
+    def testHyperOps(self):
+        t = self.translate('''t_c8{
+        init:
+        hyper x = (1,2,3,4), hyper y = x + 1
+        }''')
+
+        self.assertNoErrors(t)
+        
     def testDecls(self):
-        t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")
+        t1 = self.translate(
+            "t4 {\nglobal:int a\ncomplex b\nbool c = true\nhyper h\n}")
         self.assertNoProbs(t1)
         self.assertVar(t1, "a", fracttypes.Int)
         self.assertVar(t1, "b", fracttypes.Complex)
+        self.assertVar(t1, "h", fracttypes.Hyper)
+        
         t1 = self.translate('''
         t5 {
         init:

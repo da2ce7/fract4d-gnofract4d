@@ -169,7 +169,7 @@ class ParserTest(unittest.TestCase):
         complex j = (2,3)
         complex k = complex k2 = (2,7)
         hyper hh
-        hyper hh2 = (1,2,3,4)
+        hyper hh2 = (1,2.3+7.9,3,4)
         color l'''))
         self.assertIsValidParse(t1)
         i = t1.children[0].children[0]

@@ -549,6 +549,12 @@ extern pf_obj *pf_new(void);
         return [ Decl("%s %s_re = %s;" % (type,varname,re_val)),
                  Decl("%s %s_im = %s;" % (type,varname,im_val))]
 
+    def make_hyper_init(self,type,varname, vals):
+        return [ Decl("%s %s_re = %s;" % (type,varname,vals[0])),
+                 Decl("%s %s_i = %s;"  % (type,varname,vals[1])),
+                 Decl("%s %s_j = %s;"  % (type,varname,vals[2])),
+                 Decl("%s %s_k = %s;"  % (type,varname,vals[3]))]
+    
     def output_symbol(self,key,sym,op,out,overrides):
         if isinstance(sym,fracttypes.Var):
             t = fracttypes.ctype(sym.type)
@@ -565,7 +571,16 @@ extern pf_obj *pf_new(void);
                         re_val = "t__pfo->p[%d]" % ord
                         im_val = "t__pfo->p[%d]" % (ord+1)
                         out += self.make_complex_init(t,sym.cname, re_val, im_val)
-                            
+
+                elif sym.type == fracttypes.Hyper:
+                    ord = op.get(key)
+                    if ord == None:
+                        fval = [ "%.17f" % v for v in val]
+                        out += self.make_hyper_init(t,sym.cname, fval)
+                    else:
+                        fval = [ "t__pfo->p[%d]" % x for x in range(ord,ord+4)]
+                        out += self.make_hyper_init(t,sym.cname, fval)
+                    
                 elif sym.type == fracttypes.Float:
                     ord = op.get(key)
                     if ord == None:
@@ -586,6 +601,12 @@ extern pf_obj *pf_new(void);
         return [ Decl("%s %s_re;" % (type,varname)),
                  Decl("%s %s_im;" % (type,varname))]
 
+    def make_hyper_decl(self,type,varname):
+        return [ Decl("%s %s_re;" % (type,varname)),
+                 Decl("%s %s_i;" % (type,varname)),
+                 Decl("%s %s_j;" % (type,varname)),
+                 Decl("%s %s_k;" % (type,varname))]
+
     def output_decl(self,key,sym,out,overrides):
         if not isinstance(sym,fracttypes.Var):
             return
@@ -596,6 +617,8 @@ extern pf_obj *pf_new(void);
         if override == None:
             if sym.type == fracttypes.Complex:
                 out += self.make_complex_decl(t,sym.cname)
+            elif sym.type == fracttypes.Hyper:
+                out += self.make_hyper_decl(t,sym.cname)
             else:
                 out.append(Decl("%s %s;" % (t,sym.cname)))
         else:
@@ -772,6 +795,27 @@ extern pf_obj *pf_new(void);
                 self.out.append(Oper(assem,[src.re, src.im], [dst]))
             else:
                 dst = None
+        elif t.datatype == Hyper:
+            dst = HyperArg(TempArg(self.symbols.newTemp(Float)),
+                           TempArg(self.symbols.newTemp(Float)),
+                           TempArg(self.symbols.newTemp(Float)),
+                           TempArg(self.symbols.newTemp(Float)))
+            if child.datatype == Int or \
+                   child.datatype == Bool or child.datatype == Float:
+                assem = "%(d0)s = ((double)%(s0)s);"
+                self.out.append(Oper(assem,[src], [dst.parts[0]]))
+                assem = "%(d0)s = 0.0;"
+                for i in xrange(1,4):
+                    self.out.append(Oper(assem,[src], [dst.parts[i]]))
+            elif child.datatype == Complex:
+                assem = "%(d0)s = ((double)%(s0)s);"
+                self.out.append(Oper(assem,[src.re], [dst.parts[0]]))
+                self.out.append(Oper(assem,[src.im], [dst.parts[1]]))
+                assem = "%(d0)s = 0.0;"
+                self.out.append(Oper(assem,[src], [dst.parts[2]]))
+                self.out.append(Oper(assem,[src], [dst.parts[3]]))
+            else:
+                dst = None
                 
         if dst == None:
             msg = "%d: Invalid Cast from %s to %s" % \
@@ -787,6 +831,9 @@ extern pf_obj *pf_new(void);
         if t.datatype == Complex:
             self.emit_move(src.re,dst.re)
             self.emit_move(src.im,dst.im)
+        elif t.datatype == Hyper:
+            for i in xrange(4):
+                self.emit_move(src.parts[i],dst.parts[i])
         else:
             self.emit_move(src,dst)
         return dst

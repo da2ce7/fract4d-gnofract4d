@@ -130,6 +130,11 @@ def createDefaultDict():
       doc='''Construct a complex number from two real parts.
       complex(a,b) is equivalent to (a,b).''')
 
+    f("hyper",
+      [[Float, Float, Float, Float], Hyper],
+      doc='''Construct a hypercomplex number from a real and 3 imaginary parts.
+      hypercomplex(a,b,c,d) is equivalent to (a,b,c,d).''')
+    
     f("sqr",
       cfl("[_] , _",  [Int, Float, Complex]),
       doc="Square the argument. sqr(x) is equivalent to x*x or x^2.")
@@ -327,7 +332,7 @@ def createDefaultDict():
     # operators
     
     f("+", 
-      cfl("[_,_] , _", [Int, Float, Complex]),
+      cfl("[_,_] , _", [Int, Float, Complex, Hyper]),
       fname="add",
       operator=True,
       doc='Adds two numbers together.')
