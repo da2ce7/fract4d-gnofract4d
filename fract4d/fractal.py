@@ -126,7 +126,8 @@ class T(FctUtils):
         self.set_formula("gf4d.frm","Mandelbrot")
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","default")
-        self.dirty = True
+        self.dirtyFormula = True # formula needs recompiling
+        self.dirty = True # parameters have changed
         self.auto_deepen = True
         
         self.reset()
@@ -185,7 +186,13 @@ class T(FctUtils):
         self.title = self.funcName
         
         self.set_formula_defaults()
-        
+
+    def set_initparam(self,n,val):
+        val = float(val)
+        if self.initparams[n] != val:
+            self.initparams[n] = val
+            self.dirty = True
+
     def set_formula_defaults(self):
         if self.formula == None:
             return
@@ -224,6 +231,7 @@ class T(FctUtils):
         self.funcFile = formulafile
         self.initparams = self.formula.symbols.default_params()
         self.set_bailfunc()
+        self.dirtyFormula = True
         self.dirty = True
         
     def set_bailfunc(self):        
@@ -242,26 +250,36 @@ class T(FctUtils):
         if func != None:
             self.set_func(func[0],funcname)            
 
+    def set_named_func(self,func_to_set,fname):
+        func = self.formula.symbols.get("@" + func_to_set)
+        self.set_func(func[0],fname)            
+
+    def changed(self):
+        self.dirty = True
+        
     def set_func(self,func,fname):
         self.formula.symbols.set_std_func(func,fname)
-        self.dirty = True
+        self.dirtyFormula = True
+        self.changed()
         
     def set_inner(self,funcfile,func):
         self.cfuncs[1] = self.compiler.get_colorfunc(funcfile,func,"cf1")
         if self.cfuncs[1] == None:
             raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
-        self.dirty = True
+        self.dirtyFormula = True
+        self.changed()
         
     def set_outer(self,funcfile,func):
         self.cfuncs[0] = self.compiler.get_colorfunc(funcfile,func,"cf0")
         if self.cfuncs[0] == None:
             raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
-        self.dirty = True
+        self.dirtyFormula = True
+        self.changed()
         
     def compile(self):
         if self.formula == None:
             raise ValueError("no formula")
-        if self.dirty == False:
+        if self.dirtyFormula == False:
             return self.outputfile
 
         cg = self.compiler.compile(self.formula)
@@ -278,13 +296,16 @@ class T(FctUtils):
                 self.handle = fract4dc.pf_load(self.outputfile)
                 self.pfunc = fract4dc.pf_create(self.handle)
 
-        self.dirty = False
+        self.dirtyFormula = False
         return self.outputfile
 
     def mul_vs(self,v,s):
         return map(lambda x : x * s, v)
     
     def relocate(self,dx,dy,zoom):
+        if dx == 0 and dy == 0 and zoom == 1.0:
+            return
+        
         m = fract4dc.rot_matrix(self.params)
 
         deltax = self.mul_vs(m[0],dx)        
@@ -297,11 +318,13 @@ class T(FctUtils):
         self.params[self.ZCENTER] += deltax[2] + deltay[2]
         self.params[self.WCENTER] += deltax[3] + deltay[3]
         self.params[self.MAGNITUDE] *= zoom
-
+        self.changed()
+        
     def flip_to_julia(self):
         self.params[self.XZANGLE] += self.rot_by
         self.params[self.YWANGLE] += self.rot_by
         self.rot_by = - self.rot_by
+        self.changed()
         
     # status callbacks
     def status_changed(self,val):
@@ -342,9 +365,14 @@ class T(FctUtils):
         fract4dc.calc(self.params,self.antialias,self.maxiter,1,
                      pfunc,cmap,self.auto_deepen,image,self.site)
 
+    def clean(self):
+        self.dirty = False
         
     def set_param(self,n,val):
-        self.params[n] = float(val)
+        val = float(val)
+        if self.params[n] != val:
+            self.params[n] = val
+            self.changed()
 
     def get_param(self,n):
         return self.params[n]
@@ -383,9 +411,13 @@ class T(FctUtils):
         m = cmplx_re.match(val)
         if m != None:
             re = float(m.group(1)); im = float(m.group(2))
-            self.initparams[ord] = re
-            self.initparams[ord+1] = im
-
+            if self.initparams[ord] != re:
+                self.initparams[ord] = re
+                self.changed()
+            if self.initparams[ord+1] != im:                
+                self.initparams[ord+1] = im
+                self.changed()
+        
     def parse_func_a(self,val,f):
         self.set_named_param("@a",val)
 
@@ -404,6 +436,7 @@ class T(FctUtils):
         cf.load(f)        
         self.colorlist = cf.colorlist
         self.solids[0] = cf.solid
+        self.changed()
         
     def parse__colorizer_(self,val,f):
         which_cf = int(val)
@@ -412,6 +445,7 @@ class T(FctUtils):
         if which_cf == 0:
             self.colorlist = cf.colorlist
             self.solids[0] = cf.solid
+            self.changed()
         # ignore other colorlists for now
 
     def parse_inner(self,val,f):

@@ -13,6 +13,8 @@ todo for 2.0
 * BB	seaslug.fct
 * BB	skull_fairy.fct
 * BB	lattice.fct - 1.9 is wrong too!
+* B	differences vs Fractint with fn(z)+c: sqrt,cosh,exp,cos,cotan,cotanh,flip
+* B	fn1..4 appear in reverse order in dialog box
 * B	fractint doesn't reset vars between calls?
 * B	parse continuation lines correctly
 * BB	more robust error reporting

@@ -267,6 +267,13 @@ class FctTest(unittest.TestCase):
         
         self.assertNearlyEqual(f.params(),tparams)
 
+    def testCopy(self):
+        copy = self.f.copy_f()
+        mag = self.f.get_param(self.f.MAGNITUDE)
+        copy.set_param(copy.MAGNITUDE,176.3)
+        self.assertEqual(mag,self.f.get_param(self.f.MAGNITUDE))
+        self.assertNotEqual(mag,copy.get_param(copy.MAGNITUDE))
+        
     def assertNearlyEqual(self,a,b):
         # check that each element is within epsilon of expected value
         epsilon = 1.0e-12
