@@ -7,6 +7,7 @@ import copy
 import math
 import os
 import sys
+import random
 
 import gtk
 import gettext
@@ -33,6 +34,7 @@ class Test(unittest.TestCase):
         if os.path.exists('mytest.fct'):
             os.remove('mytest.fct')
         os.system("killall realyelp > /dev/null 2>&1")
+        os.system("killall yelp > /dev/null 2>&1")
         
     def wait(self):
         gtk.main()
@@ -102,17 +104,14 @@ class Test(unittest.TestCase):
         result = self.mw.load_formula(fn_bad)
         self.assertEqual(result, True, "load of bad file failed")
 
-    def testCollapsarPreview(self):
-        'Check for problem where collapsar preview differs from main image'
+    def testPreview(self):
+        'Check for problem where preview differs from main image'
         result = self.mw.load("../testdata/collapsar.fct")
         self.failUnless(result, "load failed")
 
         self.mw.update_preview(self.mw.f, False)
         fct1 = self.mw.f.serialize()        
         fct2 = self.mw.preview.f.serialize()
-
-        self.mw.f.save(open("c1.fct","w"), False)        
-        self.mw.preview.f.save(open("c2.fct","w"), False)
 
         self.assertEqual(fct1, fct2)
         
@@ -124,10 +123,22 @@ class Test(unittest.TestCase):
         self.mw.contents(None,None)
         self.mw.browser(None,None)
         self.mw.painter(None,None)
+        self.mw.gradients(None,None)
         
     def testExplorer(self):
+        result = self.mw.load("../testdata/nexus.fct")
         self.mw.set_explorer_state(True)
+        self.mw.update_subfracts()
+        self.mw.subfracts[3].save(open("sub3.fct","w"),False)
+        
+        self.mw.subfracts[3].onButtonRelease(None,None)
+        self.mw.f.save(open("main.fct","w"), False)
+
+        self.assertEqual(self.mw.subfracts[3].serialize(),
+                         self.mw.f.serialize())
+            
         self.mw.set_explorer_state(False)
+            
         
 def suite():
     return unittest.makeSuite(Test,'test')
