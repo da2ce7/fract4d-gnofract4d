@@ -70,7 +70,79 @@ pf_create(PyObject *self, PyObject *args)
 	return NULL;
     }
     pf_obj *p = pfn();
+    printf("created %p\n",p);
     return PyCObject_FromVoidPtr(p,pf_delete);
+}
+
+
+static PyObject *
+pf_init(PyObject *self, PyObject *args)
+{
+    PyObject *pyobj, *pyarray;
+    double period_tolerance;
+    double *params;
+    pf_obj *pfo; 
+
+    if(!PyArg_ParseTuple(args,"OdO",&pyobj,&period_tolerance,&pyarray))
+    {
+	return NULL;
+    }
+    if(!PyCObject_Check(pyobj))
+    {
+	PyErr_SetString(PyExc_ValueError,"Not a valid handle");
+	return NULL;
+    }
+
+    pfo = PyCObject_AsVoidPtr(pyobj);
+    printf("pfo:%p\n",pfo);
+
+    if(!PySequence_Check(pyarray))
+    {
+	PyErr_SetString(PyExc_ValueError,
+			"Argument 3 should be an array of floats");
+	return NULL;
+    }
+
+    int len = PySequence_Size(pyarray);
+    if(len == 0)
+    {
+	params = malloc(sizeof(double));
+	params[0] = 0.0;
+    }
+    else if(len > PF_MAXPARAMS)
+    {
+	PyErr_SetString(PyExc_ValueError,"Too many parameters");
+	return NULL;
+    }
+    else
+    {
+	int i = 0;
+	params = malloc(len * sizeof(double));
+	if(!params) return NULL;
+	for(i = 0; i < len; ++i)
+	{
+	    PyObject *pyitem = PySequence_GetItem(pyarray,i);
+	    if(NULL == pyitem)
+	    {
+		return NULL;
+	    }
+	    if(PyFloat_Check(pyitem))
+	    {
+		params[i] = PyFloat_AsDouble(pyitem);
+	    }
+	    else
+	    {
+		Py_XDECREF(pyitem);
+		PyErr_SetString(PyExc_ValueError,"All params must be floats");
+		free(params);
+		return NULL;
+	    }
+	    Py_XDECREF(pyitem);
+	} 
+	/*finally all args are assembled */
+	pfo->vtbl->init(pfo,period_tolerance,params,len);
+    }
+    return Py_None;
 }
 
 static PyMethodDef PfMethods[] = {
@@ -78,6 +150,8 @@ static PyMethodDef PfMethods[] = {
      "Load a new point function shared library"},
     {"create", pf_create, METH_VARARGS,
      "Create a new point function"},
+    {"init", pf_init, METH_VARARGS,
+     "Init a point function"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

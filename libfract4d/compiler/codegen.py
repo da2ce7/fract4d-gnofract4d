@@ -198,16 +198,26 @@ class T:
 
 typedef struct {
     pf_obj parent;
-    double *p;
+    double p[PF_MAXPARAMS];
 } pf_real ;
 
 static void pf_init(
     struct s_pf_data *p_stub,
     double period_tolerance, 
-    double *params)
+    double *params,
+    int nparams)
 {
     pf_real *pfo = (pf_real *)p_stub;
-    pfo->p = params;
+    int i;
+    
+    if(nparams > PF_MAXPARAMS)
+    {
+        nparams = PF_MAXPARAMS;
+    }
+    for(i = 0; i < nparams; ++i)
+    {
+        pfo->p[i] = params[i];
+    }
 }
 
 static void pf_calc(

@@ -10,7 +10,7 @@
    int nFate=0;
    double dist=0.0;
    pf_obj *pf = pf_new();
-   pf->vtbl->init(pf,0.001,initparams);
+   pf->vtbl->init(pf,0.001,initparams,2);
    
    pf->vtbl->calc(
         pf,
@@ -22,6 +22,9 @@
    pf->vtbl->kill(pf);
 */
 
+// maximum number of params which can be passed to init
+#define PF_MAXPARAMS 20
+
 struct s_pf_data;
 
 struct s_pf_vtable {
@@ -29,7 +32,8 @@ struct s_pf_vtable {
     void (*init)(
 	struct s_pf_data *p,
         double period_tolerance,
-        double *params
+        double *params,
+	int nparams
 	);
     /* calculate one point.
        perform up to nIters iterations,
