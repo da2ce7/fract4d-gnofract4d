@@ -166,13 +166,13 @@ class T(gobject.GObject):
     
     def param_display_name(self,name,param):
         if hasattr(param,"title"):
-            return param.title
+            return param.title.value
         if name[:5] == "t__a_":
             return name[5:]
         return name
     
-    def add_formula_setting(self,table,i,name,param,order):
-        label = gtk.Label(self.param_display_name(name,param))
+    def add_formula_setting(self,table,i,name,part,param,order):
+        label = gtk.Label(self.param_display_name(name,param)+part)
         label.set_justify(gtk.JUSTIFY_RIGHT)
         table.attach(label,0,1,i,i+1,0,0,2,2)
 
@@ -298,7 +298,6 @@ class T(gobject.GObject):
         i = self.create_maxiter_widget(table,i)
         params = self.formula.symbols.parameters()
         op = self.formula.symbols.order_of_params()
-        print op
         
         for (name,param) in params.items():
             if isinstance(param,fracttypes.Func):
@@ -306,12 +305,12 @@ class T(gobject.GObject):
             else:
                 if param.type == fracttypes.Complex:
                     self.add_formula_setting(
-                        table,i,name + " (re)",param,op[name])
+                        table,i,name," (re)",param,op[name])
                     self.add_formula_setting(
-                        table,i+1,name+" (im)",param,op[name]+1)
+                        table,i+1,name, " (im)",param,op[name]+1)
                     i+= 1
                 else:
-                    self.add_formula_setting(table,i,name,param,op[name])
+                    self.add_formula_setting(table,i,name,"",param,op[name])
             i += 1
         return table
     
