@@ -49,6 +49,8 @@ image::alloc_buffers()
     iter_buf = new int[m_Xres * m_Yres];
     index_buf = new float[m_Xres * m_Yres * N_SUBPIXELS];
     fate_buf = new fate_t[m_Xres * m_Yres * N_SUBPIXELS];
+    
+    clear();
 }
 
 int

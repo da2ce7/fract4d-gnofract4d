@@ -1030,6 +1030,42 @@ image_buffer(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+image_fate_buffer(PyObject *self, PyObject *args)
+{
+    PyObject *pyim;
+    PyObject *pybuf;
+
+    int x=0,y=0;
+    if(!PyArg_ParseTuple(args,"O|ii",&pyim,&x,&y))
+    {
+	return NULL;
+    }
+
+    image *i = (image *)PyCObject_AsVoidPtr(pyim);
+
+#ifdef DEBUG_CREATION
+    printf("%p : IM : BUF\n",i);
+#endif
+
+    if(x < 0 || x >= i->Xres() || y < 0 || y >= i->Yres())
+    {
+	PyErr_SetString(PyExc_ValueError,"request for buffer outside image bounds");
+	return NULL;
+    }
+    int index = i->index_of_subpixel(x,y,0);
+    int last_index = i->index_of_sentinel_subpixel();
+    assert(index > -1 && index < last_index);
+
+    pybuf = PyBuffer_FromReadWriteMemory(
+	i->getFateBuffer()+index,
+	(last_index - index)  * sizeof(fate_t));
+
+    Py_XINCREF(pybuf);
+
+    return pybuf;
+}
+
+static PyObject *
 rot_matrix(PyObject *self, PyObject *args)
 {
     double params[N_PARAMS];
@@ -1084,6 +1120,8 @@ static PyMethodDef PfMethods[] = {
       "save an image to .tga format"},
     { "image_buffer", image_buffer, METH_VARARGS,
       "get the rgb data from the image"},
+    { "image_fate_buffer", image_fate_buffer, METH_VARARGS,
+      "get the fate data from the image"},
 
     { "site_create", pysite_create, METH_VARARGS,
       "Create a new site"},

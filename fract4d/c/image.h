@@ -31,11 +31,13 @@ class image : public IImage
 
 public:
     image();
+    image(const image& im);
     ~image();
 
     inline int Xres() const { return m_Xres; };
     inline int Yres() const { return m_Yres; };
     inline char *getBuffer() { return buffer; };
+    inline fate_t *getFateBuffer() { return fate_buf; };
 
     // utilities
     inline int row_length() const {return m_Xres * 3; };
@@ -64,7 +66,11 @@ public:
 	return (y * m_Xres + x ) * N_SUBPIXELS + subpixel;
     };
 
-    image(const image& im);
+    // one beyond last pixel
+    int index_of_sentinel_subpixel() {
+	return m_Xres * m_Yres * N_SUBPIXELS;
+    };
+
     bool set_resolution(int x, int y);
 
     double ratio() const;
