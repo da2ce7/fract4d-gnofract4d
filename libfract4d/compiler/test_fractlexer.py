@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import unittest
 import fractlexer
 
@@ -104,6 +106,13 @@ myComment {}
         self.failUnless(ts[0].type == ts[1].type == ts[3].type == "NUMBER" and
                         ts[2].type == "COMPLEX" and ts[2].value == "1" and
                         ts[4].type == "ID")
+
+    def disabled_testEscapedNewline(self):
+        # fractint allows \ IN THE MIDDLE OF A TOKEN
+        # I have no idea how to make this work right now :-(
+        ts = self.tokensFromString('&\\\n&')
+        print ts
+        self.failUnless(ts[0] == "BOOL_AND")
         
 def suite():
     return unittest.makeSuite(LexerTest,'test')

@@ -7,19 +7,14 @@ import gobject
 import gtk
 
 
-import fractparser
-import fractlexer
-import translate
-import codegen
+import fc
 
 class MainWindow:
     def __init__(self):
-
-        self.parser = fractparser.parser
-        self.lexer = fractlexer.lexer
-
-        self.formula_list = gtk.ListStore(gobject.TYPE_STRING)
-        self.formulas = {}
+        self.formula_list = gtk.ListStore(
+            gobject.TYPE_STRING, gobject.TYPE_STRING)
+        
+        self.compiler = fc.Compiler()
         
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
@@ -135,22 +130,23 @@ class MainWindow:
     def selection_changed(self,selection):
         (model,iter) = selection.get_selected()
         title = model.get_value(iter,0)
-        formula = self.formulas[title]
+        file = model.get_value(iter,1)
+        formula = self.compiler.get_formula(file,title)
 
         # update parse tree
-        buffer = self.text.get_buffer()
-        buffer.set_text(formula.pretty(),-1)
+        #buffer = self.text.get_buffer()
+        #buffer.set_text(formula.pretty(),-1)
 
         #update location of source buffer
-        sourcebuffer = self.sourcetext.get_buffer()
-        iter = sourcebuffer.get_iter_at_line(formula.pos-1)
-        self.sourcetext.scroll_to_iter(iter,0.0,gtk.TRUE,0.0,0.0)
+        #sourcebuffer = self.sourcetext.get_buffer()
+        #iter = sourcebuffer.get_iter_at_line(formula.pos-1)
+        #self.sourcetext.scroll_to_iter(iter,0.0,gtk.TRUE,0.0,0.0)
 
         # update IR tree
-        self.ir = translate.T(formula)
+        self.ir = formula
         irbuffer = self.transtext.get_buffer()
         irbuffer.set_text(self.ir.pretty(),-1)
-
+        
         # update messages
         buffer = self.msgtext.get_buffer()
         msg = ""
@@ -163,16 +159,10 @@ class MainWindow:
             
         buffer.set_text(msg,-1)
 
-        # generate code
-        cg = codegen.T(self.ir.symbols)
-        cg.output_all(self.ir)
-        asm = cg.output_c(self.ir)
-        # asm = ""
-#         for (name,sect) in self.ir.output_sections.items():
-#             asm += "\nSection %s:\n" % name
-#             asm += string.join([x.format() for x in sect],"\n") + "\n"
+        self.compiler.generate_code(formula,"browser-tmp.c")
+        
         buffer = self.asmtext.get_buffer()
-        buffer.set_text(asm,-1)
+        buffer.set_text(self.compiler.c_code,-1)
         
     def quit(self,action,widget=None):
         gtk.main_quit()
@@ -186,16 +176,15 @@ class MainWindow:
         fs.destroy()
 
     def load(self,file):
-        s = open(file,"r").read() # read in a whole file
-        self.lexer.lineno = 1
-        result = self.parser.parse(s)
+        ff = self.compiler.load_formula_file(file)
 
-        for formula in result.children:
+        for formula in ff.formulas:
             iter = self.formula_list.append ()
-            self.formula_list.set (iter, 0, formula.leaf)
-            self.formulas[formula.leaf] = formula
+            self.formula_list.set (iter, 0, formula)
+            self.formula_list.set (iter, 1, file)
 
-        self.sourcetext.get_buffer().set_text(s,-1)
+        text = ff.contents
+        self.sourcetext.get_buffer().set_text(text,-1)
         
     def about(self,action,widget):
         print "about"

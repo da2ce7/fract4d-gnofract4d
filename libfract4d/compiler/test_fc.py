@@ -48,6 +48,14 @@ class FCTest(unittest.TestCase):
         self.assertEqual(f,None)
         f = self.compiler.get_formula("test.frm","parse_error")
         self.assertEqual(len(f.errors),1)
+
+    def testEvil(self):
+        self.compiler.load_formula_file("test.frm")
+        f = self.compiler.get_formula("test.frm","frm:ny2004-4")
+        self.assertEqual(len(f.errors),0)
+        #print f.pretty()
+        self.compiler.generate_code(f,"test-evil.so",None)
+        
         
 def suite():
     return unittest.makeSuite(FCTest,'test')
