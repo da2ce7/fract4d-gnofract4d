@@ -410,8 +410,12 @@ def tan_c_c(gen,t,srcs):
     # tan = sin/cos
     return div_cc_c(gen,t, [sin_c_c(gen,t, [srcs[0]]), cos_c_c(gen,t,[srcs[0]])])
 
+def cotan_c_c(gen,t,srcs):
+    return div_cc_c(gen,t, [cos_c_c(gen,t, [srcs[0]]), sin_c_c(gen,t,[srcs[0]])])
+
 def cotan_f_f(gen,t,srcs):
-    return gen.emit_func('cotan', srcs, Float)
+    return gen.emit_binop('/', [gen.emit_func('cos', srcs, Float),
+                                gen.emit_func('sin', srcs, Float)], Float)
 
 def cotanh_f_f(gen,t,srcs):
     return gen.emit_func('cotanh', srcs, Float)
