@@ -363,7 +363,7 @@ class T(gobject.GObject):
         else:
             raise "Unsupported parameter type"
 
-        table.attach(widget,1,2,i,i+1,0,0,2,2)
+        table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL ,0,2,2)
             
     def construct_function_menu(self,param,formula):
         funclist = formula.symbols.available_param_functions(

@@ -141,6 +141,9 @@ class TBase:
 
     def paramsetting(self,node,var):
         name = node.children[0]
+        if name.leaf == "visible":
+            #FIXME ignore visibility for now, parser can't deal with it
+            return
         val = self.const_exp(node.children[1])
         setattr(var,name.leaf,val)
 
@@ -172,13 +175,14 @@ class TBase:
             datatype = fracttypes.Complex
         else:
             datatype = node.datatype
-            
-        # create param if not already present
+
+        # normalize name
         if node.leaf[0] == "@":
             name = node.leaf
         else:
             name = "@" + node.leaf
-            
+
+        # create param if not already present
         v = self.symbols.get(name)
         set_v = False
         if not v:
@@ -208,6 +212,9 @@ class TBase:
         name = node.children[0].leaf
         if name == "default":
             func.set_func(stdlib,node.children[1].leaf)
+        elif name == "visible":
+            # fixme can't deal with visibility calculations yet
+            return
         else:
             val = self.const_exp(node.children[1])
             setattr(func,name,val)
