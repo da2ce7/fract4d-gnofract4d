@@ -78,10 +78,11 @@ class ParamBag(FctUtils):
             line = f.readline()
 
 class Colorizer(FctUtils):
+    '''Parses the various different kinds of color data we have'''
     def __init__(self,parent=None):
         FctUtils.__init__(self,parent)
         self.name = "default"
-        self.colorlist = [ (0.0, 0,0,0, 255), (1.0, 255,255,255,255)]
+        self.gradient = gradient.Gradient()
         self.solids = [(0,0,0,255)]
         
     def load(self,f):
@@ -124,9 +125,10 @@ class Colorizer(FctUtils):
         return cols
         
     def parse_colordata(self,val,f):
+        'long list of hex digits: gf4d < 2.0'
         nc =len(val)//6
         i = 0
-        self.colorlist = []
+        colorlist = []
         while i < nc:
             pos = i*6
             cols = self.extract_color(val,pos)
@@ -135,9 +137,10 @@ class Colorizer(FctUtils):
                 self.solids[0] = tuple(cols)
             else:
                 c = tuple([float(i-1)/(nc-2)] + cols)
-                self.colorlist.append(c)
+                colorlist.append(c)
             i+= 1
-
+        self.gradient.load_list(colorlist)
+        
     def parse_solids(self,val,f):
         line = f.readline()
         self.solids = []
@@ -147,8 +150,9 @@ class Colorizer(FctUtils):
             line = f.readline()
         
     def parse_colorlist(self,val,f):
+        '0.7234 = 0xffaa3765: gf4d < 2.7'
         line = f.readline()
-        self.colorlist = []
+        colorlist = []
         while not line.startswith("]"):
             entry = line.split("=")
             
@@ -158,16 +162,22 @@ class Colorizer(FctUtils):
             cols = self.extract_color(entry[1],0,True)            
             index = float(entry[0])
             
-            self.colorlist.append(tuple([index] + cols))
+            colorlist.append(tuple([index] + cols))
             line = f.readline()
-            
+        self.gradient.load_list(colorlist)
+
+    def parse_gradient(self,val,f):
+        'Gimp gradient format: gf4d >= 2.7'
+        self.gradient.load(f)
+        
     def parse_file(self,val,f):
         mapfile = open(val)
         self.parse_map_file(mapfile)
 
     def parse_map_file(self,mapfile):
+        'parse a fractint .map file'
         i = 0
-        self.colorlist = []
+        colorlist = []
         for line in mapfile:
             m = rgb_re.match(line)
             if m != None:
@@ -179,9 +189,9 @@ class Colorizer(FctUtils):
                     # first color is inside solid color
                     self.solids[0] = (r,g,b,255)
                 else:
-                    self.colorlist.append(((i-1)/255.0,r,g,b,255))
+                    colorlist.append(((i-1)/255.0,r,g,b,255))
             i += 1
-
+        self.gradient.load_list(colorlist)
         
 class T(FctUtils):
     XCENTER = 0
@@ -230,9 +240,9 @@ class T(FctUtils):
         self.site = site or fract4dc.site_create(self)
 
         # default is just white outside
-        self.colorlist = [
-            (1.0, 255, 255, 255, 255)
-            ]
+        self.gradient = gradient.Gradient()
+        self.gradient.segments[0].left_color = [1.0,1.0,1.0,1.0]
+        self.gradient.segments[0].right_color = [1.0,1.0,1.0,1.0]
 
         self.solids = [(0,0,0,255),(0,0,0,255)]
         
@@ -291,10 +301,8 @@ class T(FctUtils):
             print >>file, "%02x%02x%02x%02x" % solid
         print >>file, "]"
         
-        print >>file, "colorlist=["
-        for col in self.colorlist:
-            print >>file, "%f=%02x%02x%02x%02x" % col
-        print >>file, "]"
+        print >>file, "gradient="
+        self.gradient.save(file)
         
         if update_saved_flag:
             self.saved = True
@@ -397,7 +405,7 @@ class T(FctUtils):
 
             c.cfunc_params[i] = copy.copy(self.cfunc_params[i]) 
                     
-        c.colorlist = copy.copy(self.colorlist)
+        c.gradient = copy.copy(self.gradient)
         c.solids = copy.copy(self.solids)
         c.yflip = self.yflip
         c.periodicity = self.periodicity
@@ -437,7 +445,7 @@ class T(FctUtils):
         self.set_param(self.MAGNITUDE, mag)
 
     def copy_colors(self, f):
-        self.colorlist = f.colorlist
+        self.gradient = copy.copy(f.gradient)
         self.solids[0:len(f.solids)] = f.solids[:]
         self.changed(False)
         
@@ -445,7 +453,7 @@ class T(FctUtils):
         c = Colorizer(self)
         file = open(mapfile)
         c.parse_map_file(file)
-        self.colorlist = c.colorlist
+        self.gradient = c.gradient
         self.solids[0:len(c.solids)] = c.solids[:]
         self.changed(False)
 
@@ -772,7 +780,7 @@ class T(FctUtils):
     def draw(self,image):
         handle = fract4dc.pf_load(self.outputfile)
         pfunc = fract4dc.pf_create(handle)
-        cmap = fract4dc.cmap_create(self.colorlist)
+        cmap = fract4dc.cmap_create_gradient(self.gradient.segments)
         (r,g,b,a) = self.solids[0]
         fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
 
@@ -878,25 +886,8 @@ The image may not display correctly. Please upgrade to version %.1f.'''
     def parse__colors_(self,val,f):
         cf = Colorizer(self)
         cf.load(f)        
-        self.colorlist = cf.colorlist
+        self.gradient = cf.gradient
         self.solids[0:len(cf.solids)] = cf.solids[:]
-        self.changed(False)
-
-    def make_gradient_colors(self):
-        grad = gradient.Gradient()
-        grad.compute()
-        new_list = grad.getCList()
-        self.colorlist = new_list
-        self.changed(False)
-
-    def make_random_colors(self, num):
-        # random colormap
-        new_list = []
-        width = 1.0 / num
-        for i in xrange(num):
-            color = (width*i, random.randrange(256), random.randrange(256), random.randrange(256),255)
-            new_list.append(color)
-        self.colorlist = new_list
         self.changed(False)
         
     def parse__colorizer_(self,val,f):
@@ -904,7 +895,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         cf = Colorizer(self)
         cf.load(f)        
         if which_cf == 0:
-            self.colorlist = cf.colorlist
+            self.gradient = cf.gradient
             self.solids[0:len(cf.solids)] = cf.solids[:]
             self.changed(False)
         # ignore other colorlists for now

@@ -2,6 +2,8 @@
 
 import math
 import re
+import StringIO
+import copy
 
 #Class definition for Gradients
 #These use the format defined by the GIMP
@@ -60,6 +62,12 @@ class Segment:
         else:
             self.mid = mid
 
+    def __copy__(self):
+        return Segment(
+            self.left, self.left_color[:],
+            self.right, self.right_color[:], self.mid,
+            self.blend_mode, self.color_mode)
+    
     def center(self):
         self.mid = (self.left + self.right) / 2.0
         
@@ -158,6 +166,19 @@ class Gradient:
         self.name=None
         self.alternate=0
         self.offset=0
+
+    def __copy__(self):
+        c = Gradient()
+        c.name = self.name
+        c.alternate = self.alternate
+        c.offset = self.offset
+        c.segments = copy.deepcopy(self.segments)
+        return c
+    
+    def serialize(self):
+        s = StringIO.StringIO()
+        self.save(s)
+        return s.getvalue()
 
     def save(self,f):
         print >>f, "GIMP Gradient"

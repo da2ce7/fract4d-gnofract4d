@@ -156,7 +156,7 @@ class T(gobject.GObject):
             self.f.set_formula(fname, formula)
         
     def draw(self,image,width,height,nthreads):
-        self.cmap = fract4dc.cmap_create(self.colorlist)
+        self.cmap = fract4dc.cmap_create_gradient(self.gradient.segments)
         (r,g,b,a) = self.f.solids[0]
         fract4dc.cmap_set_solid(self.cmap,0,r,g,b,a)
 
