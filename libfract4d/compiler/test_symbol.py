@@ -59,6 +59,11 @@ class SymbolTest(unittest.TestCase):
     def testAlias(self):
         self.assertEqual(self.t["#z"], self.t["z"])
 
+    def testParams(self):
+        self.assertEqual(self.t["@p6"].type, Complex)
+        self.assertEqual(self.t["@p1"], self.t["p1"])
+        self.assertEqual(self.t["@fn1"][0].ret, Float)
+                         
     def testReset(self):
         self.t["fish"] = Var(Int, 1, 1)
         self.t.reset()

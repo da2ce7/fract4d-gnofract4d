@@ -67,8 +67,19 @@ def createDefaultDict():
         "hash__pixel": Alias("pixel"),
         "pixel" : Var(Complex), 
         "hash__z" : Alias("z"),
-        "z"  : Var(Complex), 
+        "z"  : Var(Complex),        
         }
+    # predefined parameters
+    for f in xrange(1,7):
+        name = "p%d" % f
+        d[name] = Var(Complex)
+        d["@" + name]  = Alias(name)
+    # predefined functions
+    for f in xrange(1,5):
+        name = "fn%d" % f
+        d[name] = [ Func([Float],Float, stdlib, name),
+                    Func([Complex],Complex, stdlib, name) ]
+        d["@" + name] = Alias(name)
     return d
 
 
