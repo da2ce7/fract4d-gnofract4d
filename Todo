@@ -4,7 +4,7 @@ Compiler
 
 
 Other
-* W	"compiling" progress message
+
 * W	Julia preview by moving around while holding button3
 * B	why is Barnsley so slow?
 * B	interrupt takes too long on deep-zoomed fractals
@@ -16,8 +16,6 @@ Other
 * WW	visible history/undo buffer
 * B	SIGSEGV when changing mutant weirdness - hard to repro
 * W	sort out fractal types a bit
-* W 	Keyboard
-*		- Cursors : left/right/up/down
 * WW	MDI
 * W	associate with file type?
 * W	main toolbar: home, exit
@@ -55,20 +53,20 @@ Movies-
 Must do pre 1.7
 * W	update docs
 * W	parameterize + fix newton 
-* W	move compiler_template back to proper dir
-* W 	install all headers + template in make install + rpm
 * W	check inner/outer loads/saves correctly
 * W	make sure inner function is sensible (itercount is pointless)
-* BB	nova doesn't display correctly unless TRACE defined - weird!
-	- starts working if no -O flags : g++ is broken
-	- must also disable periodicity for all bailfuncs
-* BBB	crash opening cmapbrowser when compiled with g++3. nova works though ;-)
-
-Mysteriously gone:
-* B	nova crash
 
 
 Done:
+* W 	Keyboard
+*		- Cursors : left/right/up/down
+* W 	install all headers + template in make install + rpm
+* W	move compiler_template back to proper dir
+* BB	nova doesn't display correctly unless TRACE defined - weird!
+	- starts working if no -O flags : g++ is broken
+	- must also disable periodicity for all bailfuncs
+* BBB	crash opening cmapbrowser when compiled with g++3. nova works though
+* W	"compiling" progress message
 * B	horrible_drawing_error has been observed to do weird shit - sometimes
 * B	diff_bailout produces weird squares - like isTheSame doesn't work?
 * BB 	weird graphical errors for some fractal types - fixed?
@@ -148,3 +146,6 @@ Done:
 * W	fractal widget
 * W 	sort out sizing!
 * W	move temporary files to /tmp
+
+Mysteriously gone:
+* B	nova crash

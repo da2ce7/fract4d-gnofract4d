@@ -31,6 +31,48 @@
 #include "toolbars.h"
 #include "drawingareas.h"
 
+
+
+gint
+key_event(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
+{
+    model_t *m = (model_t *)user_data;
+
+    param_t axis;
+    double dir;
+    switch(event->keyval)
+    {
+    case GDK_Up:
+	axis = YCENTER; dir = 0.25;
+	break;
+    case GDK_Down:
+	axis = YCENTER; dir = -0.25;
+	break;
+    case GDK_Left:
+	axis = XCENTER; dir = 0.25;
+	break;
+    case GDK_Right:
+	axis = XCENTER; dir = -0.25;
+	break;
+    default:
+	return 0;
+    }
+
+    if(event->state & GDK_CONTROL_MASK)
+    { 
+	dir /= 10.0;
+    }
+
+    if(model_cmd_start(m,"key_setpos"))
+    {
+	Gf4dFractal *f = model_get_fract(m);
+	gf4d_fractal_move(f,axis,dir);
+	model_cmd_finish(m,"key_setpos");
+    }
+    
+    return 0;
+}
+
 GtkWidget *
 create_app (model_t *m)
 {
@@ -116,6 +158,9 @@ create_app (model_t *m)
         GTK_OBJECT (app), "destroy_event",
         GTK_SIGNAL_FUNC (quit_cb),
         m);
+
+    gtk_signal_connect (GTK_OBJECT(app), "key_press_event",
+			(GtkSignalFunc) key_event, m);
     
     return app;
 }

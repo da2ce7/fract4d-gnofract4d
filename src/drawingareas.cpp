@@ -156,6 +156,7 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
     }
 }
 
+
 gint 
 expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
@@ -247,7 +248,8 @@ create_drawing_area(model_t *m, GtkWidget *appbar)
                            GDK_BUTTON_PRESS_MASK | 
                            GDK_BUTTON_RELEASE_MASK |
                            GDK_BUTTON1_MOTION_MASK |
-                           GDK_POINTER_MOTION_HINT_MASK);
+                           GDK_POINTER_MOTION_HINT_MASK |
+			   GDK_KEY_PRESS_MASK);
 
     /* connect widget signals */
     gtk_signal_connect (GTK_OBJECT(drawing_area), "expose_event", 
@@ -264,6 +266,7 @@ create_drawing_area(model_t *m, GtkWidget *appbar)
 
     gtk_signal_connect (GTK_OBJECT(drawing_area), "button_release_event",
                         (GtkSignalFunc) mouse_event, m);
+
 
     /* connect fractal object signals */
     gtk_signal_connect(GTK_OBJECT(model_get_fract(m)), "image_changed",
