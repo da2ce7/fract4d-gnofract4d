@@ -17,13 +17,16 @@ struct s_cmap
 {
     int ncolors;
     item_t *items;
+    rgba_t solids[2];
+    e_transferType transfers[2];
 };
+
+rgba_t black = {0,0,0,255};
 
 cmap_t *
 cmap_new(int ncolors)
 {
     cmap_t *cmap = NULL;
-    rgba_t black = { 0,0,0,1};
     int i =0;
 
     if(ncolors == 0)
@@ -38,6 +41,9 @@ cmap_new(int ncolors)
     }
 
     cmap->ncolors = ncolors; cmap->items = NULL; 
+    cmap->solids[0] = cmap->solids[1] = black;
+    cmap->transfers[0] = TRANSFER_LINEAR; // outer
+    cmap->transfers[1] = TRANSFER_NONE; // inner
 
     cmap->items = (item_t *)malloc(sizeof(item_t) * ncolors);
     if(!cmap->items) goto cleanup;
@@ -60,6 +66,8 @@ cmap_new(int ncolors)
 void 
 cmap_set(cmap_t *cmap, int i, double d, int r, int g, int b, int a)
 {
+    assert(NULL != cmap);
+
     rgba_t color;
     color.r = (unsigned char)r;
     color.g = (unsigned char)g;
@@ -68,6 +76,66 @@ cmap_set(cmap_t *cmap, int i, double d, int r, int g, int b, int a)
 
     cmap->items[i].color = color;
     cmap->items[i].index = d;
+} 
+
+void 
+cmap_set_transfer(cmap_t *cmap, int which, e_transferType type)
+{
+    assert(NULL != cmap);
+
+    if(which >= 0 && which < 2)
+    {
+	if(type < TRANSFER_SIZE && type >= 0)
+	{
+	    cmap->transfers[which] = type;
+	}
+	else
+	{
+	    assert("bad transfer type" && 0);
+	}
+    }
+    else
+    {
+	assert("bad transfer index" && 0);
+    }
+}
+
+void
+cmap_set_solid(cmap_t *cmap, int which, int r, int g, int b, int a)
+{
+    assert(NULL != cmap);
+
+    rgba_t color;
+    color.r = (unsigned char)r;
+    color.g = (unsigned char)g;
+    color.b = (unsigned char)b;
+    color.a = (unsigned char)a;
+
+    if(which >= 0 && which < 2)
+    {
+	cmap->solids[which] = color;
+    }
+    else
+    {
+	assert("set bad color" && 0);
+    }
+}
+
+rgba_t 
+cmap_get_solid(cmap_t *cmap, int which)
+{
+    assert(NULL != cmap);
+
+    rgba_t color = {0,0,0,1};
+    if(which >= 0 && which < 2)
+    {
+	color = cmap->solids[which];
+    }
+    else
+    {
+	assert("get bad color" && 0);
+    }
+    return color;
 } 
 
 void 
@@ -116,6 +184,33 @@ find(double key, item_t *array, int n)
     }while(1);
 }
 
+rgba_t 
+cmap_lookup_with_transfer(cmap_t *cmap, int fate, double index)
+{
+    assert(NULL != cmap);
+
+    if(fate >= 0 && fate < 2)
+    {
+	e_transferType t = cmap->transfers[fate];
+	switch(t)
+	{
+	case TRANSFER_NONE:
+	    return cmap->solids[fate];
+	case TRANSFER_LINEAR:
+	    return cmap_lookup(cmap,index);
+	default:
+	    assert("bad transfer type" && 0);
+	    return black;
+	}
+    }
+    else
+    {
+
+	assert("bad fate" && 0);
+	return black;
+    }
+}
+ 
 rgba_t 
 cmap_lookup(cmap_t *cmap, double index)
 {

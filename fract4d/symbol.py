@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
 # Trivial symbol table implementation
-from fracttypes import *
+
 import copy
 from UserDict import UserDict
 import string
 import types
 import re
+import math
+
+from fracttypes import *
 import stdlib
 
 def efl(fname, template, tlist):
@@ -100,7 +103,8 @@ def createDefaultDict():
         "&&": [ Func([Bool, Bool], Bool, stdlib, "booland") ],
         "||": [ Func([Bool, Bool], Bool, stdlib, "boolor") ],
         "!" : [ Func([Bool],Bool, stdlib, "boolnot") ],
-        
+
+        # predefined magic variables
         "t__h_pixel": Alias("pixel"),
         "pixel" : Var(Complex), 
         "t__h_z" : Alias("z"),
@@ -108,7 +112,8 @@ def createDefaultDict():
         "t__h_index": Var(Float),
         "t__h_numiter": Var(Int),
         "t__h_maxiter": Alias("maxiter"),
-        "maxiter" : Var(Int)
+        "maxiter" : Var(Int),
+        "t__h_pi" : Var(Float,math.pi)
         }
     
     # predefined parameters

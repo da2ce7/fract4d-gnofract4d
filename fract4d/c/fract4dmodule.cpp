@@ -186,7 +186,7 @@ pf_calc(PyObject *self, PyObject *args)
     double params[4];
     struct pfHandle *pfh; 
     int nIters, nNoPeriodIters,x=0,y=0,aa=0;
-    int outIters=0, outFate=0;
+    int outIters=0, outFate=-777;
     double outDist=0.0;
 
     if(!PyArg_ParseTuple(args,"O(dddd)ii|iii",
@@ -210,6 +210,7 @@ pf_calc(PyObject *self, PyObject *args)
 		    nIters,nNoPeriodIters,
 		    x,y,aa,
 		    &outIters,&outFate,&outDist);
+    assert(outFate != -777);
     pyret = Py_BuildValue("iid",outIters,outFate,outDist);
     return pyret; // Python can handle errors if this is NULL
 }
@@ -269,6 +270,55 @@ cmap_create(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+pycmap_set_solid(PyObject *self, PyObject *args)
+{
+    PyObject *pycmap;
+    int which,r,g,b,a;
+    cmap_t *cmap;
+
+    if(!PyArg_ParseTuple(args,"Oiiiii",&pycmap,&which,&r,&g,&b,&a))
+    {
+	return NULL;
+    }
+
+    cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+    if(!cmap)
+    {
+	return NULL;
+    }
+
+    cmap_set_solid(cmap,which,r,g,b,a);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+pycmap_set_transfer(PyObject *self, PyObject *args)
+{
+    PyObject *pycmap;
+    int which;
+    e_transferType transfer;
+    cmap_t *cmap;
+
+    if(!PyArg_ParseTuple(args,"Oii",&pycmap,&which,&transfer))
+    {
+	return NULL;
+    }
+
+    cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+    if(!cmap)
+    {
+	return NULL;
+    }
+
+    cmap_set_transfer(cmap,which,transfer);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+ 
+static PyObject *
 cmap_pylookup(PyObject *self, PyObject *args)
 {
     PyObject *pyobj, *pyret;
@@ -288,6 +338,33 @@ cmap_pylookup(PyObject *self, PyObject *args)
     }
 
     color = cmap_lookup(cmap,d);
+    
+    pyret = Py_BuildValue("iiii",color.r,color.g,color.b,color.a);
+
+    return pyret;
+}
+
+static PyObject *
+cmap_pylookup_with_fate(PyObject *self, PyObject *args)
+{
+    PyObject *pyobj, *pyret;
+    double d;
+    rgba_t color;
+    cmap_t *cmap;
+    int fate;
+
+    if(!PyArg_ParseTuple(args,"Oid", &pyobj, &fate, &d))
+    {
+	return NULL;
+    }
+
+    cmap = (cmap_t *)PyCObject_AsVoidPtr(pyobj);
+    if(!cmap)
+    {
+	return NULL;
+    }
+
+    color = cmap_lookup_with_transfer(cmap,fate,d);
     
     pyret = Py_BuildValue("iiii",color.r,color.g,color.b,color.a);
 
@@ -950,6 +1027,13 @@ static PyMethodDef PfMethods[] = {
       "Create a new colormap"},
     { "cmap_lookup", cmap_pylookup, METH_VARARGS,
       "Get a color tuple from a distance value"},
+    { "cmap_fate_lookup", cmap_pylookup_with_fate, METH_VARARGS,
+      "Get a color tuple from a distance value and a fate"},
+
+    { "cmap_set_solid", pycmap_set_solid, METH_VARARGS,
+      "Set the inner or outer solid color"},
+    { "cmap_set_transfer", pycmap_set_transfer, METH_VARARGS,
+      "Set the inner or outer transfer function"},
 
     { "image_create", image_create, METH_VARARGS,
       "Create a new image buffer"},

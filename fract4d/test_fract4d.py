@@ -270,8 +270,8 @@ class PfTest(unittest.TestCase):
                     line.append(" ")
             image.append(string.join(line,""))
         printable_image = string.join(image,"\n")
-        self.assertEqual(printable_image[0], " ")
-        self.assertEqual(printable_image[20*41+20],"#") # in the middle
+        self.assertEqual(printable_image[0], " ", printable_image)
+        self.assertEqual(printable_image[20*41+20],"#", printable_image) # in the middle
         #print printable_image # shows low-res mbrot in text mode 
         
     def testBadLoad(self):
@@ -337,7 +337,47 @@ class PfTest(unittest.TestCase):
         cmap = fract4dc.cmap_create(colors)
         for i in xrange(256):
             self.assertEqual(fract4dc.cmap_lookup(cmap,i/255.0),colors[i][1:],i)
+
+        #fract4dc.cmap_set_solid(cmap,1,240,37,191,255)
+
+    def testTransfers(self):
+        # test fates
+        cmap = fract4dc.cmap_create(
+            [(0.0,33,33,33,255)])
+
+        # inside should be all-black by default, outside should never be
+        index = 0.0
+        while index < 2.0: 
+            color = fract4dc.cmap_fate_lookup(cmap,1,index)
+            self.assertEqual(color,(0,0,0,255))
+            color = fract4dc.cmap_fate_lookup(cmap,0,index)
+            self.assertEqual(color,(33,33,33,255))            
+            index += 0.1
+
+        # test setting solid colors and transfers
+        fract4dc.cmap_set_solid(cmap,0,166,166,166,255)
+        fract4dc.cmap_set_solid(cmap,1,177,177,177,255)
+        fract4dc.cmap_set_transfer(cmap,0,0)
         
+        index = 0.0
+        while index < 2.0: 
+            color = fract4dc.cmap_fate_lookup(cmap,1,index)
+            self.assertEqual(color,(177,177,177,255))
+            color = fract4dc.cmap_fate_lookup(cmap,0,index)
+            self.assertEqual(color,(166,166,166,255))            
+            index += 0.1
+
+        # make inner linear
+        fract4dc.cmap_set_transfer(cmap,1,1)
+
+        index = 0.0
+        while index < 2.0: 
+            color = fract4dc.cmap_fate_lookup(cmap,1,index)
+            self.assertEqual(color,(33,33,33,255))
+            color = fract4dc.cmap_fate_lookup(cmap,0,index)
+            self.assertEqual(color,(166,166,166,255))            
+            index += 0.1
+
 def suite():
     return unittest.makeSuite(PfTest,'test')
 
