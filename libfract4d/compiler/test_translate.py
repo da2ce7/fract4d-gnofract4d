@@ -193,6 +193,14 @@ class TranslateTest(unittest.TestCase):
         self.assertJumpsAndLabs(t, expectedLabs)
 
     def testBooleans(self):
+        t = self.translate('''t_bool_0 {
+        init:
+        a == 1 && b == 2
+        }''')
+        self.assertNoErrors(t)
+        #print t.sections["init"].pretty()
+        self.assertJumpsMatchLabs(t.sections["init"])
+        
         t = self.translate('''t_bool_1 {
         init:
         if a == 1 && b == 2
@@ -203,7 +211,8 @@ class TranslateTest(unittest.TestCase):
         #print t.sections["init"].pretty()
         self.assertJumpsMatchLabs(t.sections["init"])
 
-        t = self.translate('''t_bool_ {
+        return
+        t = self.translate('''t_bool_2 {
         init:
         if a == 1 || b == 2
            a = 2

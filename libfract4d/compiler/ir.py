@@ -135,8 +135,8 @@ class CJump(Stm):
     def pretty(self, depth=0):
         return d(depth) + "CJump(op='" + self.op + "'\n" + \
                self.pretty_children(depth) + \
-               d(depth+1,self.trueDest) + "," + \
-               self.falseDest + ")\n"
+               d(depth+1,"true=" + self.trueDest) + "," + \
+               "false=" + self.falseDest + ")\n"
         
 class Seq(Stm):
     def __init__(self,stms, node):
