@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+
 import unittest
 import fractparser
 import absyn
@@ -348,6 +351,23 @@ default:
         # not a great error message...
         self.assertIsBadFormula(self.makeMinimalFormula("("),
                                 "unexpected newline",3)
+
+    def testTwoLogistic(self):
+        # a formula from orgform that causes trouble
+        # looks like if without endif is allowed
+        src = '''TwoLogistic {; Peter Anders (anders@physik.hu-berlin.de)
+  z=p1, c=pixel:
+  r=rand
+  if r<0.5 
+  z=c*z*(1-z)
+  if r>=0.5
+  z=c*z*(z-1)
+  |fn1(z)|<real(p2) 
+  ;SOURCE: lambda.frm
+}
+'''
+        t = self.parse(src)
+        self.assertIsValidParse(t)
         
     def assertListTypesMatch(self,nodes,types):
         self.assertEqual(len(nodes),len(types))
