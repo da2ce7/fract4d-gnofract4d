@@ -21,11 +21,11 @@ def show(parent, f,type):
     BrowserDialog.show(parent,f,type)
 
 def update(file=None):
-    global _browser
-    if _browser:
+    b = dialog.get(BrowserDialog)
+    if b:
         if file:
-            _browser.current_fname=os.path.basename(file)
-        _browser.populate_file_list()
+            b.current_fname=os.path.basename(file)
+        b.populate_file_list()
     
 class BrowserDialog(dialog.T):
     RESPONSE_EDIT = 1
@@ -438,7 +438,7 @@ class BrowserDialog(dialog.T):
         if msg == "":
             msg = _("No messages")
             
-        #buffer.set_text(msg,-1)
+        buffer.set_text(msg,-1)
 
         if self.ir.errors == []:
             self.enable_apply()
