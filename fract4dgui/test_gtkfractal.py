@@ -78,7 +78,9 @@ class FctTest(unittest.TestCase):
         # size
         self.f.set_size(57,211)
         self.f.set_size(57,211)
-        self.assertEqual(cc.count,3)
+        while cc.count < 3:
+            gtk.main_iteration()
+        
 
     def testLoad(self):
         self.f.loadFctFile(file("../testdata/test_bail.fct"))

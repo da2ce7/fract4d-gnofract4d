@@ -431,7 +431,7 @@ class T(gobject.GObject):
         self.height = new_height
         fract4dc.image_resize(self.image,self.width,self.height)
         self.widget.set_size_request(self.width,self.height)
-        self.changed()
+        gtk.idle_add(self.changed)
         
     def reset(self):
         self.f.reset()
