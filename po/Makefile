@@ -36,7 +36,7 @@ XGETTEXT = PATH=../src:$$PATH /usr/bin/xgettext
 MSGMERGE = PATH=../src:$$PATH msgmerge
 
 DEFS = -DHAVE_CONFIG_H
-CFLAGS = -g -O2 -Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -Wpointer-arith 
+CFLAGS = -g -O2 -Wall -Wunused 
 CPPFLAGS =  -I/usr/X11R6/include -I/usr/lib/glib/include
 
 INCLUDES = -I.. -I$(top_srcdir)/intl
@@ -50,20 +50,28 @@ DISTFILES = ChangeLog Makefile.in.in POTFILES.in $(PACKAGE).pot \
 stamp-cat-id $(POFILES) $(GMOFILES) $(SOURCES)
 
 POTFILES = \
+	../src/angles.cpp \
+	../src/bailFunc.cpp \
 	../src/callbacks.cpp \
 	../src/colorizer.cpp \
+	../src/drawingareas.cpp \
 	../src/fract.cpp \
+	../src/fractFunc.cpp \
 	../src/gf4d_angle.cpp \
 	../src/gf4d_fractal.cpp \
+	../src/gmptest.cpp \
 	../src/gundo.cpp \
 	../src/gundo_ui.cpp \
 	../src/image.cpp \
 	../src/interface.cpp \
+	../src/iterFunc.cpp \
 	../src/main.cpp \
+	../src/menus.cpp \
 	../src/model.cpp \
+	../src/pointFunc.cpp \
+	../src/properties.cpp \
 	../src/soi.cpp \
-	../src/support.cpp \
-	../src/test-fonction.cpp
+	../src/toolbars.cpp
 
 CATALOGS = 
 CATOBJEXT = .gmo

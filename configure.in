@@ -20,9 +20,9 @@ GNOME_X_CHECKS
 
 AM_PATH_GTK(1.2.0, , AC_MSG_ERROR("cannot find gtk"), gthread)
 
-dnl look for cln 
-dnl AC_MSG_CHECKING(for CLN arbitrary-precision math library)
-dnl AC_TRY_CPP(cln.h,AC_DEFINE(HAVE_CLN) LIBS="$LIBS -lcln")
+dnl look for gmp 
+AC_MSG_CHECKING(for GMP arbitrary-precision math library)
+AC_TRY_CPP(gmp.h,AC_DEFINE(HAVE_GMP) LIBS="$LIBS -lgmp")
 
 dnl Add the languages which your application supports here.
 ALL_LINGUAS="fr"
@@ -41,11 +41,9 @@ dnl Subst PACKAGE_PIXMAPS_DIR.
 PACKAGE_PIXMAPS_DIR="`gnome-config --datadir`/pixmaps/${PACKAGE}"
 AC_SUBST(PACKAGE_PIXMAPS_DIR)
 
-
 dnl Subst MAPS_DIR
 PACKAGE_MAPS_DIR="`gnome-config --datadir`/maps/${PACKAGE}"
 AC_SUBST(PACKAGE_MAPS_DIR)
-
 
 AC_OUTPUT([
 Makefile

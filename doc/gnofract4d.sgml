@@ -143,14 +143,36 @@ rotate around a <emphasis> plane </> rather than a line, and we can
 rotate in 6 directions: around the <emphasis>xy, xz, xw, yz, yw</> and
 <emphasis>zw</> planes. For example, if we rotate through 90 degrees
 in the xz and yw directions, our screen vectors become [0,0,1,0] and
-[0,0,0,1]: in other words, the Julia set. If we rotate through only 45
-degrees, we get a "hybrid" between the two sets, which looks decidedly
-odd. In fact, we can rotate to any angle in each of the planes,
+[0,0,0,1]: in other words, the Julia set. If we rotate only part of
+the way, we get a "hybrid" between the two sets, which looks decidedly
+odd:
+
+<graphic align="center" format="GIF" fileref="hybrid"></graphic>
+
+In fact, we can rotate to any angle in each of the planes,
 creating a whole world of bizarre pictures.
 </para>
 
 </sect2>
 </sect1>
+
+<sect1 id="types">
+<title>Fractal Types</title>
+
+<para> &gf4; supports a variety of fractal formulae apart from the
+vanilla mandelbrot set. These have been pillaged from a variety of
+sources, notably <emphasis>Fractint</>. I've tried to keep the names
+consistent.
+</para>
+ 
+<sect2 id="Barnsley Fractals">
+<para>
+The Barnsley fractals originally came from  
+</para>
+</sect2>
+
+</sect1>
+
 <sect1 id="mouse">
 <title>Mouse Functions</title> 
 
