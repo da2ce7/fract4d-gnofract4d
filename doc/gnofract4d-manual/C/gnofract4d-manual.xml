@@ -633,7 +633,7 @@ one). Inner colormaps are ignored. </para> </listitem>
 <title>About Gnofract 4D</title>
 <para>
 
-This is Gnofract 4D version 1.9. You can find the most recent version of
+This is Gnofract 4D version 2.0. You can find the most recent version of
 Gnofract 4D from <ulink url="http://gnofract4d.sourceforge.net">
 http://gnofract4d.sourceforge.net/</ulink>. 
 </para>
@@ -645,16 +645,16 @@ though none of the original code remains in the current version.
 Gnofract could once be obtained from
 <ulink url="http://www.multimania.com/mason/">
 http://www.multimania.com/mason/</ulink> but this no longer appears to
-work.  The new code in Gnofract 4D is by Edwin Young <ulink
+work.  Gnofract 4D is by Edwin Young <ulink
 url="mailto:edwin@sourceforge.net">(edwin@sourceforge.net) </ulink>.
-Gnofract 4D contains code from <emphasis>gundo</emphasis>, by Nat Pryce, and
-palette files (by a number of authors) which were originally
-distributed with <ulink
-url="http://spanky.triumf.ca/">Fractint</ulink>.
+The Gnofract 4D distribution contains palette files by a number of
+authors which were originally distributed with <ulink
+url="http://spanky.triumf.ca/">Fractint</ulink> under somewhat murky
+licensing conditions.
 </para>
 <para>
-Gnofract 4D is distributed under the <emphasis>Gnu General Public
-License</emphasis>. See the file "COPYING" for details.
+Gnofract 4D is distributed under the <emphasis>BSD license</emphasis>. 
+See the file "COPYING" for details.
 </para>
 </sect1>
 
