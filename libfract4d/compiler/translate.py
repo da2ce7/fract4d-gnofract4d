@@ -19,6 +19,7 @@ class TranslationError(exceptions.Exception):
 class T:
     def __init__(self,f):
         self.symbols = symbol.T()
+        self.canon = canon.T(self.symbols)
         self.errors = []
         self.warnings = []
         self.sections = {}
@@ -29,9 +30,10 @@ class T:
         self.dumpProbs = 0
         self.dumpTranslation = 0
         self.dumpVars = 0
-
+        
         try:
             self.formula(f)
+            self.linearize()
         except TranslationError, e:
             self.errors.append(e.msg)
 
@@ -54,7 +56,8 @@ class T:
                     print " " + name + "("
                     print tree.pretty(2) + " )"
             print "}\n"
-                
+
+        
     def error(self,msg):
         self.errors.append(msg)
     def warning(self,msg):
@@ -80,7 +83,11 @@ class T:
         s = f.childByName("bailout")
         if s: self.bailout(s)
         #  ignore switch and builtin for now
-        
+
+    def linearize(self):
+        for (k,tree) in self.sections.items():
+            self.sections["l_" + k] = self.canon.linearize(tree)
+
     def dupSectionWarning(self,sect):
         self.warning(
                     "formula contains a fractint-style implicit %s section\

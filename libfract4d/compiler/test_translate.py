@@ -258,7 +258,95 @@ class TranslateTest(unittest.TestCase):
         }''')
 
         self.assertNoErrors(t)
+                    
+    def testDecls(self):
+        t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")
+        self.assertNoProbs(t1)
+        self.assertVar(t1, "a", fracttypes.Int)
+        self.assertVar(t1, "b", fracttypes.Complex)
+        t1 = self.translate('''
+        t5 {
+        init:
+        float a = true,complex c = 1.0
+        complex x = 2
+        }''')
+        self.assertNoErrors(t1)
+        self.assertVar(t1, "a", fracttypes.Float)
+        self.assertVar(t1, "c", fracttypes.Complex)
+        self.assertVar(t1, "x", fracttypes.Complex)
+        self.assertWarning(t1, "conversion from bool to float on line 4")
+        self.assertWarning(t1, "conversion from float to complex on line 4")
+        self.assertWarning(t1, "conversion from int to complex on line 5")
+
+    def testMultiDecls(self):
+        t1 = self.translate("t6 {\ninit:int a = int b = 2}")
+        self.assertVar(t1, "a", fracttypes.Int)
+        self.assertVar(t1, "b", fracttypes.Int)
+        self.assertNoErrors(t1)
         
+    def testBadDecls(self):
+        t1 = self.translate("t7 {\nglobal:int z\n}")
+        self.assertError(t1,"symbol 'z' is predefined")
+        t1 = self.translate("t8 {\nglobal:int a\nfloat A\n}")
+        self.assertError(t1,"'A' was already defined on line 2")
+        
+    def assertError(self,t,str):
+        self.assertNotEqual(len(t.errors),0)
+        for e in t.errors:
+            if string.find(e,str) != -1:
+                return
+        self.fail(("No error matching '%s' raised, errors were %s" % (str, t.errors)))
+
+    def assertWarning(self,t,str):
+        self.assertNotEqual(len(t.warnings),0)
+        for e in t.warnings:
+            if string.find(e,str) != -1:
+                return
+        self.fail(("No warning matching '%s' raised, warnings were %s" % (str, t.warnings)))
+
+    def assertNoErrors(self,t):
+        self.assertEqual(len(t.errors),0,
+                         "Unexpected errors %s" % t.errors)
+        for (name, item) in t.sections.items():
+            if name[0:1] == "l_":
+                self.assertESeqsNotNested(item,1)
+        
+    def assertNoProbs(self, t):
+        self.assertEqual(len(t.warnings),0,
+                         "Unexpected warnings %s" % t.warnings)
+        self.assertNoErrors(t)
+        
+    def assertVar(self,t, name,type):
+        self.assertEquals(t.symbols[name].type,type)
+
+    def assertTreesEqual(self, t1, t2):
+        self.failUnless(
+            t1.pretty() == t2.pretty(),
+            ("%s, %s should be equivalent" % (t1.pretty(), t2.pretty())))
+
+    def assertEquivalentTranslations(self,t1,t2):
+        for k in t1.sections.keys():
+            self.assertTreesEqual(t1.sections[k],t2.sections[k])
+        for k in t2.sections.keys():
+            self.assertTreesEqual(t1.sections[k],t2.sections[k])
+
+    def assertFuncOnList(self,f,nodes,types):
+        self.assertEqual(len(nodes),len(types))
+        for (n,t) in zip(nodes,types):
+            self.failUnless(f(n,t))
+
+    def assertESeqsNotNested(self,t,parentAllowsESeq):
+        'check that no ESeqs are left below other nodes'
+        if isinstance(t,ir.ESeq):
+            if parentAllowsESeq:
+                for child in t.children:
+                    self.assertESeqsNotNested(child,0)
+            else:
+                self.fail("tree not well-formed after linearize: %s" % t.pretty())
+        else:
+            for child in t.children:
+                self.assertESeqsNotNested(child,0)
+
     def assertJumpsAndLabs(self,t,expected):
         jumps_and_labs = []
         for n in t.sections["loop"].children[0]:
@@ -286,78 +374,6 @@ class TranslateTest(unittest.TestCase):
         for target in jumpTargets.keys():
             self.failUnless(jumpLabels.has_key(target),
                             "jump to unknown target %s" % target )
-            
-    def testDecls(self):
-        t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")
-        self.assertNoProbs(t1)
-        self.assertVar(t1, "a", fracttypes.Int)
-        self.assertVar(t1, "b", fracttypes.Complex)
-        t1 = self.translate('''
-        t5 {
-        init:
-        float a = true,complex c = 1.0
-        complex x = 2
-        }''')
-        self.assertNoErrors(t1)
-        self.assertVar(t1, "a", fracttypes.Float)
-        self.assertVar(t1, "c", fracttypes.Complex)
-        self.assertVar(t1, "x", fracttypes.Complex)
-        self.assertWarning(t1, "conversion from bool to float on line 4")
-        self.assertWarning(t1, "conversion from float to complex on line 4")
-        self.assertWarning(t1, "conversion from int to complex on line 5")
-
-    def testMultiDecls(self):
-        t1 = self.translate("t6 {\ninit:int a = int b = 2}")
-        self.assertVar(t1, "a", fracttypes.Int)
-        self.assertVar(t1, "b", fracttypes.Int)
-        
-    def testBadDecls(self):
-        t1 = self.translate("t7 {\nglobal:int z\n}")
-        self.assertError(t1,"symbol 'z' is predefined")
-        t1 = self.translate("t8 {\nglobal:int a\nfloat A\n}")
-        self.assertError(t1,"'A' was already defined on line 2")
-        
-    def assertError(self,t,str):
-        self.assertNotEqual(len(t.errors),0)
-        for e in t.errors:
-            if string.find(e,str) != -1:
-                return
-        self.fail(("No error matching '%s' raised, errors were %s" % (str, t.errors)))
-
-    def assertWarning(self,t,str):
-        self.assertNotEqual(len(t.warnings),0)
-        for e in t.warnings:
-            if string.find(e,str) != -1:
-                return
-        self.fail(("No warning matching '%s' raised, warnings were %s" % (str, t.warnings)))
-
-    def assertNoErrors(self,t):
-        self.assertEqual(len(t.errors),0,
-                         "Unexpected errors %s" % t.errors)
-        
-    def assertNoProbs(self, t):
-        self.assertEqual(len(t.warnings),0,
-                         "Unexpected warnings %s" % t.warnings)
-        self.assertNoErrors(t)
-        
-    def assertVar(self,t, name,type):
-        self.assertEquals(t.symbols[name].type,type)
-
-    def assertTreesEqual(self, t1, t2):
-        self.failUnless(
-            t1.pretty() == t2.pretty(),
-            ("%s, %s should be equivalent" % (t1.pretty(), t2.pretty())))
-
-    def assertEquivalentTranslations(self,t1,t2):
-        for k in t1.sections.keys():
-            self.assertTreesEqual(t1.sections[k],t2.sections[k])
-        for k in t2.sections.keys():
-            self.assertTreesEqual(t1.sections[k],t2.sections[k])
-
-    def assertFuncOnList(self,f,nodes,types):
-        self.assertEqual(len(nodes),len(types))
-        for (n,t) in zip(nodes,types):
-            self.failUnless(f(n,t))
 
 def suite():
     return unittest.makeSuite(TranslateTest,'test')

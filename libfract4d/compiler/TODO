@@ -27,3 +27,4 @@ float   rho = cabs(a)^2+cabs(b)^2+cabs(c)^2+cabs(d)^2
 - arrays
 - $IFDEF ( see mt2.ufm)
 - strings in formulas (blb.ufm)
+- linearizing trees with casts
