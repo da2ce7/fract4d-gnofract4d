@@ -235,7 +235,7 @@ def p_exp_mag(t):
 
 def p_exp_neg(t):
     'exp : BOOL_NEG exp'
-    t[0] = absyn.Neg(t[2],t.lineno(1))
+    t[0] = absyn.Negate(t[2],t.lineno(1))
 
 def p_exp_num(t):
     'exp : NUMBER'

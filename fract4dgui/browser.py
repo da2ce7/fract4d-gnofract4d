@@ -70,13 +70,13 @@ class BrowserDialog(gtk.Dialog):
         self.f.freeze()
         if self.func_type == FRACTAL:
             self.f.set_formula(self.current_fname,self.current_formula)
+            self.f.reset()
         elif self.func_type == INNER:
             self.f.set_inner(self.current_fname,self.current_formula)
         elif self.func_type == OUTER:
             self.f.set_outer(self.current_fname,self.current_formula)
         else:
             assert(False)
-        self.f.reset()
         if self.f.thaw():
             self.f.changed()
 

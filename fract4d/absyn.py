@@ -157,9 +157,6 @@ def Negate(exp,pos):
 def String(s,list,pos):
     return Node("string", pos, list, s, fracttypes.String)
 
-def Neg(exp,pos):
-    return Node("unop", pos, [exp], "neg")
-
 def Funcall(id,arglist,pos):
     return Node("funcall", pos, arglist, id)
 
