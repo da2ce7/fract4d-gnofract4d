@@ -24,7 +24,7 @@ class FCTest(unittest.TestCase):
         f = self.compiler.get_formula("gf4d.frm","T03-01-G4")
         self.assertEqual(f.errors, [])
         commands.getoutput("rm -f test-out.so")
-        self.compiler.generate_code(f,"test-out.so")
+        self.compiler.generate_code(f,"test-out.so",None)
         # check the output contains the right functions
         (status,output) = commands.getstatusoutput('nm test-out.so')
         self.assertEqual(status,0)

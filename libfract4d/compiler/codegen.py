@@ -328,7 +328,9 @@ pf_obj *pf_new()
         self.out.append(Label(name))
         
     def output_symbols(self,user_overrides):
-        overrides = {"z" : "", "pixel" : "", "t__h_numiter" : ""}
+        overrides = {"z" : "",
+                     "pixel" : "",
+                     "t__h_numiter" : ""}
         for (k,v) in user_overrides.items():
             #print "%s = %s" % (k,v)
             overrides[k] = v

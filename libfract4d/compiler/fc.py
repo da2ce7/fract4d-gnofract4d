@@ -80,7 +80,7 @@ class Compiler:
         f = ff.get_formula(formula)
 
         cf = None
-        print colorfile
+        #print colorfile
         if colorfile != None:
             cff = self.files.get(os.path.basename(colorfile))
             if cff == None : return None

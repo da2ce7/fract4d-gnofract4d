@@ -101,7 +101,7 @@ def createDefaultDict():
         "pixel" : Var(Complex), 
         "t__h_z" : Alias("z"),
         "z"  : Var(Complex),
-        "t__h_index": Var(Float),
+        "t__h_index": Alias("*t__p_pDist"),
         "t__h_numiter": Var(Float)
         }
     
