@@ -205,7 +205,22 @@ default:
 
         # line number is (unfortunately) start of param, not line with default
         self.assertError(t, "4: enum value 'xxx' invalid for param @y")
-        
+
+    def testColorParam(self):
+        t = self.translate('''
+        t {
+        default:
+        color param x
+            default = rgb(0,0,1)
+        endparam
+        color param x2
+            default = rgba(1,1,1,1)
+        endparam
+        }
+        ''')
+
+        self.assertNoErrors(t)
+                           
     def testImplicitParamTypes(self):
         # Some UF coloring algorithms cause problems. The
         # type of the param is implicitly set based on the default value
