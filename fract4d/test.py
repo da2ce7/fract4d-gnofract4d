@@ -13,6 +13,7 @@ import test_colormap
 import test_parfile
 import test_fractal
 import test_3d
+import test_gradient
 
 def suite():
     s1 = test_fractlexer.suite()
@@ -27,9 +28,10 @@ def suite():
     s10 = test_parfile.suite()
     s11 = test_fractal.suite()
     s12 = test_3d.suite()
+    s13 = test_gradient.suite()
     
     return unittest.TestSuite(
-        (s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12))
+        (s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13))
 
 def main():
     unittest.main(defaultTest='suite')

@@ -55,7 +55,8 @@ image::alloc_buffers()
 {
     buffer = new(std::nothrow) char[bytes()];
     iter_buf = new(std::nothrow) int[m_Xres * m_Yres];
-    if(m_Xres * m_Yres <= MAX_RECOLOR_SIZE)
+    // FIXME remove true 
+    if(true || m_Xres * m_Yres <= MAX_RECOLOR_SIZE)
     {
 	index_buf = new(std::nothrow) float[m_Xres * m_Yres * N_SUBPIXELS];
 	fate_buf = new(std::nothrow) fate_t[m_Xres * m_Yres * N_SUBPIXELS];
@@ -67,6 +68,7 @@ image::alloc_buffers()
     }
     else
     {
+	// use less memory for big images. Sadly not working yet
 	index_buf = NULL;
 	fate_buf = NULL;
     }
