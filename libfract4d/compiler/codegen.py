@@ -338,20 +338,10 @@ return 0;
         if t.datatype == fracttypes.Complex:
             assert(isinstance(srcs[0],ComplexArg)==1,srcs[0])
             assert(isinstance(srcs[1],ComplexArg)==1,srcs[1])
-            if t.op=="+" or t.op == "-" or t.op == "*" or t.op == "complex":
-                dst = op.genFunc(self,t,srcs)
-            elif t.op==">" or t.op==">=" or t.op=="<" or t.op == "<=":
-                # compare real parts only
-                dst = self.emit_binop(t.op,reals(srcs), Bool)
-            elif t.op=="==" or t.op=="!=":
-                # compare both
-                d1 = self.emit_binop(t.op,reals(srcs), Bool)
-                d2 = self.emit_binop(t.op,imags(srcs), Bool)
-                if t.op=="==":
-                    combine_op = "&&"
-                else:
-                    combine_op = "||"
-                dst = self.emit_binop(combine_op, [d1, d2], Bool)
+            if t.op=="+" or t.op == "-" or t.op == "*" or t.op == "complex" or \
+                   t.op==">" or t.op==">=" or t.op=="<" or t.op == "<=" or \
+                   t.op=="==" or t.op=="!=":  
+                dst = op.genFunc(self,t,srcs)                
             else:
                 # need to implement /, ^, etc
                 msg = "Unsupported binary operation %s" % t.op
