@@ -173,7 +173,7 @@ compiler::compile(std::string commandLine)
         pclose(compiler_output);
     }
     
-    out = "/home/edwin/gnofract4d/src/foo.so";
+    //out = "/home/edwin/gnofract4d/src/foo.so";
     void *dlHandle = dlopen(out.c_str(), RTLD_NOW);
     if(!dlHandle)
     {
