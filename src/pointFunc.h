@@ -24,6 +24,7 @@
 #include "pointFunc_public.h"
 #include "colorizer_public.h"
 
+#include <complex>
 class iterFunc;
 
 /* interface for function object which computes a single point */
@@ -53,6 +54,38 @@ class inner_pointFunc {
         ) = 0;
 };
 
+struct s_pf_vtable {
+    inner_pointFunc *(*create_pointFunc)(
+        double bailout,
+        double period_tolerance,
+        std::complex<double> *params
+	);
+    void (*init)(
+	struct s_pf_data *p,
+        double bailout,
+        double period_tolerance,
+        std::complex<double> *params
+	);
+    void (*calc)(
+	struct s_pf_data *p,
+        // in params
+        const double *params, int nIters, int nNoPeriodIters,
+	// only used for debugging
+	int x, int y, int aa,
+        // out params
+        double *colorDist, int *pnIters, double **out_buf
+	);
+    void (*kill)(
+	struct s_pf_data *p
+	);
+} ;
+
+struct s_pf_data {
+    struct s_pf_vtable *vtbl;
+} ;
+
+typedef struct s_pf_vtable pf_vtable;
+typedef struct s_pf_data pf_obj;
 
 /* factory method for making new fractFuncs */
 pointFunc *pointFunc_new(

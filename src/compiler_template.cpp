@@ -10,12 +10,12 @@
 #include <iomanip>
 #endif
 #include <float.h>
+#include <stdlib.h>
 
 typedef double T;
 
 // redeclare from vectors.h to avoid reading the whole file
 enum {VX, VY, VZ, VW};		    // axes
-
 
 class pointCalc : public inner_pointFunc {
 private:
@@ -235,8 +235,51 @@ public:
     
 };
 
+typedef struct {
+    pf_obj parent;
+    T p[STATE_SPACE];
+    double m_eject;
+    T m_period_tolerance;
+
+#if N_OPTIONS > 0
+    std::complex<double> a[N_OPTIONS];
+#endif
+#if TRACE
+    std::ofstream *out;
+#endif
+    
+} pf_real ;
+
 extern "C" {
-    void *create_pointfunc(
+
+static void pf_init(
+    struct s_pf_data *p_stub,
+    double bailout,
+    double period_tolerance, 
+    std::complex<double> *params)
+{
+    pf_real *p = (pf_real *)p_stub;
+
+    p->m_eject = bailout;
+    p->m_period_tolerance = period_tolerance;
+#if N_OPTIONS > 0
+    for(int i = 0; i < N_OPTIONS; ++i)
+    {
+	p->a[i] = options[i];
+    }
+#endif
+#if TRACE
+    p->out = NULL;
+#endif
+}
+
+    static void pf_kill(
+	struct s_pf_data *p_stub)
+    {
+	free(p_stub);
+    }
+
+    static inner_pointFunc *create_pointfunc(
         double bailout,
         double period_tolerance,
         std::complex<double> *params)
@@ -246,4 +289,23 @@ extern "C" {
             period_tolerance, 
             params);
     }
+
+
+static struct s_pf_vtable vtbl = 
+{
+    create_pointfunc,
+    pf_init,
+    NULL,
+    pf_kill
+};
+
+    pf_obj *pf_new()
+    {
+	pf_obj *p = (pf_obj *)malloc(sizeof(pf_real));
+	if(!p) return NULL;
+	p->vtbl = &vtbl;
+	return p;
+    }
+
+
 }

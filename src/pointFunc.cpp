@@ -40,14 +40,24 @@ private:
     void *m_handle; 
     colorFunc *m_pOuterColor;
     colorFunc *m_pInnerColor;
-
+    pf_obj *m_pfo;
     void *one_space;
 public:
     pf_wrapper(
-	inner_pointFunc *pf, colorizer *pcizer, 
+	pf_obj *pfo,
+	double bailout,
+	double period_tolerance,
+	std::complex<double> *params,
+	colorizer *pcizer, 
 	void *dlHandle, e_colorFunc outerCfType, e_colorFunc innerCfType) : 
-	m_pf(pf), m_pcizer(pcizer), m_handle(dlHandle)
+	m_pcizer(pcizer), m_handle(dlHandle), m_pfo(pfo)
 	{
+	    m_pfo->vtbl->init(m_pfo,bailout,period_tolerance,params);
+
+	    m_pf = m_pfo->vtbl->create_pointFunc(
+		bailout, period_tolerance, 
+	        params);
+
             m_pOuterColor = colorFunc_new(outerCfType);
             m_pInnerColor = colorFunc_new(innerCfType);
 
@@ -61,7 +71,7 @@ public:
 	    delete m_pf;
 	    free(one_space);
 
-
+	    m_pfo->vtbl->kill(m_pfo);
 	    if(NULL != m_handle) 
 	    {
 		dlclose(m_handle);
@@ -140,27 +150,25 @@ pointFunc *pointFunc_new(
     b->get_code(code_map, iterType->flags());
     void *dlHandle = g_pCompiler->getHandle(code_map);
 
-    inner_pointFunc *(*pFunc)(
-        double, 
-        double, 
-        std::complex<double> *) = 
-        (inner_pointFunc *(*)(double, double, std::complex<double> *)) 
-        dlsym(dlHandle, "create_pointfunc");
+    // get a pointer to the pf_new function in the new .so
+    pf_obj *(*pFunc)() = (pf_obj *(*)()) dlsym(dlHandle, "pf_new");
 
     if(NULL == pFunc)
     {
         return NULL;
     }
 
-    inner_pointFunc *inner_pf = pFunc(
-	bailout, periodicity_tolerance, 
-	iterType->opts());
+    // create a new pf_obj
+    pf_obj *p = (*pFunc)();
 
-    return new pf_wrapper(inner_pf, pcf, dlHandle, outerCfType, innerCfType);
+    return new pf_wrapper(
+	p,
+	bailout,
+	periodicity_tolerance,
+	iterType->opts(),
+	pcf, dlHandle, outerCfType, innerCfType);
 }
 
-/* can't just call dtor because we need to free the handle to the .so
-   - and we can't do that *inside* the .so or Bad Things will happen */
 void
 pointFunc_delete(pointFunc *pF)
 {
