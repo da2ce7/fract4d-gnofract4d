@@ -172,6 +172,7 @@ class T:
         self.templates = self.expand_templates([
             [ "[Binop]" , T.binop],
             [ "[Unop]", T.unop],
+            [ "[Call]", T.call],
             [ "[Var]" , T.var],
             [ "[Const]", T.const],
             [ "[Label]", T.label],
@@ -349,7 +350,13 @@ return;
         op = self.findOp(t)
         dst = op.genFunc(self, t, src)
         return dst
-    
+
+    def call(self,t):
+        srcs = [self.generate_code(x) for x in t.children]
+        op = self.findOp(t)
+        dst = op.genFunc(self, t, srcs)
+        return dst
+        
     def binop(self,t):
         s0 = t.children[0]
         s1 = t.children[1]
@@ -367,10 +374,11 @@ return;
         return create_arg(t)
     
     def var(self,t):
+        name = self.symbols.realName(t.name)
         if t.datatype == fracttypes.Complex:
-            return ComplexArg(TempArg(t.name + "_re"),TempArg(t.name + "_im"))
+            return ComplexArg(TempArg(name + "_re"),TempArg(name + "_im"))
         else:
-            return TempArg(t.name)
+            return TempArg(name)
     
     # matching machinery
     def generate_all_code(self,treelist):

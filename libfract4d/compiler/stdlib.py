@@ -72,3 +72,15 @@ def noteq_cc_b(gen,t,srcs):
     d2 = gen.emit_binop(t.op,imags(srcs), Bool)
     dst = gen.emit_binop("||", [d1, d2], Bool)
     return dst
+
+def sqr_c_c(gen,t,srcs):
+    # sqr(a+ib) = a2 - b2 + i(2ab)
+    src = srcs[0]
+    a2 = gen.emit_binop('*', [src.re, src.re], Float)
+    b2 = gen.emit_binop('*', [src.im, src.im], Float)
+    ab = gen.emit_binop('*', [src.re, src.im], Float)
+    dst = ComplexArg(
+        gen.emit_binop('-', [a2, b2], Float),
+        gen.emit_binop('+', [ab, ab], Float))
+    return dst
+    

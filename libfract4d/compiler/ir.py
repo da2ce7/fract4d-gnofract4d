@@ -91,7 +91,7 @@ class Cast(Exp):
 class Call(Exp):
     def __init__(self, func, args, node, datatype):
         Exp.__init__(self, node, datatype)
-        self.func = func
+        self.op = func
         self.children = args
     def __str__(self):
         return "Call(" + self.func + "\n"
