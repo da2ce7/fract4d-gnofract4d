@@ -103,7 +103,6 @@ class Compiler:
         return hash.hexdigest()
         
     def generate_code(self,ir, cg, outputfile=None,cfile=None):
-        print "generate_code: %s" % outputfile
         cg.output_decls(ir)
         self.c_code = cg.output_c(ir)
 
@@ -124,7 +123,7 @@ class Compiler:
         # -march=i686 for 10% speed gain
         cmd = "%s %s %s -o %s %s" % \
               (self.compiler_name, cfile, self.flags, outputfile, self.libs)
-        print "cmd: %s" % cmd
+        #print "cmd: %s" % cmd
         (status,output) = commands.getstatusoutput(cmd)
         if status != 0:
             raise fracttypes.TranslationError(

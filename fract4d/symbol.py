@@ -249,15 +249,26 @@ class T(UserDict):
                         params[name] = sym
         return params
 
+    def demangle(self,name):
+        # remove most obvious mangling.
+        # because of case-folding, demangle(mangle(s)) != s
+        if name[:3] == "t__":
+            name = name[3:]
+
+        if name[:2] == "a_":
+            name = "@" + name[2:]
+        elif name[:2] == "h_":
+            name = "#" + name[2:]
+            
+        return name
+    
     def func_names(self):
         params = self.parameters()
 
         func_names = []
         for (name,param) in params.items():
             if isinstance(param,Func):
-                if name[:5] == "t__a_":
-                    name = name[5:]
-                func_names.append(name)
+                func_names.append(self.demangle(name))
         return func_names
 
     def available_param_functions(self,ret,args):

@@ -395,7 +395,7 @@ blue=0.5543108971162746
         self.assertDirty(f)
 
         f.clean()
-        f.set_named_func("bailfunc","real2")
+        f.set_named_func("@bailfunc","real2")
         self.assertDirty(f)
         
     def testFractalBadness(self):

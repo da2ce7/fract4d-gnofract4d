@@ -44,9 +44,9 @@ todo for 2.0
 * B	undo/redo cause recompilation
 * W	make default fractal more interesting
 * W	autosave/restore?
-* B	selected func in fractal settings not updated by undo/redo
 
 done:
+* B	selected func in fractal settings dlg not updated by undo/redo
 * B	change func then undo causes problems
 * W	compiler properties
 * W	store user preferences
