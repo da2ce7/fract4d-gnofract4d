@@ -366,7 +366,7 @@ def sqrt_c_c(gen,t,srcs):
         [abs_f_f(gen,t,[srcs[0].im]), temp], Float) , dst_re)
 
     # y < 0 ? -u : u
-    ypos2 = gen.emit_binop('>',[srcs[0].im,ConstFloatArg(0.0)], Float)    
+    ypos2 = gen.emit_binop('>=',[srcs[0].im,ConstFloatArg(0.0)], Float)    
     ygtzero2 = gen.symbols.newLabel()
     gen.emit_cjump(ypos2,ygtzero2)
     gen.emit_move(neg_f_f(gen,t,[u]), dst_im)
@@ -498,9 +498,23 @@ def atan2_c_f(gen,t,srcs):
 def asinh_f_f(gen,t,srcs):
     return gen.emit_func('asinh', srcs, Float)
 
+def asinh_c_c(gen,t,srcs):
+    # log(z + sqrt(z*z+1))
+    one = ComplexArg(ConstFloatArg(1.0),ConstFloatArg(0.0))
+    sq = sqrt_c_c(gen,t,[add_cc_c(gen,t,[one,sqr_c_c(gen,t,srcs)])])
+    return log_c_c(gen,t,[add_cc_c(gen,t,[srcs[0],sq])])
+
 def acosh_f_f(gen,t,srcs):
     return gen.emit_func('acosh', srcs, Float)
 
+def acosh_c_c(gen,t,srcs):
+    # log(z + sqrt(z-1)*sqrt(z+1))
+    one = ComplexArg(ConstFloatArg(1.0),ConstFloatArg(0.0))    
+    sqzm1 = sqrt_c_c(gen,t,[sub_cc_c(gen,t,[srcs[0],one])])
+    sqzp1 = sqrt_c_c(gen,t,[add_cc_c(gen,t,[srcs[0],one])])
+    sum = add_cc_c(gen,t,[srcs[0],mul_cc_c(gen,t,[sqzm1,sqzp1])])
+    return log_c_c(gen,t,[sum])
+    
 def atanh_f_f(gen,t,srcs):
     return gen.emit_func('atanh', srcs, Float)
 

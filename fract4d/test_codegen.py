@@ -627,7 +627,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         return [ codefrag, lookat, result]
         
     def manufacture_tests(self,myfunc,pyfunc):
-        vals = [ 0+0j, 0+1j, 1+0j, 1+1j, 3+2j, 1-0j, 0-1j, -3+2j, -2-2j ]
+        vals = [ 0+0j, 0+1j, 1+0j, 1+1j, 3+2j, 1-0j, 0-1j, -3+2j, -2-2j, -1+0j ]
         return map(lambda (x,y) : self.make_test(myfunc,pyfunc,x,y), \
                    zip(vals,range(1,len(vals))))
 
@@ -681,6 +681,12 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
 
         def mycotanh(z):
             return cmath.cosh(z)/cmath.sinh(z)
+
+        def myasinh(z):
+            return cmath.log(z + cmath.sqrt(z*z+1))
+
+        def myacosh(z):
+            return cmath.log(z + cmath.sqrt(z-1) * cmath.sqrt(z+1))
         
         tests = [
             # code to run, var to inspect, result
@@ -755,8 +761,10 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests += self.asintests()
         tests += self.acostests()
         tests += self.atantests()
+        tests += self.manufacture_tests("asinh",myasinh)
+        tests += self.manufacture_tests("acosh",myacosh)
         
-        # FIXME: atan,atan2, asinh, acosh, atanh
+        # FIXME: asinh, acosh, atanh
 
         # construct a formula calculating all of the above,
         # run it and compare results with expected values
