@@ -373,7 +373,8 @@ STFractWorker::box(int x, int y, int rsize)
 }
 
 inline void
-STFractWorker::rectangle(rgba_t pixel, int x, int y, int w, int h)
+STFractWorker::rectangle(
+    rgba_t pixel, int x, int y, int w, int h)
 {
     for(int i = y ; i < y+h; i++)
     {
@@ -386,8 +387,35 @@ STFractWorker::rectangle(rgba_t pixel, int x, int y, int w, int h)
 	    }
 	    else
 	    {
-		rgba_t np = pf->recolor(im->getIndex(j,i,0), fate);
-		im->put(j,i,np);
+		// 0'th (non-aa) pixel's fate is known - just recolor it
+		rgba_t new_pixel = pf->recolor(im->getIndex(j,i,0), fate);
+		fate = im->getFate(j,i,1);
+		if(FATE_UNKNOWN != fate)
+		{
+		    assert(im->getFate(j,i,2) != FATE_UNKNOWN);
+		    assert(im->getFate(j,i,3) != FATE_UNKNOWN);
+
+		    // and so are the other pixels
+		    int tr=new_pixel.r, 
+			tg=new_pixel.g, 
+			tb=new_pixel.b, 
+			ta=new_pixel.a;
+
+		    for(int k = 1; k < im->getNSubPixels(); ++k)
+		    {
+			new_pixel = 
+			    pf->recolor(im->getIndex(j,i,k), fate);
+			tr += new_pixel.r;
+			tg += new_pixel.g;
+			tb += new_pixel.b;
+			ta += new_pixel.a;
+		    }
+		    new_pixel.r = tr/4;
+		    new_pixel.g = tg/4;
+		    new_pixel.b = tb/4;
+		    new_pixel.a = ta/4;
+		}
+		im->put(j,i,new_pixel);
 	    }
         }
     }
