@@ -218,8 +218,9 @@ def InternalError(pos):
 
 def Error2(str, pos):
     if str == "$":
-        return Node("error", pos, None, 
-                "Syntax error: $ifdef/$define not supported on line %d" % pos)
+        return Node(
+            "error", pos, None, 
+            "Error: unexpected preprocessor directive on line %d" % pos)
     return Node("error", pos, None,
                 "Syntax error: unexpected '%s' on line %d" % (str,pos))
 
