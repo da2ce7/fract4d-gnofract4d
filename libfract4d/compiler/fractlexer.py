@@ -3,13 +3,11 @@
 # fractlexer.py
 #
 # tokenizer for UltraFractal formula files
-# The lexer proper only applies to the *contents* of the {}
-# fractal blocks - we use a top-level regex to split the
-# file up into a set of formulae and parse them on demand.
 # ------------------------------------------------------------
 import lex
 import sys
 import re
+import string
 
 # List of token names.   This is always required
 tokens = (
@@ -49,6 +47,7 @@ tokens = (
    'COMMA',
    'STRING',
 
+   'COMMENT_FORMULA',
    'FORM_ID',
    'FORM_END',
    'SECT_SET',
@@ -82,22 +81,39 @@ t_ASSIGN  = r'='
 t_COMMA   = r','
 t_FORM_END= r'\}' 
 
+# handle stupid "comment" formula blocks specially
+# match ; and Comment because some uf repository files do this
+def t_COMMENT_FORMULA(t):
+    r';?[Cc]omment\s*{[^}]*}'
+    newlines = re.findall(r'\n',t.value)
+    t.lineno += len(newlines)
+    pass 
+
+# may seem weird, but this includes the starting {
+# this is to ensure that the generous pattern match doesn't
+# trigger all the time mid-formula (eg, z = "z^2 + c" is a valid formid)
+
+def t_FORM_ID(t):
+    r'[^\r\n;"\{]+{'
+    # remove trailing whitespace and {
+    t.value = re.sub("\s*{$", "", t.value)
+    # TODO: chop down the expression to extract symmetry
+    return t
+
 def t_NUMBER(t):
     r'(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?'
-    try:
-        t.value = float(t.value) # FIXME: detect integers
-    except ValueError:
-        print "Line %d: Real number %s is too large!" % (t.lineno, t.value)
-        t.value = 0
+    t.value = float(t.value) # FIXME: detect integers
     return t
 
 # these have to be functions to give them higher precedence than ID
 def t_SECT_SET(t):
     r'((default)|(switch))\s*:'
+    t.value = re.sub("\\s*:","",t.value)
     return t
 
 def t_SECT_STM(t):
     r'((global)|(transform)|(builtin)|(init)|(loop)|(final)|(bailout))?\s*:'
+    t.value = re.sub("\\s*:","",t.value)
     return t
 
 def t_PARAM(t):
@@ -106,15 +122,6 @@ def t_PARAM(t):
 
 def t_ENDPARAM(t):
     "endparam"
-    return t
-
-# may seem weird, but this includes the starting {
-# this is to ensure that the generous pattern match doesn't
-# trigger all the time mid-formula (eg, z = "z^2 + c" is a valid formid)
-
-def t_FORM_ID(t):
-    r'[^\r\n;"\{]+{'
-    # TODO: chop down the expression to extract symmetry
     return t
 
 def t_ID(t):
@@ -140,16 +147,16 @@ def t_STRING(t):
     t.value = re.sub(r'(^")|("$)',"",t.value) # remove trailing and leading "
     t.value = re.sub(r'\\\r?\n[ \t\v]*',"",t.value) # hide \-split lines
     return t
-
-
     
 # A string containing ignored characters (spaces and tabs)
 t_ignore  = ' \t'
 
 # Error handling rule
 def t_error(t):
-    print "Illegal character '%s' on line %d" % t.value[0], t.lineno
+    #print "Illegal character '%s' on line %d" % (t.value[0], t.lineno)
+    t.value = t.value[0]
     t.skip(1)
+    return t
     
 # Build the lexer
 lexer = lex.lex()
