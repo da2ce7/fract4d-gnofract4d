@@ -151,9 +151,11 @@ fractFunc::updateiters()
     // add up all the subtotals
     for(int i = 0; i < nThreadFuncs; ++i)
     {
-        nTotalDoubleIters += ptf[i].ndoubleiters;
-        nTotalHalfIters += ptf[i].nhalfiters;
-        nTotalK += ptf[i].k;
+	int nd, nh, k;
+	ptf[i].stats(&nd,&nh,&k);
+        nTotalDoubleIters += nd;
+        nTotalHalfIters += nh;
+        nTotalK += k;
     }
 
     double doublepercent = ((double)nTotalDoubleIters*AUTO_DEEPEN_FREQUENCY*100)/nTotalK;

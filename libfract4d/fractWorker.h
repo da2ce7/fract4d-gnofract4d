@@ -34,6 +34,10 @@ public:
     // calculate a single pixel in aa-mode
     virtual void pixel_aa(int x, int y) =0;
 
+    // auto-deepening record keeping
+    virtual void reset_counts() =0;
+    virtual void stats(int *pnDoubleIters, int *pnHalfIters, int *pk) =0;
+
     virtual ~IFractWorker() {};
 };
 
@@ -56,18 +60,9 @@ class fractThreadFunc : public IFractWorker{
     // and can have member vars
     pointFunc *pf; 
 
-    // n pixels correctly classified that would be wrong 
-    // if we halved iterations
-    int nhalfiters;
-    // n pixels misclassified that would be correct 
-    // if we doubled the iterations
-    int ndoubleiters; 
-    int k;	// number of pixels calculated    
-    int lastIter; // how many iterations did last pixel take?
-
 
     fractThreadFunc() {
-        nhalfiters = ndoubleiters = k = 0;
+	reset_counts();
         lastIter = 0;
     }
     // try that many without periodicity checking if it did bail out,
@@ -115,5 +110,16 @@ class fractThreadFunc : public IFractWorker{
     struct rgb antialias(int x, int y);
 
     void reset_counts();
+    void stats(int *pnDoubleIters, int *pnHalfIters, int *pk);
+
+ private:
+    // n pixels correctly classified that would be wrong 
+    // if we halved iterations
+    int nhalfiters;
+    // n pixels misclassified that would be correct 
+    // if we doubled the iterations
+    int ndoubleiters; 
+    int k;	// number of pixels calculated    
+    int lastIter; // how many iterations did last pixel take?
 
 };

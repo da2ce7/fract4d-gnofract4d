@@ -120,6 +120,15 @@ fractThreadFunc::reset_counts()
 {
     ndoubleiters=0;
     nhalfiters=0;
+    k=0;
+}
+
+void 
+fractThreadFunc::stats(int *pnDoubleIters, int *pnHalfIters, int *pk)
+{
+    *pnDoubleIters = ndoubleiters;
+    *pnHalfIters = nhalfiters;
+    *pk = k;
 }
 
 inline int 
