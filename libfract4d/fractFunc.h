@@ -110,19 +110,9 @@ class fractFunc {
     IImage *im;    // pointer to image passed in to ctor
     pointFunc *pf; // function for calculating 1 point
 
-    MTFractWorker *ptm;
+    IFractWorker *ptm;
 
-    /* wait for a ready thread then give it some work */
-    void send_cmd(job_type_t job, int x, int y, int param);
     void send_quit();
-
-    // MEMBER FUNCTIONS
-
-    void send_box(int x, int y, int rsize);
-    void send_row(int x, int y, int n);
-    void send_row_aa(int x, int y, int n);
-    // ... in a worker thread
-    void send_box_row(int w, int y, int rsize);
 
     // redraw the image to this line
     // also checks for interruptions & returns true if we should stop

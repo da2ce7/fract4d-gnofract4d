@@ -21,7 +21,7 @@ MTFractWorker::MTFractWorker(
         if(!ptf[i].init(ff,f,im))
         {
             // failed to create - mark this dead 
-            ok = false;	    
+            m_ok = false;	    
         }
     }
 
@@ -162,4 +162,19 @@ MTFractWorker::send_row_aa(int x, int y, int w)
 {
     //cout << "sent RAA" << y << "\n";
     send_cmd(JOB_ROW_AA, x, y, w);
+}
+
+void 
+MTFractWorker::flush()
+{
+    if(ptp)
+    {
+        ptp->flush();
+    }
+}
+
+bool
+MTFractWorker::ok()
+{ 
+    return m_ok;
 }
