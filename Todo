@@ -36,10 +36,10 @@ netfract
 * WWW	write it
 
 gnofract4d
-* BB	weirdness slider is broken
+* WW	register mime info?
+* B	image size should be persisted and kept under Preferences.
 * B	aspect ratio locked with -i and -j params
 * BB	hang changing back from explorer mode
-* B	saved images have wrong type
 * W	add fractal params to image, add load image
 * W	remember .fct filenames and re-save to same place
 * W	Julia preview by moving around while holding button3
@@ -48,6 +48,9 @@ gnofract4d
 * WW	MDI
 * B	pause doesn't stop subfracts
 * WW	preview .fcts in open dialog
+* W	sort out libfract4d versioning
+* B	detect and report save problems
+* W	warn about save overwrites
 
 fract4d
 * W	introduce image class
@@ -85,6 +88,9 @@ CmapEditor
 * W 	remove debug printfs
 
 Done:
+* BB	not all fractal types implemented
+* B	saved images have wrong type
+* BB	weirdness slider is broken
 * B	setting image size in explorer mode is screwed
 * B	explorer and deepen_now buttons missing images
 * B	setting image size crashes
