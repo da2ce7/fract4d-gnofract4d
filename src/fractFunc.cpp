@@ -4,9 +4,9 @@
 #include <stdio.h>
 
 /* redirect back to a member function */
-void worker(fractThreadFunc &tdata)
+void worker(job_info_t& tdata, fractThreadFunc *pFunc)
 {
-    tdata.work();
+    pFunc->work(tdata);
 }
 
 fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
@@ -45,18 +45,23 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     nTotalHalfIters = nTotalDoubleIters = nTotalK = 0;
     clear();
 
+    /* 0'th ftf is in this thread for calculations we don't want to offload */
+    int nThreadFuncs = f->nThreads > 1 ? f->nThreads + 1 : 1;
+    ptf = new fractThreadFunc[nThreadFuncs];
+    for(int i = 0; i < nThreadFuncs; ++i)
+    {
+        ptf[i].ff = this;
+    }
+
     /* threading */
     if(f->nThreads > 1)
     {
-        ptp = new tpool<fractThreadFunc>(f->nThreads,100);
+        ptp = new tpool<job_info_t,fractThreadFunc>(f->nThreads,100,ptf);
     }
     else
     {
         ptp = NULL;
     }
-    /* for calculations we don't want to offload */
-    ptf = new fractThreadFunc;
-    ptf->ff = this;
 
     last_update_y = 0;
 };
@@ -64,7 +69,7 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
 fractFunc::~fractFunc()
 {
     delete ptp;
-    delete ptf;
+    delete[] ptf;
 }
 
 void 
@@ -77,9 +82,9 @@ void
 fractFunc::send_cmd(job_type_t job, int x, int y, int param)
 {
     //gf4d_fractal_try_finished_cond(gf);
-    fractThreadFunc work;
+    job_info_t work;
 
-    work.job = job; work.ff = this;
+    work.job = job; 
     work.x = x; work.y = y; work.param = param;
 
     ptp->add_work(worker, work);
@@ -135,9 +140,9 @@ fractFunc::updateiters()
         // add up all the subtotals
         for(int i = 0; i < f->nThreads; ++i)
         {
-            nTotalDoubleIters += ptp->work_data(i)->ndoubleiters;
-            nTotalHalfIters += ptp->work_data(i)->nhalfiters;
-            nTotalK += ptp->work_data(i)->k;
+            nTotalDoubleIters += ptp->thread_info(i)->ndoubleiters;
+            nTotalHalfIters += ptp->thread_info(i)->nhalfiters;
+            nTotalK += ptp->thread_info(i)->k;
         }
     }
     nTotalDoubleIters += ptf->ndoubleiters;
@@ -198,7 +203,7 @@ void fractFunc::reset_counts()
     {
         for(int i = 0; i < f->nThreads ; ++i)
         {
-            ptp->work_data(i)->reset_counts();
+            ptp->thread_info(i)->reset_counts();
         }
     }
     ptf->reset_counts();

@@ -32,23 +32,39 @@
 
 #include "pthread.h"
 
-template<class T>
+/* one unit of work */
+template<class work_t, class threadInfo>
 struct tpool_work {
-    void (*routine)(T&);
-    T arg;
+    void (*routine)(work_t&, threadInfo *); /* pointer to func which will do work */
+    work_t arg; /* arguments */
 };
 
+/* argument passed to new thread - pointer to threadInfo instance
+   + pointer to threadpool proper */
 template<class T>
+struct tpool_threadInfo {
+    void *pool; /* can't work out how to declare this right now */
+    T *info;
+};
+
+/* templatized on the unit of work and the type which holds per-thread info */
+template<class work_t, class threadInfo>
 class tpool {
  public:
-    tpool(int num_worker_threads_, int max_queue_size_)
+    tpool(int num_worker_threads_, int max_queue_size_, threadInfo *tinfo_)
         {
             num_threads = num_worker_threads_;
             max_queue_size = max_queue_size_;
+            tinfo = new tpool_threadInfo<threadInfo>[num_threads];
             
-            queue = new tpool_work<T>[max_queue_size];
+            for(int i = 0; i < num_worker_threads_; ++i)
+            {
+                tinfo[i].pool = this;
+                tinfo[i].info = &tinfo_[i];
+            }
+            queue = new tpool_work<work_t,threadInfo>[max_queue_size];
             threads = new pthread_t[num_threads];
-    
+            
             cur_queue_size = 0;
             queue_head = 0;
             queue_tail = 0;
@@ -70,7 +86,7 @@ class tpool {
             for(int i = 0; i < num_threads; ++i)
             {
                 pthread_create(&threads[i], &lowprio_attr, 
-                               (void *(*)(void *))&threadFunc, this);
+                               (void *(*)(void *))&threadFunc, &tinfo[i]);
             }
         }
     
@@ -100,13 +116,17 @@ class tpool {
             
             delete[] threads;
             delete[] queue;
+            delete[] tinfo;
         }
 
-    static void threadFunc(tpool *p)
+    static void threadFunc(tpool_threadInfo<threadInfo> *pinfo)
         {
             try
                 {
-                    p->work();
+                    tpool<work_t,threadInfo> *p = 
+                        (tpool<work_t,threadInfo> *) pinfo->pool;
+
+                    p->work(pinfo->info);
                 }
             catch(...)
                 {
@@ -114,7 +134,7 @@ class tpool {
                 }
         }
 
-    int add_work(void (*routine)(T&), const T& arg)
+    int add_work(void (*routine)(work_t&, threadInfo *), const work_t& arg)
         {
             pthread_mutex_lock(&queue_lock);
             
@@ -131,7 +151,7 @@ class tpool {
             }
             
             /* fill in work structure */
-            tpool_work<T> *workp = &queue[queue_head];           
+            tpool_work<work_t,threadInfo> *workp = &queue[queue_head];           
             
             workp->routine = routine;
             workp->arg = arg;
@@ -152,7 +172,7 @@ class tpool {
             return 1;
         }
 
-    void work()
+    void work(threadInfo *pInfo)
     {
         while(1)
         {
@@ -168,7 +188,7 @@ class tpool {
                 pthread_exit(NULL);
             }
 
-            tpool_work<T> *my_workp = &queue[queue_tail];
+            tpool_work<work_t,threadInfo> *my_workp = &queue[queue_tail];
             cur_queue_size--;
             assert(cur_queue_size >= 0);
             queue_tail = ( queue_tail + 1 ) % max_queue_size;
@@ -183,16 +203,16 @@ class tpool {
                 pthread_cond_signal(&queue_empty);
             }
 
-            void (*my_routine)(T&) = my_workp->routine;
-            /* NOT a T& reference because otherwise data could be
+            void (*my_routine)(work_t&,threadInfo *) = my_workp->routine;
+            /* NOT a work& reference because otherwise data could be
                overwritten before we can process it */
-            T my_arg = my_workp->arg;
+            work_t my_arg = my_workp->arg;
             pthread_mutex_unlock(&queue_lock);
 
             try
                 {
                     /* actually do the work */
-                    ((*my_routine))(my_arg);
+                    ((*my_routine))(my_arg, pInfo);
                 }
             catch(...)
                 {
@@ -213,22 +233,23 @@ class tpool {
             pthread_mutex_unlock(&queue_lock);
         }
 
-    T* work_data(int n)
+    threadInfo* thread_info(int n)
         {
-            return &queue[n].arg;
+            return tinfo[n].info;
         }
  private:
 
     /* pool characteristics */
     int num_threads;
     int max_queue_size;
+    tpool_threadInfo<threadInfo> *tinfo;
     
     /* pool state */
     pthread_t *threads;
     int cur_queue_size;
     int queue_head;
     int queue_tail;
-    tpool_work<T> *queue;
+    tpool_work<work_t,threadInfo> *queue;
     pthread_mutex_t queue_lock;
     pthread_cond_t queue_not_empty;
     pthread_cond_t queue_not_full;

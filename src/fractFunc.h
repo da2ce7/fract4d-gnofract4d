@@ -43,13 +43,17 @@ typedef enum {
     JOB_ROW_AA
 } job_type_t;
 
+/* one unit of work */
+typedef struct {
+    job_type_t job;
+    int x, y, param;
+} job_info_t;
+
 /* per-worker-thread fractal info */
 class fractThreadFunc {
  public:
     fractFunc *ff;
-    job_type_t job;
-    int x, y, param;
-
+    
     // n pixels correctly classified that would be wrong 
     // if we halved iterations
     int nhalfiters;
@@ -74,7 +78,7 @@ class fractThreadFunc {
     inline void periodSet(int *ppos);
 
     // top-level function for multi-threaded workers
-    void work();
+    void work(job_info_t &tdata);
 
     // calculate a row of antialiased pixels
     void row_aa(int x, int y, int n);
@@ -161,7 +165,7 @@ class fractFunc {
     image *im;    // pointer to image passed in to ctor
     pointFunc *pf; // function for calculating 1 point
 
-    tpool<fractThreadFunc> *ptp;
+    tpool<job_info_t,fractThreadFunc> *ptp;
     fractThreadFunc *ptf;
 
     /* wait for a ready thread then give it some work */

@@ -5,9 +5,14 @@
 
 /* we're in a worker thread */
 void
-fractThreadFunc::work()
+fractThreadFunc::work(job_info_t& tdata)
 {
     int nRows=0;
+
+    int x = tdata.x;
+    int y = tdata.y;
+    int param = tdata.param;
+    job_type_t job = tdata.job;
 
     if(gf4d_fractal_try_finished_cond(ff->gf))
     {
@@ -47,7 +52,7 @@ fractThreadFunc::work()
 }
 
 void
-fractThreadFunc::row_aa(int, int y, int w)
+fractThreadFunc::row_aa(int x, int y, int w)
 {
     for(int x = 0; x < w ; x++) {
         pixel_aa ( x, y);
