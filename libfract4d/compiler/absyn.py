@@ -66,3 +66,6 @@ def Formula(id, stmlist):
 
 def Param(id,settinglist,type):
     return Node("param", settinglist, (id,type))
+
+def Error():
+    return Node("parser error", None, "oops")
