@@ -62,6 +62,14 @@ const double novaOptDefaults[] = {
 const param_t novaOverrides[] = { ZCENTER, MAGNITUDE };
 const double novaOverrideValues[] = { 1.0, 3.0};
 
+const char *mandelBarOptNames[] = { "a" };
+const double mandelBarOptDefaults[] = {
+    2.0, 0.0 // power
+};
+
+const param_t mandelBarOverrides[] = { ZCENTER };
+const double mandelBarOverrideValues[] = { 1.0E-10 };
+
 #define NO_OPTIONS 0, NULL, NULL
 #define NO_OVERRIDES 0, NULL, NULL
 
@@ -106,21 +114,20 @@ iterFunc_data infoTable[] = {
     { 
 	"Mandelbar",
 	// flags
-	HAS_X2 | HAS_Y2,
+	USE_COMPLEX,
 	// bailFunc
 	BAILOUT_MAG,
 	// decl code
-	"double atmp",
+	"std::complex<double> z(p[X],p[Y]) , c(p[CX],p[CY])",
 	// iter code
-	"p[Y] = -p[Y];"
-	"p[X2] = p[X] * p[X];"
-	"p[Y2] = p[Y] * p[Y];"
-	"atmp = p[X2] - p[Y2] + p[CX];"
-	"p[Y] = 2.0 * p[X] * p[Y] + p[CY];"
-	"p[X] = atmp",
-	DEFAULT_SIMPLE_CODE,
-	NO_OPTIONS,
-	NO_OVERRIDES
+	" z = pow(conj(z),a[0]) + c",
+	DEFAULT_COMPLEX_CODE,
+	1,
+	mandelBarOptNames,
+	mandelBarOptDefaults,
+	1,
+	mandelBarOverrides,
+	mandelBarOverrideValues
     },
     /* newtFunc */
     {
@@ -207,7 +214,6 @@ public:
         {
             if(n < 0 || n >= m_data->nOptions) return; 
             m_a[n] = val;
-	    std::cout << "set" << m_a[n] << "\n";  
         }
     virtual std::complex<double> *opts()
         {
@@ -216,7 +222,6 @@ public:
     virtual std::complex<double> getOption(int n) const
         {
             if(n < 0 || n >= m_data->nOptions) return 0.0;
-	    std::cout << "get" << m_a[n] << "\n";
             return m_a[n];
         }
     virtual const char *optionName(int n) const
@@ -263,7 +268,6 @@ public:
 		assert(m_a != NULL);
 		m_a[i] = std::complex<double>(
 		    m_data->optDefaults[2*i],m_data->optDefaults[2*i+1]);
-		std::cout << m_a[i] << "\n";
 	    }	    
 	}
     virtual e_bailFunc preferred_bailfunc(void)
@@ -710,7 +714,6 @@ public:
             if(i < 0 || i >= 3) return NULL;
             return optNames[i];
         }
-
     virtual void reset(double *params)
         {
             reset_opts();

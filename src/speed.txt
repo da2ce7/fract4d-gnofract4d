@@ -142,4 +142,13 @@ param.fct:
 1.26user 0.06system 0:18.68elapsed 7%CPU (0text+0data 0max)k
 1.26user 0.07system 0:18.69elapsed 7%CPU (0text+0data 0max)k
 
+new interfunc
+1.24user 0.07system 0:16.61elapsed 7%CPU (0text+0data 0max)k
+1.25user 0.07system 0:16.96elapsed 7%CPU (0text+0data 0max)k
+1.22user 0.08system 0:16.57elapsed 7%CPU (0text+0data 0max)k
+
+-march=i686 on cxxflags for runtime code:
+1.25user 0.08system 0:16.20elapsed 8%CPU (0text+0data 0max)k
+1.27user 0.05system 0:16.13elapsed 8%CPU (0text+0data 0max)k
+1.23user 0.08system 0:16.12elapsed 8%CPU (0text+0data 0max)k
 
