@@ -103,6 +103,9 @@ def Set(id,s):
 def Number(n):
     return Node("const", None, n)
 
+def Const(n):
+    return Node("const", None, n=="true")
+
 def Complex(left,right):
     return Node("complex",[left, right], "")
 
