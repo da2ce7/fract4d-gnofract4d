@@ -108,6 +108,10 @@ def p_set_typed_param(t):
      'set : TYPE PARAM ID NEWLINE setlist ENDPARAM'
      t[0] = absyn.Param(t[3],t[5],t[1])
 
+def p_set_func(t):
+     'set : FUNC ID NEWLINE setlist ENDFUNC'
+     t[0] = absyn.Func(t[2],t[4])
+
 def p_section_stm(t):
      'section : SECT_STM NEWLINE stmlist'
      t[0] = absyn.Stmlist(t[1],t[3])

@@ -154,6 +154,35 @@ class ParserTest(unittest.TestCase):
         ''')
         self.assertIsValidParse(t1)
         self.assertEqual(len(self.allNodesOfType(t1,"string")),5)
+        self.assertIsBadFormula(self.makeMinimalFormula('"'),
+                                "unexpected '\"'",3)
+    def testParamBlocks(self):
+        t1 = self.parse('''
+        t1 {
+        default:
+        complex param x
+        title = "fish"
+        default=(0.0,0)
+        endparam
+        param y
+        enum = "foo" "bar"
+        endparam
+        }
+        ''')
+        self.assertIsValidParse(t1)
+
+    def testFuncBlocks(self):
+        t1 = self.parse('''
+        t1 {
+        default:
+        func fn1
+           caption = "fn1"
+           default = cabs()
+        endfunc
+        }
+        ''')
+        print t1.pretty()
+        self.assertIsValidParse(t1)
         
     def testSimpleMandelbrot(self):
         t1 = self.parse('''
