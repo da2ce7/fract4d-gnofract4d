@@ -38,7 +38,9 @@ def createDefaultDict():
         "conj" : [ Func([Complex], Complex, stdlib, "conj")],
         "flip" : [ Func([Complex], Complex, stdlib, "flip")],
         "real" : [ Func([Complex], Float, stdlib, "real")],
+        "real2" : [ Func([Complex], Float, stdlib, "real2")],        
         "imag" : [ Func([Complex], Float, stdlib, "imag")],
+        "imag2" : [ Func([Complex], Float, stdlib, "imag2")],
         "recip": efl("recip", "[_] , _", [ Float, Complex]),
         "abs" :  efl("abs", "[_], _", [Float, Complex]),
         "cabs":  [ Func([Complex], Float, stdlib, "cabs")],
@@ -47,8 +49,9 @@ def createDefaultDict():
         "sqrt" : efl("sqrt", "[_], _", [Float, Complex]),
         "exp" :  efl("exp",  "[_], _", [Float, Complex]),
 
-        "manhattanish" : [ Func([Complex], Float, stdlib, "manhattanish")],
         "manhattan" : [ Func([Complex], Float, stdlib, "manhattan")],
+        "manhattanish" : [ Func([Complex], Float, stdlib, "manhattanish")],
+        "manhattanish2" : [ Func([Complex], Float, stdlib, "manhattanish2")],
         
         "sin" :  efl("sin", "[_], _", [Float, Complex]),
         "cos" :  efl("cos", "[_], _", [Float, Complex]),
@@ -97,7 +100,7 @@ def createDefaultDict():
                 Func([Complex, Float], Complex, stdlib, "pow"),
                 Func([Complex, Complex], Complex, stdlib, "pow")],
         
-        "t__mag":[ Func([Complex], Float, stdlib, "mag")],
+        "cmag":[ Func([Complex], Float, stdlib, "cmag")],
         "t__neg": efl("neg", "[_], _", [Int, Float, Complex]),
         
         # unary negation already factored out

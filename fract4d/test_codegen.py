@@ -646,6 +646,11 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
               "manh1", "(1,0)"],
             [ "manh2 = (manhattan(2.0,-1.5),manhattan(-2,1.7))",
               "manh2", "(3.5,3.7)"],
+            [ "manh3 = (manhattanish2(2.0,-1.0),manhattanish2(0.1,-0.1))",
+              "manh3", "(25,0.0004)"],
+            [ "r2 = (real2(3,1),real2(-2.5,2))","r2","(9,6.25)"],
+            [ "i2 = (imag2(3,2),imag2(2,-0))", "i2", "(4,0)"],
+            
             # trig functions
             [ "t_sin = (sin(0),sin(1))","t_sin", self.predict(math.sin)],
             [ "t_cos = (cos(0),cos(1))","t_cos", self.predict(math.cos)],

@@ -149,7 +149,7 @@ def ID(id,pos):
     return Node("id", pos, None, id)
 
 def Mag(exp,pos):
-    return Node("unop", pos, [exp], "t__mag")
+    return Node("unop", pos, [exp], "cmag")
 
 def Negate(exp,pos):
     return Node("unop", pos, [exp], "t__neg")
