@@ -1,5 +1,7 @@
 # Abstract Syntax Tree produced by parser
 
+import types
+
 class Node:
     def __init__(self,type,children=None,leaf=None):
          self.type = type
@@ -25,6 +27,18 @@ class Node:
         else:
             str += "]"
         return str
+
+def CheckTree(tree, nullOK=0):
+    if nullOK and tree == None:
+        return 1
+    if not isinstance(tree,Node):
+        raise Exception, "bad node type %s" % tree
+    if tree.children:
+        if not isinstance(tree.children, types.ListType):
+            raise Exception, "children not a list: %s instead", tree.children
+        for child in tree.children:
+            CheckTree(child,0)
+    return 1
 
 # shorthand named ctors for specific node types
 def Formlist(list):
@@ -79,5 +93,12 @@ def Formula(id, stmlist):
 def Param(id,settinglist,type):
     return Node("param", settinglist, (id,type))
 
-def Error():
+def InternalError():
     return Node("parser error", None, "oops")
+
+def Error(type, value, lineno):
+    # get complaints about NEWLINE tokens on right line
+    if type == "NEWLINE":
+        lineno-= 1
+    
+    return Node("Syntax error: unexpected %s %s on line %d " % (type, value, lineno), None, "")

@@ -20,11 +20,15 @@ precedence = (
 def p_file(t):
      'file : formlist'
      t[0] = absyn.Formlist(t[1])
+
+def p_bad_file(t):
+     'file : error'
+     t[0] = absyn.Formlist([])
      
 def p_formlist(t):
      'formlist : formula NEWLINE formlist'
      t[0] = [ t[1] ] + t[3]
-     
+
 def p_formlist_empty(t):
      'formlist : empty'
      t[0] = []
@@ -38,6 +42,10 @@ def p_formula_2(t):
      sectlist = [ absyn.Stmlist("nameless",t[3]) ] + t[4]
      t[0] = absyn.Formula(t[1],sectlist)
 
+def p_bad_formula(t):
+     'formula : FORM_ID error FORM_END'
+     t[0] = absyn.Formula(t[1],[t[2]])
+     
 def p_sectlist_2(t):
      'sectlist : section sectlist'
      t[0] = [ t[1] ] + t[2]
@@ -174,16 +182,23 @@ def p_arglist_2(t):
     'arglist : arglist COMMA arglist' 
     t[0] = t[1] + t[3]
     
-# Error rule for syntax errors
+# Error rule for syntax errors outside a formula
 def p_error(t):
-    print "Syntax error %s on line %d " % (t.type, t.lineno)
+     print t
+     #print absyn.Error(t.type,t.value,t.lineno)
+     # look for start of next formula
+     #while 1:
+     #     tok = yacc.token()
+     #     if not tok or tok.type == 'FORM_ID': break
+     #yacc.errok()
+     #return tok #restart parsing including this last token
 
+# Build the parser
+parser = yacc.yacc()
 
 # debugging
 if __name__ == '__main__':
     import sys
-    # Build the parser
-    yacc.yacc()
 
     for arg in sys.argv[1:]:
         s = open(arg,"r").read() # read in a whole file
