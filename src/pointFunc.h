@@ -37,7 +37,7 @@ class pointFunc {
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        struct rgb *color, int *pnIters
+        struct rgb *color, int *pnIters, void *out_buf
         ) = 0;
 #ifdef HAVE_GMP
     virtual void operator()(

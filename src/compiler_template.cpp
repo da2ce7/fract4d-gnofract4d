@@ -72,13 +72,12 @@ public:
 		return m_pOuterColor;
 	    }
 	}
-    inline rgb_t colorize(int iter, const T*p)
+    inline rgb_t colorize(int iter, const T*p, void *out_buf)
         {
             double colorDist;
 	    colorFunc *pcf = getColorFunc(iter);
-	    float buf;
-	    pcf->extract_state(p,&buf);
-	    colorDist = (*pcf)(iter, p[EJECT],&buf);
+	    pcf->extract_state(p,out_buf);
+	    colorDist = (*pcf)(iter, p[EJECT],out_buf);
 
             return (*m_pcizer)(colorDist);
         }
@@ -205,7 +204,7 @@ public:
     inline void calc(
         const vec4<T>& params, int nMaxIters, int nNoPeriodIters,
 	int x, int y, int aa,
-        struct rgb *color, int *pnIters
+        struct rgb *color, int *pnIters, void *out_buf
         )
         {
 #if TRACE
@@ -265,17 +264,17 @@ public:
 #endif
             if(color)
             {
-                *color = colorize(iter,p);
+                *color = colorize(iter,p,out_buf);
             }
         };
 
     virtual void operator()(
         const vec4<double>& params, int nMaxIters, int nNoPeriodIters,
 	int x, int y, int aa,
-        struct rgb *color, int *pnIters
+        struct rgb *color, int *pnIters, void *out_buf
         )
         {
-            calc(params, nMaxIters, nNoPeriodIters, x, y, aa,color, pnIters);
+            calc(params, nMaxIters, nNoPeriodIters, x, y, aa,color, pnIters, out_buf);
         }
 #ifdef HAVE_GMP
     virtual void operator()(
