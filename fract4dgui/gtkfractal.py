@@ -197,7 +197,9 @@ class T(gobject.GObject):
             return name[5:]
         return name
     
-    def add_formula_setting(self,table,i,name,part,param,order):
+    def add_formula_setting(
+        self,table,i,name,part,param,order,formula,param_type):
+        
         label = gtk.Label(self.param_display_name(name,param)+part)
         label.set_justify(gtk.JUSTIFY_RIGHT)
         table.attach(label,0,1,i,i+1,0,0,2,2)
@@ -206,24 +208,27 @@ class T(gobject.GObject):
             widget = gtk.Entry()
 
             def set_entry(*args):
-                widget.set_text("%.17f" % self.initparams[order])
+                widget.set_text("%.17f"%self.f.get_initparam(order,param_type))
                     
-            def set_fractal(entry,event,f,order):
-                f.set_initparam(order,entry.get_text())
+            def set_fractal(entry,event,f,order,param_type):
+                try:
+                    f.set_initparam(order,entry.get_text(),param_type)
+                except Exception, err:
+                    print params, order
                 return False
             
             set_entry(self)
 
             widget.update = set_entry
             widget.f = self
-            widget.connect('focus-out-event',set_fractal,self,order)
+            widget.connect('focus-out-event',set_fractal,self,order,param_type)
         else:
             raise "Unsupported parameter type"
 
         table.attach(widget,1,2,i,i+1,0,0,2,2)
 
-    def construct_function_menu(self,param):
-        funclist = self.f.formula.symbols.available_param_functions(
+    def construct_function_menu(self,param,formula):
+        funclist = formula.symbols.available_param_functions(
             param.ret,param.args)
         funclist.sort()
 
@@ -273,21 +278,21 @@ class T(gobject.GObject):
             self.f.antialias = aa_type
             self.changed()
         
-    def set_func(self,func,fname):
-        self.f.set_func(func,fname,self.f.formula)
+    def set_func(self,func,fname,formula):
+        self.f.set_func(func,fname,formula)
         
-    def add_formula_function(self,table,i,name,param):
+    def add_formula_function(self,table,i,name,param,formula):
         label = gtk.Label(self.param_display_name(name,param))
         label.set_justify(gtk.JUSTIFY_RIGHT)
         table.attach(label,0,1,i,i+1,0,0,2,2)
 
         widget = gtk.OptionMenu()
-        (menu, funclist) = self.construct_function_menu(param)
+        (menu, funclist) = self.construct_function_menu(param,formula)
         widget.set_menu(menu)
 
         def set_selected_function():
             try:
-                selected_func_name = self.f.get_func_value(name,self.f.formula)
+                selected_func_name = self.f.get_func_value(name,formula)
                 index = funclist.index(selected_func_name)
             except ValueError, err:
                 # func.cname not in list
@@ -296,23 +301,23 @@ class T(gobject.GObject):
             
             widget.set_history(index)
             
-        def set_fractal_function(om,f,param):
+        def set_fractal_function(om,f,param,formula):
             index = om.get_history()
             if index != -1:
                 # this shouldn't be necessary but I got weird errors
                 # trying to reuse the old funclist
-                list = f.formula.symbols.available_param_functions(
+                list = formula.symbols.available_param_functions(
                     param.ret,param.args)
                 list.sort()
 
                 fname = list[index]
-                f.set_func(param,fname)
+                f.set_func(param,fname,formula)
 
         set_selected_function()
 
         widget.update = set_selected_function
 
-        widget.connect('changed',set_fractal_function,self,param)
+        widget.connect('changed',set_fractal_function,self,param,formula)
         
         table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL,0,2,2)
 
@@ -338,29 +343,31 @@ class T(gobject.GObject):
         table.attach(widget,1,2,i,i+1,0,0,2,2)
         return i+1
         
-    def populate_formula_settings(self):
+    def populate_formula_settings(self, formula, param_type):
         # create widget to fiddle with this fractal's settings
         table = gtk.Table(5,2,gtk.FALSE)
         i = 0
         i = self.create_maxiter_widget(table,i)
-        params = self.formula.symbols.parameters()
-        op = self.formula.symbols.order_of_params()
+        params = formula.symbols.parameters()
+        op = formula.symbols.order_of_params()
 
         keys = params.keys()
         keys.sort()
         for name in keys:
             param = params[name]
             if isinstance(param,fracttypes.Func):
-                self.add_formula_function(table,i,name,param)                
+                self.add_formula_function(table,i,name,param,formula)
             else:
                 if param.type == fracttypes.Complex:
                     self.add_formula_setting(
-                        table,i,name," (re)",param,op[name])
+                        table,i,name," (re)",param,op[name],formula,param_type)
                     self.add_formula_setting(
-                        table,i+1,name, " (im)",param,op[name]+1)
+                        table,i+1,name, " (im)",param,op[name]+1,
+                        formula, param_type)
                     i+= 1
                 else:
-                    self.add_formula_setting(table,i,name,"",param,op[name])
+                    self.add_formula_setting(
+                        table,i,name,"",param,op[name], formula, param_type)
             i += 1
         return table
     

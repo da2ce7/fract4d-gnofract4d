@@ -98,8 +98,10 @@ class FctTest(unittest.TestCase):
 
     def testParamSettings(self):
         self.f.set_formula("test.frm","test_func")
-
-        table = self.f.populate_formula_settings()
+        self.f.set_outer("test.cfrm","flat")
+        
+        table = self.f.populate_formula_settings(
+            self.f.formula, 0)
 
         children = table.get_children()
         list.reverse(children)
