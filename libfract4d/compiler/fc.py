@@ -25,12 +25,18 @@ import fractlexer
 import translate
 import codegen
 
+class FormulaFile:
+    def __init__(self, formulas, contents):
+        self.formulas = formulas
+        self.contents = contents
+    def get_formula(self,formula):
+        return self.formulas.get(formula)
+    
 class Compiler:
     def __init__(self):
         self.parser = fractparser.parser
         self.lexer = fractlexer.lexer
         self.files = {}
-        print "new compiler"
         
     def usage(self):
         print "fc -o [outfile] -f [formula] infile"
@@ -45,11 +51,17 @@ class Compiler:
             for formula in result.children:
                 formulas[formula.leaf] = formula
 
-            self.files[filename] = (formulas,s)
+            self.files[filename] = FormulaFile(formulas,s)
+        
         except Exception, err:
             print "Error parsing '%s' : %s" % (filename, err)
             raise
-        
+
+    def get_formula(self, filename, formula):
+        ff = self.files.get(filename)
+        if ff == None : return None
+        return ff.get_formula(formula)
+
     def main(self):
         try:
             opts, args = getopt.getopt(sys.argv[1:], "o:f:",
@@ -72,21 +84,16 @@ class Compiler:
             sys.exit(1)
             
         # find the function we want
-        self.ast = None
-        for formula in result.children:
-            if formula.leaf == self.formula:
-                self.ast = formula
-                break
-
-        if self.ast == None:
+        ast = self.get_formula(args[0],self.formula)
+        if ast == None:
             print "Can't find formula %s in %s" % \
                   (self.formula, self.formulafile)
             sys.exit(1)
 
-        self.ir = translate.T(self.ast)
-        if self.ir.errors != []:
+        ir = translate.T(self.ast)
+        if ir.errors != []:
             print "Errors during translation"
-            for e in self.ir.errors:
+            for e in ir.errors:
                 print e
             sys.exit(1)
 
