@@ -3,19 +3,19 @@ Compiler
 * W	max size for .so cache
 
 Must do pre 1.7
-* BBB	random glitches in black areas (usually horizontal lines *)
 * BB	fix old fractal types
-* B	can't interrupt 8x8 squares, plus they don't multi-thread
 * B	Newton doesn't work
-* W	image size != window size (scrollable)
 * W	periodicity tolerance should be based on pixel size
 * W	introduce z^A (complex) type
+* W	update docs
 
 Other
-* B	moving weirdness slider causes too many restarts - unusable
+* B	interrupt takes too long on deep-zoomed fractals
+* W	"maintain aspect ratio" checkbox
+* W	signal tpool conds after releasing mutex?
+* B	./gnofract4d --nthreads=1 -p foo.fct ignored input file
+* W	make antialiasing a pref, not a setting
 * W	libgf4d
-* W	for multi-proc aa on n procs, first do every nth row, then go back
-	and fill in gaps - fewer cache clashes and more repeatable rendering 
 * WW	visible history/undo buffer
 * B	SIGSEGV when changing mutant weirdness - hard to repro
 * W	sort out fractal types a bit
@@ -23,7 +23,6 @@ Other
 *		- Cursors : left/right/up/down
 * WW	MDI
 * W	associate with file type?
-* B	can't resize to smaller than toolbar or current size
 * W	main toolbar: home, exit
 * W	make it work with GMP
 * W	faster GMP (get at internals during loop, maybe?)
@@ -44,6 +43,7 @@ Other
 * W	parameterize buffalo
 
 Movies-
+* B	moving weirdness slider causes too many restarts - unusable
 * B	deadlock when render movie while image is being drawn
 * B	movies turn off AA
 * W	implement frames/image
@@ -56,6 +56,12 @@ Movies-
 * B	lines are ugly
 
 Done:
+* B	can't interrupt 8x8 squares, plus they don't multi-thread
+* BBB	random glitches (usually horizontal lines). single-threaded is ok
+* B	can't resize to smaller than toolbar or current size
+* W	image size != window size (scrollable)
+* W	for multi-proc aa on n procs, first do every nth row, then go back
+	and fill in gaps - fewer cache clashes and more repeatable rendering 
 * B	sometimes all work gets serialized to one thread
 * B	failed nNoPeriodIters <= nMaxIters - due to race between flush() and last work items
 * W	persistent user prefs, rather than per-fractal
