@@ -14,60 +14,62 @@ Tokens
   Type       = /(bool)|(int)|(float)|(complex)|(color)/i
 
 Productions
-   Formulas -> Formula+              [Formulas: formulas]
-   Formula -> FormulaName '{' Newline FormulaBody '}' [Formula: name, _, _, body, _]
-           | Newline
+    Formulas -> Formula+              [Formulas: formulas]
+    Formula -> FormulaName '{' Newline FormulaBody '}' Newline* [Formula: name, _, _, body, _, _]
+            
 
-   FormulaName -> FormulaID                [FormID: name]
-              | FormulaID '(' Identifier ')'    [FormID: name,_,id]
+    FormulaName -> FormulaID                [FormID: name]
+               | FormulaID '(' Identifier ')'    [FormID: name,_,id]
 
-   FormulaBody -> Section+ [FormulaBody: sections]
+    FormulaBody -> Section+ [FormulaBody: sections]
 
-   Section -> 'init' ':' Newline Statements [Section: name, _, _, statements]
-           |  'loop' ':' Newline Statements [Section: name, _, _, statements]
-           |  'bailout' ':' Newline CondExp Newline  [Section: name, _, _, exp]
-           |  'default' ':' Newline Defstatements [Section: name, _, _, statements]
-           # global, transform, builtin, switch, final
+    Section -> 'init' ':' Newline Statements [Section: name, _, _, statements]
+            |  'loop' ':' Newline Statements [Section: name, _, _, statements]
+            |  'bailout' ':' Newline Exp Newline  [Section: name, _, _, exp]
+            |  'default' ':' Newline Defstatements [Section: name, _, _, statements]
+#            # global, transform, builtin, switch, final
 
-   Defstatements -> Defstatement+    [Defstatements: defstatements]
-   Defstatement -> Setting [^]
-              | "param" Identifier Newline 
-                   Settings
-              | "endparam" Newline [Param: _,id,_,settings,_,_]
+    Defstatements -> Defstatement+    [Defstatements: defstatements]
+    Defstatement -> Setting [^]
+               | "param" Identifier Newline 
+                    Settings
+               | "endparam" Newline [Param: _,id,_,settings,_,_]
 
-   Settings -> Setting+ [Settings: settings]
-   Setting -> Identifier '=' Value Newline [Setting: id,_,value,_]
+    Settings -> Setting+ [Settings: settings]
+    Setting -> Identifier '=' Value Newline [Setting: id,_,value,_]
 
-   Value -> String [^]
-         |  Exp [^]
+    Value -> String [^]
+          |  Exp [^]
 
-   Statements -> Statement+          [Statements: statements]
-   Statement -> AssignExp            [^] 
-              | Type AssignExp       [TypedAssignment: type, exp]
+    Statements -> Statement+          [Statements: statements]
+    Statement -> Exp Newline #AssignExp            [^] 
+#               | Type AssignExp       [TypedAssignment: type, exp]
 
-   AssignExp -> Identifier '=' Exp Newline [Assignment: id,_,exp,_]
-             #|  Type Identifier Newline [Declaration: type, id, _]
+#    AssignExp -> Identifier '=' Exp Newline [Assignment: id,_,exp,_]
+#              #|  Type Identifier Newline [Declaration: type, id, _]
  
-   CondExp -> Exp ('<' | '>' | '==' | '<=' | '>=' | '!=' ) Exp     
-                                     [Condition: left, op, right]
-
-   Exp       -> Number              [^]
-	     |  Identifier          [^]
-	     |  '(' Exp ')'        [^: _,expr,_]
-             |  '|' Exp '|'        [UnExp: op, exp, _]
-             |  '-' Exp            [NegExp: op, exp]
-             |  Exp ('+'|'-') Exp  [AddExp: left,op,right]
-             |  Exp ('*'|'/'|'%') Exp [MulExp: left,op,right]
-             |  Exp '^' Exp      [PowExp: left,op,right]
-             #| '(' Number ',' Number ')'  [Complex: left,_,right]
-
-  Number -> #Integer [^]
-           Float   [^]
  
-#         | Integer 'i' [Complex: left,_] # FIXME
- 
+#                                      [Condition: left, op, right]
 
-Priorities
-        left(PowExp), left(MulExp), left(AddExp) left(Condition)
-        #right(AssignExp)
-        PowExp = NegExp > MulExp > AddExp > Condition > Assignment
+#   Number -> #Integer [^]
+#            Float   [^]
+# #         | Integer 'i' [Complex: left,_] # FIXME
+
+   Exp -> Float                      [Constant: num]
+            |  Identifier                       [Variable: var]
+            |  Identifier '=' Exp              [Assignment: var, _, exp]
+            |  Type Identifier '=' Exp         [TypedAssignment: type,var,_,exp]
+            |  Identifier '(' Exp ')'          [FunCall: function, _, param, _]
+            |  '(' Exp ')'             [^: _,exp,_]
+            |  '|' Exp '|'             [Magnitude: _, exp, _]
+            |  '-' Exp                 [UnaryMinus: _,exp]
+            |  Exp '^' Exp            [Exponentiation: left,_,right]
+            |  Exp '/' Exp            [Div: left,_,right]
+            |  Exp '*' Exp            [Mul: left,_,right]
+            |  Exp '+' Exp            [Plus: left,_,right]
+            |  Exp '-' Exp            [Minus: left,_,right]
+            |  Exp ('<' | '>' | '==' | '<=' | '>=' | '!=' ) Exp [Cond: left,op,right]    
+   Priorities
+       right(Exponentiation), left(Mul), left(Plus), left(Minus), left(Cond)
+       FunCall > Assignment = TypedAssignment > UnaryMinus > Exponentiation > Div = Mul > Plus = Minus > Cond
+       #Plus = Minus
