@@ -477,14 +477,14 @@ bailout:
             "main_inserts":'''
 int main()
 {
-    double params[6] = { 0.0, 0.0, 1.5, 0.0, 5.0, 2.0};
+    double params[6] = { 1.5, 0.0, 0.0, 0.0, 5.0, 2.0};
     int nItersDone=0;
     double *out_buf=NULL;
     pf_calc(NULL,params, 100, 100, 0,0,0, &nItersDone, &out_buf);
     printf("(%d)\\n",nItersDone);
 
-    params[0] = 0.1; params[1] = 0.3;
-    params[2] = 0.1; params[3] = 0.2;
+    params[0] = 0.1; params[1] = 0.2;
+    params[2] = 0.1; params[3] = 0.3;
     params[4] = 3.0; params[5] = 3.5;
     
     pf_calc(NULL, params, 20, 20, 0,0,0, &nItersDone, &out_buf);
@@ -503,7 +503,7 @@ int main()
 
         # 2nd point doesn't
         self.assertEqual(lines[3],"(0.02,0.26)",output)
-        self.assertEqual(lines[-1],"(20)",output)
+        self.assertEqual(lines[-1],"(-1)",output)
         self.assertEqual(lines[-2],lines[-3],output)
 
         # try again with sqr function and check results match
