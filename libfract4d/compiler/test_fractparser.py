@@ -57,7 +57,11 @@ class ParserTest(unittest.TestCase):
         self.failUnless(err.type == "error")
         self.assertNotEqual(re.search("line 3",err.leaf),None,
                             "bad error message line number") 
-        
+
+    def testErrorAfterFormula(self):
+        tree = self.parse("t1{\n}\ngibberish")
+        self.failUnless(absyn.CheckTree(tree))
+            
     def testPrecedence(self):
         self.assertParsesEqual(
             "x = 2 * 3 + 1 ^ -7 / 2 - |4 - 1|",
@@ -157,6 +161,11 @@ class ParserTest(unittest.TestCase):
         self.assertListTypesMatch(
             complex_decl,
             ["decl","binop","binop","const","complex","const","const","id"])
+
+    def testArrays(self):
+        # arrays aren't supported yet - make sure errors are nice
+        self.assertIsBadFormula(self.makeMinimalFormula("float array[10]"),
+                                "arrays are not supported",3)
         
     def testStrings(self):
         t1 = self.parse('''

@@ -31,7 +31,8 @@ def p_formlist(t):
      t[0] = [ t[1] ] + t[3]
 
 def p_formlist_empty(t):
-     'formlist : empty'
+     '''formlist : empty
+        formlist : error'''
      t[0] = []
 
 def p_formula(t):
@@ -49,10 +50,11 @@ def p_formbody_2(t):
 def p_formbody_err(t):
      'formbody : error FORM_END'
      if(isinstance(t[1],types.StringType)):
-          t[0] = [absyn.Error2(t[1],t.lineno(1))]
+          e = [absyn.Error2(t[1],t.lineno(1))]
      else:
-          t[0] = [absyn.Error(t[1].type, t[1].value, t[1].lineno)]
-
+          e = [absyn.Error(t[1].type, t[1].value, t[1].lineno)]
+     t[0] = e
+     
 def p_formbody_sectlist(t):
      'formbody : NEWLINE sectlist FORM_END'
      t[0] = t[2]
@@ -282,5 +284,6 @@ if __name__ == '__main__':
             else:
                 s += "\n"
             result = yacc.parse(s)
+            print "result",result
             print result.pretty()
 

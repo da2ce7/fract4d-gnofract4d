@@ -76,6 +76,11 @@ default:
                             token.type == "FORM_END" or
                             token.type == "NEWLINE")
 
+    def testIDs(self):
+        tokens = self.tokensFromString("@_bailout_part _314159 #__ hello f_i7")
+        for t in tokens:
+            self.failUnless(t.type == "ID")
+        
     def testCommentFormula(self):
         tokens = self.tokensFromString('''
 ;Comment {

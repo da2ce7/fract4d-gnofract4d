@@ -181,6 +181,10 @@ def Error(type, value, lineno):
         lineno -= 1
         return Node("error", None,
                     "Syntax error: unexpected newline on line %d" % lineno)
+
+    if type == "LARRAY" or type == "RARRAY":
+        return Node("error", None,
+                    "Syntax error: arrays are not supported (line %d)" % lineno)
     
     return Node("error", None, "Syntax error: unexpected %s '%s' on line %d" %
                 (string.lower(type), value, lineno))

@@ -168,7 +168,7 @@ def t_SECT_STM(t):
     return t
 
 def t_ID(t):
-    r'[@#]?[a-zA-Z_][a-zA-Z0-9]*'
+    r'[@#]?[a-zA-Z_][a-zA-Z0-9_]*'
     global lookup
     lookfor = string.lower(t.value) # case insensitive lookup
     if lookup.has_key(lookfor): t.type = lookup[lookfor]
