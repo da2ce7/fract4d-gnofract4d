@@ -5,6 +5,7 @@ import unittest
 import StringIO
 import sys
 import math
+import copy
 
 import fc
 import fractal
@@ -340,6 +341,37 @@ blue=0.5543108971162746
         f.draw(image)
         #fract4dc.image_save(image,"mandel3.tga")
 
+    def testCopy(self):
+        f = fractal.T(self.compiler);
+        c = copy.copy(f)
+
+        # test a parameter        
+        mag = c.get_param(c.MAGNITUDE)
+        self.assertEqual(mag,f.get_param(f.MAGNITUDE))
+
+        f.set_param(f.MAGNITUDE,89.1)
+        self.assertEqual(mag,c.get_param(c.MAGNITUDE))
+        self.assertNotEqual(mag,f.get_param(f.MAGNITUDE))
+        
+        # test formula
+        formName = c.funcName
+        self.assertEqual(formName,f.funcName)
+
+        f.set_formula("gf4d.frm","Mandelbar")
+        self.assertEqual(formName,c.funcName)
+        self.assertNotEqual(formName,f.funcName)
+
+        # test colors
+        colors = c.colorlist
+        c0 = colors[0]
+        for i in xrange(len(colors)):
+            self.assertEqual(colors[i],f.colorlist[i])
+
+        f.colorlist[0] = (0.0,234,212,200)
+        self.assertEqual(c0,c.colorlist[0])
+        self.assertNotEqual(c0,f.colorlist[0])
+
+        # TODO: test formula parameters etc
         
     def testFractalBadness(self):
         f = fractal.T(self.compiler)

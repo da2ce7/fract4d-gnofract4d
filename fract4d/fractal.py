@@ -6,6 +6,7 @@ import os
 import sys
 import struct
 import math
+import copy
 
 import fract4dc
 
@@ -130,7 +131,7 @@ class T(FctUtils):
         
         self.reset()
 
-        # interaction with fract4d library
+        # interaction with fract4dc library
         self.site = site or fract4dc.site_create(self)
 
         # default is just white outside
@@ -153,6 +154,19 @@ class T(FctUtils):
         if self.outputfile:
             os.remove(self.outputfile)
 
+    def __copy__(self):
+        # override shallow-copy to do a deeper copy than normal,
+        # but still don't try and copy *everything*
+
+        c = T(self.compiler,self.site)
+        c.params = copy.copy(self.params)
+        c.set_formula(self.funcFile,self.funcName)
+        c.bailfunc = self.bailfunc
+        c.cfuncs = copy.copy(self.cfuncs)
+        c.colorlist = copy.copy(self.colorlist)
+        c.solids = copy.copy(self.solids)
+        return c
+    
     def reset(self):
         # set global default values, then override from formula
         # set up defaults
@@ -206,6 +220,8 @@ class T(FctUtils):
         if self.formula == None:
             raise ValueError("no such formula: %s:%s" % (formulafile, func))
 
+        self.funcName = func
+        self.funcFile = formulafile
         self.initparams = self.formula.symbols.default_params()
         self.set_bailfunc()
         self.dirty = True

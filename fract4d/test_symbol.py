@@ -100,14 +100,17 @@ class SymbolTest(unittest.TestCase):
         for exp in exp_fnames:
             self.assertEqual(fnames.count(exp),1,exp)
         
-    def disable_testAllSymbolsWork(self):
+    def testAllSymbolsWork(self):
         for (name,val) in self.t.default_dict.items():
             if isinstance(val,types.ListType):
                 for item in val:
                     self.assertIsValidFunc(item)
 
     def assertIsValidFunc(self,val):
-        self.failUnless(callable(val.genFunc) or val.genFunc == None,val.cname)
+        specialFuncs = [ "noteq", "eq" ]
+        self.failUnless(callable(val.genFunc) or
+                        val.genFunc == None or
+                        specialFuncs.count(val.cname) > 0, val.cname)
         
 def suite():
     return unittest.makeSuite(SymbolTest,'test')
