@@ -102,8 +102,17 @@ int main()
         self.assertNoErrors(t)
         self.codegen = codegen.T(t.symbols,dump)
         return t
-    
-    def sourceToAsm(self,s,section,cf=None,dump=None):
+
+    def translatecf(self,s,name,dump=None):
+        fractlexer.lexer.lineno = 1
+        pt = self.parser.parse(s)
+        #print pt.pretty()
+        t = translate.ColorFunc(pt.children[0],name,dump)
+        #print t.pretty()
+        self.assertNoErrors(t)
+        return t
+        
+    def sourceToAsm(self,s,section,dump=None):
         t = self.translate(s,dump)
         self.codegen.generate_all_code(t.canon_sections[section])
         if dump != None and dump.get("dumpAsm") == 1:
@@ -341,7 +350,50 @@ goto t__end_init;''')
         out = self.codegen.output_symbols({ "z" : "foo"})
         l = [x for x in out if x.assem == "foo"]
         self.failUnless(len(l)==1)
+
+    def testCF(self):
+        tcf0 = self.translatecf('''
+        biomorph {
+        init:
+        float d = |z|
+        loop:
+        d = d + |z|
+        final:
+        #index = log(d+1.0)
+        }''',"cf0")
+        cg_cf0 = codegen.T(tcf0.symbols)
+        cg_cf0.output_all(tcf0)
+
+        tcf1 = self.translatecf('zero {\n #index = 0.0\n}', "cf1")
+        cg_cf1 = codegen.T(tcf1.symbols)
+        cg_cf1.output_all(tcf1)
+
+        t = self.translate('''
+        mandel {
+        loop:
+        z = z*z + c
+        bailout:
+        |z| < 4.0
+        }''')
+
+        cg = codegen.T(t.symbols)
+        cg.output_all(t)
         
+        t.merge(tcf0,"cf0_")
+        t.merge(tcf1,"cf1_")
+
+        cg.output_decls(t)
+        
+        c_code = self.codegen.output_c(t)
+        
+        cFileName = self.codegen.writeToTempFile(c_code,".c")
+        oFileName = self.codegen.writeToTempFile(None,".so")
+        #print c_code
+        cmd = "gcc -Wall -fPIC -DPIC -shared %s -o %s -lm" % (cFileName, oFileName)
+        (status,output) = commands.getstatusoutput(cmd)
+        self.assertEqual(status,0,"C error:\n%s\nProgram:\n%s\n" % \
+                         ( output,c_code))
+
     def testC(self):
         # basic end-to-end testing. Compile a code fragment + instrumentation,
         # run it and check output
@@ -644,7 +696,8 @@ bailout:
 }'''
         t = self.translate(src)
         self.codegen.output_all(t)
-
+        self.codegen.output_decls(t)
+        
         inserts = {
             "loop_inserts":"printf(\"(%g,%g)\\n\",z_re,z_im);",
             "main_inserts": self.main_stub
@@ -670,7 +723,8 @@ bailout:
 |z| < 4.0
 }'''
         t = self.translate(src)
-        self.codegen.output_all(t, {"z" : "", "pixel" : ""} )
+        self.codegen.output_all(t)
+        self.codegen.output_decls(t)
         c_code = self.codegen.output_c(t,inserts)
         output2 = self.compileAndRun(c_code)
         lines2 = string.split(output2,"\n")
@@ -686,7 +740,8 @@ bailout:
 |z| < 4.0
 }'''
         t = self.translate(src)
-        self.codegen.output_all(t, {"z" : "", "pixel" : ""} )
+        self.codegen.output_all(t)
+        self.codegen.output_decls(t)
         c_code = self.codegen.output_c(t,inserts)
         output3 = self.compileAndRun(c_code)
         lines3 = string.split(output2,"\n")
@@ -705,8 +760,9 @@ final:
 z = (-77.0,9.0)
 }'''
         t = self.translate(src)
-        self.codegen.output_all(t, {"z" : "", "pixel" : ""} )
-
+        self.codegen.output_all(t)
+        self.codegen.output_decls(t)
+        
         inserts = {
             "main_inserts": self.main_stub,
             "done_inserts": "printf(\"(%g,%g)\\n\",z_re,z_im);",
@@ -732,7 +788,8 @@ Newton4(XYAXIS) {; Mark Peterson
   }
 '''
         t = self.translate(src)
-        self.codegen.output_all(t, {"z" : "", "pixel" : ""} )
+        self.codegen.output_all(t)
+        self.codegen.output_decls(t)
         c_code = self.codegen.output_c(t)
 
         cFileName = self.codegen.writeToTempFile(c_code,".c")

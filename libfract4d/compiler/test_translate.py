@@ -30,7 +30,7 @@ class TranslateTest(testbase.TestBase):
     def translatecf(self,s,dump=None):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
-        return translate.ColorFunc(pt.children[0], "inner", dump)
+        return translate.ColorFunc(pt.children[0], "cf0", dump)
 
     def testCF(self):
         t1 = self.translatecf('''c1 {

@@ -53,6 +53,11 @@ class TBase:
         if self.dumpTranslation:
             print self.dumpSections(f,self.canon_sections)
 
+    def merge(self,other,name):
+        for (k,s) in other.output_sections.items():
+            self.output_sections[name + k] = s
+        self.symbols.merge(other.symbols)
+
     def dumpSections(self,f,dict):
         print f.leaf + "{"
         for (name,tree) in dict.items():
@@ -96,8 +101,8 @@ class TBase:
             
     def canonicalize(self):
         for (k,tree) in self.sections.items():
-            startLabel = "t__start_" + k
-            endLabel = "t__end_" + k
+            startLabel = "t__start_" + self.symbols.prefix + k
+            endLabel = "t__end_" + self.symbols.prefix + k
             self.canon_sections[k] = self.canon.canonicalize(tree,startLabel,endLabel)
 
     def dupSectionWarning(self,sect):

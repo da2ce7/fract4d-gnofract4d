@@ -244,9 +244,9 @@ int t__h_numiter = 0;
 %(init)s
 t__end_init:
 %(cf0_init)s
-t__end_cf0_init:
+t__end_cf0init:
 %(cf1_init)s
-t__end_cf1_init:
+t__end_cf1init:
 do
 {
     %(loop)s
@@ -257,9 +257,9 @@ do
     %(bailout_inserts)s
     if(!%(bailout_var)s) break;
     %(cf0_loop)s
-    t__end_cf0_loop:
+    t__end_cf0loop:
     %(cf1_loop)s
-    t__end_cf1_loop:
+    t__end_cf1loop:
     t__h_numiter++;
 }while(t__h_numiter < t__p_nMaxIters);
 
@@ -274,11 +274,14 @@ t__end_final:
 if(*t__p_pFate == 0)
 {
     %(cf0_final)s
+    t__end_cf0final:
 }
 else
 {
     %(cf1_final)s
+    t__end_cf1final:
 }
+*t__p_pDist = t__h_index;
 
 return;
 }
@@ -392,12 +395,14 @@ pf_obj *pf_new()
         self.generate_all_code(t.canon_sections[section])
         t.output_sections[section] = self.out
     
-    def output_all(self,t,overrides={}):
+    def output_all(self,t):
         for k in t.canon_sections.keys():
             self.output_section(t,k)
-        # must be done afterwards or temps are missing
+
+    def output_decls(self,t,overrides={}):
+        # must be done after other sections or temps are missing
         t.output_sections["decls"] = self.output_symbols(overrides)
-        
+    
     def output_c(self,t,inserts={},output_template=None):
         # find bailout variable
         try:
