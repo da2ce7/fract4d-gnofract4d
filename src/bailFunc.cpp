@@ -40,8 +40,8 @@ public:
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
                 bail = 
-                    "    pTemp[X2] = pIter[X] * pIter[X];"
-                    "    pTemp[Y2] = pIter[Y] * pIter[Y];";
+                    "    pTemp[X2] = XPOS * XPOS;"
+                    "    pTemp[Y2] = YPOS * YPOS;";
             }
 
             bail += "pTemp[EJECT_VAL] = pTemp[X2] + pTemp[Y2];";
@@ -58,12 +58,12 @@ public:
         {
             return 
                 "double epsilon = 0.01;"
-                "double diffx = pIter[X] - pTemp[LASTX];"
-                "double diffy = pIter[Y] - pTemp[LASTY];"
+                "double diffx = XPOS - pTemp[LASTX];"
+                "double diffy = YPOS - pTemp[LASTY];"
 
                 "double diff = diffx * diffx + diffy * diffy;"
 
-                "pTemp[LASTX] = pIter[X]; pTemp[LASTY] = pIter[Y];"
+                "pTemp[LASTX] = XPOS; pTemp[LASTY] = YPOS;"
                 // FIXME: continuous potential doesn't work well with this
                 "pTemp[EJECT_VAL] = pInput[EJECT] + epsilon - diff;";
         }
@@ -78,10 +78,11 @@ public:
             std::string bail("");
             if(!(flags & (HAS_X2)))
             {
-                bail = "pTemp[X2] = pIter[X] * pIter[X];";
+                bail = "pTemp[X2] = XPOS * XPOS;";
             }            
             
-            bail += "pTemp[EJECT_VAL] = pTemp[X2];";
+            bail += 
+                "pTemp[EJECT_VAL] = pTemp[X2];";
             return bail;
         };
     bool iter8_ok() const { return true; };
@@ -94,7 +95,7 @@ public:
             std::string bail("");
             if(!(flags & (HAS_Y2)))
             {
-                bail = "pTemp[Y2] = pIter[Y] * pIter[Y];";
+                bail = "pTemp[Y2] = YPOS * YPOS;";
             }            
             bail += "pTemp[EJECT_VAL] = pTemp[Y2];";
             return bail;
@@ -110,8 +111,8 @@ public:
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
                 bail = 
-                    "pTemp[X2] = pIter[X] * pIter[X];"
-                    "pTemp[Y2] = pIter[Y] * pIter[Y];";
+                    "pTemp[X2] = XPOS * XPOS;"
+                    "pTemp[Y2] = YPOS * YPOS;";
             }            
             bail += "pTemp[EJECT_VAL] = std::min(pTemp[X2],pTemp[Y2]);";
             return bail;
@@ -128,8 +129,8 @@ public:
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
                 bail = 
-                    "pTemp[X2] = pIter[X] * pIter[X];"
-                    "pTemp[Y2] = pIter[Y] * pIter[Y];";
+                    "pTemp[X2] = XPOS * XPOS;"
+                    "pTemp[Y2] = YPOS * YPOS;";
             }       
             bail += "pTemp[EJECT_VAL] = std::max(pTemp[X2],pTemp[Y2]);";
             return bail;
@@ -146,8 +147,8 @@ public:
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
                 bail = 
-                    "pTemp[X2] = pIter[X] * pIter[X];"
-                    "pTemp[Y2] = pIter[Y] * pIter[Y];";
+                    "pTemp[X2] = XPOS * XPOS;"
+                    "pTemp[Y2] = YPOS * YPOS;";
             }            
             bail += "{double t = fabs(pTemp[X2]) + fabs(pTemp[Y2]); pTemp[EJECT_VAL] = t*t;}";
             return bail;
@@ -159,7 +160,7 @@ class manhattan_bailout : public bailFunc {
 public:
     virtual std::string bail_code(int flags) const 
         {
-            return "pTemp[EJECT_VAL] = pIter[X] + pIter[Y];";
+            return "pTemp[EJECT_VAL] = XPOS + YPOS;";
         }
     bool iter8_ok() const { return false; }
 };

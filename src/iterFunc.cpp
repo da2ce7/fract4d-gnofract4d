@@ -139,6 +139,8 @@ public:
             code_map["N_OPTIONS"]= os.str();
             code_map["SAVE_ITER"]=save_iter_code();
             code_map["RESTORE_ITER"]=restore_iter_code();
+            code_map["XPOS"]= flags() & USE_COMPLEX ? "z.real()" : "pIter[X]";
+            code_map["YPOS"]= flags() & USE_COMPLEX ? "z.imag()" : "pIter[Y]";
         }
     IO_DECLS(iterImpl)
 };

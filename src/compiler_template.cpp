@@ -4,6 +4,10 @@
 
 #include <math.h>
 #include <iostream>
+#if TRACE
+#include <fstream>
+#include <sstream>
+#endif
 #include <float.h>
 #include <stdio.h>
 #include <algorithm>
@@ -22,6 +26,9 @@ private:
 #if N_OPTIONS > 0
     std::complex<double> a[N_OPTIONS];
 #endif
+#if TRACE
+    std::ofstream *out;
+#endif
 public:
     /* ctor */
     pointCalc(void *handle,
@@ -38,13 +45,20 @@ public:
                 a[i] = options[i];
             }
 #endif
+#if TRACE
+            out = NULL;
+#endif
             m_pOuterColor = colorFunc_new(outerCfType);
             m_pInnerColor = colorFunc_new(innerCfType);
+            
         }
     virtual ~pointCalc()
         {
             delete m_pOuterColor;
             delete m_pInnerColor;
+#if TRACE
+            delete out;
+#endif
         }
 
     inline rgb_t colorize(int iter, const T*pIter, const T*pInput, const T*pTemp)
@@ -85,19 +99,20 @@ public:
             RET; // why this?
             {
                 DECL; // and this?
-                do
+                while(iter + 1 < maxIter)
                 {
                     ITER;
-                    if((iter++) >= maxIter)
-                    {   
-                        RET;
-                        return false;
-                    }
                     BAIL;
-                }while(pTemp[EJECT_VAL] < m_eject);
+                    if(pTemp[EJECT_VAL] >= m_eject)
+                    {
+                        RET;
+                        return true; // escaped
+                    }
+                    iter++;
+                }            
             }
             RET;
-            return true;
+            return false; // finished iterations without escaping
         }
 
     //template<class T>
@@ -112,15 +127,15 @@ public:
             do
             {
                 DECL; ITER; RET;
-                if(iter++ >= nMaxIters) 
-                {
-                    // ran out of iterations
-                    iter = -1; return false;
-                }
                 BAIL;
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
                     return true;
+                }
+                if(iter++ >= nMaxIters) 
+                {
+                    // ran out of iterations
+                    iter = -1; return false;
                 }
                 if(fabs(pIter[X] - lastx) < PERIOD_TOLERANCE &&
                    fabs(pIter[Y] - lasty) < PERIOD_TOLERANCE)
@@ -145,6 +160,16 @@ public:
         struct rgb *color, int *pnIters
         )
         {
+#if TRACE
+            if(out == NULL)
+            {
+                std::ostringstream ofname;
+                ofname << "out-" << pthread_self() << ".txt";
+                std::string outname = ofname.str();
+                cout << outname << "\n";
+                out = new std::ofstream(outname.c_str());
+            }
+#endif
             pIter[X] =  params.n[VZ]; 
             pIter[Y] =  params.n[VW];
             pInput[CX] = params.n[VX];
@@ -168,6 +193,9 @@ public:
             }
 
             *pnIters = iter;
+#if TRACE
+            (*out) << iter << "\n";
+#endif
             if(color)
             {
                 *color = colorize(iter,pIter,pInput,pTemp);
