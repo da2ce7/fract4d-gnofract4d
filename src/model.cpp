@@ -287,8 +287,8 @@ model_init_compiler(model_t *m,compiler *pc)
 
     g_free(compiler_flags);
 
-    gchar *cache_dir = g_concat_dir_and_file(
-        g_get_home_dir(),".gnome/" PACKAGE "-cache");
+    gchar *cache_dir = g_build_filename(
+        g_get_home_dir(),".gnome/" PACKAGE "-cache", NULL);
     pc->set_cache_dir(cache_dir);
     g_free(cache_dir);
 
@@ -331,7 +331,7 @@ model_display_pending_errors(model_t *m)
 					GTK_POLICY_AUTOMATIC,
 					GTK_POLICY_AUTOMATIC);
 
-	gtk_widget_set_usize(scrolled,320,400);
+	gtk_widget_set_size_request(scrolled,320,400);
  
 	GtkWidget *text = gtk_text_view_new();
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text), GTK_WRAP_WORD);
@@ -453,7 +453,11 @@ model_delete(model_t **pm)
 
 static gchar *autosave_filename()
 {
-    return g_concat_dir_and_file(g_get_home_dir(), ".gnome/" PACKAGE "-autosave.fct");
+    return g_build_filename(
+	g_get_home_dir(), 
+	".gnome", 
+	PACKAGE "-autosave.fct", 
+	NULL);
 }
 
 int model_write_autosave_file(model_t *m)
@@ -484,7 +488,7 @@ model_cmd_save_image(model_t *m, const char *filename)
 	8,
         gf4d_fractal_get_xres(m->fract),
         gf4d_fractal_get_yres(m->fract),
-	gf4d_fractal_get_xres(m->fract),
+	gf4d_fractal_get_xres(m->fract) * 3,
 	NULL, // no destroynotify fn - is this correct?
 	NULL);
 

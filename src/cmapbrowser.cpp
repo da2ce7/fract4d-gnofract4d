@@ -353,8 +353,6 @@ void colorbut_draw(GtkWidget *widget)
     }
 
     GdkGC *gc = widget->style->fg_gc[widget->state];
-    // gdk_gc_set_clip_rectangle (gc,
-//			       &event->area);
 
     gdk_draw_rectangle(widget->window,
 		       widget->style->bg_gc[GTK_WIDGET_STATE(widget)],
