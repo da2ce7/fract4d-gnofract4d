@@ -1,5 +1,29 @@
 #include "fractFunc.h" // FIXME should be fractWorker
 
+MTFractWorker::MTFractWorker(int n, STFractWorker *ptf_)
+{
+    /* 0'th ftf is in this thread for calculations we don't want to offload */
+    nWorkers = n > 1 ? n + 1 : 1;
+
+    nWorkers = n;
+    ptf = ptf_;
+    if(n > 1)
+    {
+        ptp = new tpool<job_info_t,STFractWorker>(n,100,ptf);
+    }
+    else
+    {
+        ptp = NULL;
+    }
+
+}
+
+MTFractWorker::~MTFractWorker()
+{
+    delete ptp;
+    delete[] ptf;
+}
+
 void
 MTFractWorker::row_aa(int x, int y, int n)
 {
