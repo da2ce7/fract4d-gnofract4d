@@ -356,11 +356,18 @@ class Threaded(T):
             "PIXEL"
             ]
 
+        self.skip_updates = False
+
+    def interrupt(self):
+        fract4d.interrupt(self.site)
+        self.skip_updates = True
+
     def draw(self,image):
         self.cmap = fract4d.cmap_create(self.colorlist)
         
         fract4d.pf_init(self.pfunc,0.001,self.initparams)
 
+        self.skip_updates = False
         fract4d.async_calc(self.params,self.antialias,self.maxiter,1,
                           self.pfunc,self.cmap,1,image,self.site)
 
@@ -371,6 +378,9 @@ class Threaded(T):
             print "bad message"
             return
 
+        if self.skip_updates:
+            return
+        
         (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
         m = self.name_of_msg[t] 
         #print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
