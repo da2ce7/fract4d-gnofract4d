@@ -98,7 +98,14 @@ class TranslateTest(unittest.TestCase):
         }''')
         self.assertWarning(t10,"conversion from int to float on line 4")
         self.assertError(t10, "invalid type float for 1.0 on line 5, expecting int")
-
+    def testParams(self):
+        t12 = self.translate('''t_params {
+        init: complex x = @p1 + p2 + @my_param
+        complex y = @fn1((1,0)) + fn2((2,0)) + @my_func((1,0))
+        }''')
+        self.assertNoErrors(t12)
+        print t12.parameters
+        
     def testIDs(self):
         t11 = self.translate('''t11 {
         init: int a = 1, int b = 2

@@ -27,6 +27,7 @@ def createDefaultDict():
         # standard library functions
         
         "sqr": efl("sqr", "[_] , _",  [Int, Float, Complex]),
+        "ident": efl("ident", "[_] , _",  [Int, Float, Complex, Bool]),
         "complex" : [ Func([Float, Float], Complex,
                            stdlib, "complex")],
         "conj" : [ Func([Complex], Complex, stdlib, "conj")],
@@ -75,15 +76,15 @@ def createDefaultDict():
     # predefined parameters
     for f in xrange(1,7):
         name = "p%d" % f
-        d[name] = Var(Complex)
-        d["t__a_" + name]  = Alias(name)
+        d[name] = Alias("t__a_" + name)
+        d["t__a_" + name]  = Var(Complex)
     # predefined functions
     for f in xrange(1,5):
         name = "fn%d" % f
-        d[name] = [
+        d[name] = Alias("t__a_" + name)
+        d["t__a_" + name ] = [
             Func([Float],Float, stdlib, name),
             Func([Complex],Complex, stdlib, name) ]
-        d["t__a_" + name] = Alias(name)
     return d
 
 
@@ -116,6 +117,9 @@ class T(UserDict):
             val = val[0]
         return val.pos != -1
 
+    def is_param(self,key):
+        return key[0:5] == 't__a_'
+            
     def realName(self,key):
         ' returns mangled key even if var not present for test purposes'
         k = mangle(key)

@@ -128,11 +128,15 @@ def imag_c_f(gen,t,srcs):
 def real_c_f(gen,t,srcs):
     return srcs[0].re
 
+def ident_i_i(gen,t,srcs):
+    return srcs[0]
+
+ident_f_f = ident_c_c = ident_b_b = ident_i_i
+
 def recip_f_f(gen,t,srcs):
     # reciprocal
     return gen.emit_binop('/', [ConstFloatArg(1.0), srcs[0]], Float)
 
 def recip_c_c(gen,t,srcs):
-    return div_cc_c(gen,
-                    None,
+    return div_cc_c(gen, None,
                     [ComplexArg(ConstFloatArg(1.0), ConstFloatArg(0.0)), srcs[0]])

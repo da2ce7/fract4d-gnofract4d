@@ -94,7 +94,7 @@ class Call(Exp):
         self.op = func
         self.children = args
     def __str__(self):
-        return "Call(" + self.func + "\n"
+        return "Call(" + self.op + "\n"
         
 class ESeq(Exp):
     def __init__(self, stms, exp, node, datatype):
