@@ -82,16 +82,17 @@ class ColorDialog(dialog.T):
         self.model = _get_model()
         sw = self.create_map_file_list()
         self.selected_segment = -1
-        self.create_preview()
+        gradbox = self.create_editor()
         
         hbox = gtk.HBox()
         hbox.pack_start(sw)
-        hbox.pack_start(self.gradarea)
+        hbox.pack_start(gradbox)
         self.vbox.add(hbox)
         self.treeview.get_selection().unselect_all()
-
         
-    def create_preview(self):
+    def create_editor(self):
+        # a bunch of widgets to edit the current gradient
+        gradbox = gtk.VBox()
         #gradient preview
         self.grad_handle_height = 8
         
@@ -115,8 +116,22 @@ class ColorDialog(dialog.T):
         self.gradarea.connect('button-release-event', self.gradarea_clicked)
         self.gradarea.connect('motion-notify-event', self.gradarea_mousemoved)
 
-        return self.gradarea
+        buttonbox = gtk.HBox()
+        self.left_color_button = utils.ColorButton(
+            self.grad.segments[0].left_color, self.color_changed, True)
+        buttonbox.add(self.left_color_button.widget)
+        gradbox.add(self.gradarea)
+        gradbox.add(buttonbox)
+        return gradbox
 
+    def color_changed(self,r,g,b, is_left):
+        if self.selected_segment == -1:
+            return
+
+        seg = self.grad.segments[self.selected_segment]
+        seg.left_color = [r,g,b, seg.left_color[3]]
+        self.redraw()
+        
     def gradarea_mousedown(self, widget, event):
         pass
 
@@ -124,7 +139,6 @@ class ColorDialog(dialog.T):
         pos = float(event.x) / widget.allocation.width
         i = self.grad.get_index_at(pos)
         self.selected_segment = i
-        print "selected %d" % i
         self.redraw()
 
     def gradarea_mousemoved(self, widget, event):

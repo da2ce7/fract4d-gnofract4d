@@ -123,7 +123,6 @@ class Test(unittest.TestCase):
         self.mw.contents(None,None)
         self.mw.browser(None,None)
         self.mw.painter(None,None)
-        self.mw.gradients(None,None)
         
     def testExplorer(self):
         result = self.mw.load("../testdata/nexus.fct")

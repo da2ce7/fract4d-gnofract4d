@@ -83,3 +83,43 @@ def create_color(r,g,b):
         return gtk.gdk.color(r*256,g*256,b*256)
     except:
         return gtk.gdk.color_parse("#%4x%4x%4x" % (r*256,g*256,b*256))
+
+
+class ColorButton:
+    def __init__(self,rgb, changed_cb, *args):
+        color = create_color(rgb[0], rgb[0], rgb[0])
+        self.changed_cb = changed_cb
+        self.cb_args = args
+        try:
+            self.widget = gtk.ColorButton(color)
+
+            def color_set(widget):
+                color = widget.get_color()
+                self.color_changed(color)
+                
+            self.widget.connect('color-set', self.color_changed)
+        except:
+            # This GTK is too old to support ColorButton directly, fake one
+            self.widget = gtk.Button("Color") # FIXME use drawable widget
+
+            self.csel_dialog = gtk.ColorSelectionDialog(_("Select a Color"))
+            self.csel_dialog.colorsel.set_current_color(color)
+
+            self.widget.connect('clicked', self.run_colorsel)
+
+    def run_colorsel(self, widget):
+        dlg = self.csel_dialog
+        result = dlg.run()
+        if result == gtk.RESPONSE_OK:
+            color = dlg.colorsel.get_current_color()
+            self.color_changed(color)
+        self.csel_dialog.hide()
+        
+    def color_changed(self,color):
+        self.changed_cb(
+            color.red/65535.0,
+            color.green/65535.0,
+            color.blue/65535.0,
+            self.cb_args)
+
+        
