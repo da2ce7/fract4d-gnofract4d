@@ -179,13 +179,29 @@ class T:
             [ "[Jump]", T.jump],
             [ "[Cast]", T.cast],
             ])
+        
         self.output_template = '''
 #include <stdio.h>
-int main()
+        
+static void pf_calc(
+    // "object" pointer
+    // struct s_pf_data *p_stub,
+    // in params
+    const double *params, int nMaxIters, // int nNoPeriodIters,
+    // only used for debugging
+    // int x, int y, int aa,
+    // out params
+    int *pnIters /*, double **out_buf */)
 {
+
+double z_re = params[0];
+double z_im = params[1];
+double c_re = params[2];
+double c_im = params[3];
+
 /* variable declarations */
 %(decls)s
-int nMaxIters = 16, nIters = 0;
+int nIters = 0;
 %(init)s
 t__end_init:
 while(nIters < nMaxIters)
@@ -200,8 +216,12 @@ while(nIters < nMaxIters)
     nIters++;
 }
 %(done_inserts)s
-return 0;
-}'''
+*pnIters = nIters;
+return;
+}
+
+%(main_inserts)s
+'''
 
     def emit_binop(self,op,srcs,type):
         dst = TempArg(self.symbols.newTemp(type))
@@ -213,19 +233,24 @@ return 0;
     def emit_move(self, src, dst):
         self.out.append(Move([src],[dst]))
         
-    def output_symbols(self):
+    def output_symbols(self,overrides):
         out = []
         for (key,sym) in self.symbols.items():
             if isinstance(sym,fracttypes.Var):
                 t = fracttypes.ctype(sym.type)
                 val = sym.value
-                if sym.type == fracttypes.Complex:
-                    out += [ Decl("%s %s_re = %.17f;" % (t,key,val[0])),
-                             Decl("%s %s_im = %.17f;" % (t,key,val[1]))]
-                elif sym.type == fracttypes.Float:
-                    out.append(Decl("%s %s = %.17f;" % (t,key,val)))
+                override = overrides.get(key,None)
+                if override == None:
+                    if sym.type == fracttypes.Complex:
+                        out += [ Decl("%s %s_re = %.17f;" % (t,key,val[0])),
+                                 Decl("%s %s_im = %.17f;" % (t,key,val[1]))]
+                    elif sym.type == fracttypes.Float:
+                        out.append(Decl("%s %s = %.17f;" % (t,key,val)))
+                    else:
+                        out.append(Decl("%s %s = %d;" % (t,key,val)))
                 else:
-                    out.append(Decl("%s %s = %d;" % (t,key,val)))
+                    #print "override %s for %s" % (override, key)
+                    out.append(Decl(override))
             else:
                 #print "Weird symbol %s: %s" %( key,sym)
                 pass
@@ -236,18 +261,20 @@ return 0;
         self.generate_all_code(t.canon_sections[section])
         t.output_sections[section] = self.out
     
-    def output_all(self,t):
+    def output_all(self,t,overrides={}):
         for k in t.canon_sections.keys():
             self.output_section(t,k)
         # must be done afterwards or temps are missing
-        t.output_sections["decls"] = self.output_symbols()
+        t.output_sections["decls"] = self.output_symbols(overrides)
         
-    def output_c(self,t,inserts={}):
+    def output_c(self,t,inserts={},output_template=None):
         # find bailout variable
         bailout_insn = t.output_sections["bailout"][-2]
         inserts["bailout_var"] = bailout_insn.dst[0].format()
         f = Formatter(self,t,inserts)
-        return self.output_template % f
+        if output_template == None:
+            output_template = self.output_template
+        return output_template % f
 
     def findOp(self,t):
         ' find the most appropriate overload for this op'

@@ -19,6 +19,29 @@ class CodegenTest(unittest.TestCase):
         self.fakeNode = absyn.Empty(0)
         self.codegen = codegen.T(symbol.T())
         self.parser = fractparser.parser
+        self.test_output_template ='''
+#include <stdio.h>
+int main()
+{
+/* variable declarations */
+%(decls)s
+int nMaxIters = 16, nIters = 0;
+%(init)s
+t__end_init:
+while(nIters < nMaxIters)
+{
+    %(loop)s
+    t__end_loop:
+    %(loop_inserts)s
+    %(bailout)s
+    t__end_bailout:
+    %(bailout_inserts)s
+    if(%(bailout_var)s) break;
+    nIters++;
+}
+%(done_inserts)s
+return 0;
+}'''
         
     def tearDown(self):
         pass
@@ -78,7 +101,8 @@ class CodegenTest(unittest.TestCase):
     def makeC(self,user_preamble="", user_postamble=""):
         # construct a C stub for testing
         preamble = "#include <stdio.h>\nint main(){\n"
-        decls = string.join(map(lambda x: x.format(), self.codegen.output_symbols()),"\n")
+        decls = string.join(map(lambda x: x.format(),
+                                self.codegen.output_symbols({})),"\n")
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
         postamble = "\nreturn 0;}\n"
 
@@ -111,7 +135,7 @@ class CodegenTest(unittest.TestCase):
         #print "status: %s\noutput:\n%s" % (status, output)
         cmd = oFileName
         (status,output) = commands.getstatusoutput(cmd)
-        self.assertEqual(status,0)
+        self.assertEqual(status,0, "Runtime error:\n" + output)
         #print "status: %s\noutput:\n%s" % (status, output)
         return output
 
@@ -288,10 +312,13 @@ a_im = t__temp3;
 goto t__end_init;''')
         
     def testSymbols(self):
-        out = self.codegen.output_symbols()
+        out = self.codegen.output_symbols({})
         l = [x for x in out if x.assem == "double z_re = 0.00000000000000000;"]
         self.failUnless(len(l)==1)
-
+        out = self.codegen.output_symbols({ "z" : "foo"})
+        l = [x for x in out if x.assem == "foo"]
+        self.failUnless(len(l)==1)
+        
     def testC(self):
         # basic end-to-end testing. Compile a code fragment + instrumentation,
         # run it and check output
@@ -321,16 +348,25 @@ bailout:
 |z| > 4.0
 }'''
         t = self.translate(src)
-        self.codegen.output_all(t)
+        self.codegen.output_all(t, {"z" : "", "c" : ""} )
         inserts = {
             "loop_inserts":"printf(\"(%g,%g)\\n\",z_re,z_im);",
-            "done_inserts":"printf(\"(%d)\\n\",nIters);",
+            "main_inserts":'''
+int main()
+{
+    double params[4] = { 0.0, 0.0, 1.5, 1.0 };
+    int nItersDone=0;
+    pf_calc(params, 100, &nItersDone);
+    printf("(%d)\n",nItersDone);
+    return 0;
+}
+'''
             }
         c_code = self.codegen.output_c(t,inserts)
         #print c_code
         output = self.compileAndRun(c_code)
         self.assertEqual(output,"(1.5,0)\n(3.75,0)\n(1)",output)
-        
+
     # assertions
     def assertCSays(self,source,section,check,result,dump=None):
         asm = self.sourceToAsm(source,section,dump)

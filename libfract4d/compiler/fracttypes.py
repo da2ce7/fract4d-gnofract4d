@@ -124,6 +124,7 @@ class Var:
         else:
             self.value = value
         self.pos = pos
+
     def __str__(self):
         return "%s %s (%d)" % (strOfType(self.type), self.value, self.pos)
 
