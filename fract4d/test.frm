@@ -42,7 +42,7 @@ bailout:
 
 test_func {
 loop:
-z = sqr(@myfunc(z)) + #pixel
+z = @myfunc(z) + #pixel
 bailout:
 @bailfunc(z) < @bailout
 default:
@@ -69,7 +69,7 @@ endfunc
 ;  v<2>SbyTczSby<61>000
 ;  }
 
-frm:ny2004-4 { ; fn1-fn4 ident = Mandelbrot 
+ny2004-4 { ; fn1-fn4 ident = Mandelbrot 
            ; with lake transformation from Sylvie Gallet, Jan 16, 2000
            ; ---
            ; real(p1) = merging of text (function dependent)
