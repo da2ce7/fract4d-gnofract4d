@@ -245,7 +245,7 @@ return 0;
     def output_c(self,t,inserts={}):
         # find bailout variable
         bailout_insn = t.output_sections["bailout"][-2]
-        inserts["bailout_var"] = bailout_insn.dst[0]
+        inserts["bailout_var"] = bailout_insn.dst[0].format()
         f = Formatter(self,t,inserts)
         return self.output_template % f
         
@@ -271,7 +271,7 @@ return 0;
         elif t.datatype == Float:
             dst = TempArg(self.symbols.newTemp(Float))
             if child.datatype == Int or child.datatype == Bool:
-                assem = "%%(d0)s = ((double)%(s0)s);" 
+                assem = "%(d0)s = ((double)%(s0)s);" 
                 self.out.append(Oper(assem,[src], [dst]))
         elif t.datatype == Int:
             if child.datatype == Bool:
@@ -310,8 +310,8 @@ return 0;
         src = self.generate_code(s0)
         if t.op == "mag":
             # x_re * x_re + x_im * x_im
-            re_2 = self.emit_binop('*',[src[0].re,src[0].re],Float)
-            im_2 = self.emit_binop('*',[src[0].im,src[0].im],Float)
+            re_2 = self.emit_binop('*',[src.re,src.re],Float)
+            im_2 = self.emit_binop('*',[src.im,src.im],Float)
             dst = self.emit_binop('+',[re_2,im_2],Float)
         else:
             msg = "Unsupported unary operation %s" % t.op
@@ -352,7 +352,7 @@ return 0;
                     combine_op = "||"
                 dst = self.emit_binop(combine_op, [d1, d2], Bool)
             else:
-                # need to implement /, compares, etc
+                # need to implement /, ^, etc
                 msg = "Unsupported binary operation %s" % t.op
                 raise fracttypes.TranslationError(msg)
         else:

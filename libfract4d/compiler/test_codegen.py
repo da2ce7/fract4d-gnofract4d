@@ -277,12 +277,22 @@ z_re = t__temp2;
 z_im = t__temp3;
 goto t__end_loop;''')
 
+        asm = self.sourceToAsm('t_s2a_2{\ninit: a = -1.5\n}',"init")
+        self.assertOutputMatch('''t__start_init:
+t__temp0 = ((double)0);
+t__temp1 = t__temp0 - 1.50000000000000000;
+t__temp2 = t__temp1;
+t__temp3 = 0.0;
+a_re = t__temp2;
+a_im = t__temp3;
+goto t__end_init;''')
+        
     def testSymbols(self):
         out = self.codegen.output_symbols()
         l = [x for x in out if x.assem == "double z_re = 0.00000000000000000;"]
         self.failUnless(len(l)==1)
 
-    def x_testC(self):
+    def testC(self):
         # basic end-to-end testing. Compile a code fragment + instrumentation,
         # run it and check output
         src = 't_c1 {\nloop: int a = 1\nz = z + a\n}'
@@ -297,7 +307,7 @@ goto t__end_loop;''')
         src = 't_c4{\ninit: bool x = |z| < 4.0\n}'
         self.assertCSays(src,"init","printf(\"%d\\n\",x);","1")
 
-    def x_testMandel(self):
+    def testMandel(self):
         src = '''t_mandel{
 init:
 z = 0,c = 1.5
@@ -308,11 +318,14 @@ bailout:
 }'''
         t = self.translate(src)
         self.codegen.output_all(t)
-        inserts = {"loop_inserts":"printf(\"(%g,%g)\\n\",z_re,z_im);"}
+        inserts = {
+            "loop_inserts":"printf(\"(%g,%g)\\n\",z_re,z_im);",
+            "done_inserts":"printf(\"(%d)\\n\",nIters);",
+            }
         c_code = self.codegen.output_c(t,inserts)
         #print c_code
         output = self.compileAndRun(c_code)
-        self.assertEqual(output,"(1.5,0)\n(3.75,0)",output)
+        self.assertEqual(output,"(1.5,0)\n(3.75,0)\n(1)",output)
         
     # assertions
     def assertCSays(self,source,section,check,result,dump=None):
