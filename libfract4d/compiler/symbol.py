@@ -54,7 +54,9 @@ def createDefaultDict():
         
         "#pixel": Var(Complex,0.0), # fixme, value 
         "#z" : Var(Complex,0.0),
-        "z"  : Var(Complex,0.0) # same as #z
+        "z"  : Var(Complex,0.0), # same as #z
+
+        "iter" : Var(Int, 0) # number of iterations
         }
     return d
 
@@ -89,6 +91,10 @@ class T(UserDict):
             
             raise KeyError, ("symbol '%s' %s" % (key,msg))
 
+        if string.find(k,"t__",0,3)==0:
+            raise KeyError, \
+                ("symbol '%s': no symbol starting with t__ is allowed" % key)
+
         self.data[mangle(key)] = value
     def __delitem__(self,key):
         del self.data[mangle(key)]
@@ -102,7 +108,8 @@ class T(UserDict):
         return label
 
     def newTemp(self,type):
-        name = "temp%d" % self.nextTemp
+        name = "t__temp%d" % self.nextTemp
         self.nextTemp += 1
-        self[name] = Var(type,0) # fixme type of value
+        # bypass normal setitem because that checks for t__
+        self.data[name] = Var(type,0) # fixme type of value
         return name

@@ -48,6 +48,9 @@ class SymbolTest(unittest.TestCase):
         self.failUnless(times_i.matchesArgs([Int,Int]))
         self.failUnless(times_i.matchesArgs([Int,Bool]))
         self.failUnless(not times_i.matchesArgs([Int,Color]))
+
+    def test_clash_with_secret_vars(self):
+        self.assertRaises(KeyError, self.t.__setitem__, ("t__temp0"), 1)
         
 def suite():
     return unittest.makeSuite(SymbolTest,'test')

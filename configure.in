@@ -57,6 +57,8 @@ fract4d/Makefile
 src/Makefile
 po/Makefile.in
 doc/Makefile
+doc/gnofract4d-manual/Makefile
+doc/gnofract4d-manual/C/Makefile
 pixmaps/Makefile
 maps/Makefile
 ])

@@ -33,6 +33,7 @@ gint
 popup_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
     Gf4dFractal *f = GF4D_FRACTAL(user_data);
+
     redraw_image_rect(widget, gf4d_fractal_get_image(f),
                       event->area.x, event->area.y,
                       event->area.width, event->area.height,
@@ -46,6 +47,11 @@ preview_status_callback(Gf4dFractal *f, gint val, void *user_data)
     if(val != GF4D_FRACTAL_DONE) return;
 
     GtkWidget *drawing_area = GTK_WIDGET(user_data);
+
+    gint w, h;
+    gdk_drawable_get_size(drawing_area->window, &w, &h);
+
+    g_print("%d %d\n",w,h);
     redraw_image_rect(drawing_area, gf4d_fractal_get_image(f),
                       0, 0,
                       PREVIEW_SIZE, PREVIEW_SIZE,
