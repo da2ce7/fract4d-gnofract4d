@@ -45,7 +45,7 @@ def p_formula_err(t):
 
 def p_formbody_2(t):
      'formbody : NEWLINE stmlist sectlist FORM_END'
-     t[0] = [ absyn.Stmlist("init",t[2]) ] + t[3] #no name = init section
+     t[0] = [ absyn.Stmlist("nameless",t[2]) ] + t[3] 
 
 def p_formbody_err(t):
      'formbody : error FORM_END'

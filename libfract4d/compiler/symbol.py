@@ -32,7 +32,8 @@ class T(UserDict):
     default_dict = createDefaultDict()
     def __init__(self):
         UserDict.__init__(self)
-        self.data = copy.deepcopy(T.default_dict)
+        self.reset()
+        
     def __getitem__(self,key):
         return self.data[mangle(key)]
     def __setitem__(self,key,value):
@@ -42,5 +43,7 @@ class T(UserDict):
         self.data[mangle(key)] = value
     def __delitem__(self,key):
         del self.data[mangle(key)]
-
+        
+    def reset(self):
+        self.data = copy.deepcopy(T.default_dict)
 

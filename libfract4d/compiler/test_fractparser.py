@@ -306,7 +306,7 @@ bailout:
         self.assertIsValidParse(t1)
         self.failUnless(
             t1.children[0].children[0].type =="stmlist" and
-            t1.children[0].children[0].leaf == "init" and
+            t1.children[0].children[0].leaf == "nameless" and
             t1.children[0].children[1].type == "stmlist" and
             t1.children[0].children[1].leaf == "")
             
