@@ -38,6 +38,8 @@
 
 #define BYTE_SIZE ((PREVIEW_SIZE) * (PREVIEW_SIZE) * 3)
 
+void update_previews(GtkWidget *button, gpointer user_data);
+
 void
 update_preview_image(Gf4dFractal *f, GtkWidget *drawable)
 {
@@ -47,7 +49,17 @@ update_preview_image(Gf4dFractal *f, GtkWidget *drawable)
     colorizer_t *cizer = (colorizer_t *)gtk_object_get_data(
         GTK_OBJECT(drawable), "colorizer"); 
     g_assert(cizer);
-    
+
+    // if this preview is on the edit page, we now update
+    // its colormap from the model
+    model_t *m_if_edit = (model_t *)gtk_object_get_data(
+	GTK_OBJECT(drawable), "get_from_main");
+
+    if(m_if_edit)
+    {
+	cizer = gf4d_fractal_get_colorizer(model_get_fract(m_if_edit));
+    }
+
     gf4d_fractal_set_colorizer(f,cizer);
     gf4d_fractal_recolor(f);
     
@@ -85,8 +97,6 @@ preview_status_callback(Gf4dFractal *f, gint val, void *user_data)
         }
         children = children->next;
     }
-
-    // FIXME: update rgb preview too
 }
 
 /* update the drawables whenever they're shown */
@@ -124,6 +134,8 @@ preview_button_clicked(GtkWidget *button, gpointer user_data)
         Gf4dFractal *f = model_get_fract(m);
         gf4d_fractal_set_colorizer(f, cizer);
         model_cmd_finish(m, "preview");
+
+	update_previews(button,m);
     }
 }
 
@@ -133,7 +145,8 @@ create_cmap_browser_item(
     model_t *m, 
     GtkTooltips *tips,
     colorizer_t *cizer, 
-    gchar *name)
+    gchar *name,
+    bool take_cizer_from_main)
 {
     // make the button 
     GtkWidget *button = gtk_button_new();
@@ -156,6 +169,12 @@ create_cmap_browser_item(
     gtk_object_set_data(GTK_OBJECT(drawing_area), "image", img);
 
     gtk_object_set_data(GTK_OBJECT(drawing_area), "colorizer", cizer);
+
+    if(take_cizer_from_main)
+    {
+	gtk_object_set_data(GTK_OBJECT(drawing_area), "get_from_main",
+			    m);
+    }
 
     // get drawable to redraw itself properly
     gtk_signal_connect (
@@ -233,7 +252,7 @@ add_map_directory(GtkWidget *table, model_t *m, char *mapdir, GtkTooltips *tips)
             g_free(full_name);
 
             // add it to table
-            GtkWidget *item = create_cmap_browser_item(m, tips, cizer, dirEntry->d_name);
+            GtkWidget *item = create_cmap_browser_item(m, tips, cizer, dirEntry->d_name, false);
             add_to_table(table, item, i % 8, i / 8);
 
             ++i;
@@ -303,15 +322,15 @@ color_change_callback(GtkWidget *colorsel, gpointer user_data)
 gboolean
 colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
+    model_t *m = (model_t *)data;
+    int index = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"index"));
 
-    model_t *m = (model_t *)gtk_object_get_data(GTK_OBJECT(widget->parent),"model");
     colorizer_t *cizer = gf4d_fractal_get_colorizer(model_get_fract(m));
 
     cmap_colorizer *cm_cizer = dynamic_cast<cmap_colorizer *>(cizer);
     guint color;
     if(cm_cizer)
     {
-	int index = GPOINTER_TO_INT(data);
 	rgb_t col = (*cm_cizer)((double)index);
 	color = (col.r << 16) | (col.g << 8) | col.b;
     }
@@ -337,38 +356,76 @@ colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
     return TRUE;
 }
 
+void colorbut_mouse_event(
+    GtkWidget *widget, GdkEvent *event, GtkWidget *colorsel)
+{
+
+    //guint color = colorbut_get_color(widget
+    g_print("color selected\n");
+}
+
 GtkWidget *
 create_edit_colormap_page(GtkWidget *notebook, model_t *m)
 {
-    GtkWidget *table = gtk_table_new(2,2,FALSE);
+    GtkWidget *table = gtk_table_new(2,3,FALSE);
 
+    GtkTooltips *tips = gtk_tooltips_new();
+    gtk_tooltips_enable(tips);
 
-    GtkWidget *tab_label = gtk_label_new(_("Edit Colormap"));
+    GtkWidget *tab_label = gtk_label_new(_("Edit Color Map"));
     gtk_notebook_append_page(
         GTK_NOTEBOOK(notebook),
         table,
         tab_label);
 
-    GtkWidget *colorbox = gtk_table_new(8,8,TRUE);
-    gtk_object_set_data(GTK_OBJECT(colorbox),"model",m);
+    GtkWidget *colorbox = gtk_table_new(32,8,FALSE);
 
-    for(int i = 0 ; i < 8 * 8; ++i)
+
+    gtk_table_attach(GTK_TABLE(table), colorbox,0,2,0,1,
+		     (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0 , 0);
+
+
+    GtkWidget * label = gtk_label_new(_("Click to apply to main fractal >>"));
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label , 0, 1, 1, 2, 
+                     (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
+
+    cmap_colorizer *cizer = new cmap_colorizer();
+    GtkWidget *cmap_preview = create_cmap_browser_item(m, tips, cizer, "fred",true);
+    gtk_table_attach(GTK_TABLE(table), cmap_preview, 1, 2, 1, 2, 
+                     (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
+
+    GtkWidget *colorsel = gtk_color_selection_new();
+
+    gtk_table_attach(GTK_TABLE(table), colorsel, 0, 2, 2, 3, 
+                     (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
+
+    //gtk_object_set_data(GTK_OBJECT(colorbox),"colorsel",GINT_TO_POINTER(i));
+
+    for(int i = 0 ; i < 256; ++i)
     {
 	GtkWidget *colorbut = gtk_drawing_area_new();
-	gtk_drawing_area_size(GTK_DRAWING_AREA(colorbut),24,24);
+	gtk_drawing_area_size(GTK_DRAWING_AREA(colorbut),12,12);
 
+	gtk_widget_set_events (colorbut, 
+			       GDK_EXPOSURE_MASK |
+			       GDK_BUTTON_PRESS_MASK | 
+			       GDK_BUTTON_RELEASE_MASK);
+
+	gtk_object_set_data(GTK_OBJECT(colorbut),"index",GINT_TO_POINTER(i));
 
 	gtk_signal_connect(GTK_OBJECT(colorbut),"expose_event",
 			   (GtkSignalFunc)colorbut_expose_event,
-			   GINT_TO_POINTER(i));
+			   (gpointer)m);
 
-	int x = i % 8, y = i / 8;
+	gtk_signal_connect (GTK_OBJECT(colorbut), "button_press_event",
+			    (GtkSignalFunc) colorbut_mouse_event, colorsel);
+
+
+	int x = i % 32, y = i / 32;
 	gtk_table_attach(GTK_TABLE(colorbox), colorbut, x,x+1,y,y+1,
-			 (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0 , 0);
+			 (GtkAttachOptions) 0, (GtkAttachOptions) 0, 1 , 1);
     }
-
-    gtk_table_attach(GTK_TABLE(table), colorbox,0,1,0,1,
-		     (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0 , 0);
 
     gtk_widget_show_all(table);
     return table;
@@ -401,7 +458,7 @@ create_new_color_page(GtkWidget *notebook, model_t *m)
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
     rgb_colorizer *cizer = new rgb_colorizer();
-    GtkWidget *rgb_preview = create_cmap_browser_item(m, tips, cizer, "fred");
+    GtkWidget *rgb_preview = create_cmap_browser_item(m, tips, cizer, "fred",false);
     gtk_table_attach(GTK_TABLE(table), rgb_preview, 1, 2, 1, 2, 
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
@@ -428,7 +485,7 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
     /* toplevel */
     dialog = gnome_dialog_new(
         _("Choose a colormap"), 
-        _("Refresh"), GNOME_STOCK_BUTTON_CLOSE, NULL);
+        _("Update Previews"), GNOME_STOCK_BUTTON_CLOSE, NULL);
 
     gnome_dialog_button_connect(
         GNOME_DIALOG(dialog), 0,
@@ -480,6 +537,10 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
         GTK_SIGNAL_FUNC(preview_status_callback),
         table2);
 
+    gtk_signal_connect(
+        GTK_OBJECT(f), "status_changed", 
+        GTK_SIGNAL_FUNC(preview_status_callback),
+        table3);
     
     /* kick off async update */
     gf4d_fractal_calc(f,1);
