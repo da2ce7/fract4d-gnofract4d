@@ -125,7 +125,8 @@ class T(FctUtils):
         self.set_formula("gf4d.frm","Mandelbrot")
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","default")
-
+        self.dirty = True
+        
         self.reset()
 
         # interaction with fract4d library
@@ -206,6 +207,7 @@ class T(FctUtils):
 
         self.initparams = self.formula.symbols.default_params()
         self.set_bailfunc()
+        self.dirty = True
         
     def set_bailfunc(self):        
         bailfuncs = [
@@ -225,21 +227,26 @@ class T(FctUtils):
 
     def set_func(self,func,fname):
         self.formula.symbols.set_std_func(func,fname)
-        # FIXME self.compile()
+        self.dirty = True
         
     def set_inner(self,funcfile,func):
         self.cfuncs[1] = self.compiler.get_colorfunc(funcfile,func,"cf1")
         if self.cfuncs[1] == None:
             raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
-
+        self.dirty = True
+        
     def set_outer(self,funcfile,func):
         self.cfuncs[0] = self.compiler.get_colorfunc(funcfile,func,"cf0")
         if self.cfuncs[0] == None:
             raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
-
+        self.dirty = True
+        
     def compile(self):
         if self.formula == None:
             raise ValueError("no formula")
+        if self.dirty == False:
+            return self.outputfile
+
         cg = self.compiler.compile(self.formula)
         self.compiler.compile(self.cfuncs[0])
         self.compiler.compile(self.cfuncs[1])
@@ -254,6 +261,7 @@ class T(FctUtils):
                 self.handle = fract4dc.pf_load(self.outputfile)
                 self.pfunc = fract4dc.pf_create(self.handle)
 
+        self.dirty = False
         return self.outputfile
 
     def mul_vs(self,v,s):

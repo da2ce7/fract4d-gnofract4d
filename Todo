@@ -5,14 +5,14 @@ todo for 2.0
 * BB	tower_of_thorns, untitled_5 don't load - need bailout for colorfunc
 * BB	novaspiral.fct
 * BB	elfglow.fct, egg.fct
-* BB	coolness.fct
+* BB	coolness.fct - need direct coloring algorithm
 * BB	daisychain.fct
 * BB	dubious.fct
 * BB	giger.fct
 * BB	novamount.fct
 * BB	seaslug.fct
+* BB	skull_fairy.fct
 * BB	lattice.fct - 1.9 is wrong too!
-* W	set size of diff_bailout check from periodicity info
 * B	fractint doesn't reset vars between calls?
 * B	parse continuation lines correctly
 * BB	more robust error reporting
@@ -36,6 +36,7 @@ todo for 2.0
 * W	review human interface guidelines
 
 done:
+* W	set size of diff_bailout check from periodicity info
 * W	SMP/nthreads > 1
 * B	exception if you open and choose OK without selecting a file
 * B	test_fract4d.testMiniTextRender unreliable - initparams missing?
