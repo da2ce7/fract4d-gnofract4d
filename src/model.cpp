@@ -54,7 +54,7 @@ struct _model {
     GundoSequence *undo_seq;
     GundoActionType undo_action;
     Gf4dFractal *fract;
-    Gf4dFractal *subfracts[8];
+    Gf4dFractal *subfracts[12];
     GSList *explore_only_widgets;
     GSList *explore_sensitive_widgets;
     GtkWidget *topWidget;
@@ -322,7 +322,7 @@ model_new(void)
     model_init_compiler(m,g_pCompiler);
 
     m->fract = GF4D_FRACTAL(gf4d_fractal_new());
-    for(int i = 0; i < 8; i++)
+    for(int i = 0; i < 12; i++)
     {
         m->subfracts[i] = GF4D_FRACTAL(gf4d_fractal_new());
     }
@@ -473,7 +473,7 @@ model_get_movie(model_t *m)
 Gf4dFractal *
 model_get_subfract(model_t *m, int num)
 {
-    g_assert(num > -1 && num < 8);
+    g_assert(num > -1 && num < 12);
     return m->subfracts[num];
 }
 
@@ -531,7 +531,7 @@ model_update_subfracts(model_t *m)
 {
     if(!m->explore_mode) return;
 
-    for(int i = 0; i < 8; i++)
+    for(int i = 0; i < 12; i++)
     {
         gf4d_fractal_set_inexact(m->subfracts[i],m->fract,m->weirdness);
         gf4d_fractal_parameters_changed(m->subfracts[i]);

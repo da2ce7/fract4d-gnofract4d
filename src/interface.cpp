@@ -117,7 +117,7 @@ create_app (model_t *m)
     // terrible hack to get initial window size roughly right
     gtk_widget_set_usize(scrolled_window,640+8,480+8);
 
-    table = gtk_table_new (3,3,false);
+    table = gtk_table_new (4,4,false);
     
     gtk_widget_show (table);
     
@@ -137,7 +137,7 @@ create_app (model_t *m)
     
     gtk_widget_show_all (drawing_area);
 
-    gtk_table_attach(GTK_TABLE(table),drawing_area,1,2,1,2, 
+    gtk_table_attach(GTK_TABLE(table),drawing_area,1,3,1,3, 
                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
                      (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
                      1,1);
@@ -145,12 +145,18 @@ create_app (model_t *m)
     create_sub_drawing_area(m,table,0,0,0);
     create_sub_drawing_area(m,table,1,1,0);
     create_sub_drawing_area(m,table,2,2,0);
-    create_sub_drawing_area(m,table,3,0,1);
-    create_sub_drawing_area(m,table,4,2,1);
-    create_sub_drawing_area(m,table,5,0,2);
-    create_sub_drawing_area(m,table,6,1,2);
-    create_sub_drawing_area(m,table,7,2,2);
-    
+    create_sub_drawing_area(m,table,3,3,0);
+
+    create_sub_drawing_area(m,table,4,0,1);
+    create_sub_drawing_area(m,table,5,3,1);
+    create_sub_drawing_area(m,table,6,0,2);
+    create_sub_drawing_area(m,table,7,3,2);
+
+    create_sub_drawing_area(m,table,8,0,3);
+    create_sub_drawing_area(m,table,9,1,3);
+    create_sub_drawing_area(m,table,10,2,3);
+    create_sub_drawing_area(m,table,11,3,3);
+
     // turn explore mode *off*
     model_toggle_explore_mode(m);
     
