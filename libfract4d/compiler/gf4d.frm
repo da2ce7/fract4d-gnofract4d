@@ -212,3 +212,9 @@ T03-01-G4 {; based on T03-01 in CHBY1.FRM by Morgan L. Owens
   z=cx+flip(cy)
   |z|<=bailout
 }
+
+Richard1 (XYAXIS) {; Jm Collard-Richard
+  z = pixel:
+   sq=z*z, z=(sq*sin(sq)+sq)+pixel
+    |z|<=50
+  }
