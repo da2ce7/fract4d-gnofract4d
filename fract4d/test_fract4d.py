@@ -549,7 +549,7 @@ class PfTest(unittest.TestCase):
                 
                 nrecved += 1
                     
-    def disabled_testDirtyFlagFullRender(self):
+    def testDirtyFlagFullRender(self):
         '''Render the same image 2x with different colormaps.
 
         First, with the dirty flag set for a full redraw.  Second,
@@ -558,18 +558,34 @@ class PfTest(unittest.TestCase):
 
         # this doesn't work reliably - looks like uninitialized memory
         # used occasionally or something weird.
-        buf1 = self.drawTwice(True)
-        buf2 = self.drawTwice(False)
+        buf1 = self.drawTwice(True,64)
+        buf2 = self.drawTwice(False,64)
 
         i=0
         for (a,b) in zip(list(buf1), list(buf2)):
             if a != b:
                 print "%s != %s at %d" % (a,b,i)
-                #self.assertEqual(a,b)
+                self.assertEqual(a,b)
             i += 1
-                    
-    def drawTwice(self,is_dirty):
-        xsize = 64
+
+    def testLargeImageDirtyFlagFullRender(self):
+        '''Test we can draw and redraw a large image.
+
+        Over 1024*768, we don\'t allocate the recolor buffer to save memory.
+        Things should still work, just more slowly'''
+
+        buf1 = self.drawTwice(True,1025)
+        buf2 = self.drawTwice(False,1025)
+
+        i=0
+        for (a,b) in zip(list(buf1), list(buf2)):
+            if a != b:
+                print "%s != %s at %d" % (a,b,i)
+                self.assertEqual(a,b)
+            i += 1
+
+        
+    def drawTwice(self,is_dirty,xsize):
         ysize = int(xsize * 3.0/4.0)
         image = fract4dc.image_create(xsize,ysize)
         siteobj = FractalSite()
@@ -599,7 +615,7 @@ class PfTest(unittest.TestCase):
             site, is_dirty)
 
         #print "1st pass %s" % is_dirty
-        fract4dc.image_save(image, "pass1%d.tga" % is_dirty)
+        #fract4dc.image_save(image, "pass1%d.tga" % is_dirty)
         #self.print_fates(image,xsize,ysize)
         
         cmap = fract4dc.cmap_create(

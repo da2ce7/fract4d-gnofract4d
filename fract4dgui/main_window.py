@@ -9,11 +9,11 @@ import math
 import gtk
 
 sys.path.append("..")
-from fract4d import fractal,fc,fract4dc
+from fract4d import fractal,fc,fract4dc, gradient
 
 import gtkfractal, model, preferences, autozoom, settings, toolbar
 import colors, undo, browser, fourway, angle, utils, hig, painter
-import icons
+import icons, gtkgradient
 
 class MainWindow:
     def __init__(self, extra_paths=[]):
@@ -337,8 +337,8 @@ class MainWindow:
              self.browser, 0, ''),
             (_('/_Tools/_Randomize Colors'), '<control>R',
              self.randomize_colors, 0, ''),
-            (_('/_Tools/Color _Gradient'), '<control>G',
-             self.gradient_colors, 0, ''),
+            (_('/_Tools/_Gradient Editor'), '<control>G',
+             self.gradients, 0, ''),
             
             (_('/_Tools/_Painter...'), None,
              self.painter, 0, ''),
@@ -374,8 +374,9 @@ class MainWindow:
     def randomize_colors(self,action,menuitem):
         self.f.make_random_colors(8)
 
-    def gradient_colors(self,action,menuitem):
-        self.f.make_gradient_colors()
+    def gradients(self,action,menuitem):
+        g = gradient.Gradient()
+        gtkgradient.show_gradients(self.window, self.f,g)
 
     def painter(self,action,menuitem):
         painter.show(self.window,self.f)

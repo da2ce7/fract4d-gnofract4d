@@ -2,8 +2,10 @@
 
 #Class definition for Gradients
 
-#These two are SHTOLEN from libgimpcolor/gimpcolorspace.c
+#These two are shtolen from libgimpcolor/gimpcolorspace.c
 def RGBtoHSV(rgb):
+	hsv=[0,0,0]
+	
 	trgb = rgb
 	trgb.sort
 	max = trgb[0]
@@ -11,8 +13,8 @@ def RGBtoHSV(rgb):
 	delta = max - min
 
 	hsv[2]=max
-	if delta > 0:
-		hsv[1]=max/delta
+	if delta > 0.00001:
+		hsv[1]=delta/max
 		if rgb[0] == max:
 			hsv[0] = (rgb[1] - rgb[2]) / delta
 			if hsv[0] < 0.0:
@@ -27,6 +29,9 @@ def RGBtoHSV(rgb):
 		hsv[0] = 0.0
 		hsv[1] = 0.0
 		
+	hsv[0]*=255
+	hsv[1]*=255
+	
 	return hsv
 
 def HSVtoRGB(hsv):
@@ -80,21 +85,28 @@ def HSVtoRGB(hsv):
 
 class Gradient:
 	def __init__(self):
-		self.first=[255,0,255]
-		self.handles=[	['HSV','Linear', [.5,[0, 255, 255]]],
-						['HSV','Linear', [1, [255, 0, 255]]]]
+		#self.first=[255,0,255]
+		self.segments=[	['RGB','Linear', [0, [255, 255, 0]], [.5,[255, 0, 0]]],
+						['RGB','Linear', [.5,[255, 0, 0]], [1, [0,   0, 255]]]]
 		
-		#Key:	Colouring mode, Blending mode, [position [R|H, G|S, B|V]]
+		#Key:	Colouring mode, Blending mode, [position [R|H, G|S, B|V], [same again, but for left handle]]
+		#	Note that HSV colouring mode does NOT specify the colour in H, S and V, merely blends along the
+		#	HSV axes.
 		#Possibly add option for midpoint
 		
+		self.cur=1
 		self.num=255
 		self.detail=1.0/self.num
-		self.alternating=.333
+		self.alternating=0
+		self.offset=0
 		
 	def compute(self):
 		clist=[]; i=0; alt=0
 		while i < 1:
 			ialt=i+alt
+			if ialt > 1:
+				ialt-=1.0
+			ialt+=self.offset
 			if ialt > 1:
 				ialt-=1.0
 			col=self.getColourAt(ialt)
@@ -113,20 +125,51 @@ class Gradient:
 	def getColourAt(self, pos):
 		#Clever stuff is shtolen from gimp/app/core/gimpgradient.c
 		seg = self.getSegAt(pos)
+
+		#if seg == 0:
+		#	s_lpos = 0
+		#	s_lcol = self.first
+		#else:
+		#	s_lpos = self.handles[seg-1][2][0]
+		#	s_lcol = self.handles[seg-1][2][1]
 		
-		if seg == 0:
-			s_lpos = 0
-			s_lcol = self.first
+		cmode = seg[0]
+		bmode = seg[1]
+		
+		if cmode == 'RGB':
+			s_lcol = seg[2][1]
+			s_rcol = seg[3][1]
 		else:
-			s_lpos = self.handles[seg-1][2][0]
-			s_lcol = self.handles[seg-1][2][1]
+			s_lcol = RGBtoHSV(seg[2][1])
+			s_rcol = RGBtoHSV(seg[3][1])
+			
+		s_lpos = seg[2][0]
+		s_rpos = seg[3][0]
 		
-		s_rpos = self.handles[seg][2][0]
-		s_rcol = self.handles[seg][2][1]
+		#if pos > s_rpos:
+		#	if s_rpos >= s_lpos:
+		#		s_rpos+=1
+		#	else:
+		#		s_rpos-=1
+		#if pos < s_lpos:
+		#	if s_rpos >= s_lpos:
+		#		s_lpos-=1
+		#	else:
+		#		s_lpos+=1
+			#s_rpos-=s_lpos
+			#pos   -=s_lpos
+			#s_lpos =0
+			#if s_rpos <= 0:
+			#	s_rpos+=1
+			#if pos <= 0:
+			#	pos+=1
+			
+			
+		#print s_rpos, s_lpos
 		
-		cmode = self.handles[seg][0]
-		bmode = self.handles[seg][1]
 		s_len = s_rpos-s_lpos
+		if s_len == 0:
+			s_len = 0.00001
 		
 		#Uncomment the following when we've implemented movable middle handles
 		#s_mpos = (.5 - s_lpos) / s_len
@@ -138,11 +181,15 @@ class Gradient:
 		else:
 			factor = self.getCurvedFactor(pos, s_mpos)
 		
+		#print factor
+		
 		#Assume RGB mode, for the moment
 		RH = s_lcol[0] + (s_rcol[0] - s_lcol[0]) * factor
 		GS = s_lcol[1] + (s_rcol[1] - s_lcol[1]) * factor
 		BV = s_lcol[2] + (s_rcol[2] - s_lcol[2]) * factor
-
+		
+		#print factor, s_lcol, s_rcol
+		
 		if cmode == 'RGB':
 			return [RH, GS, BV]
 		else:
@@ -151,9 +198,28 @@ class Gradient:
 	#Obtains the first handle to the right of pos
 	#Essentially, we obtain the segment of gradient in which pos resides.
 	def getSegAt(self, pos):
-		for seg in self.handles:
-			if pos <= seg[2][0]:
-				return self.handles.index(seg)
+		for seg in self.segments:
+			if pos <= seg[3][0]:
+				return seg
+	
+	def getRawSegAt(self, pos):
+		for seg in self.segments:
+			if pos <= seg[3][0]:
+				return seg
+	
+	def getSegFromHandle(self, handle):
+		seg = handle/2
+		if handle/2.0 == seg:
+			return self.segments[seg], 2
+		else:
+			return self.segments[seg], 3
+	
+	def getDataFromHandle(self, handle):
+		seg = handle/2
+		if handle/2.0 == seg:
+			return self.segments[seg][2]
+		else:
+			return self.segments[seg][3]
 	
 	def getLinearFactor(self, pos, middle):
 		if pos <= middle:
@@ -168,3 +234,8 @@ class Gradient:
 		
 	def getCList(self):
 		return self.clist
+	def getOffset(self):
+		return self.offset
+		
+	def setOffset(self, newoffset):
+		self.offset=newoffset

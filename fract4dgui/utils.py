@@ -2,6 +2,8 @@ import os
 import sys
 import inspect
 
+import gtk
+
 def find_resource(name, local_dir, installed_dir):
     'try and find a file either locally or installed'
     local_name = os.path.join(local_dir,name)
@@ -36,3 +38,10 @@ def stack_trace():
         str += frame_desc
     return str
     
+def get_rgb_colormap():
+    # work around a difference between pygtk versions
+    if hasattr(gtk.gdk,'rgb_get_colormap'):
+        c = gtk.gdk.rgb_get_colormap()
+    else:
+        c = gtk.gdk.rgb_get_cmap()
+    return c
