@@ -44,11 +44,19 @@ public:
 	    double dist; 
 	    int fate;
 	    int solid;
-	    m_pfo->vtbl->calc(m_pfo, params, nIters, /*nNoPeriodIters,*/ 
-			      x, y, aa,
-			      pnIters, &fate, &dist, &solid);
+	    if (nNoPeriodIters == 0)
+	    {
+		m_pfo->vtbl->calc_period(m_pfo, params, nIters, 
+					 x, y, aa,
+					 pnIters, &fate, &dist, &solid);
+	    }
+	    else
+	    {
+		m_pfo->vtbl->calc(m_pfo, params, nIters, 
+				  x, y, aa,
+				  pnIters, &fate, &dist, &solid);
+	    }
 
-	    //printf("%d,%d,%g\n",*pnIters,fate,dist);
 	    if(fate == 1)
 	    {
 		*pnIters = -1;
