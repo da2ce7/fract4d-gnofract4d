@@ -104,8 +104,8 @@ compiler::compile(std::string commandLine)
     {
         on_error(std::string("Error '") + strerror(errno) + 
                  "'compiling fractal code using command:\n\n" +
-                 /*commandLine + */"\n\nCompiler output was:\n\n" +
-                 complaints);
+                 flow(commandLine) + "\n\nCompiler output was:\n\n" +
+                 flow(complaints));
     }
     return dlHandle;
 }
@@ -139,14 +139,30 @@ compiler::getHandle(std::string iter, std::string decl, std::string ret, std::st
             cc + " " + flags + " " + dflags + " " + in + " -o " + out + " 2>&1";
         
         handle = compile(commandLine);
-        if(NULL != handle)
+        if(NULL == handle)
+        {
+            /* cache the fact that an error occurred, so we don't report
+               it over & over. This will be cleared when the cache is 
+               next invalidated
+            */
+            cache[find] = "##error";
+        }
+        else
         {
             cache[find] = out;
         }
     }
     else
     {
-        handle = dlopen(i->second.c_str(), RTLD_NOW);
+        if(i->second == "##error")
+        {
+            /* an error occurred last time we compiled this */
+            handle = NULL; 
+        }
+        else
+        {
+            handle = dlopen(i->second.c_str(), RTLD_NOW);
+        }
     }
 
     pthread_mutex_unlock(&cache_lock);
@@ -159,8 +175,6 @@ compiler::getHandle(std::string iter, std::string decl, std::string ret, std::st
 std::string
 compiler::flow(std::string in)
 {
-    return in;
-
     int max_width = 40;
     int last_break_pos = 0;
     int last_space_pos = in.find(' ');
@@ -169,22 +183,22 @@ compiler::flow(std::string in)
         return in;
     }
     ostringstream os;
-    os << in;
-#if 0
-    os << in.substr(0,last_space_pos);
+
+    os << "<" << in.substr(0,last_space_pos) << ">";
+
     int this_space_pos;
     while((this_space_pos = in.find(' ', last_space_pos+1)) != string::npos)
     {
-        /*if(this_space_pos - last_break_pos > max_width)
+        if(this_space_pos - last_break_pos > max_width)
         {
             os << "\n";
             last_break_pos = last_space_pos;
         }
         os << in.substr(last_space_pos,this_space_pos-last_space_pos);
-        */
+        
         last_space_pos = this_space_pos;
     }
     os << in.substr(last_space_pos);
-#endif
+
     return os.str();
 }
