@@ -47,22 +47,29 @@ Error was: '%s' ''') % err
 
 class MainWindow:
     def __init__(self):
+        # window widget
+        self.window = gtk.Window()
+        self.window.connect('destroy', self.quit)
+
+        # keyboard handling
+        self.keymap = {
+            gtk.keysyms.Left : self.on_key_left,
+            gtk.keysyms.Right : self.on_key_right,
+            gtk.keysyms.Up : self.on_key_up,
+            gtk.keysyms.Down : self.on_key_down
+            }
+
+        self.accelgroup = gtk.AccelGroup()
+        self.window.add_accel_group(self.accelgroup)
+        self.window.connect('key-release-event', self.on_key_release)
+
         # create fractal compiler and load standard formula and
         # coloring algorithm files
         self.compiler = fc.Compiler()
         self.compiler.file_path.append("formulas")
         self.compiler.file_path.append(
             os.path.join(sys.exec_prefix, "share/formulas/gnofract4d"))
-        #self.compiler.load_formula_file("gf4d.frm")
-        #self.compiler.load_formula_file("gf4d.cfrm")
-
-        self.window = gtk.Window()
-        self.window.connect('destroy', self.quit)
-        
-        self.accelgroup = gtk.AccelGroup()
-        self.window.add_accel_group(self.accelgroup)
-        #self.window.connect('key-press-event', self.on_key_press)
-        
+                
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
         
@@ -156,10 +163,24 @@ class MainWindow:
     def set_filename(self,name):
         self.filename = name
         self.set_window_title()
+
+    def on_key_left(self,state):
+        self.f.nudge(-1, 0)
+
+    def on_key_right(self,state):
+        self.f.nudge(1, 0)
+
+    def on_key_up(self,state):
+        self.f.nudge(0, -1)
+
+    def on_key_down(self,state):
+        self.f.nudge(0, 1)
         
-    def on_key_press(self, event, *args):
-        print "key:", event.keyval
-        
+    def on_key_release(self, widget, event):
+        fn = self.keymap.get(event.keyval)
+        if fn:
+            fn(event.state)
+                    
     def progress_changed(self,f,progress):
         self.bar.set_fraction(progress/100.0)
 

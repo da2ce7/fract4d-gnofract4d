@@ -459,11 +459,15 @@ class T(gobject.GObject):
 
         if self.thaw():
             self.changed()
-            
+
+    def nudge(self,x,y):
+        # move a little way in x or y
+        self.relocate(0.1 * x , 0.1 * y, 1.0)
+        
     def recenter(self,x,y,zoom):
         dx = (x - self.width/2.0)/self.width
-        dy = (y - self.height/2.0)/self.width
-        self.relocate(dx,dy,zoom)        
+        dy = (y - self.height/2.0)/self.width                
+        self.relocate(dx,dy,zoom)
         
     def redraw_rect(self,x,y,w,h):
         # check to see if part of the rect is out-of-bounds, and clip if so
