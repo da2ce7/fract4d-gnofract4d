@@ -101,4 +101,4 @@ def Error(type, value, lineno):
     if type == "NEWLINE":
         lineno-= 1
     
-    return Node("Syntax error: unexpected %s %s on line %d " % (type, value, lineno), None, "")
+    return Node("error", None, "Syntax error: unexpected %s '%s' on line %d " % (type, value, lineno))

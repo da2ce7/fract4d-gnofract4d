@@ -17,6 +17,8 @@ precedence = (
     ('right', 'BOOL_NEG', 'UMINUS', 'POWER')
 )
 
+lasterror = None
+
 def p_file(t):
      'file : formlist'
      t[0] = absyn.Formlist(t[1])
@@ -37,6 +39,10 @@ def p_formula(t):
      'formula : FORM_ID NEWLINE sectlist FORM_END'
      t[0] = absyn.Formula(t[1],t[3])
 
+def p_formula_err(t):
+     'formula : error FORM_ID NEWLINE sectlist FORM_END'
+     t[0] = absyn.Formula(t[2],t[4])
+
 def p_formula_2(t):
      'formula : FORM_ID NEWLINE stmlist sectlist FORM_END'
      sectlist = [ absyn.Stmlist("nameless",t[3]) ] + t[4]
@@ -44,8 +50,8 @@ def p_formula_2(t):
 
 def p_bad_formula(t):
      'formula : FORM_ID error FORM_END'
-     t[0] = absyn.Formula(t[1],[t[2]])
-     
+     t[0] = absyn.Formula(t[1],[lasterror])
+
 def p_sectlist_2(t):
      'sectlist : section sectlist'
      t[0] = [ t[1] ] + t[2]
@@ -181,11 +187,12 @@ def p_arglist_exp(t):
 def p_arglist_2(t):
     'arglist : arglist COMMA arglist' 
     t[0] = t[1] + t[3]
-    
+
 # Error rule for syntax errors outside a formula
 def p_error(t):
-     print t
-     #print absyn.Error(t.type,t.value,t.lineno)
+     global lasterror
+     lasterror = absyn.Error(t.type,t.value,t.lineno)
+     return t
      # look for start of next formula
      #while 1:
      #     tok = yacc.token()
@@ -193,13 +200,13 @@ def p_error(t):
      #yacc.errok()
      #return tok #restart parsing including this last token
 
-# Build the parser
 parser = yacc.yacc()
-
+     
 # debugging
 if __name__ == '__main__':
     import sys
 
+    
     for arg in sys.argv[1:]:
         s = open(arg,"r").read() # read in a whole file
         result = yacc.parse(s)
