@@ -25,7 +25,7 @@ class image : public IImage
     fate_t *fate_buf;
 
     void delete_buffers();
-    void alloc_buffers();
+    bool alloc_buffers();
     void clear_fate(int x, int y);
 
 public:
@@ -34,6 +34,8 @@ public:
     image();
     image(const image& im);
     ~image();
+
+    bool ok() { return buffer != NULL; };
 
     int getNSubPixels() const { return N_SUBPIXELS; };
     inline bool hasUnknownSubpixels(int x, int y) const

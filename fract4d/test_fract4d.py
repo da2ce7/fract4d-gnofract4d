@@ -157,6 +157,22 @@ class PfTest(unittest.TestCase):
         pfunc = None
         handle = None
 
+    def testColossalImage(self):
+        try:
+            image = fract4dc.image_create(400000,300000)
+            self.fail("Should have raised an exception")
+        except MemoryError, err:
+            pass
+
+        image = fract4dc.image_create(40,30)
+        try:
+            fract4dc.image_resize(image, 400000,300000)
+            self.fail("Should have raised an exception")
+        except MemoryError, err:
+            pass
+
+        
+    
     def testImage(self):
         image = fract4dc.image_create(40,30)
         fract4dc.image_resize(image,80,60)

@@ -1143,6 +1143,13 @@ image_create(PyObject *self, PyObject *args)
 #endif
     i->set_resolution(x,y);
 
+    if(! i->ok())
+    {
+	PyErr_SetString(PyExc_MemoryError, "Image too large");
+	delete i;
+	return NULL;
+    }
+
     PyObject *pyret = PyCObject_FromVoidPtr(i,(void (*)(void *))image_delete);
 
     return pyret;
@@ -1166,6 +1173,12 @@ image_resize(PyObject *self, PyObject *args)
     }
 
     i->set_resolution(x,y);
+
+    if(! i->ok())
+    {
+	PyErr_SetString(PyExc_MemoryError, "Image too large");
+	return NULL;
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
