@@ -322,17 +322,12 @@ default:
 
     def testComma(self):
         self.assertParsesEqual("a=1,b=2","a=1\nb=2")
-
-    # this doesn't pass yet, but I'm too lazy to fix
-    def testComma2(self):
-        t1 = self.parse(self.makeMinimalFormula("if a==b,\na = c\nendif\n"))
-        self.assertIsValidParse(t1)
+        self.assertParsesEqual("if a==b,foo=bar,elseif a==c,foo=baz,endif",
+                               "if a==b\nfoo=bar\nelseif a==c\nfoo=baz\nendif")
+        self.assertParsesEqual("while a==b,foo,endwhile",
+                               "while a==b\nfoo\nendwhile")
         t1 = self.parse('''t1{\ndefault:\n
-          param bailout
-   caption = "Bailout",
-   default = 30
-     endparam
-}''')
+          param bailout,caption = "Bailout",default = 30,endparam}''')
         self.assertIsValidParse(t1)
         
     def testParseErrors(self):
