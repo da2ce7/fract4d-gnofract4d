@@ -14,10 +14,14 @@ class FCTest(unittest.TestCase):
 
     def testLoad(self):
         self.compiler.load_formula_file("gf4d.frm")
-        (formulas,contents) = self.compiler.files["gf4d.frm"]
-        self.assertNotEqual(string.index(contents,"Modified for Gf4D"),-1)
-        self.assertNotEqual(formulas.get("T03-01-G4"),None)
-        
+        ff = self.compiler.files["gf4d.frm"]
+        self.assertNotEqual(string.index(ff.contents,"Modified for Gf4D"),-1)
+        self.assertNotEqual(ff.get_formula("T03-01-G4"),None)
+        self.assertEqual(len(ff.formulas),1)
+        f = self.compiler.get_formula("gf4d.frm","T03-01-G4")
+        self.assertEqual(f.leaf, "T03-01-G4")
+            
+
 def suite():
     return unittest.makeSuite(FCTest,'test')
 
