@@ -4,6 +4,7 @@ import gtk
 
 import dialog
 import browser
+import utils
 
 def show_settings(parent,f):
     SettingsDialog.show(parent,f)
@@ -222,9 +223,10 @@ class SettingsDialog(dialog.T):
         # This works around that problem
         def update_all_widgets(*args):
             for widget in self.tables[param_type].get_children():
-                if hasattr(widget,"update"):
-                    widget.update()
-        
+                update_function = widget.get_data("update_function")
+                if update_function != None:
+                    update_function()
+                    
         self.f.connect('formula-changed', update_formula_parameters)
         self.f.connect('parameters-changed', update_all_widgets)
         

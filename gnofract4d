@@ -6,6 +6,7 @@
 import sys
 import os
 import getopt
+import distutils.sysconfig
 
 # gettext
 import gettext
@@ -38,9 +39,11 @@ if not pygtk_ok:
     print _("Sorry, your PyGTK version is too old. You need at least 1.99")
     sys.exit(1)
 
+libdir = distutils.sysconfig.get_config_var('LIBDIR')
+
 try:
     # we install our libs privately instead of to site-packages
-    sys.path.append('/usr/lib/gnofract4d-2.5')
+    sys.path.append(os.path.join(libdir, 'gnofract4d-2.6'))
     # gui modules
     from fract4dgui import main_window, preferences
     

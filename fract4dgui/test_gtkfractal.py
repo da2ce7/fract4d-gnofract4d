@@ -90,7 +90,7 @@ class FctTest(unittest.TestCase):
         self.f.connect('status-changed', self.quitloop)
         self.f.draw_image(0,1)
         self.wait()        
-        
+                
     def disabled_testSignalsDontRecurse(self):
         # test no recurse, but doesn't work. Maybe I've misunderstood
         # signal recursion semantics?

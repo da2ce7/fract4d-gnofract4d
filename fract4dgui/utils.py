@@ -1,5 +1,6 @@
 import os
 import sys
+import inspect
 
 def find_resource(name, local_dir, installed_dir):
     'try and find a file either locally or installed'
@@ -20,4 +21,18 @@ def find_in_path(exe):
         if os.path.exists(full_path):
             return full_path
     return None
+    
+def stack_trace():
+    stack = inspect.stack()
+    str = ""
+    for frame in stack[1:]:
+        (frame_obj, filename, line, funcname, context, context_index) = frame
+        try:
+            args = inspect.formatargvalues(*inspect.getargvalues(frame_obj))
+        except Exception:
+            args = "<unavailable>"
+        
+        frame_desc = "%s(%s)\t\t%s(%s)\n" % (filename, line, funcname, args)
+        str += frame_desc
+    return str
     
