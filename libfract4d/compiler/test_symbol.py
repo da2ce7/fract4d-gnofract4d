@@ -46,6 +46,7 @@ class SymbolTest(unittest.TestCase):
         times = self.t["*"]
         times_i = times[0]
         self.failUnless(times_i.matchesArgs([Int,Int]))
+        self.failUnless(times_i.matchesArgs([Int,Bool]))
         self.failUnless(not times_i.matchesArgs([Int,Color]))
         
 def suite():
