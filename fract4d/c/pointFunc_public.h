@@ -25,7 +25,7 @@ class pointFunc {
         // out params
         rgba_t *color, int *pnIters, float *pIndex, fate_t *pFate
         ) const = 0;
-    virtual rgba_t recolor(double dist, fate_t fate) const = 0;
+    virtual rgba_t recolor(double dist, fate_t fate, rgba_t current) const = 0;
 };
 
 #endif

@@ -173,7 +173,7 @@ STFractWorker::antialias(int x, int y)
 
     dvec4 pos = topleft; 
 
-    rgba_t ptmp;
+    rgba_t ptmp, last;
     unsigned int pixel_r_val=0, pixel_g_val=0, pixel_b_val=0;    
     int p=0;
     float index;
@@ -182,6 +182,7 @@ STFractWorker::antialias(int x, int y)
     int single_iters = im->getIter(x,y);
     bool checkPeriod = periodGuess(single_iters); 
 
+    last = im->get(x,y);
     // top left
     fate = im->getFate(x,y,0);
     if(im->hasUnknownSubpixels(x,y))
@@ -192,7 +193,7 @@ STFractWorker::antialias(int x, int y)
     }
     else
     {
-	ptmp = pf->recolor(im->getIndex(x,y,0), fate);
+	ptmp = pf->recolor(im->getIndex(x,y,0), fate, last);
     }
 
     pixel_r_val += ptmp.r;
@@ -211,7 +212,7 @@ STFractWorker::antialias(int x, int y)
     }
     else
     {
-	ptmp = pf->recolor(im->getIndex(x,y,1), fate);
+	ptmp = pf->recolor(im->getIndex(x,y,1), fate, last);
     }
 
     pixel_r_val += ptmp.r;
@@ -229,7 +230,7 @@ STFractWorker::antialias(int x, int y)
     }
     else
     {
-	ptmp = pf->recolor(im->getIndex(x,y,2), fate);
+	ptmp = pf->recolor(im->getIndex(x,y,2), fate, last);
     }
 
     pixel_r_val += ptmp.r;
@@ -247,7 +248,7 @@ STFractWorker::antialias(int x, int y)
     }
     else
     {
-	ptmp = pf->recolor(im->getIndex(x,y,3), fate);
+	ptmp = pf->recolor(im->getIndex(x,y,3), fate, last);
     }
 
     pixel_r_val += ptmp.r;
@@ -315,7 +316,7 @@ STFractWorker::pixel(int x, int y,int w, int h)
     }
     else
     {
-	pixel = pf->recolor(im->getIndex(x,y,0), fate);
+	pixel = pf->recolor(im->getIndex(x,y,0), fate, im->get(x,y));
 	rectangle(pixel,x,y,w,h);
     }
 }

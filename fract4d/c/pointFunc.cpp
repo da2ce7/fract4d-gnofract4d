@@ -72,6 +72,7 @@ public:
 	    if(fUseColors)
 	    {
 		*color = m_cmap->lookup_with_dca(fate, solid, colors);
+		fate |= FATE_DIRECT;
 	    }
 	    else
 	    {
@@ -91,15 +92,19 @@ public:
 		dist,fate,*pnIters,
 		color->r, color->g, color->b, color->a);
 	}
-    inline rgba_t recolor(double dist, fate_t fate) const
+    inline rgba_t recolor(double dist, fate_t fate, rgba_t current) const
 	{	    
 	    int solid = 0;
+	    if(fate & FATE_DIRECT)
+	    {
+		return current;
+	    }
 	    if(fate & FATE_SOLID)
 	    {
 		fate &= ~FATE_SOLID;
 		solid = 1;
 	    }
-
+	    
 	    return m_cmap->lookup_with_transfer(fate,dist,solid);
 	}
 };

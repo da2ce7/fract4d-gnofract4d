@@ -11,6 +11,6 @@ typedef unsigned char fate_t;
 
 #define FATE_UNKNOWN 255
 #define FATE_SOLID 0x80
-
+#define FATE_DIRECT 0x40
 
 #endif /* COLOR_H_ */

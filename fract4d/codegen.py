@@ -748,7 +748,7 @@ extern pf_obj *pf_new(void);
         inserts["pf"] = self.pf_header
 
         inserts["dca_init"] = "%d" % self.is_direct()
-        print "dca:", inserts["dca_init"]
+
         if self.is_direct():
             inserts["save_colors"] = '''
             t__p_pColors[0] = t__h_color_re;
