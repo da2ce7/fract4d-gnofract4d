@@ -672,7 +672,7 @@ class T(gobject.GObject):
         
     def get_paint_color(self):
         color = self.paint_color_sel.get_current_color() 
-        return (color.red, color.green, color.blue)
+        return (color.red/65535.0, color.green/65535.0, color.blue/65535.0)
     
     def onPaint(self,x,y):
         # obtain index
@@ -682,11 +682,14 @@ class T(gobject.GObject):
         (r,g,b) = self.get_paint_color()
         
         # update colormap
-        for i in xrange(len(self.colorlist)):
-            if self.colorlist[i][0] >= index:
-                (old_index,oldr,oldg,oldb,a) = self.colorlist[i]
-                self.colorlist[i] = (index,r,g,b,a)
-                break
+        i = self.f.gradient.get_index_at(index)
+        if index > self.f.gradient.segments[i].mid:
+            alpha = self.f.gradient.segments[i].right_color[3]
+            self.f.gradient.segments[i].right_color = [r, g, b, alpha]
+        else:
+            alpha = self.f.gradient.segments[i].left_color[3]
+            self.f.gradient.segments[i].left_color = [r, g, b, alpha]
+            
         self.changed(False)
 
     def filterPaintModeRelease(self,event):
