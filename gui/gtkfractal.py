@@ -182,13 +182,13 @@ class T(gobject.GObject):
 
             def set_entry(*args):
                 widget.set_text("%.17f" % self.initparams[order])
-            
+                    
             def set_fractal(*args):
                 self.set_initparam(order,widget.get_text())
                 return False
             
             set_entry(self)
-            self.connect('parameters-changed',set_entry)
+            widget.handler_id = self.connect('parameters-changed',set_entry)
             widget.connect('focus-out-event',set_fractal)
         else:
             raise "Unsupported parameter type"

@@ -21,8 +21,11 @@ class BrowserDialog(gtk.Dialog):
             "Formula Browser",
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
-            (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+            (gtk.STOCK_APPLY, gtk.RESPONSE_APPLY,
+             gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
+        self.disable_apply()
+        
         self.formula_list = gtk.ListStore(
             gobject.TYPE_STRING)
 
@@ -32,7 +35,8 @@ class BrowserDialog(gtk.Dialog):
         self.f = f
         self.compiler = f.compiler
         self.current_fname = None
-        
+
+        self.set_size_request(750,500)
         #self.accelgroup = gtk.AccelGroup()
         #self.window.add_accel_group(self.accelgroup)
 
@@ -45,8 +49,16 @@ class BrowserDialog(gtk.Dialog):
                id == gtk.RESPONSE_NONE or \
                id == gtk.RESPONSE_DELETE_EVENT:
             self.hide()
+        elif id == gtk.RESPONSE_APPLY:
+            self.f.set_formula(self.current_fname,self.current_formula) 
         else:
             print "unexpected response %d" % id
+
+    def disable_apply(self):
+        self.set_response_sensitive(gtk.RESPONSE_APPLY,False)
+
+    def enable_apply(self):
+        self.set_response_sensitive(gtk.RESPONSE_APPLY,True)
 
     def create_file_list(self):
         sw = gtk.ScrolledWindow ()
@@ -103,7 +115,7 @@ class BrowserDialog(gtk.Dialog):
     def create_scrolled_textview(self):
         sw = gtk.ScrolledWindow ()
         sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
-        sw.set_policy (gtk.POLICY_NEVER,
+        sw.set_policy (gtk.POLICY_AUTOMATIC,
                        gtk.POLICY_AUTOMATIC)
 
         textview = gtk.TextView()
@@ -164,9 +176,11 @@ class BrowserDialog(gtk.Dialog):
     def formula_selection_changed(self,selection):
         (model,iter) = selection.get_selected()
         if iter == None:
+            self.disable_apply()
             return
         
         form_name = model.get_value(iter,0)
+        self.current_formula = form_name
         file = self.current_fname
         formula = self.compiler.get_parsetree(file,form_name)
         
@@ -196,6 +210,11 @@ class BrowserDialog(gtk.Dialog):
             
         buffer.set_text(msg,-1)
 
+        if self.ir.errors == []:
+            self.enable_apply()
+        else:
+            self.disable_apply()
+        
         #self.compiler.generate_code(formula,"browser-tmp.c")
         
         #buffer = self.asmtext.get_buffer()

@@ -60,6 +60,13 @@ class SettingsDialog(gtk.Dialog):
         self.table2 = None
         def add_current_formula_parameters(*args):
             if self.table2 != None:
+                # ensure old children are not called back -
+                # this can happen even after they're destroyed, which is odd
+                for child in self.table2.get_children():
+                    hid = getattr(child,"handler_id",None)
+                    if hid != None:
+                        self.f.disconnect(hid)
+                    
                 self.table2.destroy()
                 
             self.table2 = self.f.populate_formula_settings()

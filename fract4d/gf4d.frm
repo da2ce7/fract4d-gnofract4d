@@ -49,6 +49,7 @@ endparam
 float func bailfunc
 	default = cmag
 endfunc
+zcenter=1.0e-10
 }
 
 Quadratic {
@@ -106,6 +107,7 @@ endparam
 float func bailfunc
 	default = cmag
 endfunc
+zcenter=1.0e-10
 }
 
 Barnsley Type 1 {
@@ -190,6 +192,7 @@ endparam
 float func bailfunc
 	default = cmag
 endfunc
+magnitude=6.0
 }     
 		
 Burning Ship {
@@ -205,6 +208,7 @@ endparam
 float func bailfunc
 	default = cmag
 endfunc
+xycenter = (-0.5,-0.5)
 }
 
 Cubic Burning Ship {
@@ -235,6 +239,9 @@ endparam
 float func bailfunc
 	default = cmag
 endfunc
+xcenter=1.0
+zcenter=0.5
+magnitude=8.0
 }
 
 Magnet {
@@ -250,6 +257,8 @@ endparam
 float func bailfunc
 	default = cmag
 endfunc
+xcenter=2.0
+magnitude=8.0
 }
 
 Magnet 2 {
@@ -268,6 +277,8 @@ endparam
 float func bailfunc
 	default = cmag
 endfunc
+xcenter=2.0
+magnitude=3.0
 }
 
 Newton {
@@ -279,6 +290,10 @@ loop:
 	z = z - (z*z*z - 1.0)/(3.0 * z * z)
 bailout:
 	|z - last| > #tolerance
+default:
+xzangle=1.5707963267948966
+ywangle=1.5707963267948966
+xcenter=1.0
 }
 
 Nova {
@@ -300,6 +315,8 @@ endparam
 float param epsilon
 	default = 0.01
 endparam
+zcenter=1.0
+magnitude=3.0
 }
 
 
