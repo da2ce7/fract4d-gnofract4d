@@ -770,6 +770,7 @@ bailout:
 |z| < 4.0
 final:
 z = (-77.0,9.0)
+float t = #tolerance
 }'''
         t = self.translate(src)
         self.codegen.output_all(t)
@@ -777,15 +778,15 @@ z = (-77.0,9.0)
         
         inserts = {
             "main_inserts": self.main_stub,
-            "done_inserts": "printf(\"(%g,%g)\\n\",z_re,z_im);",
+            "done_inserts": "printf(\"(%g,%g,%g)\\n\",z_re,z_im,t);",
             "pre_final_inserts": "printf(\"(%g,%g)\\n\",z_re,z_im);"
             }
         c_code = self.codegen.output_c(t,inserts)
         #print c_code
         output = self.compileAndRun(c_code)
         lines = string.split(output,"\n")
-        self.assertEqual(lines[1],"(-77,9)")
-        self.assertEqual(lines[4],"(-77,9)")
+        self.assertEqual(lines[1],"(-77,9,0.001)")
+        self.assertEqual(lines[4],"(-77,9,0.001)")
         
     def testLibrary(self):
         # create a library containing the compiled code

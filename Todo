@@ -1,10 +1,17 @@
 todo for 2.0
 * W	max size for .so cache, compiler properties
 * W	store user preferences
-* BB	deeper.fct doesn't load properly - old format
-* WW	support different bailout functions
-* WW	bailFuncs
-* W	user parameter functions
+* BB	deeper.fct, hive.fct, image.fct doesn't load properly - old format
+* BB	tower_of_thorns, untitled_5 don't load - need bailout for colorfunc
+* BB	novaspiral.fct
+* BB	elfglow.fct, egg.fct
+* BB	coolness.fct
+* BB	daisychain.fct
+* BB	dubious.fct
+* BB	giger.fct
+* BB	novamount.fct
+* BB	seaslug.fct
+* BB	lattice.fct - 1.9 is wrong too!
 * W	set size of diff_bailout check from periodicity info
 * B	fractint doesn't reset vars between calls?
 * B	parse continuation lines correctly
@@ -32,8 +39,12 @@ done:
 * W	SMP/nthreads > 1
 * B	exception if you open and choose OK without selecting a file
 * B	test_fract4d.testMiniTextRender unreliable - initparams missing?
+* WW	support different bailout functions
+* WW	bailFuncs
+* W	user parameter functions
 
 postponed
+* W	diff bailout for other types
 * W	logmap
 * W	periodicity
 * B	interrupt takes too long on deep-zoomed fractals

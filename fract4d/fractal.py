@@ -299,15 +299,19 @@ class T(FctUtils):
         # remove underscore to debug fractal generation
         print "pixel: (%g,%g,%g,%g) %d %d %d %d %d %g %d %d (%d %d %d %d)" % \
               (params[0],params[1],params[2],params[3],x,y,aa,maxIters,nNoPeriodIters,dist,fate,nIters,r,g,b,a)
-                      
+
+    def tolerance(self,w,h):
+        #5% of the size of a pixel
+        return self.params[self.MAGNITUDE]/(20.0 * max(w,h))
+
     def draw(self,image):
         handle = fract4dc.pf_load(self.outputfile)
         pfunc = fract4dc.pf_create(handle)
         cmap = fract4dc.cmap_create(self.colorlist)
         (r,g,b,a) = self.solids[0]
         fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
-        
-        fract4dc.pf_init(pfunc,0.001,self.initparams)
+
+        fract4dc.pf_init(pfunc,1.0E-9,self.initparams)
 
         #print "draw aa: %d %d %d" % (self.antialias,self.maxiter,threads)
         fract4dc.calc(self.params,self.antialias,self.maxiter,1,
