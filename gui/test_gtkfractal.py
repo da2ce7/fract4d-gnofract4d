@@ -101,8 +101,7 @@ class FctTest(unittest.TestCase):
     def testParamSettings(self):
         self.f.set_formula("test.frm","test_func")
 
-        table = gtk.Table(5,2,gtk.FALSE)
-        self.f.populate_formula_settings(table,0)
+        table = self.f.populate_formula_settings()
 
         children = table.get_children()
         list.reverse(children)
