@@ -190,18 +190,105 @@ class T:
         
         self.output_template = '''
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
-        
+
+/* bailout flags */
+#define HAS_X2 1
+#define HAS_Y2 2
+#define USE_COMPLEX 4
+#define NO_UNROLL 8
+#define NO_PERIOD 16
+
+// iter state
+#define X 0
+#define Y 1
+
+// input state
+#define CX 2
+#define CY 3
+#define EJECT 4
+
+
+// temp state
+#define X2 5
+#define Y2 6
+#define EJECT_VAL 7
+#define LASTX 8
+#define LASTY 9
+#define STATE_SPACE (LASTY+1)
+
+struct s_pf_data;
+
+struct s_pf_vtable {
+    /* fill in fields in pf_data with appropriate stuff */
+    void (*init)(
+	struct s_pf_data *p,
+        double bailout,
+        double period_tolerance,
+        void *params
+	);
+    /* calculate one point.
+       perform up to nIters iterations,
+       using periodicity (if supported) after the 1st nNoPeriodIters
+       return:
+       number of iters performed in pnIters
+       out_buf: points to an array of doubles containing info on the calculation,
+       see state.h for offsets
+    */
+    void (*calc)(
+	struct s_pf_data *p,
+        // in params
+        const double *params, int nIters, int nNoPeriodIters,
+	// only used for debugging
+	int x, int y, int aa,
+        // out params
+        int *pnIters, double **out_buf
+	);
+    /* deallocate data in p */
+    void (*kill)(
+	struct s_pf_data *p
+	);
+} ;
+
+struct s_pf_data {
+    struct s_pf_vtable *vtbl;
+} ;
+
+typedef struct s_pf_vtable pf_vtable;
+typedef struct s_pf_data pf_obj;
+
+typedef struct {
+    pf_obj parent;
+    double p[STATE_SPACE];
+
+} pf_real ;
+
+static void pf_init(
+    struct s_pf_data *p_stub,
+    double bailout,
+    double period_tolerance, 
+    void *params)
+{
+    pf_real *pfo = (pf_real *)p_stub;
+    pfo->p[EJECT_VAL] = 4.1;
+    pfo->p[X2] = 4.01;
+    pfo->p[Y2] = 4.02;
+}
+
 static void pf_calc(
     // "object" pointer
-    // struct s_pf_data *p_stub,
+    struct s_pf_data *p_stub,
     // in params
-    const double *params, int nMaxIters, // int nNoPeriodIters,
+    const double *params, int nMaxIters, int nNoPeriodIters,
     // only used for debugging
-    // int x, int y, int aa,
+    int t__p_x, int t__p_y, int t__p_aa,
     // out params
-    int *pnIters /*, double **out_buf */)
+    int *pnIters, double **out_buf)
 {
+    pf_real *pfo = (pf_real *)p_stub;
+
+    *out_buf = &(pfo->p)[0];
 
 double z_re = params[0];
 double z_im = params[1];
@@ -227,6 +314,27 @@ do
 %(done_inserts)s
 *pnIters = nIters;
 return;
+}
+
+static void pf_kill(
+    struct s_pf_data *p_stub)
+{
+    free(p_stub);
+}
+
+static struct s_pf_vtable vtbl = 
+{
+    pf_init,
+    pf_calc,
+    pf_kill
+};
+
+pf_obj *pf_new()
+{
+    pf_obj *p = (pf_obj *)malloc(sizeof(pf_real));
+    if(!p) return NULL;
+    p->vtbl = &vtbl;
+    return p;
 }
 
 %(main_inserts)s

@@ -8,6 +8,7 @@ import fractparser
 import fractlexer
 import ir
 import canon
+import stdlib
 
 from fracttypes import *
     
@@ -297,9 +298,9 @@ class T:
         except KeyError:
             if opnode.leaf[0] == "@":
                 # an attempt to call an undeclared parameter function,
-                # create it now
+                # create it now. Point to ident by default
                 overloadList = self.symbols[opnode.leaf] = [
-                    Func([Complex],Complex,None,None)]
+                    Func([Complex],Complex,stdlib,"ident")]
             else:
                 raise
         

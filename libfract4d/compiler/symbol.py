@@ -112,7 +112,7 @@ def createDefaultDict():
     for f in xrange(1,5):
         name = "fn%d" % f
         d[name] = Alias("t__a_" + name)
-        d["t__a_" + name ] = [Func([Complex],Complex, stdlib, name) ]
+        d["t__a_" + name ] = [Func([Complex],Complex, stdlib, "ident") ]
     return d
 
 
@@ -183,8 +183,7 @@ class T(UserDict):
                   ("symbol '%s': no symbol starting with t__ is allowed" % key)
         elif key[0]=='#':
             raise KeyError, \
-                  ("symbol '%s': only predefined symbols can begin with '#'" % key)
-        
+                  ("symbol '%s': only predefined symbols can begin with '#'" %key)
         self.data[k] = value
 
     def parameters(self,varOnly=False):

@@ -354,6 +354,17 @@ goto t__end_init;''')
         complex y = @fn1((1,-1)) + fn2((2,0)) + @my_func((2,0))
         }'''
 
+        # first without overrides
+        t = self.translate(src)
+        self.codegen.generate_all_code(t.canon_sections["init"])
+
+        check = self.inspect_complex("x") + self.inspect_complex("y")
+        postamble = "t__end_%s:\n%s\n" % ("init",check)
+        c_code = self.makeC("", postamble)        
+        output = self.compileAndRun(c_code)
+        self.assertEqual(output,"x = (0,0)\ny = (5,-1)")
+
+        # then again with overridden funcs
         t = self.translate(src)
         t.symbols["@my_func"][0].set_func(stdlib,"sqr")
         t.symbols["@fn1"][0].set_func(stdlib,"conj")
@@ -482,14 +493,15 @@ int main()
 {
     double params[6] = { 0.0, 0.0, 1.5, 0.0, 5.0, 2.0};
     int nItersDone=0;
-    pf_calc(params, 100, &nItersDone);
+    double *out_buf=NULL;
+    pf_calc(NULL,params, 100, 100, 0,0,0, &nItersDone, &out_buf);
     printf("(%d)\\n",nItersDone);
 
     params[0] = 0.1; params[1] = 0.3;
     params[2] = 0.1; params[3] = 0.2;
     params[4] = 3.0; params[5] = 3.5;
     
-    pf_calc(params, 20, &nItersDone);
+    pf_calc(NULL, params, 20, 20, 0,0,0, &nItersDone, &out_buf);
     printf("(%d)\\n",nItersDone);
         
     return 0;
@@ -540,7 +552,30 @@ bailout:
         # 1st point we try should bail out 
         self.assertEqual(lines, lines3, output3)
 
+    def testLibrary(self):
+        # create a library containing the compiled code
+        src = '''t_mandel{
+init:
+loop:
+z = z*z + 1/pixel
+bailout:
+|z| < 4.0
+}'''
+        t = self.translate(src)
+        self.codegen.output_all(t, {"z" : "", "pixel" : ""} )
+        c_code = self.codegen.output_c(t)
+
+        cFileName = self.writeToTempFile(c_code,".c")
+        oFileName = self.writeToTempFile(None,".so")
+        #print c_code
+        cmd = "gcc -Wall -fPIC -dPIC -shared %s -o %s -lm" % (cFileName, oFileName)
+        print oFileName
+        (status,output) = commands.getstatusoutput(cmd)
+        self.assertEqual(status,0,"C error:\n%s\nProgram:\n%s\n" % \
+                         ( output,c_code))
+
         
+
     # assertions
     def assertCSays(self,source,section,check,result,dump=None):
         asm = self.sourceToAsm(source,section,dump)
