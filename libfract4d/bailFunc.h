@@ -32,6 +32,7 @@
 
 class bailFunc {
  public:
+    virtual ~bailFunc() {};
     /* returns a code snippet which does bailout */
     virtual std::string bail_code(int flags) const = 0;
 

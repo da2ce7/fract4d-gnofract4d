@@ -132,18 +132,16 @@ public:
 
 pointFunc *pointFunc::create(
     iterFunc *iterType, 
-    e_bailFunc bailType, 
+    bailFunc *bailType, 
     double bailout,
     double periodicity_tolerance,
     colorizer *pcf,
     e_colorFunc outerCfType,
     e_colorFunc innerCfType)
 {
-    bailFunc *b = bailFunc_new(bailType);
-
     std::map<std::string,std::string> code_map;
     iterType->get_code(code_map);
-    b->get_code(code_map, iterType->flags());
+    bailType->get_code(code_map, iterType->flags());
 
     // disable periodicity if inner function will show its effect
     if(innerCfType != COLORFUNC_ZERO)

@@ -1,6 +1,7 @@
 #include "fractFunc.h"
 #include "pointFunc.h"
 #include "iterFunc.h"
+#include "bailFunc.h"
 #include <stdio.h>
 
 bool
@@ -10,14 +11,17 @@ fractThreadFunc::init(fractFunc *ff_,fractal_t *f_, IImage *im_)
     f = f_;
     im = im_;
 
+    bailFunc *b = bailFunc_new(f->bailout_type);
     pf = pointFunc::create(
         f->pIterFunc, 
-        f->bailout_type, 
+        b,
         f->params[BAILOUT], 
         f->tolerance(im),
         f->cizer, 
         f->colorFuncs[OUTER],
         f->colorFuncs[INNER]);
+
+    delete b;
 
     if(NULL == pf)
     {

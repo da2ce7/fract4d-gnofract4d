@@ -28,6 +28,7 @@
 #include "calc.h"
 #include "fractFunc.h"
 #include "iterFunc.h"
+#include "bailFunc.h"
 #include "io.h"
 
 #include <queue>
@@ -677,15 +678,18 @@ fractal::calc(IFractalSite *site, IImage *im)
 void 
 fractal::recolor(IImage *im)
 {
+    bailFunc *b = bailFunc_new(bailout_type);
 
     pointFunc *p = pointFunc::create(
         pIterFunc,
-        bailout_type,
+        b,
         params[BAILOUT],
         tolerance(im),
         cizer,
         colorFuncs[OUTER],
         colorFuncs[INNER]);
+
+    delete b;
 
     int width = im->Xres();
     int height = im->Yres();

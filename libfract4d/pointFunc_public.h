@@ -53,6 +53,7 @@ typedef enum
 
 
 class iterFunc;
+class bailFunc;
 
 /* interface for function object which computes and/or colors a single point */
 class pointFunc {
@@ -60,7 +61,7 @@ class pointFunc {
     /* factory method for making new pointFuncs */
     static pointFunc *create(
 	iterFunc *iterType, 
-	e_bailFunc bailType,
+	bailFunc *bailType,
 	double eject,
 	double periodicity_tolerance,
 	colorizer *pcf,
