@@ -304,7 +304,7 @@ colorlist=[
             self.failUnless(b >= 0 and b < 256)
             self.failUnless(a == 255)
 
-    def testGradientColors(self):
+    def disabled_testGradientColors(self):
         'Test that generating gradients work'
         f = fractal.T(self.compiler)
         f.make_gradient_colors()

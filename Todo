@@ -15,6 +15,7 @@ Done in 2.7:
 * B	collapsar preview different color from main image
 * BBB	explorer doesn't work properly with int/enum/bool params?
 * W	use fancy new filechooser dialog when available
+* W	implement $IFDEF
 
 todo:
 
@@ -57,7 +58,6 @@ bugs (the more B's, the worse the bug):
 
 features (the more W's, the more work involved):
 * W	download missing formulas from UF formula database
-* W	implement $IFDEF
 * W	copy & paste to text or image
 * W	don't allocate memory for recoloring buffer when image very large
 * WW	cmap browser
@@ -275,25 +275,6 @@ done in 2.2:
 * W	there is no warning before files are overwritten (parameter files +
 	pictures)
 * B	undo/redo cause recompilation
-
-GIMP Gradient
-Possibly Name: %s
-3 # number of points
-0.000000 0.166667 0.333333 0.000000 0.000000 1.000000 1.000000 0.000000 0.000000 1.000000 1.000000 0 0
-The format seems to be
-start middle end [range 0...1]
-R G B A left endpoint
-R G B A right endpoint
-type where type is one of linear (0), curved, sine,
-sphere_increasing and sphere_decreasing
-coloring, one of rgb, hsv_ccw, hsv_cw
-
-The type & colouring are accessible to the gradient editor (the
-user, I mean) in the "blending function for segment" and "Colouring 
-type for segment" menus of the gradient editor menu.
-
-This information is available in app/gradient.c and
-app/gradient_header.h.
 
 gnofract4d
 * W	automatic addition of file extensions and

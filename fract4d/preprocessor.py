@@ -12,7 +12,6 @@ define_re = re.compile(r'\s*\$define(\s+(?P<var>[a-z][a-z0-9_]*))?',
 class Error(Exception):
     def __init__(self,msg):
         Exception.__init__(self,msg)
-        pass
 
 class StackEntry:
     def __init__(self, line_num, isTrue):
