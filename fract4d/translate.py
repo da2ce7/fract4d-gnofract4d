@@ -146,17 +146,27 @@ class TBase:
         setattr(var,name.leaf,val)
         
     def param(self,node):
-        v = Var(node.datatype, default_value(node.datatype), node.pos)
+        # translate a param block
+        
+        # find if this is an enum, override type if so
+        for child in node.children:
+            if child.type == "set" and child.children[0].leaf == "enum":
+                node.datatype = fracttypes.Int
+                break
 
+        # create param
+        v = Var(node.datatype, default_value(node.datatype), node.pos)
         self.symbols["@" + node.leaf] = v
 
+        # process settings
         for child in node.children:
             if child.type == "set":
                 self.paramsetting(child,v)
             else:
                 self.error("%d: invalid statement in parameter block" % node.pos)
-        
-        # FIXME deal with subinfo
+
+        if hasattr(v,"default"):
+            v.default = self.const_convert(v.default,v.type)
         
     def setting(self,node):
         if node.type == "param":
@@ -188,7 +198,34 @@ class TBase:
         else:
             self.error("%d: only constants can be used in default sections" %
                        node.pos)
+
+    def const_convert(self,val,type_out):
+        if not fracttypes.canBeCast(val.datatype,type_out):
+            self.error("%d: Cannot convert %s (%s) to %s" % \
+                  (val.node.pos, fracttypes.strOfType(val.datatype),
+                   val.value, fracttypes.strOfType(type_out)))            
+            return val
         
+        if val.datatype == type_out:
+            return val
+
+        retval = ir.Const(fracttypes.default_value(type_out),
+                          val.node,type_out)
+        
+        if val.datatype == fracttypes.Complex:
+            if type_out == fracttypes.Bool or \
+               type_out == fracttypes.Int or \
+               type_out == fracttypes.Float:
+                retval.value = float(val.value[0])
+            else:
+                raise Exception("ICE: Weird types in const_convert")
+        elif type_out == fracttypes.Complex:
+            retval.value = [float(val.value),0.0]
+        else:
+            retval.value = float(val.value)
+            
+        return retval
+    
     def set(self,node):
         name = node.children[0].leaf
         val = node.children[1]
@@ -481,7 +518,12 @@ class TBase:
         return ir.Const(node.leaf, node, node.datatype)        
 
     def string(self,node):
-        return ir.Const(node.leaf, node, node.datatype)
+        if node.children == None or node.children == []:
+            return ir.Const(node.leaf, node, node.datatype)
+        else:
+            strings = [node.leaf]
+            strings += map(lambda n : n.leaf, node.children)
+            return ir.Enum(strings, node, node.datatype)
     
     def coerceList(self,expList,typeList):
         return map( lambda (exp,ty) : self.coerce(exp,ty) ,

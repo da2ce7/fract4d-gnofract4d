@@ -50,6 +50,13 @@ class Const(Exp):
         self.value = value
     def __str__(self):
         return "Const(%s" % self.value
+
+class Enum(Exp):
+    def __init__(self, value, node, datatype):
+        Exp.__init__(self, node, datatype)
+        self.value = value
+    def __str__(self):
+        return "Enum(%s" % self.value
     
 class Temp(Exp):
     def __init__(self, temp, node, datatype):

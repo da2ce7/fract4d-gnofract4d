@@ -121,6 +121,7 @@ class T(FctUtils):
         self.cfuncs = [None,None]
         self.compiler = compiler
         self.outputfile = None
+        self.funcFile = "gf4d.frm"
         self.set_formula("gf4d.frm","Mandelbrot")
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","default")
@@ -172,6 +173,8 @@ class T(FctUtils):
     def set_formula_defaults(self):
         if self.formula == None:
             return
+
+        self.initparams = self.formula.symbols.default_params()
         
         for (name,val) in self.formula.defaults.items():
             # FIXME helpfile,helptopic,method,periodicity,precision,
@@ -303,9 +306,13 @@ class T(FctUtils):
                 self.parseVal(name,val,f,"func_")
             line = f.readline()
 
+    def parse_func_formulafile(self,val,f):
+        self.funcFile = val
+        self.compiler.load_formula_file(self.funcFile)
+        
     def parse_func_function(self,val,f):
         self.funcName = val
-        self.set_formula("gf4d.frm",self.funcName)
+        self.set_formula(self.funcFile,self.funcName)
 
     def parse_func_a(self,val,f):
         # a complex arg in the form (x,y)

@@ -465,7 +465,7 @@ extern pf_obj *pf_new(void);
                         if ord == None:
                             out += self.make_cdecl(t,sym.cname,"%.17f",val[0],val[1])
                         else:
-                            out += self.make_cdecl(t,sym.cname,"t__pfo->p[%d]",ord*2,ord*2+1)
+                            out += self.make_cdecl(t,sym.cname,"t__pfo->p[%d]",ord,ord+1)
                             
                     elif sym.type == fracttypes.Float:
                         out.append(Decl("%s %s = %.17f;" % (t,sym.cname,val)))
