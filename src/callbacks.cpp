@@ -39,7 +39,9 @@ save_session_cb(GnomeClient* client, gint phase, GnomeSaveStyle save_style,
 		gint is_shutdown, GnomeInteractStyle interact_style,
 		gint is_fast, gpointer client_data)
 {
-    g_print("saving session\n");
+    model_t *m = (model_t *)client_data;
+
+    model_write_autosave_file(m);
     return TRUE;
 }
 

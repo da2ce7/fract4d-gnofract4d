@@ -8,14 +8,14 @@
 * B	can't resize to smaller than toolbar or current size
 * W	separate main/ motion toolbars
 * W	proper toolbar widgets
-* W	main toolbar: home, pause, exit, undo, redo
+* W	main toolbar: home, pause, exit
 * B	make it work with CLN again
 * W	faster CLN (get at internals during loop, maybe?)
 * W	full-screen mode
 * W 	desktop mode
 * W 	demo mode
 * W 	no-X mode
-* W	XML file format
+* B	reading fractal params doesn't work
 * B	annoying precision message
 * W	dirty/clean stuff won't work unless 
 	- eject val / (scratch?) is kept freach point

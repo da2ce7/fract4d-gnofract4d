@@ -450,16 +450,13 @@ fractal::check_precision()
         return false;
     }
 #else
+
     if ( delta < 1.0e-15)
     {
-		// FIXME this is hideous and user-hostile
-#ifndef _WIN32
-        gtk_widget_show(gnome_warning_dialog(_("Sorry, max precision was reached, the image will become horrible !")));
-#endif
+        // precision lost, but don't do anything - user will notice anyway
         return false;
     }	
 #endif
-
     return true;
 }
 

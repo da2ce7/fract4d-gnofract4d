@@ -12,7 +12,7 @@
     friend std::ostream& operator<<(std::ostream& s, const className& m); \
     friend std::istream& operator>>(std::istream& s, className& m); \
     std::ostream& put(std::ostream& s) const { return s << *this; } \
-    std::istream& get(std::istream& s) { return s;  } 
+    std::istream& get(std::istream& s) { return s >> *this;  } 
 
 #define FIELD_FUNCTION "function"
 
@@ -71,7 +71,7 @@ operator<<(std::ostream& s, const noOptions& m)
 std::istream& 
 operator>>(std::istream& s, noOptions& m) 
 { 
-    /* don't need to read anything - just eat lines until SECTION_STOP*/
+    /* don't need to read anything - just eat lines until SECTION_STOP */
     while(s)
     {
         std::string line;

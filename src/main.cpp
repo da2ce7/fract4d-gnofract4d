@@ -231,7 +231,7 @@ apply_arguments(model_t *m)
     Gf4dFractal *f = model_get_fract(m);
     if(g_param_file) 
     { 
-        model_cmd_load(m,g_param_file);        
+        model_nocmd_load(m,g_param_file);        
     }
     for(int i = 0; i < N_PARAMS; ++i)
     {
@@ -276,6 +276,11 @@ main (int argc, char *argv[])
 
     apply_arguments(m);
 
+    if(!g_param_file)
+    {
+        // no filename specified - try to open autosave file
+        model_load_autosave_file(m);
+    }
     client = gnome_master_client();
     gtk_signal_connect(GTK_OBJECT (client), "save_yourself",
                        GTK_SIGNAL_FUNC( save_session_cb ), m);

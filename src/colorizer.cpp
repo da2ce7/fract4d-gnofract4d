@@ -1,5 +1,6 @@
 #include "colorizer.h"
 #include "iterFunc.h"
+#include "io.h"
 
 #include <cstdlib>
 #include <string>
@@ -7,6 +8,8 @@
 #include <strstream>
 
 #include <cmath>
+
+#define FIELD_COLORIZER "colorizer"
 
 /* factory functions */
 colorizer_t *
@@ -26,24 +29,27 @@ colorizer_t *
 colorizer_read(std::istream& is)
 {
     colorizer *cizer;
-    std::string type;
 
-    is >> type;
+    std::string name, value;
 
-    // construct different colorizer type based on stream contents
-    if(0 == type.compare("colorizer=RGB"))
+    while(is)
     {
-        cizer = colorizer_new(COLORIZER_RGB);
+        read_field(is,name,value);
+
+        std::istrstream vs(value.c_str());
+
+        if(FIELD_COLORIZER == name)
+        {
+            e_colorizer ctype;
+            vs >> (int &)ctype;
+            cizer = colorizer_new(ctype);
+            if(cizer)
+            {
+                is >> *cizer;
+            }
+            break;
+        }
     }
-    else if(0 == type.compare("colorizer=CMAP")) 
-    {
-        cizer = colorizer_new(COLORIZER_CMAP);
-    }
-    else
-    {
-        return NULL;
-    }
-    is >> *cizer;
     return cizer;
 }
 
@@ -131,25 +137,43 @@ rgb_colorizer::operator()(int n, scratch_space scratch, bool potential) const
     return pixel;
 }
 
+#define FIELD_RED "red"
+#define FIELD_GREEN "green"
+#define FIELD_BLUE "blue"
 
 std::ostream& 
 operator<<(std::ostream& s, const rgb_colorizer& cizer)
 {
-    s << "colorizer=RGB\n" <<
-        cizer.r << "\n" << 
-        cizer.g << "\n" <<
-        cizer.b << "\n";
-
+    s << "colorizer=" << cizer.type() << "\n"
+      << FIELD_RED << "=" << cizer.r << "\n" 
+      << FIELD_GREEN << "=" << cizer.g << "\n" 
+      << FIELD_BLUE << "=" << cizer.b << "\n" 
+      << SECTION_STOP << "\n";
+            
     return s;
 }
 
 std::istream&
 operator>>(std::istream& is, rgb_colorizer& cizer)
 {
-    double r,g,b;
-    is >> r;
-    is >> g;
-    is >> b;
+    double r=1.0,g=0.0,b=0.0;
+
+    while(is)
+    {
+        std::string name, value;
+
+        read_field(is,name,value);
+        std::istrstream vs(value.c_str());
+
+        if(FIELD_RED == name)
+            vs >> r;
+        else if(FIELD_GREEN == name)
+            vs >> g;
+        else if(FIELD_BLUE == name)
+            vs >> b;
+        else if(SECTION_STOP == name)
+            break;
+    }
     cizer.set_colors(r,g,b);
     return is;
 }
@@ -231,12 +255,14 @@ cmap_colorizer::operator()(int n, scratch_space scratch, bool potential) const
     return mix;
 }
 
+#define FIELD_FILENAME "file"
+
 std::ostream& 
 operator<<(std::ostream& s, const cmap_colorizer& cizer)
 {
-    s << "colorizer=CMAP\n" <<
-        cizer.name << "\n";
-
+    s << FIELD_COLORIZER << "=" << cizer.type()<< "\n";
+    s << FIELD_FILENAME << "=" << cizer.name << "\n";
+    s << SECTION_STOP << "\n";
     return s;
 }
 
@@ -272,9 +298,15 @@ cmap_colorizer::set_cmap_file(const char *filename)
 std::istream&
 operator>>(std::istream& is, cmap_colorizer& cizer)
 {
-    std::string s;
-    is >> s;
+    while(is)
+    {
+        std::string name, value;
+        read_field(is,name,value);
 
-    cizer.set_cmap_file(s.c_str());
+        if(FIELD_FILENAME==name)
+            cizer.set_cmap_file(value.c_str());
+        else if(SECTION_STOP==name)
+            break;
+    }
     return is;
 }

@@ -268,6 +268,26 @@ model_delete(model_t **pm)
     *pm = NULL;
 }
 
+int model_write_autosave_file(model_t *m)
+{
+    gchar *filename = g_concat_dir_and_file(g_get_home_dir(), ".gnome/" PACKAGE "-autosave.fct");
+    
+    int ret = model_cmd_save(m,filename);
+    g_free(filename);
+
+    return ret;
+}
+
+int model_load_autosave_file(model_t *m)
+{
+    gchar *filename = g_concat_dir_and_file(g_get_home_dir(), ".gnome/" PACKAGE "-autosave.fct");
+    
+    int ret = model_nocmd_load(m,filename);
+    g_free(filename);
+
+    return ret;
+}
+
 int
 model_cmd_save_image(model_t *m, char *filename)
 {
@@ -295,10 +315,16 @@ model_cmd_load(model_t *m, char *filename)
     int ret;
     if(model_cmd_start(m,"load"))
     {
-        ret = gf4d_fractal_load_params(m->fract,filename);
+        ret = model_nocmd_load(m,filename);
         model_cmd_finish(m, "load");
     }
     return ret;
+}
+
+int
+model_nocmd_load(model_t *m, char *filename)
+{
+    return gf4d_fractal_load_params(m->fract,filename);
 }
 
 void 
@@ -433,7 +459,7 @@ model_toggle_explore_mode(model_t *m)
 
     while(pWidget)
     {
-        gtk_widget_set_sensitive(pWidget->data, m->explore_mode);
+        gtk_widget_set_sensitive(GTK_WIDGET(pWidget->data), m->explore_mode);
         pWidget = pWidget->next;
     }
     model_update_subfracts(m);

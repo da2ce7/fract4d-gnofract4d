@@ -57,6 +57,12 @@ extern "C" {
     int model_cmd_save(model_t *m, char *filename);
     int model_cmd_load(model_t *m, char *filename);
 
+    // load without updating undo history - used by cmd-line parameters
+    int model_nocmd_load(model_t *m, char *filename);
+
+    int model_write_autosave_file(model_t *m);
+    int model_load_autosave_file(model_t *m);
+
     // used to avoid otherwise recursive commands
     void model_set_cmd_in_progress(model_t *m, int val);
 

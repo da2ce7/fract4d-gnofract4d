@@ -308,7 +308,8 @@ create_new_color_page(GtkWidget *notebook, model_t *m)
 
     GtkWidget *colorsel = gtk_color_selection_new();
     gtk_widget_show(colorsel);
-    gtk_table_attach(GTK_TABLE(table), colorsel, 0, 2, 0, 1, 0, 0, 0, 0);
+    gtk_table_attach(GTK_TABLE(table), colorsel, 0, 2, 0, 1, 
+                     (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
     gtk_notebook_append_page(
         GTK_NOTEBOOK(notebook),
@@ -317,11 +318,13 @@ create_new_color_page(GtkWidget *notebook, model_t *m)
 
     GtkWidget * label = gtk_label_new(_("Click to apply to main fractal >>"));
     gtk_widget_show(label);
-    gtk_table_attach(GTK_TABLE(table), label , 0, 1, 1, 2, 0, 0, 0, 0);
+    gtk_table_attach(GTK_TABLE(table), label , 0, 1, 1, 2, 
+                     (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
     rgb_colorizer *cizer = new rgb_colorizer();
     GtkWidget *rgb_preview = create_cmap_browser_item(m, tips, cizer, "fred");
-    gtk_table_attach(GTK_TABLE(table), rgb_preview, 1, 2, 1, 2, 0, 0, 0, 0);
+    gtk_table_attach(GTK_TABLE(table), rgb_preview, 1, 2, 1, 2, 
+                     (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
     /* connect up color selector callbacks */
     gtk_signal_connect(
