@@ -160,8 +160,29 @@ class TranslateTest(unittest.TestCase):
                         ifseq.children[3].name == "label2")
 
         self.failUnless(len(ifseq.children[2].children)==1)
-        
-        #print t.sections["loop"].pretty()
+
+        t = self.translate('''t_if_3 {
+        loop:
+        if a == 1
+           a = 2
+        elseif a == 2
+           a = 3
+        else
+           a = 4
+        endif
+        }''')
+
+        self.assertNoErrors(t)
+        jumps_and_labs = []
+        for n in t.sections["loop"].children[0]:
+            if isinstance(n,ir.Jump):
+                jumps_and_labs.append("J:%s" % n.dest)
+            elif isinstance(n,ir.CJump):
+                jumps_and_labs.append("CJ:%s,%s" % (n.trueDest, n.falseDest))
+            elif isinstance(n,ir.Label):                
+                jumps_and_labs.append("L:%s" % n.name)
+
+        self.assertEqual(jumps_and_labs, ['CJ:label0,label1', 'L:label0', 'J:label2', 'L:label1', 'CJ:label3,label4', 'L:label3', 'J:label5', 'L:label4', 'L:label5', 'L:label2'])
 
         
     def testDecls(self):
