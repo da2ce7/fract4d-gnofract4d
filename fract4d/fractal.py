@@ -416,7 +416,12 @@ class T(FctUtils):
             else:
                 mag = 4.0
         self.set_param(self.MAGNITUDE, mag)
-            
+
+    def copy_colors(self, f):
+        self.colorlist = f.colorlist
+        self.solids[0:len(f.solids)] = f.solids[:]
+        self.changed(False)
+        
     def set_cmap(self,mapfile):
         c = Colorizer(self)
         file = open(mapfile)

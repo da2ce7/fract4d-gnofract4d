@@ -11,7 +11,6 @@ import gtk
 sys.path.append("..")
 from fract4d import fractal,fc,fract4dc
 
-
 import gtkfractal, model, preferences, autozoom, settings, toolbar
 import colors, undo, browser, fourway, angle, utils, hig
 import icons
@@ -19,6 +18,7 @@ import icons
 class MainWindow:
     def __init__(self):
         self.quit_when_done =False
+        self.save_filename = None
         # window widget
 
         self.set_icon()
@@ -273,8 +273,8 @@ class MainWindow:
 
         if status == 0:
             # done
-            if self.filename:
-                self.f.save_image(self.filename)
+            if self.save_filename:
+                self.f.save_image(self.save_filename)
             if self.quit_when_done:
                 self.f.set_saved(True)
                 self.quit(None,None)
@@ -720,7 +720,7 @@ class MainWindow:
         settings.show_settings(self.window,self.f)
         
     def colors(self,action,widget):
-        colors.show_colors(self.window,self.f)
+        colors.show_colors(self,self.f)
         
     def preferences(self,action,widget):
         preferences.show_preferences(self.window, self.f)
