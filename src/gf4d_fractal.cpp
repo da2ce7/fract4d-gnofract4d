@@ -90,6 +90,7 @@ static void
 set_finished_cond(Gf4dFractal *f)
 {
     f->workers_running=0;
+    printf("set_finished_cond\n");
 }
 
 bool

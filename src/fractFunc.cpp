@@ -73,8 +73,6 @@ fractFunc::work(thread_data_t *jobdata)
 {
     int nRows=0;
 
-    return;
-
     if(gf4d_fractal_try_finished_cond(gf))
     {
         // interrupted - just return without doing anything
@@ -101,7 +99,7 @@ fractFunc::work(thread_data_t *jobdata)
         nRows = jobdata->param;
         break;
     case JOB_ROW_AA:
-        // cout << "RAA " << jobdata->y << " " << pthread_self() << "\n";
+        //cout << "RAA " << jobdata->y << " " << pthread_self() << "\n";
         row_aa(jobdata->x,jobdata->y,jobdata->param);
         nRows=1;
         break;
@@ -528,30 +526,29 @@ void fractFunc::draw_threads(int rsize, int drawsize)
         }
         update_image(y);
     }
+
     // remaining lines
     for ( y = h - rsize ; y < h ; y++)
     {
         send_row(0,y,w);
-        //update_image(y);
+        update_image(y);
     }
 
     reset_progress(0.0);
     reset_counts();
 
     // second pass - fill in the remaining pixels
-
+    
     // calculate tops of boxes for future cross-reference
     for ( y = 0; y < h - rsize; y += rsize) {
         send_row(0,y,w);
-        //update_image(y);
+        update_image(y);
     }
 
     reset_counts();
 
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
-        //update_image(y);
-
         // calculate left edge of the row
         for(int y2 = y+1; y2 < y + rsize; ++y2)
         {
@@ -559,6 +556,8 @@ void fractFunc::draw_threads(int rsize, int drawsize)
         }
 
         send_box_row(w,y,rsize);
+
+        update_image(y);
     }
 
     reset_progress(1.0);
