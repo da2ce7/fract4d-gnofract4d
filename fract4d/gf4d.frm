@@ -99,6 +99,10 @@ default:
 float param bailout
 	default = 4.0
 endparam
+complex param a
+	title = "Power"
+	default = (4.0,0.0)
+endparam
 float func bailfunc
 	default = cmag
 endfunc

@@ -52,6 +52,11 @@ class MainWindow:
         self.window.add(self.vbox)
 
         self.f = gtkfractal.T(self.compiler)
+
+        if len(sys.argv) > 1:
+            self.load(sys.argv[1])
+
+
         self.model = model.Model(self.f)
 
         preferences.userPrefs.connect('preferences-changed',
@@ -72,9 +77,6 @@ class MainWindow:
                           "Deepening",
                           "Antialiasing",
                           "Paused" ]
-
-        if len(sys.argv) > 1:
-            self.load(sys.argv[1])
 
     def create_fractal(self,f):
         window = gtk.ScrolledWindow()
