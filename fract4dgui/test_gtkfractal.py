@@ -131,12 +131,12 @@ class FctTest(unittest.TestCase):
         f = self.f
 
         # check click updates member vars
-        f.onButtonPress(f.widget,FakeEvent(x=17,y=88))
+        f.onButtonPress(f.widget,FakeEvent(x=17,y=88,button=1))
         self.assertEqual((f.x,f.y,f.newx,f.newy),(17,88,17,88))
 
         # click+release in middle of screen zooms but doesn't change params
         (xp,yp) = (f.width/2,f.height/2)
-        f.onButtonPress(f.widget,FakeEvent(x=xp,y=yp))
+        f.onButtonPress(f.widget,FakeEvent(x=xp,y=yp,button=1))
         self.assertEqual((f.x,f.y,f.newx,f.newy),(xp,yp,xp,yp))
         tparams = copy.copy(f.params())
         tparams[f.MAGNITUDE] /= 2.0
@@ -145,10 +145,10 @@ class FctTest(unittest.TestCase):
         self.assertEqual(f.params(),tparams)
 
         # select entire screen & release should be a no-op
-        f.onButtonPress(f.widget,FakeEvent(x=0,y=0))
+        f.onButtonPress(f.widget,FakeEvent(x=0,y=0,button=1))
         self.assertEqual((f.x,f.y,f.newx,f.newy),(0,0,0,0))
 
-        f.onMotionNotify(f.widget,FakeEvent(x=f.width-1,y=f.height-1))
+        f.onMotionNotify(f.widget,FakeEvent(x=f.width-1,y=f.height-1,button=1))
         self.assertEqual((f.x,f.y,f.newx,f.newy),(0,0,f.width-1,f.height-1))
 
         f.onButtonRelease(f.widget,FakeEvent(button=1))
@@ -156,7 +156,7 @@ class FctTest(unittest.TestCase):
 
         # same if you do the corners the other way and get newx automatically
         (wm1,hm1) = (f.width-1,f.height-1)
-        f.onButtonPress(f.widget,FakeEvent(x=wm1,y=hm1))
+        f.onButtonPress(f.widget,FakeEvent(x=wm1,y=hm1,button=1))
         self.assertEqual((f.x,f.y,f.newx,f.newy),(wm1,hm1,wm1,hm1))
 
         f.onMotionNotify(f.widget,FakeEvent(x=0,y=hm1))
@@ -179,7 +179,7 @@ class FctTest(unittest.TestCase):
         tparams = copy.copy(f.params())
         
         # select the top LH quadrant zooms and recenters
-        f.onButtonPress(f.widget,FakeEvent(x=0,y=0))
+        f.onButtonPress(f.widget,FakeEvent(x=0,y=0,button=1))
         f.onMotionNotify(f.widget,FakeEvent(x=f.width/2-1,y=f.height/2-1))
         f.onButtonRelease(f.widget,FakeEvent(button=1))
 
@@ -190,7 +190,7 @@ class FctTest(unittest.TestCase):
         self.assertEqual(f.params(),tparams)
 
         # top RH quadrant
-        f.onButtonPress(f.widget,FakeEvent(x=f.width/2,y=0))
+        f.onButtonPress(f.widget,FakeEvent(x=f.width/2,y=0,button=1))
         f.onMotionNotify(f.widget,FakeEvent(x=f.width-1,y=f.height/2-1))
         f.onButtonRelease(f.widget,FakeEvent(button=1))
 
@@ -201,7 +201,7 @@ class FctTest(unittest.TestCase):
         self.assertEqual(f.params(),tparams)
 
         # bottom LH quadrant
-        f.onButtonPress(f.widget,FakeEvent(x=0,y=f.height/2))
+        f.onButtonPress(f.widget,FakeEvent(x=0,y=f.height/2,button=1))
         f.onMotionNotify(f.widget,FakeEvent(x=f.width/2-1,y=f.height-1))
         f.onButtonRelease(f.widget,FakeEvent(button=1))
 
@@ -212,7 +212,7 @@ class FctTest(unittest.TestCase):
         self.assertEqual(f.params(),tparams)
 
         # bottom RH quadrant
-        f.onButtonPress(f.widget,FakeEvent(x=f.width/2,y=f.height/2))
+        f.onButtonPress(f.widget,FakeEvent(x=f.width/2,y=f.height/2,button=1))
         f.onMotionNotify(f.widget,FakeEvent(x=f.width-1,y=f.height-1))
         f.onButtonRelease(f.widget,FakeEvent(button=1))
 
