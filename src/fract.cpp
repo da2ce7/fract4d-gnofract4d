@@ -42,7 +42,7 @@ fractal::fractal()
     reset();
 
     // display params
-    antialias = true;
+    antialias = AA_FAST;
     auto_deepen = true;
 
     digits = 0;
@@ -120,7 +120,6 @@ fractal::operator==(const fractal& f)
     if(digits != f.digits) return false;
     if(rot_by != f.rot_by) return false;
 
-    // FIXME: compare colorizers cizer = f.cizer->clone();
     if(*cizer != *f.cizer) return false;
     if(potential != f.potential) return false;
     if(bailout_type != f.bailout_type) return false;
@@ -290,10 +289,10 @@ fractal::load_params(const char *filename)
         colorizer_delete(&cizer);
         cizer = cizer_tmp;
     }
-    if(!is) return false;
     // cast is to quiet a curious compiler warning
     is >> (int&)bailout_type;
 
+    if(!is) return false;
 
     return true;
 }
@@ -311,13 +310,13 @@ fractal::get_max_iterations()
 }
 
 void 
-fractal::set_aa(bool val)
+fractal::set_aa(e_antialias val)
 {
 
     antialias = val;
 }
 
-bool
+e_antialias
 fractal::get_aa()
 {
     return antialias;
@@ -548,7 +547,7 @@ fractal::calc(Gf4dFractal *gf, image *im)
         pr.draw(8,1);
     }
 	
-    if(antialias) {
+    if(antialias > AA_NONE) {
         gf4d_fractal_status_changed(gf,GF4D_FRACTAL_ANTIALIASING);
         pr.draw_aa();
     }

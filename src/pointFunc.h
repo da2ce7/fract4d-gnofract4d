@@ -40,7 +40,7 @@ class pointFunc {
 
 /* factory method for making new fractFuncs */
 pointFunc *pointFunc_new(
-    e_iterFunc iterType, 
+    int iterType, 
     e_bailFunc bailType,
     const d& eject,
     colorizer *pcf,

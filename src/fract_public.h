@@ -10,6 +10,12 @@ enum {
 };
 
 typedef enum {
+    AA_NONE = 0,
+    AA_FAST,
+    AA_BEST
+} e_antialias;
+
+typedef enum {
     BAILOUT,
     XCENTER,
     YCENTER,

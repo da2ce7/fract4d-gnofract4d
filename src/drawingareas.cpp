@@ -182,10 +182,13 @@ update_callback(Gf4dFractal *f, GdkEventExpose *ev, void *user_data)
     gtk_widget_draw(drawing_area,&(ev->area));
 }
 
-void redraw_callback(Gf4dFractal *f, gpointer m)
+void redraw_callback(Gf4dFractal *f, gpointer user_data)
 {
-    propertybox_refresh((model_t *)m);
-    gf4d_fractal_calc(f);
+    model_t *m = (model_t *)user_data;
+    propertybox_refresh(m);
+    
+    int nThreads = model_get_calcthreads(m);
+    gf4d_fractal_calc(f,nThreads);
 }
 
 void 

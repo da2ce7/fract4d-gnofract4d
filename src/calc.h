@@ -27,16 +27,13 @@
 #include <string>
 #include <strstream.h>
 
-#ifdef HAVE_CLN
-#define WANT_OBFUSCATING_OPERATORS
-#include "cl_real.h"
-#include "cl_float.h"
-#include "cl_float_io.h"
-typedef cl_F d;
-#define D2ADECL \
- 	std::ostrstream os
+#ifdef HAVE_GMP
+#include "gmp.h"
+typedef gmp::f d;
 
-#define A2D(_x) cl_F(_x);
+#define D2ADECL std::ostrstream os
+
+#define A2D(_x) d(_x);
 #define D2A(_x) (os << _x << std::ends, os.str())
 #define D(_x) (cl_float(_x,cl_float_format (digits)))
 #define D_LIKE(_x,_y) cl_float(_x,_y)

@@ -7,7 +7,7 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     im = _im;
     f = _f; 
     pf = pointFunc_new(
-        ITERFUNC_MAND, 
+        f->fractal_type, 
         f->bailout_type, 
         f->params[BAILOUT], 
         f->cizer, 
@@ -134,7 +134,9 @@ fractFunc::pixel_aa(int x, int y)
 
     struct rgb pixel;
 
-    if(x > 0 && x < im->Xres-1 && y > 0 && y < im->Yres-1)
+    // if aa type is fast, short-circuit some points
+    if(f->antialias == AA_FAST &&
+       x > 0 && x < im->Xres-1 && y > 0 && y < im->Yres-1)
     {
         // check to see if this point is surrounded by others of the same colour
         // if so, don't bother recalculating
@@ -153,7 +155,7 @@ fractFunc::pixel_aa(int x, int y)
         bFlat = isTheSame(bFlat,iter,pcol,x+1,y+1);
         if(bFlat) 
         {
-            //return;
+            return;
         }
     }
     pixel = antialias(pos);

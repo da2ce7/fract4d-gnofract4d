@@ -74,6 +74,11 @@ extern "C" {
     void model_update_subfracts(model_t *m);
     void model_toggle_explore_mode(model_t *m);
 
+    // number of threads to use to calculate a fractal
+    // only worth making this > 1 on an SMP computer
+    int model_get_calcthreads(model_t *m);
+    void model_set_calcthreads(model_t *m, int n);
+
     // this is crap - lose it
     void model_set_subfract_widget(model_t *m, GtkWidget *widget, int num);
 

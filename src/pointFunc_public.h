@@ -12,10 +12,4 @@ typedef enum
     BAILOUT_AND,
 } e_bailFunc;
 
-/* an enumeration of the available iteration functions */
-
-typedef enum {
-    ITERFUNC_MAND = 1,
-} e_iterFunc;
-
 #endif

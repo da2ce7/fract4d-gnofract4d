@@ -31,33 +31,37 @@ class fractFunc;
 
 struct fractal
 {
+    // member vars
     private:
 
     // basic params
     d params[N_PARAMS];
     int maxiter;
-    int fractal_type;
-    bool antialias;
-    bool auto_deepen;
+    e_antialias antialias;
     int digits;
     bool potential;
 
+    // color params
+    colorizer *cizer;
+
+    public:
+
+    e_bailFunc bailout_type;    
+    int fractal_type;
+
+    private:
     // parameters which aren't saved
 
     // direction to move in for flip2julia
     double rot_by;
 
-    // color params
-    colorizer *cizer;
-
     // rotated params
     dmat4 rot;
 
+    bool auto_deepen;
+
     public:
     
-    // member vars
-    e_bailFunc bailout_type;
-
     // member funs
     fractal();
     fractal(const fractal& f); // copy ctor
@@ -77,10 +81,10 @@ struct fractal
     char *get_param(param_t i);
     bool set_param(param_t i, const char *val);
     void set_max_iterations(int val);
-    void set_aa(bool val);
+    void set_aa(e_antialias val);
     void set_auto(bool val);
     int get_max_iterations();
-    bool get_aa();
+    e_antialias get_aa();
     bool get_auto();
     bool get_potential() { return potential; };
     void set_potential(bool p) { potential = p; };

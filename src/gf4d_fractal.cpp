@@ -295,12 +295,12 @@ calculation_thread(void *vdata)
     }
     catch(...)
     {
-
+        
     }
     return NULL;
 }
 
-void gf4d_fractal_calc(Gf4dFractal *f)
+void gf4d_fractal_calc(Gf4dFractal *f, int nThreads)
 {
     kill_slave_threads(f);
 
@@ -321,7 +321,6 @@ void gf4d_fractal_calc(Gf4dFractal *f)
 
 void gf4d_fractal_reset(Gf4dFractal *f)
 {
-
     kill_slave_threads(f);
 
     f->f->reset();
@@ -359,7 +358,7 @@ double gf4d_fractal_get_b(Gf4dFractal *f)
     return f->f->get_b();
 }
 
-gboolean gf4d_fractal_get_aa(Gf4dFractal *f)
+e_antialias gf4d_fractal_get_aa(Gf4dFractal *f)
 {
     return f->f->get_aa();
 }
@@ -389,7 +388,7 @@ void gf4d_fractal_set_param(Gf4dFractal *f, param_t i, char *val)
     f->f->set_param(i,val);
 }
 
-void gf4d_fractal_set_aa(Gf4dFractal *f, gboolean val)
+void gf4d_fractal_set_aa(Gf4dFractal *f, e_antialias val)
 {
     kill_slave_threads(f);
 
@@ -566,4 +565,15 @@ void gf4d_fractal_set_inexact(Gf4dFractal *gf_dst, Gf4dFractal *gf_src, double w
 {
     kill_slave_threads(gf_dst);
     gf_dst->f->set_inexact(*gf_src->f,weirdness);
+}
+
+int gf4d_fractal_get_func(Gf4dFractal *f)
+{
+    return f->f->fractal_type;
+}
+
+void gf4d_fractal_set_func(Gf4dFractal *f, int type)
+{
+    kill_slave_threads(f);
+    f->f->fractal_type = type;
 }

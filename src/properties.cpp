@@ -27,6 +27,7 @@
 
 #include <gnome.h>
 #include "gf4d_fractal.h"
+#include "iterFunc.h"
 #include <cstdlib>
 
 GtkWidget *global_propertybox=NULL;
@@ -305,19 +306,90 @@ refresh_colortype_callback(Gf4dFractal *f, gpointer user_data)
         gtk_toggle_button_set_active(b,true);
     }
 }
+
 void
-set_aa_callback(GtkToggleButton *button, gpointer user_data)
+set_aa_callback(GtkWidget *widget, gpointer user_data)
 {
     Gf4dFractal *f = GF4D_FRACTAL(user_data);
-    gf4d_fractal_set_aa(f,gtk_toggle_button_get_active(button));
-    gf4d_fractal_parameters_changed(f);
+
+    e_antialias aa_type = (e_antialias)GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"type"));
+
+    e_antialias old_type = gf4d_fractal_get_aa(f);
+    if(aa_type != old_type)
+    {
+        gf4d_fractal_set_aa(f,aa_type);
+        gf4d_fractal_parameters_changed(f);
+    }
 }
 
 void
 refresh_aa_callback(Gf4dFractal *f, gpointer user_data)
 {
-    GtkToggleButton *b = GTK_TOGGLE_BUTTON(user_data);
-    gtk_toggle_button_set_active(b,gf4d_fractal_get_aa(f));
+    GtkOptionMenu *om = GTK_OPTION_MENU(user_data);
+    GtkWidget *m = gtk_option_menu_get_menu(om);
+
+    GList *list = gtk_container_children(GTK_CONTAINER(m));
+    int index=0;
+    e_antialias aa_val = gf4d_fractal_get_aa(f);
+
+    // find an element with the same antialias value as the one the fractal has
+    while(list)
+    {
+        GtkMenuItem *mi = GTK_MENU_ITEM(list->data);
+        e_antialias aa = (e_antialias)GPOINTER_TO_INT(
+            gtk_object_get_data(GTK_OBJECT(mi),"type"));
+        
+        if(aa == aa_val)
+        {
+            gtk_option_menu_set_history(om,index);
+            return;
+        }
+        list = g_list_next(list);
+        index++;
+    }
+    g_warning(_("Unknown antialias type ignored"));
+}
+
+GtkWidget *create_aa_menu(Gf4dFractal *shadow)
+{
+    GtkWidget *aa_type = gtk_option_menu_new();
+    GtkWidget *aa_menu = gtk_menu_new();
+
+    static const gchar *aa_names[] = 
+    {
+        N_("None (Fastest)"),
+        N_("Default"),
+        N_("Best (Slowest)")
+    };
+
+    for(int i=0; i < sizeof(aa_names)/sizeof(aa_names[0]); ++i)
+    {
+        GtkWidget *menu_item = gtk_menu_item_new_with_label(aa_names[i]);
+    
+        gtk_object_set_data(
+            GTK_OBJECT (menu_item), 
+            "type",
+            GINT_TO_POINTER(i));
+    
+        gtk_signal_connect(
+            GTK_OBJECT(menu_item),
+            "activate",
+            GTK_SIGNAL_FUNC(set_aa_callback),
+            shadow);
+    
+        gtk_menu_append(GTK_MENU(aa_menu), menu_item);
+        gtk_widget_show(menu_item);
+        gtk_option_menu_set_menu(GTK_OPTION_MENU(aa_type), aa_menu);
+    }    
+
+    // refresh when shadow changes
+    gtk_signal_connect(
+        GTK_OBJECT(shadow),
+        "parameters_changed",
+        GTK_SIGNAL_FUNC(refresh_aa_callback),
+        aa_type);
+
+    return aa_type;
 }
 
 void
@@ -634,28 +706,19 @@ create_propertybox_rendering_page(
     gtk_box_pack_start( GTK_BOX (vbox), general_page, 1, 1, 0 );
 
     /* antialias */
-    GtkWidget *aa_button = gtk_check_button_new_with_label(_("Antialias"));
-    gtk_table_attach(GTK_TABLE(table), aa_button, 
-                     0,1,0,1,
-                     (GtkAttachOptions)GTK_FILL,
-                     (GtkAttachOptions)0,
-                     0,2);
+    GtkWidget *aa_label= gtk_label_new(_("Antialiasing"));
 
-    gtk_tooltips_set_tip (tooltips, aa_button, 
-                          _("If you turn this on the image looks smoother but takes longer to draw"), NULL);
+    gtk_table_attach(GTK_TABLE(table), aa_label, 0,1,0,1, 
+                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+                     (GtkAttachOptions)0, 
+                     0, 2);
+        
+    GtkWidget *aa_type = create_aa_menu(shadow);
 
-    gtk_label_set_justify(
-        GTK_LABEL(GTK_BIN(aa_button)->child),GTK_JUSTIFY_LEFT);
-
-    gtk_widget_show(aa_button);
-
-    gtk_signal_connect (GTK_OBJECT(aa_button),"toggled",
-                        GTK_SIGNAL_FUNC(set_aa_callback),
-                        (gpointer) shadow);
-
-    gtk_signal_connect (GTK_OBJECT(shadow),"parameters_changed",
-                        GTK_SIGNAL_FUNC(refresh_aa_callback),
-                        (gpointer) aa_button);
+    gtk_table_attach(GTK_TABLE(table), aa_type ,1,2,0,1, 
+                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+                     (GtkAttachOptions)0, 
+                     0, 2);
 
     // iteration count
     create_entry_with_label(
@@ -712,6 +775,115 @@ create_propertybox_rendering_page(
         GTK_LABEL(GTK_BIN(potential)->child),GTK_JUSTIFY_LEFT);
 
     gtk_widget_show(potential);
+}
+
+void
+set_func_callback(GtkWidget *widget, gpointer user_data)
+{
+    Gf4dFractal *f = GF4D_FRACTAL(user_data);
+
+    int func_type = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"type"));
+
+    int old_type = gf4d_fractal_get_func(f);
+    if(func_type != old_type)
+    {
+        gf4d_fractal_set_func(f,func_type);
+        gf4d_fractal_parameters_changed(f);
+    }
+}
+
+void
+refresh_func_callback(Gf4dFractal *f, gpointer user_data)
+{
+    GtkOptionMenu *om = GTK_OPTION_MENU(user_data);
+    GtkWidget *m = gtk_option_menu_get_menu(om);
+
+    GList *list = gtk_container_children(GTK_CONTAINER(m));
+    int index=0;
+    int func_val = gf4d_fractal_get_func(f);
+
+    // find an element with the same antialias value as the one the fractal has
+    while(list)
+    {
+        GtkMenuItem *mi = GTK_MENU_ITEM(list->data);
+        int func = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(mi),"type"));
+        
+        if(func == func_val)
+        {
+            gtk_option_menu_set_history(om,index);
+            return;
+        }
+        list = g_list_next(list);
+        index++;
+    }
+    g_warning(_("Unknown function type ignored"));
+}
+
+GtkWidget *create_function_menu(Gf4dFractal *shadow)
+{
+    GtkWidget *func_type = gtk_option_menu_new();
+    GtkWidget *func_menu = gtk_menu_new();
+
+    int i=0;
+    while(iterFunc *f = iterFunc_new(i))
+    {
+        char *name = f->name();
+        GtkWidget *menu_item = gtk_menu_item_new_with_label(name);
+    
+        gtk_object_set_data(
+            GTK_OBJECT (menu_item), 
+            "type",
+            GINT_TO_POINTER(i));
+    
+        gtk_signal_connect(
+            GTK_OBJECT(menu_item),
+            "activate",
+            GTK_SIGNAL_FUNC(set_func_callback),
+            shadow);
+    
+        gtk_menu_append(GTK_MENU(func_menu), menu_item);
+        gtk_widget_show(menu_item);
+        gtk_option_menu_set_menu(GTK_OPTION_MENU(func_type), func_menu);
+        delete f;
+        ++i;
+    };
+
+    // refresh when shadow changes
+    gtk_signal_connect(
+        GTK_OBJECT(shadow),
+        "parameters_changed",
+        GTK_SIGNAL_FUNC(refresh_func_callback),
+        func_type);
+
+    return func_type;
+}
+
+void
+create_propertybox_function_page(
+    GtkWidget *vbox,
+    GtkTooltips *tooltips,
+    Gf4dFractal *shadow)
+{
+    GtkWidget *table = gtk_table_new (3, 2, FALSE);
+    
+    GtkWidget *general_page = create_page(table,_("Function"));
+    
+    gtk_box_pack_start( GTK_BOX (vbox), general_page, 1, 1, 0 );
+
+    /* iteration function */
+    GtkWidget *func_label= gtk_label_new(_("Function"));
+
+    gtk_table_attach(GTK_TABLE(table), func_label, 0,1,0,1, 
+                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+                     (GtkAttachOptions)0, 
+                     0, 2);
+        
+    GtkWidget *func_type = create_function_menu(shadow);
+
+    gtk_table_attach(GTK_TABLE(table), func_type ,1,2,0,1, 
+                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+                     (GtkAttachOptions)0, 
+                     0, 2);
 }
 
 void
@@ -773,7 +945,6 @@ create_propertybox_location_page(
 
     create_param_entry_with_label(
         table, tooltips, 4, _("Size :"), shadow, SIZE, _("Magnitude of image"));
-
 }
 
 void
@@ -855,13 +1026,14 @@ create_propertybox (model_t *m)
     vbox = GNOME_DIALOG(propertybox)->vbox;
 
     gtk_box_set_spacing(GTK_BOX(vbox),0);
+    create_propertybox_function_page(vbox, tooltips, shadow);
     create_propertybox_color_page(vbox, tooltips, shadow);
     create_propertybox_rendering_page(vbox, tooltips, shadow);
     create_propertybox_bailout_page(vbox, tooltips, shadow);
     create_propertybox_general_page(vbox,tooltips, shadow);
     create_propertybox_location_page(vbox, tooltips, shadow);
     create_propertybox_angles_page(vbox, tooltips, shadow);
-        
+    
     gnome_dialog_set_close(GNOME_DIALOG(propertybox), TRUE);
     gnome_dialog_close_hides(GNOME_DIALOG(propertybox), TRUE);
     
@@ -876,3 +1048,7 @@ create_propertybox (model_t *m)
 
     gtk_widget_show(global_propertybox);
 }
+
+
+
+

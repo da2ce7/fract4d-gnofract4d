@@ -19,7 +19,8 @@
  */
 
 #include <stdlib.h>
-#include <stdio.h>
+
+//#include <stdio.h>
 
 #include <gnome.h>
 #include "model.h"
@@ -27,6 +28,9 @@
 #include "gundo.h"
 #include "gundo_ui.h"
 #include "fract.h"
+
+#include <iosfwd>
+#include <fstream>
 
 #ifndef NDEBUG
 #define MODEL_HISTORY_DEBUG(_x) model_history_debug(_x)
@@ -59,6 +63,8 @@ struct _model {
 
     char *saveFileName;
     bool quitWhenDone;
+
+    int nCalcThreads;
 };
 
 void model_status_callback(Gf4dFractal *f, gint val, model_t *m)
@@ -129,6 +135,31 @@ model_free_undo_data(gpointer undo_data)
     //g_print("done deleting %x\n",p);
 }
 
+/* attempt to peek at /proc/cpuinfo (which might conceivably work on Linux) - 
+   but not on anything else. If it doesn't work, just assume 1 processor */
+
+// FIXME: user should be able to set this value 
+
+static int
+model_guess_calc_threads()
+{
+    std::ifstream cpuinfo("/proc/cpuinfo");
+    if(!cpuinfo) return 1;
+
+    int nCPUs = 0;    
+    std::string line;
+
+    while(getline(cpuinfo,line))
+    {
+        if(strncmp(line.c_str(), "processor\t: ", strlen("processor\t: "))==0)
+        {
+            // we found a processor line
+            nCPUs++; 
+        }
+    }
+    return (nCPUs ? nCPUs : 1); // convert 0 to 1 if no CPUs found
+}
+
 model_t *
 model_new(void)
 {
@@ -151,6 +182,7 @@ model_new(void)
     m->undo_action.redo = model_restore_new_fractal;
     m->undo_action.free = model_free_undo_data;
 
+    m->nCalcThreads = model_guess_calc_threads();
     gf4d_fractal_parameters_changed(m->fract);
     return m;
 }
@@ -251,6 +283,18 @@ model_set_subfract(model_t *m, int num)
         gf4d_fractal_set_fract(m->fract,gf4d_fractal_copy_fract(m->subfracts[num]));
         model_cmd_finish(m);
     }
+}
+
+int
+model_get_calcthreads(model_t *m)
+{
+    return m->nCalcThreads;
+}
+
+void
+model_set_calcthreads(model_t *m, int n)
+{
+    m->nCalcThreads = n;
 }
 
 void

@@ -36,7 +36,7 @@ private:
 
 public:
     /* ctor */
-    pointCalc(e_iterFunc iterType, 
+    pointCalc(int iterType, 
               e_bailFunc bailType, 
               const d& eject,
               colorizer *pcf,
@@ -66,6 +66,14 @@ public:
             p[CY] = DOUBLE(params.n[VY]);
             p[EJECT] = DOUBLE(m_eject);
 
+// I've found simple periodicity checking makes even 
+// fairly complex fractals draw more slowly - YMMV.
+
+#ifdef periodicity
+            d Xold = p[X], Yold = p[Y];
+            int k = 1, m = 1;
+#endif
+
             int iter = 0;
             do
             {
@@ -75,6 +83,19 @@ public:
                     // ran out of iterations
                     iter = -1; break; 
                 }
+#ifdef periodicity
+                // periodicity check
+                if(p[X] == Xold && p[Y] == Yold)
+                {
+                    iter = -1; break;
+                }
+                // periodicity housekeeping
+                if(!--k)
+                {
+                    Xold = p[X] ; Yold = p[Y];
+                    m *= 2; k = m;
+                }
+#endif
                 (*m_pBail)(p,flags);            
             }while(p[EJECT_VAL] < m_eject);
 
@@ -138,7 +159,7 @@ test_cube(const dvec4& params, const d& eject, int nIters)
 }
 
 pointFunc *pointFunc_new(
-    e_iterFunc iterFunc, 
+    int iterFunc, 
     e_bailFunc bailFunc, 
     const d& bailout,
     colorizer *pcf,
