@@ -499,12 +499,13 @@ void fractFunc::draw_threads(int rsize, int drawsize)
         update_image(y);
     }
     // remaining lines
-    for ( ; y < h ; y++)
+    for ( y = h - rsize ; y < h ; y++)
     {
         send_row(0,y,w);
         //update_image(y);
     }
 
+    reset_progress(0.0);
     reset_counts();
 
     // second pass - fill in the remaining pixels

@@ -50,3 +50,4 @@ cp `gnome-config --datadir`/pixmaps/gnofract4d/* $RPM_BUILD_ROOT/%{prefix}/share
 %{prefix}/share/gnome/apps/Graphics/gnofract4d.desktop
 %{prefix}/share/gnome/help/gnofract4d/*/*
 %{prefix}/share/maps/gnofract4d/*
+%{prefix}/share/pixmaps/gnofract4d/*

@@ -353,7 +353,7 @@ public:
 };
 
 // z <- a[0] * (|x| + i |y|)^2 + a[1] * (|x| + i|y|) + a[2] * c
-class buffaloFunc: public iterImpl<buffaloFunc,3>
+class buffaloFunc: public iterImpl<buffaloFunc,0>
 {
 #define BUFFALO_DECL double atmp
 #define BUFFALO_ITER \

@@ -1,14 +1,11 @@
 * W	sort out fractal types a bit
-* W	parameterized types
 * W 	Keyboard
 *		- Cursors : left/right/up/down
 * WW	MDI
 * W	associate with file type?
 * B	can't resize to smaller than toolbar or current size
-* W	separate main/ motion toolbars
-* W	proper toolbar widgets
 * W	main toolbar: home, exit
-* B	make it work with GMP
+* W	make it work with GMP
 * W	faster GMP (get at internals during loop, maybe?)
 * W	full-screen mode
 * W 	desktop mode
@@ -18,7 +15,17 @@
 	- eject val / (scratch?) is kept freach point
 	- can calc color without recalcing iter 
 * W	lower priority for drawing threads?
-* B 	deepening black square bug
+* W	bookmarks
+* B	Mutants don't work at deep zooms
+* W	plugins
+* W	fast single-undo
+* B	absolute paths in parameter save files
+* B	sometimes all work gets serialized to one thread
+* W	preview .fcts in open dialog
+* B 	invalid bailfunc # = crash
+* W	parameterize buffalo
+
+Movies-
 * B	deadlock when render movie while image is being drawn
 * B	movies turn off AA
 * W	implement frames/image
@@ -27,16 +34,25 @@
 * B	antialiasing/auto-deepen broken for movies
 * W 	actually save movie images -> disk
 * W	move keyframes up/down 
-* W	Documentation
-* W	Update Screenshots
-* B	Mutants don't work at deep zooms
-* W	SMP rendering
-* W	plugins
-* W	fast single-undo
+
+Version 1.5
+* W	removing mallocing from work queue
+* W	profile number of threads: is > 2 better?
+* B	SMP auto-deepening broken
+* B	lines are ugly
 
 Done:
-Undo/Redo Zoom
-Online Help
+* W	Undo/Redo
+* W	Online Help
+* W	Documentation
+* W	Update Screenshots
+* B	Sometimes progress=1.0 is left at the end
+* W	SMP rendering
+* W	pause toolbar -> menu
+* W	"deepen now" toolbar button
+* B 	deepening black square bug
+* B	can't set iterOpts using text entry any more
+* W	parameterized types
 * B	iter8 incorrect with non-magnitude bailout functions
 * B	off-by-one on iter8? (eg 65 iters == 64 iters on previous version)
 * W 	Different fractal types

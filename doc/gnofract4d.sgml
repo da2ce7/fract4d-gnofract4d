@@ -167,7 +167,7 @@ consistent.
 <para>
 The <emphasis>Cubic Mandelbrot</> function calculates z^3 + c, rather
 than the standard z^2 +c. The <emphasis>Quadratic</> function
-calculates z^2 - z + c.
+calculates a family of functions of the form A*z^2 - B*z + C*c.
 </para>
 <para>
 The <emphasis>Lambda</> function calculates lambda * z * ( 1 -
@@ -219,8 +219,14 @@ the screen gets recentered on the point you clicked.
 <sect1 id="toolbar">
 <title>Toolbar buttons</title>
 <para>
-The first ten toolbar buttons correspond to the ten parameters which define
-the view. The angle buttons, labelled <emphasis>xy</> to
+On the left of the toolbar you can see a small preview window, which
+updates as you change the angle or position buttons, to give you an
+idea of what the fractal will look like when you release the button.
+</para>
+
+<para>
+The first eight toolbar buttons correspond to the ten parameters which
+define the view. The circular angle buttons, labelled <emphasis>xy</> to
 <emphasis>zw</>, can changed by dragging the dot around. When you let
 go, the fractal will update. You can see the angle's current value in
 degrees in the status bar. By the way, the <emphasis>zw</> angle does
@@ -228,17 +234,26 @@ work, you just can't see its effects until you rotate in some other
 dimensions first.
 </para>
 <para>
-The four position buttons, <emphasis>x,y,z</> and <emphasis>w</>, can
-be clicked up or down to alter the view. They move the center of the
-screen by one third of the current image size with each click. Note
-that these don't actually move the view along the standard axes, but
-along axes rotated relative to the current view.
+The square position buttons, <emphasis>xy</> and <emphasis>zw</>, can
+be used to alter the view. The <emphasis>xy</> button allows you to
+pan around the current view (it doesn't move along the actual
+<emphasis>x</> or <emphasis>y</> axes, but along axes relative to the
+current view). The <emphasis>zw</> button allows you to move along the
+other two axes, resulting in a mutated version of the current image.
+Click inside one then drag the mouse, watching the preview window
+update, then release the mouse when you like the results.
+</para>
+<para>
+The weird black and white button (OK, so I can't draw) allows you to
+increase the current interation count, for those occasions when the
+auto-deepening doesn't get it right.
 </para>
 <para>
 The <emphasis>Undo</> and <emphasis>Redo</> buttons should be
 fairly obvious. You can undo as many times as you like. Note that undo
 also affects parameters such as color, not just position on screen.
 </para>
+
 <para>
 The <emphasis>Explorer</> mode helps you find neat-looking fractals
 easily. It divides the screen into 9 sections; the central section is
@@ -263,18 +278,21 @@ mutants with the refresh button.
 <sect1 id="filemenu">
 <title>File Menu</title> 
 <para>
-<guimenuitem>Reset Parameters</guimenuitem> returns you to the
-standard view, in case you get lost.
-
 <guimenuitem>Save Image</guimenuitem> writes the current image to
 disk. I recommend using .png images for high quality output, or JPEGs
 when image size is important. GIFs are not recommended, since they can
 only manage 256 colors.
 
-<guimenuitem>Save Parameters</guimenuitem> and
-<guimenuitem>Load Parameters</guimenuitem> save and load plain-text
-parameter description files, so you can return to images in the
-future.
+<guimenuitem>Reset Parameters</guimenuitem> returns you to the
+standard view, in case you get lost. <guimenuitem>Reset
+Zoom</guimenuitem> zooms out so the picture is four units on a side,
+but doesn't reset the other parameters. <guimenuitem>Save
+Parameters</guimenuitem> and <guimenuitem>Load
+Parameters</guimenuitem> save and load plain-text parameter
+description files, so you can return to images in the future.
+<guimenuitem>Pause</guimenuitem> temporarily halts the current
+calculation, in the unlikely event you have something more important
+than generating fractals to do.
 </para>
 </sect1>
 
@@ -283,6 +301,23 @@ future.
 <para> You can set all the fractal's parameters from here.</para>
 <sect2 id="prefdialog">
 <title>Preferences Dialog</title>
+
+<sect3 id="function">
+<title>Function Section</title>
+<para>
+Allows you to chose which fractal type to draw. See <xref linkend="types"> for details of the types available.
+</para>
+</sect3>
+
+<sect3 id="parameters">
+<title>Parameters</title>
+<para>
+Some fractal types (such as the Quadratic fractal) have additional
+parameters which you can set. These are displayed here. What
+parameters there are depends on the fractal type.
+</para>
+</sect3>
+
 <sect3 id="rendering">
 <title>Rendering Section</title>
 <para>
@@ -349,20 +384,23 @@ click the map.
 <sect1 id="about">
 <title>About &gf4;</title>
 <para>
-&gf4; is based on Gnofract, written by Aurelien Alleaume <ulink
+
+This is &gf4; version 1.5. You can find the most recent version of
+&gf4; from <ulink url="http://gnofract4d.sourceforge.net">
+http://gnofract4d.sourceforge.net/</ulink>. 
+</para>
+<para>
+&gf4; was originally based on Gnofract, written by Aurelien Alleaume <ulink
 url="mailto:manchot@club-internet.fr">(manchot@club-internet.fr)</ulink>.
-Gnofract can be obtained from
-<ulink url="http://www.multimania.com/mason/">
+Gnofract can be obtained from <ulink url="http://www.multimania.com/mason/">
 http://www.multimania.com/mason/</ulink>. The new code in &gf4; is by
 Edwin Young <ulink
 url="mailto:edwin@sourceforge.net">(edwin@sourceforge.net)
-</ulink>. You can find the most recent version of &gf4; from <ulink
-url="http://gnofract4d.sourceforge.net">
-http://gnofract4d.sourceforge.net/</ulink>. &gf4; contains code from
+</ulink>. 
+&gf4; contains code from
 <emphasis>gundo</>, by Nat Pryce. &gf4; also contains palette files (by
 a number of authors) which were originally distributed with <ulink
 url="http://spanky.triumf.ca/">Fractint</ulink>.
-
 </para>
 <para>
 &gf4; is distributed under the <emphasis>Gnu General Public
