@@ -25,6 +25,9 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
               "height" : "480",
               "antialias" : "1",
               "autodeepen" : "1"
+            },
+            "editor" : {
+              "name" : "emacs"
             }
         }
 
@@ -101,7 +104,8 @@ class PrefsDialog(gtk.Dialog):
         self.tips = gtk.Tooltips()
         self.create_image_options_page()
         self.create_compiler_options_page()
-
+        self.create_editor_options_page()
+        
         self.set_size_request(500,-1)
         self.connect('response',self.onResponse)
 
@@ -171,14 +175,17 @@ class PrefsDialog(gtk.Dialog):
         return entry
 
     def create_compiler_entry(self,propname):
+        return self.create_option_entry("compiler",propname)
+    
+    def create_option_entry(self,section,propname):
         entry = gtk.Entry()
         entry.set_activates_default(True)
         
         def set_entry(*args):
-            entry.set_text(self.prefs.get("compiler",propname))
+            entry.set_text(self.prefs.get(section,propname))
 
         def set_prefs(*args):
-            self.prefs.set("compiler",propname,entry.get_text())
+            self.prefs.set(section,propname,entry.get_text())
 
         set_entry()
         self.prefs.connect('preferences-changed',set_entry)
@@ -187,28 +194,43 @@ class PrefsDialog(gtk.Dialog):
 
     def create_compiler_options_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
-        label = gtk.Label("Com_piler")
+        label = gtk.Label(_("Com_piler"))
         label.set_use_underline(True)
         self.notebook.append_page(table,label)
                         
         entry = self.create_compiler_entry("name")
-        self.tips.set_tip(entry,"The C compiler to use")
+        self.tips.set_tip(entry,_("The C compiler to use"))
         table.attach(entry,1,2,0,1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
-        name_label = gtk.Label("Compi_ler :")
+        name_label = gtk.Label(_("Compi_ler :"))
         name_label.set_use_underline(True)
         name_label.set_mnemonic_widget(entry)
         table.attach(name_label,0,1,0,1,0,0,2,2)
         
         entry = self.create_compiler_entry("options")
-        self.tips.set_tip(entry, "Options to pass to the C compiler")
+        self.tips.set_tip(entry, _("Options to pass to the C compiler"))
         table.attach(entry,1,2,1,2,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
-        flags_label = gtk.Label("Compiler _Flags :")
+        flags_label = gtk.Label(_("Compiler _Flags :"))
         flags_label.set_use_underline(True)
         table.attach(flags_label,0,1,1,2,0,0,2,2)
         flags_label.set_mnemonic_widget(entry)
-        
+
+    def create_editor_options_page(self):
+        table = gtk.Table(5,2,gtk.FALSE)
+        label = gtk.Label(_("_Editor"))
+        label.set_use_underline(True)
+        self.notebook.append_page(table,label)
+                        
+        entry = self.create_option_entry("editor","name")
+        self.tips.set_tip(entry,_("The text editor to use for changing formulas"))
+        table.attach(entry,1,2,0,1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        name_label = gtk.Label("_Editor :")
+        name_label.set_use_underline(True)
+        name_label.set_mnemonic_widget(entry)
+        table.attach(name_label,0,1,0,1,0,0,2,2)
+                
     def create_auto_deepen_widget(self):
         widget = gtk.CheckButton("Auto _Deepen")
         self.tips.set_tip(widget,"Adjust number of iterations automatically")
