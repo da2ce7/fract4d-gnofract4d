@@ -4,6 +4,7 @@
 #include "bailFunc.h"
 #include <stdio.h>
 
+
 bool
 STFractWorker::init(fractFunc *ff_,fractal_t *f_, IImage *im_)
 {
