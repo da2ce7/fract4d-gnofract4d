@@ -611,7 +611,7 @@ create_propertybox_color_page(GtkWidget *propertybox,
 			entry);
 		gtk_signal_connect_object(GTK_OBJECT(entry),"changed",
 					  GTK_SIGNAL_FUNC(gnome_property_box_changed),
-					  GNOME_PROPERTY_BOX(propertybox));
+					  GTK_OBJECT(propertybox));
 	}
 	gtk_widget_show(cmapselector);
 	gtk_table_attach(GTK_TABLE(table), cmapselector,1,2,1,2, 
