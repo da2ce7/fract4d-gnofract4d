@@ -20,10 +20,11 @@ class GradientDialog(dialog.T):
 		self.set_size_request(300, 400)
 		
 		self.mousedown = False
-		self.origmpos  = 0
+		self.origmpos = self.startmpos = 0
 		
 		self.f = f
 		self.grad=grad
+		self.grad.dialog = self
 		self.grad.compute()
 		
 		self.create_gradient_dialog()
@@ -35,7 +36,7 @@ class GradientDialog(dialog.T):
 	
 	def create_gradient_dialog(self):
 		hData = self.grad.getDataFromHandle(self.grad.cur)
-		HSVCo = gradient.RGBtoHSV(hData[1])
+		HSVCo = gradient.RGBtoHSV(hData.col)
 	
 		###GRADIENT PREVIEW###
 		self.gradarea=gtk.DrawingArea()
@@ -53,9 +54,39 @@ class GradientDialog(dialog.T):
 		self.gradarea.connect('motion-notify-event', self.gradarea_mousemoved)
 		gradareaBox = gtk.HBox(False, 0)
 		
-		###COLOUR SELECTION###
-		self.csel = gtk.ColorSelection()
-		self.csel.set_has_palette(True)
+		###CONTEXT MENU###
+		menu_items = ( 
+			( "/_Insert",	"<control>I",	self.grad.add,		0		 ),
+			( "/_Delete",	"<control>D",	self.grad.remove,	0, 	None )
+			)
+		
+		accel_group = gtk.AccelGroup()
+		self.item_factory= gtk.ItemFactory(gtk.Menu, "<gradients>", accel_group)
+		self.item_factory.create_items(menu_items)
+		self.add_accel_group(accel_group)
+		self.menu=self.item_factory.get_widget("<gradients>")
+		
+		###COLOR SELECTION###
+		if gtk.pygtk_version[0] >= 2 and gtk.pygtk_version[1] >= 4:
+			lblCsel = gtk.Label("Color:")
+			self.csel = gtk.ColorButton(gtk.gdk.Color(hData.col[0]*255,hData.col[1]*255,hData.col[2]*255))
+			self.csel.connect('color-set', self.colorchanged)
+			self.colorbutton = True
+		else:
+			self.csel = gtk.Button("Color...")
+			self.csel.connect('clicked', self.cbutton_clicked)
+			self.csel_dialog = gtk.ColorSelectionDialog("Select a Color")
+			self.csel_dialog.colorsel.set_current_color(
+					gtk.gdk.color_parse("#%4x%4x%4x" % \
+										(hData.col[0]*255,
+										 hData.col[1]*255,
+										 hData.col[2]*255)))
+			self.csel_dialog.ok_button.connect('clicked', self.cdialog_response)
+			self.colorbutton = False
+		synccolsB = gtk.Button("Sync Colors")
+		synccolsB.connect('clicked', self.sync_colors)
+			
+		CSelBox = gtk.HBox(False, 0)
 		
 		###OFFSET CONTROL###
 		lblOffset = gtk.Label(_("Offset:"))
@@ -71,7 +102,10 @@ class GradientDialog(dialog.T):
 		gradareaBox.pack_start(self.gradarea, 1, 0, 10)
 		self.vbox.pack_start(gradareaBox, 0, 0, 10)
 		
-		#self.vbox.pack_start(self.csel, 1, 0, 10)
+		if self.colorbutton: CSelBox.pack_start(lblCsel, 1, 0, 40)
+		CSelBox.pack_start(self.csel, 1, 0, 10)
+		CSelBox.pack_start(synccolsB, 1, 0, 10)
+		self.vbox.pack_start(CSelBox, 1, 0, 10)
 		
 		lblOffsetBox.pack_start(lblOffset, 0, 0, 5)
 		self.vbox.pack_start(lblOffsetBox, 0, 0, 5)
@@ -85,12 +119,48 @@ class GradientDialog(dialog.T):
 			self.f.colorlist=self.grad.clist
 			self.f.changed(False)
 	
-	###CALLBACKS FOR RGB/HSV/etc SPINBUTTONS###
-	def redchanged(self, widget):
+	def colorchanged(self, widget):
+		color = widget.get_color()
+		self.update_color(color)
+		
+	def update_color(self, color):
 		seg, index = self.grad.getSegFromHandle(self.grad.cur)
-		seg[index][1][0] = widget.get_value_as_int()
+		seg[index][1] = [color.red/255, color.green/255, color.blue/255]
 		self.grad.compute()
 		self.gradarea.queue_draw()
+		self.f.colorlist=self.grad.clist
+		self.f.changed(False)
+			
+	#The backwards-compatible button was clicked
+	def cbutton_clicked(self, widget):
+		self.csel_dialog.show()
+		
+	def cdialog_response(self, widget):
+		color = self.csel_dialog.colorsel.get_current_color()
+		self.update_color(color)
+		
+		self.csel_dialog.hide()
+		
+		return False
+		
+	###Each handle is comprised of two handles, whose colors can be set independently.
+	###This function finds the other handle and sets it to the current handle's color.
+	def sync_colors(self, widget):
+		if self.grad.cur % 2 == 0: #The handle is the first in its segment
+			if self.grad.cur > 0:
+				self.grad.segments[self.grad.cur/2-1].right.col = self.grad.getDataFromHandle(self.grad.cur).col
+			else:
+				self.grad.segments[-1].right.col = self.grad.getDataFromHandle(self.grad.cur).col
+		else:
+			if self.grad.cur < len(self.grad.segments):
+				self.grad.segments[self.grad.cur/2+1].left.col = self.grad.getDataFromHandle(self.grad.cur).col
+			else:
+				self.grad.segments[0].left.col = self.grad.getDataFromHandle(self.grad.cur).col
+				
+		self.grad.compute()
+		self.gradarea.queue_draw()
+		self.f.colorlist=self.grad.clist
+		self.f.changed(False)
 	
 	###INIT FOR GRADIENT PREVIEW###
 	def gradarea_realized(self, widget):
@@ -121,8 +191,8 @@ class GradientDialog(dialog.T):
 		
 		##Draw some handles##						
 		for seg in self.grad.segments:
-			s_lpos = (seg[2][0]+(1-self.grad.offset)) * self.grad.num
-			s_rpos = (seg[3][0]+(1-self.grad.offset)) * self.grad.num
+			s_lpos = (seg.left.pos+(1-self.grad.offset)) * self.grad.num
+			s_rpos = (seg.right.pos+(1-self.grad.offset)) * self.grad.num
 			
 			if s_lpos > self.grad.num:
 				s_lpos -= self.grad.num
@@ -166,38 +236,44 @@ class GradientDialog(dialog.T):
 		return False
 	
 	def gradarea_mousedown(self, widget, event):
-		x=event.x/self.grad.num
-		x-=1-self.grad.offset
-		if x < 0:
-			x+=1
+		if self.mousedown == False:
+			x=event.x/self.grad.num
+			x-=1-self.grad.offset
+			if x < 0:
+				x+=1
 		
-		seg = self.grad.getRawSegAt(x)
-		relx = x - seg[2][0]
+			seg = self.grad.getSegAt(x)
+			relx = x - seg.left.pos
 		
-		if relx < (seg[3][0]-seg[2][0])/2:
-			self.grad.cur=self.grad.segments.index(seg)*2
-		else:
-			self.grad.cur=self.grad.segments.index(seg)*2+1
+			if relx < (seg.right.pos-seg.left.pos)/2:
+				self.grad.cur=self.grad.segments.index(seg)*2
+			else:
+				self.grad.cur=self.grad.segments.index(seg)*2+1
+			self.gradarea.queue_draw()
 		
-		self.gradarea.queue_draw()
-		
-		self.mousedown = True
-		self.origmpos  = event.x
+		if event.button == 1:
+			self.mousedown = True
+			self.origmpos = self.startmpos = event.x
+		elif event.button == 3:
+			self.grad.mousepos = event.x #We can't pass this as callback data, because things're screwed. If this isn't true, please tell!
+			#self.item_factory.popup(int(event.x), int(event.y), event.button)
+			self.menu.popup(None, None, None, event.button, event.time)
 		
 		return False
 	
 	def gradarea_clicked(self, widget, event):
 		self.mousedown = False
-		self.grad.compute()
-		self.gradarea.queue_draw()
-		self.f.colorlist=self.grad.clist
-		self.f.changed(False)
+		if self.startmpos != event.x:
+			self.grad.compute()
+			self.gradarea.queue_draw()
+			self.f.colorlist=self.grad.clist
+			self.f.changed(False)
 		
 		return False
 		
 	def gradarea_mousemoved(self, widget, event):
 		if self.mousedown:
-			seg, index = self.grad.getSegFromHandle(self.grad.cur)
+			seg, side = self.grad.getSegFromHandle(self.grad.cur)
 			segindex = self.grad.segments.index(seg)
 			move = (event.x - self.origmpos)/self.grad.num
 			#A humongous bowl of hackiness!
@@ -206,38 +282,45 @@ class GradientDialog(dialog.T):
 			#one that occupies one segment up or down. An exception will be raised if
 			#the selected handle is either the last or the first, so then we move the
 			#one on the other end.
-			if index == 2:
-				try:
-					self.grad.segments[segindex-1][3][0]+=move
-					if self.grad.segments[segindex-1][3][0] > 1:
-						self.grad.segments[segindex-1][3][0]-=1
-					elif self.grad.segments[segindex-1][3][0] < 0:
-						self.grad.segments[segindex-1][3][0]+=1
-				except IndexError:
-					self.grad.segments[self.grad.segments.len()-1][3][0]+=move
-					if self.grad.segments[self.grad.segments.len()-1][3][0] > 1:
-						self.grad.segments[self.grad.segments.len()-1][3][0]-=1
-					elif self.grad.segments[self.grad.segments.len()-1][3][0] < 0:
-						self.grad.segments[self.grad.segments.len()-1][3][0]+=1
-			else:
-				try:
-					self.grad.segments[segindex+1][2][0]+=move
-					if self.grad.segments[segindex+1][2][0] > 1:
-						self.grad.segments[segindex+1][2][0]-=1
-					elif self.grad.segments[segindex+1][2][0] < 0:
-						self.grad.segments[segindex+1][2][0]+=1
-				except IndexError:
-					self.grad.segments[0][2][0]+=move
-					if self.grad.segments[0][2][0] > 1:
-						self.grad.segments[0][2][0]-=1
-					elif self.grad.segments[0][2][0] < 0:
-						self.grad.segments[0][2][0]+=1
-					
-			seg[index][0]+=move
-			if seg[index][0] > 1:
-				seg[index][0] -=1
-			elif seg[index][0] < 0:
-				seg[index][0] +=1
+			if (segindex > 0 or side == 'right') and (segindex < len(self.grad.segments)-1 or side == 'left'):
+				if side == 'left':
+					self.grad.segments[segindex-1].right.pos+=move
+					if self.grad.segments[segindex-1].right.pos > 1:
+						self.grad.segments[segindex-1].right.pos = 1
+					elif self.grad.segments[segindex-1].right.pos < 0:
+						self.grad.segments[segindex-1].right.pos = 0
+						
+					seg.left.pos+=move
+					if seg.left.pos > 1:
+						seg.left.pos =1
+					elif seg.left.pos < 0:
+						seg.left.pos =0
+						
+					if seg.left.pos > seg.right.pos:
+						seg.left.pos = seg.right.pos
+						self.grad.segments[segindex-1].right.pos=seg.right.pos
+					elif self.grad.segments[segindex-1].right.pos < self.grad.segments[segindex-1].left.pos:
+						self.grad.segments[segindex-1].right.pos=self.grad.segments[segindex-1].left.pos
+						seg.left.pos=self.grad.segments[segindex-1].left.pos
+				else:
+					self.grad.segments[segindex+1].left.pos+=move
+					if self.grad.segments[segindex+1].left.pos > 1:
+						self.grad.segments[segindex+1].left.pos = 1
+					elif self.grad.segments[segindex+1].left.pos < 0:
+						self.grad.segments[segindex+1].left.pos = 0
+						
+					seg.right.pos+=move
+					if seg.right.pos > 1:
+						seg.right.pos =1
+					elif seg.right.pos < 0:
+						seg.right.pos =0
+						
+					if seg.left.pos > seg.right.pos:
+						seg.right.pos=seg.left.pos
+						self.grad.segments[segindex+1].left.pos=seg.left.pos
+					elif self.grad.segments[segindex+1].right.pos < self.grad.segments[segindex+1].left.pos:
+						self.grad.segments[segindex+1].left.pos=self.grad.segments[segindex+1].right.pos
+						seg.right.pos=self.grad.segments[segindex+1].right.pos
 			
 			self.origmpos = event.x
 			self.grad.compute()
