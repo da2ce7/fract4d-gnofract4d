@@ -2,15 +2,24 @@
 
 # functions to tidy up ir trees in various ways
 
+import copy
 
 import ir
 import symbol
-import copy
+import fracttypes
 
 class T:
     def __init__(self,symbols):
         self.symbols = symbols
-
+        # used to reverse cjumps
+        self.flipTable = {
+            '==' : '!=',
+            '!=' : '==',
+            '>'  : '<=',
+            '>=' : '<',
+            '<'  : '>=',
+            '<=' : '>'
+            }
     def stms(self, eseq):
         return eseq.children[:-1]
     
@@ -179,28 +188,64 @@ class T:
         else:
             return [jump.falseDest, jump.trueDest]
 
+    def flip_cjump(self, cjump):
+        # reverse the sense of the jump
+        new_cjump = copy.copy(cjump)
+        new_cjump.op = self.flipTable[cjump.op]
+        new_cjump.falseDest = cjump.trueDest
+        new_cjump.trueDest = cjump.falseDest
+        return new_cjump
+    
     def add_block_to_trace(self, trace, block):
-        # TODO: remove pointless jumps, arrange cjumps
+        # add block to trace. As a side-effect, tidy up last jump to
+        # enforce condition that each cjump must be followed by its
+        # false label
+        target = block[0].name
+        if trace != []:
+            lastjump = trace[-1]
+            if isinstance(lastjump,ir.Jump):
+                if lastjump.dest == target:
+                    # remove jumps to the next stm
+                    del trace[-1]
+                    del block[0]
+            else:
+                assert(isinstance(lastjump, ir.CJump))
+                if lastjump.falseDest == target:
+                    # no change required
+                    pass
+                elif lastjump.trueDest == target:
+                    trace[-1] = self.flip_cjump(lastjump)
+                else:
+                    # insert extra label and jump to make it work
+                    jump = ir.Jump(lastjump.falseDest, lastjump.node)
+                    newFalse = self.symbols.newLabel()
+                    label = ir.Label(newFalse)
+                    lastjump.falseDest = newFalse
+                    trace += [label,jump]
         trace += block
 
     def marked(self,hash,name):
-        return not hash.has_key(name) # name of label at start
-
+        try:
+            return hash[name][0]
+        except KeyError:
+            raise fracttypes.TranslationError(
+                "Internal Compiler Error: jump to unknown target %s" % name)
     def mark(self,hash,block):
-        del hash[block[0].name]
+        hash[block[0].name][0] = 1
 
-    def hash_of_blocks(self,blocks):
+    def hash_of_blocks(self,blocks, endLabel):
         hash = {}
+        hash[endLabel] = [1,None] # so we don't complain about jumps there
         for b in blocks:
-            hash[b[0].name] = b
+            hash[b[0].name] = [0,b]
         return hash
     
-    def schedule_trace(self,blocks):
+    def schedule_trace(self,blocks, endLabel):
         # converts a list of basic blocks into a linear trace,
         # where every cjump is followed by its false case
         
         # we don't try to make an optimal trace - any one will do
-        marks = self.hash_of_blocks(blocks)
+        marks = self.hash_of_blocks(blocks, endLabel)
         queue = copy.copy(blocks)
         trace = []
         while queue != []:
@@ -211,7 +256,7 @@ class T:
                 self.add_block_to_trace(trace,b)
                 for succ in self.successors(b):
                     if not self.marked(marks,succ):
-                        b = hash_of_blocks[succ]
+                        b = marks[succ][1]
                         break
         return trace
                 

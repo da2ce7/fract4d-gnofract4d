@@ -6,15 +6,10 @@ from absyn import *
 import symbol
 import fractparser
 import fractlexer
-import exceptions
 import ir
 import canon
 
 from fracttypes import *
-
-class TranslationError(exceptions.Exception):
-    def __init__(self,msg):
-        self.msg = msg
     
 class T:
     def __init__(self,f):

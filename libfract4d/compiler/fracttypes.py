@@ -1,6 +1,7 @@
 # fract compiler datatypes
 
 import string
+import exceptions
 
 # order is significant - we use X > Y on types
 Bool = 0
@@ -86,3 +87,11 @@ class Var:
         self.pos = pos
     def __str__(self):
         return "%s %s (%d)" % (strOfType(self.type), self.value, self.pos)
+
+# a convenient place to put this.
+class TranslationError(exceptions.Exception):
+    def __init__(self,msg):
+        self.msg = msg
+    def __str__(self):
+        return "TranslationError(%s)" % self.msg
+    
