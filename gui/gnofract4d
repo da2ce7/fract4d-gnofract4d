@@ -21,6 +21,7 @@ import gtkfractal
 import settings
 import preferences
 import autozoom
+import undo
 
 # We don't use GDK threads because RedHat seem to compile pygtk
 # without thread support. Grrr.
@@ -38,10 +39,11 @@ class MainWindow:
     def __init__(self):
         global g_comp
         self.compiler = g_comp
+        self.seq = undo.Sequence()
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
         self.window.set_title('Gnofract 4D')
-
+        
         self.accelgroup = gtk.AccelGroup()
         self.window.add_accel_group(self.accelgroup)
         #self.window.connect('key-press-event', self.on_key_press)

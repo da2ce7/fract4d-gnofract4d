@@ -31,7 +31,6 @@ class Sequence(gobject.GObject):
         self.emit('can-redo', self.can_redo())
         
     def do(self,redo_action,undo_action):
-        redo_action()
         # replace everything from here on with the new item
         del self.history[self.pos:]
         self.history.append(HistoryEntry(redo_action,undo_action))
