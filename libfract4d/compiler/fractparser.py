@@ -47,6 +47,10 @@ def p_formbody_2(t):
      'formbody : NEWLINE stmlist sectlist FORM_END'
      t[0] = [ absyn.Stmlist("nameless",t[2],t.lineno(2)) ] + t[3] 
 
+def p_formbody_3(t):
+     'formbody : NEWLINE stmlist FORM_END'
+     t[0] = [ absyn.Stmlist("nameless",t[2],t.lineno(2)) ]
+
 def p_formbody_err(t):
      'formbody : error FORM_END'
      if(isinstance(t[1],types.StringType)):

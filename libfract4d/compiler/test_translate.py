@@ -19,29 +19,27 @@ class TranslateTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def translate(self,s,cf=None,dump=None):
+    def translate(self,s,dump=None):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
-        if cf != None:
-            cft = self.parser.parse(cf).children[0]
-        else:
-            cft = None
-        #print pt.pretty()
-        return translate.T(pt.children[0], cft, dump)
+        return translate.T(pt.children[0], dump)
+
+    def translatecf(self,s,dump=None):
+        fractlexer.lexer.lineno = 1
+        pt = self.parser.parse(s)
+        return translate.ColorFunc(pt.children[0], dump)
 
     def testCF(self):
-        t1 = self.translate("t1 {\na=1,a=2:\nb=2\nc=3}",
-                            '''c1 {
-                            init:
-                            int t=5
+        t1 = self.translatecf('''c1 {
                             final:
-                            t = 19
+                            #index = #numiter / 256.0
                             }''')
+
+        t2 = self.translatecf('c1 {\n#index = #numiter / 256.0\n}')
+        
         self.assertNoErrors(t1)
-        s = t1.sections["init"].children[-1].children[0]
-        self.assertEqual(s.name,"t")
-        s = t1.sections["final"].children[0].children[0]
-        self.assertEqual(s.name,"t")
+        self.assertNoErrors(t2)
+        self.assertEquivalentTranslations(t1,t2)
         
     def testFractintSections(self):
         t1 = self.translate("t1 {\na=1,a=2:\nb=2\nc=3}")

@@ -74,20 +74,14 @@ class Compiler:
                 "Error reported by C compiler:%s" % output)
         
 
-    def get_formula(self, filename, formula,colorfile=None,colorfunc=None):
+    def get_formula(self, filename, formula):
         ff = self.files.get(os.path.basename(filename))
         if ff == None : return None
         f = ff.get_formula(formula)
 
         cf = None
-        #print colorfile
-        if colorfile != None:
-            cff = self.files.get(os.path.basename(colorfile))
-            if cff == None : return None
-            cf = cff.get_formula(colorfunc)
-            
         if f != None:
-            f = translate.T(f,cf)
+            f = translate.T(f)
         return f
 
 def usage():
@@ -95,9 +89,9 @@ def usage():
     print "fc.py -o [outfile] -f [formula] infile"
     sys.exit(1)
 
-def generate(fc,formulafile, formula, colorfunc, outputfile, colorfile, cfile):
+def generate(fc,formulafile, formula, outputfile, cfile):
     # find the function we want
-    ir = fc.get_formula(formulafile,formula,colorfile, colorfunc)
+    ir = fc.get_formula(formulafile,formula)
     if ir == None:
         raise Exception("Can't find formula %s in %s" % \
               (formula, formulafile))
@@ -153,10 +147,10 @@ def main():
         for formula in fc.files[os.path.basename(formulafile)].formulas.keys():
             print "%s:%s" % (formulafile, formula)
             try:
-                generate(fc,formulafile,formula,colorfunc,outputfile, colorfile, cfile)
+                generate(fc,formulafile,formula,outputfile,cfile)
             except Exception, err:
                 print err
     else:
-        generate(fc,formulafile,formula,colorfunc,outputfile, colorfile, cfile)
+        generate(fc,formulafile,formula,coutputfile,cfile)
             
 if __name__ =='__main__': main()

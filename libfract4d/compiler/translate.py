@@ -12,8 +12,8 @@ import stdlib
 
 from fracttypes import *
     
-class T:
-    def __init__(self,f,cf=None,dump=None):
+class TBase:
+    def __init__(self,dump=None):
         self.symbols = symbol.T()
         self.canon = canon.T(self.symbols,dump)
         self.errors = []
@@ -34,17 +34,7 @@ class T:
             for k in dump.keys():
                 self.__dict__[k]=1
 
-        try:
-            self.symbols.reset()
-            self.formula(f)
-            if cf != None:
-                self.coloring_method(cf)
-            if self.dumpPreCanon:
-                self.dumpSections(f,self.sections)
-            self.canonicalize()
-        except TranslationError, e:
-            self.errors.append(e.msg)
-
+    def post_init(self):
         if self.dumpProbs:
             print self.errors
             print self.warnings
@@ -103,48 +93,7 @@ class T:
         self.errors.append(msg)
     def warning(self,msg):
         self.warnings.append(msg)
-    
-    def formula(self, f):
-        if f.children[0].type == "error":
-            self.error(f.children[0].leaf)
-            return
-
-        self.canonicalizeSections(f)
-        
-        # lookup sections in order
-        s = f.childByName("default")
-        if s: self.default(s)
-        s = f.childByName("global")
-        if s: self.global_(s)
-        s = f.childByName("init")
-        if s: self.init(s)
-        s = f.childByName("loop")
-        if s: self.loop(s)
-        s = f.childByName("bailout")
-        if s: self.bailout(s)
-        s = f.childByName("final")
-        if s: self.final(s)
-
-        #  ignore switch and builtin for now
-
-    def coloring_method(self,f):
-        if f.children[0].type == "error":
-            self.error(f.children[0].leaf)
-            return
             
-        self.canonicalizeColorSections(f)
-        s = f.childByName("default")
-        if s: self.default(s)
-        s = f.childByName("global")
-        if s: self.global_(s)
-        s = f.childByName("init")
-        if s:
-            self.init(s)
-        s = f.childByName("loop")
-        if s: self.loop(s)
-        s = f.childByName("final")
-        if s: self.final(s)
-        
     def canonicalize(self):
         for (k,tree) in self.sections.items():
             startLabel = "t__start_" + k
@@ -157,62 +106,6 @@ class T:
                     and an explicit UltraFractal %s section. \
                     Using explicit section." % (sect,sect))
         
-    def canonicalizeSections(self,f):        
-        '''a nameless section (started by ':') is the same as a loop
-           section with the last stm as a bailout section - make this
-           change'''
-
-        # a "nameless" section is really an init section
-        s = f.childByName("nameless")
-        if s:
-            oldinit = f.childByName("init")
-            if oldinit:
-                self.dupSectionWarning("init")
-            else:
-                s.leaf = "init"
-        
-        s = f.childByName("")
-        if not s or s.children == []:
-            return
-        elif len(s.children) == 1:
-            self.warning("No bailout condition specified")
-            bailout = []
-            loop = s.children
-        else:
-            bailout = [s.children[-1]]
-            loop = s.children[:-1]
-            
-        oldbailout = f.childByName("bailout")
-        if oldbailout:
-            self.dupSectionWarning("bailout")
-        else:
-            f.children.append(Stmlist("bailout",bailout, -1))
-        
-        oldloop = f.childByName("loop")
-        if oldloop:
-            self.dupSectionWarning("loop")
-        else:
-            f.children.append(Stmlist("loop",loop,loop[0].pos))
-
-        f.children.remove(s)
-
-        if self.dumpCanon:
-            print f.pretty()
-
-    def canonicalizeColorSections(self,f):
-        '''if there are no section headers in a colorfunc,
-        just a final block is implied'''
-        s = f.childByName("nameless")
-        if s:
-            oldfinal = f.childByName("final")
-            if oldfinal:
-                self.dupSectionWarning("final")
-            else:
-                s.leaf = "final"
-
-        if self.dumpCanon:
-            print f.pretty()
-
     def sectionOrNone(self,sectname):
         if self.sections.has_key(sectname):
             return self.sections[sectname]
@@ -563,7 +456,130 @@ class T:
         msg = "Warning: conversion from %s to %s on line %s" % \
         (strOfType(exp.datatype), strOfType(expectedType), exp.node.pos)
         self.warnings.append(msg)
+
+class T(TBase):
+    def __init__(self,f,dump=None):
+        TBase.__init__(self,dump)
+        try:
+            self.main(f)
+            if self.dumpPreCanon:
+                self.dumpSections(f,self.sections)
+            self.canonicalize()
+        except TranslationError, e:
+            self.errors.append(e.msg)
+
+        self.post_init()
+
+    def main(self, f):
+        if f.children[0].type == "error":
+            self.error(f.children[0].leaf)
+            return
+
+        self.canonicalizeSections(f)
         
+        # lookup sections in order
+        s = f.childByName("default")
+        if s: self.default(s)
+        s = f.childByName("global")
+        if s: self.global_(s)
+        s = f.childByName("init")
+        if s: self.init(s)
+        s = f.childByName("loop")
+        if s: self.loop(s)
+        s = f.childByName("bailout")
+        if s: self.bailout(s)
+        s = f.childByName("final")
+        if s: self.final(s)
+
+        #  ignore switch and builtin for now
+
+    def canonicalizeSections(self,f):        
+        '''a nameless section (started by ':') is the same as a loop
+           section with the last stm as a bailout section - make this
+           change'''
+
+        # a "nameless" section is really an init section
+        s = f.childByName("nameless")
+        if s:
+            oldinit = f.childByName("init")
+            if oldinit:
+                self.dupSectionWarning("init")
+            else:
+                s.leaf = "init"
+        
+        s = f.childByName("")
+        if not s or s.children == []:
+            return
+        elif len(s.children) == 1:
+            self.warning("No bailout condition specified")
+            bailout = []
+            loop = s.children
+        else:
+            bailout = [s.children[-1]]
+            loop = s.children[:-1]
+            
+        oldbailout = f.childByName("bailout")
+        if oldbailout:
+            self.dupSectionWarning("bailout")
+        else:
+            f.children.append(Stmlist("bailout",bailout, -1))
+        
+        oldloop = f.childByName("loop")
+        if oldloop:
+            self.dupSectionWarning("loop")
+        else:
+            f.children.append(Stmlist("loop",loop,loop[0].pos))
+
+        f.children.remove(s)
+
+        if self.dumpCanon:
+            print f.pretty()
+
+class ColorFunc(TBase):
+    def __init__(self,f,dump=None):
+        TBase.__init__(self,dump)
+        try:
+            self.main(f)
+            if self.dumpPreCanon:
+                self.dumpSections(f,self.sections)
+            self.canonicalize()
+        except TranslationError, e:
+            self.errors.append(e.msg)
+
+        self.post_init()
+
+    def main(self,f):
+        if f.children[0].type == "error":
+            self.error(f.children[0].leaf)
+            return
+            
+        self.canonicalizeSections(f)
+        s = f.childByName("default")
+        if s: self.default(s)
+        s = f.childByName("global")
+        if s: self.global_(s)
+        s = f.childByName("init")
+        if s:
+            self.init(s)
+        s = f.childByName("loop")
+        if s: self.loop(s)
+        s = f.childByName("final")
+        if s: self.final(s)
+
+    def canonicalizeSections(self,f):
+        '''if there are no section headers in a colorfunc,
+        just a final block is implied'''
+        s = f.childByName("nameless")
+        if s:
+            oldfinal = f.childByName("final")
+            if oldfinal:
+                self.dupSectionWarning("final")
+            else:
+                s.leaf = "final"
+
+        if self.dumpCanon:
+            print f.pretty()
+
 parser = fractparser.parser
      
 # debugging
