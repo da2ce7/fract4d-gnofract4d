@@ -518,9 +518,12 @@ class T(UserDict):
     def __setitem__(self,key,value):
         k = mangle(key)
         if self.data.has_key(k):
-            l = self.data[k].pos
-            msg = ("was already defined on line %d" % l)
-            raise KeyError, ("symbol '%s' %s" % (key,msg))
+            pre_type = self.data[k].type
+            if  pre_type != value.type:                
+                l = self.data[k].pos
+                msg = ("was already defined as %s on line %d" % \
+                       (strOfType(pre_type), l))
+                raise KeyError, ("symbol '%s' %s" % (key,msg))
         elif T.default_dict.has_key(k):
             pre_var = T.default_dict[k]
             if isinstance(pre_var,OverloadList):
