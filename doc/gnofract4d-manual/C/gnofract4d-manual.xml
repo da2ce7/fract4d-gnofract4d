@@ -614,11 +614,6 @@ Specific known issues:
 <listitem> <para> Color ranges (as opposed to color maps) are not
 supported. </para> </listitem>
 
-<listitem> <para> Nova and Newton fractals may have different
-coloration. This is because older versions used a tolerance
-calculation which was dependent on the image size. I decided that was
-a lousy idea so now the tolerance is fixed. </para> </listitem>
-
 <listitem> <para> Only one colormap per file is supported (the outer
 one). Inner colormaps are ignored. </para> </listitem>
 

@@ -134,6 +134,9 @@ class T(gobject.GObject):
         fract4dc.cmap_set_solid(self.cmap,0,r,g,b,a)
 
         t = self.f.tolerance(width,height)
+        if self.f.auto_tolerance:
+            self.f.set_named_param("@epsilon",t)
+        
         fract4dc.pf_init(self.f.pfunc,t,self.f.initparams)
 
         self.running = True

@@ -188,6 +188,7 @@ class T(FctUtils):
         self.cfunc_files = [None,None]
 
         self.yflip = False
+        self.auto_tolerance = False
         self.antialias = 1
         self.compiler = compiler
         self.outputfile = None
@@ -344,6 +345,7 @@ class T(FctUtils):
         self.rot_by = math.pi/2
         self.title = self.funcName
         self.yflip = False
+        self.auto_tolerance = False
         
         self.set_formula_defaults()
 
@@ -573,7 +575,10 @@ class T(FctUtils):
             # old versions displayed everything upside down
             # switch the rotation so they load OK
             self.yflip = True
-
+        if 1.7 > self.format_version > 2.0:
+            # a version that used auto-tolerance for Nova and Newton
+            self.auto_tolerance = True
+            
         if self.format_version > 2.0:
             warning = \
 '''This file was created by a newer version of Gnofract 4D.
@@ -605,7 +610,7 @@ The image may not display correctly. Please upgrade to version %f.'''
         op = self.formula.symbols.order_of_params()
         ord = op.get(self.formula.symbols.realName(name))
         if ord == None:
-            print "Ignoring unknown param %s" % name
+            #print "Ignoring unknown param %s" % name
             return
 
         t = self.formula.symbols[name].type 
