@@ -2,6 +2,10 @@ parse_error {
   ===
 }
 
+test_defaults {
+default:
+maxiter = 200
+}
 
 ; a new-year's eve fractal - looks like a good torture test...
 

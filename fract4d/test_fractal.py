@@ -173,6 +173,16 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         #print buf[:80]
         #fract4dc.image_save(image,"mandel.tga")
 
+    def testReset(self):
+        # test that formula's defaults are applied
+        f = fractal.T(self.compiler)
+
+        f.params[f.XCENTER] = 777.0
+        f.set_formula("test.frm","test_defaults")
+        f.reset()
+        self.assertEqual(f.maxiter,200)
+        self.assertEqual(f.params[f.XCENTER],0.0)
+        
     def failBuf(self,buf):
         self.failUnless(False)
         
