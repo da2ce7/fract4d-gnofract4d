@@ -153,6 +153,9 @@ class BrowserDialog(gtk.Dialog):
 
     def file_selection_changed(self,selection):
         (model,iter) = selection.get_selected()
+        if iter == None:
+            return
+        
         self.current_fname = model.get_value(iter,0)
         text = self.compiler.files[self.current_fname].contents
         self.sourcetext.get_buffer().set_text(text,-1)
@@ -161,7 +164,6 @@ class BrowserDialog(gtk.Dialog):
     def formula_selection_changed(self,selection):
         (model,iter) = selection.get_selected()
         if iter == None:
-            print "no formula"
             return
         
         form_name = model.get_value(iter,0)

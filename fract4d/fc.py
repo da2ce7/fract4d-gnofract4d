@@ -132,12 +132,14 @@ class Compiler:
 
         return outputfile
 
-    def get_formula(self, filename, formula):
+    def get_parsetree(self,filename,formname):
         ff = self.files.get(os.path.basename(filename))
         if ff == None : return None
-        f = ff.get_formula(formula)
+        return ff.get_formula(formname)
+        
+    def get_formula(self, filename, formname): 
+        f = self.get_parsetree(filename,formname)
 
-        cf = None
         if f != None:
             f = translate.T(f)
         return f

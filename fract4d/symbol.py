@@ -249,6 +249,17 @@ class T(UserDict):
                         params[name] = sym
         return params
 
+    def func_names(self):
+        params = self.parameters()
+
+        func_names = []
+        for (name,param) in params.items():
+            if isinstance(param,Func):
+                if name[:5] == "t__a_":
+                    name = name[5:]
+                func_names.append(name)
+        return func_names
+
     def available_param_functions(self,ret,args):
         # a list of all function names which take a complex
         # and return one (for GUI to select a function)
