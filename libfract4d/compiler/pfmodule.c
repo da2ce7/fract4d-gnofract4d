@@ -16,6 +16,7 @@
 static void
 pf_unload(void *p)
 {
+    /* printf("Unloading %p\n",p); */
     dlclose(p);
 }
 
@@ -38,17 +39,25 @@ pf_load(PyObject *self, PyObject *args)
     return PyCObject_FromVoidPtr(dlHandle,pf_unload);
 }
 
+struct pfHandle
+{
+    PyObject *pyhandle;
+    pf_obj *pfo;
+} ;
+
 static void
 pf_delete(void *p)
 {
-    pf_obj *pfo = (pf_obj *)p;
-    /* printf("deleting %p\n",pfo);  */
-    pfo->vtbl->kill(pfo);
+    struct pfHandle *pfh = (struct pfHandle *)p;
+    /* printf("deleting %p\n",pfh); */
+    pfh->pfo->vtbl->kill(pfh->pfo);
+    Py_DECREF(pfh->pyhandle);
 }
 
 static PyObject *
 pf_create(PyObject *self, PyObject *args)
 {
+    struct pfHandle *pfh = malloc(sizeof(struct pfHandle));
     void *dlHandle;
     PyObject *pyobj;
     pf_obj *(*pfn)(void); 
@@ -70,8 +79,11 @@ pf_create(PyObject *self, PyObject *args)
 	return NULL;
     }
     pf_obj *p = pfn();
-    /* printf("created %p\n",p); */
-    return PyCObject_FromVoidPtr(p,pf_delete);
+    pfh->pfo = p;
+    pfh->pyhandle = pyobj;
+    // refcount module so it can't be unloaded before all funcs are gone
+    Py_INCREF(pyobj); 
+    return PyCObject_FromVoidPtr(pfh,pf_delete);
 }
 
 
@@ -81,7 +93,7 @@ pf_init(PyObject *self, PyObject *args)
     PyObject *pyobj, *pyarray;
     double period_tolerance;
     double *params;
-    pf_obj *pfo; 
+    struct pfHandle *pfh;
 
     if(!PyArg_ParseTuple(args,"OdO",&pyobj,&period_tolerance,&pyarray))
     {
@@ -93,7 +105,7 @@ pf_init(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    pfo = PyCObject_AsVoidPtr(pyobj);
+    pfh = PyCObject_AsVoidPtr(pyobj);
     /* printf("pfo:%p\n",pfo); */
 
     if(!PySequence_Check(pyarray))
@@ -140,7 +152,7 @@ pf_init(PyObject *self, PyObject *args)
 	    Py_XDECREF(pyitem);
 	} 
 	/*finally all args are assembled */
-	pfo->vtbl->init(pfo,period_tolerance,params,len);
+	pfh->pfo->vtbl->init(pfh->pfo,period_tolerance,params,len);
 	free(params);
     }
     return Py_None;
@@ -151,7 +163,7 @@ pf_calc(PyObject *self, PyObject *args)
 {
     PyObject *pyobj, *pyret;
     double params[4];
-    pf_obj *pfo; 
+    struct pfHandle *pfh; 
     int nIters, nNoPeriodIters,x=0,y=0,aa=0;
     int outIters=0, outFate=0;
     double outDist=0.0;
@@ -169,8 +181,8 @@ pf_calc(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    pfo = PyCObject_AsVoidPtr(pyobj);
-    pfo->vtbl->calc(pfo,params,
+    pfh = PyCObject_AsVoidPtr(pyobj);
+    pfh->pfo->vtbl->calc(pfh->pfo,params,
 		    nIters,nNoPeriodIters,
 		    x,y,aa,
 		    &outIters,&outFate,&outDist);
