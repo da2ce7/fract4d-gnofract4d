@@ -85,6 +85,11 @@ class GradientColorMap: public ColorMap
     ~GradientColorMap();
 
     bool init(int n_colors);
+    void set(double left, double right,
+	     double *left_col,
+	     double *right_col,
+	     e_blendType bmode, e_colorType cmode);
+
     rgba_t lookup(double index) const; 
  private:
     gradient_item_t *items;

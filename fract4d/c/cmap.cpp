@@ -186,6 +186,22 @@ GradientColorMap::init(int ncolors_)
     return true;
 }
 
+void 
+GradientColorMap::set(
+    double left, double right,
+    double *left_col,
+    double *right_col,
+    e_blendType bmode, e_colorType cmode)
+{
+/*
+    printf("left: %g [%g,%g,%g,%g]\nright: %g [%g,%g,%g,%g]\n%d %d\n",
+	   left, left_col[0], left_col[1], left_col[2], left_col[3],
+	   right, right_col[0], right_col[1], right_col[2], right_col[3], 
+	   (int)bmode, (int)cmode);
+*/
+
+}
+
 rgba_t 
 GradientColorMap::lookup(double index) const
 {
