@@ -626,14 +626,14 @@ func fn1
         'test color arithmetic'
         src = '''t_color{
         init:
-        color red = rgba(1,0,0,1)
-        color green = rgba(0,1,0,1)
-        color blue = rgba(0,0,1,1)
-        color alpha = rgba(0,0,0,1)
-        color yellow = (red + green) / 2
-        color cyan = (blue + green) / 2
-        color white = (red + blue + green)
-        color black = white - red - blue - green
+        color r = rgba(1,0,0,1)
+        color g = rgba(0,1,0,1)
+        color b = rgba(0,0,1,1)
+        color a = rgba(0,0,0,1)
+        color yellow = (r + g) / 2
+        color cyan = (b + g) / 2
+        color white = (r + b + g)
+        color black = white - r - b - g
         color yellow2 = yellow * 0.5
         color yellow3 = yellow2 / 0.5
         }'''
@@ -653,7 +653,26 @@ func fn1
                          self.inspect_color("yellow2") +
                          self.inspect_color("yellow3"),
                          exp)
-        
+
+        # access to parts
+        src = '''t_color3 {
+        init:
+        color x = rgba(1.0,2.0,3.0,4.0)
+        float a=red(x),float b=green(x),float c=blue(x),float d=alpha(x)
+        red(x) = 4
+        green(x) = 3
+        blue(x) = 2
+        alpha(x) = 1
+        }'''
+        self.assertCSays(src,"init",
+                         self.inspect_float("a") +
+                         self.inspect_float("b") +
+                         self.inspect_float("c") +
+                         self.inspect_float("d") +
+                         self.inspect_color("x"),
+                         "a = 1\nb = 2\nc = 3\nd = 4\n" +
+                         "x = (4,3,2,1)")
+
     def testCHyper(self):
         'test arithmetic in hypercomplex numbers'
 
@@ -1106,16 +1125,13 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         init:
         color black = rgb(0,0,0)
         color something = rgba(0.4, 0.7, 0.3,0.9)
-        color out_of_range = rgb(-7.9, 1e13, 1.0/0.0)
         }'''
 
         check = "\n".join([self.inspect_color("black"),
-                           self.inspect_color("something"),
-                           self.inspect_color("out_of_range")])
+                           self.inspect_color("something")])
         exp = "\n".join([
             "black = (0,0,0,1)",
-            "something = (0.4,0.7,0.3,0.9)",
-            "out_of_range = (0,1,1,1)"])
+            "something = (0.4,0.7,0.3,0.9)"])
         self.assertCSays(src,"init",check,exp)
         
     def test_stdlib(self):

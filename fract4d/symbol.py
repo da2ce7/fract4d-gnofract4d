@@ -201,7 +201,23 @@ def createDefaultDict():
       [[Hyper], Float],
       doc='''The 4th component of a hypercomplex number. Can be assigned to.
       hyper_k(a,b,c,d) = d.''')
-      
+
+    f("red",
+      [[Color], Float],
+      doc='''The red component of a color. Can be assigned to.''')
+
+    f("green",
+      [[Color], Float],
+      doc='''The green component of a color. Can be assigned to.''')
+
+    f("blue",
+      [[Color], Float],
+      doc='''The blue component of a color. Can be assigned to.''')
+
+    f("alpha",
+      [[Color], Float],
+      doc='''The alpha component of a color. Can be assigned to.''')
+
     f("recip",
       cfl("[_] , _", [Float, Complex, Hyper]),
       doc='''The reciprocal of a number. recip(x) is equivalent to 1/x.
@@ -389,7 +405,7 @@ def createDefaultDict():
       operator=True,
       precedence=3,
       doc='''Inequality operator. Compare two values and return true if
-      they are different.'''),
+      they are different.''')
 
     f("==",
       cfl("[_,_] , Bool", [Int, Float, Complex, Bool]),
@@ -405,7 +421,7 @@ def createDefaultDict():
 
     f("rgba",
       [ [Float, Float, Float, Float], Color],
-      doc='''Create a color from three color components and an alpha channel.''')
+      doc='Create a color from three color components and an alpha channel.')
     
     # predefined parameters
     for p in xrange(1,7):
