@@ -329,14 +329,19 @@ class T(FctUtils):
         # but still don't try and copy *everything*
 
         c = T(self.compiler,self.site)
+
+        
         c.params = copy.copy(self.params)
+
+        c.bailfunc = self.bailfunc
         
         c.set_formula(self.funcFile,self.funcName)
+
         # copy the function overrides
         for name in self.func_names(self.formula):
             c.set_named_func(name,
                              self.get_func_value(name,self.formula),
-                             self.formula)
+                             c.formula)
 
         c.initparams = copy.copy(self.initparams) # must be after set_formula
 
@@ -351,13 +356,10 @@ class T(FctUtils):
                                  frm)
 
             c.cfunc_params[i] = copy.copy(self.cfunc_params[i]) 
-            
-        c.bailfunc = self.bailfunc
-        c.cfuncs = copy.copy(self.cfuncs)
-        c.cfunc_names = copy.copy(self.cfunc_names)
-        c.cfunc_files = copy.copy(self.cfunc_files)
+                    
         c.colorlist = copy.copy(self.colorlist)
         c.solids = copy.copy(self.solids)
+        c.yflip = self.yflip
         return c
     
     def reset(self):

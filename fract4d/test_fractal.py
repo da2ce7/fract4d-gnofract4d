@@ -63,7 +63,7 @@ version=2.0
 [function]
 formulafile=gf4d.frm
 function=Mandelbrot
-@bailfunc=cmag
+@bailfunc=manhattanish
 @bailout=1e20
 [endsection]
 [inner]
@@ -286,8 +286,11 @@ blue=0
         self.assertEqual(f1.cfunc_names, f2.cfunc_names)
         self.assertEqual(f1.cfunc_files, f2.cfunc_files)
         self.assertEqual(f1.cfunc_params, f2.cfunc_params)
+        for name in f1.func_names(f1.formula):
+            self.assertEqual(f1.get_func_value(name,f1.formula),
+                             f2.get_func_value(name,f2.formula))
+        self.assertEqual(f1.yflip,f2.yflip)
         
-
     def testSave(self):
         # load some settings
         f1 = fractal.T(self.compiler)
@@ -647,14 +650,15 @@ blue=0.5543108971162746
 
     def testCopy(self):
         f = fractal.T(self.compiler)
+        f.set_formula("gf4d.frm","Barnsley Type 1")
+        f.set_named_item("@bailfunc","manhattanish",f.formula,f.initparams)
         f.set_outer("test.cfrm","flat")
         c = copy.copy(f)
 
-        self.assertEqual(c.initparams,f.initparams)
-        self.assertEqual(c.cfunc_names, f.cfunc_names)
-        self.assertEqual(c.cfunc_params, f.cfunc_params)
-        self.assertEqual(c.cfunc_files, f.cfunc_files)
+        self.assertFractalsEqual(f,c)
 
+        # some tests to ensure data is actually separate
+        
         # test a parameter        
         mag = c.get_param(c.MAGNITUDE)
         self.assertEqual(mag,f.get_param(f.MAGNITUDE))
