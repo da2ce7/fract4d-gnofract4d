@@ -28,6 +28,7 @@ class FCTest(testbase.TestBase):
         pass
 
     def testLists(self):
+        'Check we correctly classify funcs by color/insideness'
         fl = [x for (x,y) in self.compiler.formula_files()]
         fl.sort()
         self.assertEqual(fl,["gf4d.frm", "test.frm"])
@@ -48,6 +49,7 @@ class FCTest(testbase.TestBase):
             self.assertNotEqual(file.formulas[f].symmetry, "INSIDE")
 
     def testFileTimeChecking(self):
+        'Check we notice when a file changes'
         try:
             f2 = fc.Compiler()
             
@@ -88,7 +90,8 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         finally:
             os.remove("fttest.frm")
             
-    def testLoad(self):        
+    def testLoad(self):
+        'Check we can compile a fractal and load the resulting .so'
         ff = self.compiler.files["gf4d.frm"]
         self.assertNotEqual(string.index(ff.contents,"Modified for Gf4D"),-1)
         self.assertNotEqual(ff.get_formula("T03-01-G4"),None)
@@ -113,6 +116,7 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         self.assertNotEqual(so.call('pf_new'),0)
 
     def testErrors(self):
+        'Check we raise appropriate exns when formulas are busted'
         self.assertRaises(
             IOError, self.compiler.load_formula_file, "nonexistent.frm")
 
@@ -138,6 +142,7 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         self.compiler.generate_code(f,cg,"test-evil.so",None)
 
     def testColorFunc(self):
+        'Compile inner + outer colorfuncs and merge'
         cf1 = self.compiler.get_colorfunc("gf4d.cfrm","default","cf0")
         self.assertEqual(len(cf1.errors),0)
         self.compiler.compile(cf1)
@@ -156,6 +161,7 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         self.failUnless(os.path.exists(ofile))
 
     def testDoubleCompile(self):
+        'Compile the same thing twice, check results same'
         f = self.compiler.get_formula("gf4d.frm","Mandelbrot")
         cg = self.compiler.compile(f)
         of1 = self.compiler.generate_code(f,cg)
