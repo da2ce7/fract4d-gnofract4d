@@ -80,14 +80,14 @@ class Threaded(fractal.T):
         if t == 0:
             if not self.skip_updates: self.parameters_changed()
         elif t == 1:
-            self.image_changed(p1,p2,p3,p4)
+            if not self.skip_updates: self.image_changed(p1,p2,p3,p4)
         elif t == 2:
-            self.progress_changed(float(p1))
+            if not self.skip_updates: self.progress_changed(float(p1))
         elif t == 3:
             if p1 == 0: # DONE
                 print "done"
                 self.running = False
-            self.status_changed(p1)
+            if not self.skip_updates: self.status_changed(p1)
         elif t == 4:
             # FIXME pixel_changed
             pass
