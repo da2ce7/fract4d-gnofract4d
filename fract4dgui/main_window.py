@@ -187,7 +187,7 @@ class MainWindow:
 
     def draw(self):
         aa = preferences.userPrefs.getint("display","antialias")
-        auto_deepen = preferences.userPrefs.getint("display","autodeepen")
+        auto_deepen = preferences.userPrefs.getboolean("display","autodeepen")
         self.f.draw_image(aa,auto_deepen)
         
     def update_compiler_prefs(self,prefs):
@@ -767,7 +767,7 @@ class MainWindow:
         if not yelp_path:
             return
         
-        os.system("yelp ghelp://%s%s >/dev/null 2>&1" % (abs_file, anchor))
+        os.system("yelp ghelp://%s%s >/dev/null 2>&1 &" % (abs_file, anchor))
         
     def open_formula(self,action,widget):
         fs = gtk.FileSelection(_("Open Formula File"))
