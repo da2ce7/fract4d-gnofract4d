@@ -97,7 +97,6 @@ class PfTest(unittest.TestCase):
         result = fract4dc.pf_calc(pfunc,[17.5, 14.0, 0.0, 0.0],100,0,0,0)
         self.assertEqual(result,(0, 0, 0.0,0)) 
 
-
         # without optional args
         result = fract4dc.pf_calc(pfunc,[17.5, 14.0, 0.0, 0.0],100)
         self.assertEqual(result,(0, 0, 0.0,0)) 
@@ -180,7 +179,32 @@ class PfTest(unittest.TestCase):
         fract4dc.image_save(image,"test.tga")
         self.failUnless(os.path.exists("test.tga"))
         os.remove('test.tga')
-        
+
+        # fate of all non-aa pixels should be known, aa-pixels unknown
+        #self.print_fates(image,xsize,ysize)
+        fate_buf = fract4dc.image_fate_buffer(image)
+        i = 0
+        for byte in fate_buf:
+            if i % 4 == 0:
+                # no-aa
+                self.assertNotEqual(ord(byte), 255,
+                                    "pixel %d is %d" % (i,ord(byte)))
+            else:
+                self.assertEqual(ord(byte), 255)
+            i+= 1
+            
+    def print_fates(self,image,x,y):
+        buf = fract4dc.image_fate_buffer(image)
+        for i in xrange(len(buf)):
+            v = ord(buf[i])
+            if v == 255:
+                print "U",
+            else:
+                print v,
+                
+            if i % x == x-1:
+                print "\n"
+            
     def testRotMatrix(self):
         params = [0.0, 0.0, 0.0, 0.0,
                  1.0,

@@ -56,7 +56,8 @@ public:
       iter_buf[x + y * m_Xres] = iter;
     };
 
-    void set_fate(int x, int y, int subpixel, fate_t fate);
+    fate_t getFate(int x, int y, int subpixel);
+    void setFate(int x, int y, int subpixel, fate_t fate);
 
     int index_of_subpixel(int x, int y, int subpixel) {
 	assert(subpixel >= 0 && subpixel < N_SUBPIXELS);

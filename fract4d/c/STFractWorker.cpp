@@ -187,6 +187,7 @@ STFractWorker::antialias(int x, int y)
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
+    im->setFate(x,y,0,fate);
 
     // top right
     pos+=ff->delta_aa_x;
@@ -194,6 +195,7 @@ STFractWorker::antialias(int x, int y)
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
+    im->setFate(x,y,1,fate);
 
     // bottom left
     pos = topleft + ff->delta_aa_y;
@@ -201,6 +203,7 @@ STFractWorker::antialias(int x, int y)
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
+    im->setFate(x,y,2,fate);
 
     // bottom right
     pos+= ff->delta_aa_x;
@@ -208,6 +211,7 @@ STFractWorker::antialias(int x, int y)
     pixel_r_val += ptmp.r;
     pixel_g_val += ptmp.g;
     pixel_b_val += ptmp.b;
+    im->setFate(x,y,3,fate);
 
     ptmp.r = pixel_r_val / 4;
     ptmp.g = pixel_g_val / 4;
@@ -237,6 +241,7 @@ STFractWorker::pixel(int x, int y,int w, int h)
 
     periodSet(&iter);
     im->setIter(x,y,iter);
+    im->setFate(x,y,0,fate);
 
     rectangle(pixel,x,y,w,h);
 
@@ -338,7 +343,8 @@ STFractWorker::box(int x, int y, int rsize)
     {
         // just draw a solid rectangle
         rgba_t pixel = im->get(x,y);
-        rectangle_with_iter(pixel,iter,x+1,y+1,rsize-2,rsize-2);
+	fate_t fate = im->getFate(x,y,0);
+        rectangle_with_iter(pixel,fate,iter,x+1,y+1,rsize-2,rsize-2);
     }
     else
     {
@@ -364,13 +370,14 @@ STFractWorker::rectangle(rgba_t pixel, int x, int y, int w, int h)
 
 inline void
 STFractWorker::rectangle_with_iter(
-    rgba_t pixel, int iter, int x, int y, int w, int h)
+    rgba_t pixel, fate_t fate, int iter, int x, int y, int w, int h)
 {
     for(int i = y ; i < y+h; i++)
     {
         for(int j = x; j < x+w; j++) {
             im->put(j,i,pixel);
             im->setIter(j,i,iter);
+	    im->setFate(j,i,0,fate);
         }
     }
 }
