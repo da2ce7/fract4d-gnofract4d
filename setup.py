@@ -5,6 +5,7 @@ from distutils.core import setup, Extension
 import distutils.sysconfig
 import os
 import commands
+import sys
 
 module1 = Extension(
     'fract4d.fract4dc',
@@ -43,7 +44,7 @@ def call_package_config(package,option):
     cmd = "pkg-config %s %s" % (package, option)
     (status,output) = commands.getstatusoutput(cmd)
     if status != 0:
-        print >>sys.stderr, "Can't set up. Error running pkg-config."
+        print >>sys.stderr, "Can't set up. Error running '%s'." % cmd
         print >>sys.stderr, output
         sys.exit(1)
 
@@ -80,7 +81,7 @@ module2 = Extension(
     )
 
 def get_files(dir,ext):
-    return [ dir + x for x in os.listdir(dir) if x.endswith(ext)] 
+    return [ os.path.join(dir,x) for x in os.listdir(dir) if x.endswith(ext)] 
 
 setup (name = 'gnofract4d',
        version = '2.0',
@@ -102,8 +103,8 @@ setup (name = 'gnofract4d',
 
            # documentation
            ('share/gnome/help/gnofract4d/C',
-            ['doc/gnofract4d-manual/C/gnofract4d-manual.xml'],
-            ['fract4d/stdlib.xml']),
+            ['doc/gnofract4d-manual/C/gnofract4d-manual.xml',
+             'fract4d/stdlib.xml']),
            ('share/gnome/help/gnofract4d/C/figures',
             get_files("doc/gnofract4d-manual/C/figures",".png")),
 

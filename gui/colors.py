@@ -78,9 +78,12 @@ class ColorDialog(gtk.Dialog):
         self.treeview.append_column (column)
 
         selection = self.treeview.get_selection()
+        selection.unselect_all()
         selection.connect('changed',self.file_selection_changed)
 
         self.populate_file_list()
+
+        
         return sw
 
     def onResponse(self,widget,id):

@@ -10,16 +10,26 @@ import math
 import types
 
 # gtk
-import gtk
-import gobject
+try:
+    import gtk
+    import gobject
+except ImportError, err:
+    print "Can't find PyGTK. You need to install it before you can run Gnofract 4D."
+    sys.exit(1)
+    
+try:
+    # fractal calculation modules
+    from fract4d import fractal,fc,fract4dc
 
-# fractal calculation modules
-from fract4d import fractal,fc,fract4dc
-
-# gui modules
-from gui import gtkfractal, model, preferences, autozoom, settings, browser
-from gui import colors, undo
-
+    # gui modules
+    from gui import gtkfractal, model, preferences, autozoom, settings, browser
+    from gui import colors, undo
+except ImportError, err:
+    print "Can't import a required module."
+    print "If you haven't set up Gnofract 4D yet, run './setup.py build'"
+    print "Error was: '%s'" % err
+    sys.exit(1)
+    
 # We don't use GDK threads because RedHat seem to compile pygtk
 # without thread support. Grrr.
 #gtk.gdk.threads_init()

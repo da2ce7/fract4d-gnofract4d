@@ -9,7 +9,7 @@ todo for 2.0
 * BB	seaslug.fct
 * BB	skull_fairy.fct
 * B	differences vs Fractint with fn(z)+c: sqrt,cosh,exp,cos,cotan,cotanh,flip
-* B	fn1..4 appear in reverse order in dialog box
+* B	fn1..4 appear in random order in dialog box
 * B	fractint doesn't reset vars between calls?
 * B	parse continuation lines correctly
 * BB	more robust error reporting
@@ -33,11 +33,12 @@ todo for 2.0
 * B	warnings for several fractal types
 * BB	auto-tolerance for older fractals
 * BB	lattice.fct - 1.9 is wrong too!
-* B	browser pops up whenever click on fractal
+* B	other windows always in front - is that good?
 * WW	docs
-* B	deprecationwarning : gtkfractal.py:82, use rgb_get_colormap not get_cmap
 
 done:
+* B	browser pops up whenever click on fractal
+* B	opening color broser sometimes applies 1st item
 * W	formula browser : load formula file
 * BBB	crash when edit fractal parameters: G_IS_OBJECT(object) failed
 * W	make default fractal more interesting
