@@ -1,12 +1,6 @@
 * W 	Different fractal types
 * W 	Keyboard
 *		- Cursors : left/right/up/down
-* W	Documentation
-		Interface doc
-		Maths doc
-		Internals doc
-		Attention Conservation Notices
-
 * W	Session remembers last parameters
 * W	finish cmd-line arguments
 * WW	MDI
@@ -31,6 +25,7 @@
 Done:
 Undo/Redo Zoom
 Online Help
+* W	Documentation
 * B	Applying a colour sometimes moves image: properties not in sync?
 * B 	do/undo printfs
 * B	*.c -> *.cpp

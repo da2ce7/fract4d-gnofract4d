@@ -32,6 +32,8 @@ typedef enum {
 
 #define N_PARAMS 12
 
+#define SECTION_STOP "[endsection]"
+
 typedef struct fractal fractal_t;
 typedef struct image image_t;
 

@@ -1,6 +1,7 @@
 /* function objects which perform individual iterations of a fractal function */
 
 #include "iterFunc.h"
+#include "io.h"
 
 #include <cstddef>
 #include <iostream>
@@ -12,6 +13,8 @@
     friend std::istream& operator>>(std::istream& s, className& m); \
     std::ostream& put(std::ostream& s) const { return s << *this; } \
     std::istream& get(std::istream& s) { return s;  } 
+
+#define FIELD_FUNCTION "function"
 
 // forward static calls of << to appropriate virtual function
 std::ostream& 
@@ -59,14 +62,23 @@ public:
 std::ostream& 
 operator<<(std::ostream& s, const noOptions& m) 
 { 
-    s << m.type() << "\n"; 
+    write_field(s,FIELD_FUNCTION);
+    s << m.type() << "\n";
+    s << SECTION_STOP << "\n"; 
     return s; 
 } 
 
 std::istream& 
 operator>>(std::istream& s, noOptions& m) 
 { 
-    /* don't need to do anything */ 
+    /* don't need to read anything - just eat lines until SECTION_STOP*/
+    while(s)
+    {
+        std::string line;
+        std::getline(s,line);
+
+        if(SECTION_STOP == line) break;
+    }
     return s; 
 }
 
@@ -387,20 +399,42 @@ public:
     IO_DECLS(quadFunc)
 };
 
+#define FIELD_QF1 "a"
+#define FIELD_QF2 "b"
+#define FIELD_QF3 "c"
+
 std::ostream& operator<<(std::ostream& s, const quadFunc& f)
 {
+    write_field(s, FIELD_FUNCTION);
     s << f.type() << "\n";
-    s << f.a[0] << "\n"
-      << f.a[1] << "\n"
-      << f.a[2] << "\n";
-
+    write_field(s, FIELD_QF1);
+    s << f.a[0] << "\n";
+    write_field(s, FIELD_QF2);
+    s << f.a[1] << "\n";
+    write_field(s, FIELD_QF3);    
+    s << f.a[2] << "\n";
+    s  << SECTION_STOP << "\n";
     return s;
 } 
 
 std::istream& 
 operator>>(std::istream& s, quadFunc& f)
 {
-    s >> f.a[0] >> f.a[1] >> f.a[2];
+    while(s)
+    {
+        std::string name, value;
+        read_field(s,name,value);
+
+        std::istrstream vs(value.c_str());
+        if(FIELD_QF1 == name)
+            vs >> f.a[0];
+        else if(FIELD_QF2 == name)
+            vs >> f.a[1];
+        else if(FIELD_QF3 == name)
+            vs >> f.a[2];
+        else if(SECTION_STOP == name)
+            break;
+    }
     return s;
 }
 
@@ -425,6 +459,8 @@ const char * const *iterFunc_names()
 // factory method to make new iterFuncs
 iterFunc *iterFunc_new(const char *name)
 {
+    if(!name) return NULL;
+
     if(0 == strcmp(name,mandFunc::name()))
         return new mandFunc;
     if(0 == strcmp(name,shipFunc::name()))
@@ -450,12 +486,21 @@ iterFunc *iterFunc_new(const char *name)
 
 iterFunc *iterFunc_read(std::istream& s)
 {
-    std::string type;
-    s >> type;
-    
-    iterFunc *f = iterFunc_new(type.c_str());
-    
-    s >> *f;
+    std::string name, value;
 
-    return f;
+    while(s)
+    {
+        read_field(s,name,value);
+    
+        if(FIELD_FUNCTION == name)
+        {
+            iterFunc *f = iterFunc_new(value.c_str());
+            if(f)
+            {
+                s >> *f;
+            }
+            return f;
+        }
+    }
+    return NULL;
 }

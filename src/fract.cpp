@@ -28,14 +28,35 @@
 #include "calc.h"
 #include "fractFunc.h"
 #include "iterFunc.h"
+#include "io.h"
 
-#include <fstream>
 #include <queue>
 #include <cmath>
 
 #ifdef _WIN32
 #include "win_drand.h"
 #endif
+
+#define FIELD_VERSION "version"
+#define FIELD_X "x"
+#define FIELD_Y "y"
+#define FIELD_Z "z"
+#define FIELD_W "w"
+#define FIELD_XYANGLE "xy"
+#define FIELD_XZANGLE "xz"
+#define FIELD_XWANGLE "xw"
+#define FIELD_YZANGLE "yz"
+#define FIELD_YWANGLE "yw"
+#define FIELD_ZWANGLE "zw"
+#define FIELD_MAGNITUDE "size"
+#define FIELD_BAILOUT "bailout"
+
+#define FIELD_MAXITER "maxiter"
+#define FIELD_AA "antialias"
+#define FIELD_BAILFUNC "bailfunc"
+
+#define SECTION_ITERFUNC "[function]"
+#define SECTION_COLORIZER "[colors]"
 
 void 
 debug_precision(const d& s, char *location)
@@ -245,6 +266,14 @@ fractal::set_colorizer(colorizer_t *c)
     cizer = c->clone();
 }
 
+static const char *param_names[] = {
+    FIELD_BAILOUT,
+    FIELD_X, FIELD_Y, FIELD_Z, FIELD_W, 
+    FIELD_MAGNITUDE, 
+    FIELD_XYANGLE, FIELD_XZANGLE, FIELD_XWANGLE, 
+    FIELD_YZANGLE, FIELD_YWANGLE, FIELD_ZWANGLE,
+};
+
 bool 
 fractal::write_params(const char *filename)
 {
@@ -252,16 +281,18 @@ fractal::write_params(const char *filename)
 
     if(!os) return false;
 
-    os << PACKAGE << " parameter file\n" << VERSION << "\n";
+    os << PACKAGE << " parameter file\n";
+    os << FIELD_VERSION << "=" << VERSION << "\n";
+
     for(int i = 0; i < N_PARAMS; i++) {
-        os << params[i] << "\n";
+        os << param_names[i] << "=" << params[i] << "\n";
     }
 
-    os << maxiter << "\n";
-    os << *pIterFunc << "\n";
-    os << (int) antialias << "\n";
-    os << *cizer << "\n";
-    os << (int) bailout_type << "\n";
+    os << FIELD_MAXITER << "=" << maxiter << "\n";
+    os << FIELD_AA << "=" << (int) antialias << "\n";
+    os << FIELD_BAILFUNC << "=" << (int) bailout_type << "\n";
+    os << SECTION_ITERFUNC << "\n" << *pIterFunc;
+    os << SECTION_COLORIZER << "\n" << *cizer;
 
     if(!os) return false;
     return true;
@@ -274,33 +305,67 @@ fractal::load_params(const char *filename)
 
     if(!is) return false;
 
-    std::string name_line;
-    std::getline(is,name_line);
-
-    std::string version;
-    is >> version;
-    for(int i = 0; i < N_PARAMS; i++) {
-        is >> params[i];
-    }
-
-    is >> maxiter;
-    // cast is to quiet a curious compiler warning
-    iterFunc *iter_tmp = iterFunc_read(is);
-    if(iter_tmp)
+    while(is)
     {
-        delete pIterFunc;
-        pIterFunc = iter_tmp;
-    }
-    is >> (int&)antialias;
-    colorizer *cizer_tmp = colorizer_read(is);
-    if(cizer_tmp)
-    {
-        colorizer_delete(&cizer);
-        cizer = cizer_tmp;
-    }
-    is >> (int&)bailout_type;
+        std::string name, val;
 
-    if(!is) return false;
+        if(!read_field(is,name,val))
+        {
+            break;
+        }
+        std::istrstream vs(val.c_str());
+
+        if(FIELD_VERSION==name)
+            ; // do nothing with it for now
+        else if(FIELD_BAILOUT==name)
+            vs >> params[BAILOUT];
+        else if(FIELD_X==name)
+            vs >> params[XCENTER];
+        else if(FIELD_Y==name)
+            vs >> params[YCENTER];
+        else if(FIELD_Z==name)
+            vs >> params[ZCENTER];
+        else if(FIELD_W==name)
+            vs >> params[WCENTER];
+        else if(FIELD_XYANGLE==name)
+            vs >> params[XYANGLE];
+        else if(FIELD_XZANGLE==name)
+            vs >> params[XZANGLE];
+        else if(FIELD_XWANGLE==name)
+            vs >> params[XWANGLE];
+        else if(FIELD_YZANGLE==name)
+            vs >> params[YZANGLE];
+        else if(FIELD_YWANGLE==name)
+            vs >> params[YWANGLE];
+        else if(FIELD_ZWANGLE==name)
+            vs >> params[ZWANGLE];
+        else if(FIELD_MAGNITUDE==name)
+            vs >> params[MAGNITUDE];
+        else if(FIELD_MAXITER==name)
+            vs >> maxiter;
+        else if(FIELD_AA==name)
+            vs >> (int&)antialias;
+        else if(FIELD_BAILFUNC==name)
+            vs >> (int&)bailout_type;
+        else if(SECTION_ITERFUNC==name)
+        {
+            iterFunc *iter_tmp = iterFunc_read(is);
+            if(iter_tmp)
+            {
+                delete pIterFunc;
+                pIterFunc = iter_tmp;
+            }
+        }
+        else if(SECTION_COLORIZER==name)
+        {
+            colorizer *cizer_tmp = colorizer_read(is);
+            if(cizer_tmp)
+            {
+                colorizer_delete(&cizer);
+                cizer = cizer_tmp;
+            }
+        }        
+    }
 
     return true;
 }

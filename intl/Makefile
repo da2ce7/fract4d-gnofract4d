@@ -17,7 +17,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 PACKAGE = gnofract4d
-VERSION = 1.0
+VERSION = 1.3
 
 SHELL = /bin/sh
 
@@ -25,7 +25,7 @@ srcdir = .
 top_srcdir = ..
 top_builddir = ..
 
-prefix = /usr/local
+prefix = /usr
 exec_prefix = ${prefix}
 transform = s,x,x,
 libdir = $(exec_prefix)/lib
@@ -51,7 +51,7 @@ RANLIB = ranlib
 DEFS = -DLOCALEDIR=\"$(localedir)\" -DGNULOCALEDIR=\"$(gnulocaledir)\" \
 -DLOCALE_ALIAS_PATH=\"$(aliaspath)\" -DHAVE_CONFIG_H
 CPPFLAGS =  -I/usr/X11R6/include -I/usr/lib/glib/include
-CFLAGS = -g -O2 -Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -Wpointer-arith 
+CFLAGS = -g -O2 -Wall -Wunused 
 LDFLAGS = 
 
 COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(XCFLAGS)

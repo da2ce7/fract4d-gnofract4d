@@ -4814,9 +4814,7 @@ fi
 PACKAGE_PIXMAPS_DIR="`gnome-config --datadir`/pixmaps/${PACKAGE}"
 
 
-
 PACKAGE_MAPS_DIR="`gnome-config --datadir`/maps/${PACKAGE}"
-
 
 
 trap '' 1 2 15
