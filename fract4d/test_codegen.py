@@ -61,7 +61,11 @@ int main()
          &nItersDone, &nFate, &dist,&solid,&fDirectUsed, &colors[0]);
     
     printf("(%d,%d,%g)\\n",nItersDone,nFate,dist);
-
+    if(fDirectUsed)
+    {
+        printf("[%g,%g,%g,%g]\\n", colors[0], colors[1], colors[2], colors[3]);
+    }
+    
     pparams[0] = 0.1; pparams[1] = 0.2;
     pparams[2] = 0.1; pparams[3] = 0.3;
     initparams[4].doubleval = 3.0; initparams[5].doubleval = 3.5;
@@ -74,7 +78,11 @@ int main()
         &nItersDone, &nFate, &dist,&solid,&fDirectUsed, &colors[0]);
 
     printf("(%d,%d,%g)\\n",nItersDone,nFate,dist);
-
+    if(fDirectUsed)
+    {
+        printf("[%g,%g,%g,%g]\\n", colors[0], colors[1], colors[2], colors[3]);
+    }
+    
     pf->vtbl->kill(pf);
     return 0;
 }
@@ -625,6 +633,54 @@ func fn1
         self.assertEqual(outlines[0],"0")
         self.assertEqual(outlines[2],"1")
 
+    def testDirectCF(self):
+        'test that direct coloring algorithms work'
+        tcf0 = self.translatecf('''
+        dca {
+        init:
+        float d = |z|
+        loop:
+        d = d + |z|
+        final:
+        #color = rgb(|z|, atan2(z), d)
+        }''',"cf0")
+        cg_cf0 = codegen.T(tcf0.symbols)
+        self.assertEqual(cg_cf0.is_direct(),True)
+        
+        cg_cf0.output_all(tcf0)
+
+        tcf1 = self.translatecf('x {\n #solid = true\n}', "cf1")
+        cg_cf1 = codegen.T(tcf1.symbols)
+        cg_cf1.output_all(tcf1)
+
+        t = self.translate('''
+        mandel {
+        loop:
+        z = sqr(z)+#pixel
+        bailout:
+        |z| < 4.0
+        }''')
+
+        cg = codegen.T(t.symbols)
+        cg.output_all(t)
+        
+        t.merge(tcf0,"cf0_")
+        t.merge(tcf1,"cf1_")
+
+        cg.output_decls(t)
+
+        inserts = {
+            "main_inserts": self.main_stub,
+            "return_inserts": "printf(\"%d\\n\",t__h_solid);" 
+            }
+        
+        c_code = self.codegen.output_c(t,inserts)
+        output = self.compileAndRun(c_code)
+        outlines = output.split("\n")
+        self.assertEqual(len(outlines),6)
+        self.assertEqual(outlines[2],'[14.0625,0,2.25,1]')
+        self.assertEqual(outlines[5],'[0,0,0,0]')
+        
     def testCColor(self):
         'test color arithmetic'
         src = '''t_color{

@@ -258,7 +258,7 @@ static void pf_calc(
     int t__p_x, int t__p_y, int t__p_aa,
     // out params
     int *t__p_pnIters, int *t__p_pFate, double *t__p_pDist, int *t__p_pSolid,
-    int *pDirectColorFlag, double *pColors
+    int *t__p_pDirectColorFlag, double *t__p_pColors
     )
 {
     pf_real *t__pfo = (pf_real *)t__p_stub;
@@ -270,6 +270,7 @@ double t__h_zwpixel_im = t__params[3];
 
 double t__h_index = 0.0;
 int t__h_solid = 0;
+*t__p_pDirectColorFlag = %(dca_init)s;
 
 /* variable declarations */
 %(var_inits)s
@@ -318,7 +319,7 @@ else
 }
 *t__p_pDist = t__h_index;
 *t__p_pSolid = t__h_solid;
-
+%(save_colors)s
 %(return_inserts)s
 return;
 }
@@ -345,6 +346,7 @@ double t__h_zwpixel_im = t__params[3];
 
 double t__h_index = 0.0;
 int t__h_solid = 0;
+*pDirectColorFlag = %(dca_init)s;
 
 /* variable declarations */
 %(var_inits)s
@@ -588,6 +590,9 @@ extern pf_obj *pf_new(void);
                  Decl("%s %s_i = %s;"  % (type,varname,vals[1])),
                  Decl("%s %s_j = %s;"  % (type,varname,vals[2])),
                  Decl("%s %s_k = %s;"  % (type,varname,vals[3]))]
+
+    def is_direct(self):
+        return self.symbols.has_user_key("#color")
     
     def output_symbol(self,key,sym,op,out,overrides):
         if isinstance(sym,fracttypes.Var):
@@ -670,7 +675,7 @@ extern pf_obj *pf_new(void);
             #print "override %s for %s" % (override, key)
             out.append(Decl(override))
 
-    def output_var_decls(self,ir,user_overrides):
+    def output_var_decls(self,ir,user_overrides):            
         overrides = {
                      "t__h_zwpixel" : "",
                      "pixel" : "",
@@ -678,7 +683,8 @@ extern pf_obj *pf_new(void);
                      "t__h_index" : "",
                      "maxiter" : "",
                      "t__h_tolerance" : "",
-                     "t__h_solid" : ""
+                     "t__h_solid" : "",
+                     "t__h_color" : ""
                      }
         for (k,v) in user_overrides.items():
             overrides[k] = v
@@ -740,6 +746,15 @@ extern pf_obj *pf_new(void);
             
         inserts["bailout_var"] = bailout_var
         inserts["pf"] = self.pf_header
+
+        inserts["dca_init"] = "%d" % self.is_direct()
+        if self.is_direct():
+            inserts["save_colors"] = '''
+            t__p_pColors[0] = t__h_color_re;
+            t__p_pColors[1] = t__h_color_i;
+            t__p_pColors[2] = t__h_color_j;
+            t__p_pColors[3] = t__h_color_k;
+            '''
         # can only do periodicity if formula uses z
         if self.symbols.data.has_key("z"):
             inserts["decl_period"] = '''
