@@ -42,24 +42,7 @@ class pointFunc {
     virtual int buffer_size() const = 0;
 };
  
-class inner_pointFunc {
- public:
-    virtual void calc(
-        // in params
-        const double *params, int nIters, int nNoPeriodIters,
-	// only used for debugging
-	int x, int y, int aa,
-        // out params
-        double *colorDist, int *pnIters, double **out_buf
-        ) = 0;
-};
-
 struct s_pf_vtable {
-    inner_pointFunc *(*create_pointFunc)(
-        double bailout,
-        double period_tolerance,
-        std::complex<double> *params
-	);
     void (*init)(
 	struct s_pf_data *p,
         double bailout,

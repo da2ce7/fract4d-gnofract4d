@@ -35,7 +35,6 @@
 class pf_wrapper : public pointFunc
 {
 private:
-    inner_pointFunc *m_pf;
     colorizer *m_pcizer;
     void *m_handle; 
     colorFunc *m_pOuterColor;
@@ -55,10 +54,6 @@ public:
 	{
 	    m_pfo->vtbl->init(m_pfo,bailout,period_tolerance,params);
 
-	    m_pf = m_pfo->vtbl->create_pointFunc(
-		bailout, period_tolerance, 
-	        params);
-
             m_pOuterColor = colorFunc_new(outerCfType);
             m_pInnerColor = colorFunc_new(innerCfType);
 
@@ -69,7 +64,6 @@ public:
             delete m_pOuterColor;
             delete m_pInnerColor;
 
-	    delete m_pf;
 	    free(one_space);
 
 	    m_pfo->vtbl->kill(m_pfo);
@@ -91,18 +85,9 @@ public:
 	    if(NULL == out_buf) out_buf = one_space;
 
 
-	    int nIters2;
-	    double *pIterData2;
-
-	    //m_pf->calc(params,nIters, nNoPeriodIters, x , y, aa, 
-	    //&colorDist, pnIters, &pIterData);
-
 	    double *pIterData;
 	    m_pfo->vtbl->calc(m_pfo, params, nIters, nNoPeriodIters, x, y, aa,
 			      pnIters, &pIterData);
-
-	    //assert(nIters2 == *pnIters);
-	    //assert(fabs((*(float *)pIterData2 - *(float *)pIterData)/ (*(float *)pIterData + 1.0e-8)) < 1.0e-5);
 
 	    colorDist = colorize(*pnIters,pIterData,out_buf);
 
