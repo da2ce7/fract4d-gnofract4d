@@ -98,21 +98,25 @@ class T:
         for child in node.children:
             self.stm(child)
             
-    def stm(self,node):
+    def stm(self,node,expectedType=None):
         if node.type == "decl":
-            self.decl(node)
+            self.decl(node, None)
         elif node.type == "assign":
             self.assign(node)
         else:
-            # try exp instead - expect no result type
-            self.exp(node,None)
+            self.exp(node,expectedType)
 
     def assign(self, node):
         print "skip assign for now"
         
-    def decl(self,node):
+    def decl(self,node,expectedType):
+        if expectedType != None:
+            if expectedType != node.datatype:
+                print "bad decl"
+                self.badCast(node, expectedType)
+
         if node.children:
-            self.exp(node.children[0],node.datatype)
+            self.stm(node.children[0],node.datatype)
         try:
             self.symbols[node.leaf] = Var(node.datatype, 0.0,node.pos) # fixme exp
         except KeyError, e:

@@ -68,6 +68,11 @@ class TranslateTest(unittest.TestCase):
         self.assertWarning(t1, "conversion from bool to float on line 4")
         self.assertWarning(t1, "conversion from float to complex on line 4")
         self.assertWarning(t1, "conversion from int to complex on line 5")
+
+    def testMultiDecls(self):
+        t1 = self.translate("t1 {\ninit:int a = int b = 2}")
+        self.assertVar(t1, "a", fracttypes.Int)
+        self.assertVar(t1, "b", fracttypes.Int)
         
     def testBadDecls(self):
         t1 = self.translate("t1 {\nglobal:int z\n}")
