@@ -140,7 +140,7 @@ pf_init(PyObject *self, PyObject *args)
     if(!PySequence_Check(pyarray))
     {
 	PyErr_SetString(PyExc_TypeError,
-			"Argument 3 should be an array of floats");
+			"Argument 3 should be an array");
 	return NULL;
     }
 
@@ -170,12 +170,19 @@ pf_init(PyObject *self, PyObject *args)
 	    }
 	    if(PyFloat_Check(pyitem))
 	    {
+		params[i].t = FLOAT;
 		params[i].doubleval = PyFloat_AsDouble(pyitem);
+	    }
+	    else if(PyInt_Check(pyitem))
+	    {
+		params[i].t = INT;
+		params[i].intval = PyInt_AS_LONG(pyitem);
 	    }
 	    else
 	    {
 		Py_XDECREF(pyitem);
-		PyErr_SetString(PyExc_ValueError,"All params must be floats");
+		PyErr_SetString(
+		    PyExc_ValueError,"All params must be floats or ints");
 		free(params);
 		return NULL;
 	    }

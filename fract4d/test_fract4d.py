@@ -667,6 +667,12 @@ class PfTest(unittest.TestCase):
         pfunc = None
         handle = None
 
+    def testIntInit(self):
+        self.compileMandel()
+        handle = fract4dc.pf_load("./test-pf.so")
+        pfunc = fract4dc.pf_create(handle)
+        fract4dc.pf_init(pfunc, 0.001, [1,2,3,4])
+        
     def testBadCalc(self):
         self.compileMandel()
         handle = fract4dc.pf_load("./test-pf.so")
