@@ -42,22 +42,12 @@ fractFunc::fractFunc(
     nTotalHalfIters = nTotalDoubleIters = nTotalK = 0;
     clear();
 
-    /* 0'th ftf is in this thread for calculations we don't want to offload */
-    int nThreadFuncs = f->nThreads > 1 ? f->nThreads + 1 : 1;
-
     status_changed(GF4D_FRACTAL_COMPILING);
 
-    STFractWorker *ptf = new STFractWorker[nThreadFuncs];
-    for(int i = 0; i < nThreadFuncs; ++i)
-    {
-        if(!ptf[i].init(this,f,im))
-        {
-            // failed to create - mark this dead 
-            ok = false;	    
-        }
-    }
+    /* threading */
+    ptm = new MTFractWorker(f->nThreads,this,f,im);
 
-    if(ok)
+    if(ptm->ok)
     {
 	status_changed( GF4D_FRACTAL_CALCULATING);
     }
@@ -66,8 +56,6 @@ fractFunc::fractFunc(
 	status_changed(GF4D_FRACTAL_DONE);    
     }
 
-    /* threading */
-    ptm = new MTFractWorker(f->nThreads,ptf);
 
     last_update_y = 0;
 };

@@ -1,12 +1,24 @@
 #include "fractFunc.h" // FIXME should be fractWorker
 
-MTFractWorker::MTFractWorker(int n, STFractWorker *ptf_)
+MTFractWorker::MTFractWorker(
+    int n, 
+    fractFunc *ff,
+    fractal_t *f, 
+    IImage *im)
 {
     /* 0'th ftf is in this thread for calculations we don't want to offload */
     nWorkers = n > 1 ? n + 1 : 1;
 
-    nWorkers = n;
-    ptf = ptf_;
+    ptf = new STFractWorker[nWorkers];
+    for(int i = 0; i < nWorkers; ++i)
+    {
+        if(!ptf[i].init(ff,f,im))
+        {
+            // failed to create - mark this dead 
+            ok = false;	    
+        }
+    }
+
     if(n > 1)
     {
         ptp = new tpool<job_info_t,STFractWorker>(n,100,ptf);

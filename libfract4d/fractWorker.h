@@ -130,7 +130,10 @@ class STFractWorker : public IFractWorker {
 class MTFractWorker : public IFractWorker
 {
  public:
-    MTFractWorker(int n, STFractWorker *ptf);
+    MTFractWorker(int n, 
+		  fractFunc *ff, 
+		  fractal_t *f, 
+		  IImage *im);
     ~MTFractWorker();
 
     // operations
@@ -145,8 +148,8 @@ class MTFractWorker : public IFractWorker
     virtual void reset_counts();
     virtual void stats(int *pnDoubleIters, int *pnHalfIters, int *pk);
 
-
     tpool<job_info_t,STFractWorker> *ptp;
     STFractWorker *ptf;
     int nWorkers;
+    bool ok;
 };
