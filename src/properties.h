@@ -27,5 +27,5 @@
 void create_propertybox (model_t *m);
 void propertybox_refresh (model_t *m);
 
-GtkWidget *create_page(GtkWidget *child, gchar *title);
+GtkWidget *create_page(GtkWidget *notebook, GtkWidget *child, gchar *title);
 #endif /* _PROPERTIES_H_ */
