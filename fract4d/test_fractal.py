@@ -110,9 +110,37 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         self.assertEqual(f.bailout,4.0)
 
         f.compile()
-        image = fract4dc.image_create(40,30)
+        (w,h) = (40,30)
+        image = fract4dc.image_create(w,h)
         f.draw(image)
-        fract4dc.image_save(image,"mandel.tga")
+        buf = fract4dc.image_buffer(image,0,0)
+
+        # corners must be black
+        self.assertBlack(buf,0,0,w)
+        self.assertBlack(buf,w-1,0,w)
+        self.assertBlack(buf,0,h-1,w)
+        self.assertBlack(buf,w-1,h-1,w)
+
+        #print buf[:80]
+        #fract4dc.image_save(image,"mandel.tga")
+
+    def failBuf(self,buf):
+        self.failUnless(False)
+        
+    def assertWhite(self,buf,x,y,w):
+        self.assertColor(buf,x,y,w,255)
+
+    def assertBlack(self,buf,x,y,w):
+        self.assertColor(buf,x,y,w,0)
+
+    def assertColor(self,buf,x,y,w,c):
+        off = (x+y*w)*3
+        r = ord(buf[off])
+        g = ord(buf[off+1])
+        b = ord(buf[off+2])
+        self.assertEqual(r,c)
+        self.assertEqual(g,c)
+        self.assertEqual(b,c)
 
     def testSet(self):
         f = fractal.T(self.compiler)

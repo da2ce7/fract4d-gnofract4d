@@ -161,8 +161,11 @@ class PfTest(unittest.TestCase):
         self.failUnless(siteobj.status_list[0]== 1 and \
                          siteobj.status_list[-1]== 0)
 
+        self.failUnless(not os.path.exists("test.tga"))
         fract4dc.image_save(image,"test.tga")
-
+        self.failUnless(os.path.exists("test.tga"))
+        os.remove('test.tga')
+        
     def testRotMatrix(self):
         params = [0.0, 0.0, 0.0, 0.0,
                  1.0,
@@ -241,9 +244,7 @@ class PfTest(unittest.TestCase):
                     break
                 
                 nrecved += 1
-            
-        fract4dc.image_save(image,"test.tga")
-        
+                    
     def disabled_testWithColors(self):
         self.compileMandel()
         self.compiler.load_formula_file("./gf4d.cfrm")

@@ -3,6 +3,10 @@
 
 #include "image.h"
 
+#undef NDEBUG
+
+#include <assert.h>
+
 #define RED 0
 #define GREEN 1
 #define BLUE 2
@@ -11,7 +15,7 @@ image::~image()
 {
     delete[] buffer;
     delete[] iter_buf;
-    free(data_buf);
+    //free(data_buf);
 }
 
 image::image()
@@ -38,7 +42,9 @@ image::bytes() const
 void 
 image::put(int x, int y, rgba_t pixel)
 {
-    char *start = buffer + x*3 + y * row_length();
+    int off = x*3 + y * row_length();
+    assert(off  + BLUE < bytes());
+    char *start = buffer + off;
     start[RED] = pixel.r;
     start[GREEN] = pixel.g;
     start[BLUE] = pixel.b;
@@ -48,6 +54,7 @@ rgba_t
 image::get(int x, int y) const
 {
     char *start = buffer + x*3 + y * row_length();
+    assert(start  + 2 - buffer <= bytes());
     rgba_t pixel;
     pixel.r = start[RED];
     pixel.g = start[GREEN];
@@ -63,7 +70,7 @@ image::image(const image& im)
     data_size = im.data_size;
     buffer = new char[bytes()];
     iter_buf = new int[m_Xres * m_Yres];
-    data_buf = malloc(data_size * m_Xres * m_Yres);
+    //data_buf = malloc(data_size * m_Xres * m_Yres);
 }
 
 bool image::set_resolution(int x, int y)
@@ -73,16 +80,16 @@ bool image::set_resolution(int x, int y)
     m_Yres = y;
     delete[] buffer;
     delete[] iter_buf;
-    free(data_buf);
+    //free(data_buf);
     buffer = new char[bytes()];
     iter_buf = new int[m_Xres * m_Yres];
-    data_buf = malloc(data_size * m_Xres * m_Yres);
+    //data_buf = malloc(data_size * m_Xres * m_Yres);
 
     rgba_t pixel = { 200, 178, 98, 255};
 
     for(int i = 0; i < y; ++i)
     {
-	for(int j = 0; i < x; ++i)
+	for(int j = 0; j < x; ++j)
 	{
 	    put(j,i,pixel);
 	}
@@ -108,7 +115,7 @@ bool image::set_data_size(int size)
 {
     if(size == data_size) return false;
     data_size = size;
-    data_buf = realloc(data_buf,size * m_Xres * m_Yres);
+    //data_buf = realloc(data_buf,size * m_Xres * m_Yres);
     return true;
 }
 	       

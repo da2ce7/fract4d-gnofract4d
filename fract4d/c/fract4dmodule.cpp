@@ -1,6 +1,7 @@
 /* C wrapper around pf so it can be called directly from python.
    This isn't used at runtime, it's primarily for unit testing */
 
+#undef NDEBUG
 
 #include "Python.h"
 
@@ -12,6 +13,7 @@
 #include "fractFunc.h"
 #include "image.h"
 #include "assert.h"
+
 
 /* not sure why this isn't defined already */
 #ifndef PyMODINIT_FUNC 
@@ -352,7 +354,7 @@ public:
     // one of the status values above
     virtual void status_changed(int status_val)
 	{
-	    assert(this != NULL && status_changed_cb != NULL);
+	    assert(this != NULL && site != NULL);
 	    //printf("sc: %p %p\n",this,this->status_changed_cb);
 
 	    GET_LOCK;
@@ -816,7 +818,9 @@ pycalc_async(PyObject *self, PyObject *args)
 static void
 image_delete(IImage *image)
 {
-    //printf("delete %p\n",image);
+#ifdef DEBUG_CREATION
+    printf("%p : IM : DTOR\n",image);
+#endif
     delete image;
 }
 
@@ -831,6 +835,9 @@ image_create(PyObject *self, PyObject *args)
     }
 
     IImage *i = new image();
+#ifdef DEBUG_CREATION
+    printf("%p : IM : CTOR\n",i);
+#endif
     i->set_resolution(x,y);
 
     PyObject *pyret = PyCObject_FromVoidPtr(i,(void (*)(void *))image_delete);
@@ -886,14 +893,20 @@ image_buffer(PyObject *self, PyObject *args)
 
     image *i = (image *)PyCObject_AsVoidPtr(pyim);
 
+#ifdef DEBUG_CREATION
+    printf("%p : IM : BUF\n",i);
+#endif
+
     if(x < 0 || x >= i->Xres() || y < 0 || y >= i->Yres())
     {
 	PyErr_SetString(PyExc_ValueError,"request for buffer outside image bounds");
 	return NULL;
     }
     int offset = 3 * (y * i->Xres() + x);
+    assert(offset > -1 && offset < i->bytes());
     pybuf = PyBuffer_FromReadWriteMemory(i->getBuffer()+offset,i->bytes()-offset);
     Py_XINCREF(pybuf);
+    //Py_XINCREF(pyim);
 
     return pybuf;
 }
