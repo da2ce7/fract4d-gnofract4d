@@ -237,8 +237,9 @@ static void pf_calc(
 
 double pixel_re = t__params[0];
 double pixel_im = t__params[1];
-double z_re = t__params[2];
-double z_im = t__params[3];
+double t__h_zwpixel_re = t__params[2];
+double t__h_zwpixel_im = t__params[3];
+
 double t__h_index = 0.0;
 
 /* variable declarations */
@@ -445,7 +446,8 @@ extern pf_obj *pf_new(void);
                  Decl(("%s %s_im = " + format +";") % (type,varname,im_val))]
     
     def output_symbols(self,user_overrides):
-        overrides = {"z" : "",
+        overrides = {
+                     "t__h_zwpixel" : "",
                      "pixel" : "",
                      "t__h_numiter" : "",
                      "t__h_index" : "",

@@ -41,6 +41,8 @@ bailout:
 
 
 test_func {
+init:
+	z = #zwpixel
 loop:
 z = @myfunc(z) + #pixel
 bailout:

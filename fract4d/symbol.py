@@ -106,7 +106,7 @@ def createDefaultDict():
 
         # predefined magic variables
         "t__h_pixel": Alias("pixel"),
-        "pixel" : Var(Complex,doc="The (Z,W) coordinates of the current point."), 
+        "pixel" : Var(Complex,doc="The (X,Y) coordinates of the current point."), 
         "t__h_z" : Alias("z"),
         "z"  : Var(Complex),
         "t__h_index": Var(Float),
@@ -114,7 +114,8 @@ def createDefaultDict():
         "t__h_maxiter": Alias("maxiter"),
         "maxiter" : Var(Int),
         "t__h_pi" : Var(Float,math.pi),
-        "t__h_tolerance" : Var(Float)
+        "t__h_tolerance" : Var(Float),
+        "t__h_zwpixel" : Var(Complex,doc="The (Z,W) coordinates of the current point. Initialize z to some function of this to take advantage of 4D drawing.")
         }
 
     # extra shorthand to make things as short as possible
