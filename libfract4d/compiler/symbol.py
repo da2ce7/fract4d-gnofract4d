@@ -14,6 +14,7 @@ def efl(fname, template, tlist):
     list = []
     for t in tlist:            
         f = "Func(%s,stdlib,\"%s\")" % (re.sub("_", str(t), template), fname)
+        realf = eval(f)
         list.append(eval(f))
     return list
 
@@ -21,7 +22,8 @@ class Alias:
     def __init__(self,realName):
         self.realName = realName
         self.pos = -1
-
+        self.cname = None
+        
 def createDefaultDict():
     d = {
         # standard library functions
@@ -117,6 +119,11 @@ def createDefaultDict():
         name = "fn%d" % f
         d[name] = Alias("t__a_" + name)
         d["t__a_" + name ] = [Func([Complex],Complex, stdlib, "ident") ]
+
+    for (k,v) in d.items():
+        if hasattr(v,"cname") and v.cname == None:
+            v.cname = k
+            
     return d
 
 
@@ -130,11 +137,12 @@ def mangle(k):
                
 class T(UserDict):
     default_dict = createDefaultDict()
-    def __init__(self):
+    def __init__(self,prefix=""):
         UserDict.__init__(self)
         self.reset()
         self.nextlabel = 0
         self.nextTemp = 0
+        self.prefix = prefix
         
     def has_key(self,key):
         if self.data.has_key(mangle(key)):
@@ -157,9 +165,14 @@ class T(UserDict):
         k = mangle(key)
         val = self.data.get(k,None)
         if val == None:
-            val = self.default_dict.get(k,None)
+            val = self.default_dict.get(k)
         if isinstance(val,Alias):
-            k = val.realName
+            val = self.default_dict.get(val.realName)
+        if val != None:
+            if val.cname == None:
+                print k
+                raise Exception("argh" + k)
+            return val.cname
         return k
     
     def __getitem__(self,key):
@@ -189,7 +202,9 @@ class T(UserDict):
             raise KeyError, \
                   ("symbol '%s': only predefined symbols can begin with '#'" %key)
         self.data[k] = value
-
+        if hasattr(value,"cname") and value.cname == None:
+            value.cname=self.prefix + k
+        
     def parameters(self,varOnly=False):
         params = {}
         for (name,sym) in self.data.items():
@@ -216,13 +231,16 @@ class T(UserDict):
         self.data = {} 
 
     def newLabel(self):
-        label = "label%d" % self.nextlabel
+        label = "%slabel%d" % (self.prefix, self.nextlabel)
         self.nextlabel += 1
         return label
 
     def newTemp(self,type):
-        name = "t__temp%d" % self.nextTemp
+        name = "t__%stemp%d" % (self.prefix, self.nextTemp)
         self.nextTemp += 1
         # bypass normal setitem because that checks for t__
-        self.data[name] = Var(type) 
+        v = Var(type)
+        v.cname = name
+        self.data[name] = v
+        
         return name

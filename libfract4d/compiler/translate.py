@@ -13,8 +13,8 @@ import stdlib
 from fracttypes import *
     
 class TBase:
-    def __init__(self,dump=None):
-        self.symbols = symbol.T()
+    def __init__(self,prefix,dump=None):
+        self.symbols = symbol.T(prefix)
         self.canon = canon.T(self.symbols,dump)
         self.errors = []
         self.warnings = []
@@ -459,7 +459,7 @@ class TBase:
 
 class T(TBase):
     def __init__(self,f,dump=None):
-        TBase.__init__(self,dump)
+        TBase.__init__(self,"",dump)
         try:
             self.main(f)
             if self.dumpPreCanon:
@@ -536,8 +536,8 @@ class T(TBase):
             print f.pretty()
 
 class ColorFunc(TBase):
-    def __init__(self,f,dump=None):
-        TBase.__init__(self,dump)
+    def __init__(self,f,name,dump=None):
+        TBase.__init__(self,name,dump)
         try:
             self.main(f)
             if self.dumpPreCanon:
