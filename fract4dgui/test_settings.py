@@ -37,23 +37,36 @@ class Test(unittest.TestCase):
         if status == 0:
             gtk.main_quit()
 
+    def search_for_named_widget(self, page, label_name):
+        for child in page.get_children():
+            if isinstance(child, gtk.Label):
+                this_label_name = child.get_text()
+                #print this_label_name
+                if this_label_name == label_name:
+                    entry = child.get_mnemonic_widget()
+                    self.assertNotEqual(entry, None,
+                                        "all widgets should have mnemonics")
+                    self.assertEqual(isinstance(entry,gtk.Entry),True)
+                    return entry
+            elif isinstance(child, gtk.Container):
+                widget = self.search_for_named_widget(child,label_name)
+                if widget:
+                    return widget
+        
     def get_param_entry(self, page_name, label_name):
         'Find and return an entry widget on the settings dialog'
         notebook = self.settings.notebook
         i = 0
         page = notebook.get_nth_page(0)
         while page != None:
-            i += 1
             this_page_name = notebook.get_tab_label_text(page)
             if this_page_name == page_name:
-                for child in page.get_children():
-                    if isinstance(child, gtk.Label):
-                        this_label_name = child.get_text()
-                        if this_label_name == label_name:
-                            entry = child.get_mnemonic_widget()
-                            self.assertEqual(isinstance(entry,gtk.Entry),True)
-                            return entry
-                        
+                widget = self.search_for_named_widget(page,label_name)
+                self.assertNotEqual(
+                    widget, None,
+                    "Page doesn't contain widget '%s'" % label_name)
+                return widget
+            i += 1
             page = notebook.get_nth_page(i)
             
         self.fail("Can't find page %s" % page_name)
@@ -62,7 +75,16 @@ class Test(unittest.TestCase):
         self.f.set_param(self.f.MAGNITUDE, 2000.0)
         widget = self.get_param_entry(_("Location"), _("Size :"))
         self.assertEqual(widget.get_text(),"2000.00000000000000000")
-                         
+
+        op = self.f.formula.symbols.order_of_params()
+        ord = op.get(self.f.formula.symbols.mangled_name("@bailout"))
+
+        self.f.set_initparam(ord, 578.0,0)
+        self.assertEqual(self.f.get_initparam(ord,0), 578.0)
+        
+        widget = self.get_param_entry(_("Formula"), _("bailout"))
+        self.assertEqual(widget.get_text(),"578.00000000000000000")
+
 def suite():
     return unittest.makeSuite(Test,'test')
 
