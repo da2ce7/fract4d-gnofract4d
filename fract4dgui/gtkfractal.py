@@ -452,7 +452,18 @@ class T(gobject.GObject):
         self.relocate(dx,dy,zoom)        
         
     def redraw_rect(self,x,y,w,h):
-        if w < 1 or h < 1:
+        # check to see if part of the rect is out-of-bounds, and clip if so
+        if x < 0:
+            x = 0
+        if y < 0:
+            y = 0
+        if x+w > self.width:
+            w = self.width-x
+        if y+h > self.height:
+            h = self.height-y
+
+        if x >= self.width or y >= self.height or w < 1 or h < 1:
+            # nothing to do
             return
         
         gc = self.widget.get_style().white_gc

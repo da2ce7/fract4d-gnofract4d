@@ -179,6 +179,22 @@ def createDefaultDict():
       cfl("[_] , _", [ Float, Complex]),
       doc='''The reciprocal of a number. recip(x) is equivalent to 1/x.''')
 
+    f("trunc",
+      [[[Float], Int], [[Complex], Complex]],
+      doc='''Round towards zero.''')
+
+    f("round",
+      [[[Float], Int], [[Complex], Complex]],
+      doc='''Round to the nearest number (0.5 rounds up).''')
+
+    f("floor",
+      [[[Float], Int], [[Complex], Complex]],
+      doc='''Round down to the next lowest number.''')
+
+    f("ceil",
+      [[[Float], Int], [[Complex], Complex]],
+      doc='''Round up to the next highest number.''')
+
     f("abs",
       cfl("[_], _", [Float, Complex]),
       doc='''The absolute value of a number. abs(3) = abs(-3) = 3.
