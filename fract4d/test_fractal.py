@@ -154,8 +154,6 @@ class FctTest(unittest.TestCase):
         f = fractal.T(self.compiler)
         
         f.compile()
-        (w,h) = (40,30)
-        image = fract4dc.image_create(w,h)
 
         # zoom
         f.relocate(0.0,0.0,2.0)
@@ -192,6 +190,40 @@ class FctTest(unittest.TestCase):
         tparams[f.XZANGLE] = tparams[f.YWANGLE] = math.pi/2.0
         
         self.assertNearlyEqual(f.params,tparams)
+
+
+        # equivalent Julia relocation using axis param
+        f.reset()
+
+        f.relocate(-1.0,-2.0,1.0,2)
+
+        tparams = [0.0] * 11
+        tparams[f.MAGNITUDE] = 4.0
+        tparams[f.ZCENTER] = -4.0
+        tparams[f.WCENTER] = 8.0
+
+        self.assertNearlyEqual(f.params,tparams)
+
+    def testNudges(self):
+        f = fractal.T(self.compiler)
+        
+        f.compile()
+
+        f.nudge(-1,0)
+        tparams = [0.0] * 11
+        tparams[f.MAGNITUDE] = 4.0
+        tparams[f.XCENTER] = -4.0 * 0.025
+        
+        self.assertNearlyEqual(f.params,tparams)
+
+        f.nudge(0,1)
+        tparams[f.YCENTER] = -4.0 * 0.025
+        
+        self.assertNearlyEqual(f.params,tparams)
+
+        f.nudge(-1,-1,2)
+        tparams[f.ZCENTER] = -4.0 * 0.025
+        tparams[f.WCENTER] = 4.0 * 0.025
         
     def testDefaultFractal(self):
         f = fractal.T(self.compiler)

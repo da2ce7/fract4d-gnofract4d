@@ -490,18 +490,22 @@ class T(FctUtils):
 
     def mul_vs(self,v,s):
         return map(lambda x : x * s, v)
-    
-    def relocate(self,dx,dy,zoom):
+
+    def nudge(self,x,y,axis=0):
+        # move a little way in x or y
+        self.relocate(0.025 * x , 0.025 * y, 1.0,axis)
+
+    def relocate(self,dx,dy,zoom,axis=0):
         if dx == 0 and dy == 0 and zoom == 1.0:
             return
         
         m = fract4dc.rot_matrix(self.params)
 
-        deltax = self.mul_vs(m[0],dx)
+        deltax = self.mul_vs(m[axis],dx)
         if self.yflip:
-            deltay = self.mul_vs(m[1],dy)
+            deltay = self.mul_vs(m[axis+1],dy)
         else:
-            deltay = self.mul_vs(m[1],-dy)
+            deltay = self.mul_vs(m[axis+1],-dy)
 
 
         #print "dx: %s dy: %s" % (deltax,deltay)
