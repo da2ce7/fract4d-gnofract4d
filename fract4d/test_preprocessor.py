@@ -52,7 +52,54 @@ class Test(unittest.TestCase):
             self.fail("Should have raised an exception")
         except preprocessor.Error, err:
             self.assertEqual(str(err), "2: $IFDEF without variable")
-            
+
+    def testDefine(self):
+        pp = preprocessor.T('$define foo\nbar')
+
+        self.assertEqual(pp.out(), "bar")
+
+    def testDefineWithoutVar(self):
+        try:
+            pp = preprocessor.T('$define !!!\n')
+            self.fail("Should have raised an exception")
+        except preprocessor.Error, err:
+            self.assertEqual(str(err), "1: $DEFINE without variable")
+
+    def testDefineWorks(self):
+        pp = preprocessor.T('''
+        $define wibble
+        $IFDEF wibble
+        >>><<<
+        $ENDIF
+        wobble
+        ''')
+
+        self.assertEqual(pp.out(), '''
+        >>><<<
+        wobble
+        ''')
+
+    def testNestedIfdef(self):
+        pp = preprocessor.T('''
+        $define bar
+        $IFDEF foo
+           foo
+           $IFDEF bar
+           foobar
+           $ENDIF
+        $ENDIF
+        $IFDEF bar
+           bar
+           $IFDEF foo
+           barfoo
+           $ENDIF
+        $ENDIF
+        ''')
+
+        self.assertEqual(pp.out(), '''
+           bar
+        ''')
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 

@@ -14,24 +14,24 @@ import test_parfile
 import test_fractal
 import test_3d
 import test_gradient
+import test_preprocessor
 
 def suite():
-    s1 = test_fractlexer.suite()
-    s2 = test_fractparser.suite()
-    s3 = test_symbol.suite()
-    s4 = test_translate.suite()
-    s5 = test_canon.suite()
-    s6 = test_codegen.suite()
-    s7 = test_fc.suite()
-    s8 = test_fract4d.suite()
-    s9 = test_colormap.suite()
-    s10 = test_parfile.suite()
-    s11 = test_fractal.suite()
-    s12 = test_3d.suite()
-    s13 = test_gradient.suite()
-    
-    return unittest.TestSuite(
-        (s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13))
+    return unittest.TestSuite((
+    test_fractlexer.suite(),
+    test_fractparser.suite(),
+    test_symbol.suite(),
+    test_translate.suite(),
+    test_canon.suite(),
+    test_codegen.suite(),
+    test_fc.suite(),
+    test_fract4d.suite(),
+    test_colormap.suite(),
+    test_parfile.suite(),
+    test_fractal.suite(),
+    test_3d.suite(),
+    test_gradient.suite(),
+    test_preprocessor.suite()))
 
 def main():
     unittest.main(defaultTest='suite')
