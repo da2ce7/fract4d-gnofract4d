@@ -136,9 +136,9 @@ class T(Threaded,gobject.GObject):
     def add_formula_setting(self,table,i,name,param,order):
         label = gtk.Label(self.param_display_name(name,param))
         label.set_justify(gtk.JUSTIFY_RIGHT)
-        table.attach(label,0,1,i,i+1,0,0,0,0)
+        table.attach(label,0,1,i,i+1,0,0,2,2)
 
-        if param.type == fracttypes.Float:
+        if param.type == fracttypes.Float or param.type == fracttypes.Complex:
             widget = gtk.Entry()
 
             def set_entry(f):
@@ -153,18 +153,33 @@ class T(Threaded,gobject.GObject):
         else:
             raise "Unsupported parameter type"
 
-        table.attach(widget,1,2,i,i+1,0,0,0,0)
+        table.attach(widget,1,2,i,i+1,0,0,2,2)
         
     def populate_formula_settings(self,table):
         # create widget to fiddle with this fractal's settings
         params = self.formula.symbols.parameters()
         op = self.formula.symbols.order_of_params()
+
+        print self.initparams
         
         i = 0
         for (name,param) in params.items():
-            self.add_formula_setting(table,i,name,param,op[name])
-            i += 1
+            if param.type == fracttypes.Complex:
+                self.add_formula_setting(table,i,name + " (re)",param ,op[name])
+                self.add_formula_setting(table,i+1,name+" (im)",param,op[name]+1)
+                i+= 2
+            else:
+                self.add_formula_setting(table,i,name,param,op[name])
+                i += 1
         
+    def set_size(self, new_width, new_height):
+        if self.width == new_width and self.height == new_height :
+            return
+        self.width = new_width
+        self.height = new_height
+        fract4dc.image_resize(self.image,self.width,self.height)
+        self.widget.set_size_request(self.width,self.height)
+        self.emit('parameters-changed')
         
     def reset(self):
         fractal.T.reset(self)

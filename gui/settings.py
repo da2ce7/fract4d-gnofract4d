@@ -46,10 +46,10 @@ class SettingsDialog(gtk.Dialog):
     def create_param_entry(self,table, row, text, param):
         label = gtk.Label(text)
         label.set_justify(gtk.JUSTIFY_RIGHT)
-        table.attach(label,0,1,row,row+1,0,0,0,0)
+        table.attach(label,0,1,row,row+1,0,0,2,2)
         
         entry = gtk.Entry()
-        table.attach(entry,1,2,row,row+1,gtk.EXPAND | gtk.FILL, 0, 0, 0)
+        table.attach(entry,1,2,row,row+1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         def set_entry(f):
             entry.set_text("%.17f" % f.params[param])

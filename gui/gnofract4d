@@ -19,6 +19,7 @@ from fract4d import fractal,fc,fract4dc
 
 import gtkfractal
 import settings
+import preferences
 
 # We don't use GDK threads because RedHat seem to compile pygtk
 # without thread support. Grrr.
@@ -48,6 +49,7 @@ class MainWindow:
         self.window.add(self.vbox)
 
         self.create_menu()
+        self.create_toolbar()
         self.create_fractal()
         self.create_status_bar()
         
@@ -112,7 +114,7 @@ class MainWindow:
             ('/Edit/_Redo', '<control>Y', self.redo, 0, ''),
             ('/Edit/R_eset', 'Home', self.reset, 0, '<StockItem>', gtk.STOCK_HOME),
             ('/_Help', None, None, 0, '<Branch>'),
-            ('/_Help/Contents', '<function>1', self.contents, 0, ''),
+            ('/_Help/Contents', 'F1', self.contents, 0, ''),
             ('/Help/_About', None, self.about, 0, ''),
             )
     
@@ -126,6 +128,11 @@ class MainWindow:
     def create_status_bar(self):
         self.bar = gtk.ProgressBar()
         self.vbox.pack_end(self.bar, expand=gtk.FALSE)
+
+    def create_toolbar(self):
+        self.toolbar = gtk.Toolbar()
+        self.toolbar.append_item("preview",None,None,None,None,None)
+        self.vbox.pack_start(self.toolbar,expand=gtk.FALSE)
         
     def save(self,action,widget):
         print "save"
@@ -135,13 +142,14 @@ class MainWindow:
     def save_image(self,action,widget):
         print "save_image"
     def settings(self,action,widget):
-        print "settings"
         settings.show_settings(self.window,self.f)
         
     def colors(self,action,widget):
         print "colors"
+        
     def preferences(self,action,widget):
-        print "prefs"
+        preferences.show_preferences(self.window, self.f)
+        
     def undo(self,action,widget):
         print "undo"
     def redo(self,action,widget):
