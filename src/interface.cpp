@@ -99,7 +99,7 @@ create_app (model_t *m)
 	return main_app_window;
     }
 
-    GtkWidget *app = gnome_app_new ("Gnofract4D", _("Gnofract4D"));
+    GtkWidget *app = gnome_app_new ("Gnofract4D", model_get_display_name(m));
 
     gtk_widget_realize(app);
 

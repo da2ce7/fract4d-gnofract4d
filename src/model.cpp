@@ -82,6 +82,7 @@ struct _model {
     bool commandInProgress;
 
     char *saveFileName;
+    char *fileName;
     bool quitWhenDone;
 
     int nCalcThreads;
@@ -97,6 +98,7 @@ struct _model {
     bool pending_error;
     char *message;
     char *extra_info;
+
 };
 
 void model_get_dimensions(model_t *m, int *pWidth, int *pHeight)
@@ -194,14 +196,47 @@ void model_status_callback(Gf4dFractal *f, gint val, model_t *m)
 
 }
 
-void model_set_quit(model_t *m, int quit)
+void 
+model_set_quit(model_t *m, int quit)
 {
     m->quitWhenDone = (bool)quit;
 }
 
-void model_set_save_file(model_t *m, char *filename)
+void 
+model_set_save_file(model_t *m, char *filename)
 {
+    g_free(m->saveFileName);
     m->saveFileName = g_strdup(filename);
+}
+
+void 
+model_set_name(model_t *m, const char *filename)
+{
+    g_free(m->fileName);
+    m->fileName = g_strdup(filename);
+    if(NULL != main_app_window)
+    {
+	gtk_window_set_title(
+	    GTK_WINDOW(main_app_window), 
+	    model_get_display_name(m));
+	g_print("title: %s\n", model_get_display_name(m));
+    }
+}
+
+const char *
+model_get_name(model_t *m)
+{
+    return m->fileName;
+}
+
+const char *
+model_get_display_name(model_t *m)
+{
+    if(NULL == m->fileName)
+    {
+	return _("(Untitled)");
+    }
+    return m->fileName;
 }
 
 static void 
@@ -426,6 +461,7 @@ model_new(void)
     m->undo_seq = gundo_sequence_new();
     m->commandInProgress = false;
     m->saveFileName = NULL;
+    m->fileName = NULL;
     m->quitWhenDone = false;
 
     m->undo_action.undo = model_restore_old_fractal;
@@ -457,12 +493,14 @@ model_delete(model_t **pm)
     gtk_object_destroy(GTK_OBJECT(&m->fract));
 
     free(m->saveFileName);
+    free(m->fileName);
     delete m;
 
     *pm = NULL;
 }
 
-static gchar *autosave_filename()
+static gchar *
+autosave_filename()
 {
     return g_build_filename(
 	g_get_home_dir(), 
@@ -471,7 +509,8 @@ static gchar *autosave_filename()
 	NULL);
 }
 
-int model_write_autosave_file(model_t *m)
+int 
+model_write_autosave_file(model_t *m)
 {
     gchar *filename = autosave_filename();
     int ret = model_cmd_save(m,filename);
@@ -480,10 +519,11 @@ int model_write_autosave_file(model_t *m)
     return ret;
 }
 
-int model_load_autosave_file(model_t *m)
+int 
+model_load_autosave_file(model_t *m)
 {
     gchar *filename = autosave_filename();
-    int ret = model_nocmd_load(m,filename);
+    int ret = gf4d_fractal_load_params(m->fract,filename);
     g_free(filename);
 
     return ret;
@@ -519,7 +559,7 @@ model_cmd_save_image(model_t *m, const char *filename)
     
     if(NULL == type)
     {
-	g_warning("Unable to determine file type for %s, using PNG",filename);
+	g_warning(_("Unable to determine file type for %s, using PNG"),filename);
 	type = "png";
     }
     // FIXME: deal with errors
@@ -532,6 +572,7 @@ model_cmd_save_image(model_t *m, const char *filename)
 int 
 model_cmd_save(model_t *m, const char *filename)
 {
+    model_set_name(m,filename);
     return gf4d_fractal_write_params(m->fract,filename);
 }
 	
@@ -550,6 +591,7 @@ model_cmd_load(model_t *m, const char *filename)
 int
 model_nocmd_load(model_t *m, const char *filename)
 {
+    model_set_name(m,filename);
     return gf4d_fractal_load_params(m->fract,filename);
 }
 
