@@ -306,7 +306,8 @@ class T(FctUtils):
         
     def __del__(self):
         if self.outputfile:
-            os.remove(self.outputfile)
+            #os.remove(self.outputfile)
+            pass
 
     def __copy__(self):
         # override shallow-copy to do a deeper copy than normal,

@@ -36,7 +36,7 @@ class T(gobject.GObject):
         gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),        
         }
 
-    def __init__(self,comp):
+    def __init__(self,comp,width=640,height=480):
         gobject.GObject.__init__(self) # MUST be called before threaded.init
 
         (self.readfd,self.writefd) = os.pipe()
@@ -64,8 +64,8 @@ class T(gobject.GObject):
         
         gtk.input_add(self.readfd, gtk.gdk.INPUT_READ, self.onData)
         
-        self.width = 640
-        self.height = 480
+        self.width = width
+        self.height = height
         self.image = fract4dc.image_create(self.width,self.height)
 
         drawing_area = gtk.DrawingArea()

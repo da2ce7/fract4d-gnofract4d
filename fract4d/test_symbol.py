@@ -115,7 +115,7 @@ class SymbolTest(unittest.TestCase):
                     self.assertIsValidFunc(item)
             except TypeError:
                 self.assertIsValidVar(val)
-
+        
     def assertIsValidVar(self, val):
         if isinstance(val,Var):
             # ok
@@ -132,6 +132,7 @@ class SymbolTest(unittest.TestCase):
         self.failUnless(callable(val.genFunc) or
                         val.genFunc == None or
                         specialFuncs.count(val.cname) > 0, val.cname)
+
         
 def suite():
     return unittest.makeSuite(SymbolTest,'test')
