@@ -408,7 +408,7 @@ cmap_create_gradient(PyObject *self, PyObject *args)
 
     for(i = 0; i < len; ++i)
     {
-	double left, right, left_col[4], right_col[4];
+	double left, right, mid, left_col[4], right_col[4];
 	int bmode, cmode;
 	PyObject *pyitem = PySequence_GetItem(pyarray,i);
 	if(!pyitem)
@@ -418,6 +418,7 @@ cmap_create_gradient(PyObject *self, PyObject *args)
 
 	if(!get_double_field(pyitem, "left", &left) ||
 	   !get_double_field(pyitem, "right", &right) ||
+	   !get_double_field(pyitem, "mid", &mid) ||
 	   !get_int_field(pyitem, "cmode", &cmode) ||
 	   !get_int_field(pyitem, "bmode", &bmode) ||
 	   !get_double_array(pyitem, "left_color", left_col, 4) ||
@@ -426,7 +427,7 @@ cmap_create_gradient(PyObject *self, PyObject *args)
 	    return NULL;
 	}
 	
-	cmap->set(i, left,right,
+	cmap->set(i, left, right, mid,
 		  left_col,right_col,
 		  (e_blendType)bmode, (e_colorType)cmode);
 

@@ -50,7 +50,23 @@ class Test(testbase.TestBase):
                 cmap_color,
                 "colorlist(%s) = %s but gradient(%s) = %s" % \
                 (fi, cmap_color, fi, grad_color), 1.5)
-            
+
+    def checkCGradientAndPyGradientEquivalent(self,grad):
+        self.assertWellFormedGradient(grad)
+        cmap = fract4dc.cmap_create_gradient(grad.segments)
+        for i in xrange(1000):
+            fi = i / 1000.0
+            (r,g,b,a) = grad.get_color_at(fi)
+            print i,r,g,b,a
+            cmap_color = fract4dc.cmap_lookup(cmap, fi)
+            grad_color = (int(r*255.0), int(g*255.0),
+                          int(b*255.0), int(a*255.0))
+            self.assertNearlyEqual(
+                grad_color,
+                cmap_color,
+                "colorlist(%s) = %s but gradient(%s) = %s" % \
+                (fi, cmap_color, fi, grad_color), 0.5)
+        
     def testFromColormap(self):
         # check that creating a gradient from a colormap produces the same
         # output
@@ -90,8 +106,10 @@ class Test(testbase.TestBase):
 
     def testGradientCmap(self):
         g = gradient.Gradient()
-        cmap = fract4dc.cmap_create_gradient(g.segments)
+        self.checkCGradientAndPyGradientEquivalent(g)
 
+
+            
     def create_rgb_gradient(self):
         # make a simple gradient which goes from R -> G -> B
         g = gradient.Gradient()
