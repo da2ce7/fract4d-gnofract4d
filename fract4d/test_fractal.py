@@ -258,11 +258,11 @@ colorlist=[
     def testCFParams(self):
         f = fractal.T(self.compiler)
 
-        self.assertEqual(f.cfunc_params[0],[])
+        self.assertEqual(f.cfunc_params[0],[1.0,0.0])
         
         f.set_outer("test.cfrm", "Triangle")
 
-        self.assertEqual(f.cfunc_params[0],[ 1.0e20, 2.0])
+        self.assertEqual(f.cfunc_params[0],[ 1.0e20, 1.0, 0.0, 2.0])
         
         cf0p = f.cfuncs[0].symbols.parameters()
         self.assertEqual(cf0p["t__a_bailout"].cname, "t__a_cf0bailout")
@@ -277,7 +277,9 @@ colorlist=[
         f.formula.merge(f.cfuncs[1],"cf1_")        
 
         p2 = f.formula.symbols.parameters()
-        self.assertEqual(len(p2),6) # 2 x bailout, bailfunc, size, 2x transfer
+
+        # 10 = 2 x bailout, bailfunc, size, 2x (density, offset, transfer)
+        self.assertEqual(len(p2),10) 
         self.assertEqual(p2["t__a_bailout"].cname, "t__a_fbailout")
         self.assertEqual(p2["t__a_cf0bailout"].cname, "t__a_cf0bailout") 
 
@@ -285,11 +287,15 @@ colorlist=[
         self.assertEqual(op2, {
             't__a_bailout' : 0,
             't__a_cf0bailout' : 1,
-            't__a_cf0power' : 2,
-            '__SIZE__' : 3
+            't__a_cf0density' : 2,
+            't__a_cf0offset' : 3,
+            't__a_cf0power' : 4,
+            't__a_cf1density' : 5,
+            't__a_cf1offset' : 6,
+            '__SIZE__' : 7
             })
         params = f.all_params()
-        self.assertEqual(params,[4.0,1.0e20,2.0])
+        self.assertEqual(params,[4.0,1.0e20,1.0, 0.0, 2.0, 1.0, 0.0])
 
         # check for appropriate snippets in the code
         cg.output_decls(f.formula)
@@ -356,7 +362,7 @@ blue=0
 
         f1.compile()
         
-        self.assertEqual(f1.cfunc_params[0],[1.0e12,3.0])
+        self.assertEqual(f1.cfunc_params[0],[1.0e12, 1.0, 0.0, 3.0])
         self.assertEqual(f1.get_func_value("@myfunc",f1.cfuncs[1]),"sqrt")
         
         # save again
@@ -552,7 +558,7 @@ blue=0
         self.assertEqual(f.params[f.XZANGLE],0.789)
         self.assertEqual(f.title,"Hello World")
         self.assertEqual(f.initparams,[8.0,7.0,1.0])
-        self.assertEqual(f.cfunc_params[1],[0.4])
+        self.assertEqual(f.cfunc_params[1],[1.0,0.0,0.4])
 
     def testFutureWarning(self):
         'load a file from the future and check we complain'

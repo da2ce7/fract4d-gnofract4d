@@ -219,9 +219,10 @@ class T(gobject.GObject):
                 try:
                     f.set_initparam(order,entry.get_text(),param_type)
                 except Exception, err:
+                    # FIXME: produces too many errors
                     msg = "Invalid value '%s': must be a number" % \
                           entry.get_text()
-                    gtk.idle_add(self.warn,msg)
+                    #gtk.idle_add(f.warn,msg)
                 return False
             
             set_entry(self)
