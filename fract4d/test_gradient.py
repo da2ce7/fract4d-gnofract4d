@@ -195,11 +195,84 @@ Name: Wood 2
         g = gradient.Gradient()
         s = StringIO.StringIO(wood)
         g.load(s)
+        self.assertEqual(g.name, "Wood 2")
+        self.assertEqual(len(g.segments), 9)
 
+        # check round trip
         s2 = StringIO.StringIO()
         g.save(s2)
         self.assertEqual(wood,s2.getvalue())
 
+    def checkBadLoad(self, str):
+        g = gradient.Gradient()
+        s = StringIO.StringIO(str)
+        self.assertRaises(gradient.Error, g.load,s)
+        self.assertWellFormedGradient(g)
+        
+    def testBadLoad(self):        
+        bad_files=[
+            '''xxx''',
+            '''GIMP Gradient''',
+            '''GIMP Gradient
+17
+0.000000 0.500000 1.000000 0.000000 0.000000 0.000000 1.000000 1.000000 1.000000 1.000000 1.000000 0 0
+''',
+            '''GIMP Gradient
+1
+0.000000 0.500000 1.000000 0.000000 
+''',
+            '''GIMP Gradient
+1
+0.000000 0.500000 1.000000 0.000000 0.000000 0.000000 1.000000 1.000000 1.000000 1.000000 1.000000 foo 0
+''']
+        for file in bad_files:
+            self.checkBadLoad(file)
+
+    def testSetLeft(self):
+        g = gradient.Gradient()
+
+        g.add(0.0)
+
+        # shouldn't be able to move leftmost segment
+        self.assertEqual(g.set_left(0, -1.0),0.0)
+        self.assertEqual(g.set_left(0,0.2),0.0)
+
+        # should be able to move other one
+        self.assertEqual(g.set_left(1,0.4),0.4)
+        self.assertEqual(g.set_left(1,0.6),0.6)
+
+        # but no further than midpoints
+        self.assertEqual(g.set_left(1,0.2),0.25 + gradient.Segment.EPSILON)
+        self.assertEqual(g.set_left(1,0.8),0.75 - gradient.Segment.EPSILON)
+
+    def testSetRight(self):
+        g = gradient.Gradient()
+
+        g.add(0.0)
+
+        # shouldn't be able to move rightmost segment
+        self.assertEqual(g.set_right(1, -1.0),1.0)
+        self.assertEqual(g.set_right(1,0.2),1.0)
+
+        # should be able to move other one
+        self.assertEqual(g.set_right(0,0.4),0.4)
+        self.assertEqual(g.set_right(0,0.6),0.6)
+
+        # but no further than midpoints
+        self.assertEqual(g.set_right(0,0.2),0.25 + gradient.Segment.EPSILON)
+        self.assertEqual(g.set_right(0,0.8),0.75 - gradient.Segment.EPSILON)
+
+    def testSetMiddle(self):
+        g = gradient.Gradient()
+
+        # should be able to move 
+        self.assertEqual(g.set_middle(0,0.4),0.4)
+        self.assertEqual(g.set_middle(0,0.6),0.6)
+
+        # but no further than endpoints
+        self.assertEqual(g.set_middle(0,0.0),0.0 + gradient.Segment.EPSILON)
+        self.assertEqual(g.set_middle(0,1.0),1.0 - gradient.Segment.EPSILON)
+        
     def testAddSegment(self):
         # add some segments, ensure invariants hold and correct
         # outcome occurs.
