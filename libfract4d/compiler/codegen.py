@@ -7,6 +7,7 @@ import symbol
 import re
 import types
 import fracttypes
+from fracttypes import Bool, Int, Float, Complex
 
 class Insn:
     'An instruction to be written to output stream'
@@ -70,9 +71,10 @@ class T:
             [ "[Var]" , T.var]
             ])
 
-    def emit_binop_const_exp(self,op,val,srcs,dst):
+    def emit_binop_const_exp(self,op,val,srcs,type):
+        dst = self.symbols.newTemp(type)
         assem = "%%(d0)s = %d %s %%(s0)s" % (val, op)
-        self.out.append(Oper(assem, srcs , dst))
+        self.out.append(Oper(assem, srcs ,[ dst ]))
         return dst
     
     # action routines
@@ -81,14 +83,17 @@ class T:
         s1 = t.children[1]
         srcs = self.generate_code(s1)
         if t.datatype == fracttypes.Complex:
-            d0 = self.symbols.newTemp(fracttypes.Float)
-            d1 = self.symbols.newTemp(fracttypes.Float)
-            dst = [d0,d1]
-            self.emit_binop_const_exp(t.op,s0.value[0], [srcs[0]], [d0])
-            self.emit_binop_const_exp(t.op,s0.value[1], [srcs[1]], [d1])
+            if t.op=="+" or t.op == "-":
+                dst = [
+                    self.emit_binop_const_exp(t.op,s0.value[0], [srcs[0]], Float),
+                    self.emit_binop_const_exp(t.op,s0.value[1], [srcs[1]], Float)]
+            if t.op=="*":
+                # (a+ib) * (c+id) = ac - bd + i(bc + ad)
+                (a,b,c,d) = (s0.value[0], s0.value[1], srcs[0], srcs[1])
+                self.emit_binop_const_exp(t.op,a, [b], [d0], Float)
         else:
-            dst = [self.symbols.newTemp(t.datatype)]
-            self.emit_binop_const_exp(t.op,s0.value,srcs,dst)
+            dst = [
+                self.emit_binop_const_exp(t.op,s0.value,srcs,t.datatype)]
         return dst
     
     def binop_exp_const(self,t):
