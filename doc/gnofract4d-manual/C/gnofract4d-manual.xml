@@ -150,7 +150,12 @@ stored in the image file</emphasis>, so if you want to carry on
 exploring from a particular point you need to save a parameter file as
 well. &gf4d; can't load image files, only save them. Choose
 <guimenu>File</guimenu> &gt; <guimenuitem>Save Image</guimenuitem> to
-save an image.</entry>
+save an image.
+I recommend
+using PNG images for high quality output, and JPEGs only when image
+size is important, because JPEGs introduce artifacts which blur the
+fine details of your fractal.
+</entry>
 
 </row>
 
@@ -172,7 +177,7 @@ use <filename class="extension">.frm</filename> as the extension, and
 &ultrafractal; uses <filename class="extension">.ufm</filename>. In
 general, any formula which works in &fractint; should work in &gf4d;
 and any which works in &gf4d; should work in &ultrafractal;, but the
-reverse is not true. See <xref linkend="formula_compat"/> for details.
+reverse is not true. 
 
 </entry>
 </row>
@@ -249,6 +254,38 @@ exactly the same.
 
 </sect3>
 
+<sect3 id="browser">
+<title>Formula Browser</title>
+<para>
+
+The <emphasis>Formula Browser</emphasis> allows you to look at all the
+fractal formulas and coloring functions which are in the currently-loaded
+formula files. When you select a formula (from the Formula list in the
+middle), the source window shows you the contents of that formula. You
+can then use <guibutton>Apply</guibutton> to change the current
+fractal to use that formula. This also resets the formula's parameters
+to their defaults. Alternatively, <guibutton>OK</guibutton> applies
+the formula and closes the window.  </para>
+
+<para>
+Tips: 
+<itemizedlist>
+
+<listitem><para> To load a new formula file, choose <guimenu>File</guimenu>
+&gt; <guimenuitem>Open Formula File</guimenuitem>. </para></listitem>
+
+<listitem><para> If you have changed a formula on disk, choose
+<guibutton>Refresh</guibutton> to have &gf4d; re-read
+it. </para></listitem>
+
+<listitem><para> If the formula contains errors,
+<guibutton>Apply</guibutton> and <guibutton>OK</guibutton> will be
+disabled. Check the Messages window to see what the errors
+are. </para></listitem>
+
+</itemizedlist>
+</para>
+</sect3>
 </sect2>
 
 <sect2 id="toolbar">
@@ -279,114 +316,50 @@ update, then release the mouse when you like the results.  </para>
 
 <para>
 The weird black and white button (OK, so I can't draw) allows you to
-increase the current interation count, for those occasions when the
+increase the current iteration count, for those occasions when the
 auto-deepening doesn't get it right.  </para> <para> The
 <emphasis>Undo</emphasis> and <emphasis>Redo</emphasis> buttons should
 be fairly obvious. You can undo as many times as you like. Note that
 undo also affects parameters such as color, not just position on
-screen.  </para>
-
-</sect2>
-
-<sect2 id="filemenu">
-<title>File Menu</title> 
-<para>
-<guimenuitem>Save Image</guimenuitem> writes the current image to
-disk. Only the PNG and JPEG image formats are supported. I recommend
-using PNG images for high quality output, and JPEGs only when image
-size is important, because JPEGs introduce artifacts which blur the
-fine details of your fractal.
-
-<guimenuitem>Open Parameter File</guimenuitem> and <guimenuitem>Save Parameter File</guimenuitem> load and save plain-text parameter
-description files (extension ".fct"), so you can return to images in the future.
-<guimenuitem>Pause</guimenuitem> temporarily halts the current
-calculation, in the unlikely event you have something more important
-than generating fractals to do.
-</para>
+screen.  Lastly, the <emphasis>Explore</emphasis> button toggles
+Explorer Mode. See <xref linkend="explorer"/>.</para>
+  
 </sect2>
 
 <sect2 id="preferences">
-<title>Settings Menu</title> 
+<title>Changing Fractal Settings</title> 
 
-<para> You can set all the fractal's parameters from here. Settings
-are divided into <emphasis>Fractal Settings</emphasis> and
-<emphasis>Preferences</emphasis>.  <emphasis>Fractal
+<para> In &gf4d;, settings are divided into <emphasis>Fractal
+Settings</emphasis> and
+<emphasis>Preferences</emphasis>. <emphasis>Fractal
 Settings</emphasis> are saved in the fractal's .fct file - they are
 properties of the fractal itself. By contrast, <emphasis>
-preferences</emphasis> are your preferences for &gf4d;'s general
-behavior and are saved in &gf4d;'s config file
-(~/.gnome/gnofract4d). <emphasis>Colors</emphasis> are also saved in
-the .fct file.
-</para>
+Preferences</emphasis> are your preferences for &gf4d;'s general
+behavior and are saved in &gf4d;'s config file (~/.gnome/gnofract4d),
+so they will still be active next time you start &gf4d; </para>
 
-<sect3 id="prefdialog">
+<sect3 id="settingsdialog">
 <title>Fractal Settings</title>
-<sect4 id="function">
-<title>Function Section</title>
 <para>
-Allows you to choose which fractal type to draw. 
+
+The <emphasis>Formula</emphasis> section allows you to choose the
+formula used to calculate the fractal, and to set any parameters the
+formula has. You can modify the formula by choosing <guibutton>Browse
+</guibutton>, which invokes the Formula Browser. <emphasis>Max
+Iterations</emphasis> sets the number of iterations a point will go
+through before we give up and assume it's a member of the
+Julibrot. The other parameters on this pane are different depending on
+the fractal type.
 </para>
-</sect4>
 
-<sect4 id="parameters">
-<title>Parameters</title>
 <para>
-Some fractal types (such as the Quadratic fractal) have additional
-parameters which you can set. These are displayed here. What
-parameters there are depends on the fractal type.
-</para>
-</sect4>
+The <emphasis>Outer</emphasis> page controls the function used to
+decide what color to draw those points which aren't part of the
+fractal set proper. Similarly, the <emphasis>Inner</emphasis> page
+controls the function used for points which are part of the set.
+</para> 
 
-<sect4 id="rendering">
-<title>Rendering Section</title> <para> This has various options to
-trade off image quality against rendering time and generally change
-the appearance of the image.
-
-<emphasis>Antialiasing</emphasis> makes the image smoother and nice looking,
-but takes a lot longer to draw (up to five times
-longer). <emphasis>Default</emphasis> antialiasing is quite a lot faster than
-<emphasis>Best</emphasis> mode, but can miss some small details.
-
-<emphasis>Max Iterations</emphasis> sets the number of iterations a point will
-go through before we give up and assume it's a member of the Julibrot.
-
-If <emphasis>Auto Deepening</emphasis> is on, the maximum number of iterations
-is set automatically by &gf4d; but you can change it by hand whenever
-you like.
-
-<emphasis> Inner </emphasis> and <emphasis> Outer </emphasis> select
-the function used to translate the raw fractal data into colors, for
-the inside and outside of the set respectively. The functions have the
-following effects: <emphasis>Iteration Count</emphasis> uses the
-number of iterations required to bail out to set the color directly.
-<emphasis> Continuous Potential </emphasis> gives a much smoother
-image, by basing the color not only on how many iterations the point
-took to escape, but on how far away from the origin it ended up on its
-last iteration. <emphasis>Ejection Distance</emphasis> ignores the
-count altogether and uses only the distance. <emphasis>
-Decomposition</emphasis> chooses one of four colors based on the
-location in the complex plane of the point's final position.<emphasis>
-Angle</emphasis> translates the angle between the point's final
-position and the x-axis into a color.</para> </sect4>
-
-<sect4 id="bailout">
-<title>Bailout Section</title>
 <para>
-The <emphasis>Bailout Function</emphasis> is used to decide whether a point
-has left the set. If <emphasis>function(z)</emphasis> is greater than the
-<emphasis>Distance</emphasis>, the point has left the set. A few functions
-don't work very well with some fractal types, for example Barnsley
-fractals don't mix well with the <emphasis>Or</emphasis> bailout function.
-
-</para>
-</sect4>
-
-<sect4 id="image">
-<title>Other Sections</title>
-<para>
-<emphasis>Width</emphasis> and <emphasis>Height</emphasis> 
-set the size of the image in pixels.
-
 The <emphasis>Location</emphasis> entryboxes allow you to
 change the coordinates of the screen center and the image size. 
 
@@ -394,27 +367,29 @@ The <emphasis>Angles</emphasis> tab allows you to set the rotation
 angles. Only values between 0 and 2 * pi are different; values outside
 this range "wrap" to points inside that range.
 </para>
-</sect4>
-</sect3>
-<sect3 id="colors">
-<title>Color Browser</title>
-<para>
-The Color Browser is designed to let you quickly choose a color scheme
-which suits the current fractal, by generating a set of previews to
-choose between. To update the previews to match the current fractal,
-click <emphasis> Refresh</emphasis>. To apply a colormap to the main image,
-click the map.
-</para>
+
 </sect3>
 
-<sect3 id="preferences2">
-<title>Preferences</title> <para> There's only one set of preferences
-at the moment- the compiler preferences. &gf4d; needs a C++ compiler to
-be available at runtime in order to work (it dynamically creates the
-code to compute a particular fractal when you ask for that
-fractal). This section allows you to specify a location for the
-compiler and options to pass to it. <emphasis>If &gf4d; is working
-fine, I suggest you leave this area alone.</emphasis></para>
+<sect3 id="prefsdialog">
+<title>Preferences</title> 
+
+<para> <emphasis>Width</emphasis> and <emphasis>Height</emphasis> set
+the size of the image in pixels. If <emphasis>Maintain Aspect
+Ratio</emphasis> is checked when you change either the width or
+height, the other automatically changes to keep the image the same
+shape. If <emphasis>Auto Deepen</emphasis> is enabled, &gf4d; will try
+to automatically guess how many iterations are required to display the
+image correctly. <emphasis>Antialiasing</emphasis> makes the image
+look smoother but takes extra time to do.  </para>
+
+<para>
+&gf4d; needs a C++ compiler to be available at runtime in order to
+work (it dynamically creates the code to compute a particular formula
+when you select it). The <emphasis>Compiler</emphasis>
+page allows you to specify a location for the compiler and options
+to pass to it. <emphasis>If &gf4d; is working fine, I suggest you
+leave this area alone.</emphasis></para> 
+
 </sect3>
 
 </sect2>
@@ -648,36 +623,9 @@ releases. </para></listitem>
 <sect2 id="tutorial">
 <title>Writing Your First Formula</title>
 
-</sect2>
-
-<sect2 id="formula_compat">
-<title>Compatibility Notes</title>
-
 <para>
-Most &fractint; formulas are compatible with &gf4d;, but not
-all. &gf4d; also supports many extensions (most of which are
-taken from UltraFractal), which &fractint; doesn't understand.
-</para>
-<para>
-Specific differences:
-<itemizedlist>
-
-<listitem><para> 
-
-&gf4d; does not include &fractint;'s <function>cosxx</function> (a
-bogus version of cos provided for backwards compatibility), and
-produces different results for <function>acos</function> and
-<function>acosh</function>. I believe &fractint;'s results are
-incorrect for the latter two, but I could be wrong.
-
-</para></listitem>
-
-<listitem><para> 
-
-</para></listitem>
-
-</itemizedlist>
-
+For now, I suggest copying one of the formulas which come with
+&gf4d; into a new file, and modifying it using trial and error.
 </para>
 
 </sect2>
