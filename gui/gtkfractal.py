@@ -25,6 +25,9 @@ class T(gobject.GObject):
         'parameters-changed' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
         gobject.TYPE_NONE, ()),
+        'formula-changed' : (
+        (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
+        gobject.TYPE_NONE, ()),
         'status-changed' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
         gobject.TYPE_NONE, (gobject.TYPE_INT,)),
@@ -184,10 +187,15 @@ class T(gobject.GObject):
                 widget.set_text("%.17f" % self.initparams[order])
                     
             def set_fractal(*args):
+                print "set"
                 self.set_initparam(order,widget.get_text())
+                print "done"
                 return False
             
             set_entry(self)
+
+            widget.update = set_entry
+            
             widget.connect('focus-out-event',set_fractal)
         else:
             raise "Unsupported parameter type"
@@ -215,13 +223,20 @@ class T(gobject.GObject):
 
             # take over fractal's changed function
             f.changed = self.changed
+            f.formula_changed = self.formula_changed
+            self.formula_changed()
             self.changed()
-            
+
     def changed(self):
         self.f.dirty = True
         if not self.frozen:
             self.emit('parameters-changed')
-        
+
+    def formula_changed(self):
+        self.f.dirtyFormula = True
+        #if not self.frozen:
+        self.emit('formula-changed')
+            
     def set_auto_deepen(self,deepen):
         if self.f.auto_deepen != deepen:
             self.f.auto_deepen = deepen
@@ -244,7 +259,7 @@ class T(gobject.GObject):
         menu = self.construct_function_menu(param)
         widget.set_menu(menu)
 
-        def set_selected_function(*args):
+        def set_selected_function():
             try:
                 selected_func_name = self.f.get_func_value(name)
                 index = menu.funclist.index(selected_func_name)
@@ -255,13 +270,17 @@ class T(gobject.GObject):
             
             widget.set_history(index)
             
-        def set_fractal_function(*args):
-            index = widget.get_history()
+        def set_fractal_function(om,*args):
+            index = om.get_history()
             if index != -1:
-                fname = menu.funclist[index]
+                fname = om.get_menu().funclist[index]
                 self.set_func(param,fname)
                 
         set_selected_function()
+
+        widget.update = set_selected_function
+        
+        #self.connect('parameters-changed',set_selected_function)
         
         widget.connect('changed',set_fractal_function)
         
@@ -283,6 +302,7 @@ class T(gobject.GObject):
         
         set_entry(self)
 
+        self.connect('parameters-changed', set_entry)
         widget.connect('focus-out-event',set_fractal)
 
         table.attach(widget,1,2,i,i+1,0,0,2,2)

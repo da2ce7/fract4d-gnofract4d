@@ -387,7 +387,7 @@ class T(FctUtils):
         self.initparams = self.formula.symbols.default_params()
         
         self.set_bailfunc()
-        self.dirtyFormula = True
+        self.formula_changed()
         self.changed()
         
     def set_bailfunc(self):        
@@ -424,6 +424,9 @@ class T(FctUtils):
     
     def changed(self):
         self.dirty = True
+
+    def formula_changed(self):
+        self.dirtyFormula = True
         
     def set_func(self,func,fname):
         if func.cname != fname:

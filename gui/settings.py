@@ -22,6 +22,7 @@ class SettingsDialog(gtk.Dialog):
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
+        self.main_window = main_window
         self.f = f
 
         self.notebook = gtk.Notebook()
@@ -60,16 +61,38 @@ class SettingsDialog(gtk.Dialog):
         self.table2 = None
         def update_formula_parameters(*args):
             if self.table2 != None:
-                self.table2.destroy()
-                
+                print "premove"
+                vbox.remove(self.table2)
+                print "removed"
+
+            print "create new"
             self.table2 = self.f.populate_formula_settings()
+            print "created"
+
+            print "show"
             self.table2.show_all()
+            print "shown"
+
+            print "pack"
             vbox.pack_start(self.table2)
-        
+            print "packed"
+            
         update_formula_parameters()
 
-        self.f.connect('parameters-changed', update_formula_parameters)
+        # weird hack. We need to change the set of widgets when
+        # the formula changes and change the values of the widgets
+        # when the parameters change. When I connected the widgets
+        # directly to the fraftal's parameters-changed signal they
+        # would still get signalled even after they were obsolete.
+        # This works around that problem
+        def update_all_widgets(*args):
+            for widget in self.table2.get_children():
+                if hasattr(widget,"update"):
+                    widget.update()
         
+        self.f.connect('formula-changed', update_formula_parameters)
+        self.f.connect('parameters-changed', update_all_widgets)
+
         self.notebook.append_page(vbox,gtk.Label("Formula"))
 
         table.attach(gtk.Label("Formula :"), 0,1,0,1,0,0,2,2)
@@ -88,7 +111,7 @@ class SettingsDialog(gtk.Dialog):
         table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
         
     def show_browser(self,*args):
-        browser.show(self, self.f)
+        browser.show(self.main_window, self.f)
         
     def create_param_entry(self,table, row, text, param):
         label = gtk.Label(text)

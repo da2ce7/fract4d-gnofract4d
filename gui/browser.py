@@ -14,6 +14,11 @@ def show(parent, f):
         _browser = BrowserDialog(parent,f)
     _browser.show_all()
 
+def update():
+    global _browser
+    if _browser:
+        _browser.populate_file_list()
+    
 class BrowserDialog(gtk.Dialog):
     def __init__(self,main_window,f):
         gtk.Dialog.__init__(
@@ -84,6 +89,7 @@ class BrowserDialog(gtk.Dialog):
         return sw
 
     def populate_file_list(self):
+        self.file_list.clear()
         for (fname,formulalist) in self.compiler.files.items():
             iter = self.file_list.append ()
             self.file_list.set (iter, 0, fname)
