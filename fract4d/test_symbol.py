@@ -89,12 +89,25 @@ class SymbolTest(unittest.TestCase):
         self.assertRaises(KeyError, self.t.__getitem__, ("fish"))
 
     def testAvailable(self):
-        fnames = self.t.available_param_functions()
+        fnames = self.t.available_param_functions(Complex,[Complex])
         self.assertEqual(fnames.count("ident"),1)
         self.assertEqual(fnames.count("flip"),1)
         self.assertEqual(fnames.count("cabs"),0)
         self.assertEqual(fnames.count("t__a_fn1"),0)
         self.assertEqual(fnames.count("t__neg"),0)
+        fnames = self.t.available_param_functions(Float,[Complex])
+        exp_fnames = ['cabs','manhattanish','real','imag','manhattan','atan2']
+        for exp in exp_fnames:
+            self.assertEqual(fnames.count(exp),1,exp)
+        
+    def disable_testAllSymbolsWork(self):
+        for (name,val) in self.t.default_dict.items():
+            if isinstance(val,types.ListType):
+                for item in val:
+                    self.assertIsValidFunc(item)
+
+    def assertIsValidFunc(self,val):
+        self.failUnless(callable(val.genFunc) or val.genFunc == None,val.cname)
         
 def suite():
     return unittest.makeSuite(SymbolTest,'test')

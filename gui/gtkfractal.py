@@ -161,8 +161,9 @@ class T(Threaded,gobject.GObject):
 
         table.attach(widget,1,2,i,i+1,0,0,2,2)
 
-    def construct_function_menu(self):
-        funclist = self.formula.symbols.available_param_functions()
+    def construct_function_menu(self,param):
+        funclist = self.formula.symbols.available_param_functions(
+            param.ret,param.args)
         funclist.sort()
 
         menu = gtk.Menu()
@@ -184,7 +185,7 @@ class T(Threaded,gobject.GObject):
         table.attach(label,0,1,i,i+1,0,0,2,2)
 
         widget = gtk.OptionMenu()
-        menu = self.construct_function_menu()
+        menu = self.construct_function_menu(param)
         widget.set_menu(menu)
 
         def set_selected_function(*args):

@@ -87,8 +87,8 @@ def createDefaultDict():
                 Func([Complex, Complex], Complex, stdlib, "div"),
                 Func([Color, Float], Float, stdlib, "div")],
 
-        "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex]) + \
-              [ Func([Color, Float], Float, stdlib, "mul")],
+        "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex]), #+ \
+              #[ Func([Color, Float], Float, stdlib, "mul")],
 
         "+":  efl("add",   "[_,_] , _", [Int, Float, Complex, Color]),
         "-":  efl("sub",   "[_,_] , _", [Int, Float, Complex, Color]),
@@ -103,9 +103,9 @@ def createDefaultDict():
         # unary negation already factored out
 
         # logical ops
-        "&&": [ Func([Bool, Bool], Bool, stdlib, "booland") ],
-        "||": [ Func([Bool, Bool], Bool, stdlib, "boolor") ],
-        "!" : [ Func([Bool],Bool, stdlib, "boolnot") ],
+        "&&": [ Func([Bool, Bool], Bool, stdlib, None) ],
+        "||": [ Func([Bool, Bool], Bool, stdlib, None) ],
+        "!" : [ Func([Bool],Bool, stdlib, None) ],
 
         # predefined magic variables
         "t__h_pixel": Alias("pixel"),
@@ -242,14 +242,14 @@ class T(UserDict):
                         params[name] = sym
         return params
 
-    def available_param_functions(self):
+    def available_param_functions(self,ret,args):
         # a list of all function names which take a complex
         # and return one (for GUI to select a function)
         flist = []
         for (name,func) in self.default_dict.items():
             if isinstance(func,types.ListType):
                 for f in func:
-                    if f.ret == Complex and f.args == [ Complex] and \
+                    if f.ret == ret and f.args == args and \
                            not self.is_private(name):
                         flist.append(name)
         return flist

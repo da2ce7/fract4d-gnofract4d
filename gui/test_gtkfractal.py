@@ -51,7 +51,21 @@ class FctTest(unittest.TestCase):
 
         table = gtk.Table(5,2,gtk.FALSE)
         self.f.populate_formula_settings(table)
+
+        children = table.get_children()
+        list.reverse(children)
         
+        self.assertEqual(children[0].get_text(),"bailout")
+        self.assertEqual(children[1].get_text(),"4.00000000000000000")
+        self.assertEqual(children[2].get_text(),"myfunc")
+        optmenu =children[3]
+        self.assertEqual(optmenu.get_menu().funclist[optmenu.get_history()],
+                         "sqr")
+
+        bailoptmenu =children[5]
+        self.assertEqual(
+            bailoptmenu.get_menu().funclist[bailoptmenu.get_history()],"cabs")
+
         
     def testButton1(self):
         f = self.f
