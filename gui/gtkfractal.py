@@ -16,85 +16,6 @@ sys.path.append("..")
 
 from fract4d import fractal,fract4dc,fracttypes
 
-class Threaded(fractal.T):
-    def __init__(self,comp):
-        (r,w) = os.pipe()
-        self.readfd = r
-        self.nthreads = 1        
-        s = fract4dc.fdsite_create(w)
-        fractal.T.__init__(self,comp,s)
-        self.msgformat = "5i"
-        self.msgsize = struct.calcsize(self.msgformat)
-
-        self.name_of_msg = [
-            "PARAMS",
-            "IMAGE",
-            "PROGRESS",
-            "STATUS",
-            "PIXEL"
-            ]
-
-        self.skip_updates = False
-        self.running = False
-
-
-    def interrupt(self):
-        if self.skip_updates:
-            #print "skip recursive interrupt"
-            return
-        
-        self.skip_updates = True
-        
-        fract4dc.interrupt(self.site)
-
-        n = 0
-        # wait for stream from worker to flush
-        while self.running:
-            n += 1
-            gtk.main_iteration(True)
-
-        self.skip_updates = False
-
-    def draw(self,image,width,height):
-        self.cmap = fract4dc.cmap_create(self.colorlist)
-        (r,g,b,a) = self.solids[0]
-        fract4dc.cmap_set_solid(self.cmap,0,r,g,b,a)
-
-        #print "draw: init with %s" % self.initparams
-        t = self.tolerance(width,height)
-        fract4dc.pf_init(self.pfunc,t,self.initparams)
-
-        self.running = True
-        fract4dc.async_calc(self.params,self.antialias,self.maxiter,
-                            self.nthreads,
-                            self.pfunc,self.cmap,self.auto_deepen,
-                            image,self.site)
-
-    def onData(self,fd,condition):
-        bytes = os.read(fd,self.msgsize)
-        if len(bytes) < self.msgsize:
-            print "bad message: %s" % list(bytes)
-            return
-
-        (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
-        m = self.name_of_msg[t] 
-        #print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
-        if t == 0:
-            if not self.skip_updates: self.iters_changed(p1)
-        elif t == 1:
-            if not self.skip_updates: self.image_changed(p1,p2,p3,p4)
-        elif t == 2:
-            if not self.skip_updates: self.progress_changed(float(p1))
-        elif t == 3:
-            if p1 == 0: # DONE
-                self.running = False
-            if not self.skip_updates: self.status_changed(p1)
-        elif t == 4:
-            # FIXME pixel_changed
-            pass
-        else:
-            raise Exception("Unknown message from fractal thread")
-
 class T(gobject.GObject):
     __gsignals__ = {
         'parameters-changed' : (
@@ -111,13 +32,29 @@ class T(gobject.GObject):
     def __init__(self,comp):
         gobject.GObject.__init__(self) # MUST be called before threaded.init
 
-        f = self.f = Threaded(comp)
-        f.iters_changed = self.iters_changed
-        f.image_changed = self.image_changed
-        f.progress_changed = self.progress_changed
-        f.status_changed = self.status_changed
+        (self.readfd,self.writefd) = os.pipe()
+        self.nthreads = 1        
+
+        s = fract4dc.fdsite_create(self.writefd)
+        f = fractal.T(comp,s)
+        self.msgformat = "5i"
+        self.msgsize = struct.calcsize(self.msgformat)
+
+        self.name_of_msg = [
+            "PARAMS",
+            "IMAGE",
+            "PROGRESS",
+            "STATUS",
+            "PIXEL"
+            ]
+
+        self.skip_updates = False
+        self.running = False
+
+        self.f = None
+        self.set_fractal(f)
         
-        gtk.input_add(self.f.readfd, gtk.gdk.INPUT_READ, self.f.onData)
+        gtk.input_add(self.readfd, gtk.gdk.INPUT_READ, self.onData)
         
         self.width = 640
         self.height = 480
@@ -140,6 +77,65 @@ class T(gobject.GObject):
 
         self.widget = drawing_area
         self.f.compile()
+
+    def interrupt(self):
+        print "interrupted %d" % self.running
+        if self.skip_updates:
+            #print "skip recursive interrupt"
+            return
+        
+        self.skip_updates = True
+        
+        fract4dc.interrupt(self.site)
+
+        n = 0
+        # wait for stream from worker to flush
+        while self.running:
+            n += 1
+            gtk.main_iteration(True)
+
+        self.skip_updates = False
+
+    def draw(self,image,width,height,nthreads):
+        self.cmap = fract4dc.cmap_create(self.colorlist)
+        (r,g,b,a) = self.f.solids[0]
+        fract4dc.cmap_set_solid(self.cmap,0,r,g,b,a)
+
+        print "draw: init with %s" % self.initparams
+        t = self.f.tolerance(width,height)
+        fract4dc.pf_init(self.f.pfunc,t,self.f.initparams)
+
+        self.running = True
+        fract4dc.async_calc(self.f.params,self.f.antialias,self.f.maxiter,
+                            nthreads,
+                            self.f.pfunc,self.cmap,self.f.auto_deepen,
+                            image,self.site)
+
+    def onData(self,fd,condition):
+        bytes = os.read(fd,self.msgsize)
+        if len(bytes) < self.msgsize:
+            print "bad message: %s" % list(bytes)
+            return
+
+        (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
+        m = self.name_of_msg[t] 
+        #print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
+        if t == 0:
+            if not self.skip_updates: self.iters_changed(p1)
+        elif t == 1:
+            if not self.skip_updates: self.image_changed(p1,p2,p3,p4)
+        elif t == 2:
+            if not self.skip_updates: self.progress_changed(float(p1))
+        elif t == 3:
+            if p1 == 0: # DONE
+                print "stop running"
+                self.running = False
+            if not self.skip_updates: self.status_changed(p1)
+        elif t == 4:
+            # FIXME pixel_changed
+            pass
+        else:
+            raise Exception("Unknown message from fractal thread")
 
     def __getattr__(self,name):
         return getattr(self.f,name)
@@ -193,6 +189,12 @@ class T(gobject.GObject):
 
         return menu
 
+    def set_fractal(self,f):
+        if f != self.f:
+            if self.f:
+                self.interrupt()
+            self.f = f
+        
     def set_auto_deepen(self,deepen):
         if self.f.auto_deepen != deepen:
             self.f.auto_deepen = deepen
@@ -300,6 +302,12 @@ class T(gobject.GObject):
         self.emit('parameters-changed')
 
     def loadFctFile(self,file):
+        #new_f = Threaded(self.compiler,self.writefd)
+        #print "l1:" , self.f.running
+        #new_f.loadFctFile(file)
+        #print "l2:" , new_f.running
+        #self.set_fractal(new_f)
+        #print "l3:" , self.f.running
         self.f.loadFctFile(file)
         self.emit('parameters-changed')
         
@@ -314,9 +322,10 @@ class T(gobject.GObject):
         pixbuf.save(filename,"png")
         
     def draw_image(self):
-        self.f.interrupt()
+        print "draw: %d" % self.running
+        self.interrupt()
         self.f.compile()
-        self.f.draw(self.image,self.width,self.height)
+        self.draw(self.image,self.width,self.height,self.nthreads)
         return gtk.FALSE
 
     def set_initparam(self,n,val):
@@ -405,6 +414,7 @@ class T(gobject.GObject):
         dx = (x - self.width/2.0)/self.width
         dy = (y - self.height/2.0)/self.width
         self.relocate(dx,dy,zoom)
+        print "params changed"
         self.emit('parameters-changed')
         
     def redraw_rect(self,x,y,w,h):
