@@ -155,6 +155,9 @@ def Param(id,settinglist,type):
 def Func(id,settinglist):
     return Node("func", settinglist, id)
 
+def Repeat(body,test):
+    return Node("repeat", [test, Stmlist("",body)], "")
+
 def If(test, left, right):
     return Node("if",
                 [test, Stmlist("",left), Stmlist("",right)], "")
