@@ -93,6 +93,14 @@ rgb_colorizer::~rgb_colorizer()
 
 }
 
+bool 
+rgb_colorizer::operator==(const colorizer& c) const
+{
+    const rgb_colorizer *rgb = dynamic_cast<const rgb_colorizer *>(&c);
+    if(!rgb) return false;
+    return rgb->r == r && rgb->g == g && rgb->b == b;
+}
+
 void
 rgb_colorizer::set_colors(double _r, double _g, double _b)
 {
@@ -194,6 +202,14 @@ e_colorizer
 cmap_colorizer::type() const 
 {
     return COLORIZER_CMAP;
+}
+
+bool 
+cmap_colorizer::operator==(const colorizer& c) const
+{
+    const cmap_colorizer *cmap = dynamic_cast<const cmap_colorizer *>(&c);
+    if(!cmap) return false;
+    return cmap->name == name;
 }
 
 rgb_t

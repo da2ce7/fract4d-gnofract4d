@@ -105,6 +105,29 @@ fractal::operator=(const fractal& f)
     return *this;
 }
 
+// equality 
+bool 
+fractal::operator==(const fractal& f) 
+{
+    for(int i = 0 ; i < N_PARAMS ; i++)
+    {
+        if(params[i] != f.params[i]) return false;
+    }
+    if(maxiter != f.maxiter) return false;
+    if(fractal_type != f.fractal_type) return false;
+    if(antialias != f.antialias) return false;
+    if(auto_deepen != f.auto_deepen) return false;
+    if(digits != f.digits) return false;
+    if(rot_by != f.rot_by) return false;
+
+    // FIXME: compare colorizers cizer = f.cizer->clone();
+    if(*cizer != *f.cizer) return false;
+    if(potential != f.potential) return false;
+    if(bailout_type != f.bailout_type) return false;
+    
+    return true;
+}
+
 /* x & y vary by up to 50% of the size */
 
 static double

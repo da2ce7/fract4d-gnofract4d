@@ -4,9 +4,6 @@ INCLUDES = \
 	-I$(top_srcdir)/intl \
 	$(GNOME_INCLUDEDIR)
 
-CXXFLAGS= -g -O3
-LDFLAGS = -g -O3
-
 bin_PROGRAMS = gnofract4d
 
 gnofract4d_SOURCES = \

@@ -479,6 +479,11 @@ gf4d_fractal_parameters_changed(Gf4dFractal *f)
     gtk_signal_emit(GTK_OBJECT(f), fractal_signals[PARAMETERS_CHANGED]); 
 }
 
+gboolean gf4d_fractal_is_equal(Gf4dFractal *f, Gf4dFractal *f2)
+{
+    return (gboolean)(*(f->f) == *(f2->f));
+}
+
 static void
 gf4d_fractal_enter_callback(Gf4dFractal *f)
 {

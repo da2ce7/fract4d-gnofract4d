@@ -95,28 +95,27 @@ static void
 model_restore_old_fractal(gpointer undo_data)
 {
     undo_action_data *p = (undo_action_data *)undo_data;
-    //g_print("restoring old %x on %x\n",p,pthread_self());
-    p->m->commandInProgress = true;
+    model_set_cmd_in_progress(p->m,true);
     gf4d_fractal_set_fract(p->m->fract, p->old);
-    //g_print("restoring: set_fract\n");
     gf4d_fractal_parameters_changed(p->m->fract);
-    //g_print("restoring: changed\n");
     model_update_subfracts(p->m);	
-    //g_print("done restoring old %x\n",p);
-    p->m->commandInProgress = false;
+    model_set_cmd_in_progress(p->m,false);
+}
+
+void model_set_cmd_in_progress(model_t *m, int val)
+{
+    m->commandInProgress = (bool)val;
 }
 
 static void
 model_restore_new_fractal(gpointer undo_data)
 {
     undo_action_data *p = (undo_action_data *)undo_data;
-    p->m->commandInProgress = true;
-    //g_print("restoring new %x on %x\n",p,pthread_self());
+    model_set_cmd_in_progress(p->m,true);
     gf4d_fractal_set_fract(p->m->fract, p->new_);
     gf4d_fractal_parameters_changed(p->m->fract);
     model_update_subfracts(p->m);
-    //g_print("done restoring new %x\n",p);
-    p->m->commandInProgress = false;
+    model_set_cmd_in_progress(p->m,false);
 }
 
 static void
@@ -225,11 +224,9 @@ model_cmd_start(model_t *m)
 {
     if(m->commandInProgress) return false;
 
-    // g_print("do\n");
-    m->commandInProgress = true;
+    model_set_cmd_in_progress(m,true);
     // invoke copy constructor to get original fractal before update
     m->old_fract = gf4d_fractal_copy_fract(m->fract);
-    // g_print("done do\n");
     return true;
 }
 
@@ -262,7 +259,6 @@ model_cmd_finish(model_t *m)
     g_assert(m->commandInProgress);
 
     undo_action_data *p = new undo_action_data;
-    // g_print("creating %x on %x\n",p,pthread_self());
     p->m = m;
     p->old = m->old_fract;
     p->new_ = gf4d_fractal_copy_fract(m->fract);
@@ -272,8 +268,7 @@ model_cmd_finish(model_t *m)
     gf4d_fractal_parameters_changed(m->fract);
     model_update_subfracts(m);
 
-    m->commandInProgress=false;
-    // g_print("done creating %x\n",p);
+    model_set_cmd_in_progress(m,false);
 }
 
 void

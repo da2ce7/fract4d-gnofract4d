@@ -57,6 +57,9 @@ extern "C" {
     int model_cmd_save(model_t *m, char *filename);
     int model_cmd_load(model_t *m, char *filename);
 
+    // used to avoid otherwise recursive commands
+    void model_set_cmd_in_progress(model_t *m, int val);
+
     /* called by the fractal to tell us what it's up to */
     void model_status_callback(Gf4dFractal *f, gint val, model_t *m);
 

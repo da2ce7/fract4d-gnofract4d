@@ -62,6 +62,7 @@ struct fractal
     fractal();
     fractal(const fractal& f); // copy ctor
     fractal& operator=(const fractal& f); // assignment op
+    bool operator==(const fractal& f); // equality 
     ~fractal();
 
     // make this fractal like f but weirder

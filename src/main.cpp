@@ -117,7 +117,6 @@ main (int argc, char *argv[])
     app = create_app (m);
     gtk_widget_show (app);
 
-    g_print("got to main\n");
     gtk_main ();
     gdk_threads_leave();
 

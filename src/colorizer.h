@@ -23,7 +23,7 @@ class colorizer {
 
     virtual ostream& put(ostream&) const = 0;
     virtual istream& get(istream&) = 0;
-
+    virtual bool operator==(const colorizer&) const = 0;
 };
 
 std::ostream& operator<<(std::ostream& s, const colorizer& cizer);
@@ -46,6 +46,7 @@ class rgb_colorizer : public colorizer{
 
     e_colorizer type() const;
     rgb_t operator()(int iter, scratch_space scratch, bool potential) const;
+    bool operator==(const colorizer&) const;
 
     friend ostream& operator<<(ostream&, const rgb_colorizer&);
     friend istream& operator>>(istream&, rgb_colorizer&);
@@ -68,6 +69,7 @@ class cmap_colorizer : public colorizer {
     ~cmap_colorizer();
     cmap_colorizer(const cmap_colorizer&);
     cmap_colorizer& operator=(const cmap_colorizer&);
+    bool operator==(const colorizer& c) const;
 
     colorizer* clone() const { return new cmap_colorizer(*this); }
 
