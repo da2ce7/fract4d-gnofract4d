@@ -136,6 +136,15 @@ def sub_cc_c(gen,t,srcs):
         gen.emit_binop('-',imags(srcs), Float))
     return dst
 
+def sub_hh_h(gen,t,srcs):
+    # subtract 2 hypercomplex numbers
+    dst = HyperArg(
+        gen.emit_binop('-',parts(0,srcs), Float),
+        gen.emit_binop('-',parts(1,srcs), Float),
+        gen.emit_binop('-',parts(2,srcs), Float),
+        gen.emit_binop('-',parts(3,srcs), Float))
+    return dst
+    
 def div_cc_c(gen,t,srcs):
     # (a+ib)/(c+id) = (a+ib)*(c-id) / (c+id)*(c-id)
     # = (ac + bd + i(bc - ad))/mag(c+id)

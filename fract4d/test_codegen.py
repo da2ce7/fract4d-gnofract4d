@@ -600,6 +600,7 @@ func fn1
         init:
         hyper x = (1,2,-3,4)
         hyper y = x + (4,1,-1,0)
+        hyper hm = x - (1,1,1,-1)
         hyper h2 = x * y
         hyper h3 = y * x ; check commutativity
         float m = |x|
@@ -609,13 +610,15 @@ func fn1
                          self.inspect_hyper("y") +
                          self.inspect_hyper("h2") +
                          self.inspect_hyper("h3") +
+                         self.inspect_hyper("hm") +
                          self.inspect_float("m"),
                          "x = (1,2,-3,4)\n" +
                          "y = (5,3,-4,4)\n" +
                          "h2 = (3,41,-39,7)\n" +
                          "h3 = (3,41,-39,7)\n" +
+                         "hm = (0,1,-4,5)\n" +
                          "m = 30")
-
+        
         # access to parts
         src = '''t_hyper3 {
         init:
