@@ -37,7 +37,7 @@ class colorizer {
     virtual colorizer *clone() const = 0;
 
     virtual e_colorizer type(void) const = 0;
-    virtual rgb_t operator()(double dist) const = 0;
+    virtual rgb_t calc(double dist) const = 0;
     virtual bool operator==(const colorizer&) const = 0;
 
     virtual std::ostream& put(std::ostream&) const = 0;
@@ -63,7 +63,7 @@ class rgb_colorizer : public colorizer{
     colorizer* clone() const { return new rgb_colorizer(*this); }
 
     e_colorizer type() const;
-    rgb_t operator()(double dist) const;
+    rgb_t calc(double dist) const;
     bool operator==(const colorizer&) const;
 
     friend std::ostream& operator<<(std::ostream&, const rgb_colorizer&);
@@ -91,7 +91,7 @@ class cmap_colorizer : public colorizer {
     colorizer* clone() const { return new cmap_colorizer(*this); }
 
     e_colorizer type() const;
-    rgb_t operator()(double dist) const;
+    rgb_t calc(double dist) const;
 
     friend std::ostream& operator<<(std::ostream&, const cmap_colorizer&);
     friend std::istream& operator>>(std::istream&, cmap_colorizer&);

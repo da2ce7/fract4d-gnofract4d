@@ -116,7 +116,7 @@ compiler::compile(std::string commandLine)
     {
         on_error(
 	    std::string("Error compiling fractal code. "
-                        "Check your compiler settings.'"),
+                        "Check your compiler settings."),
 	    std::string("Error was: '") + strerror(errno) + 
 			"'\n\n" + "Command used was:\n\n" +
 			commandLine + "\n\nCompiler output was:\n\n" +

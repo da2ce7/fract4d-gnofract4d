@@ -25,9 +25,59 @@
 #include "iterFunc.h"
 #include "bailFunc.h"
 #include "compiler.h"
+#include "colorizer.h"
 
 #include <unistd.h>
 #include <dlfcn.h>
+
+
+class pf_wrapper : public pointFunc
+{
+private:
+    inner_pointFunc *m_pf;
+    colorizer *m_pcizer;
+
+public:
+    pf_wrapper(inner_pointFunc *pf, colorizer *pcizer) : 
+	m_pf(pf), m_pcizer(pcizer)
+	{
+
+	}
+    virtual void calc(
+        // in params
+        const double *params, int nIters, int nNoPeriodIters,
+	// only used for debugging
+	int x, int y, int aa,
+        // out params
+        struct rgb *color, int *pnIters, void *out_buf)
+	{
+	    double colorDist;
+	    m_pf->calc(params,nIters, nNoPeriodIters, x , y, aa, 
+		       &colorDist, pnIters, out_buf);
+
+	    if(color)
+	    {
+		*color = m_pcizer->calc(colorDist);
+	    }
+	}
+    virtual ~pf_wrapper()
+	{
+	    delete m_pf;
+	}
+    virtual rgb_t recolor(int iter, double eject, const void *buf) const
+	{
+	    double dist = m_pf->recolor(iter, eject, buf);
+            return m_pcizer->calc(dist);
+	}
+    virtual void *handle()
+	{
+	    return m_pf->handle();
+	}
+    virtual int buffer_size() const
+	{
+	    return m_pf->buffer_size();
+	}
+};
 
 pointFunc *pointFunc_new(
     iterFunc *iterType, 
@@ -38,9 +88,6 @@ pointFunc *pointFunc_new(
     e_colorFunc outerCfType,
     e_colorFunc innerCfType)
 {
-#ifdef STATIC_FUNCTION
-    return (pointFunc *)create_pointfunc(NULL,bailout,periodicity_tolerance, pcf,outerCfType,innerCfType);
-#else
     bailFunc *b = bailFunc_new(bailType);
 
     std::map<std::string,std::string> code_map;
@@ -48,15 +95,14 @@ pointFunc *pointFunc_new(
     b->get_code(code_map, iterType->flags());
     void *dlHandle = g_pCompiler->getHandle(code_map);
 
-    pointFunc *(*pFunc)(
+    inner_pointFunc *(*pFunc)(
         void *, 
         double, 
         double, 
         std::complex<double> *,
-        colorizer *, 
         e_colorFunc, 
         e_colorFunc) = 
-        (pointFunc *(*)(void *, double, double, std::complex<double> *, colorizer *, e_colorFunc, e_colorFunc)) 
+        (inner_pointFunc *(*)(void *, double, double, std::complex<double> *, e_colorFunc, e_colorFunc)) 
         dlsym(dlHandle, "create_pointfunc");
 
     if(NULL == pFunc)
@@ -64,8 +110,11 @@ pointFunc *pointFunc_new(
         return NULL;
     }
 
-    return pFunc(dlHandle, bailout, periodicity_tolerance, iterType->opts(), pcf, outerCfType, innerCfType);
-#endif
+    inner_pointFunc *inner_pf = pFunc(
+	dlHandle, bailout, periodicity_tolerance, 
+	iterType->opts(), outerCfType, innerCfType);
+
+    return new pf_wrapper(inner_pf, pcf);
 }
 
 /* can't just call dtor because we need to free the handle to the .so

@@ -3,10 +3,10 @@
 #include "colorizer.h"
 
 #include <math.h>
-#include <iostream>
 #include <complex>
 #include <algorithm>
 #if TRACE
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
@@ -19,7 +19,7 @@ typedef double T;
 enum {VX, VY, VZ, VW};		    // axes
 
 
-class pointCalc : public pointFunc {
+class pointCalc : public inner_pointFunc {
 private:
     /* members */
     colorFunc *m_pOuterColor, *m_pInnerColor;
@@ -42,10 +42,9 @@ public:
               double eject,
               double period_tolerance,
               std::complex<double> *options,
-              colorizer *pcizer,
               e_colorFunc outerCfType,
               e_colorFunc innerCfType) 
-        : m_eject(eject), m_period_tolerance(period_tolerance), m_pcizer(pcizer), m_handle(handle)
+        : m_eject(eject), m_period_tolerance(period_tolerance), m_handle(handle)
         {
 #if N_OPTIONS > 0
             for(int i = 0; i < N_OPTIONS; ++i)
@@ -81,14 +80,14 @@ public:
 		return m_pOuterColor;
 	    }
 	}
-    inline rgb_t colorize(int iter, const T*p, void *out_buf)
+    inline double colorize(int iter, const T*p, void *out_buf)
         {
             double colorDist;
 	    colorFunc *pcf = getColorFunc(iter);
 	    pcf->extract_state(p,out_buf);
 	    colorDist = (*pcf)(iter, p[EJECT],out_buf);
 
-            return (*m_pcizer)(colorDist);
+            return colorDist; 
         }
 
     /* do some iterations without periodicity */
@@ -212,7 +211,7 @@ public:
     void calc(
         const T *params, int nMaxIters, int nNoPeriodIters,
 	int x, int y, int aa,
-        struct rgb *color, int *pnIters, void *out_buf
+        double *colorDist, int *pnIters, void *out_buf
         )
         {
 #if TRACE
@@ -272,17 +271,14 @@ public:
 #if TRACE
             (*out) << iter << "\n";
 #endif
-            if(color)
-            {
-                *color = colorize(iter,p,out_buf);
-            }
+	    *colorDist = colorize(iter,p,out_buf);
         };
     
-    virtual rgb_t recolor(int iter, double eject, const void *buf) const
+    virtual double recolor(int iter, double eject, const void *buf) const
         {
 	    colorFunc *pcf = getColorFunc(iter);
 	    double dist = (*pcf)(iter, eject, buf);
-            return (*m_pcizer)(dist);
+	    return dist;
         }
     virtual void *handle()
         {
@@ -301,7 +297,6 @@ extern "C" {
         double bailout,
         double period_tolerance,
         std::complex<double> *params,
-        colorizer *pcizer,        
         e_colorFunc outerCfType,
         e_colorFunc innerCfType)
     {
@@ -310,7 +305,6 @@ extern "C" {
             bailout, 
             period_tolerance, 
             params, 
-            pcizer, 
             outerCfType, 
             innerCfType);
     }

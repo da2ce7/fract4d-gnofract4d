@@ -41,6 +41,22 @@ class pointFunc {
     virtual void *handle() = 0;
     virtual int buffer_size() const = 0;
 };
+ 
+class inner_pointFunc {
+ public:
+    virtual void calc(
+        // in params
+        const double *params, int nIters, int nNoPeriodIters,
+	// only used for debugging
+	int x, int y, int aa,
+        // out params
+        double *colorDist, int *pnIters, void *out_buf
+        ) = 0;
+    virtual double recolor(int iter, double eject, const void *buf) const = 0;
+    virtual void *handle() = 0;
+    virtual int buffer_size() const = 0;
+};
+
 
 /* factory method for making new fractFuncs */
 pointFunc *pointFunc_new(

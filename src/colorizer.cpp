@@ -122,7 +122,7 @@ rgb_colorizer::set_colors(double _r, double _g, double _b)
 }
 
 rgb_t
-rgb_colorizer::operator()(double dist) const
+rgb_colorizer::calc(double dist) const
 {
     struct rgb pixel;
     pixel.r = (char)(dist * cr);
@@ -246,7 +246,7 @@ cmap_colorizer::operator==(const colorizer& c) const
 }
 
 rgb_t
-cmap_colorizer::operator()(double dist) const
+cmap_colorizer::calc(double dist) const
 {
     // only exact zeroes count as color 0
     if(dist == 0.0)
