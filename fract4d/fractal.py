@@ -86,6 +86,9 @@ class Colorizer(FctUtils):
         
     def parse_file(self,val,f):
         mapfile = open(val)
+        self.parse_map_file(mapfile)
+
+    def parse_map_file(self,mapfile):
         i = 0
         for line in mapfile:
             m = rgb_re.match(line)
@@ -192,6 +195,14 @@ class T(FctUtils):
         
         self.set_formula_defaults()
 
+    def set_cmap(self,mapfile):
+        c = Colorizer()
+        file = open(mapfile)
+        c.parse_map_file(file)
+        self.colorlist = c.colorlist
+        self.solids[0] = c.solid
+        self.changed()
+        
     def set_initparam(self,n,val):
         val = float(val)
         if self.initparams[n] != val:
