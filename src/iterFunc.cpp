@@ -134,7 +134,7 @@ public:
             code_map["ITER"]=iter_code();
             code_map["DECL"]=decl_code();
             code_map["RET"]= ret_code();
-            ostringstream os; 
+            std::ostringstream os; 
             os << nOptions();
             code_map["N_OPTIONS"]= os.str();
             code_map["SAVE_ITER"]=save_iter_code();
@@ -177,7 +177,7 @@ operator>>(std::istream& s, iterImpl<T, NOPTIONS>& m)
         {
             if(0 == strcmp(name.c_str(),m.optionName(i)))
             {
-                std::istrstream vs(val.c_str());
+                std::istringstream vs(val.c_str());
                 std::complex<double> opt;
                 vs >> opt;
                 m.setOption(i,opt);

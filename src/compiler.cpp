@@ -72,7 +72,7 @@ compiler::set_cache_dir(const char *s)
 std::string
 compiler::Dstring(std::map<std::string,std::string> defn_map)
 {
-    ostringstream os;
+    std::ostringstream os;
     std::map<std::string,std::string>::iterator i;
     for(i = defn_map.begin(); i != defn_map.end(); ++i)
     {
@@ -88,7 +88,7 @@ compiler::compile(std::string commandLine)
     char buf[PATH_MAX];
     std::string complaints;
 
-    cout << commandLine << std::endl;
+    std::cout << commandLine << std::endl;
     FILE *compiler_output = popen(commandLine.c_str(),"r");
     if(NULL == compiler_output)
     {
@@ -135,7 +135,7 @@ compiler::getHandle(std::map<std::string,std::string> defn_map)
     t_cache::iterator i = cache.find(find);
     if(i == cache.end())
     {
-        ostringstream os;
+        std::ostringstream os;
         os << so_cache_dir << "/fract" << (next_so++) << ".so";
         out = os.str();
 
@@ -183,16 +183,16 @@ compiler::flow(std::string in)
     std::string::size_type max_width = 40;
     std::string::size_type last_break_pos = 0;
     std::string::size_type last_space_pos = in.find(' ');
-    if(last_space_pos == string::npos)
+    if(last_space_pos == std::string::npos)
     {
         return in;
     }
-    ostringstream os;
+    std::ostringstream os;
 
     os << in.substr(0,last_space_pos);
 
     std::string::size_type this_space_pos;
-    while((this_space_pos = in.find(' ', last_space_pos+1)) != string::npos)
+    while((this_space_pos = in.find(' ', last_space_pos+1)) != std::string::npos)
     {
         if(this_space_pos - last_break_pos > max_width)
         {

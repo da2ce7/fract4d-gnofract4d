@@ -23,11 +23,6 @@
 #endif
 
 #include <stdlib.h>
-#include <stdio.h>
-
-#ifndef _WIN32
-#include <gnome.h> // g_warning, mostly
-#endif
 
 #include "calc.h"
 #include "fractFunc.h"
@@ -37,6 +32,7 @@
 #include <queue>
 #include <cmath>
 #include <iomanip>
+#include <sstream>
 
 #ifdef _WIN32
 #include "win_drand.h"
@@ -350,7 +346,7 @@ fractal::load_params(const char *filename)
         {
             break;
         }
-        std::istrstream vs(val.c_str());
+        std::istringstream vs(val.c_str());
 
         if(FIELD_VERSION==name)
             ; // do nothing with it for now
@@ -669,6 +665,6 @@ d
 fractal::tolerance(image *im)
 {
     // 10% of the size of a pixel
-    d t = params[MAGNITUDE]/(2 * max(im->Xres(),im->Yres()) * 10.0);
+    d t = params[MAGNITUDE]/(2 * std::max(im->Xres(),im->Yres()) * 10.0);
     return t;
 }

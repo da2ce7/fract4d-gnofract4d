@@ -203,6 +203,15 @@ model_free_undo_data(gpointer undo_data)
     //g_print("done deleting %x\n",p);
 }
 
+
+static void fatal_config_error(char *msg)
+{
+    GtkWidget *msgbox = gnome_error_dialog(msg);
+    gtk_window_set_modal(GTK_WINDOW(msgbox), TRUE);
+    gnome_dialog_run(GNOME_DIALOG(msgbox));
+    exit(-1);
+}
+
 void
 model_init_compiler(model_t *m,compiler *pc)
 {
@@ -212,6 +221,11 @@ model_init_compiler(model_t *m,compiler *pc)
     if(NULL == template_location)
     {
         template_location = gnome_datadir_file(PACKAGE "/compiler_template.cpp");
+    }
+
+    if(NULL == template_location)
+    {
+	fatal_config_error(_("Can't find compiler_template.cpp. Please reinstall."));
     }
     pc->in = template_location;
 

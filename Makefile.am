@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = intl po macros src doc 
+SUBDIRS = m4  po macros src doc 
 
 install-data-local:
 	@$(NORMAL_INSTALL)
@@ -39,9 +39,11 @@ dist-hook:
 	  done \
 	fi
 
-EXTRA_DIST = \
+EXTRA_DIST = config.rpath  \
 	gnofract4d.desktop 
 
 Graphicsdir= $(datadir)/gnome/apps/Graphics
 Graphics_DATA=gnofract4d.desktop
 
+
+ACLOCAL_AMFLAGS = -I m4

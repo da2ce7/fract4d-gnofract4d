@@ -24,7 +24,6 @@
 #define _IO_H_
 
 #include <fstream>
-#include <strstream>
 #include <string>
 
 bool read_field(std::istream& is, std::string& name, std::string& val);

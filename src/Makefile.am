@@ -42,6 +42,19 @@ gnofract4d_SOURCES = \
 	compiler.h compiler.cpp \
 	preferences.h preferences.cpp
 
+Codedir = $(datadir)/gnofract4d
+Code_DATA= compiler_template.cpp \
+	iterFunc.h \
+	colorizer.h \
+	colorizer_public.h \
+	pointFunc.h \
+	pointFunc_public.h \
+	fract_public.h \
+	calc.h \
+	colorFunc.h \
+	bailFunc.h \
+	vectors.h
+
 #itertest_SOURCES = \
 #	io.h io.cpp \
 #	colorizer.cpp colorizer.h colorizer_public.h \

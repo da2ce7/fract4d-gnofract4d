@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-12-10 21:20-0800\n"
+"POT-Creation-Date: 2002-12-04 00:30-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,255 +14,272 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: ENCODING\n"
 
-#: src/drawingareas.cpp:205
+#: src/drawingareas.cpp:206
 msgid "finished"
 msgstr ""
 
-#: src/drawingareas.cpp:207
+#: src/drawingareas.cpp:208
 #, c-format
 msgid "deepening(%d iterations)..."
 msgstr ""
 
-#: src/drawingareas.cpp:209
+#: src/drawingareas.cpp:210
 msgid "antialiasing..."
 msgstr ""
 
-#: src/drawingareas.cpp:210
+#: src/drawingareas.cpp:211
 #, fuzzy
 msgid "calculating..."
 msgstr " calcul en cours ..."
 
-#: src/drawingareas.cpp:211
+#: src/drawingareas.cpp:212
 msgid "paused"
 msgstr ""
 
-#: src/drawingareas.cpp:212
+#: src/drawingareas.cpp:213
+#, fuzzy
+msgid "compiling..."
+msgstr " calcul en cours ..."
+
+#: src/drawingareas.cpp:214
 msgid "error"
 msgstr ""
 
-#: src/interface.cpp:40
+#: src/interface.cpp:41
 #, fuzzy
 msgid "Gnofract4D"
 msgstr "Gnofract"
 
-#: src/main.cpp:59
+#: src/main.cpp:61
 msgid "Load a parameter file at startup"
 msgstr ""
 
-#: src/main.cpp:60
+#: src/main.cpp:62
 msgid "PARAM.FCT"
 msgstr ""
 
-#: src/main.cpp:68
+#: src/main.cpp:70
 msgid "X Coordinate"
 msgstr ""
 
-#: src/main.cpp:69
+#: src/main.cpp:71
 msgid "2.5768939"
 msgstr ""
 
-#: src/main.cpp:77
+#: src/main.cpp:79
 msgid "Y Coordinate"
 msgstr ""
 
-#: src/main.cpp:78
+#: src/main.cpp:80
 msgid "1.0020343"
 msgstr ""
 
-#: src/main.cpp:86
+#: src/main.cpp:88
 msgid "Z Coordinate"
 msgstr ""
 
-#: src/main.cpp:87
+#: src/main.cpp:89
 msgid "0.0002303"
 msgstr ""
 
-#: src/main.cpp:95
+#: src/main.cpp:97
 msgid "W Coordinate"
 msgstr ""
 
-#: src/main.cpp:96
+#: src/main.cpp:98
 msgid "0.1341453"
 msgstr ""
 
-#: src/main.cpp:104
+#: src/main.cpp:106
 msgid "XY Angle"
 msgstr ""
 
-#: src/main.cpp:105
+#: src/main.cpp:107
 msgid "4.4265632"
 msgstr ""
 
-#: src/main.cpp:113
+#: src/main.cpp:115
 msgid "XZ Angle"
 msgstr ""
 
-#: src/main.cpp:114
+#: src/main.cpp:116
 msgid "1.9782122"
 msgstr ""
 
-#: src/main.cpp:122
+#: src/main.cpp:124
 msgid "XW Angle"
 msgstr ""
 
-#: src/main.cpp:123
+#: src/main.cpp:125
 msgid "2.7818281"
 msgstr ""
 
-#: src/main.cpp:131
+#: src/main.cpp:133
 msgid "YZ Angle"
 msgstr ""
 
-#: src/main.cpp:132
+#: src/main.cpp:134
 msgid "3.1415926"
 msgstr ""
 
-#: src/main.cpp:140
+#: src/main.cpp:142
 msgid "YW Angle"
 msgstr ""
 
-#: src/main.cpp:141
+#: src/main.cpp:143
 msgid "2.4987611"
 msgstr ""
 
-#: src/main.cpp:149
+#: src/main.cpp:151
 msgid "ZW Angle"
 msgstr ""
 
-#: src/main.cpp:150
+#: src/main.cpp:152
 msgid "2.4673331"
 msgstr ""
 
-#: src/main.cpp:158
+#: src/main.cpp:160
 msgid "Size"
 msgstr ""
 
-#: src/main.cpp:159
+#: src/main.cpp:161
 msgid "8.0033211"
 msgstr ""
 
-#: src/main.cpp:167
+#: src/main.cpp:169
 msgid "Red component of base color (0-255)"
 msgstr ""
 
-#: src/main.cpp:168
+#: src/main.cpp:170
 msgid "89"
 msgstr ""
 
-#: src/main.cpp:176
+#: src/main.cpp:178
 msgid "Green component of base color (0-255)"
 msgstr ""
 
-#: src/main.cpp:177
+#: src/main.cpp:179
 msgid "78"
 msgstr ""
 
-#: src/main.cpp:185
+#: src/main.cpp:187
 msgid "Blue component of base color (0-255)"
 msgstr ""
 
-#: src/main.cpp:186
+#: src/main.cpp:188
 msgid "255"
 msgstr ""
 
-#: src/main.cpp:194
+#: src/main.cpp:196
 msgid "Filename of colormap file to use"
 msgstr ""
 
-#: src/main.cpp:195
+#: src/main.cpp:197
 msgid "FOO.MAP"
 msgstr ""
 
-#: src/main.cpp:203
+#: src/main.cpp:205
 #, fuzzy
 msgid "Image Width"
 msgstr "Image"
 
-#: src/main.cpp:204
+#: src/main.cpp:206
 msgid "1024"
 msgstr ""
 
-#: src/main.cpp:212
+#: src/main.cpp:214
 #, fuzzy
 msgid "Image height"
 msgstr "hauteur"
 
-#: src/main.cpp:213
+#: src/main.cpp:215
 msgid "768"
 msgstr ""
 
-#: src/main.cpp:221
+#: src/main.cpp:223
 #, fuzzy
 msgid "Save image to this file"
 msgstr "Enregistrer l'image"
 
-#: src/main.cpp:222
+#: src/main.cpp:224
 msgid "IMAGE.PNG"
 msgstr ""
 
-#: src/main.cpp:230
+#: src/main.cpp:232
 msgid "Exit after calculating the fractal"
 msgstr ""
 
-#: src/main.cpp:239
+#: src/main.cpp:241
 msgid "Number of calculation threads to use"
 msgstr ""
 
-#: src/main.cpp:240
+#: src/main.cpp:242
 msgid "1"
 msgstr ""
 
-#: src/menus.cpp:121
+#: src/main.cpp:250
+msgid "Additional flags to compiler"
+msgstr ""
+
+#: src/main.cpp:251
+msgid "\"-DNOPERIOD\""
+msgstr ""
+
+#: src/menus.cpp:122
 #, fuzzy
 msgid "Save Image as"
 msgstr "Enregistrer l'image"
 
-#: src/menus.cpp:122
+#: src/menus.cpp:123
 msgid "image.png"
 msgstr "image.png"
 
-#: src/menus.cpp:130
+#: src/menus.cpp:131
 #, fuzzy
 msgid "Save Parameters as"
-msgstr "Enregistrer les paramètres"
+msgstr "Enregistrer les paramtres"
 
-#: src/menus.cpp:131 src/menus.cpp:140
+#: src/menus.cpp:132 src/menus.cpp:141
 msgid "param.fct"
 msgstr "param.fct"
 
-#: src/menus.cpp:139
+#: src/menus.cpp:140
 #, fuzzy
 msgid "Load Parameters"
-msgstr "Charger les paramètres"
+msgstr "Charger les paramtres"
 
-#: src/menus.cpp:220
+#: src/menus.cpp:229
 #, fuzzy
 msgid "_Save image"
 msgstr "Enregistrer l'image"
 
-#: src/menus.cpp:227
+#: src/menus.cpp:236
 msgid "_Reset parameters"
 msgstr ""
 
-#: src/menus.cpp:234
+#: src/menus.cpp:243
 msgid "_Reset Zoom"
 msgstr ""
 
-#: src/menus.cpp:241
+#: src/menus.cpp:250
 #, fuzzy
 msgid "Save _parameters"
-msgstr "Enregistrer les paramètres"
+msgstr "Enregistrer les paramtres"
 
-#: src/menus.cpp:248
+#: src/menus.cpp:257
 #, fuzzy
 msgid "_Load parameters"
-msgstr "Charger les paramètres"
+msgstr "Charger les paramtres"
 
-#: src/menus.cpp:255
+#: src/menus.cpp:264
 msgid "P_ause"
 msgstr ""
 
-#: src/menus.cpp:270
+#: src/menus.cpp:279
+msgid "_Fractal Settings..."
+msgstr ""
+
+#: src/menus.cpp:286
 msgid "_Colors..."
 msgstr ""
 
@@ -302,196 +319,214 @@ msgstr ""
 msgid "Difference"
 msgstr ""
 
-#: src/properties.cpp:375
+#: src/properties.cpp:394 src/properties.cpp:425
 msgid "Unknown antialias type ignored"
 msgstr ""
 
-#: src/properties.cpp:385
+#: src/properties.cpp:435
 msgid "None (Fastest)"
 msgstr ""
 
-#: src/properties.cpp:386
+#: src/properties.cpp:436
 msgid "Default"
 msgstr ""
 
-#: src/properties.cpp:387
+#: src/properties.cpp:437
 msgid "Best (Slowest)"
 msgstr ""
 
-#: src/properties.cpp:508
+#: src/properties.cpp:544
 msgid "Bailout"
 msgstr ""
 
-#. bailout type
-#: src/properties.cpp:512 src/properties.cpp:713 src/properties.cpp:718
+#: src/properties.cpp:548 src/properties.cpp:807 src/properties.cpp:812
 #, fuzzy
 msgid "Function"
 msgstr "Position"
 
-#: src/properties.cpp:531
+#: src/properties.cpp:567
 msgid "Distance"
 msgstr ""
 
-#: src/properties.cpp:534
+#: src/properties.cpp:570
 msgid "Stop iterating points which get further from the origin than this"
 msgstr ""
 
-#: src/properties.cpp:547
+#: src/properties.cpp:581
+#, fuzzy
+msgid "Iteration Count"
+msgstr "Nombre max d'iteration : "
+
+#: src/properties.cpp:582
+msgid "Continuous Potential"
+msgstr ""
+
+#: src/properties.cpp:583
+msgid "Color Zero"
+msgstr ""
+
+#: src/properties.cpp:584
+msgid "Ejection Distance"
+msgstr ""
+
+#: src/properties.cpp:633
 #, fuzzy
 msgid "Rendering"
 msgstr "Rendu sur le disque"
 
-#. antialias
-#: src/properties.cpp:552
+#: src/properties.cpp:638
 msgid "Antialiasing"
 msgstr ""
 
-#: src/properties.cpp:569
+#: src/properties.cpp:655
 #, fuzzy
 msgid "Max Iterations :"
 msgstr "Nombre max d'iteration : "
 
-#: src/properties.cpp:573
+#: src/properties.cpp:659
 msgid "The further you zoom in the larger this needs to be"
 msgstr ""
 
-#. auto-deepen
-#: src/properties.cpp:576
+#: src/properties.cpp:662
 msgid "Auto Deepening"
 msgstr ""
 
-#: src/properties.cpp:587
+#: src/properties.cpp:673
 msgid "Work out how many iterations are required automatically"
 msgstr ""
 
-#. continuous potential
-#: src/properties.cpp:600
-msgid "Continuous Potential"
+#: src/properties.cpp:693
+msgid "Outer"
 msgstr ""
 
-#: src/properties.cpp:663
+#: src/properties.cpp:708
+msgid "Inner"
+msgstr ""
+
+#: src/properties.cpp:757
 msgid "Unknown function type ignored"
 msgstr ""
 
-#: src/properties.cpp:883
+#: src/properties.cpp:977
 msgid "real"
 msgstr ""
 
-#: src/properties.cpp:884
+#: src/properties.cpp:978
 #, fuzzy
 msgid "imag"
 msgstr "Image"
 
-#: src/properties.cpp:947
+#: src/properties.cpp:1041
 msgid "This fractal type has no parameters"
 msgstr ""
 
-#: src/properties.cpp:979
+#: src/properties.cpp:1073
 msgid "Parameters"
 msgstr ""
 
-#: src/properties.cpp:1001
-msgid "Image"
+#: src/properties.cpp:1095
+#, fuzzy
+msgid "Image Size"
 msgstr "Image"
 
-#: src/properties.cpp:1012
+#: src/properties.cpp:1106
 #, fuzzy
 msgid "Width :"
 msgstr "Largeur : "
 
-#: src/properties.cpp:1017
+#: src/properties.cpp:1111
 msgid "Image width (in pixels)"
 msgstr ""
 
-#: src/properties.cpp:1021
+#: src/properties.cpp:1115
 #, fuzzy
 msgid "Height :"
 msgstr "Hauteur : "
 
-#: src/properties.cpp:1026
+#: src/properties.cpp:1120
 msgid "Image height (in pixels)"
 msgstr ""
 
-#: src/properties.cpp:1037
+#: src/properties.cpp:1131
 msgid "Location"
 msgstr "Position"
 
-#: src/properties.cpp:1042
+#: src/properties.cpp:1136
 msgid "X (Re) :"
 msgstr ""
 
-#: src/properties.cpp:1042
+#: src/properties.cpp:1136
 msgid "This is c.re in z^2 + c"
 msgstr ""
 
-#: src/properties.cpp:1045
+#: src/properties.cpp:1139
 msgid "Y (Im) :"
 msgstr ""
 
-#: src/properties.cpp:1045
+#: src/properties.cpp:1139
 msgid "This is c.im in z^2 + c"
 msgstr ""
 
-#: src/properties.cpp:1048
+#: src/properties.cpp:1142
 msgid "Z (Re) :"
 msgstr ""
 
-#: src/properties.cpp:1048
+#: src/properties.cpp:1142
 msgid "This is z0.re in z^2 + c"
 msgstr ""
 
-#: src/properties.cpp:1051
+#: src/properties.cpp:1145
 msgid "W (Im) :"
 msgstr ""
 
-#: src/properties.cpp:1051
+#: src/properties.cpp:1145
 msgid "This is z0.im in z^2 + c"
 msgstr ""
 
-#: src/properties.cpp:1054
+#: src/properties.cpp:1148
 msgid "Size :"
 msgstr ""
 
-#: src/properties.cpp:1054
+#: src/properties.cpp:1148
 msgid "Magnitude of image"
 msgstr ""
 
-#: src/properties.cpp:1064
+#: src/properties.cpp:1158
 msgid "Angles"
 msgstr ""
 
-#: src/properties.cpp:1068
+#: src/properties.cpp:1162
 msgid "XY :"
 msgstr ""
 
-#: src/properties.cpp:1069
+#: src/properties.cpp:1163
 msgid "XZ :"
 msgstr ""
 
-#: src/properties.cpp:1070
+#: src/properties.cpp:1164
 msgid "XW :"
 msgstr ""
 
-#: src/properties.cpp:1071
+#: src/properties.cpp:1165
 msgid "YZ :"
 msgstr ""
 
-#: src/properties.cpp:1072
+#: src/properties.cpp:1166
 msgid "YW :"
 msgstr ""
 
-#: src/properties.cpp:1073
+#: src/properties.cpp:1167
 msgid "ZW :"
 msgstr ""
 
-#: src/properties.cpp:1130
-msgid "Fractal Properties"
+#: src/properties.cpp:1224
+msgid "Fractal Settings"
 msgstr ""
 
 #: src/toolbars.cpp:159
 #, fuzzy
 msgid "Increase the maximum number of iterations"
-msgstr "Nombre maximum d'itération"
+msgstr "Nombre maximum d'itration"
 
 #: src/toolbars.cpp:183 src/toolbars.cpp:251
 msgid "xy"
@@ -577,13 +612,16 @@ msgstr ""
 msgid "Toggle Explorer mode"
 msgstr ""
 
-#: src/toolbars.cpp:303
+#: src/toolbars.cpp:305
 msgid "How different the mutants are in Explore Mode"
 msgstr ""
 
-#: src/toolbars.cpp:315
+#: src/toolbars.cpp:317
 msgid "Generate a new set of mutants"
 msgstr ""
+
+#~ msgid "Image"
+#~ msgstr "Image"
 
 #~ msgid "New image"
 #~ msgstr "Nouvelle image"
@@ -592,10 +630,10 @@ msgstr ""
 #~ msgstr "web :  http://www.multimania.com/mason"
 
 #~ msgid "save param"
-#~ msgstr "Enregistrer les paramètres"
+#~ msgstr "Enregistrer les paramtres"
 
 #~ msgid "load param"
-#~ msgstr "Charger les paramètres"
+#~ msgstr "Charger les paramtres"
 
 #~ msgid "render to disk"
 #~ msgstr "Rendu sur le disque"
@@ -629,16 +667,16 @@ msgstr ""
 #~ msgstr ""
 #~ "0 ou 1 : aucun.\n"
 #~ "  >10 : c'est de la folie ! .\n"
-#~ " 3 semble être un bon choix ,si vous avez un ordinateur pas très puissant"
+#~ " 3 semble tre un bon choix ,si vous avez un ordinateur pas trs puissant"
 
 #~ msgid "Baillout Value : "
 #~ msgstr "Baillout value : "
 
 #~ msgid "This is the width (in pixel) from the image displayed in the window"
-#~ msgstr "Entrez la largeur de l'image affichée dans la fenêtre (en pixel)"
+#~ msgstr "Entrez la largeur de l'image affiche dans la fentre (en pixel)"
 
 #~ msgid "This is the height (in pixel) from the image displayed in the window"
-#~ msgstr "Entrez la hauteur de l'image affichée dans la fenêtre (en pixel)"
+#~ msgstr "Entrez la hauteur de l'image affiche dans la fentre (en pixel)"
 
 #~ msgid ""
 #~ "0 or 1 : none.\n"
@@ -648,20 +686,21 @@ msgstr ""
 #~ msgstr ""
 #~ "0 ou 1 : aucun.\n"
 #~ "  >10 : c'est de la folie ! .\n"
-#~ " 2 ou 3 semble être un bon choix pour explorer la fractale, si vous avez un puissant ordinateur, sinon s'abstenir  "
+#~ " 2 ou 3 semble tre un bon choix pour explorer la fractale, si vous avez "
+#~ "un puissant ordinateur, sinon s'abstenir  "
 
 #, fuzzy
 #~ msgid "Upper left (Re) : "
-#~ msgstr "Coin supérieur gauche (Re) : "
+#~ msgstr "Coin suprieur gauche (Re) : "
 
 #~ msgid "Upper left  (Im) : "
-#~ msgstr "Coin supérieur gauche (Im) : "
+#~ msgstr "Coin suprieur gauche (Im) : "
 
 #~ msgid "Lower right (Re) : "
-#~ msgstr "Coin inférieur droit (Re) : "
+#~ msgstr "Coin infrieur droit (Re) : "
 
 #~ msgid "Lower right (Im) : "
-#~ msgstr "Coin inférieur droit (Im) : "
+#~ msgstr "Coin infrieur droit (Im) : "
 
 #~ msgid "Zoom factor + :"
 #~ msgstr "Facteur de zoom + :"
@@ -679,4 +718,5 @@ msgstr ""
 #~ msgstr "Sauvegarde en cours ..."
 
 #~ msgid "Sorry, max precision was reached, the image will become horrible !"
-#~ msgstr "Désolé, la précision maximale a été atteinte, l'image va devenir horrible !"
+#~ msgstr ""
+#~ "Dsol, la prcision maximale a t atteinte, l'image va devenir horrible !"

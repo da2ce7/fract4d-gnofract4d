@@ -25,8 +25,7 @@ dnl AC_MSG_CHECKING(for GMP arbitrary-precision math library)
 dnl AC_TRY_CPP(gmp.h,AC_DEFINE(HAVE_GMP) LIBS="$LIBS -lgmp")
 
 dnl Add the languages which your application supports here.
-ALL_LINGUAS="fr"
-AM_GNU_GETTEXT
+AM_GNU_GETTEXT([external])
 
 dnl Set PACKAGE_LOCALE_DIR in config.h.
 if test "x${prefix}" = "xNONE"; then
@@ -45,11 +44,10 @@ dnl Subst MAPS_DIR
 PACKAGE_MAPS_DIR="`gnome-config --datadir`/maps/${PACKAGE}"
 AC_SUBST(PACKAGE_MAPS_DIR)
 
-AC_OUTPUT([
+AC_OUTPUT([ m4/Makefile 
 Makefile
 macros/Makefile
 src/Makefile
-intl/Makefile
 po/Makefile.in
 doc/Makefile
 ])
