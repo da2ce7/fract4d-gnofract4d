@@ -240,17 +240,17 @@ easily. It divides the screen into a large central section and smaller
 operation you can normally. The other images around the edges are
 "mutant" versions of the main image - they're formed by starting with
 the base parameters and randomly changing them a bit. Whenever you
-change the main images, you get a whole new set of mutants. If you
-like a mutant more than the main picture, click on it to move it to
-the middle - it then becomes the main picture and you get 12 new
-mutants based on the new main image. To return to normal mode, click
-the Explorer button again.  </para>
+change the main image, you get a whole new set of mutants. If you like
+a mutant more than the main picture, click on it to move it to the
+middle - it then becomes the main picture and you get 12 new mutants
+based on the new main image. When you're satisfied with the results,
+click the Explorer button again to return to normal mode.  </para>
 
-<para> The "weirdness slider" on the toolbar
-determines how different the mutants are from the standard image. If
-it's set to 100, they're almost unrecognizable - if it's 0, they're
-exactly the same. 
-</para>
+<para> The Shape and Color sliders on the toolbar determines how
+different the mutants are from the standard image. If Shape's set to
+100, they're almost unrecognizable - if it's 0, they're exactly the
+same. Similarly if Color's 100, each mutant is a different color, and
+0 keeps the colors all the same.  </para>
 
 </sect3>
 
@@ -663,10 +663,10 @@ For now, I suggest copying one of the formulas which come with
 <para>
 <emphasis>Please</emphasis> report any bugs you encounter, either by
 mailing <ulink
-url="mailto:edwin@sourceforge.net">edwin@sourceforge.net</ulink> or by
-using the <ulink url="http://sourceforge.net/tracker/?func=add&amp;group_id=785&amp;atid=100785">bug
-form</ulink> at SourceForge. I'll do my best to fix them.
-</para>
+url="mailto:edwin@bathysphere.org">edwin@bathysphere.org</ulink>
+or by using the <ulink
+url="http://sourceforge.net/tracker/?func=add&amp;group_id=785&amp;atid=100785">bug
+form</ulink> at SourceForge. I'll do my best to fix them.  </para>
 
 </sect2>
 

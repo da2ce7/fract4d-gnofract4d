@@ -160,7 +160,7 @@ class T(gobject.GObject):
                             self.f.yflip,nthreads,
                             self.f.pfunc,self.cmap,
                             self.f.auto_deepen, self.f.periodicity,
-                            image,self.site)
+                            image,self.site, self.f.clear_image)
 
     def onData(self,fd,condition):
         bytes = os.read(fd,self.msgsize)
@@ -274,8 +274,9 @@ class T(gobject.GObject):
     def set_saved(self,val):
         self.f.saved = val
         
-    def changed(self):
-        self.f.dirty = True
+    def changed(self,clear_image=True):
+        self.f.dirty=True
+        self.f.clear_image = clear_image
         self.set_saved(False)
         if not self.frozen:
             self.emit('parameters-changed')

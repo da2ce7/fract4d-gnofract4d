@@ -183,3 +183,11 @@ some periodicity:
 28.4102 testdata/trigcentric.fct
 8.1515 testdata/zpower.fct
 46.6695671082
+
+2.2:
+0.8520 testdata/std.fct
+3.9118 testdata/param.fct
+5.6318 testdata/valley_test.fct
+28.2883 testdata/trigcentric.fct
+7.9833 testdata/zpower.fct
+46.6672129631

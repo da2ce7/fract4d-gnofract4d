@@ -166,6 +166,27 @@ void fractFunc::reset_progress(float progress)
     progress_changed(progress);
 }
 
+// change everything with a fate of IN to UNKNOWN, because 
+// image got deeper
+void fractFunc::clear_in_fates()
+{
+    for(int y = 0; y < im->Yres(); ++y)
+    {
+	for(int x = 0; x < im->Xres(); ++x)
+	{
+	    for(int n = 0; n < im->getNSubPixels(); ++n)
+	    {
+		fate_t f = im->getFate(x,y,n);
+		if(f & ~FATE_SOLID != 0)
+		{
+		    im->setFate(x,y,n, FATE_UNKNOWN);
+		}
+	    }
+	}
+    }
+}
+
+
 void fractFunc::draw_all()
 {
     status_changed(GF4D_FRACTAL_CALCULATING);
@@ -178,6 +199,7 @@ void fractFunc::draw_all()
         maxiter *= 2;
 	iters_changed(maxiter);
         status_changed(GF4D_FRACTAL_DEEPENING);
+	clear_in_fates();
         draw(8,1);
     }
     
