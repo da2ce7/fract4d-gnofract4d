@@ -22,8 +22,9 @@ try:
     from fract4d import fractal,fc,fract4dc
 
     # gui modules
-    from gui import gtkfractal, model, preferences, autozoom, settings, browser
-    from gui import colors, undo
+    from fract4dgui import gtkfractal, model, preferences, autozoom, settings
+    from fract4dgui import colors, undo, browser
+
 except ImportError, err:
     print "Can't import a required module."
     print "If you haven't set up Gnofract 4D yet, run './setup.py build'"

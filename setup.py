@@ -61,12 +61,12 @@ gtk_libs =  call_package_config(gtk_pkg,"--libs")
 
 
 module2 = Extension(
-    'gui.fract4dguic',
+    'fract4dgui.fract4dguic',
     sources = [
-    'gui/c/guicmodule.cpp',
+    'fract4dgui/c/guicmodule.cpp',
     ],
     include_dirs = [
-    'gui/c',
+    'fract4dgui/c',
     'fract4d/c/'
     ],
     libraries = [
@@ -89,7 +89,7 @@ setup (name = 'gnofract4d',
        author = 'Edwin Young',
        author_email = 'edwin@sourceforge.net',
        url = 'http://gnofract4d.sourceforge.net/',
-       packages = ['fract4d', 'gui'],
+       packages = ['fract4d', 'fract4dgui'],
        ext_modules = [module1, module2],
        scripts = ['gnofract4d'],
        data_files = [
@@ -112,7 +112,10 @@ setup (name = 'gnofract4d',
            ('share/pixmaps/gnofract4d', get_files('pixmaps','.png')),
             
            # GNOME .desktop file
-           ('/share/gnome/apps/Graphics/', ['gnofract4d.desktop']),           
+           ('share/gnome/apps/Graphics/', ['gnofract4d.desktop']),
+
+           # boring files
+           ('share/doc/gnofract4d-2.0/', ['COPYING', 'README'])
            ]
        )
 
@@ -124,7 +127,7 @@ setup (name = 'gnofract4d',
 so_extension = distutils.sysconfig.get_config_var("SO")
 
 lib_targets = {
-    "fract4dguic" + so_extension : "gui",
+    "fract4dguic" + so_extension : "fract4dgui",
     "fract4dc" + so_extension : "fract4d"}
 
 def copy_libs(dummy,dirpath,namelist):
