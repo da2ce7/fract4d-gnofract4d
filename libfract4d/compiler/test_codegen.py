@@ -20,10 +20,12 @@ class CodegenTest(unittest.TestCase):
         return ir.ESeq(stms, exp, self.fakeNode, Int)
     def seq(self,stms):
         return ir.Seq(stms,self.fakeNode)
-    def var(self,name="a"):
-        return ir.Var(name,self.fakeNode, Int)
-    def const(self,value=0):
-        return ir.Const(value, self.fakeNode, Int)
+    def var(self,name="a",type=Int):
+        return ir.Var(name,self.fakeNode, type)
+    def const(self,value=None,type=Int):
+        if value == None:
+            value = default_value(type)
+        return ir.Const(value, self.fakeNode, type)
     def binop(self,stms,op="+"):
         return ir.Binop(op,stms,self.fakeNode, Int)
     def move(self,dest,exp):
@@ -68,17 +70,13 @@ class CodegenTest(unittest.TestCase):
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
 
     def testGenComplex(self):
-        tree = self.binop([self.const(),self.var()])
+        tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)])
         tree.datatype = Complex
-        tree.children[0].datatype = Complex
-        tree.children[1].datatype = Complex
-        tree.children[0].value = [0.0,0.0]
-        print tree.pretty()
         self.codegen.generate_code(tree)
         self.assertEqual(len(self.codegen.out),2)
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
-        for insn in self.codegen.out:
-            print insn
+        self.assertEqual(self.codegen.out[0].format(), "t__temp0 = 1 + a_re")
+        self.assertEqual(self.codegen.out[1].format(), "t__temp1 = 3 + a_im")
         
 def suite():
     return unittest.makeSuite(CodegenTest,'test')
