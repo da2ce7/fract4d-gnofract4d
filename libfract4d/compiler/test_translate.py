@@ -198,7 +198,6 @@ class TranslateTest(unittest.TestCase):
         a == 1 && b == 2
         }''')
         self.assertNoErrors(t)
-        #print t.sections["init"].pretty()
         self.assertJumpsMatchLabs(t.sections["init"])
 
         t = self.translate('''t_bool_1 {
@@ -206,7 +205,6 @@ class TranslateTest(unittest.TestCase):
         a == 1 || b == 2
         }''')
         self.assertNoErrors(t)
-        print t.sections["init"].pretty()
         self.assertJumpsMatchLabs(t.sections["init"])
         
         t = self.translate('''t_bool_2 {
@@ -216,10 +214,8 @@ class TranslateTest(unittest.TestCase):
         endif
         }''')
         self.assertNoErrors(t)
-        #print t.sections["init"].pretty()
         self.assertJumpsMatchLabs(t.sections["init"])
 
-        return
         t = self.translate('''t_bool_3 {
         init:
         if a == 1 || b == 2
@@ -227,8 +223,17 @@ class TranslateTest(unittest.TestCase):
         endif
         }''')
         self.assertNoErrors(t)
-        print t.sections["init"].pretty()
         self.assertJumpsMatchLabs(t.sections["init"])
+
+    def testMandel(self):
+        t = self.translate('''t_mandel_1 {
+        loop:
+        z = z * z + c
+        bailout:
+        |z| < 4.0
+        }''')
+
+        self.assertNoErrors(t)
         
     def assertJumpsAndLabs(self,t,expected):
         jumps_and_labs = []

@@ -253,6 +253,8 @@ class T:
             r = self.id(node)
         elif node.type == "binop":
             r = self.binop(node)
+        elif node.type == "unop":
+            r = self.unop(node)
         else:
             self.badNode(node,"exp")
 
@@ -260,6 +262,12 @@ class T:
 
     def seq_with_label(self,stm,label, node):
         return ir.Seq([label, stm], node)
+
+    def unop(self, node):
+        children = map(lambda n: self.exp(n) , node.children)
+        op = self.findOp(node,children)
+        children = self.coerceList(op.args,children)
+        return ir.Unop(node.leaf, children, node, op.ret)
     
     def binop(self, node):
 

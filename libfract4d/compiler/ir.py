@@ -70,6 +70,13 @@ class Binop(Exp):
         (self.op, self.children) = (op,children)
     def __str__(self):
         return "Binop(" + self.op + "\n"
+
+class Unop(Exp):
+    def __init__(self, op, children, node, datatype):
+        Exp.__init__(self, node, datatype)
+        (self.op, self.children) = (op,children)
+    def __str__(self):
+        return "Unop(" + self.op + "\n"
     
 class Var(Exp):
     def __init__(self, name, node, datatype):
