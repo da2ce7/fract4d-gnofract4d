@@ -29,6 +29,7 @@
 #include <iostream>
 #include <float.h>
 #include <stdio.h>
+#include <algorithm>
 
 class pointCalc : public pointFunc {
 private:
@@ -93,6 +94,7 @@ public:
 
             /* periodicity vars */
             const d PERIOD_TOLERANCE = 1.0E-10;
+            const int PERIOD_START = 256;
             d lastx = pIter[X], lasty=pIter[Y];
             int k =1, m = 1;
 
@@ -102,6 +104,32 @@ public:
             if(m_pBail->iter8_ok())
             {
                 int nMax8Iters = (nMaxIters/8) * 8;
+                int nNoPeriodIters = min<int>(PERIOD_START,nMax8Iters);
+
+                // do the first PERIOD_START iterations without periodicity
+                do
+                {
+                    m_pIter->iter8(pIter,pInput,pTemp);
+                    if((iter+= 8) >= nNoPeriodIters)
+                    {
+                        if(nNoPeriodIters < nMax8Iters)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            goto finished8;
+                        }
+                    }                    
+                    (*m_pBail)(pIter,pInput,pTemp,flags);  
+                    if(pTemp[EJECT_VAL] >= m_eject)
+                    {
+                        goto bailedOut;
+                    }
+                    pIter[X] = pIter[X + (2*8)];
+                    pIter[Y] = pIter[Y + (2*8)];
+                }while(true);
+                
                 do
                 {
                     m_pIter->iter8(pIter,pInput,pTemp);
@@ -109,7 +137,7 @@ public:
                     {
                         goto finished8;
                     }                    
-                    for(int i = 2; i < 18; i+=2)
+                    for(int i = ITER_SPACE; i < 9*ITER_SPACE; i+= ITER_SPACE)
                     {
                         if(fabs(pIter[X+i] - lastx) < PERIOD_TOLERANCE &&
                            fabs(pIter[Y+i] - lasty) < PERIOD_TOLERANCE)
@@ -134,6 +162,7 @@ public:
                     pIter[Y] = pIter[Y + (2*8)];                    
                 }while(true);
 
+            bailedOut:
                 // we bailed out - need to look through the list to
                 // see where (could do binary search, but can't be bothered)
                 int i = 0;
