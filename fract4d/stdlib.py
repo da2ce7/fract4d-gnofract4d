@@ -66,7 +66,7 @@ sub_cc_c = add_cc_c
 def div_cc_c(gen,t,srcs):
     # (a+ib)/(c+id) = (a+ib)*(c-id) / (c+id)*(c-id)
     # = (ac + bd + i(bc - ad))/mag(c+id)
-    denom = mag_c_f(gen,'mag', [srcs[1]])
+    denom = cmag_c_f(gen,'mag', [srcs[1]])
     ac = gen.emit_binop('*', [srcs[0].re, srcs[1].re], Float)
     bd = gen.emit_binop('*', [srcs[0].im, srcs[1].im], Float)
     bc = gen.emit_binop('*', [srcs[0].im, srcs[1].re], Float)
@@ -85,7 +85,7 @@ def div_cf_c(gen,t,srcs):
 
 mul_cf_c = div_cf_c
 
-def mag_c_f(gen,t,srcs):
+def cmag_c_f(gen,t,srcs):
     # |x| = x_re * x_re + x_im * x_im
     src = srcs[0]
     re_2 = gen.emit_binop('*',[src.re,src.re],Float)
@@ -225,8 +225,14 @@ def flip_c_c(gen,t,srcs):
 def imag_c_f(gen,t,srcs):
     return srcs[0].im
 
+def imag2_c_f(gen,t,srcs):
+    return gen.emit_binop('*', [srcs[0].im, srcs[0].im], Float)
+
 def real_c_f(gen,t,srcs):
     return srcs[0].re
+
+def real2_c_f(gen,t,srcs):
+    return gen.emit_binop('*', [srcs[0].re, srcs[0].re], Float)
 
 def ident_i_i(gen,t,srcs):
     return srcs[0]
@@ -249,7 +255,7 @@ def abs_c_c(gen,t,srcs):
 
 def cabs_c_f(gen,t,srcs):
     # FIXME: per std_complex.h,should divide numbers first to avoid overflow
-    return sqrt_f_f(gen,t,[mag_c_f(gen,t,srcs)])
+    return sqrt_f_f(gen,t,[cmag_c_f(gen,t,srcs)])
 
 def sqrt_f_f(gen,t,srcs):
     return gen.emit_func('sqrt', srcs, Float)
@@ -425,4 +431,7 @@ def manhattan_c_f(gen,t,srcs):
     return gen.emit_binop('+',[abs_f_f(gen,t,[srcs[0].re]),
                                abs_f_f(gen,t,[srcs[0].im])], Float)
 
-
+def manhattanish2_c_f(gen,t,srcs):
+    return sqr_f_f(
+        gen,t,[gen.emit_binop('+',[sqr_f_f(gen,t,[srcs[0].re]),
+                                   sqr_f_f(gen,t,[srcs[0].im])], Float)])

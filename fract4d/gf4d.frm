@@ -16,11 +16,14 @@ init:
 loop:
 	z = z * z + #pixel
 bailout:
-	|z| < @bailout
+	@bailfunc(z) < @bailout
 default:
 float param bailout
 	default = 4.0
 endparam
+float func bailfunc
+	default = cmag
+endfunc
 }
 
 Mandelbar {
