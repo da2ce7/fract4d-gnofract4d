@@ -35,6 +35,9 @@
 
 class iterFunc {
  public:
+    static iterFunc *create(const char *name);
+    static iterFunc *read(std::istream& is);
+
     virtual ~iterFunc() {};
     // return the fragments of C++ code which we'll interpolate
     // into the template. They're added into the map 
@@ -80,10 +83,6 @@ typedef struct {
 } ctorInfo;
 
 const ctorInfo *iterFunc_names();
-
-iterFunc *iterFunc_new(const char *name);
-//iterFunc *iterFunc_mix(iterFunc *a, iterFunc *b);
-iterFunc *iterFunc_read(std::istream& s);
 
 std::ostream& operator<<(std::ostream& s, const iterFunc& iter);
 std::istream& operator>>(std::istream& s, iterFunc& iter);

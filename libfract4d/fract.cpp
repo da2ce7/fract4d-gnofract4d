@@ -219,7 +219,7 @@ void
 fractal::set_fractal_type(const char *name)
 {
     delete pIterFunc;
-    pIterFunc = iterFunc_new(name);
+    pIterFunc = iterFunc::create(name);
 
     assert(pIterFunc > (void *)0x1000);
     pIterFunc->reset(params);
@@ -440,7 +440,7 @@ fractal::load_params(const char *filename)
             vs >> (int&)colorFuncs[OUTER];
         else if(SECTION_ITERFUNC==name)
         {
-            iterFunc *iter_tmp = iterFunc_read(is);
+            iterFunc *iter_tmp = iterFunc::read(is);
             if(iter_tmp)
             {
                 delete pIterFunc;

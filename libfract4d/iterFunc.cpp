@@ -43,6 +43,7 @@ class iterImpl : public iterFunc
 protected:
     const char *m_type;
     std::complex<double> a[NOPTIONS+1];
+
 public:
     iterImpl(const char *type) : m_type(type) {}
 
@@ -708,16 +709,16 @@ private:
         }
 };
 
-/*
+#if 0
 // Taylor series approximation to exp
 class taylorFunc : public iterImpl<taylorFunc,0>
 {
 #define CUBE_DECL double atmp
-#define CUBE_ITER "
-    p[X2] = p[X] * p[X];"
-    p[Y2] = p[Y] * p[Y];"
-    atmp = p[X2] * p[X] - 3.0 * p[X] * p[Y2] + p[CX];"
-    p[Y] = 3.0 * p[X2] * p[Y] - p[Y2] * p[Y] + p[CY];"
+#define CUBE_ITER 
+    p[X2] = p[X] * p[X];
+    p[Y2] = p[Y] * p[Y];
+    atmp = p[X2] * p[X] - 3.0 * p[X] * p[Y2] + p[CX];
+    p[Y] = 3.0 * p[X2] * p[Y] - p[Y2] * p[Y] + p[CY];
     p[X] = atmp
 
 public:
@@ -730,7 +731,7 @@ public:
             return "Cubic Mandelbrot";
         }
 };
-*/
+#endif
 
 #define CTOR_TABLE_ENTRY(className) \
     { className::name(), className::create }
@@ -762,7 +763,7 @@ const ctorInfo *iterFunc_names()
 }
 
 // factory method to make new iterFuncs
-iterFunc *iterFunc_new(const char *name)
+iterFunc *iterFunc::create(const char *name)
 {
     if(!name) return NULL;
 
@@ -782,7 +783,7 @@ iterFunc *iterFunc_new(const char *name)
 // deserialize an iterFunc from a stream
 // without knowing its type
 
-iterFunc *iterFunc_read(std::istream& s)
+iterFunc *iterFunc::read(std::istream& s)
 {
     std::string name, value;
 
@@ -792,7 +793,7 @@ iterFunc *iterFunc_read(std::istream& s)
     
         if(FIELD_FUNCTION == name)
         {
-            iterFunc *f = iterFunc_new(value.c_str());
+            iterFunc *f = iterFunc::create(value.c_str());
             if(f)
             {
                 s >> *f;
