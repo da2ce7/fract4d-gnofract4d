@@ -19,7 +19,8 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
         f->bailout_type, 
         f->params[BAILOUT], 
         f->cizer, 
-        f->potential);
+        f->outer_colorFunc,
+        f->inner_colorFunc);
     
     depth = f->eaa ? 2 : 1; 
     

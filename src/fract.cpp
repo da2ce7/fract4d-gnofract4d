@@ -91,6 +91,8 @@ fractal::fractal()
     cizer = colorizer_new(COLORIZER_RGB);
     potential=1;
     bailout_type=BAILOUT_MAG;
+    outer_colorFunc=COLORFUNC_CONT;
+    inner_colorFunc=COLORFUNC_ZERO;
 }
 
 /* dtor */
@@ -624,16 +626,25 @@ fractal::calc(Gf4dFractal *gf, image *im)
 void 
 fractal::recolor(image *im)
 {
+
+    pointFunc *p = pointFunc_new(
+        pIterFunc,
+        bailout_type,
+        params[BAILOUT],
+        cizer,
+        outer_colorFunc,
+        inner_colorFunc);
+
     int width = im->Xres();
     int height = im->Yres();
     for( int i = 0 ; i < height; ++i)
     {
         for( int j = 0; j < width; ++j)
         {
-            // fake scratch space
-            d s[SCRATCH_SPACE]= { 0.0 };
-            rgb_t result = (*cizer)(im->getIter(i,j), s, false);
+            rgb_t result = p->recolor(im->getIter(i,j));
             im->put(j,i,result);
         }
     }
+
+    delete p;
 }

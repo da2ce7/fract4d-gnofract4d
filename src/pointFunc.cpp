@@ -34,9 +34,9 @@ private:
     /* members */
     iterFunc *m_pIter;
     bailFunc *m_pBail;
+    colorFunc *m_pOuterColor, *m_pInnerColor;
     double m_eject;
     colorizer *m_pcf;
-    bool m_potential;
 
 public:
     /* ctor */
@@ -44,14 +44,33 @@ public:
               e_bailFunc bailType, 
               double eject,
               colorizer *pcf,
-              bool potential) 
-        : m_pIter(iterType), m_eject(eject), m_pcf(pcf), m_potential(potential)
+              e_colorFunc outerCfType,
+              e_colorFunc innerCfType) 
+        : m_pIter(iterType), m_eject(eject), m_pcf(pcf)
         {
             m_pBail = bailFunc_new(bailType);
+            m_pOuterColor = colorFunc_new(outerCfType);
+            m_pInnerColor = colorFunc_new(innerCfType);
         }
     virtual ~pointCalc()
         {
             delete m_pBail;
+            delete m_pOuterColor;
+            delete m_pInnerColor;
+        }
+
+    inline rgb_t colorize(int iter, double *p)
+        {
+            double colorDist;
+            if(iter == -1)
+            {
+                colorDist = (*m_pInnerColor)(iter, p);
+            }
+            else
+            {
+                colorDist = (*m_pOuterColor)(iter, p);
+            }
+            return (*m_pcf)(colorDist);
         }
 
     template<class T>inline void calc(
@@ -112,7 +131,7 @@ public:
             *pnIters = iter;
             if(color)
             {
-                *color = (*m_pcf)(iter, p, m_potential);
+                *color = colorize(iter,p);
             }
         };
 
@@ -132,15 +151,25 @@ public:
             calc<gmp::f>(params, nMaxIters, color, pnIters);
         }
 #endif
+    virtual rgb_t recolor(int iter)
+        {
+            // fake scratch space
+            d s[SCRATCH_SPACE]= { 0.0 };
+
+            return colorize(iter, s);
+        }
+
 };
 
 
 pointFunc *pointFunc_new(
     iterFunc *iterType, 
-    e_bailFunc bailFunc, 
+    e_bailFunc bailType, 
     double bailout,
     colorizer *pcf,
-    bool potential)
+    e_colorFunc outerCfType,
+    e_colorFunc innerCfType)
 {
-    return new pointCalc(iterType, bailFunc, bailout, pcf, potential);
+    return new pointCalc(iterType, bailType, bailout, pcf, outerCfType, innerCfType);
 }
+

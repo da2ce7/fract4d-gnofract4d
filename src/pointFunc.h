@@ -24,6 +24,7 @@
 #include "calc.h"
 #include "pointFunc_public.h"
 #include "colorizer.h"
+#include "colorFunc.h"
 
 class iterFunc;
 
@@ -44,6 +45,7 @@ class pointFunc {
         struct rgb *color, int *pnIters
         ) = 0;
 #endif
+    virtual rgb_t recolor(int iter) = 0;
 };
 
 /* factory method for making new fractFuncs */
@@ -52,7 +54,8 @@ pointFunc *pointFunc_new(
     e_bailFunc bailType,
     double eject,
     colorizer *pcf,
-    bool potential);
+    e_colorFunc outerCfType,    
+    e_colorFunc innerCfType);
 
 #endif
 

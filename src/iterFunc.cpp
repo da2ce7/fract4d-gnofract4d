@@ -569,7 +569,7 @@ ctorInfo ctorTable[] = {
     CTOR_TABLE_ENTRY(barnsley2Func),
     CTOR_TABLE_ENTRY(lambdaFunc),
     CTOR_TABLE_ENTRY(novaFunc),
-    CTOR_TABLE_ENTRY(newtFunc),
+    //CTOR_TABLE_ENTRY(newtFunc),
     { NULL, NULL}
 };
 

@@ -39,13 +39,11 @@ class colorizer {
     virtual colorizer *clone() const = 0;
 
     virtual e_colorizer type(void) const = 0;
-    virtual rgb_t operator()(int iter, double *scratch, bool potential) const = 0;
-#ifdef HAVE_GMP
-    virtual rgb_t operator()(int iter, gmp::f *scratch, bool potential) const = 0;
-#endif
+    virtual rgb_t operator()(double dist) const = 0;
+    virtual bool operator==(const colorizer&) const = 0;
+
     virtual std::ostream& put(std::ostream&) const = 0;
     virtual std::istream& get(std::istream&) = 0;
-    virtual bool operator==(const colorizer&) const = 0;
 };
 
 std::ostream& operator<<(std::ostream& s, const colorizer& cizer);
@@ -67,17 +65,13 @@ class rgb_colorizer : public colorizer{
     colorizer* clone() const { return new rgb_colorizer(*this); }
 
     e_colorizer type() const;
-    rgb_t operator()(int iter, double *scratch, bool potential) const;
-#ifdef HAVE_GMP
-    rgb_t operator()(int iter, gmp::f *scratch, bool potential) const;
-#endif
+    rgb_t operator()(double dist) const;
     bool operator==(const colorizer&) const;
 
     friend std::ostream& operator<<(std::ostream&, const rgb_colorizer&);
     friend std::istream& operator>>(std::istream&, rgb_colorizer&);
 	std::ostream& put(std::ostream& s) const { return s << *this; };
 	std::istream& get(std::istream& s) { return s >> *this; };
-
 
     // not shared with colorizer
     void set_colors(double _r, double _g, double _b);
@@ -99,10 +93,8 @@ class cmap_colorizer : public colorizer {
     colorizer* clone() const { return new cmap_colorizer(*this); }
 
     e_colorizer type() const;
-    rgb_t operator()(int iter, double *scratch, bool potential) const;
-#ifdef HAVE_GMP
-    rgb_t operator()(int iter, gmp::f *scratch, bool potential) const;
-#endif
+    rgb_t operator()(double dist) const;
+
     friend std::ostream& operator<<(std::ostream&, const cmap_colorizer&);
     friend std::istream& operator>>(std::istream&, cmap_colorizer&);
 	std::ostream& put(std::ostream& s) const { return s << *this; };

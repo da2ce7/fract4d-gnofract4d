@@ -326,7 +326,7 @@ than generating fractals to do.
 <sect3 id="function">
 <title>Function Section</title>
 <para>
-Allows you to chose which fractal type to draw. See <xref linkend="types"> for details of the types available.
+Allows you to choose which fractal type to draw. See <xref linkend="types"> for details of the types available.
 </para>
 </sect3>
 

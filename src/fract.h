@@ -48,6 +48,7 @@ private:
 public:
 
     e_bailFunc bailout_type;    
+    e_colorFunc outer_colorFunc, inner_colorFunc;
     iterFunc *pIterFunc;
 
     // parameters beyond this point aren't saved
@@ -63,8 +64,6 @@ private:
     dmat4 rot;
 
     bool auto_deepen;
-
-
 
 public:
     

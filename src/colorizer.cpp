@@ -119,21 +119,13 @@ rgb_colorizer::set_colors(double _r, double _g, double _b)
 }
 
 rgb_t
-rgb_colorizer::operator()(int n, double *scratch, bool potential) const
+rgb_colorizer::operator()(double dist) const
 {
-    struct rgb pixel={0,0,0};
-    double dn;
-    
-    if (n != -1){
-        if(potential) 
-            dn = (double)n + scratch[EJECT]/scratch[EJECT_VAL];
-        else
-            dn = (double)n;
+    struct rgb pixel;
+    pixel.r = (char)(dist * cr);
+    pixel.g = (char)(dist * cg);
+    pixel.b = (char)(dist * cb);
 
-        pixel.r = (char)(dn * cr);
-        pixel.g = (char)(dn * cg);
-        pixel.b = (char)(dn * cb);
-    }
     return pixel;
 }
 
@@ -239,28 +231,24 @@ cmap_colorizer::operator==(const colorizer& c) const
 }
 
 rgb_t
-cmap_colorizer::operator()(int n, double *scratch, bool potential) const
+cmap_colorizer::operator()(double dist) const
 {
-    if(n == -1)
+    // only exact zeroes count as color 0
+    if(dist == 0.0)
     {
         return cmap[0];
     }
     rgb_t mix;
 
     /* a number in [1,255] - don't want to include color zero */
+    int n = (int)dist;
     n %= 255; n++;
-    if(potential)
-    {
-        double pos = scratch[EJECT]/scratch[EJECT_VAL];
-        int n2 = (n == 255 ? 1 : n+1);
-        mix.r = (unsigned char)(cmap[n].r * (1.0 - pos) + cmap[n2].r * pos);
-        mix.g = (unsigned char)(cmap[n].g * (1.0 - pos) + cmap[n2].g * pos);
-        mix.b = (unsigned char)(cmap[n].b * (1.0 - pos) + cmap[n2].b * pos);
-    }
-    else
-    {
-        mix = cmap[n];
-    }
+    int n2 = (n == 255 ? 1 : n+1);
+    double pos = fmod(dist,1.0);
+    mix.r = (unsigned char)(cmap[n].r * (1.0 - pos) + cmap[n2].r * pos);
+    mix.g = (unsigned char)(cmap[n].g * (1.0 - pos) + cmap[n2].g * pos);
+    mix.b = (unsigned char)(cmap[n].b * (1.0 - pos) + cmap[n2].b * pos);
+
     return mix;
 }
 

@@ -29,6 +29,7 @@ gnofract4d_SOURCES = \
 	gundo_ui.cpp gundo_ui.h \
 	image.cpp image.h \
 	colorizer.cpp colorizer.h colorizer_public.h \
+	colorFunc.h colorFunc.cpp \
 	iterFunc.h iterFunc.cpp \
 	bailFunc.h bailFunc.cpp \
 	fractFunc.h fractFunc.cpp \
