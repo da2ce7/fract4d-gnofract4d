@@ -57,12 +57,14 @@ class Compiler:
             #print "Error parsing '%s' : %s" % (filename, err)
             raise
 
-    def generate_code(self,ir,outputfile):
+    def generate_code(self,ir, outputfile,cfile):
         cg = codegen.T(ir.symbols)
-        cg.output_all(ir, {"z" : "", "pixel" : ""})
+        cg.output_all(ir)
         self.c_code = cg.output_c(ir)
         
         cFileName = cg.writeToTempFile(self.c_code,".c")
+        if cfile != None:
+            open(cfile,"w").write(self.c_code)
         #print c_code
         cmd = "gcc -Wall -fPIC -dPIC -O3 -shared %s -o %s -lm" % \
               (cFileName, outputfile)
@@ -72,12 +74,20 @@ class Compiler:
                 "Error reported by C compiler:%s" % output)
         
 
-    def get_formula(self, filename, formula):
+    def get_formula(self, filename, formula,colorfile=None,colorfunc=None):
         ff = self.files.get(os.path.basename(filename))
         if ff == None : return None
         f = ff.get_formula(formula)
+
+        cf = None
+        print colorfile
+        if colorfile != None:
+            cff = self.files.get(os.path.basename(colorfile))
+            if cff == None : return None
+            cf = cff.get_formula(colorfunc)
+            
         if f != None:
-            f = translate.T(f)
+            f = translate.T(f,cf)
         return f
 
 def usage():
@@ -85,13 +95,12 @@ def usage():
     print "fc.py -o [outfile] -f [formula] infile"
     sys.exit(1)
 
-def generate(fc,formulafile, formula, outputfile):
+def generate(fc,formulafile, formula, colorfunc, outputfile, colorfile, cfile):
     # find the function we want
-    ir = fc.get_formula(formulafile,formula)
+    ir = fc.get_formula(formulafile,formula,colorfile, colorfunc)
     if ir == None:
         raise Exception("Can't find formula %s in %s" % \
               (formula, formulafile))
-        sys.exit(1)
 
     if ir.errors != []:
         print "Errors during translation"
@@ -99,23 +108,34 @@ def generate(fc,formulafile, formula, outputfile):
             print e
         raise Exception("Errors during translation")
 
-    fc.generate_code(ir, outputfile)
+    fc.generate_code(ir, outputfile,cfile)
 
 def main():
     fc = Compiler()
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "o:f:",
-                                   [ "output=", "formula=" ])
+        opts, args = getopt.getopt(
+            sys.argv[1:], "o:f:c:C:S",
+            [ "output=", "formula=", "colorfunc=", "colorfile=" ])
+        
     except getopt.GetoptError:
         usage()
 
     formula = None
     outputfile = None
+    colorfunc = None
+    colorfile = None
+    cfile = None
     for (arg,val) in opts:
         if arg=="-f" or arg=="--formula":
             formula = val
         elif arg=="-o" or arg=="--output":
             outputfile = val
+        elif arg=="-c" or arg=="--colorfunc":
+            colorfunc = val
+        elif arg=="-C" or arg=="--colorile":
+            colorfile = val
+        elif arg=="-S":
+            cfile = "out.c"
             
     if len(args) < 1 or not formula or not outputfile:
         usage()
@@ -123,21 +143,20 @@ def main():
     try:
         formulafile = args[0]
         fc.load_formula_file(args[0])
+        if colorfile != None:
+            fc.load_formula_file(colorfile)
     except IOError, err:
+        print err
         sys.exit(1)
 
     if formula == "*":
         for formula in fc.files[os.path.basename(formulafile)].formulas.keys():
             print "%s:%s" % (formulafile, formula)
             try:
-                generate(fc,formulafile,formula,outputfile)
+                generate(fc,formulafile,formula,colorfunc,outputfile, colorfile, cfile)
             except Exception, err:
                 print err
     else:
-        try:
-            generate(fc,formulafile,formula,outputfile)
-        except Exception, err:
-            print err
-            sys.exit(1)
+        generate(fc,formulafile,formula,colorfunc,outputfile, colorfile, cfile)
             
 if __name__ =='__main__': main()

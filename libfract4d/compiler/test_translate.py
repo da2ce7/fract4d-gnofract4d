@@ -316,7 +316,7 @@ class TranslateTest(unittest.TestCase):
         }''')
 
         self.assertNoErrors(t)
-                    
+
     def testDecls(self):
         t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")
         self.assertNoProbs(t1)
