@@ -31,6 +31,19 @@
 // maximum number of params which can be passed to init
 #define PF_MAXPARAMS 20
 
+typedef enum
+{
+    INT = 0,
+    FLOAT = 1
+} e_paramtype;
+
+struct s_param
+{
+    e_paramtype t;
+    int intval;
+    double doubleval;
+};
+
 struct s_pf_data;
 
 struct s_pf_vtable {
@@ -38,9 +51,10 @@ struct s_pf_vtable {
     void (*init)(
 	struct s_pf_data *p,
         double period_tolerance,
-        double *params,
+        struct s_param *params,
 	int nparams
 	);
+
     /* calculate one point.
        perform up to nIters iterations,
        return:

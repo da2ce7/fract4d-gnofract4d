@@ -698,9 +698,14 @@ The important directories in the source are:
 <entry> <para>This contains all the non-GUI-related, relatively
 platform-independent parts of the code. This is in case it ever needs
 to be ported to another environment (eg run on a server without a GUI
-as part of a cluster). These are the compiler (most of the files) and
-the class which wraps and manages the compiled code and the C++
-extension (<filename>fractal.py</filename>).</para> </entry>
+as part of a cluster). Most of the files here are parts of the
+compiler (see below). The main class which represents a fractal is in
+<filename>fractal.py</filename>. This holds references to the compiled
+code, the formula and colorfunc definitions, the parameters and the
+colormap. It also handles loading and saving information from a
+<filename class="extension">.fct</filename> file, and provides
+wrappers for some of the gnarlier C++ extension functions. </para>
+</entry>
 
 </row>
 
@@ -777,11 +782,15 @@ back-end. It would be worthwhile to do some simple optimization (eg
 constant-folding, removing multiplication by 1.0) because the C
 compiler refuses to do this to floating point numbers.</para>
 
-<para>Overall structure: <filename>fractlexer.py</filename> and
-<filename>fractparser.py</filename> are the lexer and parser,
-respectively.  They use the PLY package to do lexing and SLR parsing,
-and produce as output an abstract syntax tree (defined in the
-<classname>Absyn</classname> module). The
+<para>
+Overall structure: The <ulink
+url="http://systems.cs.uchicago.edu/ply/ply.html">PLY</ulink> package
+is used to do lexing and SLR parsing - it's in
+<filename>lex.py</filename> and
+<filename>yacc.py</filename>. <filename>fractlexer.py</filename> and
+<filename>fractparser.py</filename> are the lexer and parser
+definitions, respectively. They produce as output an abstract syntax
+tree (defined in the <classname>Absyn</classname> module). The
 <classname>Translate</classname> module type-checks the code,
 maintains the symbol table (<filename>symbol.py</filename>) and
 converts it into an intermediate form (<filename>ir.py</filename>).

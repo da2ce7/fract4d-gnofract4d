@@ -30,10 +30,19 @@ class CodegenTest(testbase.TestBase):
         self.codegen = codegen.T(symbol.T())
         self.parser = fractparser.parser
         self.main_stub = '''
+
+
 int main()
 {
     double pparams[] = { 1.5, 0.0, 0.0, 0.0};
-    double initparams[] = {1.0, 0.0, 1.0, 0.0, 5.0, 2.0};
+    struct s_param initparams[] = {
+        { FLOAT, 0, 1.0},
+        { FLOAT, 0, 0.0},
+        { FLOAT, 0, 1.0},
+        { FLOAT, 0, 0.0},
+        { FLOAT, 0, 5.0},
+        { FLOAT, 0, 2.0}
+        };
     int nItersDone=0;
     int nFate=0;
     double dist=0.0;
@@ -52,7 +61,7 @@ int main()
 
     pparams[0] = 0.1; pparams[1] = 0.2;
     pparams[2] = 0.1; pparams[3] = 0.3;
-    initparams[4] = 3.0; initparams[5] = 3.5;
+    initparams[4].doubleval = 3.0; initparams[5].doubleval = 3.5;
     
     pf->vtbl->calc(
         pf,
@@ -140,12 +149,31 @@ int main()
         preamble = '''
         #include <stdio.h>
         #include <math.h>
+
+        typedef enum
+	{
+	    INT = 0,
+	    FLOAT = 1
+	} e_paramtype;
+	
+	struct s_param
+	{
+	    e_paramtype t;
+	    int intval;
+	    double doubleval;
+	};
+
         typedef struct {
-            double *p;
+            struct s_param *p;
         } pf_fake;
 
         int main(){
-        double params[20]= {0.0, 0.0, 0.0, 0.0};
+        struct s_param params[20];
+        int i = 0;
+        for(i = 0; i < 20; ++i) {
+            params[i].t = FLOAT;
+            params[i].doubleval = 0.0;
+        };
         pf_fake t__f;
         t__f.p = params;
         pf_fake *t__pfo = &t__f;

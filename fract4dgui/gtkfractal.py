@@ -242,14 +242,21 @@ class T(gobject.GObject):
         label.set_justify(gtk.JUSTIFY_RIGHT)
         table.attach(label,0,1,i,i+1,0,0,2,2)
 
-        if param.type == fracttypes.Float or \
+        if param.type == fracttypes.Int or \
+               param.type == fracttypes.Float or \
                param.type == fracttypes.Complex or \
                param.type == fracttypes.Hyper:
+
+            if param.type == fracttypes.Int:
+                fmt = "%d"
+            else:
+                fmt = "%.17f"
+                
             widget = gtk.Entry()
             widget.set_activates_default(True)
             
             def set_entry(*args):
-                new_value = "%.17f" % self.f.get_initparam(order,param_type)
+                new_value = fmt % self.f.get_initparam(order,param_type)
                 if widget.get_text() != new_value:
                     #print "updating %s from %s to %s" % \
                     #      (name, widget.get_text(), new_value)

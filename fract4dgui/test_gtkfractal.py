@@ -129,6 +129,11 @@ class FctTest(unittest.TestCase):
         self.assertEqual(names[3],"myfunc")
         self.assertEqual(names[4],"val")
 
+    def testIntParamSetting(self):
+        self.f.set_formula("testx.frm","fn_with_intparam")
+
+        table = self.f.populate_formula_settings(0)
+        
     def testButton1(self):
         f = self.f
 
