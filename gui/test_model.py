@@ -25,6 +25,12 @@ g_comp.file_path.append("../fract4d")
 g_comp.load_formula_file("gf4d.frm")
 g_comp.load_formula_file("gf4d.cfrm")
 
+class EmitCounter:
+    def __init__(self):
+        self.count = 0
+    def onCallback(self,*args):
+        self.count += 1
+        
 class Test(unittest.TestCase):
     def setUp(self):
         global g_comp
@@ -46,6 +52,24 @@ class Test(unittest.TestCase):
         self.failUnless(self.f)
         self.failUnless(self.m)
         self.assertEqual(self.m.f, self.f)
+
+    def testAction(self):
+        counter = EmitCounter()
+        f = self.m.f        
+        f.connect('parameters-changed',counter.onCallback)
+        
+        mag = f.get_param(f.MAGNITUDE)
+        f.set_param(f.MAGNITUDE,9.0)
+
+        self.assertEqual(counter.count,1)
+        
+        self.assertEqual(f.get_param(f.MAGNITUDE),9.0)
+        self.m.undo()
+
+        self.assertEqual(f.get_param(f.MAGNITUDE),mag)
+
+        self.m.redo()
+        self.assertEqual(f.get_param(f.MAGNITUDE),9.0)
         
 def suite():
     return unittest.makeSuite(Test,'test')

@@ -5,26 +5,33 @@ import undo
 
 class Model:
     def __init__(self,f):
-        self.seq = undo.Sequence
+        # undo history
+        self.seq = undo.Sequence()
+
+        # used to prevent recursive sets of commands happening
+        # at the same time
         self.command_in_progess = False
         self.f = f
-        self.old_f = None
-        
-    def start(self):
-        if self.command_in_progess: return False
-
-        self.command_in_progess = True
         self.old_f = self.f.copy_f()
+        self.f.connect('parameters-changed',self.onParametersChanged)
         
-    def finish(self):
-        current = self.f
+    def onParametersChanged(self,*args):
+        current = self.f.copy_f()
         def redo():
-            self.f = current
-
+            self.f.freeze()
+            self.f.set_fractal(current)
+            self.f.thaw()
+            
         previous = self.old_f
         def undo():
-            self.f = previous
-
+            self.f.freeze()
+            self.f.set_fractal(previous)
+            self.f.thaw()
+            
         self.seq.do(redo,undo)
-        self.f.emit('parameters-changed')
-    
+
+    def undo(self):
+        self.seq.undo()
+
+    def redo(self):
+        self.seq.redo()

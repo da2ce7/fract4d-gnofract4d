@@ -6,6 +6,7 @@ import sys
 import os
 import struct
 import math
+import copy
 
 import gtk
 import gobject
@@ -52,7 +53,8 @@ class T(gobject.GObject):
 
         self.skip_updates = False
         self.running = False
-
+        self.frozen = False # if true, don't emit signals
+        
         self.f = None
         self.set_fractal(f)
         
@@ -80,6 +82,15 @@ class T(gobject.GObject):
         self.widget = drawing_area
         self.f.compile()
 
+    def freeze(self):
+        self.frozen = True
+
+    def thaw(self):
+        self.frozen = False
+        was_dirty = self.f.dirty
+        self.f.clean()
+        return was_dirty
+    
     def interrupt(self):
         #print "interrupted %d" % self.running
         if self.skip_updates:
@@ -98,6 +109,9 @@ class T(gobject.GObject):
 
         self.skip_updates = False
 
+    def copy_f(self):
+        return copy.copy(self.f)
+    
     def draw(self,image,width,height,nthreads):
         self.cmap = fract4dc.cmap_create(self.colorlist)
         (r,g,b,a) = self.f.solids[0]
@@ -195,21 +209,30 @@ class T(gobject.GObject):
             if self.f:
                 self.interrupt()
             self.f = f
+
+            # take over fractal's changed function
+            f.changed = self.changed
+            self.changed()
+            
+    def changed(self):
+        self.f.dirty = True
+        if not self.frozen:
+            self.emit('parameters-changed')
         
     def set_auto_deepen(self,deepen):
         if self.f.auto_deepen != deepen:
             self.f.auto_deepen = deepen
-            self.emit('parameters-changed')
+            self.changed()
             
     def set_antialias(self,aa_type):
         if self.f.antialias != aa_type:
             self.f.antialias = aa_type
-            self.emit('parameters-changed')
+            self.changed()
         
     def set_func(self,func,fname):
         if func.cname != fname:
             self.f.set_func(func,fname)
-            self.emit('parameters-changed')
+            self.changed()
         
     def add_formula_function(self,table,i,name,param):
         label = gtk.Label(self.param_display_name(name,param))
@@ -287,7 +310,7 @@ class T(gobject.GObject):
     def set_maxiter(self,new_iter):
         if self.f.maxiter != new_iter:
             self.f.maxiter = new_iter
-            self.emit('parameters_changed')
+            self.changed()
         
     def set_size(self, new_width, new_height):
         if self.width == new_width and self.height == new_height :
@@ -296,17 +319,16 @@ class T(gobject.GObject):
         self.height = new_height
         fract4dc.image_resize(self.image,self.width,self.height)
         self.widget.set_size_request(self.width,self.height)
-        self.emit('parameters-changed')
+        self.changed()
         
     def reset(self):
         self.f.reset()
-        self.emit('parameters-changed')
+        self.changed()
 
     def loadFctFile(self,file):
         new_f = fractal.T(self.compiler,self.site)
         new_f.loadFctFile(file)
         self.set_fractal(new_f)
-        self.emit('parameters-changed')
         
     def save_image(self,filename):
         # FIXME need to get hold of a pixbuf
@@ -323,19 +345,6 @@ class T(gobject.GObject):
         self.f.compile()
         self.draw(self.image,self.width,self.height,self.nthreads)
         return gtk.FALSE
-
-    def set_initparam(self,n,val):
-        val = float(val)
-        if self.f.initparams[n] != val:
-            self.f.initparams[n] = val
-            self.emit('parameters-changed')
-    
-    def set_param(self,n,val):
-        #print "set param: %s %s" % (n, val)
-        val = float(val)
-        if self.f.params[n] != val:
-            self.f.params[n] = val
-            self.emit('parameters-changed')
 
     def progress_changed(self,progress):
         self.emit('progress-changed',progress)
@@ -357,8 +366,6 @@ class T(gobject.GObject):
     def onMotionNotify(self,widget,event):
         (self.newx,self.newy) = (event.x, event.y)
 
-        #print "omn(%d,%d,%d,%d)" % (self.x, self.y, self.newx,self.newy)
-        
         dummy = widget.window.get_pointer()
         self.redraw_rect(0,0,self.width,self.height)
 
@@ -389,12 +396,9 @@ class T(gobject.GObject):
                 y = self.y
             else:
                 zoom= (1+abs(self.x - self.newx))/float(self.width)
-                #print "pixz: %d" % (1+abs(self.x - self.newx))
                 x = 0.5 + (self.x + self.newx)/2.0;
                 y = 0.5 + (self.y + self.newy)/2.0;
                 
-            #print "xyz: (%f,%f,%f)" % (x, y, zoom)
-            
         elif event.button == 2:
             (x,y) = (event.x, event.y)
             zoom = 1.0
@@ -403,14 +407,12 @@ class T(gobject.GObject):
             (x,y) = (event.x, event.y)
             zoom = 2.0
             
-        #print "click (%d,%d)" % (event.x, event.y)
         self.recenter(x,y,zoom)
 
     def recenter(self,x,y,zoom):
         dx = (x - self.width/2.0)/self.width
         dy = (y - self.height/2.0)/self.width
-        self.relocate(dx,dy,zoom)
-        self.emit('parameters-changed')
+        self.relocate(dx,dy,zoom)        
         
     def redraw_rect(self,x,y,w,h):
         gc = self.widget.get_style().white_gc

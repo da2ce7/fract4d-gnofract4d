@@ -342,7 +342,7 @@ blue=0.5543108971162746
         #fract4dc.image_save(image,"mandel3.tga")
 
     def testCopy(self):
-        f = fractal.T(self.compiler);
+        f = fractal.T(self.compiler)
         c = copy.copy(f)
 
         # test a parameter        
@@ -372,6 +372,31 @@ blue=0.5543108971162746
         self.assertNotEqual(c0,f.colorlist[0])
 
         # TODO: test formula parameters etc
+
+
+    def assertDirty(self,f):
+        self.assertEqual(f.dirty,True)
+
+    def assertClean(self,f):
+        self.assertEqual(f.dirty,False)
+        
+    def testDirtyFlag(self):
+        f = fractal.T(self.compiler)
+        self.assertDirty(f)
+        f.clean()
+        self.assertClean(f)
+
+        # set to existing value
+        f.set_param(f.MAGNITUDE,f.params[f.MAGNITUDE])
+        self.assertClean(f)
+
+        # set to different value
+        f.set_param(f.MAGNITUDE,f.params[f.MAGNITUDE] * 2.0)
+        self.assertDirty(f)
+
+        f.clean()
+        f.set_named_func("bailfunc","real2")
+        self.assertDirty(f)
         
     def testFractalBadness(self):
         f = fractal.T(self.compiler)
