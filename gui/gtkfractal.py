@@ -14,7 +14,7 @@ import gobject
 # FIXME is there a better way?
 sys.path.append("..")
 
-from fract4d import fractal,fract4dc
+from fract4d import fractal,fract4dc,fracttypes
 
 class Threaded(fractal.T):
     def __init__(self,comp):
@@ -126,6 +126,46 @@ class T(Threaded,gobject.GObject):
         self.widget = drawing_area
         self.compile()
 
+    def param_display_name(self,name,param):
+        if hasattr(param,"title"):
+            return param.title
+        if name[:5] == "t__a_":
+            return name[5:]
+        return name
+    
+    def add_formula_setting(self,table,i,name,param,order):
+        label = gtk.Label(self.param_display_name(name,param))
+        label.set_justify(gtk.JUSTIFY_RIGHT)
+        table.attach(label,0,1,i,i+1,0,0,0,0)
+
+        if param.type == fracttypes.Float:
+            widget = gtk.Entry()
+
+            def set_entry(f):
+                widget.set_text("%.17f" % self.initparams[order])
+
+            def set_fractal(*args):
+                self.set_initparam(order,widget.get_text())
+
+            set_entry(self)
+            self.connect('parameters-changed',set_entry)
+            widget.connect('focus-out-event',set_fractal)
+        else:
+            raise "Unsupported parameter type"
+
+        table.attach(widget,1,2,i,i+1,0,0,0,0)
+        
+    def populate_formula_settings(self,table):
+        # create widget to fiddle with this fractal's settings
+        params = self.formula.symbols.parameters()
+        op = self.formula.symbols.order_of_params()
+        
+        i = 0
+        for (name,param) in params.items():
+            self.add_formula_setting(table,i,name,param,op[name])
+            i += 1
+        
+        
     def reset(self):
         fractal.T.reset(self)
         self.emit('parameters-changed')
@@ -135,6 +175,12 @@ class T(Threaded,gobject.GObject):
         self.draw(self.image)
         return gtk.FALSE
 
+    def set_initparam(self,n,val):
+        val = float(val)
+        if self.initparams[n] != val:
+            self.initparams[n] = val
+            self.emit('parameters-changed')
+    
     def set_param(self,n,val):
         #print "set param: %s %s" % (n, val)
         val = float(val)
@@ -148,6 +194,7 @@ class T(Threaded,gobject.GObject):
         
     def iters_changed(self,n):
         fractal.T.iters_changed(self,n)
+        # don't emit a parameters-changed here to avoid deadlock
         
     def image_changed(self,x1,y1,x2,y2):
         self.redraw_rect(x1,y1,x2-x1,y2-y1)
@@ -228,4 +275,5 @@ class T(Threaded,gobject.GObject):
                 buf,
                 self.width*3)
 
+# explain our existence to GTK's object system
 gobject.type_register(T)

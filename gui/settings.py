@@ -25,6 +25,8 @@ class SettingsDialog(gtk.Dialog):
         self.vbox.add(self.notebook)
         
         self.create_location_page()
+        self.create_formula_parameters_page()
+        
         self.connect('response',self.onResponse)
 
     def create_location_page(self):
@@ -36,6 +38,10 @@ class SettingsDialog(gtk.Dialog):
         self.create_param_entry(table,3,"W (Im) :", self.f.WCENTER)
         self.create_param_entry(table,4,"Size :", self.f.MAGNITUDE)
 
+    def create_formula_parameters_page(self):
+        table = gtk.Table(5,2,gtk.FALSE)
+        self.notebook.append_page(table,gtk.Label("Formula"))
+        self.f.populate_formula_settings(table)
         
     def create_param_entry(self,table, row, text, param):
         label = gtk.Label(text)
