@@ -246,7 +246,7 @@ class MainWindow:
 
         if status == 0:
             # done
-            if self.save_file:
+            if self.save_filename:
                 self.f.save_image(self.save_filename)
             if self.quit_when_done:
                 self.quit(None,None)

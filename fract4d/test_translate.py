@@ -44,6 +44,9 @@ class TranslateTest(testbase.TestBase):
                             #index = #numiter / 256.0
                             }''')
 
+        self.failUnless(isinstance(
+            t1.sections["final"].children[-1],ir.Move))
+        
         t2 = self.translatecf('c1 {\n#index = #numiter / 256.0\n}')
         
         self.assertNoErrors(t1)

@@ -9,4 +9,6 @@ include pixmaps/*.png
 include gnofract4d.desktop
 include COPYING
 include gnofract4d
-
+include test.py
+include fract4d/test.frm
+include fract4d/test.cfrm
