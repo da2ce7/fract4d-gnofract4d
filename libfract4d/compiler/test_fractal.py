@@ -4,11 +4,20 @@ import string
 import unittest
 import StringIO
 
+import fc
 import fractal
+
+# centralized to speed up tests
+g_comp = fc.Compiler()
+g_comp.load_formula_file("./gf4d.frm")
+g_comp.load_formula_file("test.frm")
+g_comp.load_formula_file("gf4d.cfrm")
+        
 
 class FctTest(unittest.TestCase):
     def setUp(self):
-        pass
+        global g_comp
+        self.compiler = g_comp
 
     def tearDown(self):
         pass
@@ -53,7 +62,7 @@ colorizer=1
 colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028b8102cb81430b81434bc1838c0183cc01c40c01c44c42048c8204cc82450c82454cc2858d0285cd02c60d02c64d43068d8306cd83470d83474dc3878e03c7ce03c80e04084e44088e84484e84488e8448ce84490e84894ec4898f04c9cf04ca0f050a4f450a8f854acf854b0f8287c00287c002c7c002c7c002c7c042c7c042c80042c800430800430800430800830800830840830840834840834840838840c38840c3c840c3c840c3c880c3c880c3c88103c88103c8c103c8c10408c10408c10408c14408c1440901440901444901444901444901844901844941848941848941c48981c4898204c98204c9c20509c20509c2450a02450a02854a02854a42858a42858a42c58a82c58a8305ca8305cac3060ac3060ac3460b03464b03464b03864b43864b43868b43c68b83c68b8406cb8406cbc406cbc4470bc4470bc4870c04870c04c74c04c74c44c74c45078c45078c85078c8547cc8547ccc547ccc5880cc5880d05880d05c84d05c84d45c88d45c88d46088d86088d8648cd8648cdc648cdc6890dc6890e06890e06c94e06c94e46c98e46c98e46c9ce46c9ce46ca0e46ca4e46ca8e46ca8e46cace46cace46cb0e46cb0e46cb4e46cb4e46cb8e46cb8e46cbce46cbce46cc0e46cc4e46cc4e46cc8e46ccce46ccce46cd0e46cd0e46cd4e46cd4e46cd8e46cdce46cdce46ce0e46ce4e46ce4e46ce8e46ce8e46ce8e468e8e468e8e464e8e464e8e460e8e460e8e45ce8e05ce8e05ce8dc58e8d854e8d850e8d450e8d44ce8d04ce8cc48e8cc44e8c844e8c840e8c840e8c440e8c43ce8c03ce8c038e8bc38e8bc34e8b834e8b830e8b430e8b42ce8b42ce8b02ce8b02ce8b028e8b028e8ac28e8ac24e8a824e8a824e4a420e4a420e4a020e4a020e09c1ce09818e09818e09414dc9414dc8c10dc8c10dc8410d88410d87c08d87c08d87408808080808080fcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcc0c0c0c0c0c0fcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfc
 [endsection]
 '''
-        f = fractal.T();
+        f = fractal.T(self.compiler);
         f.loadFctFile(StringIO.StringIO(file))
 
         self.assertEqual(f.params[f.XCENTER],0.891)
@@ -71,7 +80,23 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         self.assertEqual(f.bailout,5.1)
         self.assertEqual(f.funcName,"Mandelbar")
         self.assertEqual(f.maxiter, 259)
+
+        sofile = f.compile()
         
+    def testFractal(self):
+        f = fractal.T(self.compiler)
+        f.set_formula("gf4d.frm","Mandelbrot")
+        f.set_inner("gf4d.cfrm","default")
+        f.set_outer("gf4d.cfrm","zero")
+        s = f.compile()
+
+    def testFractalBadness(self):
+        f = fractal.T(self.compiler)
+        self.assertRaises(ValueError,f.set_formula,"gf4d.frm","xMandelbrot")
+        self.assertRaises(ValueError,f.set_inner,"gf4d.cfrm","xdefault")
+        self.assertRaises(ValueError,f.set_outer,"gf4d.cfrm","xzero")
+        self.assertRaises(ValueError,f.compile)
+
 def suite():
     return unittest.makeSuite(FctTest,'test')
 

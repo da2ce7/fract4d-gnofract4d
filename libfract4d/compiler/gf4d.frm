@@ -25,3 +25,12 @@ loop:
 bailout:
 	|z| <= 4
 }
+
+Mandelbar {
+init:
+	; nothing to do here
+loop:
+	z = conj(z)^@p1 + #pixel
+bailout:
+	|z| <= 4
+}
