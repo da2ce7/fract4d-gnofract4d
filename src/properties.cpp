@@ -500,11 +500,16 @@ void show_page_child_callback(GtkWidget *button, GtkWidget *child)
 }
 
 /* a compound widget which hides and shows its child in a box below the title */
-GtkWidget *create_page(GtkWidget *child, gchar *title)
+GtkWidget *create_page(GtkWidget *notebook, GtkWidget *child, gchar *title)
 {
     GtkWidget *title_frame = gtk_frame_new(NULL);
     GtkWidget *vbox = gtk_vbox_new(FALSE, 0);
-    GtkWidget *title_hbox = gtk_hbox_new(FALSE, 0);
+
+    GtkWidget *label = gtk_label_new(title);
+    gtk_notebook_append_page( GTK_NOTEBOOK (notebook), title_frame, label);
+
+    /*
+      GtkWidget *title_hbox = gtk_hbox_new(FALSE, 0);
     GtkWidget *label = gtk_label_new(title);
     GtkWidget *arrow = gtk_arrow_new(GTK_ARROW_RIGHT,GTK_SHADOW_OUT);
     GtkWidget *arrowbut = gtk_button_new();
@@ -518,19 +523,20 @@ GtkWidget *create_page(GtkWidget *child, gchar *title)
 
     gtk_box_pack_start(GTK_BOX(vbox), title_hbox, 0, 1, 0);
     gtk_box_pack_start(GTK_BOX(vbox), hsep, 0, 1, 1);
-    gtk_box_pack_start(GTK_BOX(vbox), child, 1, 1, 1);
-
+    */
+    gtk_box_pack_start(GTK_BOX(vbox), child, 1, 1, 1);    
     gtk_container_add(GTK_CONTAINER(title_frame), vbox);
 
     gtk_widget_show_all(title_frame);
     gtk_widget_hide_all(child);
 
+    /*
     gtk_signal_connect(
         GTK_OBJECT(arrowbut), 
         "clicked", 
         GTK_SIGNAL_FUNC(show_page_child_callback), 
         (gpointer) child);
-
+    */
     return title_frame;
 }
 
@@ -541,8 +547,7 @@ create_propertybox_bailout_page(
     Gf4dFractal *shadow)
 {
     GtkWidget *table = gtk_table_new (2, 2, FALSE);
-    GtkWidget *test_page = create_page(table, _("Bailout"));
-    gtk_box_pack_start( GTK_BOX (vbox), test_page, 1, 1, 0 );
+    create_page(vbox, table, _("Bailout"));
 
     // bailout type
     GtkWidget *bailout_label= gtk_label_new(_("Function"));
@@ -632,10 +637,8 @@ create_propertybox_rendering_page(
     GtkWidget *table = gtk_table_new (4, 2, FALSE);
     GtkWidget *auto_deepen_button;
     
-    GtkWidget *general_page = create_page(table,_("Rendering"));
+    create_page(vbox, table,_("Rendering"));
     
-    gtk_box_pack_start( GTK_BOX (vbox), general_page, 1, 1, 0 );
-
     /* antialias */
     GtkWidget *aa_label= gtk_label_new(_("Antialiasing"));
 
@@ -805,10 +808,6 @@ create_propertybox_function_page(
     Gf4dFractal *shadow)
 {
     GtkWidget *table = gtk_table_new (3, 2, FALSE);
-    
-    GtkWidget *general_page = create_page(table,_("Function"));
-    
-    gtk_box_pack_start( GTK_BOX (vbox), general_page, 1, 1, 0 );
 
     /* iteration function */
     GtkWidget *func_label= gtk_label_new(_("Function"));
@@ -826,6 +825,8 @@ create_propertybox_function_page(
         (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
         (GtkAttachOptions)0, 
         0, 2);
+
+    create_page(vbox, table,_("Function"));
 }
 
 void
@@ -1072,10 +1073,8 @@ create_propertybox_func_parameters_page(
 {
     GtkWidget *table = gtk_table_new (1, 3, FALSE);
     
-    GtkWidget *general_page = create_page(table,_("Parameters"));
+    create_page(vbox, table,_("Parameters"));
     
-    gtk_box_pack_start( GTK_BOX (vbox), general_page, 1, 1, 0 );
-
     gtk_object_set_data(GTK_OBJECT(table), "type", (gpointer)"");
     gtk_object_set_data(GTK_OBJECT(table), "model", (gpointer)m);
 
@@ -1099,9 +1098,7 @@ create_propertybox_image_page(
     model_t *m)
 {
     GtkWidget *table = gtk_table_new (2, 3, FALSE);    
-    GtkWidget *image_page = create_page(table,_("Image Size"));
-    
-    gtk_box_pack_start( GTK_BOX (main_vbox), image_page, 1, 1, 0 );
+    create_page(main_vbox, table,_("Image Size"));
     
     int height, width;
     model_get_dimensions(m,&width,&height);
@@ -1153,10 +1150,8 @@ create_propertybox_location_page(
 {
     GtkWidget *table = gtk_table_new (5, 2, FALSE);
     
-    GtkWidget *location_page = create_page(table,_("Location"));
+    create_page(main_vbox, table,_("Location"));
 
-    gtk_box_pack_start( GTK_BOX (main_vbox), location_page, 1, 1, 0 );
-            
     create_param_entry_with_label(
         table, tooltips, 0, _("X (Re) :"), shadow, XCENTER, _("This is c.re in z^2 + c"));
     
@@ -1180,9 +1175,7 @@ create_propertybox_angles_page(
     Gf4dFractal *shadow)
 {
     GtkWidget *table = gtk_table_new (6, 2, FALSE);;
-    GtkWidget *angles_page = create_page(table,_("Angles"));
-    
-    gtk_box_pack_start( GTK_BOX (main_vbox), angles_page, 1, 1, 0 );
+    create_page(main_vbox, table,_("Angles"));
     
     create_param_entry_with_label(table, tooltips, 0, _("XY :"), shadow, XYANGLE, NULL);
     create_param_entry_with_label(table, tooltips, 1, _("XZ :"), shadow, XZANGLE, NULL);
@@ -1251,14 +1244,17 @@ create_propertybox (model_t *m)
 
     vbox = GNOME_DIALOG(propertybox)->vbox;
 
+    GtkWidget *notebook = gtk_notebook_new();
+    gtk_container_add(GTK_CONTAINER(vbox),notebook);
+
     gtk_box_set_spacing(GTK_BOX(vbox),0);
-    create_propertybox_function_page(vbox, tooltips, shadow);
-    create_propertybox_func_parameters_page(vbox, tooltips, shadow, m);
-    create_propertybox_rendering_page(vbox, tooltips, shadow);
-    create_propertybox_bailout_page(vbox, tooltips, shadow);
-    create_propertybox_image_page(vbox,tooltips, shadow, m);
-    create_propertybox_location_page(vbox, tooltips, shadow);
-    create_propertybox_angles_page(vbox, tooltips, shadow);
+    create_propertybox_function_page(notebook, tooltips, shadow);
+    create_propertybox_func_parameters_page(notebook, tooltips, shadow, m);
+    create_propertybox_rendering_page(notebook, tooltips, shadow);
+    create_propertybox_bailout_page(notebook, tooltips, shadow);
+    create_propertybox_image_page(notebook,tooltips, shadow, m);
+    create_propertybox_location_page(notebook, tooltips, shadow);
+    create_propertybox_angles_page(notebook, tooltips, shadow);
     
     gnome_dialog_set_close(GNOME_DIALOG(propertybox), TRUE);
     gnome_dialog_close_hides(GNOME_DIALOG(propertybox), TRUE);
@@ -1272,5 +1268,5 @@ create_propertybox (model_t *m)
 
     propertybox_refresh(m);
 
-    gtk_widget_show(global_propertybox);
+    gtk_widget_show_all(global_propertybox);
 }

@@ -52,7 +52,7 @@ create_prefs_compiler_page(
     GtkTooltips *tooltips)
 {
     GtkWidget *table = gtk_table_new (2, 2, FALSE);
-    GtkWidget *page = create_page(table, _("Compiler"));
+    GtkWidget *page = create_page(vbox, table, _("Compiler"));
     gtk_box_pack_start( GTK_BOX (vbox), page, 1, 1, 0 );
 
     // Compiler location
