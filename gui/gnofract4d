@@ -206,10 +206,21 @@ class MainWindow:
     def save_image(self,action,widget):
         fs = gtk.FileSelection("Save Image")
         result = fs.run()
-        
+
+        name = None
         if result == gtk.RESPONSE_OK:
-            self.f.save_image(fs.get_filename())
+            name = fs.get_filename()
         fs.destroy()
+
+        if name:
+            try:
+                self.f.save_image(name)
+            except Exception, err:
+                d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
+                                      gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+                                      "Error saving %s:\n%s" % (name, err))
+                d.run()
+                d.destroy()
 
     def settings(self,action,widget):
         settings.show_settings(self.window,self.f)
