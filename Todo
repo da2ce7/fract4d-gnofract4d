@@ -3,6 +3,9 @@ todo for 2.0
 * BB	more robust error reporting
 * W	last-chance exception handler
 
+* W	command-line arguments
+* WW	cmap browser
+
 * B	untitled_5 displays weirdly - 
 	so do some combinations of bailout+colorfunc
 * BB	giger.fct - results of extangle are different vs 1.9
@@ -10,9 +13,11 @@ todo for 2.0
 
 * W	end-to-end regression test vs V1.9
 * W	regression test vs fractint
+* W	current angle in status bar
 
 * W	formula browser
 	manage search path (user prefs)
+	auto-list all formula files on path, parse on first click
 	edit & continue
 	save/save-as
 	run $EDITOR, refresh
@@ -29,6 +34,7 @@ todo for 2.0
 * B	standard.cfrm:triangle = all black
 * B	opening color browser sometimes applies 1st item
 * B	translationerror on load doesn't pop up
+* B	Mandrake: desktop icon not added to menu, pygtk2 is called pygtk2.0
 
 differences from fractint:
 * B	3rdim05 - default params bulge with fractint. They use sin() as default
@@ -41,6 +47,10 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* BB	mandrake9.2 RPM - fract4d libs install to python2.2 directory, 
+	python2.3 can't find them.
+	Then RuntimeWarning when loaded - python C API has different version.
+* B	sometimes deepen button doesn't work
 * B	standard.cfrm:smooth = error "all parameters must be floats"
 * BB	setting val for inner=flat changes bailout for formula 
 	(but not visibly in GUI)
@@ -116,6 +126,7 @@ done:
 * W	user parameter functions
 * W	there is no warning before files are overwritten (parameter files +
 	pictures)
+* B	undo/redo cause recompilation
 
 postponed
 * B	warnings for several fractal types
@@ -131,9 +142,6 @@ postponed
 * BB	deeper.fct, hive.fct, image.fct doesn't load properly - old format
 * BB	daisychain.fct - bailFunc != diff for newton
 * W 	enums, int parameters
-* B	undo/redo cause recompilation
-* W	command-line arguments
-* WW	cmap browser
 * W	autosave/restore?
 * W	max size for .so cache
 * W	diff bailout for other types

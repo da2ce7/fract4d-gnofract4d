@@ -23,9 +23,11 @@ except ImportError, err:
     sys.exit(1)
     
 try:
+    # we install our libs privately instead of to site-packages
+    sys.path.append('/usr/lib/gnofract4d-2.0')
     # gui modules
     from fract4dgui import main_window
-
+    
 except ImportError, err:
     print _('''
 Can't import a required module.

@@ -8,4 +8,4 @@ include pixmaps/*.png
 include gnofract4d.desktop
 include COPYING
 include gnofract4d
-include testdata/*.fct
+

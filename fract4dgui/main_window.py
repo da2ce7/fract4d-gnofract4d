@@ -320,8 +320,8 @@ class MainWindow:
         self.preview.draw_image(False,auto_deepen)
 
     def deepen_now(self, widget):
-        self.f.set_maxiter(self.f.maxiter*2)
-        
+        self.f.double_maxiter()
+    
     def create_toolbar(self):
         self.toolbar = gtk.Toolbar()
         self.toolbar.set_tooltips(True)

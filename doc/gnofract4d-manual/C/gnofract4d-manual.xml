@@ -241,7 +241,7 @@ the middle - it then becomes the main picture and you get 12 new
 mutants based on the new main image. To return to normal mode, click
 the Explorer button again.  </para>
 
-<para> The "weirdness slider"
+<para> The "weirdness slider" on the toolbar
 determines how different the mutants are from the standard image. If
 it's set to 100, they're almost unrecognizable - if it's 0, they're
 exactly the same. 
@@ -263,19 +263,16 @@ idea of what the fractal will look like when you release the button.
 The first eight toolbar buttons correspond to the ten parameters which
 define the view. The circular angle buttons, labelled <emphasis>xy</emphasis> to
 <emphasis>zw</emphasis>, can changed by dragging the dot around. When you let
-go, the fractal will update. You can see the angle's current value in
-degrees in the status bar. By the way, the <emphasis>zw</emphasis> angle does
+go, the fractal will update. By the way, the <emphasis>zw</emphasis> angle does
 work, you just can't see its effects until you rotate in some other
 dimensions first.
 </para>
 
 <para>
-The square position buttons, <emphasis>xy</emphasis> and
-<emphasis>zw</emphasis>, can be used to alter the view. The
-<emphasis>xy</emphasis> button allows you to pan around the current
-view (it doesn't move along the actual <emphasis>x</emphasis> or
-<emphasis>y</emphasis> axes, but along axes relative to the current
-view). The <emphasis>zw</emphasis> button allows you to move along the
+The square position buttons, <emphasis>pan</emphasis> and
+<emphasis>wrp</emphasis> (aka Warp), can be used to alter the view. The
+<emphasis>pan</emphasis> button allows you to pan around the current
+view. The <emphasis>wrp</emphasis> button allows you to move along the
 other two axes, resulting in a mutated version of the current image.
 Click inside one then drag the mouse, watching the preview window
 update, then release the mouse when you like the results.  </para>

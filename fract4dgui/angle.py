@@ -117,7 +117,13 @@ class T(gobject.GObject):
         # text
         context = widget.get_pango_context()
         layout = pango.Layout(context)
-        layout.set_text(self.text,len(self.text))
+
+        # some pygtk versions want 2 args, some want 1. sigh
+        try:
+            layout.set_text(self.text)
+        except TypeError:
+            layout.set_text(self.text,len(self.text))
+
         (text_width, text_height) = layout.get_pixel_size()
         style.paint_layout(
             widget.window,
@@ -149,8 +155,8 @@ class T(gobject.GObject):
         widget.window.draw_arc(
             gc,
             True,
-            xc + ptr_xc - T.ptr_radius,
-            yc + ptr_yc - T.ptr_radius,
+            int(xc + ptr_xc - T.ptr_radius),
+            int(yc + ptr_yc - T.ptr_radius),
             T.ptr_radius*2 - 1,
             T.ptr_radius*2 - 1,
             0,
