@@ -42,6 +42,7 @@ private:
     colorFunc *m_pInnerColor;
     pf_obj *m_pfo;
     void *one_space;
+
 public:
     pf_wrapper(
 	pf_obj *pfo,
@@ -85,7 +86,7 @@ public:
         // out params
         struct rgb *color, int *pnIters, void *out_buf)
 	{
-	    double colorDist;
+	    double colorDist=-777.4;
 
 	    if(NULL == out_buf) out_buf = one_space;
 
@@ -93,6 +94,14 @@ public:
 	    m_pf->calc(params,nIters, nNoPeriodIters, x , y, aa, 
 		       &colorDist, pnIters, &pIterData);
 
+	    int nIters2;
+	    double *pIterData2;
+
+	    m_pfo->vtbl->calc(m_pfo, params, nIters, nNoPeriodIters, x, y, aa,
+			      &nIters2, &pIterData2);
+
+	    assert(nIters2 == *pnIters);
+	    assert(*(float *)pIterData2 == *(float *)pIterData);
 
 	    colorDist = colorize(*pnIters,pIterData,out_buf);
 

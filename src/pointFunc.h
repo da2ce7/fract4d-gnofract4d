@@ -73,7 +73,7 @@ struct s_pf_vtable {
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        double *colorDist, int *pnIters, double **out_buf
+        int *pnIters, double **out_buf
 	);
     void (*kill)(
 	struct s_pf_data *p
