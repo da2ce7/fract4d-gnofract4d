@@ -8,7 +8,6 @@ import os.path
 import struct
 import math
 
-sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4dc
 
 class FractalSite:

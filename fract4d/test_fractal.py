@@ -7,8 +7,6 @@ import sys
 
 import fc
 import fractal
-
-sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4dc
 
 # centralized to speed up tests

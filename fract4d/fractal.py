@@ -7,7 +7,6 @@ import os
 import sys
 import struct
 
-sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4dc
 
 #typedef enum
@@ -362,7 +361,6 @@ class T(FctUtils):
 if __name__ == '__main__':
     import sys
     import fc
-    sys.path.append("build/lib.linux-i686-2.2") # FIXME
     import fract4dc
 
     g_comp = fc.Compiler()
