@@ -44,7 +44,7 @@ class Temp(Exp):
         self.temp = temp
     def pretty(self, depth=0):
         return d(depth) + "Temp(" + self.temp + ")\n"
-    
+
 class Binop(Exp):
     def __init__(self, op, left, right, pos, datatype):
         Exp.__init__(self, pos, datatype)

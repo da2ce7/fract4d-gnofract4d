@@ -22,8 +22,8 @@ class TranslateTest(unittest.TestCase):
         #print pt.pretty()
         return translate.T(pt.children[0])
 
-    def x_testFractintSections(self):
-        t1 = self.translate("t1 {\na=1:\nb=2\nc=3}")
+    def testFractintSections(self):
+        t1 = self.translate("t1 {\na=1,a=2:\nb=2\nc=3}")
         t2 = self.translate('''
              t2 {
                  init: 
@@ -42,16 +42,16 @@ class TranslateTest(unittest.TestCase):
              t3 {
                  a=1:b=2,c=3
                  init:
-                 a=1
+                 a=1,a=2
                  loop:
                  b=2
                  bailout:
                  c=3
                  }''')
         self.assertEquivalentTranslations(t1,t3)
-        self.assertEqual(len(t3.warnings),6)
+        self.assertEqual(len(t3.warnings),7,t3.warnings)
 
-    def x_testAssign(self):
+    def testAssign(self):
         # correct declarations
         t9 = self.translate('''t9 {
         init:
@@ -147,12 +147,17 @@ class TranslateTest(unittest.TestCase):
         
     def assertVar(self,t, name,type):
         self.assertEquals(t.symbols[name].type,type)
-        
+
+    def assertTreesEqual(self, t1, t2):
+        self.failUnless(
+            t1.pretty() == t2.pretty(),
+            ("%s, %s should be equivalent" % (t1.pretty(), t2.pretty())))
+
     def assertEquivalentTranslations(self,t1,t2):
         for k in t1.sections.keys():
-            self.assertEqual(t1.sections[k],t2.sections[k])
+            self.assertTreesEqual(t1.sections[k],t2.sections[k])
         for k in t2.sections.keys():
-            self.assertEqual(t1.sections[k],t2.sections[k])
+            self.assertTreesEqual(t1.sections[k],t2.sections[k])
             
 def suite():
     return unittest.makeSuite(TranslateTest,'test')
