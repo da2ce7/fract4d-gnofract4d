@@ -73,7 +73,7 @@ class T(gobject.GObject):
         self.width = width
         self.height = height
         self.image = fract4dc.image_create(self.width,self.height)
-
+        
         drawing_area = gtk.DrawingArea()
         drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
                                 gtk.gdk.BUTTON1_MOTION_MASK |
