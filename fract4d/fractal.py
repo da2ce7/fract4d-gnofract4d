@@ -84,6 +84,8 @@ class Colorizer(FctUtils):
         self.name = "default"
         self.gradient = gradient.Gradient()
         self.solids = [(0,0,0,255)]
+        self.direct = False
+        self.rgb = [0,0,0]
         
     def load(self,f):
         line = f.readline()
@@ -97,23 +99,21 @@ class Colorizer(FctUtils):
     def parse_colorizer(self,val,f):
         t = int(val)
         if t == 0:
-            self.warn("RGB Colorizers not supported. Colors will be wrong.")
-            # FIXME
-            #raise ValueError("Sorry, color ranges not currently supported")
-            pass
+            # convert to a direct coloring algorithm
+            self.direct = True
         elif t == 1:
             pass
         else:
             raise ValueError("Unknown colorizer type %d" % t)
 
     def parse_red(self,val,f):
-        pass
+        self.rgb[0] = float(val)
 
     def parse_green(self,val,f):
-        pass
+        self.rgb[1] = float(val)
 
     def parse_blue(self,val,f):
-        pass
+        self.rgb[2] = float(val)
 
     def extract_color(self,val,pos,alpha=False):
         cols = [int(val[pos:pos+2],16),
@@ -931,6 +931,16 @@ The image may not display correctly. Please upgrade to version %.1f.'''
             self.gradient = cf.gradient
             self.solids[0:len(cf.solids)] = cf.solids[:]
             self.changed(False)
+            if cf.direct:
+                # loading a legacy rgb colorizer
+                self.set_outer("gf4d.cfrm", "rgb")
+                cfunc = self.cfuncs[which_cf]
+                params = self.cfunc_params[which_cf]
+
+                self.set_named_item("@base_red",cf.rgb[0], cfunc, params)
+                self.set_named_item("@base_green",cf.rgb[1], cfunc, params)
+                self.set_named_item("@base_blue",cf.rgb[2], cfunc, params)
+
         # ignore other colorlists for now
 
     def parse_inner(self,val,f):

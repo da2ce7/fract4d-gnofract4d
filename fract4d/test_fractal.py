@@ -400,20 +400,16 @@ function=Mandelbrot
 [endsection]
 [colors]
 colorizer=0
-red=1
-green=0
-blue=0
+red=0.87
+green=0.666
+blue=0.3
 [endsection]
 '''
-        warning_catcher = WarningCatcher()
         f = fractal.T(self.compiler);
         rgb_file = StringIO.StringIO(file)
         
-        f.warn = warning_catcher.warn
         f.loadFctFile(rgb_file)
-        self.assertEqual(len(warning_catcher.warnings),1)
-        self.assertEqual(warning_catcher.warnings[0],
-                         "RGB Colorizers not supported. Colors will be wrong.")
+        self.assertEqual(f.cfunc_names[0],"rgb")
 
     def testSaveWithCFParams(self):
         'load and save a file with a colorfunc which has parameters'
