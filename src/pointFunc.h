@@ -46,6 +46,20 @@ class pointFunc {
         ) = 0;
 #endif
     virtual rgb_t recolor(int iter) = 0;
+
+ private:
+    virtual void iter1(
+        double *pIterState, 
+        double *pInputState, 
+        double *pTempState) const = 0;
+    virtual void iter8(
+        double *pIterState, 
+        double *pInputState, 
+        double *pTempState) const = 0;
+#ifdef HAVE_GMP
+    virtual void operator()(gmp::f *p) const = 0;
+#endif
+
 };
 
 /* factory method for making new fractFuncs */

@@ -63,7 +63,7 @@ public:
 
             do
             {
-                m_pIter->iter8(pIter,pInput,pTemp);
+                iter8(pIter,pInput,pTemp);
                 if((iter+= 8) >= maxIter)
                 {   
                     return false;
@@ -91,7 +91,7 @@ public:
 
             do
             {
-                (*m_pIter)(pIter,pInput,pTemp);
+                iter1(pIter,pInput,pTemp);
                 if(iter++ >= nMaxIters) 
                 {
                     // ran out of iterations
@@ -129,11 +129,10 @@ public:
             /* periodicity vars */
             d lastx = pIter[X], lasty=pIter[Y];
             int k =1, m = 1;
-
             
             do
             {
-                m_pIter->iter8(pIter,pInput,pTemp);
+                iter8(pIter,pInput,pTemp);
                 if((iter+= 8) >= nMaxIters)
                 {
                     return false;
@@ -267,6 +266,22 @@ public:
             // set ejectval = 1.0 , otherwise we have 0/0 = NaN for some colorFuncs
             d tempSpace[TEMP_SPACE] = { 0.0, 0.0, 1.0, 0.0, 0.0 };
             return colorize(iter, &inputSpace[0], &iterSpace[0], &tempSpace[0]);
+        }
+
+    void iter1(
+        double *pIterState, 
+        double *pInputState, 
+        double *pTempState) const 
+        {
+            m_pIter->_iter1(pIterState,pInputState,pTempState);
+        }
+
+    void iter8(
+        double *pIterState, 
+        double *pInputState, 
+        double *pTempState) const
+        {
+            m_pIter->_iter8(pIterState,pInputState,pTempState);
         }
 };
 

@@ -29,7 +29,7 @@
 // TODO: replace all this with a fork/exec thingy so I can get exit status etc
 compiler::compiler()
 {
-    commandLine = "g++ -shared x.cpp -o fract.so 2>&1";
+    commandLine = "g++ -shared compiler_template.cpp -o fract.so 2>&1";
     flags = "-O3 -ffast-math";
     in = "x.cpp";
     out = "fract.so";

@@ -184,7 +184,7 @@ operator>>(std::istream& s, iterImpl<T, NOPTIONS>& m)
             decl; \
             func; func; func; func; func; func; func; func; \
         }\
-    void operator()( \
+    void _iter1( \
             double *pIterState, \
             double *pInputState, \
             double *pTempState) const \
@@ -192,13 +192,17 @@ operator>>(std::istream& s, iterImpl<T, NOPTIONS>& m)
             calc<double>(pIterState,pInputState,pTempState);\
         }\
     GMP_FUNC_OP \
-    void iter8( \
+    void _iter8( \
             double *pIterState, \
             double *pInputState, \
             double *pTempState) const \
         { \
             calc8<double>(pIterState,pInputState,pTempState); \
-        } 
+        } \
+    std::string decl_code() const { return #decl; } \
+    std::string iter_code() const { return #func; } \
+    std::string ret_code()  const { return ""; }
+
 
 #define ITER_DECLS_RET(decl,func,ret) \
     template<class T>inline void calc(T *pIter, T *pInput, T *pTemp) const \
