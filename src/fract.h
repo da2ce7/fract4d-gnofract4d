@@ -35,7 +35,6 @@ public:
 	double r;
 	double g;
 	double b;
-	d move_by;
 	int digits;
 	bool running;
 	bool finished;

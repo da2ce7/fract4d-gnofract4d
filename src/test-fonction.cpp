@@ -34,6 +34,13 @@ fractFunc fractFuncTable[NFUNCS] = {
 	test_mandelbrot_cln,
 };
 
+/* FIXME: at low iteration counts, this can use 30% of calculation time:
+ * this could be reduced by precalcing 1.0 + contrast * {r,g,b} and 
+ * just doing dn * iter at runtime. 
+ * or even construct a palette by using different n until a cycle occurs 
+ * cycle time = 256 * lcd ( 1/r, 1/g, 1/b), ie can be very large if r 
+ * is approximately g etc.
+ */
 
 struct rgb colorize(int n, double r, double g, double b)
 {

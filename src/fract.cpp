@@ -52,7 +52,6 @@ fractal::fractal()
 	g = 0.0;
 	b = 0.0;
 
-	move_by = M_PI/20.0;
 	digits = 0;
 	
 	running = false;
@@ -96,7 +95,6 @@ fractal::fractal(fractal& f)
 	r = f.r;
 	g = f.g;
 	b = f.b;
-	move_by = f.move_by;
 	digits = f.digits;
 	running = f.running;
 	finished = f.finished;
@@ -106,17 +104,22 @@ fractal::fractal(fractal& f)
 void 
 fractal::reset()
 {
-	params[XCENTER] = params[YCENTER] = 0.0;
-	params[ZCENTER] = params[WCENTER] = 0.0;
+	digits=10;
+	d zero = D(0.0);
+	d four = D(4.0);
+	params[XCENTER] = zero;
+	params[YCENTER] = zero;
+	params[ZCENTER] = zero;
+	params[WCENTER] = zero;
 	
-	params[SIZE] = 4.0;
-	params[BAILOUT] = 4.0;
+	params[SIZE] = four;
+	params[BAILOUT] = four;
 	for(int i = XYANGLE; i < ZWANGLE+1; i++) {
-		params[i] = 0.0;
+		params[i] = zero;
 	}
 
 	nbit_max = 64;
-	fractal_type = 1;
+	fractal_type = 0;
 }
 
 bool fractal::write_params(const char *filename)
@@ -222,16 +225,16 @@ bool fractal::set_precision(int digits)
 #ifdef HAVE_CLN
 	cl_float_format_t fmt = cl_float_format(digits);
 	for(int i = 0; i < N_PARAMS; i++) {
-		f->params[i] = cl_float(f->params[i],fmt);
+		params[i] = cl_float(params[i],fmt);
 	}
 
-	debug_precision(f->params[XCENTER],"set precision:x");
-	g_print("new bits of precision: %d\n",float_digits(f->params[SIZE]));
-	if(float_digits(f->params[SIZE]) > 53)
+	debug_precision(params[XCENTER],"set precision:x");
+	g_print("new bits of precision: %d\n",float_digits(params[SIZE]));
+	if(float_digits(params[SIZE]) > 53)
 	{
-		f->fractal_type = 1;
+		fractal_type = 1;
 	} else {
-		f->fractal_type = 0;
+		fractal_type = 0;
 	}
 	return 1;
 #else
@@ -254,7 +257,7 @@ int fract_check_precision(fractal *p)
 		g_print("increasing precision from %d\n",float_digits(delta)); 
 		// float_digits gives bits of precision,
 		// cl_float takes decimal digits. / by 3 should be safe?
-		fract_set_precision(p,float_digits(delta)/3 +4);
+		p->set_precision(float_digits(delta)/3 +4);
 		return 0;
 	}
 #else
@@ -355,7 +358,7 @@ fractal::relocate(double x, double y, double zoom)
 
 	debug_precision(params[SIZE],"relocate 1");
 
-	params[SIZE] /= D(zoom);
+	params[SIZE] /= D_LIKE(zoom,params[SIZE]);
 
 	debug_precision(params[SIZE],"relocate 2");
 
@@ -371,19 +374,21 @@ void swap(T& a, T& b)
 }
 
 void
-fractal::flip2julia(double dx, double dy)
+fractal::flip2julia(double x, double y)
 {
 	static double rot=M_PI/2;
+	d dx = D_LIKE(x,params[SIZE]);
+	d dy = D_LIKE(y,params[SIZE]);
 
 	dvec4 deltax,deltay;
 	
 	deltax=get_deltax(this);
 	deltay=get_deltay(this);
 	
-	recenter(dx*deltax + dy *deltay);
+	recenter(dx*deltax + dy*deltay);
 	
-	params[XZANGLE] += D(rot);
-	params[YWANGLE] += D(rot);
+	params[XZANGLE] += D_LIKE(rot,params[SIZE]);
+	params[YWANGLE] += D_LIKE(rot,params[SIZE]);
 
 	rot = -rot;
 }
@@ -395,6 +400,7 @@ public:
 	dvec4 deltax, deltay;
 	dvec4 delta_aa_x, delta_aa_y;
 	dvec4 topleft;
+	dvec4 aa_topleft; // topleft - offset to 1st subpixel to draw
 	int depth;
 	d ddepth;
 	// n pixels correctly classified that would be wrong if we halved iterations
@@ -414,18 +420,21 @@ public:
 		f = _f; cf = _cf ; pf = _pf;
 		depth = f->aa_profondeur ? f->aa_profondeur : 1; 
 
-		rot = get_rotated_matrix(f)/D(im->Xres);
+		rot = get_rotated_matrix(f)/D_LIKE(im->Xres,f->params[SIZE]);
 		deltax = rot[VX];
 		deltay = rot[VY];
-		ddepth = D_LIKE((double)depth,f->params[SIZE]);
+		ddepth = D_LIKE((double)(depth*2),f->params[SIZE]);
 		delta_aa_x = deltax / ddepth;
 		delta_aa_y = deltay / ddepth;
 
 		debug_precision(deltax[VX],"deltax");
 		debug_precision(f->params[XCENTER],"center");
 		topleft = get_center(f) -
-		deltax * D_LIKE(im->Xres / 2.0, f->params[SIZE])  -
-		deltay * D_LIKE(im->Yres / 2.0, f->params[SIZE]);
+			deltax * D_LIKE(im->Xres / 2.0, f->params[SIZE])  -
+			deltay * D_LIKE(im->Yres / 2.0, f->params[SIZE]);
+
+		d depthby2 = ddepth/D_LIKE(2.0,ddepth);
+		aa_topleft = topleft - (delta_aa_y + delta_aa_x) * depthby2;
 
 		debug_precision(topleft[VX],"topleft");
 		nhalfiters = ndoubleiters = k = 0;
@@ -469,9 +478,11 @@ fract_rot::antialias(const dvec4& cpos)
 	struct rgb ptmp;
 	unsigned int pixel_r_val=0, pixel_g_val=0, pixel_b_val=0;
 	int i,j;
+
+	dvec4 topleft = cpos;
+		
 	for(i=0;i<depth;i++) {
-		dvec4 pos = cpos + delta_aa_y * (i - ddepth/D_LIKE(2.0,ddepth))  - 
-			(ddepth/D_LIKE(2.0,ddepth)) * delta_aa_x;
+		dvec4 pos = topleft; 
 		for(j=0;j<depth;j++) {
 			ptmp = cf(pf(pos, f->params[BAILOUT], f->nbit_max), 
 				  f->r, f->g, f->b);
@@ -480,6 +491,7 @@ fract_rot::antialias(const dvec4& cpos)
 			pixel_b_val += ptmp.b;
 			pos+=delta_aa_x;
 		}
+		topleft += delta_aa_y;
 	}
 	ptmp.r = pixel_r_val / (depth * depth);
 	ptmp.g = pixel_g_val / (depth * depth);
@@ -507,21 +519,20 @@ fract_rot::pixel(int x, int y,int w, int h)
 	rectangle(pixel,x,y,w,h);
 	
 	// test for iteration depth
+	int i=0;
 	if(f->auto_deepen && k++ % 30 == 0)
 	{
-		if(pf(pos,f->params[BAILOUT], f->nbit_max/2)==-1)
+		if(i = pf(pos,f->params[BAILOUT], f->nbit_max)==-1)
 		{
-			if(pf(pos,f->params[BAILOUT], f->nbit_max)==-1)
+			if(pf(pos,f->params[BAILOUT], f->nbit_max*2) != -1)
 			{
-				if(pf(pos,f->params[BAILOUT], f->nbit_max*2) != -1)
-				{
-					ndoubleiters++; 
-				}
+				ndoubleiters++; 
 			}
-			else
-			{
+		}
+		else
+		{
+			if(i > f->nbit_max/2)
 				nhalfiters++;
-			}
 		}
 	}
 };
@@ -531,7 +542,7 @@ fract_rot::pixel_aa(int x, int y)
 {
 	if(!f->running) throw(1);
 
-	dvec4 pos = topleft + I2D_LIKE(x, f->params[SIZE]) * deltax + 
+	dvec4 pos = aa_topleft + I2D_LIKE(x, f->params[SIZE]) * deltax + 
 		              I2D_LIKE(y, f->params[SIZE]) * deltay;
 
 	struct rgb pixel;

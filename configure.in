@@ -13,8 +13,10 @@ AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_CC_STDC
 AC_HEADER_STDC
-dnl look for cln arbitrary-precision math package
-dnl AC_TRY_CPP(cln.h,AC_DEFINE(HAVE_CLN) LIBS="$LIBS -lcln")
+
+dnl look for cln 
+AC_MSG_CHECKING(for CLN arbitrary-precision math library)
+AC_TRY_CPP(cln.h,AC_DEFINE(HAVE_CLN) LIBS="$LIBS -lcln")
 
 GNOME_COMPILE_WARNINGS
 GNOME_X_CHECKS

@@ -38,7 +38,7 @@ typedef cl_F d;
 
 #define A2D(_x) cl_F(_x);
 #define D2A(_x) (os << _x << std::ends, os.str())
-#define D(_x) cl_float(_x,cl_float_format (f->digits))
+#define D(_x) (cl_float(_x,cl_float_format (digits)))
 #define D_LIKE(_x,_y) cl_float(_x,_y)
 #define I2D_LIKE(_x,_y) cl_float(((double)(_x)),_y)
 #define DOUBLE(_x) cl_double_approx(_x)
