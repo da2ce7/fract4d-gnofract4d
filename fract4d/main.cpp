@@ -32,6 +32,9 @@ int main(int argc, char **argv)
     IFractalSite *site = new callbacks();
     IFractal *f = IFractal::create();
     g_pCompiler = ICompiler::create((ICompilerSite *)site);
+
+    void *h = g_pCompiler->compile(f);
+    printf("%p\n",h);
     //g_pCompiler->set_cache_dir(".");
     image *im = new image();
 

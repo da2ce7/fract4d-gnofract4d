@@ -128,7 +128,7 @@ public:
 
     void set_colorFunc(e_colorFunc cf, int which_cf);
     e_colorFunc get_colorFunc(int which_cf) const;
-
+    
     void set_colorTransferFunc(const char *name, int which_cf);
     const char *get_colorTransferFunc(int which_cf) const;
 

@@ -49,7 +49,7 @@ class ICompiler
 
     virtual void set_cache_dir(const char *dir) = 0;
     virtual void *compile(IFractal *f) = 0;
-    virtual void *getHandle(std::map<std::string,std::string> defn_map) = 0;
+    virtual void *getHandle(const std::map<std::string,std::string>& defn_map) = 0;
 
     virtual void set_cc(const char *s) = 0;
     virtual const char *get_cc() = 0;
