@@ -19,5 +19,9 @@ class Func:
     def __init__(self,ret):
         self.ret = ret
 
-        
+class Var:
+    def __init__(self,type,value):
+        self.type = type
+        self.value = value
+
 
