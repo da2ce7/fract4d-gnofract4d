@@ -201,7 +201,7 @@ class GradientDialog(dialog.T):
 			else:
 				self.grad.segments[-1].right.col = self.grad.getDataFromHandle(self.grad.cur).col
 		else:
-			if self.grad.cur < len(self.grad.segments):
+			if self.grad.cur < len(self.grad.segments)*2:
 				self.grad.segments[self.grad.cur/2+1].left.col = self.grad.getDataFromHandle(self.grad.cur).col
 			else:
 				self.grad.segments[0].left.col = self.grad.getDataFromHandle(self.grad.cur).col
