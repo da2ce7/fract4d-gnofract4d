@@ -414,8 +414,11 @@ goto t__end_init;''')
         ]
         tests += self.manufacture_tests("sin",cmath.sin)
         tests += self.manufacture_tests("cos",cmath.cos)
-            
-
+        tests += self.manufacture_tests("tan",cmath.tan)
+        tests += self.manufacture_tests("sinh",cmath.sinh)
+        tests += self.manufacture_tests("cosh",cmath.cosh)
+        tests += self.manufacture_tests("tanh",cmath.tanh)
+        
         src = 't_c6{\ninit: y = (1,2)\n' + \
               string.join(map(lambda x : x[0], tests),"\n") + "\n}"
 
