@@ -123,6 +123,7 @@ extern "C" {
     void model_on_error(
 	model_t *m, const char *message, const char *extra_info);
     
+    void model_display_pending_errors(model_t *m);
 
 #ifdef __cplusplus
 }

@@ -90,18 +90,19 @@ public:
 
 	    if(NULL == out_buf) out_buf = one_space;
 
-	    double *pIterData;
-	    m_pf->calc(params,nIters, nNoPeriodIters, x , y, aa, 
-		       &colorDist, pnIters, &pIterData);
 
 	    int nIters2;
 	    double *pIterData2;
 
-	    m_pfo->vtbl->calc(m_pfo, params, nIters, nNoPeriodIters, x, y, aa,
-			      &nIters2, &pIterData2);
+	    //m_pf->calc(params,nIters, nNoPeriodIters, x , y, aa, 
+	    //&colorDist, pnIters, &pIterData);
 
-	    assert(nIters2 == *pnIters);
-	    assert(*(float *)pIterData2 == *(float *)pIterData);
+	    double *pIterData;
+	    m_pfo->vtbl->calc(m_pfo, params, nIters, nNoPeriodIters, x, y, aa,
+			      pnIters, &pIterData);
+
+	    //assert(nIters2 == *pnIters);
+	    //assert(fabs((*(float *)pIterData2 - *(float *)pIterData)/ (*(float *)pIterData + 1.0e-8)) < 1.0e-5);
 
 	    colorDist = colorize(*pnIters,pIterData,out_buf);
 

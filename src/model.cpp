@@ -77,6 +77,11 @@ struct _model {
     bool maintain_aspect_ratio;
 
     Gf4dMovie *movie;
+
+    // errors
+    bool pending_error;
+    char *message;
+    char *extra_info;
 };
 
 void model_get_dimensions(model_t *m, int *pWidth, int *pHeight)
@@ -276,22 +281,25 @@ model_init_compiler(model_t *m,compiler *pc)
     pc->set_err_callback((void (*)(void *,const char *, const char *))model_on_error, (void *)m);
 }
 
-void
-model_on_error(model_t *m, const char *message, const char *extra_info)
+void 
+model_display_pending_errors(model_t *m)
 {
     gdk_threads_enter();
-    if(extra_info)
+    gtk_idle_remove_by_data(m);
+    if(!m->pending_error) return;
+
+
+    GtkWidget *dialog = 
+	gnome_dialog_new(_("Gnofract4D Error"),
+			 GNOME_STOCK_BUTTON_OK,
+			 NULL);
+    
+    GtkWidget *label = gtk_label_new(m->message);
+    gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(dialog)->vbox),
+		       label, TRUE, TRUE, 1);
+    
+    if(m->extra_info)
     {
-	GtkWidget *dialog = 
-	    gnome_dialog_new(_("Gnofract4D Error"),
-			     GNOME_STOCK_BUTTON_OK,
-			     NULL);
-
-	GtkWidget *label = gtk_label_new(message);
-	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(dialog)->vbox),
-			   label, TRUE, TRUE, 1);
-
-
 	GtkWidget *scrolled = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
 					GTK_POLICY_AUTOMATIC,
@@ -302,21 +310,31 @@ model_on_error(model_t *m, const char *message, const char *extra_info)
 	int pos=0;
 
 	gtk_editable_insert_text(GTK_EDITABLE(text),
-				 extra_info,strlen(extra_info),&pos);
-				 
+				 m->extra_info,strlen(m->extra_info),&pos);
+    
 	gtk_container_add(GTK_CONTAINER(scrolled),text);
-
+    
 	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(dialog)->vbox),
 			   scrolled, TRUE, TRUE, 1);
-
-	gtk_widget_show_all(dialog);
-
-	gnome_dialog_run_and_close(GNOME_DIALOG(dialog));
     }
-    else
-    {
-	gnome_error_dialog(message);
-    }
+    gtk_widget_show_all(dialog);
+
+    gnome_dialog_run_and_close(GNOME_DIALOG(dialog));
+
+    m->pending_error = false;
+    gdk_threads_leave();
+}
+
+void
+model_on_error(model_t *m, const char *message, const char *extra_info)
+{
+    gdk_threads_enter();
+    m->pending_error = true;
+    g_free(m->message);
+    g_free(m->extra_info);
+    m->message = g_strdup(message);
+    m->extra_info = g_strdup(extra_info);
+    gtk_idle_add((GtkFunction)model_display_pending_errors, m);
     gdk_threads_leave();
 }
 
@@ -386,6 +404,11 @@ model_new(void)
 
     m->movie = GF4D_MOVIE(gf4d_movie_new());
     gf4d_movie_set_output(m->movie, m->fract);
+
+    m->pending_error = false;
+    m->message = NULL;
+    m->extra_info = NULL;
+
     return m;
 }
 

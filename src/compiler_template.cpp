@@ -11,6 +11,7 @@
 #endif
 #include <float.h>
 #include <stdlib.h>
+#include <assert.h>
 
 typedef double T;
 
@@ -269,7 +270,7 @@ static void pf_init(
 #if N_OPTIONS > 0
     for(int i = 0; i < N_OPTIONS; ++i)
     {
-	p->a[i] = options[i];
+	p->a[i] = params[i];
     }
 #endif
 #if TRACE
@@ -282,6 +283,9 @@ static void pf_calcWithPeriod(
     int *pIter, int nMaxIters)
 {
     T *p = pfo->p;
+#if N_OPTIONS > 0
+    std::complex<double> *a = pfo->a;
+#endif
     int iter = *pIter;
 
     /* periodicity vars */
@@ -343,6 +347,10 @@ static bool pf_calcNoPeriod(
     int *pIter, int maxIter)
 {
     T *p = pfo->p;
+#if N_OPTIONS > 0
+    std::complex<double> *a = pfo->a;
+#endif
+
     int iter = *pIter;
     bool escaped = false;
 
