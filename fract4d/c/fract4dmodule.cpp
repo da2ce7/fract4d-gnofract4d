@@ -551,7 +551,7 @@ struct calc_args
 {
     double params[N_PARAMS];
     int eaa, maxiter, nThreads;
-    int auto_deepen, yflip;
+    int auto_deepen, yflip, periodicity;
     pf_obj *pfo;
     cmap_t *cmap;
     IImage *im;
@@ -813,7 +813,7 @@ pycalc(PyObject *self, PyObject *args)
     PyObject *pypfo, *pycmap, *pyim, *pysite;
     double params[N_PARAMS];
     int eaa=-7, maxiter=-8, nThreads=-9;
-    int auto_deepen;
+    int auto_deepen, periodicity;
     int yflip;
     pf_obj *pfo;
     cmap_t *cmap;
@@ -822,13 +822,14 @@ pycalc(PyObject *self, PyObject *args)
  
     if(!PyArg_ParseTuple(
 	   args,
-	   "(ddddddddddd)iiiiOOiOO",
+	   "(ddddddddddd)iiiiOOiiOO",
 	   &params[0],&params[1],&params[2],&params[3],
 	   &params[4],&params[5],&params[6],&params[7],
 	   &params[8],&params[9],&params[10],
 	   &eaa,&maxiter,&yflip,&nThreads,
 	   &pypfo,&pycmap,
 	   &auto_deepen,
+	   &periodicity,
 	   &pyim, &pysite
 	   ))
     {
@@ -884,13 +885,14 @@ pycalc_async(PyObject *self, PyObject *args)
     double *p = cargs->params;
     if(!PyArg_ParseTuple(
 	   args,
-	   "(ddddddddddd)iiiiOOiOO",
+	   "(ddddddddddd)iiiiOOiiOO",
 	   &p[0],&p[1],&p[2],&p[3],
 	   &p[4],&p[5],&p[6],&p[7],
 	   &p[8],&p[9],&p[10],
 	   &cargs->eaa,&cargs->maxiter,&cargs->yflip,&cargs->nThreads,
 	   &pypfo,&pycmap,
 	   &cargs->auto_deepen,
+	   &cargs->periodicity,
 	   &pyim, &pysite
 	   ))
     {
