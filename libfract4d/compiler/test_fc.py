@@ -6,11 +6,14 @@ import commands
 import re
 import dl
 
+import testbase
+
 import fc
 
-class FCTest(unittest.TestCase):
+class FCTest(testbase.TestBase):
     def setUp(self):
         self.compiler = fc.Compiler()
+        self.assertFoo()
         
     def tearDown(self):
         pass
@@ -56,6 +59,9 @@ class FCTest(unittest.TestCase):
         #print f.pretty()
         self.compiler.generate_code(f,"test-evil.so",None)
         
+        f = self.compiler.get_formula("test.frm","Fractint-9-21")
+        self.assertNoErrors(f)
+        self.compiler.generate_code(f,"test-evil.so",None)
         
 def suite():
     return unittest.makeSuite(FCTest,'test')
