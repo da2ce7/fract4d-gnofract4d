@@ -30,17 +30,17 @@ class FctTest(unittest.TestCase):
         file = '''gnofract4d parameter file
 version=1.9
 bailout=5.1
-x=0.891
-y=-3.14159
-z=1.4
-w=2.1
+x=0.0891
+y=-0.314159
+z=0.14
+w=0.21
 size=4.1
 xy=0.00000001
 xz=0.1
-xw=0.9
+xw=0.09
 yz=-0.1
-yw=4
-zw=2
+yw=0.4
+zw=0.2
 maxiter=259
 antialias=1
 bailfunc=0
@@ -69,30 +69,32 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         f = fractal.T(self.compiler);
         f.loadFctFile(StringIO.StringIO(file))
 
-        self.assertEqual(f.params[f.XCENTER],0.891)
-        self.assertEqual(f.params[f.YCENTER],-3.14159)
-        self.assertEqual(f.params[f.ZCENTER],1.4)
-        self.assertEqual(f.params[f.WCENTER],2.1)
+        self.assertEqual(f.params[f.XCENTER],0.0891)
+        self.assertEqual(f.params[f.YCENTER],-0.314159)
+        self.assertEqual(f.params[f.ZCENTER],0.14)
+        self.assertEqual(f.params[f.WCENTER],0.21)
         self.assertEqual(f.params[f.MAGNITUDE],4.1)
         self.assertEqual(f.params[f.XYANGLE],0.00000001)
         self.assertEqual(f.params[f.XZANGLE],0.1)
-        self.assertEqual(f.params[f.XWANGLE],0.9)
+        self.assertEqual(f.params[f.XWANGLE],0.09)
         self.assertEqual(f.params[f.YZANGLE],-0.1)
-        self.assertEqual(f.params[f.YWANGLE],4)
-        self.assertEqual(f.params[f.ZWANGLE],2)
+        self.assertEqual(f.params[f.YWANGLE],0.4)
+        self.assertEqual(f.params[f.ZWANGLE],0.2)
 
         self.assertEqual(f.bailout,5.1)
         self.assertEqual(f.funcName,"Mandelbar")
         self.assertEqual(f.maxiter, 259)
-
-        sofile = f.compile()
+        self.assertEqual(len(f.colorlist),256)
+        self.assertEqual(f.colorlist[0][0],0.0)
+        self.assertEqual(f.colorlist[-1][0],1.0)
         
-    def testFractal(self):
+        sofile = f.compile()
+        image = fract4d.image_create(40,30)
+        f.draw(image)
+        
+    def testDefaultFractal(self):
         f = fractal.T(self.compiler)
-        f.set_formula("gf4d.frm","Mandelbrot")
-        f.set_inner("gf4d.cfrm","default")
-        f.set_outer("gf4d.cfrm","zero")
-
+        
         # check defaults
         self.assertEqual(f.params[f.XCENTER],0.0)
         self.assertEqual(f.params[f.YCENTER],0.0)
@@ -111,6 +113,15 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         image = fract4d.image_create(40,30)
         f.draw(image)
         fract4d.image_save(image,"mandel.tga")
+
+    def testSet(self):
+        f = fractal.T(self.compiler)
+        f.set_formula("gf4d.frm","Mandelbar")
+        f.set_inner("gf4d.cfrm","zero")
+        f.set_outer("gf4d.cfrm","default")
+        f.compile()
+        image = fract4d.image_create(4,3)
+        f.draw(image)
         
     def testFractalBadness(self):
         f = fractal.T(self.compiler)
