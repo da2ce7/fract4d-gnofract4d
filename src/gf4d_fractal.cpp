@@ -618,3 +618,8 @@ gboolean gf4d_fractal_is_on_gui_thread(Gf4dFractal *f)
 {
     return f->fOnGTKThread;
 }
+void gf4d_fractal_set_keep_data(Gf4dFractal *f, gboolean keep_data)
+{
+    kill_slave_threads(f);
+    f->im->set_data_size(sizeof(float)); // FIXME
+}

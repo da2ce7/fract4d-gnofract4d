@@ -379,6 +379,7 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
     /* copy the main fractal and make a mini version */
     Gf4dFractal *f = gf4d_fractal_copy(model_get_fract(m));
     gf4d_fractal_set_resolution(f,PREVIEW_SIZE,PREVIEW_SIZE);
+    gf4d_fractal_set_keep_data(f,true);
     gf4d_fractal_set_aa(f, (e_antialias)0);
  
     // store a pointer to the fract

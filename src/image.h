@@ -43,6 +43,8 @@ class image
     /* the iteration count for each (antialiased) pixel */
     int * iter_buf;
 
+    int data_size;
+    void * data_buf;
 public:
     image();
     ~image();
@@ -68,8 +70,16 @@ public:
       iter_buf[x + y * m_Xres] = iter;
     };
 
+    void *getData(int x, int y) {
+      if(data_buf == NULL)
+      {
+	  return NULL;
+      }
+      return (void *)((char *)data_buf + data_size * (x + y * m_Xres));
+    };
     image(const image& im);
     bool set_resolution(int x, int y);
+    bool set_data_size(int size);
     double ratio();
     void clear();
 

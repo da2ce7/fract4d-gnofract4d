@@ -49,6 +49,7 @@ class pointFunc {
 #endif
     virtual rgb_t recolor(int iter, double eject, const void *buf) const = 0;
     virtual void *handle() = 0;
+    virtual int buffer_size() const = 0;
 };
 
 /* factory method for making new fractFuncs */

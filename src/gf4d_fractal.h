@@ -169,6 +169,7 @@ void gf4d_fractal_set_inexact(Gf4dFractal *gf_dst, Gf4dFractal *gf_src, double w
 void gf4d_fractal_set_mixed(Gf4dFractal *f_dst, Gf4dFractal *f_src1, Gf4dFractal *f_src2, 
     double lambda);
 
+void gf4d_fractal_set_keep_data(Gf4dFractal *f, gboolean keep_data); 
 #include "fract_callbacks.h"
 
 #endif /* _GF4D_FRACTAL_H_ */

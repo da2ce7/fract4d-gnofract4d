@@ -18,6 +18,7 @@ image::~image()
 {
     delete[] buffer;
     delete[] iter_buf;
+    free(data_buf);
 }
 
 image::image()
@@ -25,6 +26,8 @@ image::image()
     m_Xres = m_Yres = 0;
     buffer = NULL;
     iter_buf = NULL;
+    data_buf = NULL;
+    data_size = 0;
 
 #ifdef _WIN32
 	resetDIB();
@@ -108,8 +111,10 @@ image::image(const image& im)
 {
     m_Xres = im.m_Xres;
     m_Yres = im.m_Yres;
+    data_size = im.data_size;
     buffer = new char[bytes()];
     iter_buf = new int[m_Xres * m_Yres];
+    data_buf = malloc(data_size * m_Xres * m_Yres);
 }
 
 bool image::set_resolution(int x, int y)
@@ -119,8 +124,10 @@ bool image::set_resolution(int x, int y)
     m_Yres = y;
     delete[] buffer;
     delete[] iter_buf;
+    free(data_buf);
     buffer = new char[bytes()];
     iter_buf = new int[m_Xres * m_Yres];
+    data_buf = malloc(data_size * m_Xres * m_Yres);
 #ifdef _WIN32
 	resetDIB();
 #endif
@@ -139,3 +146,12 @@ void image::clear()
         iter_buf[i]=-1;
     }
 }
+
+bool image::set_data_size(int size)
+{
+    if(size == data_size) return false;
+    data_size = size;
+    data_buf = realloc(data_buf,size * m_Xres * m_Yres);
+    return true;
+}
+		       

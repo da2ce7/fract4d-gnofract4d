@@ -23,6 +23,8 @@ private:
     T m_period_tolerance;
     colorizer *m_pcizer;
     void *m_handle; // handle of .so which keeps us in memory
+    // enough space for one color data buffer, in case we aren't passed one
+    void *one_space;
 
 #if N_OPTIONS > 0
     std::complex<double> a[N_OPTIONS];
@@ -52,11 +54,14 @@ public:
 #endif
             m_pOuterColor = colorFunc_new(outerCfType);
             m_pInnerColor = colorFunc_new(innerCfType);
+
+	    one_space = malloc(buffer_size());
         }
     virtual ~pointCalc()
         {
             delete m_pOuterColor;
             delete m_pInnerColor;
+	    free(one_space);
 #if TRACE
             delete out;
 #endif
@@ -218,6 +223,8 @@ public:
                 (*out) << std::setprecision(17);
             }
 #endif
+	    if(out_buf == NULL) out_buf = one_space;
+
             p[X] =  params.n[VZ]; 
             p[Y] =  params.n[VW];
             p[CX] = params.n[VX];
@@ -296,6 +303,11 @@ public:
         {
             return m_handle;
         }
+    virtual int buffer_size() const
+	{
+	    return std:: max(m_pInnerColor->buffer_size(),
+		       m_pOuterColor->buffer_size());
+	}
 };
 
 extern "C" {
