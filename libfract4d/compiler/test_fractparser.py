@@ -339,7 +339,7 @@ default:
         self.assertIsBadFormula(self.makeMinimalFormula("2 + 3 +"),
                                  "unexpected newline",3)
         self.assertIsBadFormula(self.makeMinimalFormula("3 4"),
-                                 "unexpected number '4.0'",3)
+                                 "unexpected number '4'",3)
 
         # not a great error message...
         self.assertIsBadFormula(self.makeMinimalFormula("("),

@@ -102,7 +102,7 @@ myComment {}
     def testNumbers(self):
         ts = self.tokensFromString('1.0 0.5e+7 1i 1 i')
         self.failUnless(ts[0].type == ts[1].type == ts[3].type == "NUMBER" and
-                        ts[2].type == "COMPLEX" and ts[2].value == 1.0 and
+                        ts[2].type == "COMPLEX" and ts[2].value == "1" and
                         ts[4].type == "ID")
         
 def suite():

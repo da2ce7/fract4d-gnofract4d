@@ -200,7 +200,7 @@ def p_exp_assign(t):
 # implement unary minus as 0 - n
 def p_exp_uminus(t):
     'exp : MINUS exp %prec UMINUS'
-    t[0] = absyn.Binop("-", absyn.Number(0,t.lineno(1)), t[2], t.lineno(1))
+    t[0] = absyn.Binop("-", absyn.Number("0",t.lineno(1)), t[2], t.lineno(1))
     
 #unary plus is a no-op
 def p_exp_uplus(t):
@@ -250,7 +250,7 @@ def p_exp_complex(t):
 def p_exp_complex_i(t):
     'exp : COMPLEX'
     ln = t.lineno(1)
-    t[0] = absyn.Complex(absyn.Number(0.0,ln),absyn.Number(t[1],ln),ln)
+    t[0] = absyn.Complex(absyn.Number("0.0",ln),absyn.Number(t[1],ln),ln)
     
 def p_exp_funcall_noargs(t):
     'exp : ID LPAREN RPAREN'
