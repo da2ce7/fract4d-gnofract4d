@@ -13,7 +13,7 @@ import stdlib
 from fracttypes import *
     
 class T:
-    def __init__(self,f,dump=None):
+    def __init__(self,f,cf=None,dump=None):
         self.symbols = symbol.T()
         self.canon = canon.T(self.symbols,dump)
         self.errors = []
@@ -35,7 +35,10 @@ class T:
                 self.__dict__[k]=1
 
         try:
+            self.symbols.reset()
             self.formula(f)
+            if cf != None:
+                self.coloring_method(cf)
             if self.dumpPreCanon:
                 self.dumpSections(f,self.sections)
             self.canonicalize()
@@ -102,7 +105,6 @@ class T:
         self.warnings.append(msg)
     
     def formula(self, f):
-        self.symbols.reset()
         if f.children[0].type == "error":
             self.error(f.children[0].leaf)
             return
@@ -125,6 +127,24 @@ class T:
 
         #  ignore switch and builtin for now
 
+    def coloring_method(self,f):
+        if f.children[0].type == "error":
+            self.error(f.children[0].leaf)
+            return
+            
+        self.canonicalizeColorSections(f)
+        s = f.childByName("default")
+        if s: self.default(s)
+        s = f.childByName("global")
+        if s: self.global_(s)
+        s = f.childByName("init")
+        if s:
+            self.init(s)
+        s = f.childByName("loop")
+        if s: self.loop(s)
+        s = f.childByName("final")
+        if s: self.final(s)
+        
     def canonicalize(self):
         for (k,tree) in self.sections.items():
             startLabel = "t__start_" + k
@@ -179,19 +199,41 @@ class T:
         if self.dumpCanon:
             print f.pretty()
 
+    def canonicalizeColorSections(self,f):
+        '''if there are no section headers in a colorfunc,
+        just a final block is implied'''
+        s = f.childByName("nameless")
+        if s:
+            oldfinal = f.childByName("final")
+            if oldfinal:
+                self.dupSectionWarning("final")
+            else:
+                s.leaf = "final"
+
+        if self.dumpCanon:
+            print f.pretty()
+
     def sectionOrNone(self,sectname):
         if self.sections.has_key(sectname):
             return self.sections[sectname]
         return None
     
     def default(self,node):
+        # fixme - deal with these someday
         self.sections["default"] = 1
 
+    def add_to_section(self,sectname,stmlist):
+        current = self.sections.get(sectname)
+        if current == None:
+            self.sections[sectname] = stmlist
+        else:
+            self.sections[sectname].children += stmlist.children
+        
     def global_(self,node):
-        self.sections["global"] = self.stmlist(node)
+        self.add_to_section("global", self.stmlist(node))
 
     def final(self,node):
-        self.sections["final"] = self.stmlist(node)
+        self.add_to_section("final",self.stmlist(node))
 
     def stmlist(self, node):
         children = filter(lambda c : c.type != "empty", node.children)
@@ -479,13 +521,15 @@ class T:
             self.badCast(exp,expectedType)
             
     def init(self,node):
-        self.sections["init"] = self.stmlist(node)
+        self.add_to_section("init", self.stmlist(node))
 
     def loop(self, node):
-        self.sections["loop"] = self.stmlist(node)
+        self.add_to_section("loop",self.stmlist(node))
 
     def bailout(self,node):
-        # ensure that last stm is a book
+        # ensure that last stm is a bool
+        if self.sections.get("bailout"):
+            raise TranslationError("Internal Compiler Error: conflicting bailouts")
         bailList = self.stmlist(node)
         try:
             bailList.children[-1] = self.coerce(bailList.children[-1],Bool)
