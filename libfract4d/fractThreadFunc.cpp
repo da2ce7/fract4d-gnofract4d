@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 bool
-fractThreadFunc::init(fractFunc *ff_,fractal_t *f_, IImage *im_)
+STFractWorker::init(fractFunc *ff_,fractal_t *f_, IImage *im_)
 {
     ff = ff_;
     f = f_;
@@ -29,14 +29,14 @@ fractThreadFunc::init(fractFunc *ff_,fractal_t *f_, IImage *im_)
     return true;
 }
 
-fractThreadFunc::~fractThreadFunc()
+STFractWorker::~STFractWorker()
 {
     delete pf;
 }
 
 /* we're in a worker thread */
 void
-fractThreadFunc::work(job_info_t& tdata)
+STFractWorker::work(job_info_t& tdata)
 {
     int nRows=0;
 
@@ -83,7 +83,7 @@ fractThreadFunc::work(job_info_t& tdata)
 }
 
 void
-fractThreadFunc::row_aa(int x, int y, int w)
+STFractWorker::row_aa(int x, int y, int w)
 {
     for(int x = 0; x < w ; x++) {
         pixel_aa ( x, y);
@@ -91,23 +91,23 @@ fractThreadFunc::row_aa(int x, int y, int w)
 }
 
 inline int 
-fractThreadFunc::periodGuess()
+STFractWorker::periodGuess()
 { 
     return (lastIter == -1 && f->maxiter > 4096) ? 0 : f->maxiter; //lastIter;
 }
 
 inline int 
-fractThreadFunc::periodGuess(int last) {
+STFractWorker::periodGuess(int last) {
     return (last == -1 /*&& f->maxiter > 4096*/) ? 0 : f->maxiter;
 }
 
 inline void 
-fractThreadFunc::periodSet(int *ppos) {
+STFractWorker::periodSet(int *ppos) {
     lastIter = *ppos;
 }
 
 void
-fractThreadFunc::row(int x, int y, int n)
+STFractWorker::row(int x, int y, int n)
 {
     for(int i = 0; i < n; ++i)
     {
@@ -116,7 +116,7 @@ fractThreadFunc::row(int x, int y, int n)
 }
 
 void
-fractThreadFunc::reset_counts()
+STFractWorker::reset_counts()
 {
     ndoubleiters=0;
     nhalfiters=0;
@@ -124,7 +124,7 @@ fractThreadFunc::reset_counts()
 }
 
 void 
-fractThreadFunc::stats(int *pnDoubleIters, int *pnHalfIters, int *pk)
+STFractWorker::stats(int *pnDoubleIters, int *pnHalfIters, int *pk)
 {
     *pnDoubleIters = ndoubleiters;
     *pnHalfIters = nhalfiters;
@@ -132,14 +132,14 @@ fractThreadFunc::stats(int *pnDoubleIters, int *pnHalfIters, int *pk)
 }
 
 inline int 
-fractThreadFunc::RGB2INT(int y, int x)
+STFractWorker::RGB2INT(int y, int x)
 {
     rgb_t pixel = im->get(x,y);
     int ret = (pixel.r << 16) | (pixel.g << 8) | pixel.b;
     return ret;
 }
 
-inline bool fractThreadFunc::isTheSame(
+inline bool STFractWorker::isTheSame(
     bool bFlat, int targetIter, int targetCol, int x, int y)
 {
     if(bFlat)
@@ -153,7 +153,7 @@ inline bool fractThreadFunc::isTheSame(
 }
 
 rgb_t
-fractThreadFunc::antialias(int x, int y)
+STFractWorker::antialias(int x, int y)
 {
     dvec4 topleft = ff->aa_topleft + I2D_LIKE(x, f->params[MAGNITUDE]) * ff->deltax + 
         I2D_LIKE(y, f->params[MAGNITUDE]) * ff->deltay;
@@ -206,7 +206,7 @@ fractThreadFunc::antialias(int x, int y)
 
 
 void 
-fractThreadFunc::pixel(int x, int y,int w, int h)
+STFractWorker::pixel(int x, int y,int w, int h)
 {
     int iter = im->getIter(x,y);
     struct rgb pixel;
@@ -247,7 +247,7 @@ fractThreadFunc::pixel(int x, int y,int w, int h)
 }
 
 void 
-fractThreadFunc::box_row(int w, int y, int rsize)
+STFractWorker::box_row(int w, int y, int rsize)
 {
     for(int x = 0; x < w - rsize ; x += rsize) {
         box(x,y,rsize);            
@@ -255,7 +255,7 @@ fractThreadFunc::box_row(int w, int y, int rsize)
 }
 
 void
-fractThreadFunc::pixel_aa(int x, int y)
+STFractWorker::pixel_aa(int x, int y)
 {
     struct rgb pixel;
 
@@ -289,7 +289,7 @@ fractThreadFunc::pixel_aa(int x, int y)
 }
 
 void 
-fractThreadFunc::box(int x, int y, int rsize)
+STFractWorker::box(int x, int y, int rsize)
 {
     // calculate edges of box to see if they're all the same colour
     // if they are, we assume that the box is a solid colour and
@@ -333,7 +333,7 @@ fractThreadFunc::box(int x, int y, int rsize)
 }
 
 inline void
-fractThreadFunc::rectangle(struct rgb pixel, int x, int y, int w, int h)
+STFractWorker::rectangle(struct rgb pixel, int x, int y, int w, int h)
 {
     for(int i = y ; i < y+h; i++)
     {
@@ -344,7 +344,7 @@ fractThreadFunc::rectangle(struct rgb pixel, int x, int y, int w, int h)
 }
 
 inline void
-fractThreadFunc::rectangle_with_iter(
+STFractWorker::rectangle_with_iter(
     struct rgb pixel, int iter, int x, int y, int w, int h)
 {
     for(int i = y ; i < y+h; i++)

@@ -42,7 +42,7 @@ public:
 };
 
 /* per-worker-thread fractal info */
-class fractThreadFunc : public IFractWorker{
+class STFractWorker : public IFractWorker {
  public:
     fractFunc *ff;
 
@@ -53,7 +53,7 @@ class fractThreadFunc : public IFractWorker{
     /* not a ctor because we always create a whole array then init them */
     bool init(fractFunc *ff, fractal_t *f, IImage *im);
 
-    ~fractThreadFunc();
+    ~STFractWorker();
 
     // function object which calculates the colors of points 
     // this is per-thread-func so it doesn't have to be re-entrant
@@ -61,7 +61,7 @@ class fractThreadFunc : public IFractWorker{
     pointFunc *pf; 
 
 
-    fractThreadFunc() {
+    STFractWorker() {
 	reset_counts();
         lastIter = 0;
     }
@@ -121,5 +121,28 @@ class fractThreadFunc : public IFractWorker{
     int ndoubleiters; 
     int k;	// number of pixels calculated    
     int lastIter; // how many iterations did last pixel take?
+
+};
+
+// a composite subclass which holds an array of STFractWorkers and
+// divides the work among them
+class MTFractWorker : public IFractWorker
+{
+ public:
+    MTFractWorker() {};
+    ~MTFractWorker() {};
+
+    // operations
+    virtual void row_aa(int x, int y, int n) ;
+    virtual void row(int x, int y, int n) ;
+    virtual void box(int x, int y, int rsize) ;
+    virtual void box_row(int w, int y, int rsize);
+    virtual void pixel(int x, int y, int h, int w);
+    virtual void pixel_aa(int x, int y);
+
+    // auto-deepening record keeping
+    virtual void reset_counts();
+    virtual void stats(int *pnDoubleIters, int *pnHalfIters, int *pk);
+
 
 };
