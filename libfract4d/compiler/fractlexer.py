@@ -2,6 +2,9 @@
 # fractlexer.py
 #
 # tokenizer for UltraFractal formula files
+# The lexer proper only applies to the *contents* of the {}
+# fractal blocks - we use a top-level regex to split the
+# file up into a set of formulae and parse them on demand.
 # ------------------------------------------------------------
 import lex
 import sys
@@ -21,8 +24,8 @@ tokens = (
    
    'LPAREN', 
    'RPAREN', 
-   'LBRACE', 
-   'RBRACE', 
+   'LARRAY',
+   'RARRAY',
    'MAG', 
    'POWER',
 
@@ -55,8 +58,10 @@ t_DIVIDE  = r'/'
 t_MOD     = r'%'
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
-t_LBRACE  = r'\{'
-t_RBRACE  = r'\}'
+#t_LBRACE  = r'\{'
+#t_RBRACE  = r'\}'
+t_LARRAY  = r'\['
+t_RARRAY  = r'\]'
 t_MAG     = r'\|'
 t_POWER   = r'\^'
 t_BOOL_NEG= r'!'
@@ -91,7 +96,7 @@ def t_ID(t):
 def t_ESCAPED_NL(t):
     r'\\\r?\n'
     t.lineno += 1
-    
+
 def t_COMMENT(t):
     r';[^\n]*'
     
@@ -102,7 +107,7 @@ def t_NEWLINE(t):
 
 def t_STRING(t):
     r'\"[^\"]*"' # embedded quotes not supported in UF?
-    t.value = re.sub(r'\\\r?\n[ \t\v]*',"",t.value) 
+    t.value = re.sub(r'\\\r?\n[ \t\v]*',"",t.value) # hide \-split lines
     return t
     
 # A string containing ignored characters (spaces and tabs)
@@ -121,11 +126,20 @@ if __name__ == '__main__':
     # Test it out
     data = open(sys.argv[1],"r").read()
 
-    # Give the lexer some input
-    lex.input(data)
+    formulaFinder = re.compile(
+        r'([^\{\(\)\}\r\n]+)\s*(\([\w]+\))?\s*\{([^\}]+)\}', re.DOTALL)
+    formulae = re.findall(formulaFinder,data)
+    for formula in formulae:
+        # should be a 3-item tuple: name symmetry body
+        print formula[0]
+        if formula[1] <> "":
+           print "symmetry:", formula[1]
+        
+        # Give the lexer some input
+        lex.input(formula[2])
 
-    # Tokenize
-    while 1:
-        tok = lex.token()
-        if not tok: break      # No more input
-        print tok
+        # Tokenize
+        while 1:
+            tok = lex.token()
+            if not tok: break      # No more input
+            print tok
