@@ -64,6 +64,48 @@ def mul_cc_c(gen,t,srcs):
         gen.emit_binop('+', [bc, ad], Float))
     return dst
 
+def mul_hh_h(gen,t,srcs):
+    def mulpair(x,y):
+        return gen.emit_binop('*', [srcs[0].parts[x], srcs[1].parts[y]], Float)
+
+    re2 =  mulpair(0,0)
+    i2 =   mulpair(1,1)
+    j2 =   mulpair(2,2)
+    k2 =   mulpair(3,3)
+
+    re = gen.emit_binop('-', [ re2, i2], Float)
+    re = gen.emit_binop('-', [ re, j2], Float)
+    re = gen.emit_binop('+', [ re, k2], Float)
+    
+    i_re = mulpair(1,0)
+    re_i = mulpair(0,1)
+    k_j =  mulpair(3,2)
+    j_k =  mulpair(2,3)
+
+    i = gen.emit_binop('+', [ i_re, re_i], Float)
+    i = gen.emit_binop('-', [ i, k_j], Float)
+    i = gen.emit_binop('-', [ i, j_k], Float)
+        
+    j_re = mulpair(2,0)
+    k_i =  mulpair(3,1)
+    re_j = mulpair(0,2)
+    i_k =  mulpair(1,3)
+
+    j = gen.emit_binop('-', [ j_re, k_i], Float)
+    j = gen.emit_binop('+', [ j, re_j], Float)
+    j = gen.emit_binop('-', [ j, i_k], Float)
+    
+    k_re = mulpair(3,0)
+    j_i =  mulpair(2,1)
+    i_j =  mulpair(1,2)
+    re_k = mulpair(0,3)
+
+    k = gen.emit_binop('+', [ k_re, j_i], Float)
+    k = gen.emit_binop('+', [ k, i_j], Float)
+    k = gen.emit_binop('+', [ k, re_k], Float)
+
+    return HyperArg(re,i,j,k)
+
 def complex_ff_c(gen,t,srcs):
     # construct a complex number from two real parts
     return ComplexArg(srcs[0],srcs[1])

@@ -85,7 +85,7 @@ def createDefaultDict():
                 #Func([Color, Float], Float, stdlib, "div")
                 ],operator=True),
 
-        "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex]), #+ \
+        "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex, Hyper]), #+ \
               #[ Func([Color, Float], Float, stdlib, "mul")],
 
         "-":  efl("sub",   "[_,_] , _", [Int, Float, Complex, Color]),
