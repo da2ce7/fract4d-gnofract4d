@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <new>
+
 #include "image.h"
 
 #define RED 0
@@ -40,17 +42,29 @@ image::delete_buffers()
     delete[] iter_buf;
     delete[] fate_buf;
     delete[] index_buf;
+    buffer = NULL;
+    iter_buf = NULL;
+    fate_buf = NULL;
+    index_buf = NULL;
 }
 
-void
+bool
 image::alloc_buffers()
 {
-    buffer = new char[bytes()];
-    iter_buf = new int[m_Xres * m_Yres];
-    index_buf = new float[m_Xres * m_Yres * N_SUBPIXELS];
-    fate_buf = new fate_t[m_Xres * m_Yres * N_SUBPIXELS];
+    buffer = new(std::nothrow) char[bytes()];
+    iter_buf = new(std::nothrow) int[m_Xres * m_Yres];
+    index_buf = new(std::nothrow) float[m_Xres * m_Yres * N_SUBPIXELS];
+    fate_buf = new(std::nothrow) fate_t[m_Xres * m_Yres * N_SUBPIXELS];
     
+    if(!buffer || !iter_buf || !index_buf || !fate_buf)
+    {
+	delete_buffers();
+	return false;
+    }
+
     clear();
+
+    return true;
 }
 
 int
@@ -86,13 +100,16 @@ image::get(int x, int y) const
 bool 
 image::set_resolution(int x, int y)
 {
-    if(buffer && m_Xres == x && m_Yres == y) return 0;
+    if(buffer && m_Xres == x && m_Yres == y) return false;
     m_Xres = x;
     m_Yres = y;
 
     delete_buffers();
 
-    alloc_buffers();
+    if(! alloc_buffers())
+    {
+	return true;
+    }
 
     rgba_t pixel = { 
 #ifndef NDEBUG
@@ -110,7 +127,7 @@ image::set_resolution(int x, int y)
 	}
     }
 
-    return 1;
+    return true;
 }
 
 double 

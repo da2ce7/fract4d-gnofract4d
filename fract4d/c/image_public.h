@@ -30,6 +30,7 @@ public:
     virtual ~IImage() {};
     // return true if this resulted in a change of size
     virtual bool set_resolution(int x, int y) = 0;
+    virtual bool ok() = 0;
 
     // return xres()/yres()
     virtual double ratio() const = 0;
