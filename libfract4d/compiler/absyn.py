@@ -41,3 +41,16 @@ def Neg(exp):
 
 def Funcall(id,arglist):
     return Node("funcall", arglist, id)
+
+def Assign(id,exp):
+    return Node("assign", [exp], id)
+
+def Decl(type, id, exp=None):
+    if exp == None:
+        l = None
+    else:
+        l = [exp]
+    return Node("decl", l , (id,type))
+
+def Stmlist(list):
+    return Node("stmlist", list, "")
