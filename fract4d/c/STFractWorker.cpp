@@ -5,7 +5,7 @@
 
 IFractWorker *
 IFractWorker::create(
-    int nThreads,pf_obj *pfo, cmap_t *cmap, IImage *im_, IFractalSite *site)
+    int nThreads,pf_obj *pfo, ColorMap *cmap, IImage *im_, IFractalSite *site)
 {
 // can IFDEF here if threads are not available
     if ( nThreads > 1)
@@ -23,7 +23,7 @@ IFractWorker::create(
 
 bool
 STFractWorker::init(
-    pf_obj *pfo, cmap_t *cmap, IImage *im_, IFractalSite *site)
+    pf_obj *pfo, ColorMap *cmap, IImage *im_, IFractalSite *site)
 {
     ff = NULL;
     im = im_;

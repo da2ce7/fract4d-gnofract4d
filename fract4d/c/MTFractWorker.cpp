@@ -10,7 +10,7 @@ void worker(job_info_t& tdata, STFractWorker *pFunc)
 MTFractWorker::MTFractWorker(
     int n, 
     pf_obj *pfo,
-    cmap_t *cmap,
+    ColorMap *cmap,
     IImage *im,
     IFractalSite *site)
 {

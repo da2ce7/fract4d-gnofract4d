@@ -22,6 +22,7 @@
 #include "image.h"
 #include "assert.h"
 
+#include <new>
 
 /* not sure why this isn't defined already */
 #ifndef PyMODINIT_FUNC 
@@ -242,7 +243,7 @@ cmap_create(PyObject *self, PyObject *args)
     /* args = an array of (index,r,g,b,a) tuples */
     PyObject *pyarray, *pyret;
     int len, i;
-    cmap_t *cmap;
+    ColorMap *cmap;
 
     if(!PyArg_ParseTuple(args,"O",&pyarray))
     {
@@ -261,9 +262,16 @@ cmap_create(PyObject *self, PyObject *args)
 	return NULL;
     }
     
-    cmap = cmap_new(len);
+    cmap = new(std::nothrow)ColorMap();
     if(!cmap)
     {
+	PyErr_SetString(PyExc_MemoryError,"Can't allocate colormap");
+	return NULL;
+    }
+    if(! cmap->init(len))
+    {
+	PyErr_SetString(PyExc_MemoryError,"Can't allocate colormap array");
+	delete cmap;
 	return NULL;
     }
     for(i = 0; i < len; ++i)
@@ -279,7 +287,7 @@ cmap_create(PyObject *self, PyObject *args)
 	{
 	    return NULL;
 	}
-	cmap_set(cmap,i,d,r,g,b,a);
+	cmap->set(i,d,r,g,b,a);
 	Py_DECREF(pyitem);
     }
     pyret = PyCObject_FromVoidPtr(cmap,(void (*)(void *))cmap_delete);
@@ -292,20 +300,20 @@ pycmap_set_solid(PyObject *self, PyObject *args)
 {
     PyObject *pycmap;
     int which,r,g,b,a;
-    cmap_t *cmap;
+    ColorMap *cmap;
 
     if(!PyArg_ParseTuple(args,"Oiiiii",&pycmap,&which,&r,&g,&b,&a))
     {
 	return NULL;
     }
 
-    cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+    cmap = (ColorMap *)PyCObject_AsVoidPtr(pycmap);
     if(!cmap)
     {
 	return NULL;
     }
 
-    cmap_set_solid(cmap,which,r,g,b,a);
+    cmap->set_solid(which,r,g,b,a);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -317,20 +325,20 @@ pycmap_set_transfer(PyObject *self, PyObject *args)
     PyObject *pycmap;
     int which;
     e_transferType transfer;
-    cmap_t *cmap;
+    ColorMap *cmap;
 
     if(!PyArg_ParseTuple(args,"Oii",&pycmap,&which,&transfer))
     {
 	return NULL;
     }
 
-    cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+    cmap = (ColorMap *)PyCObject_AsVoidPtr(pycmap);
     if(!cmap)
     {
 	return NULL;
     }
 
-    cmap_set_transfer(cmap,which,transfer);
+    cmap->set_transfer(which,transfer);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -342,20 +350,20 @@ cmap_pylookup(PyObject *self, PyObject *args)
     PyObject *pyobj, *pyret;
     double d;
     rgba_t color;
-    cmap_t *cmap;
+    ColorMap *cmap;
 
     if(!PyArg_ParseTuple(args,"Od", &pyobj, &d))
     {
 	return NULL;
     }
 
-    cmap = (cmap_t *)PyCObject_AsVoidPtr(pyobj);
+    cmap = (ColorMap *)PyCObject_AsVoidPtr(pyobj);
     if(!cmap)
     {
 	return NULL;
     }
 
-    color = cmap_lookup(cmap,d);
+    color = cmap->lookup(d);
     
     pyret = Py_BuildValue("iiii",color.r,color.g,color.b,color.a);
 
@@ -368,7 +376,7 @@ cmap_pylookup_with_fate(PyObject *self, PyObject *args)
     PyObject *pyobj, *pyret;
     double d;
     rgba_t color;
-    cmap_t *cmap;
+    ColorMap *cmap;
     int fate;
     int solid;
 
@@ -377,13 +385,13 @@ cmap_pylookup_with_fate(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    cmap = (cmap_t *)PyCObject_AsVoidPtr(pyobj);
+    cmap = (ColorMap *)PyCObject_AsVoidPtr(pyobj);
     if(!cmap)
     {
 	return NULL;
     }
 
-    color = cmap_lookup_with_transfer(cmap,fate,d,solid);
+    color = cmap->lookup_with_transfer(fate,d,solid);
     
     pyret = Py_BuildValue("iiii",color.r,color.g,color.b,color.a);
 
@@ -562,7 +570,7 @@ struct calc_args
     int eaa, maxiter, nThreads;
     int auto_deepen, yflip, periodicity, dirty;
     pf_obj *pfo;
-    cmap_t *cmap;
+    ColorMap *cmap;
     IImage *im;
     IFractalSite *site;
 
@@ -578,7 +586,7 @@ struct calc_args
     void set_cmap(PyObject *pycmap_)
 	{
 	    pycmap = pycmap_;
-	    cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+	    cmap = (ColorMap *)PyCObject_AsVoidPtr(pycmap);
 	    Py_XINCREF(pycmap);
 	}
 
@@ -850,7 +858,7 @@ pycalc(PyObject *self, PyObject *args)
     int yflip;
     int dirty=1;
     pf_obj *pfo;
-    cmap_t *cmap;
+    ColorMap *cmap;
     IImage *im;
     IFractalSite *site;
  
@@ -871,7 +879,7 @@ pycalc(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+    cmap = (ColorMap *)PyCObject_AsVoidPtr(pycmap);
     pfo = ((pfHandle *)PyCObject_AsVoidPtr(pypfo))->pfo;
     im = (IImage *)PyCObject_AsVoidPtr(pyim);
     site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);
@@ -895,7 +903,7 @@ fw_create(PyObject *self, PyObject *args)
 {
     int nThreads;
     pf_obj *pfo;
-    cmap_t *cmap;
+    ColorMap *cmap;
     IImage *im;
     IFractalSite *site;
 
@@ -911,7 +919,7 @@ fw_create(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+    cmap = (ColorMap *)PyCObject_AsVoidPtr(pycmap);
     pfo = ((pfHandle *)PyCObject_AsVoidPtr(pypfo))->pfo;
     im = (IImage *)PyCObject_AsVoidPtr(pyim);
     site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);
@@ -985,7 +993,7 @@ ff_create(PyObject *self, PyObject *args)
     int auto_deepen, periodicity;
     int yflip;
     pf_obj *pfo;
-    cmap_t *cmap;
+    ColorMap *cmap;
     IImage *im;
     IFractalSite *site;
     IFractWorker *worker;
@@ -1007,7 +1015,7 @@ ff_create(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+    cmap = (ColorMap *)PyCObject_AsVoidPtr(pycmap);
     pfo = ((pfHandle *)PyCObject_AsVoidPtr(pypfo))->pfo;
     im = (IImage *)PyCObject_AsVoidPtr(pyim);
     site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);

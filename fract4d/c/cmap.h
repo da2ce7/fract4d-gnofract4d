@@ -4,10 +4,6 @@
 
 #include "color.h"
 
-struct s_cmap;
-
-typedef struct s_cmap cmap_t;
-
 typedef enum
 {
     TRANSFER_NONE,
@@ -15,15 +11,34 @@ typedef enum
     TRANSFER_SIZE
 } e_transferType;
 
+typedef struct 
+{
+    double index;
+    rgba_t color;
+} item_t;
 
-extern cmap_t *cmap_new(int ncolors);
-extern void cmap_set(cmap_t *cmap, int i, double d, int r, int g, int b, int a); 
-extern void cmap_set_solid(cmap_t *cmap, int which, int r, int g, int b, int a);
-extern void cmap_set_transfer(cmap_t *cmap, int which, e_transferType type);
-extern rgba_t cmap_get_solid(cmap_t *cmap, int which);
-extern rgba_t cmap_lookup(cmap_t *cmap, double index);
-extern rgba_t cmap_lookup_with_transfer(
-    cmap_t *cmap, int fate, double index, int solid);
-extern void cmap_delete(cmap_t *cmap);
+class ColorMap
+{
+public:
+    ColorMap();
+    ~ColorMap();
 
+    bool init(int n_colors);
+    void set(int i, double d, int r, int g, int b, int a); 
+    void set_solid(int which, int r, int g, int b, int a);
+    void set_transfer(int which, e_transferType type);
+ 
+    rgba_t get_solid(int which) const;
+    rgba_t lookup(double index) const;
+    rgba_t lookup_with_transfer(
+	int fate, double index, int solid) const;
+ private:
+    int ncolors;
+    item_t *items;
+    rgba_t solids[2];
+    e_transferType transfers[2];
+
+};
+
+extern void cmap_delete(ColorMap *cmap);
 #endif /* CMAP_H_ */

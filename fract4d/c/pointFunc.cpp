@@ -17,12 +17,12 @@ class pf_wrapper : public pointFunc
 {
 private:
     pf_obj *m_pfo;
-    cmap_t *m_cmap;
+    ColorMap *m_cmap;
     IFractalSite *m_site;
 public:
     pf_wrapper(
 	pf_obj *pfo,
-	cmap_t *cmap,
+	ColorMap *cmap,
 	IFractalSite *site
 	) : 
 	m_pfo(pfo), m_cmap(cmap), m_site(site)
@@ -63,7 +63,7 @@ public:
 		*pnIters = -1;
 	    }
 
-	    *color = cmap_lookup_with_transfer(m_cmap,fate,dist,solid);
+	    *color = m_cmap->lookup_with_transfer(fate,dist,solid);
 
 	    if (solid)
 	    {
@@ -87,14 +87,14 @@ public:
 		solid = 1;
 	    }
 
-	    return cmap_lookup_with_transfer(m_cmap,fate,dist,solid);
+	    return m_cmap->lookup_with_transfer(fate,dist,solid);
 	}
 };
 
 
 pointFunc *pointFunc::create(
     pf_obj *pfo,
-    cmap_t *cmap,
+    ColorMap *cmap,
     IFractalSite *site)
 {
     if(NULL == pfo || NULL == cmap)
