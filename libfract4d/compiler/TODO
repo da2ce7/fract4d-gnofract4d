@@ -1,0 +1,11 @@
+* Unsolved UF mysteries
+- Are identifiers case sensitive? (keywords aren't)
+- can < work on complex numbers?
+- is int foo = int bar = 3 ok?
+- does int foo = bar = 3 make bar an int or not?
+
++ stuff to fix
+- symmetry id
+- remove Empty nodes from tree - postprocess? ignore?
+- support fractint-style implicit sections?
+- $IFDEF ( see mt2.ufm)

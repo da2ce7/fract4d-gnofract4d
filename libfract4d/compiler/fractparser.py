@@ -203,6 +203,7 @@ def p_exp_num(t):
     'exp : NUMBER'
     t[0] = absyn.Number(t[1])
 
+     
 def p_exp_boolconst(t):
     'exp : CONST'
     t[0] = absyn.Const(t[1])
@@ -218,7 +219,11 @@ def p_exp_funcall(t):
 def p_exp_complex(t):
      'exp : LPAREN exp COMMA exp RPAREN'
      t[0] = absyn.Complex(t[2],t[4])
-     
+
+def p_exp_complex_i(t):
+    'exp : COMPLEX'
+    t[0] = absyn.Complex(absyn.Number(0.0),absyn.Number(t[1]))
+    
 def p_exp_funcall_noargs(t):
     'exp : ID LPAREN RPAREN'
     t[0] = absyn.Funcall(t[1], None)
