@@ -33,12 +33,15 @@ class FctUtils:
         
     def parseVal(self,name,val,f,sect=""):
         # try to find a method matching name        
-        meth = "parse_" + sect + name.translate(self.tr)
+        methname = "parse_" + sect + name.translate(self.tr)
+        meth = None
         try:
-            return self.__class__.__dict__[meth](self,val,f)
-        except KeyError:
-            #print "ignoring unknown attribute %s" % meth
-            pass
+            meth = eval("self.%s" % methname)
+        except Exception:
+            print "ignoring unknown attribute %s" % methname
+
+        if meth:
+            return meth(val,f)
 
     def nameval(self,line):
         x = line.rstrip().split("=",1)
@@ -83,7 +86,7 @@ class Colorizer(FctUtils):
             c = (float(i)/(nc-1),int(r,16),int(g,16),int(b,16),255)
             self.colorlist.append(c)
             i+= 1
-
+        
     def parse_file(self,val,f):
         mapfile = open(val)
         print mapfile
@@ -180,10 +183,13 @@ class T(FctUtils):
 
         self.formula.merge(self.cfuncs[0],"cf0_")        
         self.formula.merge(self.cfuncs[1],"cf1_")        
-        self.outputfile = os.path.abspath(self.compiler.generate_code(self.formula, cg))
-        if self.outputfile != None:
-            self.handle = fract4d.pf_load(self.outputfile)
-            self.pfunc = fract4d.pf_create(self.handle)
+        outputfile = os.path.abspath(self.compiler.generate_code(self.formula, cg))
+        print "compiled %s" % outputfile
+        if outputfile != None:
+            if self.outputfile != outputfile:
+                self.outputfile = outputfile
+                self.handle = fract4d.pf_load(self.outputfile)
+                self.pfunc = fract4d.pf_create(self.handle)
 
         return self.outputfile
 
@@ -207,7 +213,7 @@ class T(FctUtils):
         pass
     
     def image_changed(self,x1,y1,x2,y2):
-        print "image: %d %d %d %d" %  (x1, x2, y1, y2)
+        #print "image: %d %d %d %d" %  (x1, x2, y1, y2)
         #self.image_list.append((x1,y1,x2,y2))
         pass
 
@@ -363,13 +369,14 @@ class Threaded(T):
         self.skip_updates = True
 
     def draw(self,image):
+        print "drawing with %s" % self.pfunc
         self.cmap = fract4d.cmap_create(self.colorlist)
         
         fract4d.pf_init(self.pfunc,0.001,self.initparams)
 
         self.skip_updates = False
         fract4d.async_calc(self.params,self.antialias,self.maxiter,1,
-                          self.pfunc,self.cmap,1,image,self.site)
+                           self.pfunc,self.cmap,1,image,self.site)
 
     def onData(self,fd,condition):
         #print "data!"
@@ -410,9 +417,9 @@ if __name__ == '__main__':
     g_comp.load_formula_file("test.frm")
     g_comp.load_formula_file("gf4d.cfrm")
 
+    f = T(g_comp)
     for arg in sys.argv[1:]:
         file = open(arg)
-        f = T(g_comp)
         f.loadFctFile(file)
         f.compile()
         image = fract4d.image_create(640,480)
