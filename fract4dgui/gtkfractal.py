@@ -48,8 +48,6 @@ class T(gobject.GObject):
 
         self.parent = parent
         
-        self.site = fract4dc.fdsite_create(self.writefd)
-        f = fractal.T(comp,self.site)
         self.msgformat = "5i"
         self.msgsize = struct.calcsize(self.msgformat)
 
@@ -64,8 +62,10 @@ class T(gobject.GObject):
         self.skip_updates = False
         self.running = False
         self.frozen = False # if true, don't emit signals
-        
+
+        self.site = fract4dc.fdsite_create(self.writefd)
         self.f = None
+        f = fractal.T(comp,self.site)
         self.set_fractal(f)
         
         gtk.input_add(self.readfd, gtk.gdk.INPUT_READ, self.onData)
@@ -265,6 +265,13 @@ class T(gobject.GObject):
             self.formula_changed()
             self.changed()
 
+    def error(self,msg,err):
+        print "parent", self.parent
+        if self.parent:
+            self.parent.show_error_message(msg, err)
+        else:
+            print "Error: %s %s" % (msg,err)
+        
     def warn(self,msg):
         if self.parent:
             self.parent.show_warning(msg)
@@ -439,7 +446,15 @@ class T(gobject.GObject):
         
     def draw_image(self,aa,auto_deepen):
         self.interrupt()
-        self.f.compile()
+        try:
+            self.f.compile()
+        except fracttypes.TranslationError, err:
+            advice = _("\nCheck that your compiler settings and formula file are correct.")
+            gtk.idle_add(self.error,
+                         _("Error compiling fractal:"),
+                         err.msg + advice)
+            return
+        
         self.f.antialias = aa
         self.f.auto_deepen = auto_deepen
         self.draw(self.image,self.width,self.height,self.nthreads)
