@@ -51,15 +51,66 @@ class CodegenTest(unittest.TestCase):
         self.codegen = codegen.T(symbol.T())
         self.codegen.generate_code(t)
         
-    def sourceToAsm(self,s,section):
+    def sourceToAsm(self,s,section,dump=None):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
         #print pt.pretty()
-        ir = translate.T(pt.children[0])        
-        self.codegen = codegen.T(ir.symbols)
+        ir = translate.T(pt.children[0],dump)
+        self.assertNoErrors(ir)
+        self.codegen = codegen.T(ir.symbols,dump)
         self.codegen.generate_all_code(ir.sections["c_" + section])
         return self.codegen.out
+
+    def printAsm(self):
+        for i in self.codegen.out:
+            try:
+                #print i
+                print i.format()
+            except Exception, e:
+                print "Can't format %s:%s" % (i,e)
+
+    def makeC(self,user_preamble="", user_postamble=""):
+        # construct a C stub for testing
+        preamble = "#include <stdio.h>\nint main(){\n"
+        decls = string.join(self.codegen.output_symbols(),"\n")
+        str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
+        postamble = "\nreturn 0;}\n"
+
+        return string.join([preamble,decls,"\n",
+                            user_preamble,str_output,"\n",
+                            user_postamble,postamble],"")
+
+    def writeToTempFile(self,data=None,suffix=""):
+        'try mkstemp or mktemp if missing'
+        try:
+            (cFile,cFileName) = tempfile.mkstemp("gf4d",suffix)
+        except AttributeError, err:
+            # this python is too antique for mkstemp
+            cFileName = tempfile.mktemp(suffix)
+            cFile = open(cFileName,"w+b")
+
+        if data != None:
+            cFile.write(data)
+        cFile.close()
+        return cFileName
     
+    def compileAndRun(self,user_preamble="", user_postamble=""):
+        c_code = self.makeC(user_preamble, user_postamble)
+        cFileName = self.writeToTempFile(c_code,".c")
+        oFileName = self.writeToTempFile("")
+        #print c_code
+        cmd = "gcc -Wall %s -o %s" % (cFileName, oFileName)
+        #print cmd
+        (status,output) = commands.getstatusoutput(cmd)
+        self.assertEqual(status,0)
+        #print "status: %s\noutput:\n%s" % (status, output)
+        cmd = oFileName
+        (status,output) = commands.getstatusoutput(cmd)
+        self.assertEqual(status,0)
+        #print "status: %s\noutput:\n%s" % (status, output)
+        return output
+
+    # test methods
     def testMatching(self):
         template = "[Binop, Const, Const]"
 
@@ -75,11 +126,6 @@ class CodegenTest(unittest.TestCase):
         template = "[Binop, Exp, Exp]"
         self.assertMatchResult(tree, template,1)
         
-    def assertMatchResult(self, tree, template,result):
-        template = self.codegen.expand(template)
-        self.assertEqual(self.codegen.match_template(tree,template),result,
-                         "%s mismatches %s" % (tree.pretty(),template))
-
     def testWhichMatch(self):
         tree = self.binop([self.const(),self.const()])
         self.assertEqual(self.codegen.match(tree).__name__,"binop_exp_exp")
@@ -182,15 +228,24 @@ goto t__end_loop;''')
         self.failUnless("double z_re = 0.00000000000000000;" in out)
 
     def testC(self):
-        src = '''t_s2a {
+        # basic end-to-end testing. Compile a code fragment + instrumentation,
+        # run it and check output
+        src = '''t_c1 {
 loop:
 int a = 1
 z = z + a
 }'''
         self.assertCSays(src,"loop","printf(\"%g,%g\\n\",z_re,z_im);","1,0")
+        
+        src = '''t_c2{\ninit:int a = 1 + 3 * 7\n}'''
+        self.assertCSays(src,"init","printf(\"%d\\n\",a);","22")
 
-    def assertCSays(self,source,section,check,result):
-        asm = self.sourceToAsm(source,section)
+        src = 't_c3{\ninit: b = 1 + 3 * 7\n}'
+        self.assertCSays(src,"init","printf(\"%g\\n\",b_re);","22")
+        
+    # assertions
+    def assertCSays(self,source,section,check,result,dump=None):
+        asm = self.sourceToAsm(source,section,dump)
         postamble = "t__end_%s:\n%s\n" % (section,check)
         output = self.compileAndRun("", postamble)
         self.assertEqual(output,result)
@@ -198,55 +253,16 @@ z = z + a
     def assertOutputMatch(self,exp):
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
         self.assertEqual(str_output,exp)
-    
-    def printAsm(self):
-        for i in self.codegen.out:
-            try:
-                #print i
-                print i.format()
-            except Exception, e:
-                print "Can't format %s:%s" % (i,e)
 
-    def makeC(self,user_preamble="", user_postamble=""):
-        # construct a C stub for testing
-        preamble = "#include <stdio.h>\nint main(){\n"
-        decls = string.join(self.codegen.output_symbols(),"\n")
-        str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
-        postamble = "\nreturn 0;}\n"
+    def assertNoErrors(self,t):
+        self.assertEqual(len(t.errors),0,
+                         "Unexpected errors %s" % t.errors)
+    def assertMatchResult(self, tree, template,result):
+        template = self.codegen.expand(template)
+        self.assertEqual(self.codegen.match_template(tree,template),result,
+                         "%s mismatches %s" % (tree.pretty(),template))
 
-        return string.join([preamble,decls,"\n",
-                            user_preamble,str_output,"\n",
-                            user_postamble,postamble],"")
 
-    def writeToTempFile(self,data=None,suffix=""):
-        'try mkstemp or mktemp if missing'
-        try:
-            (cFile,cFileName) = tempfile.mkstemp("gf4d",suffix)
-        except AttributeError, err:
-            # this python is too antique for mkstemp
-            cFileName = tempfile.mktemp(suffix)
-            cFile = open(cFileName,"w+b")
-
-        if data != None:
-            cFile.write(data)
-        cFile.close()
-        return cFileName
-    
-    def compileAndRun(self,user_preamble="", user_postamble=""):
-        c_code = self.makeC(user_preamble, user_postamble)
-        cFileName = self.writeToTempFile(c_code,".c")
-        oFileName = self.writeToTempFile("")
-        #print c_code
-        cmd = "gcc -Wall %s -o %s" % (cFileName, oFileName)
-        #print cmd
-        (status,output) = commands.getstatusoutput(cmd)
-        self.assertEqual(status,0)
-        #print "status: %s\noutput:\n%s" % (status, output)
-        cmd = oFileName
-        (status,output) = commands.getstatusoutput(cmd)
-        self.assertEqual(status,0)
-        #print "status: %s\noutput:\n%s" % (status, output)
-        return output
     
 def suite():
     return unittest.makeSuite(CodegenTest,'test')

@@ -55,6 +55,9 @@ class TranslateTest(unittest.TestCase):
         self.assertEquivalentTranslations(t1,t3)
         self.assertEqual(len(t3.warnings),8,t3.warnings)
 
+        t4 = self.translate('t_c3{\n:init: a = 1 + 3 * 7\n}')
+        self.assertNoErrors(t4)
+        
     def testBailout(self):
         # empty bailout
         t = self.translate('''t_bail_1 {

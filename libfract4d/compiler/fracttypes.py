@@ -2,6 +2,7 @@
 
 import string
 import exceptions
+import types
 
 # order is significant - we use X > Y on types
 Bool = 0
@@ -102,11 +103,12 @@ class Func:
         return 1            
 
 class Var:
-    def __init__(self,type,value=None,pos=-1):
-        assert(type != None)
-        self.type = type
+    def __init__(self,type_,value=None,pos=-1):
+        assert(type_ != None)
+        assert(isinstance(pos,types.IntType))
+        self.type = type_
         if value == None:
-            self.value = default_value(type)
+            self.value = default_value(type_)
         else:
             self.value = value
         self.pos = pos
