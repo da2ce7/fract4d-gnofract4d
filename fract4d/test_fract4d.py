@@ -136,10 +136,7 @@ class PfTest(unittest.TestCase):
         buf = fract4dc.image_fate_buffer(image,5,10)
         self.assertEqual(len(buf),80*60*4 - (10*80+5)*4)
 
-    def testFractWorker(self):
-        xsize = 8
-        ysize = 8
-        image = fract4dc.image_create(xsize,ysize)
+    def makeWorkerAndFunc(self, image, cmap):
         siteobj = FractalSite()
         site = fract4dc.site_create(siteobj)
 
@@ -147,10 +144,6 @@ class PfTest(unittest.TestCase):
         handle = fract4dc.pf_load("./test-pfc.so")
         pfunc = fract4dc.pf_create(handle)
         fract4dc.pf_init(pfunc,0.001,[0.5])
-        cmap = fract4dc.cmap_create(
-            [(0.0,0,0,0,255),
-             (1/256.0,255,255,255,255),
-             (1.0, 255, 255, 255, 255)])
 
         fw = fract4dc.fw_create(1,pfunc,cmap,image,site)
         ff = fract4dc.ff_create(
@@ -169,6 +162,20 @@ class PfTest(unittest.TestCase):
             site,
             fw)
 
+        return (fw,ff,site,handle,pfunc)
+    
+    def testFractWorker(self):
+        xsize = 8
+        ysize = 8
+        image = fract4dc.image_create(xsize,ysize)
+
+        cmap = fract4dc.cmap_create(
+            [(0.0,0,0,0,255),
+             (1/256.0,255,255,255,255),
+             (1.0, 255, 255, 255, 255)])
+
+        (fw,ff,site,handle,pfunc) = self.makeWorkerAndFunc(image,cmap)
+
         fract4dc.image_clear(image)
 
         fate_buf = fract4dc.image_fate_buffer(image)
@@ -183,7 +190,12 @@ class PfTest(unittest.TestCase):
         self.assertEqual(fate_buf[1:4], "\xff\xff\xff")
         self.assertEqual(fract4dc.image_get_color_index(image,0,0),0.0)
 
-        
+        # draw it again, check no change.
+        fract4dc.fw_pixel(fw,0,0,1,1)
+        self.assertEqual(fate_buf[0],chr(0))
+        self.assertEqual(buf[0:3],"\x00\x00\x00")
+        self.assertEqual(fate_buf[1:4], "\xff\xff\xff")
+        self.assertEqual(fract4dc.image_get_color_index(image,0,0),0.0)
 
         
     def testCalc(self):
