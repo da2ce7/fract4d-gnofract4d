@@ -13,7 +13,8 @@ import fract4dc
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
-g_comp.load_formula_file("./gf4d.frm")
+g_comp.file_path.append("../formulas")
+g_comp.load_formula_file("gf4d.frm")
 g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")
         
@@ -437,7 +438,7 @@ blue=0.5543108971162746
     def testLoadGivesCorrectParameters(self):
         f = fractal.T(self.compiler)
         self.assertEqual(len(f.formula.symbols.parameters()),2)
-        f.loadFctFile(open("../src/paramfiles/elfglow.fct"))
+        f.loadFctFile(open("../testdata/elfglow.fct"))
         self.assertEqual(len(f.formula.symbols.parameters()),4)
         
         

@@ -41,11 +41,11 @@ class MainWindow:
         # create fractal compiler and load standard formula and
         # coloring algorithm files
         self.compiler = fc.Compiler()
-        self.compiler.file_path.append("fract4d")
+        self.compiler.file_path.append("formulas")
         self.compiler.file_path.append(
             os.path.join(sys.exec_prefix, "share/formulas/gnofract4d"))
-        self.compiler.load_formula_file("gf4d.frm")
-        self.compiler.load_formula_file("gf4d.cfrm")
+        #self.compiler.load_formula_file("gf4d.frm")
+        #self.compiler.load_formula_file("gf4d.cfrm")
 
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)

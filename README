@@ -27,6 +27,10 @@ You can then run it as:
 
 gnofract4d
 
+You can verify that your installation is working correctly by running
+
+./test.py
+
 Requirements
 ============
 
