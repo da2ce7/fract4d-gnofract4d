@@ -65,10 +65,6 @@ class Alias:
     
 def createDefaultDict():
     d = {
-        # standard operators
-
-        # comparison
-        
         # fixme - issue a warning for complex compares
         ">":  efl("gt",    "[_,_] , Bool", [Int, Float, Complex]),
         ">=": efl("gte",   "[_,_] , Bool", [Int, Float, Complex]),
@@ -82,19 +78,15 @@ def createDefaultDict():
                 Func([Float, Float], Float, stdlib, "div"),
                 Func([Complex, Float], Complex, stdlib, "div"),
                 Func([Complex, Complex], Complex, stdlib, "div"),
-                #Func([Color, Float], Float, stdlib, "div")
                 ],operator=True),
 
-        "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex, Hyper]), #+ \
-              #[ Func([Color, Float], Float, stdlib, "mul")],
+        "*":  efl("mul", "[_,_] , _", [Int, Float, Complex, Hyper]),
 
         "^": OverloadList([ Func([Float, Float], Float, stdlib, "pow"),
                 Func([Complex, Float], Complex, stdlib, "pow"),
                 Func([Complex, Complex], Complex, stdlib, "pow")]),
         
         "t__neg": efl("neg", "[_], _", [Int, Float, Complex, Hyper]),
-        
-        # unary negation already factored out
 
         # logical ops
         "&&": OverloadList([ Func([Bool, Bool], Bool, stdlib, None) ]),
@@ -130,7 +122,7 @@ def createDefaultDict():
     f("hyper",
       [[Float, Float, Float, Float], Hyper],
       doc='''Construct a hypercomplex number from a real and 3 imaginary parts.
-      hypercomplex(a,b,c,d) is equivalent to (a,b,c,d).''')
+      hyper(a,b,c,d) is equivalent to the shorthand (a,b,c,d).''')
     
     f("sqr",
       cfl("[_] , _",  [Int, Float, Complex, Hyper]),
@@ -395,7 +387,8 @@ def createDefaultDict():
     for p in xrange(1,5):
         name = "fn%d" % p
         d[name] = Alias("t__a_" + name)
-        d["t__a_" + name ] = OverloadList([Func([Complex],Complex, stdlib, "ident") ])
+        d["t__a_" + name ] = OverloadList(
+            [Func([Complex],Complex, stdlib, "ident") ])
 
     d["t__a__transfer"] = OverloadList([Func([Float],Float, stdlib, "ident") ])
     
