@@ -114,7 +114,7 @@ class T:
     def assign(self, node):
         '''assign a new value to a variable, creating it if required'''
         if not self.symbols.has_key(node.leaf):
-            # implicitly create a new var
+            # implicitly create a new var - a warning?
             self.symbols[node.leaf] = Var(fracttypes.Complex,0,node.pos)
 
         expectedType = self.symbols[node.leaf].type
@@ -136,9 +136,23 @@ class T:
     def exp(self,node,expectedType):
         if node.type == "const":
             self.const(node,expectedType)
+        elif node.type == "id":
+            self.id(node,expectedType)
         else:
             self.badNode(node,"exp")
 
+    def id(self, node, expectedType):
+        try:
+            node.datatype = self.symbols[node.leaf].type
+        except KeyError, e:
+            self.warning(
+                "Uninitialized variable %s referenced on line %d" % \
+                (node.leaf, node.pos))
+            self.symbols[node.leaf] = Var(fracttypes.Complex, 0.0, node.pos)
+            node.datatype = fracttypes.Complex
+            
+        node = self.coerce(node, expectedType)
+        
     def const(self,node,expectedType):
         node = self.coerce(node, expectedType)
 
