@@ -63,6 +63,10 @@ extern "C" {
 
 	/* make subfracts weird versions of main one */
 	void model_update_subfracts(model_t *m);
+	void model_toggle_explore_mode(model_t *m);
+
+	// this is crap - lose it
+	void model_set_subfract_widget(model_t *m, GtkWidget *widget, int num);
 
 	void model_make_undo_sensitive(model_t *m, GtkWidget *widget);
 	void model_make_redo_sensitive(model_t *m, GtkWidget *widget);

@@ -122,6 +122,12 @@ void redo_cb(GtkMenuItem *menuitem, gpointer user_data)
 	model_redo(m);
 }
 
+void explore_cb(GtkWidget *widget, gpointer user_data)
+{
+	model_t *m = (model_t *)user_data;	
+	model_toggle_explore_mode(m);
+}
+
 gboolean
 quit_cb(GtkWidget       *widget,
         gpointer         user_data)

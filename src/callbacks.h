@@ -89,6 +89,7 @@ full_screen_cb(GtkWidget *widget, gpointer user_data);
 
 void undo_cb(GtkMenuItem *menuitem, gpointer user_data);
 void redo_cb(GtkMenuItem *menuitem, gpointer user_data);
+void explore_cb(GtkWidget *widget, gpointer user_data);
 
 void
 propertybox_apply                      (GnomePropertyBox *gnomepropertybox,

@@ -48,9 +48,11 @@ struct _model {
 	GundoActionType undo_action;
 	Gf4dFractal *fract;
 	Gf4dFractal *subfracts[8];
+	GtkWidget *sub_drawing_areas[8];
 	fractal *old_fract;
 
 	int interrupted;
+	bool explore_mode;
 };
 
 static void 
@@ -88,6 +90,7 @@ model_new(void)
 	{
 		m->subfracts[i] = GF4D_FRACTAL(gf4d_fractal_new());
 	}
+	m->explore_mode = true;
 	model_update_subfracts(m);
 	m->undo_seq = gundo_sequence_new();
 
@@ -122,7 +125,6 @@ model_cmd_save_image(model_t *m, char *filename)
 
 	return 1;
 }
-
 
 int 
 model_cmd_save(model_t *m, char *filename)
@@ -204,13 +206,42 @@ model_cmd_finish(model_t *m)
 }
 
 void
+model_set_subfract_widget(model_t *m, GtkWidget *widget, int num)
+{
+	m->sub_drawing_areas[num] = widget;
+}
+
+void
 model_update_subfracts(model_t *m)
 {
+	if(!m->explore_mode) return;
+
 	for(int i = 0; i < 8; i++)
 	{
 		gf4d_fractal_set_inexact(m->subfracts[i],m->fract);
 		gf4d_fractal_parameters_changed(m->subfracts[i]);
 	}
+}
+
+void 
+model_toggle_explore_mode(model_t *m)
+{
+	if(m->explore_mode)
+	{
+		for(int i = 0; i < 8; i++)
+		{
+			gtk_widget_hide(m->sub_drawing_areas[i]);
+		}
+	}
+	else
+	{
+		for(int i = 0; i < 8; i++)
+		{
+			gtk_widget_show(m->sub_drawing_areas[i]);
+		}
+	}
+	m->explore_mode = !m->explore_mode;
+	model_update_subfracts(m);
 }
 
 void

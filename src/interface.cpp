@@ -251,6 +251,14 @@ create_move_toolbar (model_t *m)
 				 (GtkSignalFunc)redo_cb,
 				 m);
 
+	GtkWidget *explore_widget = gnome_stock_new_with_icon(GNOME_STOCK_PIXMAP_SEARCH);
+	gtk_toolbar_append_item (GTK_TOOLBAR(toolbar),
+				 _("Explore"),
+				 _("Toggle Explorer mode"),
+				 NULL,
+				 explore_widget,
+				 (GtkSignalFunc)explore_cb,
+				 m);
 	return toolbar;
 }
 
@@ -319,6 +327,9 @@ create_sub_drawing_area(model_t *m, GtkWidget *table, int num, int x, int y)
 
 	pdata->m = m;
 	pdata->num = num;
+
+	/* connect to model - fatuous */
+	model_set_subfract_widget(m,drawing_area,num);
 
 	Gf4dFractal *f = model_get_subfract(m,num);
 	/* connect widget signals */
