@@ -25,7 +25,8 @@ class GradientDialog(dialog.T):
 
         self.mousedown = False
         self.origmpos = self.startmpos = 0
-                
+
+        self.cur = -1 # no segment selected 
         #self.create_gradient_dialog()
 
     def show(parent,f,grad):
@@ -235,7 +236,7 @@ class GradientDialog(dialog.T):
     def gradarea_realized(self, widget):
         self.gradcol= widget.get_colormap().alloc_color(
             "#FFFFFFFFFFFF", True, True)
-        self.gradgc = widget.window.new_gc(    foreground=self.gradcol,
+        self.gradgc = widget.window.new_gc( foreground=self.gradcol,
                                             background=self.gradcol,
                                             fill=gtk.gdk.SOLID)
                                 

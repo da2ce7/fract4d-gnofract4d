@@ -549,7 +549,7 @@ class MainWindow:
         self.resolutions = [
             (320,240), (640,480),
             (800,600), (1024, 768),
-            (1280,960), (1600,1200)]
+            (1280,1024), (1600,1200)]
         
         res_menu= gtk.OptionMenu()
         menu = gtk.Menu()
