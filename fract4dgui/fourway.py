@@ -1,7 +1,8 @@
 # Sort of a widget which controls 2 linear dimensions of the fractal
 # I say sort of, because this doesn't actually inherit from gtk.Widget,
 # so it's not really a widget. This is because if I attempt to do that
-# pygtk crashes. Hence this ungodly hack.
+# pygtk crashes. Hence I delegate to a member which actually is a widget
+# with some stuff drawn on it - basically an ungodly hack.
 
 import gtk
 import gobject
@@ -18,13 +19,13 @@ class T(gobject.GObject):
         }
 
     def __init__(self,text):        
-        gobject.GObject.__init__(self)
         self.button = 0
         self.radius = 0
         self.last_x = 0
         self.last_y = 0
         self.text=text
-
+        gobject.GObject.__init__(self)
+        
         self.widget = gtk.DrawingArea()
         self.widget.set_size_request(40,40)
 
@@ -38,7 +39,7 @@ class T(gobject.GObject):
         self.widget.connect('button_release_event', self.onButtonRelease)
         self.widget.connect('button_press_event', self.onButtonPress)
         self.widget.connect('expose_event',self.onExpose)
-
+        
     def update_from_mouse(self,x,y):
         dx = self.last_x - x
         dy = self.last_y - y
@@ -64,6 +65,12 @@ class T(gobject.GObject):
             self.last_x = widget.allocation.width/2
             self.last_y = widget.allocation.height/2
             self.update_from_mouse(event.x, event.y)
+
+    def __del__(self):
+        #This is truly weird. If I don't have this method, when you use
+        # one fourway widget, it fucks up the other. Having this fixes it.
+        # *even though it doesn't do anything*. Disturbing.
+        pass
         
     def onExpose(self,widget,exposeEvent):
         r = exposeEvent.area
