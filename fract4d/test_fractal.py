@@ -216,9 +216,9 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         for x in xrange(w):
             for y in xrange(h/2):
                 apos = (y*w+x)*3
-                bpos = ((h-y)*w+x)*3
+                bpos = ((h-y-1)*w+x)*3
                 a = buf[apos:apos+3]
-                b = buf[apos:apos+3]
+                b = buf[bpos:bpos+3]
                 self.assertEqual(a,b)
         
         
