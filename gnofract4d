@@ -69,12 +69,13 @@ def main():
             print "Unknown argument", name, val
 
     mainWindow.f.set_size(width,height)
-    
+
+    mainWindow.f.thaw()
     if len(args) > 0:
         mainWindow.load(args[0])
     else:
         mainWindow.on_fractal_change()
-        
+    
     gtk.main()
     
 if __name__ == '__main__':

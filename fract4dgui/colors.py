@@ -46,6 +46,9 @@ class ColorModel:
     def populate_file_list(self):
         self.add_directory("maps")
         self.add_directory(os.path.join(sys.exec_prefix,"share/maps/gnofract4d"))
+        
+def stricmp(a,b):
+    return cmp(a.lower(),b.lower())
 
 class ColorDialog(gtk.Dialog):
     def __init__(self,main_window,f):
@@ -60,7 +63,7 @@ class ColorDialog(gtk.Dialog):
         self.set_size_request(200,500)
         
         self.f = f
-        self.model = get_model()
+        self.model = _get_model()
         sw = self.create_map_file_list()
 
         self.vbox.add(sw)
@@ -99,11 +102,11 @@ class ColorDialog(gtk.Dialog):
 
         self.update_list()
         return sw
-    
+
     def update_list(self):
         self.map_list.clear()
         keys = self.model.maps.keys()
-        keys.sort()
+        keys.sort(stricmp)
         for k in keys:
             iter = self.map_list.append ()
             self.map_list.set (iter, 0, k)
