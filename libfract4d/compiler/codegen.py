@@ -13,6 +13,7 @@ class Insn:
     def __init__(self,assem):
         self.assem = assem # string format of instruction
 
+
 class Oper(Insn):
     ' An operation'
     def __init__(self,assem, src, dst, jumps=[]):
@@ -22,6 +23,20 @@ class Oper(Insn):
         self.jumps = jumps
     def __str__(self):
         return "OPER(%s,%s,%s,%s)" % (self.assem, self.src, self.dst, self.jumps)
+    def format(self,lookup = None):
+        if lookup == None:
+            lookup = {}
+            i = 0
+            for src in self.src:
+                sname = "s%d" % i
+                lookup[sname] = src
+                i = i+1
+            i = 0
+            for dst in self.dst:
+                dname = "d%d" % i
+                lookup[dname] = dst
+                i = i+1
+        return self.assem % lookup
     
 class Label(Insn):
     'A label which can be jumped to'
@@ -64,12 +79,13 @@ class T:
             d0 = self.symbols.newTemp(fracttypes.Float)
             d1 = self.symbols.newTemp(fracttypes.Float)
             dst = [d0,d1]
-            assem = "%%(d0)s = %d %s %%(s1)s" % (s0.value[0], t.op)
+            assem = "%%(d0)s = %d %s %%(s0)s" % (s0.value[0], t.op)
             self.out.append(Oper(assem, [srcs[0]], [d0]))
+            assem = "%%(d0)s = %d %s %%(s0)s" % (s0.value[1], t.op)
             self.out.append(Oper(assem, [srcs[1]], [d1]))
         else: 
             dst = [self.symbols.newTemp(t.datatype)]
-            assem = "%%(d0)s = %d %s %%(s1)s" % (s0.value, t.op)
+            assem = "%%(d0)s = %d %s %%(s0)s" % (s0.value, t.op)
             self.out.append(Oper(assem, srcs , dst))
         return dst
     
