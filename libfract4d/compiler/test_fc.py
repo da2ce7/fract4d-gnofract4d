@@ -2,6 +2,8 @@
 
 import unittest
 import string
+import commands
+import re
 
 import fc
 
@@ -20,7 +22,14 @@ class FCTest(unittest.TestCase):
         self.assertEqual(len(ff.formulas),1)
         f = self.compiler.get_formula("gf4d.frm","T03-01-G4")
         self.assertEqual(f.errors, [])
-            
+        self.compiler.generate_code(f,"test-out.so")
+        (status,output) = commands.getstatusoutput('nm test-out.so')
+        self.assertEqual(status,0)
+        self.assertEqual(string.count(output,"pf_new"),1)
+        self.assertEqual(string.count(output,"pf_calc"),1)
+        self.assertEqual(string.count(output,"pf_init"),1)
+        self.assertEqual(string.count(output,"pf_kill"),1)
+        
     def testErrors(self):
         self.assertRaises(
             Exception, self.compiler.load_formula_file, "nonexistent.frm")
