@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Parser for UltraFractal + Fractint input files
 
 import yacc
@@ -35,7 +36,7 @@ def p_stm_exp(t):
 # ignore blank or comment-only lines
 def p_stm_nl(t):
     'stm : NEWLINE'
-    pass
+    t[0] = absyn.Empty()
     
 def p_stm_decl(t):
     'stm : ID ID'
@@ -115,20 +116,27 @@ def p_error(t):
 
 # debugging
 if __name__ == '__main__':
+    import sys
     # Build the parser
     yacc.yacc()
 
-    while 1:
-        try:
-            s = raw_input('calc > ')
-        except EOFError:
-            break
-        if not s: continue
-        if s[0] == '#':
-            s = open(s[1:],"r").read() # read in a whole file
-            print s
-        else:
-            s += "\n"
+    for arg in sys.argv[1:]:
+        s = open(arg,"r").read() # read in a whole file
         result = yacc.parse(s)
         print result.pretty()
+
+    if len(sys.argv) == 1:
+        while 1:
+            try:
+                s = raw_input('calc > ')
+            except EOFError:
+                break
+            if not s: continue
+            if s[0] == '#':
+                s = open(s[1:],"r").read() # read in a whole file
+                print s
+            else:
+                s += "\n"
+            result = yacc.parse(s)
+            print result.pretty()
 

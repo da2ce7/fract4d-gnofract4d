@@ -17,7 +17,7 @@ class Node:
         if self.children:
             str += "\n"
             for child in self.children:
-               str += child.pretty(depth+1) + "\n"
+                str += child.pretty(depth+1) + "\n"
             str += " " * depth + "]\n"
         else:
             str += "]"
@@ -54,3 +54,6 @@ def Decl(type, id, exp=None):
 
 def Stmlist(list):
     return Node("stmlist", list, "")
+
+def Empty():
+    return Node("empty", None, "")
