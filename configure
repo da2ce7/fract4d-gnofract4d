@@ -11240,7 +11240,7 @@ PACKAGE_MAPS_DIR="`gnome-config --datadir`/maps/${PACKAGE}"
 GLIB_GENMARSHAL="`pkg-config --variable=glib_genmarshal glib-2.0`"
 
 
-ac_config_files="$ac_config_files Makefile libfract4d/Makefile fract4d/Makefile src/Makefile po/Makefile.in doc/Makefile doc/gnofract4d-manual/Makefile doc/gnofract4d-manual/C/Makefile pixmaps/Makefile maps/Makefile"
+ac_config_files="$ac_config_files Makefile libfract4d/Makefile src/Makefile po/Makefile.in doc/Makefile doc/gnofract4d-manual/Makefile doc/gnofract4d-manual/C/Makefile pixmaps/Makefile maps/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -11741,7 +11741,6 @@ do
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "libfract4d/Makefile" ) CONFIG_FILES="$CONFIG_FILES libfract4d/Makefile" ;;
-  "fract4d/Makefile" ) CONFIG_FILES="$CONFIG_FILES fract4d/Makefile" ;;
   "src/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
   "po/Makefile.in" ) CONFIG_FILES="$CONFIG_FILES po/Makefile.in" ;;
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;

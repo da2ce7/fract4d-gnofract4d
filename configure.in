@@ -54,7 +54,6 @@ AC_SUBST(GLIB_GENMARSHAL)
 AC_CONFIG_FILES([ 
 Makefile
 libfract4d/Makefile
-fract4d/Makefile
 src/Makefile
 po/Makefile.in
 doc/Makefile

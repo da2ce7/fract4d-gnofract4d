@@ -29,6 +29,21 @@
 #include "gf4d_fourway.h"
 #include "gf4d_fractal.h"
 
+GtkWidget *image_widget_from_file(const gchar *filename)
+{
+    gchar *full_filename = gnome_program_locate_file(
+	NULL,
+	GNOME_FILE_DOMAIN_APP_DATADIR,
+	g_build_filename("pixmaps", PACKAGE, filename, NULL),
+	FALSE,
+	NULL);
+    
+    g_print("%s\n",full_filename);
+    GtkWidget *image = gtk_image_new_from_file(full_filename);
+
+    return image;
+}
+
 void 
 position_set_cb (GtkWidget *button, gpointer user_data)
 {
@@ -139,15 +154,7 @@ deepen_now_cb(GtkWidget *button, model_t *m)
 void
 create_deepen_widget(GtkToolbar *toolbar, model_t *m)
 {
-    gchar *filename = gnome_program_locate_file(
-	NULL,
-	GNOME_FILE_DOMAIN_APP_DATADIR,
-	PACKAGE "/pixmaps/deepen_now.png",
-	FALSE,
-	NULL);
-
-    GtkWidget *deepen_pixmap = gtk_image_new_from_file(filename);
-
+    GtkWidget *deepen_pixmap = image_widget_from_file("deepen_now.png");
     GtkWidget *deepen_widget = gtk_toolbar_append_item(
         toolbar,_("Deepen"),
         _("Increase the maximum number of iterations"),
@@ -268,13 +275,7 @@ create_preview_widget(GtkToolbar *toolbar, Gf4dFractal *shadow)
 void
 create_explore_widgets(GtkToolbar *toolbar, model_t *m)
 {
-    GtkWidget *explore_widget = gtk_image_new_from_file(
-	gnome_program_locate_file(
-	    NULL,
-	    GNOME_FILE_DOMAIN_APP_DATADIR,
-	    PACKAGE "/pixmaps/explorer_mode.png",
-	    TRUE,
-	    NULL));
+    GtkWidget *explore_widget = image_widget_from_file("explorer_mode.png");
 
     gtk_toolbar_append_item (
         toolbar,

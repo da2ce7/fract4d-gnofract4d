@@ -55,4 +55,4 @@ if which scrollkeeper-update>/dev/null 2>&1; then scrollkeeper-update; fi
 %doc %{prefix}/share/gnome/help/gnofract4d/*
 %{prefix}/share/omf/gnofract4d/*
 %{prefix}/share/gnofract4d/*
-
+%{prefix}/share/pixmaps/gnofract4d/*
