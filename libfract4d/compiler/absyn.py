@@ -119,13 +119,13 @@ def Set(id, s, pos):
     return Node("set", pos, s,id)
 
 def Number(n,pos):
-    return Node("const", pos, None, n)
+    return Node("const", pos, None, n, fracttypes.Float)
 
 def Const(n,pos):
-    return Node("const", pos, None, n=="true")
+    return Node("const", pos, None, n=="true", fracttypes.Bool)
 
 def Complex(left,right,pos):
-    return Node("complex",pos, [left, right], "")
+    return Node("complex",pos, [left, right], "", fracttypes.Complex)
 
 def Binop(op, left, right,pos):
     return Node("binop", pos, [left, right], op)

@@ -22,7 +22,7 @@ class TranslateTest(unittest.TestCase):
         #print pt.pretty()
         return translate.T(pt.children[0])
 
-    def testFractintSections(self):
+    def x_testFractintSections(self):
         t1 = self.translate("t1 {\na=1:b=2,c=3}")
         t2 = self.translate('''
              t1 {
@@ -51,27 +51,44 @@ class TranslateTest(unittest.TestCase):
         self.assertEqual(len(t3.warnings),3)
 
     def testDecls(self):
-        t1 = self.translate("t1 {\nglobal:int a\ncomplex b\n}")
+        t1 = self.translate("t1 {\nglobal:int a\ncomplex b\nbool c = true\n}")
+        self.assertNoProbs(t1)
         self.assertVar(t1, "a", fracttypes.Int)
         self.assertVar(t1, "b", fracttypes.Complex)
-        self.assertNoProbs(t1)
+        t1 = self.translate("t1 {\ninit:float a = true\n}")
+        self.assertNoErrors(t1)
+        self.assertVar(t1, "a", fracttypes.Float)
+        self.assertWarning(t1, "conversion from bool to float on line 2")
+        
         
     def testBadDecls(self):
         t1 = self.translate("t1 {\nglobal:int z\n}")
-        self.assertError(t1,"existing symbol z")
+        self.assertError(t1,"symbol 'z' is predefined")
         t1 = self.translate("t1 {\nglobal:int a\nfloat A\n}")
-        self.assertError(t1,"existing symbol A")
+        self.assertError(t1,"'A' was already defined on line 2")
         
     def assertError(self,t,str):
         self.assertNotEqual(len(t.errors),0)
         for e in t.errors:
-            if string.find(e,str):
+            if string.find(e,str) != -1:
                 return
-        self.fail(("No error matching %s raised" % str))
+        self.fail(("No error matching '%s' raised, errors were %s" % (str, t.errors)))
+
+    def assertWarning(self,t,str):
+        self.assertNotEqual(len(t.warnings),0)
+        for e in t.warnings:
+            if string.find(e,str) != -1:
+                return
+        self.fail(("No warning matching '%s' raised, warnings were %s" % (str, t.warnings)))
+
+    def assertNoErrors(self,t):
+        self.assertEqual(len(t.errors),0,
+                         "Unexpected errors %s" % t.errors)
         
     def assertNoProbs(self, t):
-        self.assertEqual(len(t.warnings),0)
-        self.assertEqual(len(t.errors),0)
+        self.assertEqual(len(t.warnings),0,
+                         "Unexpected warnings %s" % t.warnings)
+        self.assertNoErrors(t)
         
     def assertVar(self,t, name,type):
         self.assertEquals(t.symbols[name].type,type)

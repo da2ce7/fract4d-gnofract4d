@@ -18,8 +18,10 @@ class T:
         self.errors = []
         self.warnings = []
         self.sections = {}
-        
-        self.formula(f)
+        try:
+            self.formula(f)
+        except TranslationError, e:
+            self.errors.append(e.msg)
         
     def error(self,msg):
         self.errors.append(msg)
@@ -47,6 +49,12 @@ class T:
         if s: self.bailout(s)
         #  ignore switch and builtin for now
 
+    def dupSectionWarning(self,sect):
+        self.warning(
+                    "formula contains a fractint-style implicit %s section\
+                    and an explicit UltraFractal %s section. \
+                    Using explict section." % (sect,sect))
+        
     def canonicalizeSections(self,f):        
         '''a nameless section (started by ':') is the same as a loop
            section with the last stm as a bailout section - make this
@@ -57,10 +65,7 @@ class T:
         if s:
             oldinit = f.childByName("init")
             if oldinit:
-                self.warning(
-                    "formula contains a fractint-style implicit int section\
-                    and an explicit UltraFractal init section. \
-                    Using explict section.")
+                self.dupSectionWarning("init")
             else:
                 s.leaf = "init"
         
@@ -73,19 +78,13 @@ class T:
         
         oldbailout = f.childByName("bailout")
         if oldbailout:
-            self.warning(
-                "formula contains a fractint-style implicit bailout section\
-                and an explicit UltraFractal bailout section. \
-                Using explict section.")
+            self.dupSectionWarning("bailout")
         else:
             f.children.append(Stmlist("bailout",bailout, bailout.pos))
         
         oldloop = f.childByName("loop")
         if oldloop:
-            self.warning(
-                "formula contains a fractint-style implicit loop section\
-                and an explicit UltraFractal loop section. \
-                Using explict section.")
+            self.dupSectionWarning("loop")
         else:
             f.children.append(Stmlist("loop",loop,loop[0].pos))
 
@@ -102,22 +101,77 @@ class T:
     def stm(self,node):
         if node.type == "decl":
             self.decl(node)
+        elif node.type == "assign":
+            self.assign(node)
+        else:
+            # try exp instead - expect no result type
+            self.exp(node,None)
 
+    def assign(self, node):
+        print "skip assign for now"
+        
     def decl(self,node):
+        if node.children:
+            self.exp(node.children[0],node.datatype)
         try:
-            self.symbols[node.leaf] = Var(node.datatype, 0.0) # fixme exp
+            self.symbols[node.leaf] = Var(node.datatype, 0.0,node.pos) # fixme exp
         except KeyError, e:
-            self.error("%s" % e)
-    
+            self.error("Invalid declaration on line %d: %s" % (node.pos,e))
+
+    def exp(self,node,expectedType):
+        if node.type == "const":
+            self.const(node,expectedType)
+        else:
+            self.badNode(node,"exp")
+
+    def const(self,node,expectedType):
+        node = self.coerce(node, expectedType)
+
+    def coerce(self, node, expectedType):
+        if node.datatype == None:
+            raise TranslationError("Internal Compiler Error: coercing an untyped node %s" % node)
+        elif node.datatype == expectedType:
+            return node
+        elif node.datatype == Bool:
+            # allowed widenings
+            if expectedType == Int or expectedType == Float or expectedType == Complex:
+                self.warnCast(node,expectedType)
+                # fixme - rewrite exp with coercion
+                return node
+            
+        # if we didn't cast successfully, fall through to here
+        self.badCast(node,expectedType)
+            
     def init(self,node):
         self.sections["init"] = 1
+        for child in node.children:
+            self.stm(child)
 
     def loop(self, node):
         self.sections["loop"] = 1
+        for child in node.children:
+            self.stm(child)
 
     def bailout(self,node):
         self.sections["bailout"] = 1
+        for child in node.children:
+            self.stm(child)
 
+    def badNode(self, node, rule):
+        msg = "Internal Compiler Error: Unexpected node '%s' in %s" % \
+            (node.type, rule)
+        print msg
+        raise TranslationError(msg)
+
+    def badCast(self, node, expectedType):
+        raise TranslationError(
+           ("invalid type %s for %s on line %s, expecting %s" %
+            (strOfType(node.datatype), node.type, node.pos, strOfType(expectedType))))
+    def warnCast(self,node,expectedType):
+        msg = "Warning: conversion from %s to %s on line %s" % \
+        (strOfType(node.datatype), strOfType(expectedType), node.pos)
+        self.warnings.append(msg)
+        
 parser = fractparser.parser
      
 # debugging
