@@ -51,7 +51,7 @@ default:
         self.failUnless(tokens[0].type == tokens[1].type == "NEWLINE","first 2 should be newlines")
 
         str = filter(lambda tok : tok.type == "STRING", tokens)
-        self.failUnless(len(str) == 1 and str[0].value == "foo;barbaz", "string literal parsing problem")
+        self.failUnless(len(str) == 1 and str[0].value == "foo;barbaz", "string literal parsing problem" and str[0].lineno == 14)
 
         sections = filter(lambda tok : tok.type == "SECT_STM", tokens)
         self.assertEqual(len(sections),3, "wrong number of sections")
@@ -84,11 +84,10 @@ default:
 myComment {}
 ''')
         tokens = filter(lambda tok : tok.type != "NEWLINE", tokens)
-        print tokens
         self.failUnless(tokens[0].type == "FORM_ID" and
                         tokens[0].value == "myComment" and
                         tokens[0].lineno == 5)
-        
+
 def suite():
     return unittest.makeSuite(LexerTest,'test')
 

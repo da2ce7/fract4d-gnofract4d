@@ -107,13 +107,13 @@ def t_NUMBER(t):
 
 # these have to be functions to give them higher precedence than ID
 def t_SECT_SET(t):
-    r'((default)|(switch))\s*:'
-    t.value = re.sub("\\s*:","",t.value)
+    r'((default)|(switch)):'
+    t.value = re.sub(":$","",t.value)
     return t
 
 def t_SECT_STM(t):
-    r'((global)|(transform)|(builtin)|(init)|(loop)|(final)|(bailout))?\s*:'
-    t.value = re.sub("\\s*:","",t.value)
+    r'((global)|(transform)|(builtin)|(init)|(loop)|(final)|(bailout))?:'
+    t.value = re.sub(":$","",t.value)
     return t
 
 def t_PARAM(t):
@@ -138,18 +138,20 @@ def t_COMMENT(t):
     r';[^\n]*'
     
 def t_NEWLINE(t):
-    r'\r?\n'
+    r'\r*\n'
     t.lineno += 1 # track line numbers
     return t
 
 def t_STRING(t):
     r'"[^"]*"' # embedded quotes not supported in UF?
     t.value = re.sub(r'(^")|("$)',"",t.value) # remove trailing and leading "
+    newlines = re.findall(r'\n',t.value)
+    t.lineno += len(newlines)
     t.value = re.sub(r'\\\r?\n[ \t\v]*',"",t.value) # hide \-split lines
     return t
     
 # A string containing ignored characters (spaces and tabs)
-t_ignore  = ' \t'
+t_ignore  = r' \t\r'
 
 # Error handling rule
 def t_error(t):
