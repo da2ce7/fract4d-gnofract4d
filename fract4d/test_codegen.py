@@ -788,6 +788,36 @@ func fn1
             ],"\n")
         self.assertCSays(src,"init",tests,results)
 
+    def testEnum(self):
+        'Test we can correctly generate code for enumerated params'
+        src = '''t_c7{
+        init:
+        bool b = @y != "bar"        
+        bool b2 = @zp == "bar"
+        int zval = @zp
+        default:
+        param y
+        enum = "foo" "bar"
+        endparam
+        param zp
+        enum = "bar" "foo" "baz"
+        default = "foo"
+        endparam
+        }'''
+
+        tests = string.join([
+            self.inspect_bool("b"),
+            self.inspect_bool("b2"),
+            self.inspect_int("zvalx"),
+            ])
+        
+        results = string.join([
+            "b = 1",
+            "b2 = 1",
+            "zval = 0",
+            ],"\n")
+        self.assertCSays(src,"init",tests,results)
+
     def testParams(self):
         'test formulas with parameters work correctly'
         src = 't_cp0{\ninit: complex @p = (2,1)\n}'

@@ -133,6 +133,7 @@ default:
         default:
         param y
         enum = "foo" "bar"
+        default = "bar"
         endparam
         }
         ''')
@@ -155,6 +156,20 @@ default:
 
         self.assertError(t, "4: enum value 'xxx' invalid for param @y")
 
+    def testBadEnum2(self):
+        t = self.translate('''
+        t1 {
+        default:
+        param y
+        enum = "foo" "bar"
+        default = "xxx"
+        endparam
+        }
+        ''')
+
+        # line number is (unfortunately) start of param, not line with default
+        self.assertError(t, "4: enum value 'xxx' invalid for param @y")
+        
     def testImplicitParamTypes(self):
         # Some UF coloring algorithms cause problems. The
         # type of the param is implicitly set based on the default value
