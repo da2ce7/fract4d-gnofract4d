@@ -25,6 +25,7 @@ import fractparser
 import fractlexer
 import translate
 import codegen
+import fracttypes
 
 class FormulaFile:
     def __init__(self, formulas, contents):
@@ -39,10 +40,6 @@ class Compiler:
         self.lexer = fractlexer.lexer
         self.files = {}
         
-    def usage(self):
-        print "fc -o [outfile] -f [formula] infile"
-        sys.exit(1)
-
     def load_formula_file(self, filename):
         try:
             s = open(filename,"r").read() # read in a whole file
@@ -59,6 +56,21 @@ class Compiler:
             #print "Error parsing '%s' : %s" % (filename, err)
             raise
 
+    def generate_code(self,ir,outputfile):
+        cg = codegen.T(ir.symbols)
+        cg.output_all(ir, {"z" : "", "pixel" : ""})
+        c_code = cg.output_c(ir)
+
+        cFileName = cg.writeToTempFile(c_code,".c")
+        #print c_code
+        cmd = "gcc -Wall -fPIC -dPIC -O3 -shared %s -o %s -lm" % \
+              (cFileName, outputfile)
+        (status,output) = commands.getstatusoutput(cmd)
+        if status != 0:
+            raise fracttypes.TranslationError(
+                "Error reported by C compiler:%s" % output)
+        
+
     def get_formula(self, filename, formula):
         ff = self.files.get(os.path.basename(filename))
         if ff == None : return None
@@ -67,72 +79,53 @@ class Compiler:
             f = translate.T(f)
         return f
 
-    def main(self):
-        try:
-            opts, args = getopt.getopt(sys.argv[1:], "o:f:",
-                                       [ "output=", "formula=" ])
-        except getopt.GetoptError:
-            self.usage()
-
-        for (arg,val) in opts:
-            if arg=="-f" or arg=="--formula":
-                self.formula = val
-            elif arg=="-o" or arg=="--output":
-                self.outputfile = val
-            
-        if len(args) < 1:
-            self.usage()
-
-        try:
-            self.load_formula_file(args[0])
-        except IOError, err:
-            sys.exit(1)
-            
-        # find the function we want
-        ir = self.get_formula(args[0],self.formula)
-        if ast == None:
-            print "Can't find formula %s in %s" % \
-                  (self.formula, self.formulafile)
-            sys.exit(1)
-
-        if ir.errors != []:
-            print "Errors during translation"
-            for e in ir.errors:
-                print e
-            sys.exit(1)
-
-        try:
-            cg = codegen.T(self.ir.symbols)
-            cg.output_all(self.ir, {"z" : "", "pixel" : ""})
-            c_code = cg.output_c(self.ir)
-        except TranslationError, err:
-            print "Error during code generation"
-            print err
-            sys.exit(1)
-
-        try:
-            cFileName = cg.writeToTempFile(c_code,".c")
-            oFileName = self.outputfile
-            #print c_code
-            cmd = "gcc -Wall -fPIC -dPIC -O3 -shared %s -o %s -lm" % \
-                  (cFileName, oFileName)
-            (status,output) = commands.getstatusoutput(cmd)
-        except Exception, err:
-            print "Error invoking C compiler: %s" % err
-            sys.exit(1)
-
-        if status != 0:
-            print "Errors reported by C compiler:"
-            print output
-            sys.exit(1)
-
-        
-        
-
-
+def usage():
+    print "FC : a compiler from Fractint .frm files to C code"
+    print "fc.py -o [outfile] -f [formula] infile"
+    sys.exit(1)
 
 def main():
     fc = Compiler()
-    fc.main()
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "o:f:",
+                                   [ "output=", "formula=" ])
+    except getopt.GetoptError:
+        usage()
+
+    formula = None
+    outputfile = None
+    for (arg,val) in opts:
+        if arg=="-f" or arg=="--formula":
+            formula = val
+        elif arg=="-o" or arg=="--output":
+            outputfile = val
+            
+    if len(args) < 1 or not formula or not outputfile:
+        usage()
+
+    try:
+        formulafile = args[0]
+        fc.load_formula_file(args[0])
+    except IOError, err:
+        sys.exit(1)
+            
+    # find the function we want
+    ir = fc.get_formula(formulafile,formula)
+    if ir == None:
+        print "Can't find formula %s in %s" % \
+              (formula, formulafile)
+        sys.exit(1)
+
+    if ir.errors != []:
+        print "Errors during translation"
+        for e in ir.errors:
+            print e
+        sys.exit(1)
+
+    try:
+        fc.generate_code(ir, outputfile)
+    except TranslationError, err:
+        print err
+        sys.exit(1)
 
 if __name__ =='__main__': main()
