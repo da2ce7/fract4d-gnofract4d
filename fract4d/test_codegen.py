@@ -705,6 +705,9 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         def mycceil(z):
             return complex(math.ceil(z.real),math.ceil(z.imag))
 
+        def myczero(z):
+            return complex(0,0)
+        
         tests = [
             # code to run, var to inspect, result
             [ "fm = (3.0 % 2.0, 3.1 % 1.5)","fm","(1,0.1)"], 
@@ -748,8 +751,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
             [ "fceil2 = (ceil(-0.5), ceil(-0.4))", "fceil2", "(-0,-0)"],
             [ "ffloor1 = (floor(0.5), floor(0.4))", "ffloor1", "(0,0)"],
             [ "ffloor2 = (floor(-0.5), floor(-0.4))", "ffloor2", "(-1,-1)"],
-            
-            # round, floor, ceil, zero, trunc
+            [ "fzero = (zero(77),zero(-41.2))", "fzero", "(0,0)"],
             
             # trig functions
             [ "t_sin = (sin(0),sin(1))","t_sin", self.predict(math.sin)],
@@ -785,6 +787,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests += self.manufacture_tests("ceil",mycceil)
         tests += self.manufacture_tests("floor",mycfloor)
         tests += self.manufacture_tests("trunc",myctrunc)
+        tests += self.manufacture_tests("zero",myczero)
         tests += self.cotantests()
         tests += self.manufacture_tests("cotanh",mycotanh)
         tests += self.logtests()

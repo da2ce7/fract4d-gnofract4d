@@ -195,6 +195,10 @@ def createDefaultDict():
       [[[Float], Int], [[Complex], Complex]],
       doc='''Round up to the next highest number.''')
 
+    f("zero",
+      cfl("[_], _ ", [Int, Float, Complex]),
+      doc='''Returns zero.''')
+    
     f("abs",
       cfl("[_], _", [Float, Complex]),
       doc='''The absolute value of a number. abs(3) = abs(-3) = 3.
