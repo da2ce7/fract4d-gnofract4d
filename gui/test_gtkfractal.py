@@ -82,6 +82,12 @@ class FctTest(unittest.TestCase):
         self.f.set_size(57,211)
         self.assertEqual(cc.count,3)
 
+    def testLoad(self):
+        self.f.loadFctFile(file("test_bail.fct"))
+        self.testSignals()
+        self.f.connect('status-changed', self.quitloop)
+        self.f.draw_image()
+        self.wait()        
         
     def disabled_testSignalsDontRecurse(self):
         # test no recurse, but doesn't work. Maybe I've misunderstood
