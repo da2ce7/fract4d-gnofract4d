@@ -2,7 +2,7 @@
 <omf>
   <resource>
     <creator>
-     edwin@sourceforge.net (Dan Mueth)
+     edwin@sourceforge.net (Edwin Young)
     </creator>
     <title>
      Gnofract4d Manual
@@ -11,7 +11,7 @@
      2003-10-15
     </date>
     <version identifier="1.8" date="2003-10-15" description="First Gnome 2 Version"/>
-    <subject category="System|Other"/>
+    <subject category="Applications|Scientific|Math"/>
     <description>
       This document describes how to use Gnofract 4D, a program for
 drawing fractal images.

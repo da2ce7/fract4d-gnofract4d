@@ -28,7 +28,10 @@ gnofract4d_SOURCES = \
 	tls.h tls.cpp \
 	preferences.h preferences.cpp \
 	image.cpp image.h \
-	marshallers.c
+	marshallers.c \
+	marshallers.h
+
+EXTRA_DIST=marshallers.list
 
 DEAD_FILES = movie_editor.h movie_editor.cpp 
 
