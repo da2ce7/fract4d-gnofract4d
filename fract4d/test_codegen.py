@@ -577,6 +577,43 @@ func fn1
         self.assertEqual(outlines[0],"0")
         self.assertEqual(outlines[2],"1")
 
+    def testCHyper(self):
+        # test arithmetic in hypercomplex numbers
+
+        # basic invariants
+        src = '''t_hyper1{
+        init:
+        hyper i = (0,1,0,0)
+        hyper j = (0,0,1,0)
+        hyper k = (0,0,0,1)
+        hyper i2 = i * i
+        hyper j2 = j * j
+        hyper k2 = k * k        
+        }'''
+        self.assertCSays(src,"init",
+                         self.inspect_hyper("i2") +
+                         self.inspect_hyper("j2") +
+                         self.inspect_hyper("k2"),
+                         "i2 = (-1,0,0,0)\nj2 = (-1,0,0,0)\nk2 = (1,0,0,0)")
+        # other values
+        src = '''t_hyper2{
+        init:
+        hyper x = (1,2,-3,4)
+        hyper y = x + (4,1,-1,0)
+        hyper h2 = x * y
+        hyper h3 = y * x ; check commutativity
+        }'''
+        self.assertCSays(src,"init",
+                         self.inspect_hyper("x") +
+                         self.inspect_hyper("y") +
+                         self.inspect_hyper("h2") +
+                         self.inspect_hyper("h3"),
+                         "x = (1,2,-3,4)\n" +
+                         "y = (5,3,-4,4)\n" +
+                         "h2 = (3,41,-39,7)\n" +
+                         "h3 = (3,41,-39,7)")
+
+
     def testC(self):
         # basic end-to-end testing. Compile a code fragment + instrumentation,
         # run it and check output
@@ -612,12 +649,6 @@ func fn1
                          self.inspect_complex("x") +
                          self.inspect_complex("y"),
                          "x = (2,1)\ny = (-2,-1)")
-
-        src = 't_c8{\ninit: hyper x = (1,2,3,4), hyper y = x + 1\n}'
-        self.assertCSays(src,"init",
-                         self.inspect_hyper("x") +
-                         self.inspect_hyper("y"),
-                         "x = (1,2,3,4)\ny = (2,2,3,4)")
 
         src = '''t_c_if{
         init:
