@@ -99,6 +99,40 @@ class Test(unittest.TestCase):
         self.assertEqual(pp.out(), '''
            bar
         ''')
+
+    def testNestedDefine(self):
+        pp = preprocessor.T('''
+        $IFDEF foo
+           $deFine bar
+           $define
+        $ENDIF
+        $IFDEF bar
+           foobar
+        $ENDIF
+        ''')
+
+        self.assertEqual(pp.out(), '''
+        ''')
+
+    def testElse(self):
+        pp = preprocessor.T('''
+        $define bar
+        $IFDEF foo
+           foo
+        $ELSE
+           not foo
+           $ifdef bar
+               notfoo,bar
+           $else
+               notfoo,notbar
+           $endif
+        $ENDIF
+        ''')
+
+        self.assertEqual(pp.out(), '''
+           not foo
+               notfoo,bar
+        ''')
         
 def suite():
     return unittest.makeSuite(Test,'test')
