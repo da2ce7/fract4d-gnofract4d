@@ -48,6 +48,7 @@ class T:
 
         self.currently_true = True
         for line in lines:
+            pass_through = False
             #print self.ifdef_stack, self.currently_true, line,
             m = ifdef_re.match(line)
             if m:
@@ -74,14 +75,20 @@ class T:
                         self.vars[var] = 1
                     else:
                         # just a line
-                        out_lines.append(line)
-
+                        pass_through = True
+                        
+            if pass_through:
+                out_lines.append(line)
+            else:
+                # cheesy way to get the line numbers to work out
+                out_lines.append("\n")
+                    
             i += 1
             
         if self.ifdef_stack != []:
             raise Error("%d: $IFDEF without $ENDIF" % \
                         self.ifdef_stack[-1].line_num)
-        
+
         self._out = "".join(out_lines)
         
     def out(self):
