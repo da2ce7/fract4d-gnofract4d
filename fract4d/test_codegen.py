@@ -44,7 +44,7 @@ int main()
     pf->vtbl->calc(
          pf,
          pparams,
-         100, 100,
+         100, 
          0,0,0,
          &nItersDone, &nFate, &dist,&solid);
     
@@ -57,7 +57,7 @@ int main()
     pf->vtbl->calc(
         pf,
         pparams,
-        20, 20,
+        20, 
         0,0,0,
         &nItersDone, &nFate, &dist,&solid);
 

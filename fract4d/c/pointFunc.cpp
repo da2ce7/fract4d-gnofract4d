@@ -44,7 +44,8 @@ public:
 	    double dist; 
 	    int fate;
 	    int solid;
-	    m_pfo->vtbl->calc(m_pfo, params, nIters, nNoPeriodIters, x, y, aa,
+	    m_pfo->vtbl->calc(m_pfo, params, nIters, /*nNoPeriodIters,*/ 
+			      x, y, aa,
 			      pnIters, &fate, &dist, &solid);
 
 	    //printf("%d,%d,%g\n",*pnIters,fate,dist);
@@ -55,7 +56,7 @@ public:
 	    *color = cmap_lookup_with_transfer(m_cmap,fate,dist,solid);
 
 	    m_site->pixel_changed(
-		params,nIters,nNoPeriodIters,
+		params,nIters, nNoPeriodIters,
 		x,y,aa,
 		dist,fate,*pnIters,
 		color->r, color->g, color->b, color->a);

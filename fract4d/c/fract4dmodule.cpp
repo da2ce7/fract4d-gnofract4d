@@ -193,15 +193,15 @@ pf_calc(PyObject *self, PyObject *args)
     PyObject *pyobj, *pyret;
     double params[4];
     struct pfHandle *pfh; 
-    int nIters, nNoPeriodIters,x=0,y=0,aa=0;
+    int nIters, x=0,y=0,aa=0;
     int outIters=0, outFate=-777;
     double outDist=0.0;
     int outSolid=0;
 
-    if(!PyArg_ParseTuple(args,"O(dddd)ii|iii",
+    if(!PyArg_ParseTuple(args,"O(dddd)i|iii",
 			 &pyobj,
 			 &params[0],&params[1],&params[2],&params[3],
-			 &nIters,&nNoPeriodIters,&x,&y,&aa))
+			 &nIters,&x,&y,&aa))
     {
 	return NULL;
     }
@@ -216,9 +216,9 @@ pf_calc(PyObject *self, PyObject *args)
     printf("%p : PF : CALC\n",pfh);
 #endif
     pfh->pfo->vtbl->calc(pfh->pfo,params,
-		    nIters,nNoPeriodIters,
-		    x,y,aa,
-		    &outIters,&outFate,&outDist,&outSolid);
+			 nIters, 
+			 x,y,aa,
+			 &outIters,&outFate,&outDist,&outSolid);
     assert(outFate != -777);
     pyret = Py_BuildValue("iidi",outIters,outFate,outDist,outSolid);
     return pyret; // Python can handle errors if this is NULL
