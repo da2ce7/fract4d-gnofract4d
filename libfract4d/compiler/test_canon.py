@@ -136,6 +136,29 @@ class CanonTest(unittest.TestCase):
                           self.var("c"))
         ltree = self.canon.linearize(tree)
         self.assertESeqsNotNested(ltree,1)
+
+    def testCJumpWithRHESeq(self):
+        # commutes
+        tree = self.cjump(self.const(),
+                          self.eseq([self.move(self.var("a"),self.const())],
+                                    self.var("b")))
+        ltree = self.canon.linearize(tree)
+        self.assertESeqsNotNested(ltree,1)
+        
+        # doesn't commute
+        tree = self.cjump(self.var("c"),
+                          self.eseq([self.move(self.var("a"),self.const())],
+                                    self.var("b")))
+        ltree = self.canon.linearize(tree)
+        self.assertESeqsNotNested(ltree,1)
+
+    def testBothSidesCJump(self):
+        tree = self.cjump(self.eseq([self.move(self.var("a"),self.const())],
+                                    self.var("b")),
+                          self.eseq([self.move(self.var("a"),self.const())],
+                                    self.var("b")))
+        ltree = self.canon.linearize(tree)
+        self.assertESeqsNotNested(ltree,1)
         print ltree.pretty()
         
     def assertESeqsNotNested(self,t,parentAllowsESeq):
