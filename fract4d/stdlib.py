@@ -505,6 +505,35 @@ def atan_c_c(gen,t,srcs):
                             sub_cc_c(gen,t,[const.i,srcs[0]])])
     return mul_cc_c(gen,t,[const.iby2,log_c_c(gen,t,[ratio])])
 
+def trunc_f_i(gen,t,srcs):
+    return gen.emit_func("(int)", srcs, Float)
+
+def trunc_c_c(gen,t,srcs):
+    return ComplexArg(trunc_f_i(gen,t,[srcs[0].re]),
+                      trunc_f_i(gen,t,[srcs[0].im]))
+
+def round_f_i(gen,t,srcs):
+    return trunc_f_i(gen, t, [
+        gen.emit_binop('+',[ConstFloatArg(0.5), srcs[0]], Float)])
+
+def round_c_c(gen,t,srcs):
+    return ComplexArg(round_f_i(gen,t,[srcs[0].re]),
+                      round_f_i(gen,t,[srcs[0].im]))
+
+def floor_f_i(gen,t,srcs):
+    return gen.emit_func('floor', srcs, Float)
+
+def floor_c_c(gen,t,srcs):
+    return ComplexArg(floor_f_i(gen,t,[srcs[0].re]),
+                      floor_f_i(gen,t,[srcs[0].im]))
+
+def ceil_f_i(gen,t,srcs):
+    return gen.emit_func('ceil', srcs, Float)
+
+def ceil_c_c(gen,t,srcs):
+    return ComplexArg(ceil_f_i(gen,t,[srcs[0].re]),
+                      ceil_f_i(gen,t,[srcs[0].im]))
+
 def atan2_c_f(gen,t,srcs):
     return gen.emit_func2('atan2', [srcs[0].im, srcs[0].re], Float)
 

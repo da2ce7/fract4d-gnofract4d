@@ -692,7 +692,19 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
 
         def myacosh(z):
             return cmath.log(z + cmath.sqrt(z-1) * cmath.sqrt(z+1))
-        
+
+        def myctrunc(z):
+            return complex(int(z.real),int(z.imag))
+
+        def mycfloor(z):
+            return complex(math.floor(z.real),math.floor(z.imag))
+
+        def mycround(z):
+            return complex(int(z.real+0.5),int(z.imag+0.5))
+
+        def mycceil(z):
+            return complex(math.ceil(z.real),math.ceil(z.imag))
+
         tests = [
             # code to run, var to inspect, result
             [ "fm = (3.0 % 2.0, 3.1 % 1.5)","fm","(1,0.1)"], 
@@ -728,6 +740,16 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
             [ "mn2 = (min2(-1,-2),min2(7,4))", "mn2", "(1,16)"],
             [ "r2 = (real2(3,1),real2(-2.5,2))","r2","(9,6.25)"],
             [ "i2 = (imag2(3,2),imag2(2,-0))", "i2", "(4,0)"],
+            [ "ftrunc1 = (trunc(0.5), trunc(0.4))", "ftrunc1", "(0,0)"],
+            [ "ftrunc2 = (trunc(-0.5), trunc(-0.4))", "ftrunc2", "(0,0)"],
+            [ "frnd1 = (round(0.5), round(0.4))", "frnd1", "(1,0)"],
+            [ "frnd2 = (round(-0.5), round(-0.4))", "frnd2", "(0,0)"],
+            [ "fceil1 = (ceil(0.5), ceil(0.4))", "fceil1", "(1,1)"],
+            [ "fceil2 = (ceil(-0.5), ceil(-0.4))", "fceil2", "(-0,-0)"],
+            [ "ffloor1 = (floor(0.5), floor(0.4))", "ffloor1", "(0,0)"],
+            [ "ffloor2 = (floor(-0.5), floor(-0.4))", "ffloor2", "(-1,-1)"],
+            
+            # round, floor, ceil, zero, trunc
             
             # trig functions
             [ "t_sin = (sin(0),sin(1))","t_sin", self.predict(math.sin)],
@@ -758,7 +780,11 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests += self.manufacture_tests("cosh",cmath.cosh)
         tests += self.manufacture_tests("tanh",cmath.tanh)
         tests += self.manufacture_tests("exp",cmath.exp)
-        tests += self.manufacture_tests("sqrt",cmath.sqrt)        
+        tests += self.manufacture_tests("sqrt",cmath.sqrt)
+        tests += self.manufacture_tests("round",mycround)
+        tests += self.manufacture_tests("ceil",mycceil)
+        tests += self.manufacture_tests("floor",mycfloor)
+        tests += self.manufacture_tests("trunc",myctrunc)
         tests += self.cotantests()
         tests += self.manufacture_tests("cotanh",mycotanh)
         tests += self.logtests()

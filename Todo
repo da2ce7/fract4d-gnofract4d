@@ -8,7 +8,6 @@ todo for 2.0
 * BB	novamount.fct
 * BB	seaslug.fct
 * BB	skull_fairy.fct
-* B	differences vs Fractint with fn(z)+c: sqrt,cosh,exp,cos,cotan,cotanh,flip
 * B	fn1..4 appear in random order in dialog box
 * B	fractint doesn't reset vars between calls?
 * B	parse continuation lines correctly
@@ -18,7 +17,6 @@ todo for 2.0
 * W	last-chance exception handler
 * W	exact SMP equality test
 * W	end-to-end regression test vs V1.9
-* W 	enums, int parameters
 * W	formula browser
 	manage search path (user prefs)
 	color funcs vs normal funcs
@@ -32,21 +30,26 @@ todo for 2.0
 * W	review human interface guidelines
 * B	warnings for several fractal types
 * BB	auto-tolerance for older fractals
-* BB	lattice.fct - 1.9 is wrong too!
 * B	other windows always in front - is that good?
 * WW	docs
-* BB	some horror (closing settings window) then applying formula gave:
+* BB	some horror (closing settings window?) then applying formula gave:
 	(gnofract4d:29936): Gtk-CRITICAL **: file gtkcontainer.c: line 880 
 	(gtk_container_remove): assertion 
 	`widget->parent == GTK_WIDGET (container)' failed
 	(gnofract4d:29936): Gtk-CRITICAL **: file gtkcontainer.c: line 1173 
 	(gtk_container_foreach): assertion `GTK_IS_CONTAINER (container)' failed
-* B	3damand01.fct gives "list index out of range" when loaded.
+* B	3damand01.fct gives "list index out of range" when loaded. It tries 
+	to set parameters which don't exist
 
 * differences from fractint
-* b	3rdim05 - default params bulge with fractint 
+* B	3rdim05 - default params bulge with fractint. They use sin() as default
+	function, not ident()
+* B	fn(z)+c: acos, acosh - think Fractint may be wrong
+* B	fn(z*z)+c : acos, acosh 
 
 done:
+* BB	lattice.fct - 1.9 is wrong too!
+* B	buffer out of range when image is smaller than window
 * B	3rdim01 - p1=(0.5,0.3). Flipped across x axis. 
 	Gf4d has y increasing down, Fractint has it increasing up
 * B	3daMand01,02 - left half of image (x < 0) is black
@@ -91,6 +94,7 @@ done:
 * W	user parameter functions
 
 postponed
+* W 	enums, int parameters
 * B	undo/redo cause recompilation
 * W	command-line arguments
 * WW	cmap browser
