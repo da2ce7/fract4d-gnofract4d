@@ -18,6 +18,13 @@ precedence = (
     ('right', 'BOOL_NEG', 'UMINUS', 'POWER')
 )
 
+def formatError(t,i):
+     if(isinstance(t[i],types.StringType)):
+          e = [absyn.Error2(t[i],t.lineno(i))]
+     else:
+          e = [absyn.Error(t[i].type, t[i].value, t[i].lineno)]
+     return e
+
 def p_file(t):
      'file : formlist'
      t[0] = absyn.Formlist(t[1], t.lineno(1))
@@ -53,11 +60,7 @@ def p_formbody_3(t):
 
 def p_formbody_err(t):
      'formbody : error FORM_END'
-     if(isinstance(t[1],types.StringType)):
-          e = [absyn.Error2(t[1],t.lineno(1))]
-     else:
-          e = [absyn.Error(t[1].type, t[1].value, t[1].lineno)]
-     t[0] = e
+     t[0] = formatError(t,1)
      
 def p_formbody_sectlist(t):
      'formbody : NEWLINE sectlist FORM_END'

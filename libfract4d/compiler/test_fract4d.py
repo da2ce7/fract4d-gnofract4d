@@ -10,17 +10,21 @@ sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4d
 
 class PfTest(unittest.TestCase):
+
+    def compileMandel(self):
+        self.compiler.load_formula_file("./gf4d.frm")
+        f = self.compiler.get_formula("gf4d.frm","Mandelbrot")
+        self.compiler.generate_code(f,"test-pf.so")
+        
     def setUp(self):
         compiler = fc.Compiler()
-        compiler.load_formula_file("./gf4d.frm")
-        f = compiler.get_formula("gf4d.frm","Mandelbrot")
-        compiler.generate_code(f,"test-pf.so")
         self.compiler = compiler
         
     def tearDown(self):
         pass
 
     def testBasic(self):
+        self.compileMandel()
         handle = fract4d.pf_load("./test-pf.so")
         pfunc = fract4d.pf_create(handle)
 
@@ -44,6 +48,7 @@ class PfTest(unittest.TestCase):
         handle = None
 
     def disabled_testWithColors(self):
+        self.compileMandel()
         self.compiler.load_formula_file("./gf4d.cfrm")
         f = self.compiler.get_formula("gf4d.frm","Mandelbrot",
                                       "gf4d.cfrm","default")
@@ -55,6 +60,7 @@ class PfTest(unittest.TestCase):
         self.assertEqual(result,(2,0,2.0/256.0))
                          
     def testMiniTextRender(self):
+        self.compileMandel()
         handle = fract4d.pf_load("./test-pf.so")
         pfunc = fract4d.pf_create(handle)
         fract4d.pf_init(pfunc,0.001,[])
@@ -85,6 +91,7 @@ class PfTest(unittest.TestCase):
         self.assertRaises(ValueError,fract4d.pf_load,"test_pf.py")
 
     def testBadInit(self):
+        self.compileMandel()
         handle = fract4d.pf_load("./test-pf.so")
         pfunc = fract4d.pf_create(handle)
         self.assertRaises(TypeError,fract4d.pf_init,pfunc,0.001,72)
@@ -94,6 +101,7 @@ class PfTest(unittest.TestCase):
         handle = None
 
     def testBadCalc(self):
+        self.compileMandel()
         handle = fract4d.pf_load("./test-pf.so")
         pfunc = fract4d.pf_create(handle)
         fract4d.pf_init(pfunc,0.001,[])
@@ -102,6 +110,7 @@ class PfTest(unittest.TestCase):
         pfunc = None
 
     def testShutdownOrder(self):
+        self.compileMandel()
         handle = fract4d.pf_load("./test-pf.so")
         pfunc = fract4d.pf_create(handle)
         pfunc2 = fract4d.pf_create(handle)
@@ -112,14 +121,13 @@ class PfTest(unittest.TestCase):
     def testCmap(self):
         cmap = fract4d.cmap_create(
             [(0.0,255,0,100,255), (1.0, 0, 255, 50, 255)])
-        c0 = fract4d.cmap_lookup(cmap,0.0)
-        c1 = fract4d.cmap_lookup(cmap,1.0)
-        c2 = fract4d.cmap_lookup(cmap,0.5)
 
-        self.assertEqual(c0, (255,0,100,255))
-        self.assertEqual(c1, (0,255,50,255))
-        self.assertEqual(c2, (127,127,75,255))
-
+        self.assertEqual(fract4d.cmap_lookup(cmap,0.0), (255,0,100,255))
+        self.assertEqual(fract4d.cmap_lookup(cmap,1.0), (0,255,50,255))
+        self.assertEqual(fract4d.cmap_lookup(cmap,0.5), (127,127,75,255))
+        self.assertEqual(fract4d.cmap_lookup(cmap,-784.1), (255,0,100,255))
+        self.assertEqual(fract4d.cmap_lookup(cmap,1.0E37), (0,255,50,255))
+        
         cmap = fract4d.cmap_create(
             [(0.0,255,0,100,255)])
         expc1 = (255,0,100,255)
