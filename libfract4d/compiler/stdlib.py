@@ -73,6 +73,8 @@ def noteq_cc_b(gen,t,srcs):
     dst = gen.emit_binop("||", [d1, d2], Bool)
     return dst
 
+# sqr = square(x) = x*x
+
 def sqr_c_c(gen,t,srcs):
     # sqr(a+ib) = a2 - b2 + i(2ab)
     src = srcs[0]
@@ -84,3 +86,7 @@ def sqr_c_c(gen,t,srcs):
         gen.emit_binop('+', [ab, ab], Float))
     return dst
     
+def sqr_f_f(gen,t,srcs):
+    return gen.emit_binop('*',[srcs[0], srcs[0]], Float)
+
+sqr_i_i = sqr_f_f
