@@ -32,7 +32,7 @@ class Node:
     def __iter__(self):
         return NodeIter(self)
 
-    def __cmp__(self,other):
+    def DeepCmp(self,other):
         if self.type < other.type: return -1
         if self.type > other.type: return 1
 
@@ -45,7 +45,7 @@ class Node:
         if not self.children and not other.children: return 0
         
         for (child, otherchild) in zip(self.children,other.children):
-            eql = child.__cmp__(otherchild)
+            eql = child.DeepCmp(otherchild)
             if eql: return eql
         return eql
     
