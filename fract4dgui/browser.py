@@ -38,7 +38,7 @@ class BrowserDialog(gtk.Dialog):
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (_("_Edit..."), BrowserDialog.RESPONSE_EDIT,
-             _("_Refresh"), BrowserDialog.RESPONSE_REFRESH,
+             gtk.STOCK_REFRESH, BrowserDialog.RESPONSE_REFRESH,
              gtk.STOCK_APPLY, gtk.RESPONSE_APPLY,
              gtk.STOCK_OK, gtk.RESPONSE_OK,
              gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))

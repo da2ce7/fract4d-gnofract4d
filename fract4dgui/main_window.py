@@ -282,6 +282,8 @@ class MainWindow:
              self.autozoom, 0, ''),
             (_('/_Tools/_Explorer'), '<control>E',
              self.toggle_explorer, 0, '<ToggleItem>'),
+            (_('/_Tools/Formula _Browser'), '<control>B',
+             self.browser, 0, ''),
             
             (_('/_Help'), None,
              None, 0, '<Branch>'),
@@ -308,6 +310,9 @@ class MainWindow:
         self.save_factory = item_factory
         self.vbox.pack_start(menubar, gtk.FALSE, gtk.TRUE, 0)
 
+    def browser(self,action,menuitem):
+        browser.show(self.window,self.f,browser.FRACTAL)
+    
     def toggle_explorer(self, action, menuitem):
         self.set_explorer_state(menuitem.get_active())
         
