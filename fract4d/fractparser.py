@@ -105,7 +105,7 @@ def p_set_empty(t):
      
 def p_set_param(t):
      'set : PARAM ID setlist ENDPARAM'
-     t[0] = absyn.Param(t[2],t[3],"complex",t.lineno(1))
+     t[0] = absyn.Param(t[2],t[3],None,t.lineno(1))
 
 def p_set_typed_param(t):
      'set : TYPE PARAM ID setlist ENDPARAM'

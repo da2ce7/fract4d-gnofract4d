@@ -3,7 +3,6 @@ todo for 2.0
 * BB	horrible_drawing_bug.fct - zoom out & it looks very different
 
 * B	if load rgb colorizer .fct, report ValueError: Empty color array
-* W	tie menu-based and toolbar-based explorer toggling
  
 * BB	more robust error reporting
 * W	last-chance exception handler
@@ -118,8 +117,11 @@ done:
 * WW	support different bailout functions
 * WW	bailFuncs
 * W	user parameter functions
+* W	there is no warning before files are overwritten (parameter files +
+	pictures)
 
 postponed
+* W	tie menu-based and toolbar-based explorer toggling
 * W	regenerate for explorer mode 
 * B	gui unresponsive in explorer mode
 * B	footnotes are fucked in yelp (have removed them)
@@ -177,8 +179,6 @@ This information is available in app/gradient.c and
 app/gradient_header.h.
 
 gnofract4d
-* W	there is no warning before files are overwritten (parameter files +
-	pictures)
 * W	automatic addition of file extensions and
 * W	automatic saving of picture and parameters at the same time 
 * WW	How about colour cycling?
