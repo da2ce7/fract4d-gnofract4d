@@ -160,11 +160,12 @@ def p_stm_assign(t):
     t[0] = absyn.Decl(t[1],t[2],t[4])
     
 def p_stm_repeat(t):
-    'stm : REPEAT NEWLINE stmlist UNTIL exp'
-    t[0] = absyn.Repeat(t[3],t[5])
+    'stm : REPEAT stmlist UNTIL exp'
+    t[0] = absyn.Repeat(t[2],t[4])
 
 def p_stm_while(t):
-    'stm : WHILE exp NEWLINE stmlist ENDWHILE'
+    '''stm : WHILE exp NEWLINE stmlist ENDWHILE
+       stm : WHILE exp COMMA stmlist ENDWHILE'''
     t[0] = absyn.While(t[2],t[4])
     
 def p_stm_if(t):
