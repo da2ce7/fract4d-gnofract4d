@@ -10,6 +10,7 @@ Tokens
   String     = /"[^\r\n]*"/
   Newline    = /(\r\n)|(\r)|(\n)/
   FormulaID  = /[^\(\) \t\v{}]+/
+  Type       = /(bool)|(int)|(float)|(complex)|(color)/
 
 Productions
   Formulas -> Formula+              [Formulas: formulas]
@@ -56,7 +57,8 @@ Productions
 #              |  Identifier ':=' Expr Newline
 #                                   [Assignment: ident,_,expression,_]
 
-  Statement -> Identifier '=' Exp Newline [Assignment: id,_,exp,_]
+  Statement -> (Type)? Identifier '=' Exp Newline [Assignment: type, id,_,exp,_]
+            #|  Type Identifier Newline [Declaration: type, id, _]
 
   
   CondExp -> Exp ('<' | '>' | '=' | '<=' | '>=' | '!=' ) Exp     
