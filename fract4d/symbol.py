@@ -84,14 +84,6 @@ def createDefaultDict():
         # arithmetic
         "%":  efl("mod",   "[_,_] , _", [Int, Float],operator=True),
 
-        "/":  OverloadList([
-                Func([Float, Float], Float, stdlib, "div"),
-                Func([Complex, Float], Complex, stdlib, "div"),
-                Func([Complex, Complex], Complex, stdlib, "div"),
-                ],operator=True),
-
-        "*":  efl("mul", "[_,_] , _", [Int, Float, Complex, Hyper]),
-
         "^": OverloadList([ Func([Float, Float], Float, stdlib, "pow"),
                 Func([Complex, Float], Complex, stdlib, "pow"),
                 Func([Complex, Complex], Complex, stdlib, "pow")]),
@@ -371,7 +363,26 @@ def createDefaultDict():
       fname="sub",
       operator=True,
       doc='Subtracts two numbers')
-    
+
+    f("*",
+      cfl("[_,_] , _", [Int, Float, Complex, Hyper]) +
+      cfl("[_, Float], _", [Hyper, Color]),
+      fname="mul",
+      operator=True,
+      doc='''Multiplication operator.''')
+
+    f("/",
+      [
+        [[Float, Float], Float],
+        [[Complex, Float], Complex],
+        [[Complex, Complex], Complex],
+        [[Hyper, Float], Hyper],
+        [[Color, Float], Color]
+      ],
+      fname="div",
+      operator=True,
+      doc='''Division operator''')
+
     f("!=",
       cfl("[_,_] , Bool", [Int, Float, Complex, Bool]),
       fname="noteq",

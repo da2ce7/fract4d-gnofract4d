@@ -634,13 +634,31 @@ func fn1
         color cyan = blue + green
         color white = red + blue + green
         color black = white - red - blue - green - green
+        color yellow2 = yellow * 0.5
+        color bigyellow = yellow * 37.6
+        color yellow3 = yellow / 2.0
+        color black2 = yellow / -1.0
         }'''
+
+        exp = "\n".join([
+            "yellow = (1,1,0,1)",
+            "cyan = (0,1,1,1)",
+            "white = (1,1,1,1)",
+            "black = (0,0,0,0)",
+            "yellow2 = (0.5,0.5,0,0.5)",
+            "bigyellow = (1,1,0,1)",
+            "yellow3 = (0.5,0.5,0,0.5)",
+            "black2 = (0,0,-0,0)"])
         self.assertCSays(src,"init",
-                         self.inspect_hyper("yellow") +
-                         self.inspect_hyper("cyan") +
-                         self.inspect_hyper("white") +
-                         self.inspect_hyper("black"),
-                         "yellow = (1,1,0,1)\ncyan = (0,1,1,1)\nwhite = (1,1,1,1)\nblack = (0,0,0,0)")
+                         self.inspect_color("yellow") +
+                         self.inspect_color("cyan") +
+                         self.inspect_color("white") +
+                         self.inspect_color("black") +
+                         self.inspect_color("yellow2") +
+                         self.inspect_color("bigyellow") +
+                         self.inspect_color("yellow3") +
+                         self.inspect_color("black2"),
+                         exp)
         
     def testCHyper(self):
         'test arithmetic in hypercomplex numbers'
@@ -672,6 +690,8 @@ func fn1
         hyper xnew = x * recip(x)
         hyper zero_ = x + -x
         float m = |x|
+        hyper negx = x * -1
+        hyper negx2 = x / -1
         }'''
         self.assertCSays(src,"init",
                          self.inspect_hyper("x") +
@@ -682,7 +702,9 @@ func fn1
                          self.inspect_hyper("hr") +
                          self.inspect_hyper("xnew") +
                          self.inspect_hyper("zero_") +
-                         self.inspect_float("m"),
+                         self.inspect_float("m") +
+                         self.inspect_hyper("negx") +
+                         self.inspect_hyper("negx2"),
                          "x = (1,2,-3,4)\n" +
                          "y = (5,3,-4,4)\n" +
                          "h2 = (3,41,-39,7)\n" +
@@ -691,7 +713,10 @@ func fn1
                          "hr = (-0.1,0,0.1,0.2)\n" +
                          "xnew = (1,0,0,0)\n" +
                          "zero_ = (0,0,0,0)\n" +
-                         "m = 30")
+                         "m = 30\n" +
+                         "negx = (-1,-2,3,-4)\n" +
+                         "negx2 = (-1,-2,3,-4)"
+                         )
         
         # access to parts
         src = '''t_hyper3 {
