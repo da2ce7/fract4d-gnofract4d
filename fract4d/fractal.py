@@ -440,10 +440,15 @@ class T(FctUtils):
             self.cfunc_params[i] = self.cfuncs[i].symbols.default_params()
         
     def set_formula(self,formulafile,func):
-        self.formula = self.compiler.get_formula(formulafile,func)
-        if self.formula == None:
+        formula = self.compiler.get_formula(formulafile,func)
+        if formula == None:
             raise ValueError("no such formula: %s:%s" % (formulafile, func))
 
+        if formula.errors != []:
+            raise ValueError("invalid formula '%s':\n%s" % \
+                             (func, "\n".join(formula.errors)))
+        
+        self.formula = formula
         self.funcName = func
         self.funcFile = formulafile
         self.initparams = self.formula.symbols.default_params()
@@ -503,6 +508,10 @@ class T(FctUtils):
         func = self.compiler.get_colorfunc(funcfile,funcname,"cf%d" % index)
         if func == None:
             raise ValueError("no such colorfunc: %s:%s" % (funcfile, funcname))
+        if func.errors != []:
+            raise ValueError("Invalid colorfunc '%s':\n%s" % \
+                             funcname,"\n".join(func.errors))
+        
         self.cfuncs[index] = func
         self.cfunc_files[index] = funcfile
         self.cfunc_names[index] = funcname

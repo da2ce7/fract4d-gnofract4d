@@ -6,13 +6,10 @@ todo for 2.0
 UI improvements 
 * BB	more robust error reporting
 * W	last-chance exception handler
-* B	translationerror on load doesn't pop up
 * B	standard.cfrm:triangle = all black
 * W	current angle in status bar
 * B	open formula file on .cfrm should go to correct page in browser
 * B	maxiter isn't updated due to auto-deepening
-* B	change width or setting to something which isn't a number/float: 
-	ValueError in set_prefs, set_initparam etc
 * W	formula browser
 	manage search path (user prefs)
 	auto-list all formula files on path, parse on first click
@@ -22,7 +19,6 @@ UI improvements
 * W	review human interface guidelines
 * W	recently-used files
 * W	warn before quitting or save current fractal to autosave by default?
-* W	does everything have to be .17f ?
 
 1.9 features:
 * W	command-line arguments
@@ -54,6 +50,9 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* B	translationerror on load doesn't pop up
+* B	change width or setting to something which isn't a number/float: 
+	ValueError in set_prefs, set_initparam etc
 * BB	mandrake9.2 RPM - fract4d libs install to python2.2 directory, 
 	python2.3 can't find them.
 	Then RuntimeWarning when loaded - python C API has different version.
@@ -136,6 +135,7 @@ done:
 * B	undo/redo cause recompilation
 
 postponed
+* W	does everything have to be .17f ?
 * W	regression test vs fractint
 * W	i18n, gettext
 * B	warnings for several fractal types
