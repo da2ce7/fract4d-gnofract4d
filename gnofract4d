@@ -230,7 +230,6 @@ class MainWindow:
 
     def create_toolbar(self):
         self.toolbar = gtk.Toolbar()
-        self.toolbar.append_item("preview",None,None,None,None,None)
         self.toolbar.insert_stock(
             gtk.STOCK_UNDO,
             "Undo the last change",
@@ -360,7 +359,7 @@ class MainWindow:
         loc = "C" # FIXME
 
         # look locally first to support run-before-install
-        build_dir = "../doc/gnofract4d-manual/%s/" % loc
+        build_dir = "doc/gnofract4d-manual/%s/" % loc
         helpfile = os.path.join(build_dir,base_help_file)
         abs_file = os.path.abspath(helpfile)
         

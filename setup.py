@@ -7,6 +7,23 @@ import os
 import commands
 import sys
 
+if float(sys.version[:3]) < 2.2:
+    print "Sorry, you need python 2.2 or higher to run Gnofract 4D."
+    print "You have version %s." % sys.version
+    sys.exit(1)
+
+def create_stdlib_docs():
+    'Autogenerate docs for standard library'
+    try:
+        from fract4d import createdocs
+        createdocs.main("doc/gnofract4d-manual/C/stdlib.xml")
+    except Exception, err:
+        print >>sys.stderr,\
+              "Problem creating docs. Online help will be incomplete."
+        print >>sys.stderr, err
+
+create_stdlib_docs()
+
 module1 = Extension(
     'fract4d.fract4dc',
     sources = [
@@ -86,12 +103,19 @@ def get_files(dir,ext):
 setup (name = 'gnofract4d',
        version = '2.0',
        description = 'A program to draw fractals',
+       long_description = \
+'''Gnofract 4D is a fractal browser. It can generate many different fractals, 
+including some which are hybrids between the Mandelbrot and Julia sets.''',
        author = 'Edwin Young',
        author_email = 'edwin@sourceforge.net',
+       maintainer = 'Edwin Young',
+       maintainer_email = 'edwin@sourceforge.net',
+       keywords = "fractal mandelbrot julia fractint",
        url = 'http://gnofract4d.sourceforge.net/',
        packages = ['fract4d', 'fract4dgui'],
        ext_modules = [module1, module2],
        scripts = ['gnofract4d'],
+       license = 'BSD',
        data_files = [
            # color maps
            ('share/maps/gnofract4d',

@@ -66,7 +66,8 @@ class Compiler:
             f = os.path.join(path,filename)
             if os.path.exists(f):
                 return f
-        return filename
+        raise IOError("Can't find formula file %s in formula search path" % \
+                      filename)
     
     def load_formula_file(self, filename):
         try:

@@ -51,10 +51,11 @@ class FCTest(testbase.TestBase):
 
     def testErrors(self):
         self.assertRaises(
-            Exception, self.compiler.load_formula_file, "nonexistent.frm")
+            IOError, self.compiler.load_formula_file, "nonexistent.frm")
 
-        f = self.compiler.get_formula("test.xxx","nonexistent")
-        self.assertEqual(f,None)
+        self.assertRaises(
+            IOError, self.compiler.get_formula, "test.xxx","nonexistent") 
+
         f = self.compiler.get_formula("test.frm","nonexistent")
         self.assertEqual(f,None)
         f = self.compiler.get_formula("test.frm","parse_error")

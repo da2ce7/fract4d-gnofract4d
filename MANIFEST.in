@@ -3,7 +3,6 @@ include maps/*.map
 include formulas/*.*frm
 include doc/gnofract4d-manual/C/*.xml
 include doc/gnofract4d-manual/C/figures/*.png
-include fract4d/*.xml
 include pixmaps/*.png
 include gnofract4d.desktop
 include COPYING
