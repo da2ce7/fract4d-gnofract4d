@@ -319,15 +319,8 @@ return 0;
     def unop(self,t):
         s0 = t.children[0]
         src = self.generate_code(s0)
-        if t.op == "mag":
-            # x_re * x_re + x_im * x_im
-            re_2 = self.emit_binop('*',[src.re,src.re],Float)
-            im_2 = self.emit_binop('*',[src.im,src.im],Float)
-            dst = self.emit_binop('+',[re_2,im_2],Float)
-        else:
-            msg = "Unsupported unary operation %s" % t.op
-            raise TranslationError(msg)
-
+        op = self.findOp(t)
+        dst = op.genFunc(self, t, src)
         return dst
     
     def binop(self,t):
@@ -335,20 +328,12 @@ return 0;
         s1 = t.children[1]
         srcs = [self.generate_code(s0), self.generate_code(s1)]
         op = self.findOp(t)
-        if t.datatype == fracttypes.Complex:
-            assert(isinstance(srcs[0],ComplexArg)==1,srcs[0])
-            assert(isinstance(srcs[1],ComplexArg)==1,srcs[1])
-            if t.op=="+" or t.op == "-" or t.op == "*" or t.op == "complex" or \
-                   t.op==">" or t.op==">=" or t.op=="<" or t.op == "<=" or \
-                   t.op=="==" or t.op=="!=":  
-                dst = op.genFunc(self,t,srcs)                
-            else:
-                # need to implement /, ^, etc
-                msg = "Unsupported binary operation %s" % t.op
-                raise fracttypes.TranslationError(msg)
-        else:
-            dst = self.emit_binop(t.op,srcs,t.datatype)
-
+        try:
+            dst = op.genFunc(self,t,srcs)
+        except TypeError, err:
+            msg = "Internal Compiler Error: missing stdlib function %s" % \
+                  op.genFunc
+            raise fracttypes.TranslationError(msg)
         return dst
     
     def const(self,t):

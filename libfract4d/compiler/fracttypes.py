@@ -91,6 +91,8 @@ class Func:
         self.ret = ret
         self.pos = pos
 
+        # compute the name of the stdlib function to call
+        # this is sort of equivalent to C++ overload resolution
         if fname == None:
             self.genFunc = None
         else:
@@ -100,7 +102,7 @@ class Func:
             typed_fname = typed_fname + "_" + strOfType(ret)[0]
         
             #print typed_fname
-            self.genFunc = module.__dict__.get(typed_fname,None)
+            self.genFunc = module.__dict__.get(typed_fname,typed_fname)
         
     def matchesArgs(self, potentialArgs):
         if len(potentialArgs) != len(self.args):
