@@ -165,12 +165,14 @@ class T(FctUtils):
 
         c = T(self.compiler,self.site)
         c.params = copy.copy(self.params)
+        
         c.set_formula(self.funcFile,self.funcName)
         # copy the function overrides
         for name in self.func_names():
             print name
             c.set_named_func(name,self.get_func_value(name))
-            
+
+        c.initparams = copy.copy(self.initparams) # must be after set_formula
         c.bailfunc = self.bailfunc
         c.cfuncs = copy.copy(self.cfuncs)
         c.colorlist = copy.copy(self.colorlist)
@@ -269,6 +271,9 @@ class T(FctUtils):
 
     def func_names(self):
         return self.formula.symbols.func_names()
+
+    def param_names(self):
+        return self.formula.symbols.param_names()
     
     def set_named_func(self,func_to_set,val):
         fname = self.formula.symbols.demangle(func_to_set)

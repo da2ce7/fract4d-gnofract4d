@@ -1,5 +1,7 @@
 <?xml version="1.0" standalone="no"?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY stdlib SYSTEM "stdlib.xml">
+]>
 <article id="gnofract4d">
 <articleinfo>
 <author><firstname>Edwin</firstname><surname>Young</surname></author>
@@ -11,10 +13,22 @@
 <sect1 id="introduction">
 <title>Introduction</title>
 
-<para>Gnofract 4D is a fractal generation program which can draw some
-unusual hybrids between the Mandelbrot and Julia sets. It treats both
-fractals as views of the same four-dimensional object and allows you
-to explore other views of the same object. </para>
+&stdlib;
+
+<para>Gnofract 4D is a program which draws complex mathematical
+objects known as fractals, including the Mandelbrot and Julia sets and
+many others. It allows you to treat a fractal which has more than one
+parameter as a four-dimensional object and interactively view slices
+of this object from arbitrary angles, giving rise to some very unusual
+images.
+</para>
+ 
+<para>
+This documentation covers version 2.0. For the most recent
+documentation and release, check <ulink
+url="http://gnofract4d.sourceforge.net/">
+http://gnofract4d.sourceforge.net</ulink>. 
+</para>
 
 </sect1>
 
@@ -29,11 +43,24 @@ insultingly oversimplified or just plain wrong.
 </caution>
 
 <sect2 id="mset" >
-<title>The Mandelbrot Set</title> <para> The Mandelbrot is defined as
+<title>The Mandelbrot Set</title> <para> The Mandelbrot may be calculated as
 the set of all complex numbers which, when you repeatedly square them
-and add them again, never become infinite. We can tell that a number
-will eventually reach infinity if it ever gets outside a circle of
-radius 2 around the origin. In pseudocode, the procedure is:
+and add them again, never become infinite.
+
+<footnote>
+<para>
+The official definition of the set is somewhat different: it is the
+set of points in the complex plane whose corresponding Julia sets are
+connected. These end up being the same thing.  </para>
+</footnote>
+
+We can tell that a number will eventually reach infinity if it ever
+gets outside a circle of radius 2 around the origin. Unfortunately, we
+can't tell in general that a point will never become infinite, so we
+have to estimate by trying a large number of times before giving up.
+</para>
+<para>
+In pseudocode, the procedure is:
 </para>
 <programlisting>
 z = 0
@@ -44,7 +71,9 @@ while( magnitude(z) &lt; 2.0 )
 <para>
 Here, <emphasis>c</emphasis> is determined by the position on screen. This
 gives rise to the familiar Mandelbrot set:
-<graphic align="center" format="PNG" fileref="figures/mandelbrot_standard.png"></graphic>
+
+<graphic align="center" format="PNG"
+fileref="figures/mandelbrot_standard.png"> </graphic>
 
 All the points inside the set are (as is traditional) coloured
 black. The points outside the set are different colours depending on
@@ -54,23 +83,39 @@ very mathematically significant, but they look nice.
 
 <para>
 So what happens if <emphasis>z</emphasis> is initially set to a complex value
-other than zero? Well, you get a rather odd-looking, deformed M-set.
-This initial value, which we'll call <emphasis>z0</emphasis>, is called the
-intial perturbation, and sets which have a non-zero <emphasis>z0</emphasis> are
-known as <emphasis>perturbed</emphasis> sets:
-<graphic align="center" format="PNG" fileref="figures/mandelbrot_perturbed.png"></graphic>
-</para>
-</sect2>
+other than zero? <footnote>
+
+<para>
+Strictly speaking, you shouldn't do this. Zero is important because it
+is the <emphasis>critical value</emphasis> of z^2+c - other values are
+not mathematically meaningful. However, as with most fractal programs,
+Gnofract 4D allows you to draw anything which looks interesting,
+regardless of its mathematical purity.  </para> </footnote>
+
+Well, you get a rather odd-looking, deformed M-set.  This initial
+value, which we'll call <emphasis>z0</emphasis>, is called the intial
+perturbation, and sets which have a non-zero <emphasis>z0</emphasis>
+are known as <emphasis>perturbed</emphasis> sets: 
+
+<graphic align="center" format="PNG"
+fileref="figures/mandelbrot_perturbed.png"> </graphic>
+
+</para> </sect2>
 
 <sect2 id="julia">
 <title>The Julia Set</title>
+
 <para>
 The Julia set is actually drawn by the same procedure as the
-Mandelbrot set. But instead of changing the value of <emphasis>c</emphasis>
-for each pixel, we keep <emphasis>c</emphasis> constant and change
-<emphasis>z0</emphasis>. There is a different Julia set for each value of 
-<emphasis>c</emphasis>; here's the one for <emphasis>c</emphasis>=0.
-<graphic align="center" format="PNG" fileref="figures/julia_standard.png"></graphic>
+Mandelbrot set. But instead of changing the value of
+<emphasis>c</emphasis> for each pixel, we keep <emphasis>c</emphasis>
+constant and change <emphasis>z0</emphasis>. There is a different
+Julia set for each value of <emphasis>c</emphasis>; here's the one for
+<emphasis>c</emphasis>=0.
+
+<graphic align="center" format="PNG"
+fileref="figures/julia_standard.png"> </graphic>
+
 </para>
 
 <para>
@@ -81,7 +126,10 @@ member of the set). All other values will grow forever, and so we've
 just discovered a rather inefficient way of drawing perfect circles.
 If we use a different value of <emphasis>c</emphasis> we get something more
 interesting: 
-<graphic align="center" format="PNG" fileref="figures/julia_perturbed.png"></graphic>
+
+<graphic align="center" format="PNG"
+fileref="figures/julia_perturbed.png"> </graphic>
+
 </para>
 </sect2>
 
@@ -102,8 +150,8 @@ while( magnitude(z) &lt; 4.0 and iterations &lt; max_iterations )
 </programlisting>
 
 The Julibrot function has two complex parameters, or four real
-ones. In Gnofract 4D I refer to the real parameters as x, y, z, and w: these
-are c.re , c.im, z0.re and z0.im respectively.
+ones. In Gnofract 4D I refer to the real parameters as x, y, z, and w:
+these are c.re , c.im, z0.re and z0.im respectively.
 
 The only difference is which points we choose to draw. To draw the
 Mandelbrot set, we keep <emphasis>z0</emphasis> constant and change
@@ -114,8 +162,11 @@ orthogonal "slices" through the same four-dimensional object. In
 Gnofract 4D terms, the Mandelbrot set is the <emphasis>xy</emphasis>
 plane, and the Julia set is the <emphasis>zw</emphasis> plane. We can
 also look at other planes: here's an image of the
-<emphasis>xw</emphasis> plane: <graphic align="center" format="PNG"
-fileref="figures/xw_plane.png"></graphic>
+<emphasis>xw</emphasis> plane:
+
+<graphic align="center" format="PNG"
+fileref="figures/xw_plane.png"> </graphic>
+
 </para>
 </sect2>
 
@@ -148,7 +199,8 @@ degrees in the xz and yw directions, our screen vectors become
 only part of the way, we get a "hybrid" between the two sets, which
 looks decidedly odd:
 
-<graphic align="center" format="PNG" fileref="figures/hybrid.png"></graphic>
+<graphic align="center" format="PNG" fileref="figures/hybrid.png">
+</graphic>
 
 In fact, we can rotate to any angle in each of the planes,
 creating a whole world of bizarre pictures.
@@ -157,19 +209,20 @@ creating a whole world of bizarre pictures.
 </sect2>
 
 <sect2 id="hypercomplex">
-<title>Hypercomplex Fractals and Quaternions</title>
-<para>
-There are other kinds of fractal which are commonly described as
-"four-dimensional" - hypercomplex and quaternion-based
-fractals. Gnofract 4D doesn't currently support these fractals, so
-they're only mentioned here to clarify the difference. (If you want to
-generate hypercomplex fractals I recommend you try <ulink
+<title>Hypercomplex Fractals and Quaternions</title> 
+
+<para> There are other kinds of fractal which are commonly described
+as "four-dimensional" - hypercomplex and quaternion-based
+fractals. Gnofract 4D doesn't currently support these fractals
+directly (though you can create your own quaternion-based formulas),
+so they're only mentioned here to clarify the difference. (If you want
+to generate hypercomplex fractals I recommend you try <ulink
 url="http://www.physcip.uni-stuttgart.de/phy11733/quat_e.html">
 Quat</ulink>.) Hypercomplex numbers have four components (one real and
 three imaginary) where complex numbers have two. Since the
 hypercomplex mandelbrot has two hypercomplex parameters, in Gnofract
-4D terms it's actually an eight-dimensional object.
-</para>
+4D terms it's actually an eight-dimensional object.  </para>
+
 </sect2>
 </sect1>
 
@@ -178,7 +231,7 @@ hypercomplex mandelbrot has two hypercomplex parameters, in Gnofract
 <para> Gnofract 4D supports a variety of fractal formulae apart from the
 vanilla mandelbrot set. These have been pillaged from a variety of
 sources, notably <emphasis>Fractint</emphasis>. I've tried to keep the names
-consistent.
+consistent. 
 </para>
 <para>
 The <emphasis>Quadratic</emphasis> function
@@ -221,8 +274,8 @@ modification.
 
 <sect1 id="compiler">
 <title>Writing Your Own Functions</title>
-<para>
 
+<para>
 When you get tired of the built-in fractal functions, you can write
 your own, or take advantage of thousands of formulas written by other
 fractal enthusiasts. Gnofract4D can load most fractal formula files
@@ -231,11 +284,34 @@ it compiles the formula into native code for your processor, they will
 usually render much faster than they would with Fractint. However the
 compiler is not 100% backwards-compatible with Fractint, so
 unfortunately some fractals can't be loaded, or will display
-differently when they do.
+differently when they do. Gnofract 4D also supports many constructs
+Fractint doesn't, so you need to take extra care when writing formulas
+if you want them to work in Fractint too.
+</para>
+
+<para>
+Here are links to some online resources for formula files:
+<itemizedlist>
+
+<listitem><para> <ulink
+url="http://home.att.net/~Paul.N.Lee/OrgForm.html">ORGFORM.ZIP</ulink>
+A collection of about 25,000 Fractint formula files by many authors,
+originally compiled by George C. Martin and currently maintained by
+Paul N. Lee. Indispensable. </para></listitem>
+
+<listitem><para> <ulink
+url="http://formulas.ultrafractal.com/">UltraFractal public formula
+database</ulink> Over 4.5MB of formulas by users of UltraFractal. Many
+(but by no means all) of these will work with Gnofract 4D. Let me know
+of any issues, since I aim to improve compatibility further in future
+releases. </para></listitem>
+
+</itemizedlist>
 </para>
 
 <sect2 id="tutorial">
 <title>Writing Your First Formula</title>
+
 </sect2>
 <sect2 id="reference">
 <title>Formula Language Reference</title>
@@ -470,6 +546,59 @@ compiler and options to pass to it. <emphasis>If Gnofract 4D is working
 fine, I suggest you leave this area alone.</emphasis></para>
 </sect2>
 
+</sect1>
+
+<sect1 id="bugs">
+<title>Bugs and Known Issues</title>
+
+<sect2 id="reporting">
+
+<title>Reporting Bugs</title> 
+
+<para>
+<emphasis>Please</emphasis> report any bugs you encounter, either by
+mailing <ulink
+url="mailto:edwin@sourceforge.net">edwin@sourceforge.net</ulink> or by
+using the <ulink url="http://sourceforge.net/projects/gnofract4d/">bug
+form</ulink> at SourceForge. I'll do my best to fix them.
+</para>
+
+</sect2>
+
+<sect2 id="compat">
+<title>Backwards Compatibility</title>
+
+<para>
+Version 2.0 contains major architectural changes from version 1.x, so
+unfortunately not all images generated by earlier versions will look
+exactly the same or even load correctly. If you have a favorite image
+which doesn't work any more, mail me the .fct file and I'll try and
+convert it. I hope to fix most of these issues in future versions.
+</para>
+<para>
+Specific known issues:
+<itemizedlist>
+
+<listitem> <para> Files generated by Gnofract 4D versions older than
+1.4 can't be loaded. </para>
+</listitem>
+
+<listitem> <para> Color ranges (as opposed to color maps) are not
+supported. </para> </listitem>
+
+<listitem> <para> Nova and Newton fractals may have different
+coloration. This is because older versions used a tolerance
+calculation which was dependent on the image size. I decided that was
+a lousy idea so now the tolerance is fixed. </para> </listitem>
+
+<listitem> <para> Only one colormap per file is supported (the outer
+one). Inner colormaps are ignored. </para> </listitem>
+
+</itemizedlist>
+
+</para>
+
+</sect2>
 </sect1>
 
 <sect1 id="about">

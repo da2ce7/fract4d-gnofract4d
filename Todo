@@ -1,11 +1,9 @@
 todo for 2.0
 * BB	deeper.fct, hive.fct, image.fct doesn't load properly - old format
 * BB	tower_of_thorns, untitled_5 don't load - need bailout for colorfunc
-* BB	novaspiral.fct
-* BB	egg.fct
 * B	coolness.fct - need direct coloring algorithm
 * BB	daisychain.fct
-* BB	dubious.fct
+* BB	dubious.fct - overall structure is the same, but local differences, only cmag bailout a problem
 * BB	giger.fct
 * BB	novamount.fct
 * BB	seaslug.fct
@@ -33,16 +31,18 @@ todo for 2.0
 	edit & continue
 	save/save-as
 	run $EDITOR, refresh
-	
+* WW	Inner, Outer pages for settings notebook
+* W	fmod, tdis, bof60, bof61, other fractint colorfuncs
 * W	i18n, gettext
 * B	Reset changes antialiasing
 * W	keyboard shortcuts for all widgets
 * W	review human interface guidelines
-* B	shouldn't start drawing original before loading params on cmd-line
 * B	undo/redo cause recompilation
 * W	make default fractal more interesting
 
 done:
+* BB	load dubious.fct, undo/redo = gone, black screen instead
+* B	shouldn't start drawing original before loading params on cmd-line
 * BB	acos,acosh,asin,asinh,atan,atanh,cotan,cotanh give 'str not callable'
 * B	selected func in fractal settings dlg not updated by undo/redo
 * B	change func then undo causes problems
@@ -62,6 +62,7 @@ done:
 * W	user parameter functions
 
 postponed
+* BB	novaspiral.fct - close enough
 * WW	cmap browser
 * W	autosave/restore?
 * W	max size for .so cache

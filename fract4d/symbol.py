@@ -68,11 +68,6 @@ def createDefaultDict():
         # standard operators
 
         # comparison
-        "!=": efl("noteq", "[_,_] , Bool", [Int, Float, Complex, Bool],
-                  operator=True,precedence=3,
-                  doc="Inequality operator. Compare two values and return true if they are different. The values are converted to the same type first if necessary."
-                  ),
-        "==": efl("eq",    "[_,_] , Bool", [Int, Float, Complex, Bool]),
         
         # fixme - issue a warning for complex compares
         ">":  efl("gt",    "[_,_] , Bool", [Int, Float, Complex]),
@@ -125,7 +120,8 @@ def createDefaultDict():
     # extra shorthand to make things as short as possible
     def f(name, list, **kwds):
         mkfl(d,name,list,**kwds)
-        
+
+    # standard functions 
     f("complex",
       [[Float, Float], Complex],
       doc='''Construct a complex number from two real parts.
@@ -147,12 +143,6 @@ def createDefaultDict():
     f("conj",
       [[Complex], Complex],
       doc="The complex conjugate. conj(a,b) is equivalent to (a,-b).")
-
-    f("+", 
-      cfl("[_,_] , _", [Int, Float, Complex]),
-      fname="add",
-      operator=True,
-      doc='Adds two numbers together.')
 
     f("flip",
       [[Complex], Complex],
@@ -241,7 +231,6 @@ def createDefaultDict():
       doc='''min2(a,b) returns the smaller of a*a or b*b. Provided for
       backwards compatibility.''')
 
-
     f("sin",
       cfl( "[_], _", [Float, Complex]),
       doc='trigonometric sine function.')
@@ -302,7 +291,32 @@ def createDefaultDict():
     f("atanh",
       cfl( "[_], _", [Float, Complex]),
       doc='Inverse hyperbolic tangent function.')
+
+    # operators
     
+    f("+", 
+      cfl("[_,_] , _", [Int, Float, Complex]),
+      fname="add",
+      operator=True,
+      doc='Adds two numbers together.')
+
+    f("!=",
+      cfl("[_,_] , Bool", [Int, Float, Complex, Bool]),
+      fname="noteq",
+      operator=True,
+      precedence=3,
+      doc='''Inequality operator. Compare two values and return true if
+      they are different.'''),
+
+    f("==",
+      cfl("[_,_] , Bool", [Int, Float, Complex, Bool]),
+      fname="eq",
+      operator=True,
+      precedence=3,
+      doc='''Equality operator. Compare two values and return true if they are
+      the same.''')
+
+
     # predefined parameters
     for p in xrange(1,7):
         name = "p%d" % p
@@ -438,7 +452,16 @@ class T(UserDict):
             name = "#" + name[2:]
             
         return name
-    
+
+    def param_names(self):
+        params = self.parameters()
+
+        names = []
+        for (name,param) in params.items():
+            if isinstance(param,Var):
+                func_names.append(self.demangle(name))
+        return names
+
     def func_names(self):
         params = self.parameters()
 
