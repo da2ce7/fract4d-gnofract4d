@@ -19,6 +19,20 @@ g_comp.load_formula_file("gf4d.cfrm")
 class FakeEvent:
     def __init__(self,**kwds):
         self.__dict__.update(kwds)
+
+class CallCounter:
+    def __init__(self):
+        self.count = 0
+    def cb(self,*args):
+        self.count += 1
+
+class Recurser:
+    def __init__(self):
+        self.count = 0
+    def cb(self,f,*args):
+        self.count += 1
+        nv = f.params[f.MAGNITUDE]
+        f.set_param(f.MAGNITUDE, nv * 2.0)
         
 class FctTest(unittest.TestCase):
     def setUp(self):
@@ -45,6 +59,38 @@ class FctTest(unittest.TestCase):
         self.f.connect('status-changed', self.quitloop)
         self.f.draw_image()
         self.wait()
+
+    def testSignals(self):
+        cc = CallCounter()
+        self.f.connect('parameters-changed', cc.cb)
+        self.assertEqual(cc.count,0)
+        
+        self.f.set_param(self.f.MAGNITUDE,0.7)
+        self.assertEqual(cc.count,1)
+
+        # set to the same value, no callback
+        self.f.set_param(self.f.MAGNITUDE,0.7)
+        self.assertEqual(cc.count,1)
+
+        # maxiter
+        self.f.set_maxiter(778)
+        self.f.set_maxiter(778)
+        self.assertEqual(cc.count,2)
+
+        # size
+        self.f.set_size(57,211)
+        self.f.set_size(57,211)
+        self.assertEqual(cc.count,3)
+
+        
+    def disabled_testSignalsDontRecurse(self):
+        # test no recurse, but doesn't work. Maybe I've misunderstood
+        # signal recursion semantics?
+        r = Recurser()
+        self.f.connect('parameters-changed', r.cb)
+
+        self.f.set_param(self.f.MAGNITUDE,0.7)
+        self.assertEqual(r.count,1)
 
     def testParamSettings(self):
         self.f.set_formula("test.frm","test_func")

@@ -67,7 +67,8 @@ class SettingsDialog(gtk.Dialog):
 
         def set_fractal(*args):
             self.f.set_param(param,entry.get_text())
-
+            return False
+        
         set_entry(self.f)
         self.f.connect('parameters-changed', set_entry)
         entry.connect('focus-out-event', set_fractal)
