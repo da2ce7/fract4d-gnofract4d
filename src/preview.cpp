@@ -52,7 +52,6 @@ preview_status_callback(Gf4dFractal *f, gint val, void *user_data)
     gint w, h;
     gdk_drawable_get_size(drawing_area->window, &w, &h);
 
-    g_print("%d %d\n",w,h);
     redraw_image_rect(drawing_area, gf4d_fractal_get_image(f),
                       0, 0,
                       PREVIEW_SIZE, PREVIEW_SIZE,

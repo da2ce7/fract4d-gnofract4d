@@ -49,7 +49,11 @@ void
 refresh_width_callback(Gf4dFractal *f, GtkEntry *e)
 {
     char buf[80];
-    sprintf(buf,"%d",gf4d_fractal_get_xres(f));
+    model_t *m = (model_t *)(g_object_get_data(G_OBJECT(e),"model"));
+    g_assert(m != NULL);
+    int w,h;
+    model_get_dimensions(m,&w,&h);
+    sprintf(buf,"%d",w);
     gtk_entry_set_text(e,buf);
 }
 
@@ -67,7 +71,11 @@ void
 refresh_height_callback(Gf4dFractal *f, GtkEntry *e)
 {
     char buf[80];
-    sprintf(buf,"%d",gf4d_fractal_get_yres(f));
+    model_t *m = (model_t *)(g_object_get_data(G_OBJECT(e),"model"));
+    g_assert(m != NULL);
+    int w,h;
+    model_get_dimensions(m,&w,&h);
+    sprintf(buf,"%d",h);
     gtk_entry_set_text(e,buf);
 }
 
@@ -171,6 +179,8 @@ create_image_entry(
     g_signal_connect(GTK_OBJECT(f), "parameters_changed",
                        refresh_cb,
                        combo_entry);
+
+    g_object_set_data(G_OBJECT(combo_entry), "model", m);
 };
 
 // ugh!
