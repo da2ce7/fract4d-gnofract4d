@@ -28,6 +28,8 @@ class CanonTest(unittest.TestCase):
         return ir.Binop(op,stms,self.fakeNode, Int)
     def move(self,dest,exp):
         return ir.Move(dest, exp, self.fakeNode, Int)
+    def cjump(self,e1,e2):
+        return ir.CJump(">",e1,e2,"trueDest", "falseDest", self.fakeNode)
     
     def testEmptyTree(self):
         self.assertEqual(self.canon.linearize(None),None)
@@ -121,6 +123,20 @@ class CanonTest(unittest.TestCase):
         ltree2 = self.canon.linearize(tree2)
         self.assertESeqsNotNested(ltree2,1)
         self.assertTreesEqual(ltree, ltree2)
+
+    def testCJump(self):
+        tree = self.cjump(self.var(), self.var())
+        ltree = self.canon.linearize(tree)
+        self.assertESeqsNotNested(ltree,1)
+        self.assertTreesEqual(tree, ltree)
+
+    def testCJumpWithLHESeq(self):
+        tree = self.cjump(self.eseq([self.move(self.var("a"),self.const())],
+                                    self.var("b")),
+                          self.var("c"))
+        ltree = self.canon.linearize(tree)
+        self.assertESeqsNotNested(ltree,1)
+        print ltree.pretty()
         
     def assertESeqsNotNested(self,t,parentAllowsESeq):
         'check that no ESeqs are left below other nodes'
