@@ -159,7 +159,7 @@ class SettingsDialog(dialog.T):
         self.tooltips.set_tip(button,_("Browse available coloring functions"))
         button.connect('clicked', self.show_browser, browser.INNER)
         hbox.pack_start(button)
-        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)                
+        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2) 
 
     def create_formula_parameters_page(self):
         vbox = gtk.VBox()
