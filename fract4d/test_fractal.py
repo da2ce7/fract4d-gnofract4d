@@ -72,6 +72,7 @@ function=Mandelbrot
 formulafile=test.cfrm
 function=flat
 @myfunc=sqrt
+@val2=(2.0,3.7,6.1,8.9)
 [endsection]
 [outer]
 formulafile=test.cfrm
@@ -399,6 +400,7 @@ blue=0
         f1.compile()
         
         self.assertEqual(f1.cfunc_params[0],[1.0, 0.0, 1.0e12, 3.0])
+        self.assertEqual(f1.cfunc_params[1],[1.0, 0.0, 0.4, 2.0, 3.7,6.1, 8.9])
         self.assertEqual(f1.get_func_value("@myfunc",f1.cfuncs[1]),"sqrt")
         
         # save again
@@ -596,7 +598,7 @@ blue=0
         self.assertEqual(f.params[f.XZANGLE],0.789)
         self.assertEqual(f.title,"Hello World")
         self.assertEqual(f.initparams,[8.0,7.0,1.0])
-        self.assertEqual(f.cfunc_params[1],[1.0,0.0,0.4])
+        self.assertEqual(f.cfunc_params[1],[1.0,0.0,0.4,0.7,0.8,0.9,1.0])
 
     def testFutureWarning(self):
         'load a file from the future and check we complain'

@@ -595,6 +595,8 @@ class T(UserDict):
             op[k] = i
             if p[k].type == Complex:
                 i += 2
+            elif p[k].type == Hyper:
+                i += 4
             else:
                 i += 1
         op["__SIZE__"]=i
@@ -612,6 +614,9 @@ class T(UserDict):
             if param.type == Complex:
                 defaults[i] = defval.value[0].value
                 defaults[i+1] = defval.value[1].value
+            elif param.type == Hyper:
+                for j in xrange(len(defval.value)):
+                    defaults[i+j] = defval.value[j].value
             else:
                 defaults[i] = defval.value
         return defaults
