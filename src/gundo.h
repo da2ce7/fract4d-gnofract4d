@@ -143,7 +143,7 @@ struct _GundoActionType {
 
 /** Returns the Gtk type for a \Ref{GundoSequence}.
  */
-guint gundo_sequence_get_type();
+guint gundo_sequence_get_type(void);
 
 
 /** Creates a new, empty GundoSequence.  
@@ -155,7 +155,7 @@ guint gundo_sequence_get_type();
     @return 
         A new GundoSequence object.
  */
-GundoSequence *gundo_sequence_new();
+GundoSequence *gundo_sequence_new(void);
 
 /** Adds an action to the end of the GundoSequence.  Any actions that
     have been undone but not redone are destroyed.  If any groups have

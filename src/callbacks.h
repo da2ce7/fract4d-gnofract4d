@@ -23,11 +23,6 @@
 
 typedef struct {
 	model_t *m;
-	guint direction;
-} move_cb_data;
-
-typedef struct {
-	model_t *m;
 	GtkWidget *f;
 } save_cb_data;
 
@@ -116,7 +111,6 @@ double parameter_by_name(GtkWidget *pb, gchar *name);
 void do_nothing_cb(GtkButton *button,gpointer user_data);
 void set_down_cb(GtkToggleButton *button, gpointer user_data);
 
-void move_cb (GtkMenuItem *menuitem, gpointer user_data);
 void set_cb (GtkAdjustment *adj, gpointer user_data);
 
 gchar *param_by_name(GtkWidget *pb, 

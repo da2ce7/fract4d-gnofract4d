@@ -54,14 +54,6 @@ save_session_cb(GnomeClient* client, gint phase, GnomeSaveStyle save_style,
 	return TRUE;
 }
 
-void move_cb (GtkMenuItem *menuitem, gpointer user_data)
-{
-	move_cb_data *pdata = (move_cb_data *)user_data;
-	model_cmd_start(pdata->m);
-	gf4d_fractal_move(model_get_fract(pdata->m),pdata->direction);
-	model_cmd_finish(pdata->m);
-}
-
 void set_cb (GtkAdjustment *adj, gpointer user_data)
 {
 	char buf[100];
@@ -428,6 +420,8 @@ int do_redraw_callback(model_t *m)
 	property_box_refresh(m);
 
 	gf4d_fractal_calc(f);
+
+	property_box_refresh(m);
 
 	return FALSE;
 }

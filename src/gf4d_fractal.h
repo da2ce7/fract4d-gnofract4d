@@ -20,33 +20,11 @@ extern "C" {
 #define GF4D_IS_FRACTAL(obj)              GTK_CHECK_TYPE (obj, GF4D_TYPE_FRACTAL)
 #define GF4D_IS_FRACTAL_CLASS(klass)      GTK_CHECK_CLASS_TYPE((klass), GF4D_TYPE_FRACTAL)
 
-enum {
-	GF4D_FRACTAL_DONE,
-	GF4D_FRACTAL_CALCULATING,
-	GF4D_FRACTAL_DEEPENING,
-	GF4D_FRACTAL_ANTIALIASING
-};
-
-typedef enum {
-	BAILOUT,
-	XCENTER,
-	YCENTER,
-	ZCENTER,
-	WCENTER,
-	SIZE,
-	XYANGLE,
-	XZANGLE,
-	XWANGLE,
-	YZANGLE,
-	YWANGLE,
-	ZWANGLE,
-	N_PARAMS
-} param_t;
 
 typedef struct _Gf4dFractal Gf4dFractal;
 typedef struct _Gf4dFractalClass Gf4dFractalClass;
 
-typedef struct _fractal fractal_t;
+#include "fract_public.h"
 
 struct _Gf4dFractal
 {
@@ -56,6 +34,7 @@ struct _Gf4dFractal
 	gboolean interrupted;
 	gboolean sensitive;
 	fractal_t *f;
+	image_t *im;
 };
 
 struct _Gf4dFractalClass
@@ -77,8 +56,8 @@ void gf4d_fractal_flip2julia(Gf4dFractal *fs, int x, int y);
 void gf4d_fractal_calc(Gf4dFractal *f);
 
 void gf4d_fractal_reset(Gf4dFractal *f);
-void gf4d_fractal_write_params(Gf4dFractal *f, FILE *fp);
-void gf4d_fractal_load_params(Gf4dFractal *f, FILE *fp);
+gboolean gf4d_fractal_write_params(Gf4dFractal *f, const gchar *filename);
+gboolean gf4d_fractal_load_params(Gf4dFractal *f, const gchar *filename);
 
 /* accessor functions */
 int gf4d_fractal_get_max_iterations(Gf4dFractal *f);
@@ -103,7 +82,6 @@ void gf4d_fractal_set_aa(Gf4dFractal *f, int val);
 void gf4d_fractal_set_auto(Gf4dFractal *f, int val);
 int gf4d_fractal_set_precision(Gf4dFractal *f, int digits);
 void gf4d_fractal_set_color(Gf4dFractal *f, double r, double g, double b);
-void gf4d_fractal_move(Gf4dFractal *f, int data);
 
 /* image-related functions: to be removed */
 int gf4d_fractal_get_xres(Gf4dFractal *f);

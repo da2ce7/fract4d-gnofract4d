@@ -20,62 +20,73 @@
  
 #ifndef _FRACT_H_
 #define _FRACT_H_
-/*
-*	divers
-*/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "fract_public.h"
+#include "calc.h"
+
+struct fractal
+{
+public:
+	d params[N_PARAMS];
+	int nbit_max;
+	int fractal_type;
+	int aa_profondeur;
+	int auto_deepen;
+	double r;
+	double g;
+	double b;
+	d move_by;
+	int digits;
+	bool running;
+	bool finished;
+
+public:
+	fractal();
+	fractal(fractal& f); // copy ctor
+	~fractal();
+	void reset();
+	void calc(Gf4dFractal *gf4d, image *im);
+	void relocate(double x, double y, double zoom);
+	void flip2julia(double x, double y);
+	bool write_params(const char *filename);
+	bool load_params(const char *filename);
+	char *get_param(param_t i);
+	bool set_param(param_t i, const char *val);
+	void set_max_iterations(int val);
+	void set_aa(int val);
+	void set_auto(int val);
+	int get_max_iterations();
+	int get_aa();
+	int get_auto();
+	void finish();
+	double get_r();
+	double get_g();
+	double get_b();
+	bool set_precision(int digits); // not implemented
+private:
+	void recenter(const dvec4& delta);
+};
+
+void fract_delete(fractal_t **f);
 
 
 
-void fract_relocate(fractal_t *f, int x, int y, double zoom);
-void fract_flip2julia(fractal_t *f, int x, int y);
-void fract_calc(fractal_t *f, Gf4dFractal *gf4d);
-
-fractal_t * fract_new();
-void fract_delete(fractal_t **pf);
-fractal_t * fract_copy(fractal_t *f); // copy ctor
-
-void fract_reset(fractal_t *f);
-void fract_finish(fractal_t *f);
-
-void fract_write_params(fractal_t *f, FILE *fp);
-void fract_load_params(fractal_t *f, FILE *fp);
 
 /* accessor functions */
 int fract_get_xres(fractal_t *f);
 int fract_get_yres(fractal_t *f);
-int fract_get_max_iterations(fractal_t *f);
+
 char *fract_get_tmp_img(fractal_t *f);
 double fract_get_ratio(fractal_t *f);
-double fract_get_r(fractal_t *f);
-double fract_get_g(fractal_t *f);
-double fract_get_b(fractal_t *f);
-int fract_get_aa(fractal_t *f);
-int fract_get_auto(fractal_t *f);
-char *fract_get_param(fractal_t *f, param_t i);
 
 /* update functions */
-void fract_set_max_iterations(fractal_t *f, int val);
-void fract_set_param(fractal_t *f, param_t i, char *val);
-void fract_set_aa(fractal_t *f, int val);
-void fract_set_auto(fractal_t *f, int val);
 
 int  fract_set_resolution(fractal_t *f, int xres, int yres);
 void fract_set_color(fractal_t *f, double r, double g, double b);
 void fract_realloc_image(fractal_t *f);
-int fract_set_precision(fractal_t *f, int digits);
 void fract_delete_image(fractal_t *f);
 
-void fract_move(fractal_t *f, int data);
-
-void fract_interrupt(fractal_t *f);
 
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _FRACT_H_ */

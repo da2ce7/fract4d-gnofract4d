@@ -113,7 +113,7 @@ INCLUDES =  	-I$(top_srcdir)/intl 	$(GNOME_INCLUDEDIR)
 
 bin_PROGRAMS = gnofract4d
 
-gnofract4d_SOURCES =  	main.c 	support.c support.h 	interface.c interface.h 	callbacks.c callbacks.h 	calc.cpp calc.h 	test-fonction.cpp test-fonction.h 	vectors.h fract.h 	model.c model.h 	gf4d_angle.c gf4d_angle.h 	gf4d_fractal.c gf4d_fractal.h 	gundo.c gundo.h 	gundo_ui.c gundo_ui.h
+gnofract4d_SOURCES =  	main.c 	support.c support.h 	interface.c interface.h 	callbacks.c callbacks.h 	fract.cpp fract.h calc.h 	test-fonction.cpp test-fonction.h 	vectors.h 	model.c model.h 	gf4d_angle.c gf4d_angle.h 	gf4d_fractal.cpp gf4d_fractal.h 	gundo.c gundo.h 	gundo_ui.c gundo_ui.h 	image.cpp image.h
 
 
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GNOMEUI_LIBS) $(INTLLIBS)
@@ -127,15 +127,16 @@ DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I..
 CPPFLAGS =  -I/usr/X11R6/include -I/usr/lib/glib/include
 LDFLAGS = 
 LIBS = 
-gnofract4d_OBJECTS =  main.o support.o interface.o callbacks.o calc.o \
-test-fonction.o model.o gf4d_angle.o gf4d_fractal.o gundo.o gundo_ui.o
+gnofract4d_OBJECTS =  main.o support.o interface.o callbacks.o fract.o \
+test-fonction.o model.o gf4d_angle.o gf4d_fractal.o gundo.o gundo_ui.o \
+image.o
 gnofract4d_DEPENDENCIES = 
 gnofract4d_LDFLAGS = 
 CXXFLAGS = -g -O2
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
-CFLAGS = -g -O2 -Wall -Wunused 
+CFLAGS = -g -O2 -Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -Wpointer-arith 
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
@@ -146,9 +147,10 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = gtar
 GZIP_ENV = --best
-DEP_FILES =  .deps/calc.P .deps/callbacks.P .deps/gf4d_angle.P \
-.deps/gf4d_fractal.P .deps/gundo.P .deps/gundo_ui.P .deps/interface.P \
-.deps/main.P .deps/model.P .deps/support.P .deps/test-fonction.P
+DEP_FILES =  .deps/callbacks.P .deps/fract.P .deps/gf4d_angle.P \
+.deps/gf4d_fractal.P .deps/gundo.P .deps/gundo_ui.P .deps/image.P \
+.deps/interface.P .deps/main.P .deps/model.P .deps/support.P \
+.deps/test-fonction.P
 SOURCES = $(gnofract4d_SOURCES)
 OBJECTS = $(gnofract4d_OBJECTS)
 

@@ -25,27 +25,10 @@
 
 #include "gf4d_fractal.h"
 #include "fract.h"
+#include "image.h"
 #include "test-fonction.h"
-#include <strstream>
+#include <fstream>
 
-struct _fractal
-{
-	char *tmp_img;
-	int Xres; 
-	int Yres;
-	d params[N_PARAMS];
-	int nbit_max;
-	int fractal_type;
-	int aa_profondeur;
-	int auto_deepen;
-	double r;
-	double g;
-	double b;
-	d move_by;
-	int digits;
-	bool running;
-	bool finished;
-};
 
 void 
 debug_precision(const d& s, char *location)
@@ -57,32 +40,32 @@ debug_precision(const d& s, char *location)
 #endif
 }
 
-fractal_t *
-fract_new()
+/* ctor */
+fractal::fractal()
 {
-	fractal_t *f = new fractal_t;
-
-	// image params
-	f->tmp_img = NULL;
-	f->Xres = 400;
-	f->Yres = 300;
-	fract_reset(f);
+	reset();
 
 	// display params
-	f->aa_profondeur = 2;
-	f->auto_deepen = 1;
-	f->r = 1.0;
-	f->g = 0.0;
-	f->b = 0.0;
+	aa_profondeur = 2;
+	auto_deepen = 1;
+	r = 1.0;
+	g = 0.0;
+	b = 0.0;
 
-	f->move_by = M_PI/20.0;
-	f->digits = 0;
+	move_by = M_PI/20.0;
+	digits = 0;
 	
-	f->running = false;
-	f->finished = false;
-	return f;
+	running = false;
+	finished = false;
 }
 
+/* dtor */
+fractal::~fractal()
+{
+
+}
+
+/* call destructor & set ptr to NULL */
 void
 fract_delete(fractal_t **fp)
 {
@@ -91,118 +74,123 @@ fract_delete(fractal_t **fp)
 	*fp = NULL;
 }
 
-void fract_finish(fractal_t *f)
+/* the program wants to exit: stop calculating */
+void 
+fractal::finish()
 {
-	f->running = 0;
-	f->finished = 1;
+	running = 0;
+	finished = 1;
 }
 
-fractal_t *
-fract_copy(fractal_t *f)
-{
-	fractal_t *new_f = new fractal_t;
-	*new_f = *f;
-	new_f->tmp_img = (char *)calloc(1 * 3 * f->Xres * f->Yres,1);
-	return new_f;
+/* copy ctor */
+fractal::fractal(fractal& f)
+{	
+	for(int i = 0 ; i < N_PARAMS ; i++)
+	{
+		params[i] = f.params[i];
+	}
+	nbit_max = f.nbit_max;
+	fractal_type = f.fractal_type;
+	aa_profondeur = f.aa_profondeur;
+	auto_deepen = f.auto_deepen;
+	r = f.r;
+	g = f.g;
+	b = f.b;
+	move_by = f.move_by;
+	digits = f.digits;
+	running = f.running;
+	finished = f.finished;
 }
 
-void fract_reset(fractal_t *f)
+/* return to mandelbrot set */
+void 
+fractal::reset()
 {
-	f->params[XCENTER] = f->params[YCENTER] = 0.0;
-	f->params[ZCENTER] = f->params[WCENTER] = 0.0;
-
-	f->params[SIZE] = 4.0;
-	f->params[BAILOUT] = 4.0;
+	params[XCENTER] = params[YCENTER] = 0.0;
+	params[ZCENTER] = params[WCENTER] = 0.0;
+	
+	params[SIZE] = 4.0;
+	params[BAILOUT] = 4.0;
 	for(int i = XYANGLE; i < ZWANGLE+1; i++) {
-		f->params[i] = 0.0;
+		params[i] = 0.0;
 	}
 
-	f->nbit_max = 64;
-	f->fractal_type = 1;
+	nbit_max = 64;
+	fractal_type = 1;
 }
 
-int fract_get_xres(fractal_t *p)
+bool fractal::write_params(const char *filename)
 {
-	return p->Xres;
-}
+	std::ofstream os(filename);
 
-int fract_get_yres(fractal_t *p)
-{
-	return p->Yres;
-}
+	if(!os) return false;
 
-char *fract_get_tmp_img(fractal_t *p)
-{
-	return p->tmp_img;
-}
-
-void fract_write_params(fractal_t *p, FILE *file)
-{
 	for(int i = 0; i < N_PARAMS; i++) {
-		fprintf(file,"%s\n",fract_get_param(p,(param_t)i));
+		os << params[i] << "\n";
 	}
 
-	fprintf(file,"%d\n",p->nbit_max);
-	fprintf(file,"%d\n",p->fractal_type);
-	fprintf(file,"%d\n",p->aa_profondeur);
-	fprintf(file,"%g\n%g\n%g\n",p->r, p->g, 
-		p->b);
+	os << nbit_max << "\n";
+	os << fractal_type << "\n";
+	os << aa_profondeur << "\n";
+	os << r << "\n" << g << "\n" << b << "\n";
+
+	if(!os) return false;
+	return true;
+}
+
+bool
+fractal::load_params(const char *filename)
+{
+	std::ifstream is(filename);
+
+	if(!is) return false;
+
+	for(int i = 0; i < N_PARAMS; i++) {
+		is >> params[i];
+	}
+
+	is >> nbit_max;
+	is >> fractal_type;
+	is >> aa_profondeur;
+	is >> r >> g >> b;
+	if(!is) return false;
+	return true;
 }
 
 void
-fract_load_params(fractal_t *p, FILE *file)
+fractal::set_max_iterations(int val)
 {
-	char buf[1024];
-
-	for(int i = 0; i < N_PARAMS; i++) {
-		fscanf(file,"%s",buf);
-		fract_set_param(p,(param_t)i,buf);
-	}
-
-	fscanf(file,"%d",&p->nbit_max);
-	fscanf(file,"%d",&p->fractal_type);
-	fscanf(file,"%d",&p->aa_profondeur);
-	
-	fscanf(file,"%lf\n%lf\n%lf\n",&p->r, &p->g, &p->b);
+	nbit_max = val;
 }
 
-void fract_set_max_iterations(fractal_t *p, int val)
+int 
+fractal::get_max_iterations()
 {
-	p->nbit_max = val;
+	return nbit_max;
 }
 
-int fract_get_max_iterations(fractal_t *p)
+void 
+fractal::set_aa(int val)
 {
-	return p->nbit_max;
+	aa_profondeur = val;
 }
 
-void fract_set_aa(fractal_t *p, int val)
+int 
+fractal::get_aa()
 {
-	p->aa_profondeur = val;
+	return aa_profondeur;
 }
 
-int fract_get_aa(fractal_t *p)
+void 
+fractal::set_auto(int val)
 {
-	return p->aa_profondeur;
+	auto_deepen = val;
 }
 
-void fract_set_auto(fractal_t *p, int val)
+int 
+fractal::get_auto()
 {
-	p->auto_deepen = val;
-}
-
-int fract_get_auto(fractal_t *p)
-{
-	return p->auto_deepen;
-}
-
-int fract_set_resolution(fractal_t *p, int x, int y)
-{
-	if(p->tmp_img && p->Xres == x && p->Yres == y) return 0;
-	p->Xres = x;
-	p->Yres = y;
-	fract_realloc_image(p);
-	return 1;
+	return auto_deepen;
 }
 
 void fract_set_color(fractal_t *p, double r, double g, double b)
@@ -210,52 +198,26 @@ void fract_set_color(fractal_t *p, double r, double g, double b)
 	p->r = r; p->g = g; p->b = b;
 }
 
-double fract_get_r(fractal_t *p)
+double 
+fractal::get_r()
 {
-	return p->r;
+	return r;
 }
 
-double fract_get_g(fractal_t *p)
+double 
+fractal::get_g()
 {
-	return p->g;
+	return g;
 }
 
-double fract_get_b(fractal_t *p)
+double 
+fractal::get_b()
 {
-	return p->b;
+	return b;
 }
 
-void fract_move(fractal_t *p, int data)
-{
-	d amount = p->move_by;
 
-	if(data < 0.0 ) {
-		amount = -amount;
-		data = -data;
-	}
-
-	p->params[data] += amount;
-}
-
-void
-fract_realloc_image(fractal_t *p)
-{
-	p->tmp_img = (char *)realloc(p->tmp_img, 3 * p->Xres * p->Yres);
-}
-
-void
-fract_delete_image(fractal_t *p)
-{
-	g_free(p->tmp_img);
-	p->tmp_img=NULL;
-}
-
-double fract_get_ratio(fractal_t *f)
-{
-	return ((double)f->Yres / f->Xres);
-}
-
-int fract_set_precision(fractal_t *f, int digits)
+bool fractal::set_precision(int digits)
 {
 #ifdef HAVE_CLN
 	cl_float_format_t fmt = cl_float_format(digits);
@@ -280,9 +242,10 @@ int fract_set_precision(fractal_t *f, int digits)
 /* see if we have run out of precision. either extend float format or 
  * (if CLN isn't available) warn user 
  */
-int fract_check_precision(fractal_t *p)
+int fract_check_precision(fractal *p)
 {
-	d delta = (p->params[SIZE])/p->Xres;
+	// assume image < 1024 pixels wide
+	d delta = (p->params[SIZE])/D_LIKE(1024.0,p->params[SIZE]);
 
 	debug_precision(p->params[SIZE],"check precision");
 
@@ -305,26 +268,27 @@ int fract_check_precision(fractal_t *p)
 	return 1;
 }
 
-void fract_set_param(fractal_t *f, param_t pnum, char *val)
+bool fractal::set_param(param_t pnum, const char *val)
 {
-	g_return_if_fail(pnum > -1 && pnum < N_PARAMS);
-	f->params[pnum] = A2D(val);
+	g_return_val_if_fail(pnum > -1 && pnum < N_PARAMS,false);
+	params[pnum] = A2D(val);
+	return true;
 }
 
-char *fract_get_param(fractal_t *f, param_t pnum)
+char *
+fractal::get_param(param_t pnum)
 {
 	D2ADECL;
 	g_return_val_if_fail(pnum > -1 && pnum < N_PARAMS,NULL);
-	return D2A(f->params[pnum]);
+	return D2A(params[pnum]);
 }
 
-dmat4 get_rotated_matrix(fractal_t *f)
+dmat4 get_rotated_matrix(fractal *f)
 {
 	debug_precision(f->params[XYANGLE],"xyangle");
-	debug_precision(f->params[SIZE]/f->Xres,"t1");
 	d one = D_LIKE(1.0,f->params[SIZE]);
 	d zero = D_LIKE(0.0, f->params[SIZE]);
-	dmat4 id = identity3D<d>(f->params[SIZE]/f->Xres,zero);
+	dmat4 id = identity3D<d>(f->params[SIZE],zero);
 
 	debug_precision(id[VX][VY],"id 1");
 
@@ -342,13 +306,13 @@ dmat4 get_rotated_matrix(fractal_t *f)
 	return id;
 }
 
-dvec4 get_deltax(fractal_t *f)
+dvec4 get_deltax(fractal *f)
 {
 	return get_rotated_matrix(f)[VX];
 }
 
 
-dvec4 get_deltay(fractal_t *f)
+dvec4 get_deltay(fractal *f)
 {
 	return get_rotated_matrix(f)[VY];
 
@@ -363,39 +327,39 @@ dvec4 get_center(fractal_t *f)
 inline int scan_double(fractal_t *f, bool visual);
 
 void
-recenter(fractal_t *p, const dvec4& delta)
+fractal::recenter(const dvec4& delta)
 {
-	debug_precision(p->params[XCENTER],"recenter 1:x");
-	p->params[XCENTER] += delta.n[VX];
-	p->params[YCENTER] += delta.n[VY];
-	p->params[ZCENTER] += delta.n[VZ];
-	p->params[WCENTER] += delta.n[VW];
-	debug_precision(p->params[XCENTER],"recenter 2:x");
+	debug_precision(params[XCENTER],"recenter 1:x");
+	params[XCENTER] += delta.n[VX];
+	params[YCENTER] += delta.n[VY];
+	params[ZCENTER] += delta.n[VZ];
+	params[WCENTER] += delta.n[VW];
+	debug_precision(params[XCENTER],"recenter 2:x");
 
 }
 
 void
-fract_relocate(fractal_t *f, int x, int y, double zoom)
+fractal::relocate(double x, double y, double zoom)
 {
 	dvec4 deltax,deltay;
 
 	// offset to clicked point from center
-	d dx = D_LIKE((x - f->Xres /2),f->params[SIZE]);
-	d dy = D_LIKE((y - f->Yres /2),f->params[SIZE]);  
+	d dx = D_LIKE(x,params[SIZE]);
+	d dy = D_LIKE(y,params[SIZE]);  
 
-	deltax=get_deltax(f);	
-	deltay=get_deltay(f);
+	deltax=get_deltax(this);	
+	deltay=get_deltay(this);
 
 	debug_precision(deltax[VX],"relocate:deltax");
-	recenter(f,dx *deltax + dy *deltay);
+	recenter(dx *deltax + dy *deltay);
 
-	debug_precision(f->params[SIZE],"relocate 1");
+	debug_precision(params[SIZE],"relocate 1");
 
-	f->params[SIZE] /= D(zoom);
+	params[SIZE] /= D(zoom);
 
-	debug_precision(f->params[SIZE],"relocate 2");
+	debug_precision(params[SIZE],"relocate 2");
 
-	fract_check_precision(f);
+	fract_check_precision(this);
 }	
 
 template<class T>
@@ -407,22 +371,19 @@ void swap(T& a, T& b)
 }
 
 void
-fract_flip2julia(fractal_t *f, int x, int y)
+fractal::flip2julia(double dx, double dy)
 {
 	static double rot=M_PI/2;
 
 	dvec4 deltax,deltay;
-	// offset to clicked point from center
-	d dx = (double)x - f->Xres /2.0;
-	d dy = (double)y - f->Yres /2.0;  
 	
-	deltax=get_deltax(f);
-	deltay=get_deltay(f);
+	deltax=get_deltax(this);
+	deltay=get_deltay(this);
 	
-	recenter(f, dx*deltax + dy *deltay);
+	recenter(dx*deltax + dy *deltay);
 	
-	f->params[XZANGLE] += D(rot);
-	f->params[YWANGLE] += D(rot);
+	params[XZANGLE] += D(rot);
+	params[YWANGLE] += D(rot);
 
 	rot = -rot;
 }
@@ -446,12 +407,14 @@ public:
 	colorFunc cf;
 	fractFunc pf;
 	int *p;
-	fract_rot(fractal_t *_f, colorFunc _cf, fractFunc _pf, Gf4dFractal *_gf) {
+	image *im;
+	fract_rot(fractal_t *_f, image *_im, colorFunc _cf, fractFunc _pf, Gf4dFractal *_gf) {
 		gf = _gf;
+		im = _im;
 		f = _f; cf = _cf ; pf = _pf;
 		depth = f->aa_profondeur ? f->aa_profondeur : 1; 
 
-		rot = get_rotated_matrix(f);
+		rot = get_rotated_matrix(f)/D(im->Xres);
 		deltax = rot[VX];
 		deltay = rot[VY];
 		ddepth = D_LIKE((double)depth,f->params[SIZE]);
@@ -461,13 +424,13 @@ public:
 		debug_precision(deltax[VX],"deltax");
 		debug_precision(f->params[XCENTER],"center");
 		topleft = get_center(f) -
-		deltax * D_LIKE(f->Xres / 2.0, f->params[SIZE])  -
-		deltay * D_LIKE(f->Yres / 2.0, f->params[SIZE]);
+		deltax * D_LIKE(im->Xres / 2.0, f->params[SIZE])  -
+		deltay * D_LIKE(im->Yres / 2.0, f->params[SIZE]);
 
 		debug_precision(topleft[VX],"topleft");
 		nhalfiters = ndoubleiters = k = 0;
-		p = new int[f->Xres * f->Yres];
-		for(int i = 0; i < f->Xres * f->Yres; i++) {
+		p = new int[im->Xres * im->Yres];
+		for(int i = 0; i < im->Xres * im->Yres; i++) {
 			p[i]=-1;
 		}
 		last_update_y = 0;
@@ -491,7 +454,7 @@ fract_rot::rectangle(struct rgb pixel, int x, int y, int w, int h)
 {
 	for(int i = y ; i < y+h; i++)
 	{
-		char *tmp = f->tmp_img  + (i * f->Xres + x )*3;
+		char *tmp = im->buffer  + (i * im->Xres + x )*3;
 		for(int j = x; j < x+w; j++) {
 			*tmp++=pixel.r;
 			*tmp++=pixel.g;
@@ -527,7 +490,7 @@ fract_rot::antialias(const dvec4& cpos)
 inline void 
 fract_rot::pixel(int x, int y,int w, int h)
 {
-	int *ppos = p + y*f->Xres + x;
+	int *ppos = p + y*im->Xres + x;
 	if(!f->running) throw(1);
 
 	dvec4 pos = topleft + I2D_LIKE(x, f->params[SIZE]) * deltax + 
@@ -590,8 +553,8 @@ fract_rot::fourpixel(int x, int y)
 void
 fract_rot::check_update(int i)
 {
-	gf4d_fractal_image_changed(gf,0,last_update_y,f->Xres,i);
-	gf4d_fractal_progress_changed(gf,(gfloat)i/(gfloat)f->Yres);
+	gf4d_fractal_image_changed(gf,0,last_update_y,im->Xres,i);
+	gf4d_fractal_progress_changed(gf,(gfloat)i/(gfloat)im->Yres);
 	last_update_y = i;
 }
 
@@ -622,8 +585,8 @@ fract_rot::updateiters()
 
 void fract_rot::draw_aa()
 {
-	int w = f->Xres;
-	int h = f->Yres;
+	int w = im->Xres;
+	int h = im->Yres;
 
 	last_update_y=0;
 	ndoubleiters=0;
@@ -645,8 +608,8 @@ void fract_rot::draw_aa()
 void fract_rot::draw(int rsize)
 {
 	int x,y;
-	int w = f->Xres;
-	int h = f->Yres;
+	int w = im->Xres;
+	int h = im->Yres;
 
 	last_update_y=0;
 	ndoubleiters=0;
@@ -705,25 +668,25 @@ void fract_rot::draw(int rsize)
 		}		
 	}
 
-	gf4d_fractal_image_changed(gf,0,0,f->Xres,f->Yres);	
+	gf4d_fractal_image_changed(gf,0,0,im->Xres,im->Yres);	
 	gf4d_fractal_progress_changed(gf,1.0);	
 
 }
 
 void
-fract_calc(fractal_t *f, Gf4dFractal *gf)
+fractal::calc(Gf4dFractal *gf, image *im)
 {
-	if(f->running) {
+	if(running) {
 		/* we've been called from an idle callback : interrupt current
 		   calculation and return */
-		f->running = 0;
+		running = 0;
 		return;
 	}
 
 	do {
-		f->running = 1;
-		fractFunc pf= fractFuncTable[f->fractal_type];
-		fract_rot pr(f, colorize, pf,gf);
+		running = 1;
+		fractFunc pf= fractFuncTable[fractal_type];
+		fract_rot pr(this, im, colorize, pf,gf);
 		
 		try {
 			gf4d_fractal_status_changed(gf,GF4D_FRACTAL_CALCULATING);
@@ -735,7 +698,7 @@ fract_calc(fractal_t *f, Gf4dFractal *gf)
 				pr.draw(1);
 			}
 			
-			if(f->aa_profondeur > 1) {
+			if(aa_profondeur > 1) {
 				gf4d_fractal_status_changed(gf,GF4D_FRACTAL_ANTIALIASING);
 				pr.draw_aa();
 			}
@@ -744,9 +707,9 @@ fract_calc(fractal_t *f, Gf4dFractal *gf)
 		{
 			// interrupted
 		}
-	}while(!f->finished && !f->running);
+	}while(!finished && !running);
 
-	f->running=0;
+	running=0;
 	gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DONE);
 	gf4d_fractal_progress_changed(gf,0.0);
 }

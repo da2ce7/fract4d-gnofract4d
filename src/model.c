@@ -90,30 +90,17 @@ model_cmd_save_image(model_t *m, char *filename)
 int 
 model_cmd_save(model_t *m, char *filename)
 {
-	FILE *fp;
-	if ((fp = fopen(filename, "wb")) == 0) {
-		return 0;
-	}
-
-	gf4d_fractal_write_params(m->fract,fp);
-
-	fclose(fp);
-	return 1;
+	return gf4d_fractal_write_params(m->fract,filename);
 }
 	
 int 
 model_cmd_load(model_t *m, char *filename)
 {
-	FILE *fp;
-	if ((fp = fopen(filename, "rb")) == 0) return 0;
-
+	int ret;
 	model_cmd_start(m);
-	gf4d_fractal_load_params(m->fract,fp);
-
-	fclose(fp);
-
+	ret = gf4d_fractal_load_params(m->fract,filename);
 	model_cmd_finish(m);
-	return 1;
+	return ret;
 }
 
 

@@ -11,14 +11,15 @@ gnofract4d_SOURCES = \
 	support.c support.h \
 	interface.c interface.h \
 	callbacks.c callbacks.h \
-	calc.cpp calc.h \
+	fract.cpp fract.h calc.h \
 	test-fonction.cpp test-fonction.h \
-	vectors.h fract.h \
+	vectors.h \
 	model.c model.h \
 	gf4d_angle.c gf4d_angle.h \
-	gf4d_fractal.c gf4d_fractal.h \
+	gf4d_fractal.cpp gf4d_fractal.h \
 	gundo.c gundo.h \
-	gundo_ui.c gundo_ui.h
+	gundo_ui.c gundo_ui.h \
+	image.cpp image.h
 
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GNOMEUI_LIBS) $(INTLLIBS)
 

@@ -257,6 +257,48 @@ create_move_toolbar (model_t *m)
 }
 
 GtkWidget*
+create_drawing_area(model_t *m)
+{
+	GtkWidget *drawing_area=NULL;
+	gtk_widget_push_visual (gdk_rgb_get_visual ());
+	gtk_widget_push_colormap (gdk_rgb_get_cmap ());
+	
+	drawing_area = gtk_drawing_area_new();
+	gtk_widget_pop_colormap ();
+	gtk_widget_pop_visual ();
+
+	gtk_widget_set_events (drawing_area, 
+			       GDK_EXPOSURE_MASK |
+			       GDK_BUTTON_PRESS_MASK | 
+			       GDK_BUTTON_RELEASE_MASK |
+			       GDK_BUTTON1_MOTION_MASK |
+			       GDK_POINTER_MOTION_HINT_MASK);
+
+	/* connect widget signals */
+	gtk_signal_connect (GTK_OBJECT(drawing_area), "expose_event", 
+			    (GtkSignalFunc) expose_event, m);
+
+	gtk_signal_connect (GTK_OBJECT(drawing_area), "configure_event",
+			    (GtkSignalFunc) configure_event, m);
+
+	gtk_signal_connect (GTK_OBJECT(drawing_area), "button_press_event",
+			    (GtkSignalFunc) mouse_event, m);
+
+	gtk_signal_connect (GTK_OBJECT(drawing_area), "motion_notify_event",
+			    (GtkSignalFunc) mouse_event, m);
+
+	gtk_signal_connect (GTK_OBJECT(drawing_area), "button_release_event",
+			    (GtkSignalFunc) mouse_event, m);
+
+	/* connect fractal object signals */
+	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)), "image_changed",
+			   GTK_SIGNAL_FUNC (update_callback), 
+			   drawing_area);
+
+	return drawing_area;
+}
+
+GtkWidget*
 create_app (model_t *m)
 {
 	GtkWidget *vbox1;
@@ -301,42 +343,22 @@ create_app (model_t *m)
 				       GTK_POLICY_AUTOMATIC,
 				       GTK_POLICY_AUTOMATIC);
 
+	drawing_area = create_drawing_area(m);
+	gtk_widget_show (drawing_area);
+
+	/* the scrolledwindow seems to produce a 2-pixel border around the 
+	 * drawing area */
+	gtk_widget_set_usize(GTK_WIDGET(scrolledwindow1),640+4,480+4);
+
+	gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow1),0);
 	gtk_widget_show (scrolledwindow1);
 
 	gtk_box_pack_start (GTK_BOX (vbox1), scrolledwindow1, TRUE, TRUE, 0);
 
-	gtk_widget_push_visual (gdk_rgb_get_visual ());
-	gtk_widget_push_colormap (gdk_rgb_get_cmap ());
-	drawing_area = gtk_drawing_area_new ();
 
-	gtk_widget_pop_colormap ();
-	gtk_widget_pop_visual ();
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolledwindow1),
+					       drawing_area);
 
-	gtk_widget_set_events (drawing_area, 
-			       GDK_EXPOSURE_MASK |
-			       GDK_BUTTON_PRESS_MASK | 
-			       GDK_BUTTON_RELEASE_MASK |
-			       GDK_BUTTON1_MOTION_MASK |
-			       GDK_POINTER_MOTION_HINT_MASK);
-
-	gtk_signal_connect (GTK_OBJECT(drawing_area), "expose_event", 
-			    (GtkSignalFunc) expose_event, m);
-
-	gtk_signal_connect (GTK_OBJECT(drawing_area), "configure_event",
-			    (GtkSignalFunc) configure_event, m);
-
-	gtk_signal_connect (GTK_OBJECT(drawing_area), "button_press_event",
-			    (GtkSignalFunc) mouse_event, m);
-
-	gtk_signal_connect (GTK_OBJECT(drawing_area), "motion_notify_event",
-			    (GtkSignalFunc) mouse_event, m);
-
-	gtk_signal_connect (GTK_OBJECT(drawing_area), "button_release_event",
-			    (GtkSignalFunc) mouse_event, m);
-
-	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)), "image_changed",
-			   GTK_SIGNAL_FUNC (update_callback), 
-			   drawing_area);
 
 	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)), "progress_changed",
 			   GTK_SIGNAL_FUNC (progress_callback),
@@ -350,10 +372,11 @@ create_app (model_t *m)
 			   GTK_SIGNAL_FUNC(redraw_callback),
 			   m);
 
-	gtk_widget_show (drawing_area);
-	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolledwindow1),
-					       drawing_area);
-
+	/* FIXME: causes an endless loop
+	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)), "parameters_changed",
+			   GTK_SIGNAL_FUNC(resize_callback),
+			   scrolledwindow1);
+	*/
 	gtk_signal_connect (GTK_OBJECT (app), "delete_event",
 			    GTK_SIGNAL_FUNC (quit_cb),
 			    NULL);
