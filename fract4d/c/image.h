@@ -69,13 +69,13 @@ public:
       iter_buf[x + y * m_Xres] = iter;
     };
 
-    fate_t getFate(int x, int y, int subpixel);
+    fate_t getFate(int x, int y, int subpixel) const;
     void setFate(int x, int y, int subpixel, fate_t fate);
 
-    float getIndex(int x, int y, int subpixel);
+    float getIndex(int x, int y, int subpixel) const;
     void setIndex(int x, int y, int subpixel, float index);
 
-    int index_of_subpixel(int x, int y, int subpixel) {
+    int index_of_subpixel(int x, int y, int subpixel) const {
 	assert(subpixel >= 0 && subpixel < N_SUBPIXELS);
 	assert(x >= 0 && x < m_Xres);
 	assert(y >= 0 && y < m_Yres);
@@ -84,7 +84,7 @@ public:
     };
 
     // one beyond last pixel
-    int index_of_sentinel_subpixel() {
+    int index_of_sentinel_subpixel() const {
 	return m_Xres * m_Yres * N_SUBPIXELS;
     };
 
