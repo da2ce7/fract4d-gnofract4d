@@ -12,7 +12,7 @@ import symbol
 import re
 import types
 import fracttypes
-from fracttypes import Bool, Int, Float, Complex
+from fracttypes import Bool, Int, Float, Complex, Hyper
 
 def reals(l):
     # [[a + ib], [c+id]] => [ a, c]
@@ -47,6 +47,15 @@ class ComplexArg:
         [self.re.format(), self.im.format()]
     def __str__(self):
         return "Complex(%s,%s)" % (self.re, self.im)
+
+class HyperArg:
+    'four args'
+    def __init__(self,re,im1,im2,im3):
+        self.parts = [re, im1, im2, im3]
+    def format(self):
+        return [x.format() for x in self.parts]
+    def __str__(self):
+        return "Hyper(%s,%s,%s,%s)" % tuple(self.parts)
     
 class ConstFloatArg:
     def __init__(self,value):
@@ -834,6 +843,12 @@ extern pf_obj *pf_new(void);
         name = self.symbols.realName(t.name)
         if t.datatype == fracttypes.Complex:
             return ComplexArg(TempArg(name + "_re"),TempArg(name + "_im"))
+        elif t.datatype == fracttypes.Hyper:
+            return HyperArg(
+                TempArg(name + "_re"),
+                TempArg(name + "_i"),
+                TempArg(name + "_j"),
+                TempArg(name + "_k"))
         else:
             return TempArg(name)
     

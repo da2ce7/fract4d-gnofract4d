@@ -168,6 +168,8 @@ class ParserTest(unittest.TestCase):
         complex i = 3 + 1i + i
         complex j = (2,3)
         complex k = complex k2 = (2,7)
+        hyper hh
+        hyper hh2 = (1,2,3,4)
         color l'''))
         self.assertIsValidParse(t1)
         i = t1.children[0].children[0]
@@ -177,7 +179,7 @@ class ParserTest(unittest.TestCase):
         self.assertListTypesMatch(
             complex_decl,
             ["decl","binop","binop","const","binop","const","const","id"])
-
+            
     def testArrays(self):
         # arrays aren't supported yet - make sure errors are nice
         self.assertIsBadFormula(self.makeMinimalFormula("float array[10]"),
