@@ -187,7 +187,7 @@ class Formatter:
 class T:
     'code generator'
     def __init__(self,symbols,dump=None):
-        self.symbols = copy.copy(symbols)
+        self.symbols = symbols
         self.out = []
         # a list of templates and associated actions
         # this must be ordered with largest, most efficient templates first
