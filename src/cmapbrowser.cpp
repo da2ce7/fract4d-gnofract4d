@@ -24,10 +24,6 @@
  * then calling recolor() for each map and putting the results into a drawable
  */
 
-/* TODO
-   would gnome_pixmaps be more efficient/simpler? 
-   use continuous potential
-*/
 
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
@@ -304,6 +300,80 @@ color_change_callback(GtkWidget *colorsel, gpointer user_data)
     update_preview_image(f, drawable);
 }
 
+gboolean
+colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
+{
+
+    model_t *m = (model_t *)gtk_object_get_data(GTK_OBJECT(widget->parent),"model");
+    colorizer_t *cizer = gf4d_fractal_get_colorizer(model_get_fract(m));
+
+    cmap_colorizer *cm_cizer = dynamic_cast<cmap_colorizer *>(cizer);
+    guint color;
+    if(cm_cizer)
+    {
+	int index = GPOINTER_TO_INT(data);
+	rgb_t col = (*cm_cizer)((double)index);
+	color = (col.r << 16) | (col.g << 8) | col.b;
+    }
+    else
+    {
+	color = 0;
+    }
+    gdk_window_clear_area (widget->window,
+			   event->area.x, event->area.y,
+			   event->area.width, event->area.height);
+
+    GdkGC *gc = widget->style->fg_gc[widget->state];
+    gdk_gc_set_clip_rectangle (gc,
+			       &event->area);
+ 
+    gdk_rgb_gc_set_foreground(gc, color);
+    gdk_draw_rectangle (widget->window,
+			gc,
+			TRUE,
+			0, 0, 
+			widget->allocation.width, widget->allocation.height);
+    
+    return TRUE;
+}
+
+GtkWidget *
+create_edit_colormap_page(GtkWidget *notebook, model_t *m)
+{
+    GtkWidget *table = gtk_table_new(2,2,FALSE);
+
+
+    GtkWidget *tab_label = gtk_label_new(_("Edit Colormap"));
+    gtk_notebook_append_page(
+        GTK_NOTEBOOK(notebook),
+        table,
+        tab_label);
+
+    GtkWidget *colorbox = gtk_table_new(8,8,TRUE);
+    gtk_object_set_data(GTK_OBJECT(colorbox),"model",m);
+
+    for(int i = 0 ; i < 8 * 8; ++i)
+    {
+	GtkWidget *colorbut = gtk_drawing_area_new();
+	gtk_drawing_area_size(GTK_DRAWING_AREA(colorbut),24,24);
+
+
+	gtk_signal_connect(GTK_OBJECT(colorbut),"expose_event",
+			   (GtkSignalFunc)colorbut_expose_event,
+			   GINT_TO_POINTER(i));
+
+	int x = i % 8, y = i / 8;
+	gtk_table_attach(GTK_TABLE(colorbox), colorbut, x,x+1,y,y+1,
+			 (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0 , 0);
+    }
+
+    gtk_table_attach(GTK_TABLE(table), colorbox,0,1,0,1,
+		     (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0 , 0);
+
+    gtk_widget_show_all(table);
+    return table;
+}
+
 GtkWidget *
 create_new_color_page(GtkWidget *notebook, model_t *m)
 {
@@ -394,7 +464,9 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
 
     /* make pages */
     GtkWidget *table = create_current_maps_page(notebook, m);
+    GtkWidget *table3 = create_edit_colormap_page(notebook,m);
     GtkWidget *table2 = create_new_color_page(notebook, m);
+
 
     // setup callbacks from fract's calculations
     
@@ -407,6 +479,7 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
         GTK_OBJECT(f), "status_changed", 
         GTK_SIGNAL_FUNC(preview_status_callback),
         table2);
+
     
     /* kick off async update */
     gf4d_fractal_calc(f,1);
