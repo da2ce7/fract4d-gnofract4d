@@ -184,6 +184,8 @@ consistent.
 The <emphasis>Cubic Mandelbrot</> function calculates z^3 + c, rather
 than the standard z^2 +c. The <emphasis>Quadratic</> function
 calculates a family of functions of the form A*z^2 - B*z + C*c.
+<emphasis>MandelZPower</> calculates z^A + c, where A is a complex parameter. 
+Setting this to 2.0 produces the standard Mandelbrot set.
 </para>
 <para>
 The <emphasis>Lambda</> function calculates lambda * z * ( 1 - z). The
@@ -205,8 +207,9 @@ values after each iteration, ie z <- (|x| + i |y|)^2 + c. The Buffalo
 fractal uses the same method with the function z <- z^2 - z + c,
 making it equivalent to the Quadratic type with the "absolute value"
 modification.
-
 </para>
+<para>Nova</para>
+<para>Newton</para>
 </sect1>
 
 <sect1 id="mouse">
@@ -318,11 +321,19 @@ than generating fractals to do.
 </sect1>
 
 <sect1 id="preferences">
-<title>Settings Menu</title>
-<para> You can set all the fractal's parameters from here.</para>
-<sect2 id="prefdialog">
-<title>Preferences Dialog</title>
+<title>Settings Menu</title> 
+<para> You can set all the fractal's
+parameters from here. Settings are divided into <emphasis>Fractal Settings</> and 
+<emphasis>Preferences</>. 
 
+<emphasis>Fractal Settings</> are saved in the fractal's .fct
+file - they are properties of the fractal itself. By contrast,
+<emphasis> preferences</> are your preferences for &gf4;'s general
+behavior and are saved in &gf4;'s config file (~/.gnome/gnofract4d). 
+<emphasis>Colors</> are also saved in the .fct file.
+</para>
+<sect2 id="prefdialog">
+<title>Fractal Settings</title>
 <sect3 id="function">
 <title>Function Section</title>
 <para>

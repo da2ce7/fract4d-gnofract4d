@@ -253,26 +253,42 @@ class newtFunc : public iterImpl<newtFunc,0>
         }
 };
 
-#if 0
+
 // z <- (Az^3-B)/C z^2 + c
 class novaFunc : public iterImpl<novaFunc,3>
 {
-#define NOVA_DECL std::complex<double> z(p[X],pIter[Y]), c(pInput[CX],pInput[CY])
-#define NOVA_ITER z = z - (a[0] * z*z*z - a[1])/(a[2] * z * z) + c
-#define NOVA_RET  pIter[X] = z.real(); pIter[Y] = z.imag()
-
 public:
-    enum {  FLAGS = 0 };
+    enum {  FLAGS = USE_COMPLEX };
     novaFunc() : iterImpl<novaFunc,3>(name()) 
         { 
             reset_opts(); 
         };
 
-    ITER_DECLS_RET(NOVA_DECL,NOVA_ITER, NOVA_RET)
     static char *name()
         {
             return "Nova";
         }
+    std::string decl_code() const 
+        { 
+            return "std::complex<double> z(pIter[X],pIter[Y]), c(pInput[CX],pInput[CY])";
+        }
+    std::string iter_code() const 
+        { 
+            return "z = z - (a[0] * z*z*z - a[1])/(a[2] * z * z) + c";
+        }
+    std::string ret_code() const
+        {
+            return "pIter[X] = z.real(); pIter[Y] = z.imag()";
+        }
+    std::string save_iter_code() const
+        {
+            return "std::complex<double> last_z = z";
+        }
+    std::string restore_iter_code() const
+        {
+            return "z = last_z";
+        }
+
     const char *optionName(int i) const
         {
             static const char *optNames[] =
@@ -302,8 +318,6 @@ public:
             a[2] = std::complex<double>(3.0,0.0);
         }
 };
-                               
-#endif
 
 
 // z <- ( re(z) > 0 ? (z - 1) * c : (z + 1) * c)
@@ -515,12 +529,12 @@ public:
 class ztoaFunc : public iterImpl<ztoaFunc,1>
 {
 public:
-    enum { FLAGS = 0 };
+    enum { FLAGS = USE_COMPLEX };
     ztoaFunc() : iterImpl<ztoaFunc,1>(name()) {
     }
     static const char *name()
         {
-            return "MandelPower";
+            return "ManZPower";
         }
     std::string decl_code() const 
         { 
@@ -530,12 +544,20 @@ public:
         }
     std::string iter_code() const
         {
-            return 
+            return
                 "z = pow(z,a[0]) + c;";
         }
     std::string ret_code() const
         {
             return "pIter[X] = z.real(); pIter[Y] = z.imag()";
+        }
+    std::string save_iter_code() const
+        {
+            return "std::complex<double> last_z = z";
+        }
+    std::string restore_iter_code() const
+        {
+            return "z = last_z";
         }
     const char *optionName(int i) const
         {
@@ -546,6 +568,7 @@ public:
         {
             reset_opts();
             iterImpl<ztoaFunc,1>::reset(params);
+            params[ZCENTER] = 1.0E-10; // avoid weird behavior with pow(0,...)
         }
 private:
     void reset_opts()
@@ -562,7 +585,7 @@ private:
 class quadFunc : public iterImpl<quadFunc,3>
 {
 public:
-    enum { FLAGS = 0 };
+    enum { FLAGS = USE_COMPLEX };
     quadFunc() : iterImpl<quadFunc,3>(name()) {
         reset_opts();
     }
@@ -584,6 +607,14 @@ public:
     std::string ret_code() const
         {
             return "pIter[X] = z.real(); pIter[Y] = z.imag()";
+        }
+    std::string save_iter_code() const
+        {
+            return "std::complex<double> last_z = z";
+        }
+    std::string restore_iter_code() const
+        {
+            return "z = last_z";
         }
     const char *optionName(int i) const
         {
@@ -648,9 +679,7 @@ ctorInfo ctorTable[] = {
     CTOR_TABLE_ENTRY(barnsley2Func),
     CTOR_TABLE_ENTRY(lambdaFunc),
     CTOR_TABLE_ENTRY(ztoaFunc),
-/*
     CTOR_TABLE_ENTRY(novaFunc),
-*/
     CTOR_TABLE_ENTRY(newtFunc),
     { NULL, NULL}
 };

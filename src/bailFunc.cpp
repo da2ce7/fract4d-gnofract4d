@@ -33,6 +33,10 @@ public:
     virtual std::string bail_code(int flags) const 
         {
             std::string bail("");
+            if(flags & USE_COMPLEX)
+            {
+                return "pTemp[EJECT_VAL] = norm(z)";
+            }
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
                 bail = 

@@ -65,13 +65,12 @@ public:
     //template<class T>
     bool calcNoPeriod(int& iter, int maxIter)
         {
+            DECL;
 #if UNROLL
             while(iter + 8 < maxIter)
             {
                 SAVE_ITER;
-                DECL;
                 ITER; ITER; ITER; ITER; ITER; ITER; ITER; ITER; 
-                RET;
                 BAIL;
                 if(pTemp[EJECT_VAL] >= m_eject)
                 {
@@ -83,18 +82,21 @@ public:
                 iter += 8;
             }
 #endif      
-            do
+            RET; // why this?
             {
-                DECL;
-                ITER;
-                RET;
-                if((iter++) >= maxIter)
-                {   
-                    return false;
-                }
-                BAIL;
-            }while(pTemp[EJECT_VAL] < m_eject);
-
+                DECL; // and this?
+                do
+                {
+                    ITER;
+                    if((iter++) >= maxIter)
+                    {   
+                        RET;
+                        return false;
+                    }
+                    BAIL;
+                }while(pTemp[EJECT_VAL] < m_eject);
+            }
+            RET;
             return true;
         }
 

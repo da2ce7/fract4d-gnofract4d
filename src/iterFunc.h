@@ -53,6 +53,7 @@
 /* bailout flags */
 #define HAS_X2 1
 #define HAS_Y2 2
+#define USE_COMPLEX 4
 
 /* a function which performs a single fractal iteration */
 

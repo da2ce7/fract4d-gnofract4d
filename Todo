@@ -3,13 +3,17 @@ Compiler
 * W	max size for .so cache
 
 Must do pre 1.7
+* BB 	weird graphical errors for some fractal types - fixed?
 * BB	fix old fractal types
+* BB 	fractal parameters don't work
 * B	Newton doesn't work
+* B	diff_bailout produces weird squares - like isTheSame doesn't work?
 * W	periodicity tolerance should be based on pixel size
-* W	introduce z^A (complex) type
 * W	update docs
 
 Other
+* W	Julia preview by moving around while holding button3
+* B	why is Barnsley so slow?
 * B	interrupt takes too long on deep-zoomed fractals
 * W	"maintain aspect ratio" checkbox
 * W	signal tpool conds after releasing mutex?
@@ -56,6 +60,7 @@ Movies-
 * B	lines are ugly
 
 Done:
+* B	quadratic horribly slow too
 * B	can't interrupt 8x8 squares, plus they don't multi-thread
 * BBB	random glitches (usually horizontal lines). single-threaded is ok
 * B	can't resize to smaller than toolbar or current size
