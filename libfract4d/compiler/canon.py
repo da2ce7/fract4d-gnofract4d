@@ -71,6 +71,28 @@ class T:
                                                  tree.node)], 
                                  eseq.node)
                 newtree = self.linearize(newtree)
+            elif isinstance(children[1],ir.ESeq):
+                #cjump(e1,eseq(stms,e2))
+                # => seq([stms,cjump(e1,e2)]) IF commutes(e1,stms)
+                # => seq(move(temp(t),e1), seq(stms,cjump(t, e2)) otherwise
+                eseq = children[1]
+                e1 = children[0]
+                e2 = eseq.children[-1]
+                stms = self.stms(eseq)
+                if commutes(e1,stms):
+                    newtree = ir.Seq(stms + \
+                                     [ir.CJump(tree.op,e1,e2,
+                                               tree.trueDest, tree.falseDest,
+                                               tree.node)],
+                                     eseq.node)
+                    newtree = self.linearize(newtree)
+                else:
+                    t = ir.Var(self.symbols.newTemp(e1.datatype), e1.node, e1.datatype)
+                    move = ir.Move(t ,e1, e1.node,e1.datatype)
+                    cjump = ir.CJump(tree.op, t,e2,
+                                     tree.trueDest, tree.falseDest, tree.node)
+                    newtree = ir.Seq([move]+ stms + [cjump], tree.node)
+                    newtree = self.linearize(newtree)
             else:
                 newtree = copy.copy(tree)
                 newtree.children = children
@@ -92,6 +114,11 @@ class T:
             
         return newtree
 
+    def copy_with_new_children(self,irNode,children):
+        newNode = copy.copy(irNode)
+        newNode.children = children
+        return children
+    
     def linearize_list(self,l):
         return map(self.linearize,l)
 
