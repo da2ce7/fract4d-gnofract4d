@@ -97,12 +97,12 @@ class T:
                 newtree = copy.copy(tree)
                 newtree.children = children
                 
-        elif isinstance(tree, ir.ESeq):
+        elif isinstance(tree, ir.ESeq) or isinstance(tree, ir.Seq):
             # flatten eseq trees, eg:
             #eseq(stms,eseq(stms2,e1),stms3,e2) => eseq(stms,stms2,e1,stms3,e2)
             stms = []
             for stm in children:
-                if isinstance(stm,ir.ESeq):
+                if isinstance(stm,ir.ESeq) or isinstance(stm,ir.Seq):
                     stms = stms + stm.children
                 else:
                     stms.append(stm)
