@@ -1,6 +1,7 @@
 # Abstract Syntax Tree produced by parser
 
 import types
+import string
 
 class Node:
     def __init__(self,type,children=None,leaf=None):
@@ -154,6 +155,9 @@ def InternalError():
 def Error(type, value, lineno):
     # get complaints about NEWLINE tokens on right line
     if type == "NEWLINE":
-        lineno-= 1
+        lineno -= 1
+        return Node("error", None,
+                    "Syntax error: unexpected newline on line %d " % lineno)
     
-    return Node("error", None, "Syntax error: unexpected %s '%s' on line %d " % (type, value, lineno))
+    return Node("error", None, "Syntax error: unexpected %s '%s' on line %d " %
+                (string.lower(type), value, lineno))
