@@ -75,9 +75,19 @@ class CanonTest(unittest.TestCase):
                            self.eseq([self.move(self.var("b"),self.const())],
                                                 self.var("b"))])
         ltree = self.canon.linearize(tree)
-        print ltree.pretty()
         self.assertESeqsNotNested(ltree,1)
         self.failUnless(isinstance(ltree.children[1].children[0],ir.Const))
+
+        # nested right-hand eseq
+        tree = self.binop([self.var("a"),
+                           self.eseq([self.move(self.var("b"),self.const())],
+                                                self.var("b"))])
+        tree = self.binop([self.const(),tree])
+
+        print tree.pretty()
+        ltree = self.canon.linearize(tree)
+        print ltree.pretty()
+        self.assertESeqsNotNested(ltree,1)
         
     def assertESeqsNotNested(self,t,parentAllowsESeq):
         'check that no ESeqs are left below nodes if other types'
