@@ -226,6 +226,8 @@ STFractWorker::pixel(int x, int y,int w, int h)
     // calculate coords of this point
     dvec4 pos = ff->topleft + x * ff->deltax + y * ff->deltay;
 
+    //printf("(%g,%g,%g,%g)\n",pos[VX],pos[VY],pos[VZ],pos[VW]);
+
     assert(pf != NULL && m_ok == true);
     pf->calc(pos.n, ff->maxiter,periodGuess(), x,y,0,&pixel,&iter); 
     periodSet(&iter);

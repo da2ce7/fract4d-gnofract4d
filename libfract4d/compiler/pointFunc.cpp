@@ -29,6 +29,7 @@
 
 #include <unistd.h>
 #include <dlfcn.h>
+#include <stdio.h>
 
 
 class pf_wrapper : public pointFunc
@@ -63,6 +64,7 @@ public:
 	    m_pfo->vtbl->calc(m_pfo, params, nIters, nNoPeriodIters, x, y, aa,
 			      pnIters, &fate, &dist);
 
+	    //printf("%d,%d,%g\n",*pnIters,fate,dist);
 	    if(fate == 1)
 	    {
 		*pnIters = -1;

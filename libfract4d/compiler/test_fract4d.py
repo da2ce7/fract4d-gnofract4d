@@ -42,7 +42,26 @@ class PfTest(unittest.TestCase):
         f = self.compiler.get_formula("gf4d.frm","Mandelbrot")
         cg = self.compiler.compile(f)
         self.compiler.generate_code(f,cg,"test-pf.so")
+
+    def compileColorMandel(self):
+        self.compiler.load_formula_file("./gf4d.frm")
+        self.compiler.load_formula_file("./gf4d.cfrm")
+        cf1 = self.compiler.get_colorfunc("gf4d.cfrm","default","cf0")
+        self.assertEqual(len(cf1.errors),0)
+        self.compiler.compile(cf1)
         
+        cf2 = self.compiler.get_colorfunc("gf4d.cfrm","zero","cf1")
+        self.assertEqual(len(cf2.errors),0)
+        self.compiler.compile(cf2)
+        
+        f = self.compiler.get_formula("gf4d.frm","Mandelbrot")
+        cg = self.compiler.compile(f)
+
+        f.merge(cf1,"cf0")
+        f.merge(cf2,"cf1")
+
+        self.compiler.generate_code(f,cg,"test-pfc.so","cmandel.c")
+
     def setUp(self):
         compiler = fc.Compiler()
         self.compiler = compiler
@@ -88,14 +107,19 @@ class PfTest(unittest.TestCase):
         siteobj = FractalSite()
         site = fract4d.site_create(siteobj)
 
-        self.compileMandel()
-        handle = fract4d.pf_load("./test-pf.so")
+        self.compileColorMandel()
+        handle = fract4d.pf_load("./test-pfc.so")
         pfunc = fract4d.pf_create(handle)
         fract4d.pf_init(pfunc,0.001,[0.5])
         cmap = fract4d.cmap_create(
-            [(0.0,255,0,100,255), (1.0, 0, 255, 50, 255)])
+            [(0.0,0,0,0,255),
+             (1/256.0,255,255,255,255),
+             (1.0, 255, 255, 255, 255)])
         fract4d.calc(
-            [0.0] * 12,
+            [4.0,
+             0.0, 0.0, 0.0, 0.0,
+             4.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             0,
             100,
             1,
@@ -113,6 +137,8 @@ class PfTest(unittest.TestCase):
         self.failUnless(siteobj.status_list[0]== 1 and \
                          siteobj.status_list[-1]== 0)
 
+        fract4d.image_save(image,"test.tga")
+        
     def disabled_testWithColors(self):
         self.compileMandel()
         self.compiler.load_formula_file("./gf4d.cfrm")

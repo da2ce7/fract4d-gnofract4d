@@ -84,8 +84,8 @@ class FCTest(testbase.TestBase):
         f = self.compiler.get_formula("gf4d.frm","Mandelbrot")
         cg = self.compiler.compile(f)
 
-        f.merge(cf1,"cf0")
-        f.merge(cf2,"cf1")
+        f.merge(cf1,"cf0_")
+        f.merge(cf2,"cf1_")
 
         self.compiler.generate_code(f,cg,"test-cf.so",None)
 

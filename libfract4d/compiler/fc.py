@@ -68,8 +68,8 @@ class Fractal:
         self.compiler.compile(self.cfuncs[0])
         self.compiler.compile(self.cfuncs[1])
 
-        self.formula.merge(self.cfuncs[0],"cf0")
-        self.formula.merge(self.cfuncs[1],"cf1")        
+        self.formula.merge(self.cfuncs[0],"cf0_")
+        self.formula.merge(self.cfuncs[1],"cf1_")        
         self.outputfile = self.compiler.generate_code(self.formula, cg)
         return self.outputfile
                                     
