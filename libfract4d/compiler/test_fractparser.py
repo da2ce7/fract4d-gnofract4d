@@ -66,7 +66,10 @@ class ParserTest(unittest.TestCase):
         t1 = self.parse("t1 {\n:\n}")
         self.assertIsValidParse(t1)
         
-        self.assertIsValidParse
+    def testIfdefMessage(self):
+        self.assertIsBadFormula(self.makeMinimalFormula("$define foo"),
+                                "not supported", 3)
+            
     def testPrecedence(self):
         self.assertParsesEqual(
             "x = 2 * 3 + 1 ^ -7 / +2 - |4 - 1|",
@@ -185,7 +188,6 @@ class ParserTest(unittest.TestCase):
         }
         ''')
         self.assertIsValidParse(t1)
-        print t1.pretty()
         self.assertEqual(len(self.allNodesOfType(t1,"string")),6)
         self.assertIsBadFormula(self.makeMinimalFormula('"'),
                                 "unexpected '\"'",3)

@@ -181,6 +181,9 @@ def InternalError():
     return Node("parser error", None, "oops")
 
 def Error2(str, lineno):
+    if str == "$":
+        return Node("error", None,
+                "Syntax error: $ifdef/$define not supported on line %d" % lineno)
     return Node("error", None,
                 "Syntax error: unexpected '%s' on line %d" % (str,lineno))
 
