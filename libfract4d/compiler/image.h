@@ -48,7 +48,7 @@ public:
 
     // utilities
     inline int row_length() const;
-    inline int bytes() const;
+    int bytes() const;
 
     // accessors
     void put(int x, int y, rgba_t pixel);

@@ -101,7 +101,13 @@ class PfTest(unittest.TestCase):
     def testImage(self):
         image = fract4d.image_create(40,30)
         fract4d.image_resize(image,80,60)
-
+        buf = fract4d.image_buffer(image)
+        self.assertEqual(len(buf),80*60*3)
+        bytes = list(buf)
+        self.assertEqual(ord(bytes[0]),200)
+        self.assertEqual(ord(bytes[1]),178)
+        self.assertEqual(ord(bytes[2]),98)
+        
     def testCalc(self):
         xsize = 64
         ysize = xsize * 3.0/4.0
