@@ -28,6 +28,7 @@ Productions
             |  'bailout' ':' Newline Exp Newline  [Section: name, _, _, statements]
             |  'default' ':' Newline Defstatements [Section: name, _, _, statements]
 #            # global, transform, builtin, switch, final
+            | Newline []
 
     Defstatements -> Defstatement+    [Defstatements: defstatements]
     Defstatement -> Setting [^]
@@ -42,25 +43,15 @@ Productions
           |  Exp [^]
 
     Statements -> Statement+          [Statements: statements]
-    Statement -> Exp Newline #AssignExp            [^] 
-#               | Type AssignExp       [TypedAssignment: type, exp]
+    Statement -> Exp Newline #
 
-#    AssignExp -> Identifier '=' Exp Newline [Assignment: id,_,exp,_]
-#              #|  Type Identifier Newline [Declaration: type, id, _]
- 
- 
-#                                      [Condition: left, op, right]
-
-#   Number -> #Integer [^]
-#            Float   [^]
-# #         | Integer 'i' [Complex: left,_] # FIXME
-
-   Exp -> Float                      [Constant: num]
+   Exp -> Float                      [Constant: num]            
             |  Identifier                       [Variable: var]
             |  Identifier '=' Exp              [Assignment: var, _, exp]
             |  Type Identifier '=' Exp         [TypedAssignment: type,var,_,exp]
             |  Identifier '(' Exp ')'          [FunCall: function, _, param, _]
             |  '(' Exp ')'             [^: _,exp,_]
+            |  '(' Exp ',' Exp ')'     [Complex: _, left, _, right, _]
             |  '|' Exp '|'             [Magnitude: _, exp, _]
             |  '-' Exp                 [UnaryMinus: _,exp]
             |  Exp '^' Exp            [Exponentiation: left,_,right]
