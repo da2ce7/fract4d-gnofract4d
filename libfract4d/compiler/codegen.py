@@ -3,6 +3,7 @@
 # Generate C code from a linearized IR trace
 
 import string
+import tempfile
 
 import ir
 import symbol
@@ -431,6 +432,20 @@ pf_obj *pf_new()
         if output_template == None:
             output_template = self.output_template
         return output_template % f
+
+    def writeToTempFile(self,data=None,suffix=""):
+        'try mkstemp or mktemp if missing'
+        try:
+            (cFile,cFileName) = tempfile.mkstemp("gf4d",suffix)
+        except AttributeError, err:
+            # this python is too antique for mkstemp
+            cFileName = tempfile.mktemp(suffix)
+            cFile = open(cFileName,"w+b")
+
+        if data != None:
+            cFile.write(data)
+        cFile.close()
+        return cFileName
 
     def findOp(self,t):
         ' find the most appropriate overload for this op'
