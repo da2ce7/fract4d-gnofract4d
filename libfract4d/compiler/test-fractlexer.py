@@ -50,10 +50,10 @@ default:
 ''')
         self.failUnless(tokens[0].type == tokens[1].type == "NEWLINE","first 2 should be newlines")
 
-        str = filter(lambda tok : tok.type == "STRING", tokens)
+        str = [ tok for tok in tokens if tok.type == "STRING"]
         self.failUnless(len(str) == 1 and str[0].value == "foo;barbaz", "string literal parsing problem" and str[0].lineno == 14)
 
-        sections = filter(lambda tok : tok.type == "SECT_STM", tokens)
+        sections = [ tok for tok in tokens if tok.type == "SECT_STM"]
         self.assertEqual(len(sections),3, "wrong number of sections")
         self.assertEqual(sections[0].lineno, 4, "line counting wrong")
         self.assertEqual(sections[2].lineno, 10, "line counting wrong")
