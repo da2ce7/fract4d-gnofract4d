@@ -140,7 +140,7 @@ class Test(unittest.TestCase):
             
 
     def testRandomize(self):
-        self.mw.randomize_colors()
+        self.mw.randomize_colors(8,None)
         
 def suite():
     return unittest.makeSuite(Test,'test')

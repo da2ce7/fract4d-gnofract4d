@@ -1,8 +1,6 @@
 #ifndef FATE_H_
 #define FATE_H_
 
-#include <limits>
-
 /* the 'fate' of a point. This can be either
    Unknown (255) - not yet calculated
    0 - passed bailout test and escaped
@@ -11,7 +9,7 @@
 
 typedef unsigned char fate_t;
 
-#define FATE_UNKNOWN std::numeric_limits<fate_t>::max()
+#define FATE_UNKNOWN 255
 #define FATE_SOLID 0x80
 
 
