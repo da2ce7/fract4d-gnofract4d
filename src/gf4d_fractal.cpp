@@ -90,7 +90,6 @@ static void
 set_finished_cond(Gf4dFractal *f)
 {
     f->workers_running=0;
-    printf("set_finished_cond\n");
 }
 
 bool
@@ -326,6 +325,8 @@ void gf4d_fractal_calc(Gf4dFractal *f, int nThreads, e_antialias effective_aa)
             pthread_cond_wait(&f->running_cond,&f->cond_lock);
         }
         gf4d_fractal_cond_unlock(f);
+
+        printf("created thread %d\n",f->tid);
     }
     else
     {

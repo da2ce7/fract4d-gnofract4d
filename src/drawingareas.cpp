@@ -35,8 +35,8 @@ typedef struct {
 void 
 redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int height, int image_width)
 {
-    /* widget may be hidden */
-    if(widget->window)
+    /* widget may be hidden or not yet created */
+    if(widget && widget->window)
     {
         gdk_draw_rgb_image(
             widget->window,

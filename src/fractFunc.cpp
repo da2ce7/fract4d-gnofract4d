@@ -528,7 +528,7 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     }
 
     // remaining lines
-    for ( y = h - rsize ; y < h ; y++)
+    for ( y = h > rsize ? h - rsize : 0 ; y < h ; y++)
     {
         send_row(0,y,w);
         update_image(y);

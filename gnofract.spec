@@ -1,4 +1,4 @@
-%define ver     1.5 
+%define ver     1.6 
 %define RELEASE 1
 %define prefix  /usr      
 

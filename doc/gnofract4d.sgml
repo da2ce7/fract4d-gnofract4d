@@ -186,10 +186,9 @@ than the standard z^2 +c. The <emphasis>Quadratic</> function
 calculates a family of functions of the form A*z^2 - B*z + C*c.
 </para>
 <para>
-The <emphasis>Lambda</> function calculates lambda * z * ( 1 -
-z). Because lambda is zero in the default view, all you'll see is a
-blank screen when you first switch to this fractal. Simply change z or
-w to get a more interesting image.
+The <emphasis>Lambda</> function calculates lambda * z * ( 1 - z). The
+complex parameter <emphasis>lambda</> is set by the z and w
+parameters, so if lambda is zero, all you'll see is a blank screen.
 </para>
 <para>
 The <emphasis>Barnsley</> fractals originally come from Michael Barnsley's book
@@ -197,10 +196,16 @@ The <emphasis>Barnsley</> fractals originally come from Michael Barnsley's book
 have copied the implementation from Fractint. 
 </para>
 <para>
-The <emphasis>Burning Ship</> and <emphasis>Buffalo</>
-fractals are described on the web page <ulink
-url="http://www.theory.org/">http://www.theory.org/</ulink>. They are
-closely related functions.
+The <emphasis>Burning Ship</> and <emphasis>Buffalo</> fractals are
+described on the web page <ulink
+url="http://www.theory.org/fracdyn/">http://www.theory.org/fracdyn/</ulink>.
+The Burning Ship is essentially a Mandelbrot variant where the real
+and imaginary parts of the current point are set to their absolute
+values after each iteration, ie z <- (|x| + i |y|)^2 + c. The Buffalo
+fractal uses the same method with the function z <- z^2 - z + c,
+making it equivalent to the Quadratic type with the "absolute value"
+modification.
+
 </para>
 </sect1>
 
