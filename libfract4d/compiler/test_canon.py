@@ -288,9 +288,9 @@ class CanonTest(unittest.TestCase):
         self.failUnless(trace[2].name == "b1" and \
                         trace[3].name == "b1" and \
                         trace[4].name == "b2")
-        self.failUnless(trace[6].name == "a1" and \
-                        trace[7].name == "a1" and \
-                        trace[8].name == "a2")
+        self.failUnless(trace[7].name == "a1" and \
+                        trace[8].name == "a1" and \
+                        trace[9].name == "a2")
 
     def test_canonicalize(self):
         # check overall driver works ok

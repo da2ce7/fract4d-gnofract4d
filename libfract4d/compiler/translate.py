@@ -36,7 +36,7 @@ class T:
         try:
             self.formula(f)
             if self.dumpPreCanon:
-                self.dumpSections(f)
+                self.dumpSections(f,self.sections)
             self.canonicalize()
         except TranslationError, e:
             self.errors.append(e.msg)
@@ -57,11 +57,11 @@ class T:
                         print "Error \"%s\" dumping %s" %(err,name)
 
         if self.dumpTranslation:
-            print self.dumpSections(f)
+            print self.dumpSections(f,self.canon_sections)
 
-    def dumpSections(self,f):
+    def dumpSections(self,f,dict):
         print f.leaf + "{"
-        for (name,tree) in self.sections.items():
+        for (name,tree) in dict.items():
             if isinstance(tree,ir.T):
                 print " " + name + "("
                 print tree.pretty(2) + " )"
