@@ -52,5 +52,23 @@ class Sequence(gobject.GObject):
         self.pos += 1
         
         self.send_signals()
+
+    def make_undo_sensitive(self,widget):
+        # make this widget only be sensitive if we can undo
+
+        def set_sensitivity(sequence,can_undo):
+            widget.set_sensitive(can_undo)
         
+        self.connect('can-undo',set_sensitivity)
+        self.emit('can-undo', self.can_undo())
+
+    def make_redo_sensitive(self,widget):
+        # make this widget only be sensitive if we can undo
+
+        def set_sensitivity(sequence,can_redo):
+            widget.set_sensitive(can_redo)
+        
+        self.connect('can-redo',set_sensitivity)
+        self.emit('can-redo', self.can_redo())
+
 gobject.type_register(Sequence)

@@ -129,6 +129,11 @@ class MainWindow:
 
         menubar = item_factory.get_widget('<main>')
 
+        undo = item_factory.get_item("/Edit/Undo")
+        self.model.seq.make_undo_sensitive(undo)
+        redo = item_factory.get_item("/Edit/Redo")
+        self.model.seq.make_redo_sensitive(redo)
+        
         self.vbox.pack_start(menubar, expand=gtk.FALSE)
         
     def create_status_bar(self):
@@ -146,6 +151,8 @@ class MainWindow:
             None,
             -1)
 
+        self.model.seq.make_undo_sensitive(self.toolbar.get_children()[-1])
+        
         self.toolbar.insert_stock(
             gtk.STOCK_REDO,
             "Redo the last undone change",
@@ -153,6 +160,8 @@ class MainWindow:
             self.redo,
             None,
             -1)
+
+        self.model.seq.make_redo_sensitive(self.toolbar.get_children()[-1])
 
         self.vbox.pack_start(self.toolbar,expand=gtk.FALSE)
         
