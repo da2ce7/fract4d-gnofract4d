@@ -169,10 +169,18 @@ class T(FctUtils):
         self.set_formula_defaults()
         
     def set_formula_defaults(self):
-        if self.formula != None:
-            for (name,val) in self.formula.defaults.items():
-                if name == "maxiter":
-                    self.maxiter = val.value
+        if self.formula == None:
+            return
+        
+        for (name,val) in self.formula.defaults.items():
+            if name == "maxiter":
+                self.maxiter = int(val.value)
+            elif name == "center":
+                self.params[self.XCENTER] = float(val[0].value)
+                self.params[self.YCENTER] = float(val[1].value)
+            else:
+                if hasattr(self,name.upper()):
+                    self.params[getattr(self,name.upper())] = float(val.value)
                 else:
                     print "ignored parameter %s" % name
         
