@@ -36,11 +36,12 @@ class T:
             print f.pretty()
 
         if self.dumpTranslation:
+            print f.leaf + "{"
             for (name,tree) in self.sections.items():
                 if tree != None:
-                    print name + "("
-                    print tree.pretty(1)
-                    print ")\n"
+                    print " " + name + "("
+                    print tree.pretty(2) + " )"
+            print "}\n"
                 
     def error(self,msg):
         self.errors.append(msg)
@@ -119,7 +120,7 @@ class T:
         self.sections["global"] = self.stmlist(node)
 
     def stmlist(self, node):
-        seq = ir.Seq(map(lambda c: self.stm(c), node.children), None)
+        seq = ir.Seq(map(lambda c: self.stm(c), node.children), node.pos, None)
         return seq
         
     def stm(self,node,expectedType=None):
@@ -138,9 +139,11 @@ class T:
             self.symbols[node.leaf] = Var(fracttypes.Complex,0,node.pos)
 
         expectedType = self.symbols[node.leaf].type
-        e = self.exp(node.children[0],expectedType)        
-        node.datatype = expectedType
-        return ir.Move(ir.Name(node.leaf, expectedType), e, expectedType)
+        e = self.exp(node.children[0],expectedType)
+        
+        lhs = ir.Name(node.leaf, node.pos, expectedType)
+        rhs = e
+        return self.coerce(lhs,rhs)
     
     def decl(self,node,expectedType):
         if expectedType != None:
@@ -152,11 +155,13 @@ class T:
             exp = self.stm(node.children[0],node.datatype)
         else:
             # default initializer
-            exp = ir.Const(fracttypes.default(node.datatype), node.datatype)
+            exp = ir.Const(fracttypes.default(node.datatype),
+                           node.pos, node.datatype)
 
         try:
             self.symbols[node.leaf] = Var(node.datatype, 0.0,node.pos) # fixme exp
-            return ir.Move(ir.Name(node.leaf, node.datatype),exp, node.datatype)
+            return ir.Move(ir.Name(node.leaf, node.pos, node.datatype),exp,
+                           node.pos, node.datatype)
         
         except KeyError, e:
             self.error("Invalid declaration on line %d: %s" % (node.pos,e))
@@ -191,26 +196,23 @@ class T:
             node.datatype = fracttypes.Complex
 
         if expectedType == node.datatype:
-            return ir.Var(node.leaf, node.datatype)
+            return ir.Var(node.leaf, node.pos, node.datatype)
         else:
-            return self.coerce(node, expectedType)
+            return self.coerce(node, node.pos, expectedType)
         
     def const(self,node,expectedType):
-        if node.datatype == expectedType:
-            return ir.Const(node.leaf, node.datatype)
-        else:
-            return self.coerce(node, expectedType)
+        return ir.Const(node.leaf, node.pos, node.datatype)        
     
-    def coerce(self, node, expectedType):
-        '''insert code to convert node from actual to expected type, or
-           produce an error if conversion is not permitted'''
-        # fixme - rewrite exp with coercion
-        if node.datatype == None:
+    def coerce(self, lhs, rhs):
+        '''insert code to assign rhs to lhs, even if they are different types,
+           or produce an error if conversion is not permitted'''
+        
+        if lhs.datatype == None or rhs.datatype == None:
             raise TranslationError("Internal Compiler Error: coercing an untyped node %s" % node)
-        elif node.datatype == expectedType:
-            raise TranslationError("Internal Compiler Error: coercing to same type on node %s" % node)
+        elif lhs.datatype == rhs.datatype:
+            return ir.Move(lhs,rhs,lhs.pos,lhs.datatype)
             
-        elif node.datatype == Bool:
+        elif rhs.datatype == Bool:
             if expectedType == Int:
                 self.warnCast(node,expectedType)
             elif expectedType == Float:
@@ -219,20 +221,22 @@ class T:
                 self.warnCast(node,expectedType)
 
             return node
-        elif node.datatype == Int:
+        elif rhs.datatype == Int:
             if expectedType == Bool:
                 self.warnCast(node,expectedType)
             elif expectedType == Float:
                 self.warnCast(node,expectedType)
             elif expectedType == Complex:
                 self.warnCast(node,expectedType)
-
+                return ir.Move(ir.Real(lhs,node.pos),
+                               ir.Cast(rhs,Float,rhs.pos),
+                               lhs.pos, lhs.datatype)
             return node
-        elif node.datatype == Float:
+        elif rhs.datatype == Float:
             if expectedType == Bool or expectedType == Complex:
                 self.warnCast(node, expectedType)
                 return node
-        elif node.datatype == Complex:
+        elif rhs.datatype == Complex:
             if expectedType == Bool:
                 self.warnCast(node, expectedType)
                 return node
