@@ -17,7 +17,7 @@ final:
 
 continuous_potential {
 final:
-float ed = @bailout/|z| 
+float ed = @bailout/(|z| + 1.0e-9) 
 #index = (#numiter + ed) / 256.0
 default:
 float param bailout
@@ -48,7 +48,7 @@ endif
 
 ejection_distance {
 final:
-float ed = @bailout/|z| 
+float ed = @bailout/(|z| + 1.0e-9) 
 #index = ed
 default:
 float param bailout

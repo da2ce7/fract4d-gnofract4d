@@ -16,12 +16,12 @@ Done in 2.7:
 * BBB	explorer doesn't work properly with int/enum/bool params?
 * W	use fancy new filechooser dialog when available
 * W	implement $IFDEF
+* BB	hyperjulia doesn't work with continuous-potential coloring
 
 todo:
 
 bugs (the more B's, the worse the bug):
 * BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
-* BB	hyperjulia doesn't work with continuous-potential coloring
 * BB	should save enum params as strings, not indexes
 * BB	painter produces wrong color sometimes?
 * BB	opening color browser sometimes applies 1st item
