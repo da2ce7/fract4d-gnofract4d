@@ -4,6 +4,9 @@
 
 import symbol
 import unittest
+import copy
+import stdlib
+
 from fracttypes import *
 
 class SymbolTest(unittest.TestCase):
@@ -13,6 +16,23 @@ class SymbolTest(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def testCopy(self):
+        self.t["foo"] = Var(Int, 4)
+        self.t["@fn1"][0].set_func(stdlib, "sin")
+        name = self.t.newTemp(Float)
+        c = copy.copy(self.t)
+
+        self.assertEqual(c["foo"].value,4)
+        self.assertEqual(c["@fn1"][0].cname,"sin")
+        self.assertEqual(c.nextTemp, self.t.nextTemp)
+        
+        self.t["foo"].value = 5
+        self.t["@fn1"][0].set_func(stdlib, "sinh")
+        
+        self.assertEqual(c["foo"].value,4)
+        self.assertEqual(c["@fn1"][0].cname,"sin")
+        self.failUnless(c[name].is_temp == True)
+        
     def testKeySort(self):
         list = ["t__a_cf1val", "t__a_fangle", "t__a_cf0val"]
         list.sort(self.t.keysort)
