@@ -315,35 +315,87 @@ public:
 
     virtual void parameters_changed()
 	{
-	    PyObject *args = Py_BuildValue("");
+	    PyObject *args = Py_BuildValue("()");
 	    PyObject *ret = PyEval_CallObject(parameters_changed_cb,args);
-	    Py_DECREF(ret);
+	    Py_XDECREF(ret);
 	}
     
     // we've drawn a rectangle of image
     virtual void image_changed(int x1, int x2, int y1, int y2)
 	{
-	    
+	    PyObject *args = Py_BuildValue("(iiii)",x1,x2,y1,y2);
+	    PyObject *ret = PyEval_CallObject(image_changed_cb,args);
+	    Py_XDECREF(ret);
 	}
     // estimate of how far through current pass we are
     virtual void progress_changed(float progress)
 	{
+	    double d = (double)progress;
+	    PyObject *args = Py_BuildValue("(d)",d);
+	    if(NULL == args)
+	    {
+		printf("bad progress\n");
+		PyErr_Print();
+	    }
+	    PyObject *ret = PyEval_CallObject(progress_changed_cb,args);
+	    Py_XDECREF(ret);
 
 	}
     // one of the status values above
     virtual void status_changed(int status_val)
 	{
+	    assert(this != NULL && status_changed_cb != NULL);
+	    printf("sc: %p %p\n",this,this->status_changed_cb);
+	    if(PyErr_Occurred())
+	    {
+		printf("bad status 0\n");
+		PyErr_Print();
+	    }
+
+	    PyObject *args = Py_BuildValue("(i)",status_val);
+	    if(PyErr_Occurred())
+	    {
+		printf("bad status 1\n");
+		PyErr_Print();
+	    }
+
+	    PyObject *ret = PyEval_CallObject(status_changed_cb,args);
+	    if(PyErr_Occurred())
+	    {
+		printf("bad status 2\n");
+		PyErr_Print();
+	    }
+	    Py_XDECREF(args);
+	    Py_XDECREF(ret);
 
 	}
 
     // return true if we've been interrupted and are supposed to stop
     virtual bool is_interrupted()
 	{
-	    return false;
+	    PyObject *args = Py_BuildValue("()");
+	    if(PyErr_Occurred())
+	    {
+		printf("bad interrupt 0\n");
+		PyErr_Print();
+	    }
+	    PyObject *pyret = PyEval_CallObject(is_interrupted_cb,args);
+
+	    bool ret = false;
+	    if(PyInt_Check(pyret))
+	    {
+		long i = PyInt_AsLong(pyret);
+		printf("ret: %ld\n",i);
+		ret = (i != 0);
+	    }
+
+	    Py_XDECREF(pyret);
+	    return ret;
 	}
 
     ~PySite()
 	{
+	    printf("dtor %p\n",this);
 	    Py_DECREF(parameters_changed_cb);
 	    Py_DECREF(image_changed_cb);
 	    Py_DECREF(progress_changed_cb);
@@ -402,6 +454,7 @@ pysite_create(PyObject *self, PyObject *args)
 	status_changed_cb,
 	is_interrupted_cb);
 
+    printf("pysite_create: %p\n",site);
     PyObject *pyret = PyCObject_FromVoidPtr(site,(void (*)(void *))site_delete);
 
     return pyret;
@@ -443,6 +496,7 @@ pycalc(PyObject *self, PyObject *args)
 	return NULL;
     }
 
+    printf("pycalc: %p\n",site);
     calc(params,eaa,maxiter,nThreads,pfo,cmap,auto_deepen,im,site);
 
     Py_INCREF(Py_None);
@@ -452,6 +506,7 @@ pycalc(PyObject *self, PyObject *args)
 static void
 image_delete(IImage *image)
 {
+    printf("delete %p\n",image);
     delete image;
 }
 

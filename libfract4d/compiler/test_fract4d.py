@@ -9,9 +9,22 @@ import os.path
 sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4d
 
-def cb(*args):
-    print args
-    
+def status_cb(val):
+    print "status: %d" % val
+
+def progress_cb(d):
+    print "progress:", d
+    #print "progress: %g" % d
+
+def is_interrupted_cb():
+    return False
+
+def param_cb():
+    print "params changed"
+
+def image_cb(x1,x2,y1,y2):
+    print "image: %d %d %d %d" %  (x1, x2, y1, y2)
+
 class PfTest(unittest.TestCase):
 
     def compileMandel(self):
@@ -61,11 +74,14 @@ class PfTest(unittest.TestCase):
         fract4d.image_resize(image,80,60)
 
     def testSite(self):
-        site = fract4d.site_create(cb,cb,cb,cb,cb)
+        site = fract4d.site_create(
+            param_cb,image_cb,progress_cb,status_cb,is_interrupted_cb)
 
     def testCalc(self):
         image = fract4d.image_create(40,30)
-        site = fract4d.site_create(cb,cb,cb,cb,cb)
+        site = fract4d.site_create(
+            param_cb,image_cb,progress_cb,status_cb,is_interrupted_cb)
+
         self.compileMandel()
         handle = fract4d.pf_load("./test-pf.so")
         pfunc = fract4d.pf_create(handle)

@@ -318,6 +318,7 @@ calc(
 
     if(worker && worker->ok())
     {
+	printf("pycalc: %p\n",site);
 	site->status_changed( GF4D_FRACTAL_CALCULATING);	
 	fractFunc ff(
 	    params, 
