@@ -79,6 +79,47 @@ class ParserTest(unittest.TestCase):
             "a^b^c",
             "a^(b^c)")
 
+    def testIfStatement(self):
+        t1 = self.parse(self.makeMinimalFormula("if x==1\nx=2\nendif"))
+        self.assertIsValidParse(t1)
+        
+        t1 = self.parse(self.makeMinimalFormula('''
+        if x==1
+        x=2
+        else
+        x=3
+        endif'''))
+        self.assertIsValidParse(t1)
+        
+        t1 = self.parse(self.makeMinimalFormula('''
+        if x==1
+        x=2
+        elseif (x==2) && (y==7)
+        x=3
+        y=5
+        endif'''))
+        self.assertIsValidParse(t1)
+        
+        t1 = self.parse(self.makeMinimalFormula('''
+        if x == 2
+        endif'''))
+        self.assertIsValidParse(t1)                        
+
+        t1 = self.parse(self.makeMinimalFormula('''
+        if x == 2
+        if y == 4
+           z = 17
+        elseif p != q
+           w = 4
+        else
+           v=#pixel
+        endif
+        elseif 4 + 6
+        else
+        endif'''))
+        print t1.pretty()
+        self.assertIsValidParse(t1)                        
+        
     def testSimpleMandelbrot(self):
         t1 = self.parse('''
 MyMandelbrot {
@@ -127,6 +168,7 @@ default:
     def assertIsValidParse(self,t1):
         self.failUnless(absyn.CheckTree(t1))
         errors = self.allNodesOfType(t1,"error")
+        for e in errors: print "%s" % e
         self.assertEqual(errors,[])
         
     def assertParsesEqual(self, s1, s2):
