@@ -21,15 +21,30 @@
 #ifndef _POINTFUNC_H_
 #define _POINTFUNC_H_
 
+
+/* This is the interface that compiled code that implements a fractal function
+   needs to implement. Typically such code is generated at runtime by the 
+   compiler 
+*/
+
 #include <complex>
  
 struct s_pf_vtable {
+    /* fill in fields in pf_data with appropriate stuff */
     void (*init)(
 	struct s_pf_data *p,
         double bailout,
         double period_tolerance,
         std::complex<double> *params
 	);
+    /* calculate one point.
+       perform up to nIters iterations,
+       using periodicity (if supported) after the 1st nNoPeriodIters
+       return:
+       number of iters performed in pnIters
+       out_buf: points to an array of doubles containing info on the calculation,
+       see state.h for offsets
+    */
     void (*calc)(
 	struct s_pf_data *p,
         // in params
@@ -39,6 +54,7 @@ struct s_pf_vtable {
         // out params
         int *pnIters, double **out_buf
 	);
+    /* deallocate data in p */
     void (*kill)(
 	struct s_pf_data *p
 	);
@@ -51,6 +67,12 @@ struct s_pf_data {
 typedef struct s_pf_vtable pf_vtable;
 typedef struct s_pf_data pf_obj;
 
+
+/* compiled code also needs to define a function pf_new which returns
+ * a newly-allocated pf_obj
+ */
+
+extern "C" pf_obj *pf_new();
 
 #endif
 

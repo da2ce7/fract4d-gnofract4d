@@ -219,6 +219,28 @@ modification.
 <para><emphasis>Tetrate</emphasis> computes z &lt;- z^c - arguably the simplest function here, but the results are fantastically intricate.</para>
 </sect1>
 
+<sect1 id="compiler">
+<title>Writing Your Own Functions</title>
+<para>
+
+When you get tired of the built-in fractal functions, you can write
+your own, or take advantage of thousands of formulas written by other
+fractal enthusiasts. Gnofract4D can load most fractal formula files
+written for Fractint (and some written for UltraFractal), and because
+it compiles the formula into native code for your processor, they will
+usually render much faster than they would with Fractint. However the
+compiler is not 100% backwards-compatible with Fractint, so
+unfortunately some fractals can't be loaded, or will display
+differently when they do.
+</para>
+
+<sect2 id="tutorial">
+<title>Writing Your First Formula</title>
+</sect2>
+<sect2 id="reference">
+<title>Formula Language Reference</title>
+</sect2>
+</sect1>
 <sect1 id="mouse">
 <title>Mouse and Keyboard Functions</title> 
 

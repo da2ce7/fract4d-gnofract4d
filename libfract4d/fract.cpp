@@ -62,6 +62,8 @@
 #define FIELD_INNER "inner"
 #define FIELD_OUTER "outer"
 
+#define FIELD_CTF "transfer"
+
 #define SECTION_ITERFUNC "[function]"
 #define SECTION_LEGACY_COLORIZER "[colors]"
 #define SECTION_COLORIZER "[colorizer]"
@@ -725,20 +727,16 @@ fractal::calc(IFractalSite *site, IImage *im)
     if(worker->ok())
     {
 	site->status_changed( GF4D_FRACTAL_CALCULATING);
-    }
-    else
-    {
-	site->status_changed(GF4D_FRACTAL_DONE);    
-    }
-
-    fractFunc pr(this, worker, im, site);
+	fractFunc pr(this, worker, im, site);
     
-    if(!pr.ok)
-    {
-        return;
+	if(pr.ok)
+	{
+	    pr.draw_all();
+	}
     }
+    site->status_changed(GF4D_FRACTAL_DONE);    
 
-    pr.draw_all();
+    delete worker;
 }
 
 void 

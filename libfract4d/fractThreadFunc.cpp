@@ -28,6 +28,7 @@ STFractWorker::init(fractal_t *f_, IImage *im_)
     ff = NULL;
     f = f_;
     im = im_;
+    m_ok = true;
 
     pf = pointFunc::create(
         f->pIterFunc, 
@@ -42,9 +43,9 @@ STFractWorker::init(fractal_t *f_, IImage *im_)
 
     if(NULL == pf)
     {
-        return false;
+	m_ok = false;
     }
-    return true;
+    return m_ok;
 }
 
 STFractWorker::~STFractWorker()
@@ -242,7 +243,8 @@ STFractWorker::pixel(int x, int y,int w, int h)
     dvec4 pos = ff->topleft + 
         I2D_LIKE(x, f->params[MAGNITUDE]) * ff->deltax + 
         I2D_LIKE(y, f->params[MAGNITUDE]) * ff->deltay;
-		
+
+    assert(pf != NULL && m_ok == true);
     pf->calc(pos.n, f->maxiter,periodGuess(), x,y,0,&pixel,&iter,buf); 
     periodSet(&iter);
     im->setIter(x,y,iter);

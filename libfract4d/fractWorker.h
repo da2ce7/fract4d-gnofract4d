@@ -88,7 +88,7 @@ class STFractWorker : public IFractWorker {
     void stats(int *pnDoubleIters, int *pnHalfIters, int *pk);
 
     void flush() {};
-    bool ok() { return true; }
+    bool ok() { return m_ok; }
  
  private:
     fractFunc *ff;
@@ -107,6 +107,7 @@ class STFractWorker : public IFractWorker {
     int k;	// number of pixels calculated    
     int lastIter; // how many iterations did last pixel take?
 
+    bool m_ok;
 };
 
 #include "threadpool.h"
