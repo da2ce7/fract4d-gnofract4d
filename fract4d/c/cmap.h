@@ -11,11 +11,22 @@ typedef enum
     TRANSFER_SIZE
 } e_transferType;
 
-typedef struct 
+typedef enum
 {
-    double index;
-    rgba_t color;
-} list_item_t;
+    BLEND_LINEAR, 
+    BLEND_CURVED, 
+    BLEND_SINE, 
+    BLEND_SPHERE_INCREASING, 
+    BLEND_SPHERE_DECREASING
+} e_blendType;
+
+
+typedef enum
+{ 
+    RGB, 
+    HSV_CCW, 
+    HSV_CW
+} e_colorType;
 
 class ColorMap
 {
@@ -37,6 +48,12 @@ public:
     e_transferType transfers[2];
 };
 
+typedef struct 
+{
+    double index;
+    rgba_t color;
+} list_item_t;
+
 class ListColorMap: public ColorMap
 {
  public:
@@ -50,13 +67,28 @@ class ListColorMap: public ColorMap
     list_item_t *items;
 };
 
+typedef struct 
+{
+    double left;
+    double lr, lg, lb, la;
+    double right;
+    double rr, rg, rb, ra;
+    e_blendType bmode;
+    e_colorType cmode;
+} gradient_item_t;
+
+
 class GradientColorMap: public ColorMap
 {
  public:
     GradientColorMap();
     ~GradientColorMap();
 
-    //bool init(int n_colors);
+    bool init(int n_colors);
+    rgba_t lookup(double index) const; 
+ private:
+    gradient_item_t *items;
+
 };
 
 extern void cmap_delete(ColorMap *cmap);

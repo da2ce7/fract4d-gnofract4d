@@ -152,13 +152,46 @@ ColorMap::lookup_with_transfer(int fate, double index, int solid) const
  
 GradientColorMap::GradientColorMap() : ColorMap()
 {
-    //items = NULL;
+    items = NULL;
 }
 
 GradientColorMap::~GradientColorMap()
 {
-    // NO OP
+    delete[] items;
 }
+
+bool
+GradientColorMap::init(int ncolors_)
+{
+    if(ncolors_ == 0)
+    {
+	return false;
+    }
+
+    ncolors = ncolors_; 
+
+    items = new(std::nothrow) gradient_item_t[ncolors];
+    if(!items)
+    {
+	return false;
+    }
+
+    for(int i = 0; i < ncolors; ++i)
+    {
+	gradient_item_t *p = &items[i];
+	p->left = p->right = 0;
+	p->bmode = BLEND_LINEAR;
+	p->cmode = RGB;
+    }
+    return true;
+}
+
+rgba_t 
+GradientColorMap::lookup(double index) const
+{
+    return black;
+}
+
 
 ListColorMap::ListColorMap() : ColorMap()
 {
@@ -175,7 +208,6 @@ ListColorMap::init(int ncolors_)
 {
     if(ncolors_ == 0)
     {
-	printf("No colors\n");
 	return false;
     }
 
@@ -184,7 +216,6 @@ ListColorMap::init(int ncolors_)
     items = new(std::nothrow) list_item_t[ncolors];
     if(!items)
     {
-	printf("No color alloc\n");
 	return false;
     }
 
@@ -250,3 +281,4 @@ ListColorMap::lookup(double index) const
 
     return mix;
 }
+
