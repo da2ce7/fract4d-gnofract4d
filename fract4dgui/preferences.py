@@ -70,7 +70,7 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
         ConfigParser.ConfigParser.set(self,"display","height",str(height))
         ConfigParser.ConfigParser.set(self,"display","width",str(width))
         self.changed()
-        
+
     def changed(self):
         self.emit('preferences-changed')
 
@@ -140,9 +140,10 @@ class PrefsDialog(dialog.T):
             
             if self.fix_ratio.get_active():
                 height = int(width * float(height)/self.f.width)
+
             self.prefs.set_size(width, height)
             return False
-        
+    
         set_entry()
         self.prefs.connect('preferences-changed', set_entry)
         entry.connect('focus-out-event', set_prefs)

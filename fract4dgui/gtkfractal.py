@@ -182,12 +182,15 @@ class T(gobject.GObject):
             raise
 
         self.running = True
-        fract4dc.async_calc(self.f.params,self.f.antialias,self.f.maxiter,
-                            self.f.yflip,nthreads,
-                            self.f.pfunc,self.cmap,
-                            self.f.auto_deepen, self.f.periodicity,
-                            image,self.site, self.f.clear_image)
-
+        try:
+            fract4dc.async_calc(self.f.params,self.f.antialias,self.f.maxiter,
+                                self.f.yflip,nthreads,
+                                self.f.pfunc,self.cmap,
+                                self.f.auto_deepen, self.f.periodicity,
+                                image,self.site, self.f.clear_image)
+        except MemoryError:
+            pass
+        
     def onData(self,fd,condition):
         bytes = os.read(fd,self.msgsize)
         if len(bytes) < self.msgsize:
@@ -478,11 +481,17 @@ class T(gobject.GObject):
         self.interrupt()
         if self.width == new_width and self.height == new_height :
             return
-        self.width = new_width
-        self.height = new_height
-        fract4dc.image_resize(self.image,self.width,self.height)
-        self.widget.set_size_request(self.width,self.height)
-        gtk.idle_add(self.changed)
+
+        try:
+            self.width = new_width
+            self.height = new_height
+
+            fract4dc.image_resize(self.image, new_width, new_height)
+
+            self.widget.set_size_request(self.width,self.height)
+            gtk.idle_add(self.changed)
+        except MemoryError, err:
+            gtk.idle_add(self.warn,str(err))
         
     def reset(self):
         self.f.reset()
@@ -590,27 +599,36 @@ class T(gobject.GObject):
                 self.colorlist[i] = (index,r,g,b,a)
                 break
         self.changed(False)
+
+    def filterPaintModeRelease(self,event):
+        if self.paint_mode:
+            if event.button == 1:
+                if self.x == self.newx or self.y == self.newy:
+                    self.onPaint(self.newx, self.newy)
+                    return True
         
+        return False
+    
     def onButtonRelease(self,widget,event):
         self.redraw_rect(0,0,self.width,self.height)
+        if self.filterPaintModeRelease(event):
+            return
+        
         self.freeze()
         if event.button == 1:
-            if self.paint_mode:
-                self.onPaint(self.newx, self.newy)
+            if self.x == self.newx or self.y == self.newy:
+                zoom=0.5
+                x = self.x
+                y = self.y
             else:
-                if self.x == self.newx or self.y == self.newy:
-                    zoom=0.5
-                    x = self.x
-                    y = self.y
-                else:
-                    zoom= (1+abs(self.x - self.newx))/float(self.width)
-                    x = 0.5 + (self.x + self.newx)/2.0;
-                    y = 0.5 + (self.y + self.newy)/2.0;
+                zoom= (1+abs(self.x - self.newx))/float(self.width)
+                x = 0.5 + (self.x + self.newx)/2.0;
+                y = 0.5 + (self.y + self.newy)/2.0;
 
-                # with shift held, don't zoom
-                if hasattr(event,"state") and event.state & gtk.gdk.SHIFT_MASK:
-                    zoom = 1.0
-                self.recenter(x,y,zoom)
+            # with shift held, don't zoom
+            if hasattr(event,"state") and event.state & gtk.gdk.SHIFT_MASK:
+                zoom = 1.0
+            self.recenter(x,y,zoom)
             
         elif event.button == 2:
             (x,y) = (event.x, event.y)
@@ -652,7 +670,12 @@ class T(gobject.GObject):
         
         gc = self.widget.get_style().white_gc
 
-        buf = fract4dc.image_buffer(self.image,x,y)
+        try:
+            buf = fract4dc.image_buffer(self.image,x,y)
+        except MemoryError, err:
+            # suppress these errors
+            return
+        
         if self.widget.window:
             self.widget.window.draw_rgb_image(
                 gc,

@@ -867,7 +867,7 @@ pycalc(PyObject *self, PyObject *args)
     pfo = ((pfHandle *)PyCObject_AsVoidPtr(pypfo))->pfo;
     im = (IImage *)PyCObject_AsVoidPtr(pyim);
     site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);
-    if(!cmap || !pfo || !im || !site)
+    if(!cmap || !pfo || !im || !im->ok() || !site)
     {
 	return NULL;
     }
@@ -907,7 +907,7 @@ fw_create(PyObject *self, PyObject *args)
     pfo = ((pfHandle *)PyCObject_AsVoidPtr(pypfo))->pfo;
     im = (IImage *)PyCObject_AsVoidPtr(pyim);
     site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);
-    if(!cmap || !pfo || !im || !site)
+    if(!cmap || !pfo || !im || !im->ok() || !site)
     {
 	return NULL;
     }
@@ -1089,8 +1089,16 @@ pycalc_async(PyObject *self, PyObject *args)
     cargs->set_pfo(pypfo);
     cargs->set_im(pyim);
     cargs->set_site(pysite);
-    if(!cargs->cmap || !cargs->pfo || !cargs->im || !cargs->site)
+    if(!cargs->cmap || !cargs->pfo || 
+       !cargs->im   || !cargs->site)
     {
+	PyErr_SetString(PyExc_ValueError, "bad argument passed to calc");
+	return NULL;
+    }
+
+    if(!cargs->im->ok())
+    {
+	PyErr_SetString(PyExc_MemoryError, "image not allocated"); 
 	return NULL;
     }
 
@@ -1239,6 +1247,12 @@ image_buffer(PyObject *self, PyObject *args)
 #ifdef DEBUG_CREATION
     printf("%p : IM : BUF\n",i);
 #endif
+
+    if(! i->ok())
+    {
+	PyErr_SetString(PyExc_MemoryError, "image not allocated");
+	return NULL;
+    }
 
     if(x < 0 || x >= i->Xres() || y < 0 || y >= i->Yres())
     {

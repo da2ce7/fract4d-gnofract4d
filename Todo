@@ -6,8 +6,13 @@ preferences.py: 251
 
 Done in 2.7:
 * W	randomize colors tool
+* W	painter tool
+* B	painter shouldn't paint on click&drag
 
 todo:
+* B	fractint builtins with () in the name 
+* B	painter produces wrong color sometimes?
+* B	painter doesn't understand solid
 * B	each fractal gets compiled twice, 2nd time with extra vars:
 * B	compile whenever resolution changes - pointless
 * W	don't allocate memory for recoloring buffer when image very large
@@ -29,8 +34,44 @@ todo:
 * BB	intermittently failing test in test_fract4d
 * B     var called 'loat' would clash with C reserved word
 * WWW	create colormap from picture (eg digital photo)
-* W	create random colormap
 * W 	update spec for RPMs to use desktop-file-install (per DAG spec)
+* W	does everything have to be .17f ?
+* W	regression test vs fractint
+* B	other windows always in front - is that good?
+* W	exact SMP equality test
+* B	reset doesn't affect function params
+* W	tie menu-based and toolbar-based explorer toggling
+* W	regenerate for explorer mode 
+* BB	seaslug.fct - diff bailout for quadratic
+* B	coolness.fct - need direct coloring algorithm
+* BB	deeper.fct, hive.fct, image.fct doesn't load properly - old format
+* BB	daisychain.fct - bailFunc != diff for newton
+* W 	enums, int parameters
+* W	autosave/restore?
+* W	max size for .so cache
+* W	diff bailout for other types
+* B	interrupt takes too long on deep-zoomed fractals
+* W	signal tpool conds after releasing mutex?
+* W	associate with file type?
+* WW	register mime info?
+* W	make it work with GMP
+* W	faster GMP (get at internals during loop, maybe?)
+* W	full-screen mode
+* W 	desktop mode
+* W 	demo mode
+* WW	dirty/clean stuff won't work unless 
+	- eject val / (scratch?) is kept freach point
+	- can calc color without recalcing iter 
+* W	bookmarks
+* B	Mutants don't work at deep zooms
+* W	fast single-undo
+* WW	critical values + multiple basins/color schemes
+* WW	import .par files
+* WW	import .upr files
+* W	import ultrafractal gradient files
+* WW	gimp gradient files:
+
+
 
 UF Incompatibilities
 * W	boolean, int, enum params 
@@ -86,17 +127,8 @@ Math weirdness:
 * W	default chebyshev gives blank screen
 * B	standard.cfrm:triangle = all black
 
-Outright bugs:
-(gnofract4d:13094): Gtk-WARNING **: GtkEntry - did not receive focus-out-event.
-If you
-connect a handler to this signal, it must return
-FALSE so the entry gets the event as well
-
-Gtk-ERROR **: file gtkentry.c: line 4214 (blink_cb): assertion failed: (GTK_WIDGET_HAS_FOCUS (entry))
-aborting...
-
 Testing:
-* W	end-to-end regression test vs V1.9
+* W	end-to-end regression test
 
 Distribution weirdness
 * B	Mandrake: desktop icon not added to menu, pygtk2 is called pygtk2.0
@@ -252,47 +284,6 @@ done in 2.2:
 	pictures)
 * B	undo/redo cause recompilation
 
-postponed
-* W	does everything have to be .17f ?
-* W	regression test vs fractint
-* W	i18n, gettext
-* B	warnings for several fractal types
-* B	other windows always in front - is that good?
-* W	exact SMP equality test
-* B	reset doesn't affect function params
-* W	tie menu-based and toolbar-based explorer toggling
-* W	regenerate for explorer mode 
-* B	gui unresponsive in explorer mode
-* B	footnotes are fucked in yelp (have removed them)
-* BB	seaslug.fct - diff bailout for quadratic
-* B	coolness.fct - need direct coloring algorithm
-* BB	deeper.fct, hive.fct, image.fct doesn't load properly - old format
-* BB	daisychain.fct - bailFunc != diff for newton
-* W 	enums, int parameters
-* W	autosave/restore?
-* W	max size for .so cache
-* W	diff bailout for other types
-* B	interrupt takes too long on deep-zoomed fractals
-* W	signal tpool conds after releasing mutex?
-* W	associate with file type?
-* WW	register mime info?
-* W	make it work with GMP
-* W	faster GMP (get at internals during loop, maybe?)
-* W	full-screen mode
-* W 	desktop mode
-* W 	demo mode
-* WW	dirty/clean stuff won't work unless 
-	- eject val / (scratch?) is kept freach point
-	- can calc color without recalcing iter 
-* W	bookmarks
-* B	Mutants don't work at deep zooms
-* W	fast single-undo
-* WW	critical values + multiple basins/color schemes
-* W	make sure inner function is sensible (itercount is pointless)
-* WW	import .par files
-* WW	import .upr files
-* W	import ultrafractal gradient files
-* WW	gimp gradient files:
 GIMP Gradient
 Possibly Name: %s
 3 # number of points
