@@ -16,7 +16,7 @@ SHELL = /bin/sh
 srcdir = .
 top_srcdir = ..
 
-prefix = /usr/local
+prefix = /usr
 exec_prefix = ${prefix}
 datadir = $(prefix)/share
 localedir = $(datadir)/locale
@@ -36,7 +36,7 @@ XGETTEXT = PATH=../src:$$PATH /usr/bin/xgettext
 MSGMERGE = PATH=../src:$$PATH msgmerge
 
 DEFS = -DHAVE_CONFIG_H
-CFLAGS = -g -O2 -Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -Wpointer-arith 
+CFLAGS = -g -O2 -Wall -Wunused 
 CPPFLAGS =  -I/usr/X11R6/include -I/usr/lib/glib/include
 
 INCLUDES = -I.. -I$(top_srcdir)/intl

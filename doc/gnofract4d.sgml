@@ -1,6 +1,6 @@
 <!doctype article PUBLIC "-//Davenport//DTD DocBook V3.0//EN" [
 
-<!entity gf4 "Gnofract4D">
+<!entity gf4 "Gnofract 4D">
 ]>
 <article id="gnofract4d">
 <artheader>
@@ -183,23 +183,44 @@ the screen gets recentered on the point you clicked.
 <title>Toolbar buttons</title>
 <para>
 The ten toolbar buttons correspond to the ten parameters which define
-the view. Each can be moved up or down to alter the view. Note that if
-you're looking at the Mandelbrot set, the x and y buttons scroll
-around the picture, but if you're looking at some other view, this
-won't necessarily happen.
+the view. The angle buttons, labelled <emphasis>xy</> to
+<emphasis>zw</>, can changed by dragging the dot around. When you let
+go, the fractal will update. By the way, the <emphasis>zw</> angle does
+work, you just can't see its effects until you rotate in some other
+dimensions first.
+</para>
+<para>
+The four position buttons, <emphasis>x,y,z</> and <emphasis>w</>, can
+be clicked up or down to alter the view. They move the center of the
+screen by one third of the current image size with each click.  Note
+that if you're looking at the Mandelbrot set, the <emphasis>x</> and
+<emphasis>y</> buttons scroll around the picture, but if you're
+looking at some other view, this won't necessarily happen. For
+example, if you're looking at the Julia set, the <emphasis>z</> and
+<emphasis>w</> buttons scroll, while <emphasis>x</> and <emphasis>y</>
+mutate the fractal.
+</para>
+<para>
+Finally, the <emphasis>Undo</> and <emphasis>Redo</> buttons should be
+fairly obvious. You can undo as many times as you like. Note that undo
+also affects parameters such as color, not just position on screen.
 </para>
 </sect1>
 
 <sect1 id="filemenu">
 <title>File Menu</title> 
 <para>
-The (poorly named) <guimenuitem>New Image</guimenuitem> button returns
-you to the Mandelbrot set. <guimenuitem>Save Image</guimenuitem>
-writes the current image to disk. I recommend using .png images; jpegs
-look horrible, and GIFs can only manage 256 colors.  <guimenuitem>Save
-Parameters</guimenuitem> and <guimenuitem>Load
-Parameters</guimenuitem> save and load plain-text parameter description
-files, so you can return to images in the future.
+<guimenuitem>Back To Mandelbrot</guimenuitem> returns you to the
+Mandelbrot set, in case you get lost.
+
+<guimenuitem>Save Image</guimenuitem> writes the current image to
+disk. I recommend using .png images; jpegs look horrible, and GIFs can
+only manage 256 colors.
+
+<guimenuitem>Save Parameters</guimenuitem> and
+<guimenuitem>Load Parameters</guimenuitem> save and load plain-text
+parameter description files, so you can return to images in the
+future.
 </para>
 </sect1>
 
@@ -207,22 +228,38 @@ files, so you can return to images in the future.
 <title>Preferences Dialog</title>
 <para>
 You can change all the fractal's parameters from
-here.<guilabel>Width</> and <guilabel>Height</> set the size of the
-image in pixels. <guilabel>Max Iterations</> sets the number of
-iterations a point will go through before we give up and assume it's a
-member of the Julibrot. This is set automatically by &gf4; but you can
-change it by hand if you like. If a point's magnitude ever exceeds the
-<guilabel>Bailout</> value, we stop iterating. Set <guilabel>
-antialias</> to 0 or 1 to make drawing much faster, but less
-pretty. There doesn't seem to be any visible improvement in setting
-antialias above 3. The <guilabel> color </> allows you to set the base
-color: all sorts of other colors get generated as well. Unfortunately
-there's currently no way to set a palette explicitly. The <guilabel>
-location</> entryboxes allow you to change the coordinates of the
-screen center and the image size. The <guilabel>angles</> tab allows
-you to set the rotation angles. Only values between 0 and 2 * pi are
-different; values outside this range "wrap" to points inside that
-range.
+here.
+
+<emphasis>Width</> and <emphasis>Height</> should set the size of
+the image in pixels, but don't actually do anything at the moment.
+
+<emphasis>Max Iterations</> sets the number of iterations a point will
+go through before we give up and assume it's a member of the Julibrot.
+
+If <emphasis>Auto Deepening</> is on, the maximum number of iterations
+is set automatically by &gf4; but you can change it by hand whenever
+you like.
+
+If a point's magnitude ever exceeds the <guilabel>Bailout</> value, we
+stop iterating. If you set this less than 4, the results won't be
+mathematically correct, but can look interesting.
+
+If <emphasis>Antialias</> is on, the image takes about five times as
+long to draw, but looks smoother and nicer.
+
+The fractal can be drawn using either a <emphasis>Color Range</> or a
+<emphasis>Color Map</>. Color Ranges are based on a single base color,
+but produce a whole rainbow of other colors as well. You'll need to
+experiment a bit to get a feel for how it works. Color Maps are
+pregenerated palette files taken from <emphasis>Fractint</>.
+
+The <emphasis>Location</> entryboxes allow you to
+change the coordinates of the screen center and the image size. 
+
+The <emphasis>Angles</> tab allows you to set the rotation
+angles. Only values between 0 and 2 * pi are different; values outside
+this range "wrap" to points inside that range.
+
 </para>
 </sect1>
 <sect1 id="about">

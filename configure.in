@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(configure.in)
+AC_PREFIX_DEFAULT(/usr)
 AM_INIT_AUTOMAKE(gnofract4d, 1.2)
 AM_CONFIG_HEADER(config.h)
 
@@ -36,18 +37,13 @@ else
   real_prefix="${prefix}"
 fi
 
-dnl problem with these is that they don't work with the rpm build
-dnl (they put things outside the $prefix)
-
 dnl Subst PACKAGE_PIXMAPS_DIR.
 PACKAGE_PIXMAPS_DIR="`gnome-config --datadir`/pixmaps/${PACKAGE}"
-dnl PACKAGE_PIXMAPS_DIR="${real_prefix}/${DATADIRNAME}/pixmaps/${PACKAGE}"
 AC_SUBST(PACKAGE_PIXMAPS_DIR)
 
 
 dnl Subst MAPS_DIR
 PACKAGE_MAPS_DIR="`gnome-config --datadir`/maps/${PACKAGE}"
-dnl PACKAGE_MAPS_DIR="${real_prefix}/${DATADIRNAME}/maps/${PACKAGE}"
 AC_SUBST(PACKAGE_MAPS_DIR)
 
 

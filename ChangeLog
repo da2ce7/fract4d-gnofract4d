@@ -14,3 +14,9 @@ Tue Dec 21 1999
 	* incremental rendering
 	* different colours
 	* lots of other stuff
+
+Sun Feb 20 2000
+	* palettes
+	* threaded rendering
+	* many internal changes, chiefly gf4d_fractal object
+	
