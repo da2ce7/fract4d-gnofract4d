@@ -426,15 +426,17 @@ class T(UserDict):
         self.nextTemp = 0
         self.prefix = prefix
 
-    def x__copy__(self):
-        print "__copy__(symbols)", inspect.stack()
+    def __copy__(self):
+        #print inspect.stack()
         c = T(self.prefix)
         c.nextlabel = self.nextlabel
         c.nextTemp = self.nextTemp
         for k in self.data.keys():
             #print k
             c.data[k] = copy.copy(self.data[k])
-            
+
+        #print self.data
+        #print c.data
         return c
     
     def merge(self,other):
