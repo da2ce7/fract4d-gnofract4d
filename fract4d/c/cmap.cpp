@@ -122,7 +122,43 @@ find(double key, list_item_t *array, int n)
     }while(1);
 }
 
-rgba_t 
+rgba_t
+ColorMap::lookup_with_dca(int fate, int solid, double *colors) const
+{
+    rgba_t new_color;
+    if(fate >= 0 && fate < 2)
+    {
+	if(solid)
+	{
+	    return solids[fate];
+	}
+
+	e_transferType t = transfers[fate];
+	switch(t)
+	{
+	case TRANSFER_NONE:
+	    return solids[fate];
+	case TRANSFER_LINEAR:
+	    new_color.r = (unsigned char)(255.0 * colors[0]);
+	    new_color.g = (unsigned char)(255.0 * colors[1]);
+	    new_color.b = (unsigned char)(255.0 * colors[2]);
+	    new_color.a = (unsigned char)(255.0 * colors[3]);
+	    return new_color;
+	default:
+	    assert("bad transfer type" && 0);
+	    return black;
+	}
+    }
+    else
+    {
+
+	assert("bad fate" && 0);
+	return black;
+    }
+
+}
+ 
+rgba_t
 ColorMap::lookup_with_transfer(int fate, double index, int solid) const
 {
     if(fate >= 0 && fate < 2)

@@ -171,8 +171,6 @@ class PfTest(unittest.TestCase):
         except MemoryError, err:
             pass
 
-        
-    
     def testImage(self):
         image = fract4dc.image_create(40,30)
         fract4dc.image_resize(image,80,60)
