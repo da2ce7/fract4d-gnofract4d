@@ -103,8 +103,6 @@ class GuiFractal(Threaded):
         self.width = 640
         self.height = 480
         self.image = fract4d.image_create(self.width,self.height)
-        self.buf = fract4d.image_buffer(self.image)
-
 
         drawing_area = gtk.DrawingArea()
         drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
@@ -156,17 +154,16 @@ class GuiFractal(Threaded):
         
     def redraw_rect(self,x,y,w,h):
         gc = self.widget.get_style().white_gc
-        
-        # FIXME should draw smaller chunks but buf interface makes that tricky
-        # FIXME remove hard-coded constants
+
+        buf = fract4d.image_buffer(self.image,x,y)
         if self.widget.window:
             self.widget.window.draw_rgb_image(
                 gc,
-                0, 0,
-                self.width,
-                self.height,
+                x, y,
+                min(self.width-x,w),
+                min(self.height-y,h),
                 gtk.gdk.RGB_DITHER_NONE,
-                self.buf,
+                buf,
                 self.width*3)
 
 class MainWindow:
