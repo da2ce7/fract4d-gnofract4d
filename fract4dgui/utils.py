@@ -100,7 +100,7 @@ class ColorButton:
                 color = widget.get_color()
                 self.color_changed(color)
 
-            self.widget.connect('color-set', self.color_changed)
+            self.widget.connect('color-set', self.on_color_set)
         except:
             # This GTK is too old to support ColorButton directly, fake one
             self.widget = gtk.Button()
@@ -112,15 +112,21 @@ class ColorButton:
 
             self.widget.connect('clicked', self.run_colorsel)
 
+    def on_color_set(self, widget):
+	self.color_changed(widget.get_color())
+
     def set_color(self, rgb):
         self.color = create_color(rgb[0], rgb[1], rgb[2])
-
-        #print "sc", self.area, rgb
-        if self.area:
-            self.area_expose(
-                self.area,
-                0,0,
-                self.area.allocation.width,self.area.allocation.height)
+	
+	try:
+		self.widget.set_color(self.color)
+	except:
+        	#print "sc", self.area, rgb
+        	if self.area:
+            		self.area_expose(
+                	self.area,
+                	0,0,
+                	self.area.allocation.width,self.area.allocation.height)
 
     def on_expose_event(self, widget, event):
         r = event.area
@@ -148,6 +154,7 @@ class ColorButton:
         self.widget.set_sensitive(x)
         
     def color_changed(self,color):
+        self.color = color     
         self.changed_cb(
             color.red/65535.0,
             color.green/65535.0,

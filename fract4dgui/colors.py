@@ -197,9 +197,9 @@ class ColorDialog(dialog.T):
             pos_in_gradient = float(i)/wwidth
             col = self.grad.get_color_at(pos_in_gradient)
             gtkcol = colormap.alloc_color(
-                col[0]*65535,
-                col[1]*65535,
-                col[2]*65535,
+                int(col[0]*65535),
+                int(col[1]*65535),
+                int(col[2]*65535),
                 True, True)
             
             self.gradgc.set_foreground(gtkcol)
@@ -218,9 +218,9 @@ class ColorDialog(dialog.T):
         for i in xrange(len(self.grad.segments)):
             seg = self.grad.segments[i]
             
-            left = seg.left * wwidth
-            mid = seg.mid * wwidth
-            right = seg.right * wwidth
+            left = int(seg.left * wwidth)
+            mid = int(seg.mid * wwidth)
+            right = int(seg.right * wwidth)
 
             if i == self.selected_segment:
                 # draw this chunk selected
@@ -233,7 +233,7 @@ class ColorDialog(dialog.T):
             self.draw_handle(widget, mid, False)
 
         # draw last handle on the right
-        self.draw_handle(widget, wwidth, True)
+        self.draw_handle(widget, int(wwidth), True)
         
         if 0:
             index=self.grad.segments.index(seg)

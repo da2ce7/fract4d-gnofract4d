@@ -72,9 +72,13 @@ class Test(unittest.TestCase):
         
     def assertFractalSegmentsEqualEditorSegments(self, editor):
         for (seg1,seg2) in zip(self.f.gradient.segments, editor.grad.segments):
-            self.assertEqual(seg1.__dict__.items(),
-                             seg2.__dict__.items())
-             
+	    k1 = seg1.__dict__.keys()
+	    k1.sort()
+	    k2 = seg2.__dict__.keys()
+	    k2.sort()
+	    self.assertEqual(k1,k2)
+	    for k in k1:
+		self.assertEqual(seg1.__dict__[k], seg2.__dict__[k])
     
 def suite():
     return unittest.makeSuite(Test,'test')
