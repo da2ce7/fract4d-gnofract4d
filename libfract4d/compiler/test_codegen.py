@@ -80,8 +80,18 @@ class CodegenTest(unittest.TestCase):
 
     def makeC(self,user_preamble="", user_postamble=""):
         # construct a C stub for testing
-        preamble = '''#include <stdio.h>\n#include <math.h>\nint main(){
+        preamble = '''
+        #include <stdio.h>
+        #include <math.h>
+        typedef struct {
+            double *p;
+        } pf_fake;
+
+        int main(){
         double params[20]= {0.0, 0.0, 0.0, 0.0};
+        pf_fake f;
+        f.p = params;
+        pf_fake *pfo = &f;
         '''
         decls = string.join(map(lambda x: x.format(),
                                 self.codegen.output_symbols({})),"\n")
@@ -477,19 +487,37 @@ bailout:
             "main_inserts":'''
 int main()
 {
-    double params[6] = { 1.5, 0.0, 0.0, 0.0, 5.0, 2.0};
+    double pparams[] = { 1.5, 0.0, 0.0, 0.0};
+    double initparams[] = {5.0, 2.0};
     int nItersDone=0;
-    double *out_buf=NULL;
-    pf_calc(NULL,params, 100, 100, 0,0,0, &nItersDone, &out_buf);
-    printf("(%d)\\n",nItersDone);
-
-    params[0] = 0.1; params[1] = 0.2;
-    params[2] = 0.1; params[3] = 0.3;
-    params[4] = 3.0; params[5] = 3.5;
+    int nFate=0;
+    double dist=0.0;
+    pf_obj *pf = pf_new();
+    pf->vtbl->init(pf,0.001,initparams);
     
-    pf_calc(NULL, params, 20, 20, 0,0,0, &nItersDone, &out_buf);
-    printf("(%d)\\n",nItersDone);
-        
+    pf->vtbl->calc(
+         pf,
+         pparams,
+         100, 100,
+         0,0,0,
+         &nItersDone, &nFate, &dist);
+    
+    printf("(%d,%d,%g)\\n",nItersDone,nFate,dist);
+
+    pparams[0] = 0.1; pparams[1] = 0.2;
+    pparams[2] = 0.1; pparams[3] = 0.3;
+    initparams[0] = 3.0; initparams[1] = 3.5;
+    
+    pf->vtbl->calc(
+        pf,
+        pparams,
+        20, 20,
+        0,0,0,
+        &nItersDone, &nFate, &dist);
+
+    printf("(%d,%d,%g)\\n",nItersDone,nFate,dist);
+
+    pf->vtbl->kill(pf);
     return 0;
 }
 '''
@@ -499,11 +527,11 @@ int main()
         output = self.compileAndRun(c_code)
         lines = string.split(output,"\n")
         # 1st point we try should bail out 
-        self.assertEqual(lines[0:3],["(1.5,0)","(3.75,0)", "(2)"],output)
+        self.assertEqual(lines[0:3],["(1.5,0)","(3.75,0)", "(2,0,0)"],output)
 
         # 2nd point doesn't
         self.assertEqual(lines[3],"(0.02,0.26)",output)
-        self.assertEqual(lines[-1],"(-1)",output)
+        self.assertEqual(lines[-1],"(20,1,0)",output)
         self.assertEqual(lines[-2],lines[-3],output)
 
         # try again with sqr function and check results match
