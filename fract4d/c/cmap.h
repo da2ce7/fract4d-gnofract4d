@@ -73,6 +73,7 @@ typedef struct
     double left_color[4];
     double right;
     double right_color[4];
+    double mid;
     e_blendType bmode;
     e_colorType cmode;
 } gradient_item_t;
@@ -86,7 +87,7 @@ class GradientColorMap: public ColorMap
 
     bool init(int n_colors);
     void set(int i,
-	     double left, double right,
+	     double left, double right, double mid,
 	     double *left_col,
 	     double *right_col,
 	     e_blendType bmode, e_colorType cmode);

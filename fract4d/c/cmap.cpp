@@ -11,6 +11,8 @@
 
 rgba_t black = {0,0,0,255};
 
+#define EPSILON 1.0e-10
+
 ColorMap::ColorMap()
 {
     ncolors = 0;
@@ -189,13 +191,14 @@ GradientColorMap::init(int ncolors_)
 void 
 GradientColorMap::set(
     int i,
-    double left, double right,
+    double left, double right, double mid,
     double *left_col,
     double *right_col,
     e_blendType bmode, e_colorType cmode)
 {
     items[i].left = left;
     items[i].right = right;
+    items[i].mid = mid;
     for(int j = 0; j < 4 ; ++j)
     {
 	items[i].left_color[j] = left_col[j];
@@ -227,27 +230,179 @@ grad_find(double index, gradient_item_t *items, int ncolors)
     return -1;
 }
 
+static double
+calc_linear_factor (double middle, double pos)
+{
+  if (pos <= middle)
+    {
+      if (middle < EPSILON)
+	return 0.0;
+      else
+	return 0.5 * pos / middle;
+    }
+  else
+    {
+      pos -= middle;
+      middle = 1.0 - middle;
+
+      if (middle < EPSILON)
+	return 1.0;
+      else
+	return 0.5 + 0.5 * pos / middle;
+    }
+}
+
+static double
+calc_curved_factor (double middle,double pos)
+{
+  if (middle < EPSILON)
+    middle = EPSILON;
+
+  return pow (pos, log (0.5) / log (middle));
+}
+
+static double
+calc_sine_factor (double middle, double pos)
+{
+    pos = calc_linear_factor (middle, pos);
+    return (sin ((-M_PI / 2.0) + M_PI * pos) + 1.0) / 2.0;
+}
+
+static double
+calc_sphere_increasing_factor (double middle,
+			       double pos)
+{
+    pos = calc_linear_factor (middle, pos) - 1.0;
+    return sqrt (1.0 - pos * pos); 
+}
+
+static double
+calc_sphere_decreasing_factor (double middle,
+			       double pos)
+{
+    pos = calc_linear_factor (middle, pos);
+    return 1.0 - sqrt(1.0 - pos * pos);
+}
+
 rgba_t 
 GradientColorMap::lookup(double index) const
 {
-    int i,j;
-    rgba_t mix, left, right;
-    double dist, r;
-
     index = index == 1.0 ? 1.0 : fmod(index,1.0);
-    i = grad_find(index, items, ncolors); 
+    int i = grad_find(index, items, ncolors); 
     assert(i >= 0 && i < ncolors);
 
-    /*
-    if(index <= items[i].left)
+    gradient_item_t *seg = &items[i];
+
+    double seg_len = seg->right - seg->left;
+    
+    double middle;
+    double pos;
+    if (seg_len < EPSILON)
     {
-	return items[i].left_color;
+	middle = 0.5;
+	pos    = 0.5;
     }
-    if(i == ncolors-1)
+    else
     {
-	return items
-    */
-    return black;
+	middle = (seg->mid - seg->left) / seg_len;
+	pos    = (pos - seg->left) / seg_len;
+    }
+    
+    double factor;
+    switch (seg->bmode)
+    {
+    case BLEND_LINEAR:
+	factor = calc_linear_factor (middle, pos);
+	break;
+    
+    case BLEND_CURVED:
+	factor = calc_curved_factor (middle, pos);
+	break;
+      
+    case BLEND_SINE:
+	factor = calc_sine_factor (middle, pos);
+	break;
+    
+    case BLEND_SPHERE_INCREASING:
+	factor = calc_sphere_increasing_factor (middle, pos);
+	break;
+    
+    case BLEND_SPHERE_DECREASING:
+	factor = calc_sphere_decreasing_factor (middle, pos);
+	break;
+    
+    default:
+	assert(0 && "Unknown gradient type");
+	return black;
+    }
+
+
+    /* Calculate color components */
+    rgba_t result;
+    double *lc = seg->left_color;
+    double *rc = seg->right_color;
+    if (seg->cmode == RGB)
+    {
+	result.r = (unsigned char)(255.0 * (lc[0] + (rc[0] - lc[0]) * factor));
+	result.g = (unsigned char)(255.0 * (lc[1] + (rc[1] - lc[1]) * factor));
+	result.b = (unsigned char)(255.0 * (lc[2] + (rc[2] - lc[2]) * factor));
+    }
+    else
+    {
+	/*
+	GimpHSV left_hsv;
+	GimpHSV right_hsv;
+
+	gimp_rgb_to_hsv (&seg->left_color,  &left_hsv);
+	gimp_rgb_to_hsv (&seg->right_color, &right_hsv);
+
+	left_hsv.s = left_hsv.s + (right_hsv.s - left_hsv.s) * factor;
+	left_hsv.v = left_hsv.v + (right_hsv.v - left_hsv.v) * factor;
+
+	switch (seg->color)
+	{
+	case GIMP_GRADIENT_SEGMENT_HSV_CCW:
+	    if (left_hsv.h < right_hsv.h)
+	    {
+		left_hsv.h += (right_hsv.h - left_hsv.h) * factor;
+	    }
+	    else
+	    {
+		left_hsv.h += (1.0 - (left_hsv.h - right_hsv.h)) * factor;
+
+		if (left_hsv.h > 1.0)
+		    left_hsv.h -= 1.0;
+	    }
+	    break;
+
+	case GIMP_GRADIENT_SEGMENT_HSV_CW:
+	    if (right_hsv.h < left_hsv.h)
+	    {
+		left_hsv.h -= (left_hsv.h - right_hsv.h) * factor;
+	    }
+	    else
+	    {
+		left_hsv.h -= (1.0 - (right_hsv.h - left_hsv.h)) * factor;
+
+		if (left_hsv.h < 0.0)
+		    left_hsv.h += 1.0;
+	    }
+	    break;
+
+	default:
+	    g_warning ("%s: Unknown coloring mode %d",
+		       G_STRFUNC, (gint) seg->color);
+	    break;
+	}
+
+	gimp_hsv_to_rgb (&left_hsv, &rgb);
+	*/
+	result = black;
+    }
+
+    /* Calculate alpha */
+    result.a = (unsigned char)(255.0 * (lc[3] + (rc[3] - lc[3]) * factor));
+    return result;
 }
 
 
