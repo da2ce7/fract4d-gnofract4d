@@ -9,6 +9,13 @@ import types
 import fracttypes
 from fracttypes import Bool, Int, Float, Complex
 
+def reals(l):
+    # [[a + ib], [c+id]] => [ a, c]
+    return map(lambda x : x[0],filter(lambda x : x != [],l))
+
+def imags(l):
+    return map(lambda x : x[1],filter(lambda x : x != [],l))
+
 class Insn:
     'An instruction to be written to output stream'
     def __init__(self,assem):
@@ -69,27 +76,15 @@ class T:
         # this must be ordered with largest, most efficient templates first
         # thus performing a crude 'maximal munch' instruction generation
         self.templates = self.expand_templates([
-            [ "[Binop, Const, Exp]", T.binop_const_exp],
-            [ "[Binop, Exp, Const]", T.binop_exp_const],
             [ "[Binop, Exp, Exp]" , T.binop_exp_exp],
             [ "[Var]" , T.var],
             [ "[Const]", T.const],
             [ "[Label]", T.label],
             [ "[Move]", T.move],
             [ "[Jump]", T.jump],
+            [ "[Cast]", T.cast]
             ])
 
-    def emit_binop_const_exp(self,op,val,srcs,type):
-        dst = self.symbols.newTemp(type)
-        assem = "%%(d0)s = %d %s %%(s0)s" % (val, op)
-        self.out.append(Oper(assem, srcs ,[ dst ]))
-        return dst
-
-    def emit_binop_exp_exp(self,op,srcs,type):
-        dst = self.symbols.newTemp(type)
-        assem = "%%(d0)s = %%(s0)s %s %%(s1)s" % op
-        self.out.append(Oper(assem, srcs ,[ dst ]))
-        return dst
 
     def emit_binop(self,op,s0,index1,s1,index2,srcs,type):
         dst = self.symbols.newTemp(type)
@@ -104,7 +99,7 @@ class T:
     def format_string(self,t,index,pos):
         # compute a format string for a binop's child at position pos
         if isinstance(t,ir.Const):
-            if t.datatype == Int:
+            if t.datatype == Int or t.datatype == Bool:
                 return ("%d" % t.value,pos)
             elif t.datatype == Float:
                 return ("%.17f" % t.value,pos)
@@ -116,10 +111,25 @@ class T:
             return ("%%(s%d)s" % pos,pos+1)
         
     # action routines
+    def cast(self,t):
+        child = t.children[0]
+        src = self.generate_code(child)
+        
+        if t.datatype == Complex:
+            (d0,d1) = (self.symbols.newTemp(Float), self.symbols.newTemp(Float))
+            if child.datatype == Int:
+                (f1,pos) = self.format_string(child,-1,0)
+                assem = "%%(d0)s = ((double)%s)" % f1
+                self.out.append(Oper(assem,src, [d0]))
+                assem = "%(d0)s = 0.0"
+                self.out.append(Oper(assem,src, [d1]))
+                dst = [d0, d1]
+
+        return dst
+                
     def move(self,t):
         dst = self.generate_code(t.children[0])
         src = self.generate_code(t.children[1])
-        print t.children[1].pretty()
         self.out.append(Move(src,dst))
         return dst
     
@@ -131,56 +141,48 @@ class T:
         assem = "goto %s" % t.dest
         self.out.append(Oper(assem,[],[],[t.dest]))
         
-    def binop_const_exp(self,t):
+    def binop_exp_exp(self,t):
         s0 = t.children[0]
         s1 = t.children[1]
-        srcs = self.generate_code(s0) + self.generate_code(s1)
+        srcs = [self.generate_code(s0), self.generate_code(s1)]
         if t.datatype == fracttypes.Complex:
             if t.op=="+" or t.op == "-":
                 dst = [
-                    self.emit_binop(t.op,s0,0, s1,0, [srcs[0]], Float),
-                    self.emit_binop(t.op,s0,1, s1,1, [srcs[1]], Float)]
+                    self.emit_binop(t.op,s0,0, s1,0, reals(srcs), Float),
+                    self.emit_binop(t.op,s0,1, s1,1, imags(srcs), Float)]
             elif t.op=="*":
                 # (a+ib) * (c+id) = ac - bd + i(bc + ad)
-                (a,b,c,d) = (s0.value[0], s0.value[1], srcs[0], srcs[1])
-                ac = self.emit_binop(t.op, s0, 0, s1, 0, [c], Float)
-                bd = self.emit_binop(t.op, s0, 1, s1, 1, [d], Float)
-                bc = self.emit_binop(t.op, s0, 1, s1, 0, [c], Float)
-                ad = self.emit_binop(t.op, s0, 0, s1, 1, [d], Float)
-                print ac, bd, ad, bc
+                r = reals(srcs) ; i = imags(srcs)
+                ac = self.emit_binop(t.op, s0, 0, s1, 0, r, Float)
+                bd = self.emit_binop(t.op, s0, 1, s1, 1, i, Float)
+                bc = self.emit_binop(t.op, s0, 1, s1, 0, r, Float)
+                ad = self.emit_binop(t.op, s0, 0, s1, 1, i, Float)
                 dst = [
                     self.emit_binop('-', ac, -1, bd, -1, [ac, bd], Float),
                     self.emit_binop('+', bc, -1, ad, -1, [bc, ad], Float)]
             elif t.op==">" or t.op==">=" or t.op=="<" or t.op == "<=":
                 # compare real parts only
                 dst = [
-                    self.emit_binop_const_exp(t.op,s0.value[0],[srcs[0]], Bool)]
+                    self.emit_binop(t.op,s0,0,s1,0, reals(srcs), Bool)]
             elif t.op=="==" or t.op=="!=":
                 # compare both
-                d1 = self.emit_binop_const_exp(t.op,s0.value[0],[srcs[0]], Bool)
-                d2 = self.emit_binop_const_exp(t.op,s0.value[1],[srcs[1]], Bool)
+                d1 = self.emit_binop(t.op,s0, 0, s1, 0, reals(srcs), Bool)
+                d2 = self.emit_binop(t.op,s0, 1, s1, 1, imags(srcs), Bool)
                 if t.op=="==":
                     combine_op = "&&"
                 else:
                     combine_op = "||"
                 dst = [
-                    self.emit_binop_exp_exp(combine_op, [d1,d2], Bool)]
+                    self.emit_binop(combine_op, d1, -1, d2, -1, [d1,d2], Bool)]
             else:
                 # need to implement /, compares, etc
                 msg = "Unsupported binary operation %s" % t.op
                 raise fracttypes.TranslationError(msg)
         else:
             dst = [
-                self.emit_binop(t.op,s0,-1,s1,-1,srcs,t.datatype)]
+                self.emit_binop(t.op,s0,-1,s1,-1,reals(srcs),t.datatype)]
         return dst
     
-    def binop_exp_const(self,t):
-        # swap operands and call other version - is this really safe?
-        return self.binop_const_exp(t)
-
-    def binop_exp_exp(self,t):
-        pass
-
     def const(self,t):
         return []
     
