@@ -312,11 +312,10 @@ class TranslateTest(unittest.TestCase):
     def assertNoErrors(self,t):
         self.assertEqual(len(t.errors),0,
                          "Unexpected errors %s" % t.errors)
-        for (name, item) in t.sections.items():
-            if name[0:2] == "c_":
-                for stm in item:
-                    self.assertESeqsNotNested(stm,1)
-                self.assertValidTrace(item)
+        for (name, item) in t.canon_sections.items():
+            for stm in item:
+                self.assertESeqsNotNested(stm,1)
+            self.assertValidTrace(item)
         self.assertWellTyped(t)
         
     def assertValidTrace(self,trace):
@@ -342,7 +341,7 @@ class TranslateTest(unittest.TestCase):
         self.failUnless(isinstance(n,ir.T), ("%s(%s) is not a node" % (n, name)))
         
     def assertTreesEqual(self, name, t1, t2):
-        if name[0:2] == "c_":
+        if isinstance(t1,types.ListType):
             # canonicalized trees are a list, not a Seq()
             for (s1,s2) in zip(t1,t2):
                 self.assertNode(name,s1)
