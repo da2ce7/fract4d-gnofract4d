@@ -52,6 +52,8 @@ class IImage;
 
 // member functions are do-nothing rather than abstract in case you
 // don't want to do anything with them
+class calc_args;
+
 class IFractalSite
 {
  public:
@@ -82,7 +84,7 @@ class IFractalSite
     virtual void interrupt() { };
 
     // set things up before starting a new calc thread
-    virtual void start(void *params) {};
+    virtual void start(calc_args *params) {};
 
     // having started it, set the thread id of the calc thread to wait for
     virtual void set_tid(int tid) {};

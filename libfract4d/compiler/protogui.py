@@ -51,6 +51,7 @@ class GuiFractal(fractal.Threaded):
         return gtk.FALSE
     
     def image_changed(self,x1,y1,x2,y2):
+        #print "img changed: %d %d %d %d" % (x1,y1,x2,y2)
         self.redraw_rect(x1,y1,x2-x1,y2-y1)
 
     def onExpose(self,widget,exposeEvent):

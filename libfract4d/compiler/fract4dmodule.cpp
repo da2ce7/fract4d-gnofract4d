@@ -17,8 +17,6 @@
 #define PyMODINIT_FUNC void
 #endif
 
-#define DEBUG_CREATION
-
 /* 
  * pointfuncs
  */
@@ -456,11 +454,70 @@ typedef struct
     int p1,p2,p3,p4;
 } msg_t;
 
+struct calc_args
+{
+    double params[N_PARAMS];
+    int eaa, maxiter, nThreads;
+    bool auto_deepen;
+    pf_obj *pfo;
+    cmap_t *cmap;
+    IImage *im;
+    IFractalSite *site;
+
+    PyObject *pycmap, *pypfo, *pyim, *pysite;
+    calc_args()
+	{
+#ifdef DEBUG_CREATION
+	    printf("create calc_args %p\n",this);
+#endif
+	}
+
+    void set_cmap(PyObject *pycmap_)
+	{
+	    pycmap = pycmap_;
+	    cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+	    Py_XINCREF(pycmap);
+	}
+
+    void set_pfo(PyObject *pypfo_)
+	{
+	    pypfo = pypfo_;
+
+	    pfo = ((pfHandle *)PyCObject_AsVoidPtr(pypfo))->pfo;
+	    Py_XINCREF(pypfo);
+	}
+
+    void set_im(PyObject *pyim_)
+	{
+	    pyim = pyim_;
+	    im = (IImage *)PyCObject_AsVoidPtr(pyim);
+	    Py_XINCREF(pyim);
+	}
+    void set_site(PyObject *pysite_)
+	{
+	    pysite = pysite_;
+	    site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);
+	    Py_XINCREF(pysite);
+	}
+
+    ~calc_args()
+	{
+#ifdef DEBUG_CREATION
+	    printf("delete calc_args %p\n",this);
+#endif
+	    Py_XDECREF(pycmap);
+	    Py_XDECREF(pypfo);
+	    Py_XDECREF(pyim);
+	    Py_XDECREF(pysite);
+	}
+};
+
 // write the callbacks to a file descriptor
 class FDSite :public IFractalSite
 {
 public:
-    FDSite(int fd_) : fd(fd_), tid((pthread_t)0), interrupted(false) 
+    FDSite(int fd_) : fd(fd_), tid((pthread_t)0), 
+		      interrupted(false), params(NULL) 
 	{
 #ifdef DEBUG_CREATION
 	    printf("created fdsite %p\n",this);
@@ -500,6 +557,7 @@ public:
     // return true if we've been interrupted and are supposed to stop
     virtual bool is_interrupted()
 	{
+	    //printf("int: %d\n",interrupted);
 	    return interrupted;
 	}
 
@@ -515,12 +573,18 @@ public:
 
     virtual void interrupt() 
 	{
+	    printf("interrupting\n");
 	    interrupted = true;
 	}
     
-    virtual void start(void *params_) 
+    virtual void start(calc_args *params_) 
 	{
+	    printf("clear interruption\n");
 	    interrupted = false;
+	    if(params != NULL)
+	    {
+		delete params;
+	    }
 	    params = params_;
 	}
 
@@ -546,8 +610,8 @@ public:
 private:
     int fd;
     int tid;
-    bool interrupted;
-    void *params;
+    volatile bool interrupted;
+    calc_args *params;
 };
 
 static void
@@ -636,16 +700,6 @@ pycalc(PyObject *self, PyObject *args)
     return Py_None;
 }
 
-typedef struct 
-{
-    double params[N_PARAMS];
-    int eaa, maxiter, nThreads;
-    bool auto_deepen;
-    pf_obj *pfo;
-    cmap_t *cmap;
-    IImage *im;
-    IFractalSite *site;
-} calc_args;
 
 static void *
 calculation_thread(void *vdata) 
@@ -658,8 +712,6 @@ calculation_thread(void *vdata)
 	 args->auto_deepen,args->im,args->site);
     printf("end calc: %p\n",args);
 
-    printf("delete calc_args %p\n",args);
-    delete args;
     return NULL;
 }
 
@@ -685,19 +737,22 @@ pycalc_async(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    cargs->cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
-    cargs->pfo = ((pfHandle *)PyCObject_AsVoidPtr(pypfo))->pfo;
-    cargs->im = (IImage *)PyCObject_AsVoidPtr(pyim);
-    cargs->site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);
+    cargs->set_cmap(pycmap);
+    cargs->set_pfo(pypfo);
+    cargs->set_im(pyim);
+    cargs->set_site(pysite);
     if(!cargs->cmap || !cargs->pfo || !cargs->im || !cargs->site)
     {
 	return NULL;
     }
 
+    printf("call interrupt\n");
     cargs->site->interrupt();
     cargs->site->wait();
 
-    cargs->site->start((void *)cargs);
+    printf("call start\n");
+    cargs->site->start(cargs);
+    printf("called start\n");
 
     pthread_t tid;
     printf("create thread %d for %p\n",tid,cargs);
