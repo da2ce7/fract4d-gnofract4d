@@ -232,8 +232,9 @@ return;
 %(main_inserts)s
 '''
 
-    def emit_binop(self,op,srcs,type):
-        dst = TempArg(self.symbols.newTemp(type))
+    def emit_binop(self,op,srcs,type,dst=None):
+        if dst == None:
+            dst = TempArg(self.symbols.newTemp(type))
 
         assem = "%(d0)s = %(s0)s " + op + " %(s1)s;"
         self.out.append(Oper(assem, srcs ,[ dst ]))
@@ -260,6 +261,13 @@ return;
         assem = "if(%(s0)s) goto " + dst + ";"
         self.out.append(Oper(assem, [test], []))
 
+    def emit_jump(self, dst):
+        assem = "goto %s;" % dst
+        self.out.append(Oper(assem,[],[],[dst]))
+
+    def emit_label(self,name):
+        self.out.append(Label(name))
+        
     def output_symbols(self,overrides):
         out = []
         op = self.symbols.order_of_params()
@@ -377,7 +385,7 @@ return;
     
     def label(self,t):
         assert(t.children == [])
-        self.out.append(Label(t.name))
+        self.emit_label(t.name)
 
     def cjump(self,t):
         # canonicalize has ensured we fall through to false branch,
@@ -387,8 +395,7 @@ return;
         self.emit_cjump(result,t.trueDest)
         
     def jump(self,t):
-        assem = "goto %s;" % t.dest
-        self.out.append(Oper(assem,[],[],[t.dest]))
+        self.emit_jump(t.dest)
 
     def unop(self,t):
         s0 = t.children[0]

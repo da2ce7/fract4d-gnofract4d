@@ -40,6 +40,7 @@ def createDefaultDict():
 
         "log" :  efl("log",  "[_], _", [Float, Complex]),
         "sqrt" : efl("sqrt", "[_], _", [Float, Complex]),
+        "exp" :  efl("exp",  "[_], _", [Float, Complex]),
         
         "sin" :  efl("sin", "[_], _", [Float, Complex]),
         "cos" :  efl("cos", "[_], _", [Float, Complex]),
@@ -70,15 +71,22 @@ def createDefaultDict():
 
         # arithmetic
         "%":  efl("mod",   "[_,_] , _", [Int, Float]),
+
         "/":  [ Func([Float, Float], Float, stdlib, "div"),
                 Func([Complex, Float], Complex, stdlib, "div"),
                 Func([Complex, Complex], Complex, stdlib, "div"),
                 Func([Color, Float], Float, stdlib, "div")],
+
         "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex]) + \
               [ Func([Color, Float], Float, stdlib, "mul")],
+
         "+":  efl("add",   "[_,_] , _", [Int, Float, Complex, Color]),
         "-":  efl("sub",   "[_,_] , _", [Int, Float, Complex, Color]),
-        "^":  efl("pow",   "[_,_] , _", [Float, Complex]),
+
+        "^":  [ Func([Float, Float], Float, stdlib, "pow"),
+                Func([Complex, Float], Complex, stdlib, "pow"),
+                Func([Complex, Complex], Complex, stdlib, "pow")],
+        
         "mag":[ Func([Complex], Float, stdlib, "mag")],
         "neg": efl("neg", "[_], _", [Int, Float, Complex]),
         
