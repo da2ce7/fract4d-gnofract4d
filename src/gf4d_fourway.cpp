@@ -382,10 +382,11 @@ gf4d_fourway_button_release (GtkWidget      *widget,
         gint dy = yc - fourway->last_y;
         if (dx || dy)
         {
-            gtk_signal_emit(GTK_OBJECT (fourway), 
-                            fourway_signals[VALUE_CHANGED],
-                            dx,
-                            dy);
+            g_signal_emit(GTK_OBJECT (fourway), 
+			  fourway_signals[VALUE_CHANGED],
+			  0,
+			  dx,
+			  dy);
         }
     }
 
@@ -449,10 +450,11 @@ gf4d_fourway_update_mouse (Gf4dFourway *fourway, gint x, gint y)
 
     if (dx || dy)
     {
-        gtk_signal_emit (GTK_OBJECT (fourway), 
-                         fourway_signals[VALUE_SLIGHTLY_CHANGED],
-                         dx,
-                         dy); 
+        g_signal_emit (GTK_OBJECT (fourway), 
+		       fourway_signals[VALUE_SLIGHTLY_CHANGED],
+		       0,
+		       dx,
+		       dy); 
 
         fourway->last_x = x;
         fourway->last_y = y;

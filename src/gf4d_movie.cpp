@@ -195,9 +195,9 @@ gf4d_movie_class_init (Gf4dMovieClass *klass)
                        GTK_RUN_FIRST,
                        GTK_CLASS_TYPE(object_class),
                        GTK_SIGNAL_OFFSET(Gf4dMovieClass, status_changed),
-                       gtk_marshal_NONE__ENUM,
+                       gf4d_marshal_VOID__INT,
                        GTK_TYPE_NONE, 1,
-                       GTK_TYPE_ENUM);
+                       GTK_TYPE_INT);
 
     /* default signal handlers don't do anything */
     klass->list_changed=NULL;
@@ -227,7 +227,7 @@ void gf4d_movie_interrupt(Gf4dMovie *mov)
 void 
 gf4d_movie_list_changed(Gf4dMovie *mov)
 {
-    gtk_signal_emit(GTK_OBJECT(mov), movie_signals[LIST_CHANGED]); 
+    g_signal_emit(GTK_OBJECT(mov), movie_signals[LIST_CHANGED], 0); 
 }
 
 static void
@@ -246,9 +246,10 @@ void gf4d_movie_progress_changed(Gf4dMovie *mov, float progress)
 {
     gf4d_movie_enter_callback(mov);
 
-    gtk_signal_emit(GTK_OBJECT(mov),
-                    movie_signals[PROGRESS_CHANGED], 
-                    progress);
+    g_signal_emit(GTK_OBJECT(mov),
+		  movie_signals[PROGRESS_CHANGED],
+		  0,
+                  progress);
     gf4d_movie_leave_callback(mov);
 }
 
@@ -257,9 +258,10 @@ void gf4d_movie_status_changed(Gf4dMovie *mov, int status_val)
     mov->status = status_val;
     gf4d_movie_enter_callback(mov);
 
-    gtk_signal_emit(GTK_OBJECT(mov),
-                    movie_signals[STATUS_CHANGED],
-                    status_val);
+    g_signal_emit(GTK_OBJECT(mov),
+		  movie_signals[STATUS_CHANGED],
+		  0,
+		  status_val);
     gf4d_movie_leave_callback(mov);
 }
 
@@ -267,9 +269,10 @@ void gf4d_movie_image_complete(Gf4dMovie *mov, int frame)
 {
     gf4d_movie_enter_callback(mov);
 
-    gtk_signal_emit(GTK_OBJECT(mov),
-                    movie_signals[IMAGE_COMPLETE],
-                    frame);
+    g_signal_emit(GTK_OBJECT(mov),
+		  movie_signals[IMAGE_COMPLETE],
+		  0,
+		  frame);
     gf4d_movie_leave_callback(mov);
 }
 
