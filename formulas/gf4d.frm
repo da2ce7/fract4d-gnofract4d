@@ -37,16 +37,19 @@ endfunc
 HyperMandel {
 ; Hypercomplex Mandelbrot set
 init:
-	hyper h = h0
+	hyper h = @h0
 	hyper c = (real(#pixel),imag(#pixel),real(#zwpixel), imag(#zwpixel)) 
 loop:
-	h = sin(h) + c
+	h = @hfunc(h) + c
 bailout:
 	|h| < @bailout
 default:
 float param bailout
 	default = 64.0
 endparam
+hyper func hfunc
+	default = sqr
+endfunc
 hyper param h0
 	default = (0.0,0.0,0.0,0.0)
 endparam
@@ -57,13 +60,16 @@ HyperJulia {
 init:
 	hyper h = (real(#pixel),imag(#pixel),real(#zwpixel), imag(#zwpixel)) 
 loop:
-	h = h*h + c
+	h = @hfunc(h) + @c
 bailout:
 	|h| < @bailout
 default:
 float param bailout
 	default = 64.0
 endparam
+hyper func hfunc
+	default = sqr
+endfunc
 hyper param c
 	default = (0.16,0.1,0.1,0.1)
 endparam
