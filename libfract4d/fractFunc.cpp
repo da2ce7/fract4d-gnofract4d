@@ -67,13 +67,14 @@ fractFunc::fractFunc(
     }
 
     /* threading */
+    ptm = new MTFractWorker();
     if(f->nThreads > 1)
     {
-        ptp = new tpool<job_info_t,STFractWorker>(f->nThreads,100,ptf);
+        ptm->ptp = new tpool<job_info_t,STFractWorker>(f->nThreads,100,ptf);
     }
     else
     {
-        ptp = NULL;
+        ptm->ptp = NULL;
     }
 
     last_update_y = 0;
@@ -81,7 +82,8 @@ fractFunc::fractFunc(
 
 fractFunc::~fractFunc()
 {
-    delete ptp;
+    delete ptm->ptp;
+    delete ptm;
     delete[] ptf;
 }
 
@@ -100,7 +102,7 @@ fractFunc::send_cmd(job_type_t job, int x, int y, int param)
     work.job = job; 
     work.x = x; work.y = y; work.param = param;
 
-    ptp->add_work(worker, work);
+    ptm->ptp->add_work(worker, work);
 }
 
 void
@@ -222,9 +224,9 @@ void fractFunc::reset_counts()
 
 void fractFunc::reset_progress(float progress)
 {
-    if(ptp)
+    if(ptm->ptp)
     {
-        ptp->flush();
+        ptm->ptp->flush();
     }
     image_changed(0,0,im->Xres(),im->Yres());
     progress_changed(progress);

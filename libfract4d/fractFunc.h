@@ -26,7 +26,6 @@
 #include "pointFunc.h"
 #include "colorizer.h"
 #include "fractWorker.h"
-#include "threadpool.h"
 
 /* this contains stuff which is useful for drawing the fractal,
    but can be recalculated at will, so isn't part of the fractal's
@@ -113,8 +112,7 @@ class fractFunc {
 
     int nThreadFuncs;
     STFractWorker *ptf;
-    tpool<job_info_t,STFractWorker> *ptp;
-
+    MTFractWorker *ptm;
 
     /* wait for a ready thread then give it some work */
     void send_cmd(job_type_t job, int x, int y, int param);

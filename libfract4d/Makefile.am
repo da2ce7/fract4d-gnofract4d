@@ -18,7 +18,8 @@ libfract4d_la_SOURCES=\
 	bailFunc.h bailFunc.cpp \
 	fractFunc.h fractFunc.cpp fractThreadFunc.cpp \
 	io.h io.cpp \
-	threadpool.h
+	threadpool.h \
+	fractWorker.h MTFractWorker.cpp
 
 EXTRA_DIST=compiler_template.cpp
 
