@@ -194,44 +194,7 @@ class T:
 #include <stdlib.h>
 #include <math.h>
 
-struct s_pf_data;
-
-struct s_pf_vtable {
-    /* fill in fields in pf_data with appropriate stuff */
-    void (*init)(
-	struct s_pf_data *p,
-        double period_tolerance,
-        double *params
-	);
-    /* calculate one point.
-       perform up to nIters iterations,
-       using periodicity (if supported) after the 1st nNoPeriodIters
-       return:
-       number of iters performed in pnIters
-       out_buf: points to an array of doubles containing info on the calculation,
-       see state.h for offsets
-    */
-    void (*calc)(
-	struct s_pf_data *p,
-        // in params
-        const double *params, int nIters, int nNoPeriodIters,
-	// only used for debugging
-	int x, int y, int aa,
-        // out params
-        int *pnIters, int *pFate, double *pDist
-	);
-    /* deallocate data in p */
-    void (*kill)(
-	struct s_pf_data *p
-	);
-} ;
-
-struct s_pf_data {
-    struct s_pf_vtable *vtbl;
-} ;
-
-typedef struct s_pf_vtable pf_vtable;
-typedef struct s_pf_data pf_obj;
+%(pf)s
 
 typedef struct {
     pf_obj parent;
@@ -311,6 +274,8 @@ pf_obj *pf_new()
 
 %(main_inserts)s
 '''
+
+        self.pf_header= open("pf.h","r").read() # read in a whole file
 
     def emit_binop(self,op,srcs,type,dst=None):
         if dst == None:
@@ -399,6 +364,7 @@ pf_obj *pf_new()
             bailout_var = "0"
             
         inserts["bailout_var"] = bailout_var
+        inserts["pf"] = self.pf_header
         f = Formatter(self,t,inserts)
         if output_template == None:
             output_template = self.output_template
