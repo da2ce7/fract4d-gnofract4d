@@ -59,6 +59,7 @@ public:
     virtual float getIndex(int x, int y, int sub) = 0;
     virtual void setIndex(int x, int y, int sub, float index) = 0;
     
+    virtual int getNSubPixels() const = 0;
 };
 
 #endif /* IMAGE_PUBLIC_H_ */

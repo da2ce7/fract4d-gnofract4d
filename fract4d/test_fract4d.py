@@ -136,6 +136,38 @@ class PfTest(unittest.TestCase):
         buf = fract4dc.image_fate_buffer(image,5,10)
         self.assertEqual(len(buf),80*60*4 - (10*80+5)*4)
 
+    def testFractWorker(self):
+        xsize = 64
+        ysize = int(xsize * 3.0/4.0)
+        image = fract4dc.image_create(xsize,ysize)
+        siteobj = FractalSite()
+        site = fract4dc.site_create(siteobj)
+
+        self.compileColorMandel()
+        handle = fract4dc.pf_load("./test-pfc.so")
+        pfunc = fract4dc.pf_create(handle)
+        fract4dc.pf_init(pfunc,0.001,[0.5])
+        cmap = fract4dc.cmap_create(
+            [(0.0,0,0,0,255),
+             (1/256.0,255,255,255,255),
+             (1.0, 255, 255, 255, 255)])
+
+        fw = fract4dc.fw_create(1,pfunc,cmap,image,site)
+        ff = fract4dc.ff_create(
+            [0.0, 0.0, 0.0, 0.0,
+             4.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            0,
+            100,
+            0,
+            1,
+            pfunc,
+            cmap,
+            0,
+            1,
+            image,
+            site,
+            fw)
         
     def testCalc(self):
         xsize = 64

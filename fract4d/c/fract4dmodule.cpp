@@ -78,6 +78,7 @@ pf_delete(void *p)
 #endif
     pfh->pfo->vtbl->kill(pfh->pfo);
     Py_DECREF(pfh->pyhandle);
+    free(pfh);
 }
 
 static PyObject *
@@ -748,6 +749,29 @@ site_delete(IFractalSite *site)
     delete site;
 }
 
+static void
+fw_delete(IFractWorker *worker)
+{
+    delete worker;
+}
+
+struct ffHandle
+{
+    PyObject *pyhandle;
+    fractFunc *ff;
+} ;
+
+static void
+ff_delete(struct ffHandle *ffh)
+{
+#ifdef DEBUG_CREATION
+    printf("%p : FF : DTOR\n",ffh);
+#endif
+    delete ffh->ff;
+    Py_DECREF(ffh->pyhandle);
+    delete ffh;
+}
+
 static PyObject *
 pysite_create(PyObject *self, PyObject *args)
 {
@@ -856,6 +880,123 @@ pycalc(PyObject *self, PyObject *args)
 
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+static PyObject *
+fw_create(PyObject *self, PyObject *args)
+{
+    int nThreads;
+    pf_obj *pfo;
+    cmap_t *cmap;
+    IImage *im;
+    IFractalSite *site;
+
+    PyObject *pypfo, *pycmap, *pyim, *pysite;
+
+    if(!PyArg_ParseTuple(args,"iOOOO",
+			 &nThreads,
+			 &pypfo,
+			 &pycmap,
+			 &pyim,
+			 &pysite))
+    {
+	return NULL;
+    }
+
+    cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+    pfo = ((pfHandle *)PyCObject_AsVoidPtr(pypfo))->pfo;
+    im = (IImage *)PyCObject_AsVoidPtr(pyim);
+    site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);
+    if(!cmap || !pfo || !im || !site)
+    {
+	return NULL;
+    }
+
+
+    IFractWorker *worker = IFractWorker::create(nThreads,pfo,cmap,im,site);
+
+    if(!worker->ok())
+    {
+	PyErr_SetString(PyExc_ValueError,"Error creating worker");
+	delete worker;
+	return NULL;
+    }
+
+    PyObject *pyret = PyCObject_FromVoidPtr(
+	worker,(void (*)(void *))fw_delete);
+
+    return pyret;
+}
+
+static PyObject *
+ff_create(PyObject *self, PyObject *args)
+{
+    PyObject *pypfo, *pycmap, *pyim, *pysite, *pyworker;
+    double params[N_PARAMS];
+    int eaa=-7, maxiter=-8, nThreads=-9;
+    int auto_deepen, periodicity;
+    int yflip;
+    pf_obj *pfo;
+    cmap_t *cmap;
+    IImage *im;
+    IFractalSite *site;
+    IFractWorker *worker;
+
+    if(!PyArg_ParseTuple(
+	   args,
+	   "(ddddddddddd)iiiiOOiiOOO",
+	   &params[0],&params[1],&params[2],&params[3],
+	   &params[4],&params[5],&params[6],&params[7],
+	   &params[8],&params[9],&params[10],
+	   &eaa,&maxiter,&yflip,&nThreads,
+	   &pypfo,&pycmap,
+	   &auto_deepen,
+	   &periodicity,
+	   &pyim, &pysite,
+	   &pyworker
+	   ))
+    {
+	return NULL;
+    }
+
+    cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+    pfo = ((pfHandle *)PyCObject_AsVoidPtr(pypfo))->pfo;
+    im = (IImage *)PyCObject_AsVoidPtr(pyim);
+    site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);
+    worker = (IFractWorker *)PyCObject_AsVoidPtr(pyworker);
+
+    if(!cmap || !pfo || !im || !site || !worker)
+    {
+	return NULL;
+    }
+
+    fractFunc *ff = new fractFunc(
+	params, 
+	eaa,
+	maxiter,
+	nThreads,
+	auto_deepen,
+	yflip,
+	periodicity,
+	worker,
+	im,
+	site);
+
+    if(!ff)
+    {
+	return NULL;
+    }
+
+    ffHandle *ffh = new struct ffHandle;
+    ffh->ff = ff;
+    ffh->pyhandle = pyworker;
+
+    PyObject *pyret = PyCObject_FromVoidPtr(
+	ffh,(void (*)(void *))ff_delete);
+
+    Py_INCREF(pyworker);
+
+    return pyret;
 }
 
 
@@ -1166,6 +1307,11 @@ static PyMethodDef PfMethods[] = {
       "Create a new site"},
     { "fdsite_create", pyfdsite_create, METH_VARARGS,
       "Create a new file-descriptor site"},
+
+    { "fw_create", fw_create, METH_VARARGS,
+      "Create a fractWorker." },
+    { "ff_create", ff_create, METH_VARARGS,
+      "Create a fractFunc." },
 
     { "calc", pycalc, METH_VARARGS,
       "Calculate a fractal image"},

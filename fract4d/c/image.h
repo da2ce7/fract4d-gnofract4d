@@ -30,11 +30,12 @@ class image : public IImage
 
 public:
     static const int N_SUBPIXELS;
-
+    
     image();
     image(const image& im);
     ~image();
 
+    int getNSubPixels() const { return N_SUBPIXELS; };
     inline int Xres() const { return m_Xres; };
     inline int Yres() const { return m_Yres; };
     inline char *getBuffer() { return buffer; };
