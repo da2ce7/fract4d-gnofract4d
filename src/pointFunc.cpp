@@ -98,6 +98,25 @@ public:
             }while(true);
         }
 
+    template<class T> 
+    int findExactIter(int iter, T *pIter, T *pInput, T *pTemp)
+        {
+            // we bailed out - need to look through the list to
+            // see where (could do binary search, but can't be bothered)
+            int i = 0;
+            for(; i < 9; ++i)
+            {
+                // 0 for flags because X2, Y2 data not up to date
+                (*m_pBail)(pIter + 2*i, pInput, pTemp, 0);
+                if(pTemp[EJECT_VAL] >= m_eject)
+                {
+                    iter = iter - 8 + i;
+                    return iter;
+                }
+            }
+            assert(false && "we must bailout before reaching this point");
+        }
+
     template<class T>inline void calc(
         const vec4<T>& params, int nMaxIters, int nNoPeriodIters,
         struct rgb *color, int *pnIters
@@ -134,69 +153,54 @@ public:
                 // bailed or not)
 
                 bool bailed = calcNoPeriod(iter,nNoPeriod8Iters,pIter,pInput,pTemp);
-                if(bailed)
+                if(!bailed)
                 {
-                    goto bailedOut;
-                }
-                if(iter < nMax8Iters)
-                {
-                    iter -= 8;                    
-                }
-                else
-                {
-                    goto finished8;
-                }
-
-                // do remaining 8iter chunks with periodicity
-                // bailed = calcPeriod(iter,nMax8Iters,pIter,pInput,pTemp);
-
-                do
-                {
-                    m_pIter->iter8(pIter,pInput,pTemp);
-                    if((iter+= 8) >= nMax8Iters)
+                    if(iter < nMax8Iters)
+                    {
+                        iter -= 8;                    
+                    }
+                    else
                     {
                         goto finished8;
-                    }                    
-                    for(int i = ITER_SPACE; i < 9*ITER_SPACE; i+= ITER_SPACE)
+                    }
+                    
+                    // do remaining 8iter chunks with periodicity
+                    // bailed = calcPeriod(iter,nMax8Iters,pIter,pInput,pTemp);
+                    
+                    do
                     {
-                        if(fabs(pIter[X+i] - lastx) < PERIOD_TOLERANCE &&
-                           fabs(pIter[Y+i] - lasty) < PERIOD_TOLERANCE)
+                        m_pIter->iter8(pIter,pInput,pTemp);
+                        if((iter+= 8) >= nMax8Iters)
                         {
-                            // period detected!
-                            //printf(",");
-                            iter = -1; goto finishedAll;
+                            goto finished8;
+                        }                    
+                        for(int i = ITER_SPACE; i < 9*ITER_SPACE; i+= ITER_SPACE)
+                        {
+                            if(fabs(pIter[X+i] - lastx) < PERIOD_TOLERANCE &&
+                               fabs(pIter[Y+i] - lasty) < PERIOD_TOLERANCE)
+                            {
+                                // period detected!
+                                //printf(",");
+                                iter = -1; goto finishedAll;
+                            }
                         }
-                    }
-                    if(--k == 0)
-                    {
-                        lastx = pIter[X]; lasty = pIter[Y];
-                        m *= 2;
-                        k = m;
-                    }                    
-                    (*m_pBail)(pIter,pInput,pTemp,flags);  
-                    if(pTemp[EJECT_VAL] >= m_eject)
-                    {
-                        break;
-                    }
-                    pIter[X] = pIter[X + (2*8)];
-                    pIter[Y] = pIter[Y + (2*8)];                    
-                }while(true);
-
-            bailedOut:
-                // we bailed out - need to look through the list to
-                // see where (could do binary search, but can't be bothered)
-                int i = 0;
-                for(; i < 9; ++i)
-                {
-                    // 0 for flags because X2, Y2 data not up to date
-                    (*m_pBail)(pIter + 2*i, pInput, pTemp, 0);
-                    if(pTemp[EJECT_VAL] >= m_eject)
-                    {
-                        iter = iter - 8 + i;
-                        goto finishedAll;
-                    }
+                        if(--k == 0)
+                        {
+                            lastx = pIter[X]; lasty = pIter[Y];
+                            m *= 2;
+                            k = m;
+                        }                    
+                        (*m_pBail)(pIter,pInput,pTemp,flags);  
+                        if(pTemp[EJECT_VAL] >= m_eject)
+                        {
+                            break;
+                        }
+                        pIter[X] = pIter[X + (2*8)];
+                        pIter[Y] = pIter[Y + (2*8)];                    
+                    }while(true);
                 }
-                assert(false && "we must bailout before reaching this point");
+                iter = findExactIter(iter, pIter, pInput, pTemp);
+                goto finishedAll;
             }
 
         finished8:
