@@ -151,6 +151,13 @@ class TranslateTest(testbase.TestBase):
             caption = "Angle"
             default = 10.0
         endparam
+        param with_Turnaround8
+            caption = "Turnaround 8?"
+            default = true
+            hint = ""
+        endparam
+        float param f1
+        endparam
         }''')
         self.assertNoErrors(t)
         self.assertEqual(t.defaults["maxiter"].value,100)
@@ -161,12 +168,19 @@ class TranslateTest(testbase.TestBase):
 
         k = t.symbols.parameters().keys()
         k.sort()
-        exp_k = ["t__a_foo"]
+        exp_k = ["t__a_f1", "t__a_foo","t__a_with_turnaround8"]
+        exp_k.sort()
         self.assertEqual(k,exp_k)        
 
         foo = t.symbols["@foo"]
         self.assertEqual(foo.caption.value, "Angle")
         self.assertEqual(foo.default.value, 10.0)
+
+        t8 = t.symbols["@with_turnaround8"]
+        self.assertEqual(t8.hint.value,"")
+
+        f1 = t.symbols["@f1"]
+        self.assertEqual(f1.type,fracttypes.Float)
         
     def testStringErrors(self):
         t = self.translate('''t_se {
