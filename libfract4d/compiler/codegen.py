@@ -204,7 +204,7 @@ double c_im = params[3];
 int nIters = 0;
 %(init)s
 t__end_init:
-while(nIters < nMaxIters)
+do
 {
     %(loop)s
     t__end_loop:
@@ -212,9 +212,9 @@ while(nIters < nMaxIters)
     %(bailout)s
     t__end_bailout:
     %(bailout_inserts)s
-    if(%(bailout_var)s) break;
     nIters++;
-}
+}while(%(bailout_var)s && nIters < nMaxIters);
+
 %(done_inserts)s
 *pnIters = nIters;
 return;
