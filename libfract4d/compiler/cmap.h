@@ -2,14 +2,7 @@
 #ifndef CMAP_H_
 #define CMAP_H_
 
-struct s_rgba;
-
-typedef struct s_rgba rgba_t;
-
-struct s_rgba
-{
-    unsigned char r,g,b,a;
-};
+#include "color.h"
 
 struct s_cmap;
 

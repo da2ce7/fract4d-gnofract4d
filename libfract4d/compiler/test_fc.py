@@ -10,6 +10,7 @@ import testbase
 
 import fc
 
+# centralized to speed up tests
 g_comp = fc.Compiler()
 g_comp.load_formula_file("./gf4d.frm")
 g_comp.load_formula_file("test.frm")

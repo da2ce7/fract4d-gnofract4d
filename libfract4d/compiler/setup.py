@@ -2,8 +2,16 @@
 
 from distutils.core import setup, Extension
 
-module1 = Extension('fract4d',
-                    sources = ['fract4dmodule.c', 'cmap.c' ])
+module1 = Extension(
+    'fract4d',
+    sources = [
+    'fract4dmodule.c',
+    'cmap.c',
+    'pointFunc.cpp',
+    'fractFunc.cpp',
+    'STFractWorker.cpp',
+    'MTFractWorker.cpp'
+    ])
 
 setup (name = 'fract4d',
        version = '1.0',
