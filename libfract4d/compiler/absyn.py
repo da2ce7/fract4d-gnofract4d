@@ -1,7 +1,9 @@
 # Abstract Syntax Tree produced by parser
 
+#from __future__ import generators
 import types
 import string
+
 
 class Node:
     def __init__(self,type,children=None,leaf=None):
@@ -48,8 +50,15 @@ class Node:
             eql = child.DeepCmp(otherchild)
             if eql: return eql
         return eql
-    
-# not used or functional - might finish one day
+
+# def preorder(t):
+#     if t:
+#         print "pre",t
+#         yield t
+#         for child in t.children:
+#             print "prechild", child
+#             preorder(child)
+
 class NodeIter:
     def __init__(self,node):
         self.nodestack = [(node,-1)]
@@ -72,9 +81,9 @@ class NodeIter:
         ret = self.getNode(node,child)
         child+= 1
         while len(node.children) <= child:
-            (node,child) = self.nodestack.pop()
             if self.nodestack == []:
                 return ret
+            (node,child) = self.nodestack.pop()
             
         self.nodestack.append((node,child+1))
         self.nodestack.append((node.children[child],-1))                

@@ -236,8 +236,10 @@ class ParserTest(unittest.TestCase):
            endwhile
            '''))
         self.assertIsValidParse(t1)
+        ns = [n for n in t1.children[0].children[0].children[0]]
+            
         self.assertListTypesMatch(
-            t1.children[0].children[0].children[0],
+            [n for n in t1.children[0].children[0].children[0]],
             ["while", "binop", "const", "const",
              "stmlist",
                  "assign", "binop", "id", "const",
@@ -265,6 +267,35 @@ bailout:
 '''
         self.assertIsBadFormula(f,"unexpected newline",8)
 
+    def testSections(self):
+        t1 = self.parse('''t1{
+        Init:
+        loop:
+        :
+        bailout:
+        Transform:
+        final:
+        global:
+        switch:
+        DEFAULT:
+        builtin:
+        }
+        ''')
+        self.assertIsValidParse(t1)
+        #print t1.pretty()
+        self.assertListTypesMatch(
+            t1.children[0].children,
+            ["stmlist"]*7 + ["setlist"] * 3)
+
+        # test we work with old-style fractint sections
+        t2 = self.parse('''InvMandel (XAXIS) {; Mark Peterson
+  c = z = 1 / pixel:
+   z = sqr(z) + c
+    |z| <= 4
+  }
+  ''')
+        #print t2.pretty()
+        
     def testSimpleMandelbrot(self):
         t1 = self.parse('''
 MyMandelbrot {
@@ -300,6 +331,7 @@ default:
 
 
     def assertListTypesMatch(self,nodes,types):
+        self.assertEqual(len(nodes),len(types))
         for (n,t) in zip(nodes,types):
             self.assertEqual(n.type,t)
         
