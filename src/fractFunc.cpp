@@ -73,14 +73,12 @@ fractFunc::work(thread_data_t *jobdata)
 {
     int nRows=0;
 
-    printf("working\n");
     return;
 
     if(gf4d_fractal_try_finished_cond(gf))
     {
         // interrupted - just return without doing anything
         // this is less efficient than clearing the queue but easier
-        printf("returning\n");
         return;
     }
 
@@ -449,7 +447,6 @@ void fractFunc::draw(int rsize, int drawsize)
         }
         if(update_image(y)) 
         {
-            printf("interrupt 1\n");
             goto done;
         }
     }
@@ -459,7 +456,6 @@ void fractFunc::draw(int rsize, int drawsize)
         row(0,y,w);
         if(update_image(y)) 
         {
-            printf("interrupt 2\n");
             goto done;
         }
     }
@@ -478,7 +474,6 @@ void fractFunc::draw(int rsize, int drawsize)
         }        
         if(update_image(y))
         {
-            printf("interrupt 3\n");
             goto done;
         }
     }
@@ -489,7 +484,6 @@ void fractFunc::draw(int rsize, int drawsize)
     for ( y = 0; y < h - rsize; y += rsize) {
         if(update_image(y))
         {
-            printf("interrupt 4\n");
             goto done;
         }
 
@@ -506,7 +500,6 @@ void fractFunc::draw(int rsize, int drawsize)
 
  done:
     /* refresh entire image & reset progress bar */
-    printf("finished image\n");
     reset_progress(1.0);
 }
 

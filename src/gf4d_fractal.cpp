@@ -89,7 +89,6 @@ gf4d_fractal_cond_unlock(Gf4dFractal *f)
 static void 
 set_finished_cond(Gf4dFractal *f)
 {
-    g_print("set_finished_cond\n");
     f->workers_running=0;
 }
 
@@ -100,10 +99,8 @@ gf4d_fractal_try_finished_cond(Gf4dFractal *f)
     // if we miss it this time, we'll catch it next
     // time, and won't do any harm in the meantime
 
-    //g_print("try_finished\n");
     if(f->workers_running==0) 
     {
-        //g_print("noticed a signal");
         // we've been signalled
         return true;
     }
@@ -299,10 +296,8 @@ calculation_thread(void *vdata)
 
 void gf4d_fractal_calc(Gf4dFractal *f, int nThreads, e_antialias effective_aa)
 {
-    g_print("waiting for previous slave's death throes\n");
     kill_slave_threads(f);
 
-    g_print("starting new calculation\n");
     /* if we're paused, lock the pause mutex before starting the 
        calculation thread
     */
@@ -336,7 +331,6 @@ void gf4d_fractal_calc(Gf4dFractal *f, int nThreads, e_antialias effective_aa)
         /* blocking calculation in current thread */
         calculation_thread((void *)f);
     }
-    g_print("calculation has finished starting\n");
 }
 
 void gf4d_fractal_recolor(Gf4dFractal *f)
@@ -496,7 +490,6 @@ gboolean gf4d_fractal_pause(Gf4dFractal *f, gboolean pause)
 void 
 gf4d_fractal_parameters_changed(Gf4dFractal *f)
 {
-    g_print("parameters changed\n");
     gtk_signal_emit(GTK_OBJECT(f), fractal_signals[PARAMETERS_CHANGED]); 
 }
 

@@ -193,7 +193,6 @@ void redraw_callback(Gf4dFractal *f, gpointer user_data)
     propertybox_refresh(m);
     
     int nThreads = model_get_calcthreads(m);
-    g_print("drawing with %d threads\n",nThreads);
     gf4d_fractal_calc(f,nThreads);
 }
 

@@ -92,7 +92,6 @@ gf4d_movie_new ()
 static void 
 set_finished_cond(Gf4dMovie *mov)
 {
-    g_print("interrupt\n");
     mov->workers_running=0;
     gf4d_fractal_interrupt(mov->output);
 }
@@ -106,7 +105,6 @@ try_finished_cond(Gf4dMovie *mov)
 
     if(mov->workers_running==0) 
     {
-        g_print("finished in movie\n");
         return true;
     }
     return false;

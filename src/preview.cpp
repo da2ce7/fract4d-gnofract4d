@@ -99,7 +99,7 @@ create_preview_drawing_area(Gf4dFractal *f)
 
     gtk_object_set_data (GTK_OBJECT (drawing_area), "shadow", f);
 
-    //gf4d_fractal_calc(f,1,AA_NONE);
+    gf4d_fractal_calc(f,1,AA_NONE);
 
     return drawing_area;
 }
@@ -108,7 +108,7 @@ void
 preview_refresh_callback(Gf4dFractal *f, Gf4dFractal *shadow)
 {
     gf4d_fractal_update_fract(shadow,f);
-    //gf4d_fractal_calc(shadow,1,AA_NONE);
+    gf4d_fractal_calc(shadow,1,AA_NONE);
 }
 
 GtkWidget *
