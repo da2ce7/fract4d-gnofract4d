@@ -148,6 +148,10 @@ def p_stm_decl_assign(t):
     'stm : TYPE ID ASSIGN exp'
     t[0] = absyn.Decl(t[1],t[2],t[4])
 
+def p_stm_repeat(t):
+    'stm : REPEAT NEWLINE stmlist UNTIL exp'
+    t[0] = absyn.Repeat(t[3],t[5])
+    
 def p_stm_if(t):
     'stm : IF ifbody ENDIF' 
     t[0] = t[2]

@@ -197,7 +197,16 @@ class ParserTest(unittest.TestCase):
         }
         ''')
         self.assertIsValidParse(t1)
-        
+
+    def testRepeat(self):
+        t1 = self.parse(self.makeMinimalFormula('''
+        repeat
+        z = z ^ 2
+        until |z| > 2000.0
+        '''))
+        self.assertIsValidParse(t1)
+        print t1.pretty()
+
     def testSimpleMandelbrot(self):
         t1 = self.parse('''
 MyMandelbrot {
