@@ -54,4 +54,22 @@ typedef enum
 #define NO_UNROLL 8
 #define NO_PERIOD 16
 
+// iter state
+#define X 0
+#define Y 1
+
+// input state
+#define CX 2
+#define CY 3
+#define EJECT 4
+
+
+// temp state
+#define X2 5
+#define Y2 6
+#define EJECT_VAL 7
+#define LASTX 8
+#define LASTY 9
+#define STATE_SPACE (LASTY+1)
+
 #endif

@@ -1,9 +1,10 @@
 #include "pointFunc.h"
-#include "iterFunc.h"
+//#include "iterFunc.h"
 #include "bailFunc.h"
 
 #include <math.h>
 #include <iostream>
+#include <complex>
 #if TRACE
 #include <fstream>
 #include <sstream>
@@ -14,6 +15,10 @@
 #include <algorithm>
 
 typedef double T;
+
+// redeclare from vectors.h to avoid reading the whole file
+enum {VX, VY, VZ, VW};		    // axes
+
 
 class pointCalc : public pointFunc {
 private:
@@ -152,7 +157,7 @@ public:
         int &iter, int nMaxIters)
         {
             /* periodicity vars */
-            d lastx = p[X], lasty=p[Y];
+            T lastx = p[X], lasty=p[Y];
             int k =1, m = 1;
             
             // single iterations
@@ -206,7 +211,7 @@ public:
   T p[STATE_SPACE];
          
     void calc(
-        const vec4<T>& params, int nMaxIters, int nNoPeriodIters,
+        const T *params, int nMaxIters, int nNoPeriodIters,
 	int x, int y, int aa,
         struct rgb *color, int *pnIters, void *out_buf
         )
@@ -224,10 +229,10 @@ public:
 #endif
 	    if(out_buf == NULL) out_buf = one_space;
 
-            p[X] =  params.n[VZ]; 
-            p[Y] =  params.n[VW];
-            p[CX] = params.n[VX];
-            p[CY] = params.n[VY];
+            p[X] =  params[VZ]; 
+            p[Y] =  params[VW];
+            p[CX] = params[VX];
+            p[CY] = params[VY];
             p[EJECT] = m_eject;
             p[LASTX] = p[LASTY] = DBL_MAX/4.0;
 

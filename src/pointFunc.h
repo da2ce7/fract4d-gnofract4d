@@ -21,7 +21,7 @@
 #ifndef _POINTFUNC_H_
 #define _POINTFUNC_H_
 
-#include "calc.h"
+//#include "calc.h"
 #include "pointFunc_public.h"
 #include "colorizer.h"
 #include "colorFunc.h"
@@ -33,7 +33,7 @@ class pointFunc {
  public:
     virtual void calc(
         // in params
-        const vec4<double>& params, int nIters, int nNoPeriodIters,
+        const double *params, int nIters, int nNoPeriodIters,
 	// only used for debugging
 	int x, int y, int aa,
         // out params
