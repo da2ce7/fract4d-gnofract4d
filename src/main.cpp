@@ -24,12 +24,18 @@
 
 #include <gnome.h>
 
+#include <iostream>
+#include <fstream>
+#include <string>
+
 #include "model.h"
 #include "callbacks.h"
 #include "interface.h"
 #include "gf4d_fractal.h"
 #include "movie_editor.h"
 #include "tls.h"
+
+static int guess_calc_threads(void);
 
 static char *g_param_file = NULL;
 static char *g_params[N_PARAMS] = { NULL };
@@ -41,6 +47,7 @@ static int g_param_b=0;
 static char *g_param_cmap=NULL;
 static int g_param_width=0;
 static int g_param_height=0;
+static int g_param_nThreads= guess_calc_threads();
 
 struct poptOption options[] = {
     {
@@ -223,8 +230,43 @@ struct poptOption options[] = {
         N_("Exit after calculating the fractal"),
         NULL
     },
+    {
+        "nthreads",
+        'n',
+        POPT_ARG_INT,
+        &g_param_nThreads,
+        0,
+        N_("Number of calculation threads to use"),
+        N_("1")
+    },
     { NULL, '\0', 0, NULL, 0 , NULL, NULL }
 };
+
+/* attempt to peek at /proc/cpuinfo, which might conceivably work on Linux, 
+   but not on anything else. If it doesn't work, just assume 1 processor */
+
+static int
+guess_calc_threads()
+{
+    std::ifstream cpuinfo("/proc/cpuinfo");
+    if(!cpuinfo) return 1;
+
+    int nCPUs = 0;    
+    std::string line;
+
+    while(getline(cpuinfo,line))
+    {
+        if(strncmp(line.c_str(), "processor\t: ", strlen("processor\t: "))==0)
+        {
+            // we found a processor line
+            nCPUs++; 
+        }
+    }
+
+    // convert 0 to 1 if no CPUs found (maybe some fscker changed /proc)
+    return (nCPUs ? nCPUs : 1); 
+}
+
 
 // execute any command-line arguments
 void
@@ -258,6 +300,7 @@ apply_arguments(model_t *m)
     {
         model_set_quit(m,true);
     }
+    model_set_calcthreads(m,g_param_nThreads);
 }
 
 int

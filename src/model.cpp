@@ -203,33 +203,6 @@ model_free_undo_data(gpointer undo_data)
     //g_print("done deleting %x\n",p);
 }
 
-/* attempt to peek at /proc/cpuinfo, which might conceivably work on Linux, 
-   but not on anything else. If it doesn't work, just assume 1 processor */
-
-// FIXME: user should be able to set this value 
-
-static int
-model_guess_calc_threads()
-{
-    std::ifstream cpuinfo("/proc/cpuinfo");
-    if(!cpuinfo) return 1;
-
-    int nCPUs = 0;    
-    std::string line;
-
-    while(getline(cpuinfo,line))
-    {
-        if(strncmp(line.c_str(), "processor\t: ", strlen("processor\t: "))==0)
-        {
-            // we found a processor line
-            nCPUs++; 
-        }
-    }
-
-    // convert 0 to 1 if no CPUs found (maybe some fscker changed /proc)
-    return (nCPUs ? nCPUs : 1); 
-}
-
 model_t *
 model_new(void)
 {
@@ -254,7 +227,7 @@ model_new(void)
     m->undo_action.redo = model_restore_new_fractal;
     m->undo_action.free = model_free_undo_data;
 
-    m->nCalcThreads = model_guess_calc_threads();
+    m->nCalcThreads = 1; 
     gf4d_fractal_parameters_changed(m->fract);
 
     m->topWidget=NULL;
