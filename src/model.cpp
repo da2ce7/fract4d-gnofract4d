@@ -227,6 +227,13 @@ model_init_compiler(model_t *m,compiler *pc)
     model_set_compiler_location(m,compiler_location);
     g_free(compiler_location);
 
+    gchar *compiler_flags =
+        gnome_config_get_string(PACKAGE "/Compiler/flags");
+    if(NULL != compiler_flags)
+    {
+        model_set_compiler_flags(m,compiler_flags);
+    }
+
     pc->set_err_callback((void (*)(void *,const char *))model_on_error, (void *)m);
 }
 
@@ -249,6 +256,19 @@ const char *
 model_get_compiler_location(model_t *m)
 {
     return g_pCompiler->get_cc();
+}
+
+void
+model_set_compiler_flags(model_t *m, char *flags)
+{
+    g_pCompiler->flags = flags;
+    gnome_config_set_string(PACKAGE "/Compiler/flags", flags);
+}
+
+const char *
+model_get_compiler_flags(model_t *m)
+{
+    return g_pCompiler->flags.c_str();
 }
 
 model_t *

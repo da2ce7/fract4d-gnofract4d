@@ -36,6 +36,15 @@ set_cpath_cb(GtkEntry *e, GdkEventFocus *, gpointer user_data)
     return TRUE;
 }
 
+gboolean
+set_cflags_cb(GtkEntry *e, GdkEventFocus *, gpointer user_data)
+{
+    model_t *m = (model_t *)(m);
+    char *text = gtk_entry_get_text(e);
+    model_set_compiler_flags(m,text);
+    return TRUE;
+}
+
 void
 create_prefs_compiler_page(
     model_t *m,
@@ -68,6 +77,28 @@ create_prefs_compiler_page(
                        (GtkSignalFunc)set_cpath_cb,
                        m);
 
+    // Compiler flags
+    GtkWidget *cflags_label= gtk_label_new(_("Compiler Flags"));
+    gtk_widget_show(cflags_label);
+    gtk_table_attach(GTK_TABLE(table), cflags_label, 0,1,1,2, 
+                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+                     (GtkAttachOptions)0, 
+                     0, 2);
+
+    GtkWidget *cflags_entry= gnome_entry_new("cflags");
+    gtk_widget_show(cflags_entry);
+    gtk_table_attach(GTK_TABLE(table), cflags_entry, 1,2,1,2, 
+                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+                     (GtkAttachOptions)0, 
+                     0, 2);
+
+    entry = gnome_entry_gtk_entry( GNOME_ENTRY(cflags_entry));
+    gtk_entry_set_text(GTK_ENTRY(entry),model_get_compiler_flags(m));
+
+    gtk_signal_connect(GTK_OBJECT(entry),"focus-out-event",
+                       (GtkSignalFunc)set_cflags_cb,
+                       m);
+    
 }
 
 void create_prefs_box (model_t *m)

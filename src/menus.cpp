@@ -149,6 +149,7 @@ menu_quit_cb(GtkWidget       *widget,
     model_t *m = (model_t *)user_data;
     gf4d_fractal_interrupt(model_get_fract(m));
 
+    gnome_config_sync();
     model_write_autosave_file(m);
     gtk_main_quit();
     return FALSE;
