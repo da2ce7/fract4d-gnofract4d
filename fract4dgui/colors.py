@@ -93,7 +93,7 @@ class ColorDialog(dialog.T):
     def update_gradient(self):
         self.grad= copy.copy(self.f.gradient)
         self.solids = copy.copy(self.f.solids)
-
+        
     def copy_left(self,widget):
         i = self.selected_segment
         if i == -1 or i == 0:
@@ -108,6 +108,22 @@ class ColorDialog(dialog.T):
             return
 
         self.grad.segments[i+1].left_color = copy.copy(self.grad.segments[i].right_color)
+        self.redraw()
+
+    def split(self, widget):
+        i = self.selected_segment
+        if i == -1:
+            return
+        self.grad.add(i)
+        self.redraw()
+
+    def remove(self, widget):
+        i = self.selected_segment
+        if i == -1 or len(self.grad.segments)==1:
+            return
+        self.grad.remove(i, True)
+        if self.selected_segment > 0:
+            self.selected_segment -= 1
         self.redraw()
         
     def create_editor(self):
@@ -138,8 +154,8 @@ class ColorDialog(dialog.T):
         self.gradarea.connect('motion-notify-event', self.gradarea_mousemoved)
 
         gradbox.add(self.gradarea)
-        
-        buttonbox = gtk.HBox()
+
+        table = gtk.Table(3,4, True)
 
         self.left_color_button = utils.ColorButton(
             self.grad.segments[0].left_color, self.color_changed, True)
@@ -153,19 +169,36 @@ class ColorDialog(dialog.T):
             self.right_color_button.widget,
             _("Color of segment's right end"))
 
-        self.copy_left_button = gtk.Button(_("<"))
+        table.attach(gtk.Label("Left Color:"),
+                     0,1,0,1)
+        table.attach(self.left_color_button.widget,
+                     1,2,0,1, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+        table.attach(gtk.Label("Right Color:"),
+                     2,3,0,1)
+        table.attach(self.right_color_button.widget,
+                     3,4,0,1, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+
+        self.split_button = gtk.Button(_("Split"))
+        self.split_button.connect('clicked', self.split)
+        table.attach(self.split_button,
+                     0,1,1,2, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+
+        self.remove_button = gtk.Button(_("Remove"))
+        self.remove_button.connect('clicked', self.remove)
+        table.attach(self.remove_button,
+                     1,2,1,2, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+
+        self.copy_left_button = gtk.Button(_("<Copy"))
         self.copy_left_button.connect('clicked', self.copy_left)
-        buttonbox.add(self.copy_left_button)
-        buttonbox.add(self.left_color_button.widget)
-
-        buttonbox.add(self.right_color_button.widget)
-        self.copy_right_button = gtk.Button(_(">"))
-        buttonbox.add(self.copy_right_button)
-        self.copy_right_button.connect('clicked', self.copy_right)
-
-        gradbox.add(buttonbox)
+        table.attach(self.copy_left_button,
+                     2,3,1,2, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
         
-        solid_box = gtk.HBox()
+        self.copy_right_button = gtk.Button(_("Copy>"))
+        self.copy_right_button.connect('clicked', self.copy_right)
+        table.attach(self.copy_right_button,
+                     3,4,1,2, gtk.EXPAND | gtk.FILL, gtk.EXPAND)        
+
+
         self.inner_solid_button = utils.ColorButton(
             utils.floatColorFrom256(self.solids[1]),
             self.solid_color_changed, 1)
@@ -174,9 +207,16 @@ class ColorDialog(dialog.T):
             utils.floatColorFrom256(self.solids[0]),
             self.solid_color_changed, 0)
 
-        solid_box.add(self.inner_solid_button.widget)
-        solid_box.add(self.outer_solid_button.widget)
-        gradbox.add(solid_box)
+        table.attach(gtk.Label("Inner Color:"),
+                     0,1,2,3)
+        table.attach(self.inner_solid_button.widget,
+                     1,2,2,3, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+        table.attach(gtk.Label("Outer Color:"),
+                     2,3,2,3)
+        table.attach(self.outer_solid_button.widget,
+                     3,4,2,3, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+
+        gradbox.add(table)
 
         return gradbox
 
