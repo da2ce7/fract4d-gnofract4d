@@ -24,8 +24,7 @@ class FCTest(testbase.TestBase):
     def tearDown(self):
         pass
 
-    def testLoad(self):
-        
+    def testLoad(self):        
         ff = self.compiler.files["gf4d.frm"]
         self.assertNotEqual(string.index(ff.contents,"Modified for Gf4D"),-1)
         self.assertNotEqual(ff.get_formula("T03-01-G4"),None)
@@ -88,20 +87,6 @@ class FCTest(testbase.TestBase):
         f.merge(cf2,"cf1_")
 
         self.compiler.generate_code(f,cg,"test-cf.so",None)
-
-    def testFractal(self):
-        f = fc.Fractal(self.compiler)
-        f.set_formula("gf4d.frm","Mandelbrot")
-        f.set_inner("gf4d.cfrm","default")
-        f.set_outer("gf4d.cfrm","zero")
-        s = f.compile()
-
-    def testFractalBadness(self):
-        f = fc.Fractal(self.compiler)
-        self.assertRaises(ValueError,f.set_formula,"gf4d.frm","xMandelbrot")
-        self.assertRaises(ValueError,f.set_inner,"gf4d.cfrm","xdefault")
-        self.assertRaises(ValueError,f.set_outer,"gf4d.cfrm","xzero")
-        self.assertRaises(ValueError,f.compile)
         
         
 def suite():

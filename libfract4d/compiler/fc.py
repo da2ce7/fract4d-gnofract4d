@@ -34,44 +34,6 @@ class FormulaFile:
         self.contents = contents
     def get_formula(self,formula):
         return self.formulas.get(formula)
-
-class Fractal:
-    def __init__(self, compiler):
-        self.formula = None
-        self.cfuncs = [None,None]
-        self.compiler = compiler
-        self.outputfile = None
-
-    def __del__(self):
-        if self.outputfile:
-            os.remove(self.outputfile)
-        
-    def set_formula(self,formulafile,func):
-        self.formula = self.compiler.get_formula(formulafile,func)
-        if self.formula == None:
-            raise ValueError("no such formula: %s:%s" % (formulafile, func))
-        
-    def set_inner(self,funcfile,func):
-        self.cfuncs[0] = self.compiler.get_colorfunc(funcfile,func,"cf0")
-        if self.cfuncs[0] == None:
-            raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
-
-    def set_outer(self,funcfile,func):
-        self.cfuncs[1] = self.compiler.get_colorfunc(funcfile,func,"cf1")
-        if self.cfuncs[1] == None:
-            raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
-
-    def compile(self):
-        if self.formula == None:
-            raise ValueError("no formula")
-        cg = self.compiler.compile(self.formula)
-        self.compiler.compile(self.cfuncs[0])
-        self.compiler.compile(self.cfuncs[1])
-
-        self.formula.merge(self.cfuncs[0],"cf0_")
-        self.formula.merge(self.cfuncs[1],"cf1_")        
-        self.outputfile = self.compiler.generate_code(self.formula, cg)
-        return self.outputfile
                                     
 class Compiler:
     def __init__(self):

@@ -3,9 +3,11 @@
 
 import string
 import re
+import os
+
 
 class T:
-    def __init__(self):
+    def __init__(self,compiler):
         # set up defaults
         self.params = [
             0.0, 0.0, 0.0, 0.0, # center
@@ -29,14 +31,53 @@ class T:
             i += 1
         
         self.tr = string.maketrans("[]","__")
+
+        # formula support
+        self.formula = None
+        self.cfuncs = [None,None]
+        self.compiler = compiler
+        self.outputfile = None
+        self.set_inner("gf4d.cfrm","zero")
+        self.set_outer("gf4d.cfrm","default")
+
+    def __del__(self):
+        if self.outputfile:
+            os.remove(self.outputfile)
+
+    def set_formula(self,formulafile,func):
+        self.formula = self.compiler.get_formula(formulafile,func)
+        if self.formula == None:
+            raise ValueError("no such formula: %s:%s" % (formulafile, func))
         
+    def set_inner(self,funcfile,func):
+        self.cfuncs[0] = self.compiler.get_colorfunc(funcfile,func,"cf0")
+        if self.cfuncs[0] == None:
+            raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
+
+    def set_outer(self,funcfile,func):
+        self.cfuncs[1] = self.compiler.get_colorfunc(funcfile,func,"cf1")
+        if self.cfuncs[1] == None:
+            raise ValueError("no such colorfunc: %s:%s" % (funcfile, func))
+
+    def compile(self):
+        if self.formula == None:
+            raise ValueError("no formula")
+        cg = self.compiler.compile(self.formula)
+        self.compiler.compile(self.cfuncs[0])
+        self.compiler.compile(self.cfuncs[1])
+
+        self.formula.merge(self.cfuncs[0],"cf0_")
+        self.formula.merge(self.cfuncs[1],"cf1_")        
+        self.outputfile = self.compiler.generate_code(self.formula, cg)
+        return self.outputfile
+
     def parseVal(self,name,val,f,sect=""):
         # try to find a method matching name        
         meth = "parse_" + sect + name.translate(self.tr)
         try:
             self.__class__.__dict__[meth](self,val,f)
         except KeyError:
-            print "ignoring unknown attribute %s" % meth
+            #print "ignoring unknown attribute %s" % meth
             pass
         
     def set_param(self,n,val):
@@ -53,6 +94,7 @@ class T:
 
     def parse_func_function(self,val,f):
         self.funcName = val
+        self.set_formula("gf4d.frm",self.funcName)
         
     def parse_x(self,val,f):
         self.set_param(self.XCENTER,val)
@@ -95,7 +137,7 @@ class T:
 
     def parse_antialias(self,val,f):
         self.antialias = int(val)
-        
+
     def nameval(self,line):
         x = line.rstrip().split("=",1)
         if len(x) == 0: return (None,None)
