@@ -605,6 +605,7 @@ func fn1
         hyper h3 = y * x ; check commutativity
         hyper hr = recip(x)
         hyper xnew = x * recip(x)
+        hyper zero_ = x + -x
         float m = |x|
         }'''
         self.assertCSays(src,"init",
@@ -615,6 +616,7 @@ func fn1
                          self.inspect_hyper("hm") +
                          self.inspect_hyper("hr") +
                          self.inspect_hyper("xnew") +
+                         self.inspect_hyper("zero_") +
                          self.inspect_float("m"),
                          "x = (1,2,-3,4)\n" +
                          "y = (5,3,-4,4)\n" +
@@ -623,6 +625,7 @@ func fn1
                          "hm = (0,1,-4,5)\n" +
                          "hr = (-0.1,0,0.1,0.2)\n" +
                          "xnew = (1,0,0,0)\n" +
+                         "zero_ = (0,0,0,0)\n" +
                          "m = 30")
         
         # access to parts

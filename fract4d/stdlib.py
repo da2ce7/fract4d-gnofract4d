@@ -37,6 +37,14 @@ def neg_c_c(gen,t,srcs):
         gen.emit_func('-', [srcs[0].re], Float),
         gen.emit_func('-', [srcs[0].im], Float))
 
+def neg_h_h(gen,t,srcs):
+    src = srcs[0]
+    return HyperArg(
+        gen.emit_func('-', [src.parts[0]], Float),
+        gen.emit_func('-', [src.parts[1]], Float),
+        gen.emit_func('-', [src.parts[2]], Float),
+        gen.emit_func('-', [src.parts[3]], Float))
+
 # basic binary operation
 def add_ff_f(gen,t,srcs):
     return gen.emit_binop(t.op,srcs,t.datatype)
