@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <cassert>
 
 #include "image.h"
 #include "iterFunc.h"

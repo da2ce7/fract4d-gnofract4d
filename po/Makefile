@@ -14,7 +14,7 @@
 
 GETTEXT_PACKAGE = gnofract4d
 PACKAGE = gnofract4d
-VERSION = 1.8
+VERSION = 1.9
 
 SHELL = /bin/sh
 
@@ -56,8 +56,8 @@ INCLUDES = -I.. -I$(top_srcdir)/intl
 COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(XCFLAGS)
 
 SOURCES = 
-POFILES = 
-GMOFILES = 
+POFILES =  it.po
+GMOFILES =  it.gmo
 DISTFILES = ChangeLog Makefile.in.in POTFILES.in $(GETTEXT_PACKAGE).pot \
 $(POFILES) $(GMOFILES) $(SOURCES)
 
@@ -84,7 +84,7 @@ POTFILES = \
 	../src/tls.cpp \
 	../src/toolbars.cpp
 
-CATALOGS = 
+CATALOGS =  it.gmo
 CATOBJEXT = .gmo
 INSTOBJEXT = .mo
 

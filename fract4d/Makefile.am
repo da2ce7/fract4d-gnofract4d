@@ -13,4 +13,4 @@ fract4d_SOURCES = \
 fract4d_LDADD = ../libfract4d/libfract4d.la $(GNOME_LIBDIR) $(GTK_LIBS) \
 	$(GNOMEUI_LIBS) $(INTLLIBS)
 
-CXXFLAGS = -g -O3 -ffast-math -Wall -D_REENTRANT -DCXX="\"$(CXX)\"" 
+AM_CXXFLAGS = -g -O3 -ffast-math -Wall -D_REENTRANT -DCXX="\"$(CXX)\"" 
