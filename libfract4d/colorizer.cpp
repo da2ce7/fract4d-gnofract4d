@@ -210,7 +210,7 @@ cmap_colorizer::operator=(const cmap_colorizer& c)
 {
     if(this != &c)
     {
-	std::cout << "update " << this << " from " << c;
+	//std::cout << "update " << this << " from " << c;
 	delete[] cmap;
 	cmap = new rgb_t[size];
 	for(int i =0; i < size; i++)

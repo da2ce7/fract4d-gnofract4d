@@ -468,15 +468,15 @@ int  gf4d_fractal_set_resolution(Gf4dFractal *f, int xres, int yres)
     return 1;
 }
 
-colorizer_t *gf4d_fractal_get_colorizer(Gf4dFractal *f)
+colorizer_t *gf4d_fractal_get_colorizer(Gf4dFractal *f, int i)
 {
-    return f->f->get_colorizer(0); // FIXME
+    return f->f->get_colorizer(i); 
 }
 
-void gf4d_fractal_set_colorizer(Gf4dFractal *f, colorizer_t *cizer)
+void gf4d_fractal_set_colorizer(Gf4dFractal *f, colorizer_t *cizer, int i)
 {
     kill_slave_threads(f);
-    f->f->set_colorizer(cizer,0); // FIXME
+    f->f->set_colorizer(cizer,i); 
 }
 
 /* stop calculating now! */

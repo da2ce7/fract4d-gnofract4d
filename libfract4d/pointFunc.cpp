@@ -37,7 +37,7 @@
 class pf_wrapper : public pointFunc
 {
 private:
-    colorizer *m_pcizer;
+    colorizer **m_ppcizer;
     void *m_handle; 
     colorFunc *m_pOuterColor;
     colorFunc *m_pInnerColor;
@@ -53,12 +53,12 @@ public:
 	double bailout,
 	double period_tolerance,
 	std::complex<double> *params,
-	colorizer *pcizer, 
+	colorizer **ppcizer, 
 	void *dlHandle, 
 	e_colorFunc outerCfType, e_colorFunc innerCfType,
 	const char *outerCtfType, const char *innerCtfType
 	) : 
-	m_pcizer(pcizer), m_handle(dlHandle), m_pfo(pfo)
+	m_ppcizer(ppcizer), m_handle(dlHandle), m_pfo(pfo)
 	{
 	    m_pfo->vtbl->init(m_pfo,bailout,period_tolerance,params);
 
@@ -105,8 +105,13 @@ public:
 
 	    if(color)
 	    {
-		*color = m_pcizer->calc(colorDist);
+		*color = calcColor(*pnIters,colorDist);
 	    }
+	}
+    inline rgb_t calcColor(int iter, double dist) const
+	{
+	    int id = iter == -1 ? 1 : 0;
+	    return  m_ppcizer[id]->calc(dist);
 	}
     inline colorFunc *getColorFunc(int iter) const
 	{
@@ -147,7 +152,7 @@ public:
 	    double dist = (*pcf)(iter, eject, buf);
 	    colorTransferFunc *pctf = getColorTransferFunc(iter);
 	    dist = pctf->calc(dist);
-            return m_pcizer->calc(dist);
+            return calcColor(iter,dist);
 	}
     virtual int buffer_size() const
 	{
@@ -162,7 +167,7 @@ pointFunc *pointFunc::create(
     bailFunc *bailType, 
     double bailout,
     double periodicity_tolerance,
-    colorizer *pcf,
+    colorizer **ppcf,
     e_colorFunc outerCfType,
     e_colorFunc innerCfType,
     const char *outerCtfType,
@@ -196,7 +201,7 @@ pointFunc *pointFunc::create(
 	bailout,
 	periodicity_tolerance,
 	iterType->opts(),
-	pcf, dlHandle, 
+	ppcf, dlHandle, 
 	outerCfType, innerCfType,
 	outerCtfType, innerCtfType);
 }

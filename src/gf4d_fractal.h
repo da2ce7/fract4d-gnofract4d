@@ -140,8 +140,8 @@ iterFunc *gf4d_fractal_get_func(Gf4dFractal *f);
 void gf4d_fractal_set_func(Gf4dFractal *f, const char *type);
 
 /* color functions */
-colorizer_t *gf4d_fractal_get_colorizer(Gf4dFractal *f);
-void gf4d_fractal_set_colorizer(Gf4dFractal *f, colorizer_t *cizer);
+colorizer_t *gf4d_fractal_get_colorizer(Gf4dFractal *f, int which_cizer);
+void gf4d_fractal_set_colorizer(Gf4dFractal *f, colorizer_t *cizer, int which_cizer);
 
 // type = 0 for outer, 1 for inner
 e_colorFunc gf4d_fractal_get_colorFunc(Gf4dFractal *f, int type);

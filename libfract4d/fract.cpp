@@ -35,6 +35,7 @@
 #include <cmath>
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #ifdef _WIN32
 #include "win_drand.h"
@@ -60,8 +61,6 @@
 
 #define FIELD_INNER "inner"
 #define FIELD_OUTER "outer"
-
-#define FIELD_ID "id"
 
 #define SECTION_ITERFUNC "[function]"
 #define SECTION_LEGACY_COLORIZER "[colors]"
@@ -343,12 +342,14 @@ fractal::reset()
 colorizer_t *
 fractal::get_colorizer(int i) const
 {
+    assert(i >= 0 && i < N_COLORFUNCS);
     return cizers[i];
 }
 
 void
 fractal::set_colorizer(colorizer_t *c, int i)
 {
+    assert(i >= 0 && i < N_COLORFUNCS);
     if(cizers[i] == c) return;
 
     delete cizers[i];
@@ -387,8 +388,7 @@ fractal::write_params(const char *filename) const
     os << SECTION_ITERFUNC << "\n" << *pIterFunc;
     for(int i = 0; i < N_COLORFUNCS; ++i)
     {
-	os << SECTION_COLORIZER << "\n";
-	os << FIELD_ID << "=" << i << "\n";
+	os << SECTION_COLORIZER << "=" << i << "\n";
 	os << *cizers[i];
     }
     if(!os) return false;
@@ -469,17 +469,13 @@ fractal::load_params(const char *filename)
         }
 	else if(SECTION_COLORIZER==name)
 	{
-	    // id must be first field in cizer section
-	    if(!read_field(is,name,val))
-	    {
-		break;
-	    }
+	    // section header is followed by an id, eg
+	    // [colorizer]=2
+	    // Unorthodox but easy...
+
 	    int id=0;
-	    if(FIELD_ID==name)
-		vs >> id;
-	    else
-		break;
-	    
+	    vs >> id;
+
 	    colorizer *cizer_tmp = colorizer_read(is);
             if(cizer_tmp)
             {
@@ -737,7 +733,7 @@ fractal::recolor(IImage *im)
         bailout_type,
         params[BAILOUT],
         tolerance(im),
-        cizers[0],
+        cizers,
         colorFuncs[OUTER],
         colorFuncs[INNER],
 	colorTransferFuncs[OUTER],

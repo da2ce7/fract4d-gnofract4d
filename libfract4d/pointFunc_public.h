@@ -63,7 +63,7 @@ class pointFunc {
 	bailFunc *bailType,
 	double eject,
 	double periodicity_tolerance,
-	colorizer *pcf,
+	colorizer **ppcf,
 	e_colorFunc outerCfType,    
 	e_colorFunc innerCfType,
 	const char *outerCtfType,

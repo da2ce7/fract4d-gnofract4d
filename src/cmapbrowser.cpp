@@ -39,8 +39,12 @@
 
 #define BYTE_SIZE ((PREVIEW_SIZE) * (PREVIEW_SIZE) * 3)
 
+/* don't destroy the dialog when it's closed, just hide it */
+static GtkWidget *dialog = NULL;
 
-GtkWidget *current_colorbut = NULL;
+static GtkWidget *current_colorbut = NULL;
+
+static int current_colorizer = 0; 
 
 void update_previews(GtkWidget *button, gpointer user_data);
 
@@ -54,17 +58,17 @@ update_preview_image(Gf4dFractal *f, GtkWidget *drawable, model_t *m_if_edit)
         GTK_OBJECT(drawable), "colorizer"); 
     g_assert(cizer);
 
-    
     if(m_if_edit)
     {
 	delete cizer;
-	cizer = gf4d_fractal_get_colorizer(model_get_fract(m_if_edit))->clone();
+	Gf4dFractal *mf = model_get_fract(m_if_edit);
+	cizer = gf4d_fractal_get_colorizer(mf,current_colorizer)->clone();
 	gtk_object_set_data(GTK_OBJECT(drawable), "colorizer",cizer);
     }
     
 
     // fractal copies new cizer
-    gf4d_fractal_set_colorizer(f,cizer);
+    gf4d_fractal_set_colorizer(f,cizer,current_colorizer);
     gf4d_fractal_recolor(f);
     
     // copy contents of image to drawable's backing store
@@ -141,7 +145,7 @@ preview_button_clicked(GtkWidget *button, gpointer user_data)
     if(model_cmd_start(m, "preview"))
     {
         Gf4dFractal *f = model_get_fract(m);
-        gf4d_fractal_set_colorizer(f, cizer);
+        gf4d_fractal_set_colorizer(f, cizer,current_colorizer);
         model_cmd_finish(m, "preview");
 
 	update_previews(button,m);
@@ -223,7 +227,7 @@ void
 update_previews(GtkWidget *button, gpointer user_data)
 {
     model_t *m = (model_t *)user_data;
-    GtkWidget *dialog = gtk_widget_get_toplevel(button);
+    //GtkWidget *dialog = gtk_widget_get_toplevel(button);
     Gf4dFractal *f = GF4D_FRACTAL(gtk_object_get_data(GTK_OBJECT(dialog), "fractal"));
 
     // update this fractal with the main one
@@ -236,10 +240,6 @@ update_previews(GtkWidget *button, gpointer user_data)
     // recalc
     gf4d_fractal_calc(f,1 );
 }
-
-/* don't destroy the dialog when it's closed, just hide it */
-static GtkWidget *dialog = NULL;
-
 
 /* add a directory full of map-files to the browser */
 void
@@ -549,7 +549,9 @@ create_new_color_page(GtkWidget *notebook, model_t *m)
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
     rgb_colorizer *cizer = new rgb_colorizer();
-    GtkWidget *rgb_preview = create_cmap_browser_item(m, tips, cizer, "fred",false);
+    GtkWidget *rgb_preview = 
+	create_cmap_browser_item(m, tips, cizer, "fred",false);
+
     gtk_table_attach(GTK_TABLE(table), rgb_preview, 1, 2, 1, 2, 
                      (GtkAttachOptions) 0, (GtkAttachOptions) 0, 0, 0);
 
@@ -561,6 +563,69 @@ create_new_color_page(GtkWidget *notebook, model_t *m)
 
     return table;
 }
+
+void set_id_callback(GtkWidget *menu_item, gpointer user_data)
+{
+    model_t *m = (model_t *)user_data;
+
+    int id = GPOINTER_TO_INT(
+	gtk_object_get_data(GTK_OBJECT(menu_item), "id"));
+ 
+    if(id == current_colorizer) {
+	// nothing to do
+	return;
+    }
+    current_colorizer = id;
+
+    update_previews(menu_item,m);
+}
+
+GtkWidget *
+create_which_colorizer_menu(GtkWidget *vbox, Gf4dFractal *shadow, model_t *m)
+{
+    GtkWidget *func_type = gtk_option_menu_new();
+    GtkWidget *func_menu = gtk_menu_new();
+    
+    GtkWidget *menu_item = gtk_menu_item_new_with_label("Outer");
+    
+    gtk_object_set_data(
+	GTK_OBJECT (menu_item), 
+	"id",
+	GINT_TO_POINTER(0));
+    
+    gtk_signal_connect(
+	GTK_OBJECT(menu_item),
+	"activate",
+	GTK_SIGNAL_FUNC(set_id_callback),
+	m);
+    
+    gtk_menu_append(GTK_MENU(func_menu), menu_item);
+    gtk_option_menu_set_menu(GTK_OPTION_MENU(func_type), func_menu);
+
+    menu_item = gtk_menu_item_new_with_label("Inner");
+    
+    gtk_object_set_data(
+	GTK_OBJECT (menu_item), 
+	"id",
+	GINT_TO_POINTER(1));
+    
+    gtk_signal_connect(
+	GTK_OBJECT(menu_item),
+	"activate",
+	GTK_SIGNAL_FUNC(set_id_callback),
+	m);
+    
+    gtk_menu_append(GTK_MENU(func_menu), menu_item);
+    gtk_option_menu_set_menu(GTK_OPTION_MENU(func_type), func_menu);
+
+    gtk_widget_show_all(func_type);
+
+    gtk_box_pack_start(GTK_BOX(vbox), func_type, TRUE, TRUE, 0);
+
+    return func_type;
+
+}
+
 
 /* create or show the colormap browser */
 GtkWidget *
@@ -615,6 +680,8 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
     //GtkWidget *table3 = create_edit_colormap_page(notebook,m);
     GtkWidget *table2 = create_new_color_page(notebook, m);
 
+    /* selector for which colorizer */
+    GtkWidget *selector = create_which_colorizer_menu(vbox,f,m);
 
     // setup callbacks from fract's calculations
     
