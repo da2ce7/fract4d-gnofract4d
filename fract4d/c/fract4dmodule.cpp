@@ -949,6 +949,26 @@ fw_pixel(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+fw_pixel_aa(PyObject *self, PyObject *args)
+{
+    PyObject *pyworker;
+    int x,y;
+
+    if(!PyArg_ParseTuple(args, "Oii",
+			 &pyworker,
+			 &x,&y))
+    {
+	return NULL;
+    }
+    
+    IFractWorker *worker = (IFractWorker *)PyCObject_AsVoidPtr(pyworker);
+    worker->pixel_aa(x,y);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 ff_create(PyObject *self, PyObject *args)
 {
     PyObject *pypfo, *pycmap, *pyim, *pysite, *pyworker;
@@ -1362,6 +1382,8 @@ static PyMethodDef PfMethods[] = {
     { "ff_create", ff_create, METH_VARARGS,
       "Create a fractFunc." },
     { "fw_pixel", fw_pixel, METH_VARARGS,
+      "Draw a single pixel." },
+    { "fw_pixel_aa", fw_pixel_aa, METH_VARARGS,
       "Draw a single pixel." },
     
     { "calc", pycalc, METH_VARARGS,
