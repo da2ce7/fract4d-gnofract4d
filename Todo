@@ -36,9 +36,9 @@ todo for 2.0
 * BB	lattice.fct - 1.9 is wrong too!
 * B	browser pops up whenever click on fractal
 * WW	docs
-* BBB	crash when edit fractal parameters: G_IS_OBJECT(object) failed
 
 done:
+* BBB	crash when edit fractal parameters: G_IS_OBJECT(object) failed
 * W	make default fractal more interesting
 * B	Reset changes antialiasing
 * B	mandelbar is a circle (?)
