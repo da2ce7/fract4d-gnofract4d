@@ -22,7 +22,44 @@ class CodegenTest(unittest.TestCase):
         self.fakeNode = absyn.Empty(0)
         self.codegen = codegen.T(symbol.T())
         self.parser = fractparser.parser
-        
+        self.main_stub = '''
+int main()
+{
+    double pparams[] = { 1.5, 0.0, 0.0, 0.0};
+    double initparams[] = {5.0, 2.0};
+    int nItersDone=0;
+    int nFate=0;
+    double dist=0.0;
+    pf_obj *pf = pf_new();
+    pf->vtbl->init(pf,0.001,initparams,2);
+    
+    pf->vtbl->calc(
+         pf,
+         pparams,
+         100, 100,
+         0,0,0,
+         &nItersDone, &nFate, &dist);
+    
+    printf("(%d,%d,%g)\\n",nItersDone,nFate,dist);
+
+    pparams[0] = 0.1; pparams[1] = 0.2;
+    pparams[2] = 0.1; pparams[3] = 0.3;
+    initparams[0] = 3.0; initparams[1] = 3.5;
+    
+    pf->vtbl->calc(
+        pf,
+        pparams,
+        20, 20,
+        0,0,0,
+        &nItersDone, &nFate, &dist);
+
+    printf("(%d,%d,%g)\\n",nItersDone,nFate,dist);
+
+    pf->vtbl->kill(pf);
+    return 0;
+}
+'''
+    
     def tearDown(self):
         pass
 
@@ -339,7 +376,7 @@ goto t__end_init;''')
         endif
         }'''
         self.assertCSays(src,"init","printf(\"%d\\n\",y);","2")
-                
+        
     def testParams(self):
         src = 't_cp0{\ninit: complex @p = (2,1)\n}'
         self.assertCSays(src,"init",self.inspect_complex("t__a_p"),
@@ -484,43 +521,7 @@ bailout:
 
         inserts = {
             "loop_inserts":"printf(\"(%g,%g)\\n\",z_re,z_im);",
-            "main_inserts":'''
-int main()
-{
-    double pparams[] = { 1.5, 0.0, 0.0, 0.0};
-    double initparams[] = {5.0, 2.0};
-    int nItersDone=0;
-    int nFate=0;
-    double dist=0.0;
-    pf_obj *pf = pf_new();
-    pf->vtbl->init(pf,0.001,initparams,2);
-    
-    pf->vtbl->calc(
-         pf,
-         pparams,
-         100, 100,
-         0,0,0,
-         &nItersDone, &nFate, &dist);
-    
-    printf("(%d,%d,%g)\\n",nItersDone,nFate,dist);
-
-    pparams[0] = 0.1; pparams[1] = 0.2;
-    pparams[2] = 0.1; pparams[3] = 0.3;
-    initparams[0] = 3.0; initparams[1] = 3.5;
-    
-    pf->vtbl->calc(
-        pf,
-        pparams,
-        20, 20,
-        0,0,0,
-        &nItersDone, &nFate, &dist);
-
-    printf("(%d,%d,%g)\\n",nItersDone,nFate,dist);
-
-    pf->vtbl->kill(pf);
-    return 0;
-}
-'''
+            "main_inserts": self.main_stub
             }
         c_code = self.codegen.output_c(t,inserts)
         #print c_code
@@ -566,6 +567,32 @@ bailout:
         # 1st point we try should bail out 
         self.assertEqual(lines, lines3, output3)
 
+    def testFinal(self):
+        # test that final section works
+        src = '''t_mandel{
+init:
+loop:
+z = z*z + pixel
+bailout:
+|z| < 4.0
+final:
+z = (-77.0,9.0)
+}'''
+        t = self.translate(src)
+        self.codegen.output_all(t, {"z" : "", "pixel" : ""} )
+
+        inserts = {
+            "main_inserts": self.main_stub,
+            "done_inserts": "printf(\"(%g,%g)\\n\",z_re,z_im);",
+            "pre_final_inserts": "printf(\"(%g,%g)\\n\",z_re,z_im);"
+            }
+        c_code = self.codegen.output_c(t,inserts)
+        #print c_code
+        output = self.compileAndRun(c_code)
+        lines = string.split(output,"\n")
+        self.assertEqual(lines[1],"(-77,9)")
+        self.assertEqual(lines[4],"(-77,9)")
+        
     def testLibrary(self):
         # create a library containing the compiled code
         src = '''

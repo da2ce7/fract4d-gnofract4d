@@ -120,6 +120,9 @@ class T:
         if s: self.loop(s)
         s = f.childByName("bailout")
         if s: self.bailout(s)
+        s = f.childByName("final")
+        if s: self.final(s)
+
         #  ignore switch and builtin for now
 
     def canonicalize(self):
@@ -186,6 +189,9 @@ class T:
 
     def global_(self,node):
         self.sections["global"] = self.stmlist(node)
+
+    def final(self,node):
+        self.sections["final"] = self.stmlist(node)
 
     def stmlist(self, node):
         children = filter(lambda c : c.type != "empty", node.children)

@@ -253,7 +253,11 @@ do
     t__p_nIters++;
 }while(%(bailout_var)s && t__p_nIters < t__p_nMaxIters);
 
+%(pre_final_inserts)s
+%(final)s
+t__end_final:
 %(done_inserts)s
+
 /* fate of 0 = escaped, 1 = trapped */
 *t__p_pFate = (t__p_nIters >= t__p_nMaxIters);
 *t__p_pnIters = t__p_nIters;
