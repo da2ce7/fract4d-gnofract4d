@@ -161,21 +161,23 @@ class CodegenTest(unittest.TestCase):
         self.assertEqual(x.format(),"t__temp0")
 
         self.assertEqual(len(self.codegen.out),1)
+        op = self.codegen.out[0]
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
-        
-        
-    def x_testComplexAdd(self):
+        self.assertEqual(op.format(),"t__temp0 = 0 + a;",op.format())
+
+    def testComplexAdd(self):
         # (1,3) + a
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"+",Complex)
-        self.generate_code(tree)
+        x = self.codegen.generate_code(tree)
+        self.assertEqual(isinstance(x,codegen.ComplexArg),1,x)
+
         self.assertEqual(len(self.codegen.out),2)
-        self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
 
         expAdd = "t__temp0 = 1.00000000000000000 + a_re;\n" + \
                  "t__temp1 = 3.00000000000000000 + a_im;"
         self.assertOutputMatch(expAdd)
 
-        # a + (1,3) gets reversed
+        # a + (1,3) 
         tree = self.binop([self.var("a",Complex),self.const([1,3],Complex)],"+",Complex)
         self.generate_code(tree)
         self.assertEqual(len(self.codegen.out),2)
@@ -186,7 +188,24 @@ class CodegenTest(unittest.TestCase):
 
         self.assertOutputMatch(expAdd)
 
-    def x_testComplexMul(self):
+        # a + b + c
+        tree = self.binop([
+            self.binop([
+                self.var("a",Complex),
+                self.var("b",Complex)],"+",Complex),
+            self.var("c", Complex)],"+",Complex)
+        self.generate_code(tree)
+        self.assertEqual(len(self.codegen.out),4)
+        self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
+
+        expAdd = "t__temp0 = a_re + b_re;\n" + \
+                 "t__temp1 = a_im + b_im;\n" + \
+                 "t__temp2 = t__temp0 + c_re;\n" +\
+                 "t__temp3 = t__temp1 + c_im;"
+
+        self.assertOutputMatch(expAdd)
+        
+    def testComplexMul(self):
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"*",Complex)
         self.generate_code(tree)
         self.assertEqual(len(self.codegen.out),6)

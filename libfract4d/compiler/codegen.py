@@ -41,26 +41,34 @@ class ComplexArg:
         self.re = re
         self.im = im
     def format(self):
-        [self.re.format(), self.i.format()]
-        
+        [self.re.format(), self.im.format()]
+    def __str__(self):
+        return "Complex(%s,%s)" % (self.re, self.im)
+    
 class ConstFloatArg:
     def __init__(self,value):
         self.value = value
     def format(self):
         return "%.17f" % self.value
-
+    def __str__(self):
+        return "Float(%s)" % self.format()
+    
 class ConstIntArg:
     def __init__(self,value):
         self.value = value
     def format(self):
         return "%d" % self.value
-
+    def __str__(self):
+        return "Int(%s)" % self.format()
+    
 class TempArg:
     def __init__(self,value):
         self.value = value
     def format(self):
         return self.value
-
+    def __str__(self):
+        return "Temp(%s)" % self.format()
+    
 def create_arg_from_val(type,val):
     if type == Int or type == Bool:
         return ConstIntArg(val)
@@ -322,20 +330,21 @@ return 0;
         s1 = t.children[1]
         srcs = [self.generate_code(s0), self.generate_code(s1)]
         if t.datatype == fracttypes.Complex:
+            assert(isinstance(srcs[0],ComplexArg),srcs[0])
+            assert(isinstance(srcs[1],ComplexArg),srcs[1])
             if t.op=="+" or t.op == "-":
-                dst = [
-                    self.emit_binop(t.op,s0,0, s1,0, reals(srcs), Float),
-                    self.emit_binop(t.op,s0,1, s1,1, imags(srcs), Float)]
+                dst = ComplexArg(
+                    self.emit_binop(t.op,[srcs[0].re,srcs[1].re], Float),
+                    self.emit_binop(t.op,[srcs[0].im,srcs[1].im], Float))
             elif t.op=="*":
                 # (a+ib) * (c+id) = ac - bd + i(bc + ad)
-                r = reals(srcs) ; i = imags(srcs)
-                ac = self.emit_binop(t.op, s0, 0, s1, 0, r, Float)
-                bd = self.emit_binop(t.op, s0, 1, s1, 1, i, Float)
-                bc = self.emit_binop(t.op, s0, 1, s1, 0, [r[0],i[1]], Float)
-                ad = self.emit_binop(t.op, s0, 0, s1, 1, [r[1],i[0]], Float)
-                dst = [
-                    self.emit_binop('-', ac, -1, bd, -1, [ac, bd], Float),
-                    self.emit_binop('+', bc, -1, ad, -1, [bc, ad], Float)]
+                ac = self.emit_binop(t.op, [srcs[0].re, srcs[1].re], Float)
+                bd = self.emit_binop(t.op, [srcs[0].im, srcs[1].im], Float)
+                bc = self.emit_binop(t.op, [srcs[0].im, srcs[1].re], Float)
+                ad = self.emit_binop(t.op, [srcs[0].re, srcs[1].im], Float)
+                dst = ComplexArg(
+                    self.emit_binop('-', [ac, bd], Float),
+                    self.emit_binop('+', [bc, ad], Float))
             elif t.op==">" or t.op==">=" or t.op=="<" or t.op == "<=":
                 # compare real parts only
                 dst = [
@@ -356,7 +365,7 @@ return 0;
                 raise fracttypes.TranslationError(msg)
         else:
             dst = self.emit_binop(t.op,srcs,t.datatype)
-            
+
         return dst
     
     def const(self,t):
