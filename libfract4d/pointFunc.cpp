@@ -39,7 +39,6 @@ class pf_wrapper : public pointFunc
 private:
     colorizer **m_ppcizer;
     void *m_handle; 
-    iterFunc *m_iterType;
     colorFunc *m_pOuterColor;
     colorFunc *m_pInnerColor;
     colorTransferFunc *m_pOuterCTF;    
@@ -51,7 +50,6 @@ private:
 public:
     pf_wrapper(
 	pf_obj *pfo,
-	iterFunc *iterType,
 	double bailout,
 	double period_tolerance,
 	std::complex<double> *params,
@@ -60,7 +58,7 @@ public:
 	e_colorFunc outerCfType, e_colorFunc innerCfType,
 	const char *outerCtfType, const char *innerCtfType
 	) : 
-	m_ppcizer(ppcizer), m_handle(dlHandle), m_iterType(iterType), m_pfo(pfo)
+	m_ppcizer(ppcizer), m_handle(dlHandle), m_pfo(pfo)
 	{
 	    m_pfo->vtbl->init(m_pfo,bailout,period_tolerance,params);
 
@@ -165,8 +163,8 @@ public:
 
 
 pointFunc *pointFunc::create(
-    iterFunc *iterType, 
-    bailFunc *bailType, 
+    void *dlHandle,
+    iterFunc *iterType,
     double bailout,
     double periodicity_tolerance,
     colorizer **ppcf,
@@ -175,17 +173,10 @@ pointFunc *pointFunc::create(
     const char *outerCtfType,
     const char *innerCtfType)
 {
-    std::map<std::string,std::string> code_map;
-    iterType->get_code(code_map);
-    bailType->get_code(code_map, iterType->flags());
-
-    // disable periodicity if inner function will show its effect
-    if(innerCfType != COLORFUNC_ZERO)
+    if(NULL == dlHandle)
     {
-	code_map["NOPERIOD"]="1";
+	return NULL;
     }
-	    
-    void *dlHandle = g_pCompiler->getHandle(code_map);
 
     // get a pointer to the pf_new function in the new .so
     pf_obj *(*pFunc)() = (pf_obj *(*)()) dlsym(dlHandle, "pf_new");
@@ -200,7 +191,6 @@ pointFunc *pointFunc::create(
 	    
     return new pf_wrapper(
 	p,
-	iterType,
 	bailout,
 	periodicity_tolerance,
 	iterType->opts(),

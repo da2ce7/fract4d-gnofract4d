@@ -59,8 +59,8 @@ class pointFunc {
  public:
     /* factory method for making new pointFuncs */
     static pointFunc *create(
-	iterFunc *iterType, 
-	bailFunc *bailType,
+	void *dlHandle, // library containing compiled code
+	iterFunc *iterType,
 	double eject,
 	double periodicity_tolerance,
 	colorizer **ppcf,

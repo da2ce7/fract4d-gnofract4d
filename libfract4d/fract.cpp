@@ -84,7 +84,7 @@ fractal::fractal()
 {
     // set fractal type to first type in list
     const char **names = iterFunc::names();
-    pIterFunc = iterFunc::create(names[0]);
+    pIterFunc = iterFunc::create(names[0], NULL);
 
     reset();
 
@@ -228,7 +228,7 @@ void
 fractal::set_fractal_type(const char *name)
 {
     delete pIterFunc;
-    pIterFunc = iterFunc::create(name);
+    pIterFunc = iterFunc::create(name, NULL);
 
     assert(pIterFunc > (void *)0x1000);
     pIterFunc->reset(params);
@@ -375,9 +375,9 @@ fractal::write_params(const char *filename) const
 {
     std::ofstream os(filename);
 
-    os << std::setprecision(20);
-
     if(!os) return false;
+
+    os << std::setprecision(20);
 
     os << PACKAGE << " parameter file\n";
     os << FIELD_VERSION << "=" << VERSION << "\n";
@@ -742,9 +742,10 @@ fractal::calc(IFractalSite *site, IImage *im)
 void 
 fractal::recolor(IImage *im)
 {
+    void *handle = g_pCompiler->compile(this);
     pointFunc *p = pointFunc::create(
-        pIterFunc,
-        bailout_type,
+	handle,
+	pIterFunc,
         params[BAILOUT],
         tolerance(im),
         cizers,

@@ -727,8 +727,17 @@ const char **iterFunc::names()
     return nameTable;
 }
 
+#if 0
+bool 
+iterFunc::load_file(const char *filename)
+{
+
+
+}
+#endif
+
 // factory method to make new iterFuncs
-iterFunc *iterFunc::create(const char *name)
+iterFunc *iterFunc::create(const char *name, const char *filename)
 {
     if(!name) return NULL;
 
@@ -758,7 +767,7 @@ iterFunc *iterFunc::read(std::istream& s)
     
         if(FIELD_FUNCTION == name)
         {
-            iterFunc *f = iterFunc::create(value.c_str());
+            iterFunc *f = iterFunc::create(value.c_str(),NULL);
             if(f)
             {
                 s >> *f;

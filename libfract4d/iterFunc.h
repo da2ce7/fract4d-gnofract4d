@@ -31,12 +31,21 @@
 #include "fract_public.h"
 #include "pointFunc_public.h"
 
-/* a function which performs a single fractal iteration */
+/* an option used to parameterize the action of a formula */
+class IFractOption {    
+ public:
+    virtual const char *name() const = 0;
+    virtual const char *help() const = 0;
+
+    virtual ~IFractOption() {};
+};
+
+/* a fractal formula */
 
 class iterFunc {
  public:
     // factory method for create-by-name
-    static iterFunc *create(const char *name);
+    static iterFunc *create(const char *name, const char *filename);
 
     static iterFunc *read(std::istream& is);
 
