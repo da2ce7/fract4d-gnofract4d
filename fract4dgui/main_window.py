@@ -61,7 +61,7 @@ class MainWindow:
                                       self.on_prefs_changed)
 
         self.create_menu()
-        #self.create_toolbar()
+        self.create_toolbar()
         self.create_fractal(self.f)
         self.create_status_bar()
         
@@ -83,9 +83,11 @@ class MainWindow:
         if visible:
             for f in self.subfracts:
                 f.widget.show()
+                self.weirdness.show()
         else:
             for f in self.subfracts:
                 f.widget.hide()
+                self.weirdness.hide()
                 
         self.show_subfracts = visible
         self.update_image_prefs(preferences.userPrefs)
@@ -95,8 +97,9 @@ class MainWindow:
             return
         
         for f in self.subfracts:
+            f.interrupt()
             f.set_fractal(self.f.copy_f())
-            f.mutate(0.5)
+            f.mutate(self.weirdness_adjustment.get_value()/100.0)
             aa = preferences.userPrefs.getint("display","antialias")
             auto_deepen = preferences.userPrefs.getint("display","autodeepen")
             f.draw_image(aa,auto_deepen)
@@ -331,6 +334,31 @@ class MainWindow:
 
         self.vbox.pack_start(self.toolbar,expand=gtk.FALSE)
 
+        self.weirdness_adjustment = gtk.Adjustment(
+            20.0, 0.0, 100.0, 5.0, 5.0, 0.0)
+
+        self.weirdness = gtk.HScale(self.weirdness_adjustment)
+        self.weirdness.set_size_request(80, 40)
+
+        self.weirdness.set_update_policy(
+            gtk.UPDATE_DISCONTINUOUS)
+
+        def on_weirdness_changed(adjustment):
+            self.update_subfracts()
+            
+        self.weirdness_adjustment.connect('value-changed',on_weirdness_changed)
+        
+        self.toolbar.append_element(
+            gtk.TOOLBAR_CHILD_WIDGET,            
+            self.weirdness,
+            _("Weirdness"),
+            _("How different to make the random mutant fractals"),
+            None,
+            None,
+            None,
+            None
+            )
+        
     def save_file(self,file):
         try:
             self.f.save(open(file,'w'))
@@ -515,6 +543,7 @@ class MainWindow:
 
     def quit(self,action,widget=None):
         try:
+            self.f.interrupt()
             preferences.userPrefs.save()
             self.compiler.clear_cache()
         finally:

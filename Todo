@@ -1,5 +1,8 @@
 todo for 2.0
 * BB	giger.fct - results of extangle are different vs 1.9
+* BB	horrible_drawing_bug.fct - zoom out & it looks very different
+
+* W	weirdness setting and regenerate for explorer mode 
 * WW	angle and 4way widgets
 * B	if load rgb colorizer .fct, report ValueError: Empty color array
 
@@ -34,13 +37,11 @@ todo for 2.0
 * B	3damand01.fct gives "list index out of range" when loaded. It tries 
 	to set parameters which don't exist
 
-* BB	horrible_drawing_bug.fct - zoom out & it looks very different
 * B	change width or setting to something which isn't a number/float: 
 	ValueError in set_prefs, set_initparam etc
 * B	click on GaussianInteger cfrm = print out some stuff
 * BB	something wrong with Undo/Redo
 * B	opening color browser sometimes applies 1st item
-* B	gui unresponsive in explorer mode
 
 differences from fractint:
 * B	3rdim05 - default params bulge with fractint. They use sin() as default
@@ -118,6 +119,7 @@ done:
 * W	user parameter functions
 
 postponed
+* B	gui unresponsive in explorer mode
 * B	footnotes are fucked in yelp (have removed them)
 * BB	seaslug.fct - diff bailout for quadratic
 * B	coolness.fct - need direct coloring algorithm
