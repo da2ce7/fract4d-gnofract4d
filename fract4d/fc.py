@@ -112,7 +112,8 @@ class Compiler:
             cfile = self.makefilename(hash,".c")
             
         open(cfile,"w").write(self.c_code)
-            
+
+        # -march=i686 for 10% speed gain
         cmd = "gcc -Wall -fPIC -DPIC -g -O3 -shared %s -o %s -lm" % \
               (cfile, outputfile)
         (status,output) = commands.getstatusoutput(cmd)

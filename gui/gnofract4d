@@ -140,7 +140,13 @@ class MainWindow:
     def saveas(self,action,widget):
         print "save as"
     def save_image(self,action,widget):
-        print "save_image"
+        fs = gtk.FileSelection("Save Image")
+        result = fs.run()
+        
+        if result == gtk.RESPONSE_OK:
+            self.f.save_image(fs.get_filename())
+        fs.destroy()
+
     def settings(self,action,widget):
         settings.show_settings(self.window,self.f)
         
@@ -161,16 +167,24 @@ class MainWindow:
         print "contents"
 
     def open(self,action,widget):
-        fs = gtk.FileSelection("Open Formula File")
+        fs = gtk.FileSelection("Open Parameter File")
         result = fs.run()
         
         if result == gtk.RESPONSE_OK:
             self.load(fs.get_filename())
+            
         fs.destroy()
 
     def load(self,file):
-        self.f.loadFctFile(open(file))
-        self.f.compile()
+        try:
+            self.f.loadFctFile(open(file))
+            self.f.compile()
+        except Exception, err:
+            d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
+                                  gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+                                  "Error opening %s: '%s'" % (file, err))
+            d.run()
+            d.destroy()
         
     def about(self,action,widget):
         print "about"

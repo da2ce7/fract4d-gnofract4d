@@ -90,7 +90,7 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         sofile = f.compile()
         image = fract4dc.image_create(40,30)
         f.draw(image)
-
+        
     def assertNearlyEqual(self,a,b):
         # check that each element is within epsilon of expected value
         epsilon = 1.0e-12
