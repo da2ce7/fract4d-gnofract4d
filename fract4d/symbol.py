@@ -88,8 +88,6 @@ def createDefaultDict():
         "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex, Hyper]), #+ \
               #[ Func([Color, Float], Float, stdlib, "mul")],
 
-        "-":  efl("sub",   "[_,_] , _", [Int, Float, Complex, Color]),
-
         "^": OverloadList([ Func([Float, Float], Float, stdlib, "pow"),
                 Func([Complex, Float], Complex, stdlib, "pow"),
                 Func([Complex, Complex], Complex, stdlib, "pow")]),
@@ -363,6 +361,12 @@ def createDefaultDict():
       operator=True,
       doc='Adds two numbers together.')
 
+    f("-",
+      cfl("[_,_] , _", [Int, Float, Complex, Hyper]),
+      fname="sub",
+      operator=True,
+      doc='Subtracts two numbers')
+    
     f("!=",
       cfl("[_,_] , Bool", [Int, Float, Complex, Bool]),
       fname="noteq",
