@@ -51,6 +51,29 @@ class TranslateTest(unittest.TestCase):
         self.assertEquivalentTranslations(t1,t3)
         self.assertEqual(len(t3.warnings),6)
 
+    def testAssign(self):
+        # correct declarations
+        t9 = self.translate('''t9 {
+        init:
+        int i
+        float f
+        complex c
+        loop:
+        i = 1
+        f = 1.0
+        }''')
+        self.assertNoProbs(t9)
+
+        # basic warnings and errors
+        t10 = self.translate('''t10 {
+        init: int i, float f, complex c
+        loop:
+        f = 1 ; upcast - warning
+        i = 1.0 ; downcast - error
+        }''')
+        self.assertWarning(t10,"conversion from int to float on line 4")
+        self.assertError(t10, "invalid type float for const 1.0 on line 5, expecting int")
+        
     def testDecls(self):
         t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")
         self.assertNoProbs(t1)
