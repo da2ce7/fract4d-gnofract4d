@@ -140,10 +140,25 @@ class TBase:
         seq = ir.Seq(filter(lambda c: c != None, settings), node)
         return seq
 
+    def paramsetting(self,node,var):
+        pass
+        
+    def param(self,node):
+        v = Var(node.datatype, default_value(node.datatype), node.pos)
+
+        self.symbols["@" + node.leaf] = v
+
+        for child in node.children:
+            if child.type == "set":
+                self.paramsetting(child,v)
+            else:
+                self.error("%d: invalid statement in parameter block" % node.pos)
+        
+        # FIXME deal with subinfo
+        
     def setting(self,node):
         if node.type == "param":
-            print "param"
-            pass
+            self.param(node)
         elif node.type == "func":
             print "func"
             pass
@@ -155,24 +170,27 @@ class TBase:
         else:
             self.error("%d: invalid statement in default section" % node.pos)
 
-    def set(self,node):
+    def const_exp(self,node):
         # FIXME should compute full constant expressions
-        name = node.children[0].leaf
-        val = node.children[1]
-        if val.type == "const":
-            self.defaults[name] = self.const(val)
-        elif val.type == "binop" and val.leaf == "complex" and \
-             val.children[0].type == "const" and val.children[1].type == "const":
-            self.defaults[name] = [
-                self.const(val.children[0]),
-                self.const(val.children[1])]
-        elif val.type == "string":
-            self.defaults[name] = self.string(val)
+        if node.type == "const":
+            return self.const(node)
+        elif node.type == "binop" and \
+             node.leaf == "complex" and \
+             node.children[0].type == "const" and \
+             node.children[1].type == "const":
+            return [
+                self.const(node.children[0]),
+                self.const(node.children[1])]
+        elif node.type == "string":
+            return self.string(node)
         else:
             self.error("%d: only constants can be used in default sections" %
                        node.pos)
         
-        
+    def set(self,node):
+        name = node.children[0].leaf
+        val = node.children[1]
+        self.defaults[name] = self.const_exp(val)
     
     def stmlist(self, node):
         children = filter(lambda c : c.type != "empty", node.children)
