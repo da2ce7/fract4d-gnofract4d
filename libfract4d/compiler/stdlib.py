@@ -1,6 +1,6 @@
 # The fractal standard library, including operators
 
-from codegen import ComplexArg
+from codegen import ComplexArg, ConstFloatArg, ConstIntArg, TempArg
 from fracttypes import *
 
 def reals(l):
@@ -90,3 +90,19 @@ def sqr_f_f(gen,t,srcs):
     return gen.emit_binop('*',[srcs[0], srcs[0]], Float)
 
 sqr_i_i = sqr_f_f
+
+def conj_c_c(gen,t,srcs):
+    # conj (a+ib) = a-ib
+    b = gen.emit_binop('-', [ ConstFloatArg(0.0), srcs[0].im], Float)
+    return ComplexArg(srcs[0].re,b)
+
+def flip_c_c(gen,t,srcs):
+    # flip(a+ib) = b+ia
+    return ComplexArg(srcs[0].im,srcs[0].re)
+
+def imag_c_f(gen,t,srcs):
+    return srcs[0].im
+
+def real_c_f(gen,t,srcs):
+    return srcs[0].re
+

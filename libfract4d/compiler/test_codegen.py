@@ -320,7 +320,27 @@ goto t__end_init;''')
         src = 't_c5{\ninit: complex x = #Pixel\nz = z - x\n}'
         self.assertCSays(src,"init","printf(\"(%g,%g)\\n\", z_re, z_im);",
                          "(0,0)")
+
+    def inspect_complex(self,name):
+        return "printf(\"%s = (%%g,%%g)\\n\", %s_re, %s_im);" % (name,name,name)
+    
+    def test_stdlib(self):
+        tests = [
+            # code to run, var to inspect, result
+            [ "cj = conj(y)", "cj", "(1,-2)"],
+            [ "fl = flip(y)", "fl", "(2,1)"],
+            [ "ri = (imag(y),real(y))","ri", "(2,1)"]
+            ]
+
+        src = 't_c6{\ninit: y = (1,2)\n' + \
+              string.join(map(lambda x : x[0], tests),"\n") + "\n}"
+
+        check = string.join(map(lambda x : self.inspect_complex(x[1]),tests),"\n");
         
+        exp = string.join(map(lambda x : "%s = %s" % (x[1],x[2]), tests),"\n")
+
+        self.assertCSays(src,"init",check,exp)
+
     def testMandel(self):
         src = '''t_mandel{
 init:
