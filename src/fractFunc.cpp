@@ -16,18 +16,18 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     depth = f->antialias ? 2 : 1; 
     
     f->update_matrix();
-    rot = f->rot/D_LIKE(im->Xres,f->params[SIZE]);
+    rot = f->rot/D_LIKE(im->Xres,f->params[MAGNITUDE]);
     deltax = rot[VX];
     deltay = rot[VY];
-    ddepth = D_LIKE((double)(depth*2),f->params[SIZE]);
+    ddepth = D_LIKE((double)(depth*2),f->params[MAGNITUDE]);
     delta_aa_x = deltax / ddepth;
     delta_aa_y = deltay / ddepth;
     
     debug_precision(deltax[VX],"deltax");
     debug_precision(f->params[XCENTER],"center");
     topleft = f->get_center() -
-        deltax * D_LIKE(im->Xres / 2.0, f->params[SIZE])  -
-        deltay * D_LIKE(im->Yres / 2.0, f->params[SIZE]);
+        deltax * D_LIKE(im->Xres / 2.0, f->params[MAGNITUDE])  -
+        deltay * D_LIKE(im->Yres / 2.0, f->params[MAGNITUDE]);
 
     d depthby2 = ddepth/D_LIKE(2.0,ddepth);
     aa_topleft = topleft - (delta_aa_y + delta_aa_x) * depthby2;
@@ -94,8 +94,8 @@ fractFunc::pixel(int x, int y,int w, int h)
 
     // calculate coords of this point
     dvec4 pos = topleft + 
-        I2D_LIKE(x, f->params[SIZE]) * deltax + 
-        I2D_LIKE(y, f->params[SIZE]) * deltay;
+        I2D_LIKE(x, f->params[MAGNITUDE]) * deltax + 
+        I2D_LIKE(y, f->params[MAGNITUDE]) * deltay;
 		
     (*pf)(pos, f->maxiter,&pixel,ppos); 
 	
@@ -126,8 +126,8 @@ fractFunc::pixel(int x, int y,int w, int h)
 inline void
 fractFunc::pixel_aa(int x, int y)
 {
-    dvec4 pos = aa_topleft + I2D_LIKE(x, f->params[SIZE]) * deltax + 
-        I2D_LIKE(y, f->params[SIZE]) * deltay;
+    dvec4 pos = aa_topleft + I2D_LIKE(x, f->params[MAGNITUDE]) * deltax + 
+        I2D_LIKE(y, f->params[MAGNITUDE]) * deltay;
 
     struct rgb pixel;
 

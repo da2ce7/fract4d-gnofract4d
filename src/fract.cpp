@@ -19,8 +19,12 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 
-//#include <gnome.h> // g_warning, mostly
+#ifndef _WIN32
+#include <gnome.h> // g_warning, mostly
+#endif
+
 #include "calc.h"
 #include "fractFunc.h"
 #include "iterFunc.h"
@@ -399,7 +403,7 @@ char *
 fractal::get_param(param_t pnum)
 {
     D2ADECL;
-    if(pnum < 0 || pnum >= N_PARAMS) return false;
+    if(pnum < 0 || pnum >= N_PARAMS) return NULL;
     return D2A(params[pnum]);
 }
 
@@ -535,7 +539,7 @@ fractal::recolor(image *im)
             // fake scratch space
             scratch_space s= { 0.0 };
             rgb_t result = (*cizer)(im->iter_buf[i * width + j ], s, false);
-            im->put(i,j,result);
+            im->put(j,i,result);
         }
     }
 }

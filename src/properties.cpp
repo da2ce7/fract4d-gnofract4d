@@ -792,7 +792,7 @@ create_propertybox_location_page(
         table, tooltips, 3, _("W (Im) :"), shadow, WCENTER, _("This is z0.im in z^2 + c"));
 
     create_param_entry_with_label(
-        table, tooltips, 4, _("Size :"), shadow, SIZE, _("Magnitude of image"));
+        table, tooltips, 4, _("Size :"), shadow, MAGNITUDE, _("Magnitude of image"));
 }
 
 void

@@ -144,7 +144,7 @@ struct poptOption options[] = {
         "size",
         'S',
         POPT_ARG_STRING,
-        g_params + SIZE,
+        g_params + MAGNITUDE,
         0,
         N_("Size"),
         N_("8.0033211")

@@ -1,8 +1,12 @@
 #ifndef _FRACTFUNC_H_
 #define _FRACTFUNC_H_
 
-// opaque declaration
+// opaque declaration: must be some way of removing this nasty ifdef!
+#ifdef _WIN32
 class Gf4dFractal;
+#else
+typedef struct _Gf4dFractal Gf4dFractal;
+#endif
 
 #include "fract_callbacks.h"
 #include "fract.h"
