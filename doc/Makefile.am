@@ -15,7 +15,7 @@ all:
 gnofract4d.html : gnofract4d/gnofract4d.html
 	-cp gnofract4d/*.html .
 
-gnofract4d/t1.html: $(SGML_FILES)
+gnofract4d/gnofract4d.html: $(SGML_FILES)
 	-db2html gnofract4d.sgml
 
 dist-hook:
@@ -25,7 +25,7 @@ dist-hook:
 
 install-data-local: gnofract4d.html
 	$(mkinstalldirs) $(gnofract4d_helpdir)/images
-	-for file in $(srcdir)/gnofract4d/*.html $(srcdir)/gnofract4d/*.css; do \
+	-for file in $(srcdir)/gnofract4d/*.html $(srcdir)/gnofract4d/*.css $(srcdir)/*.gif ; do \
 		basefile=`basename $$file`; \
 		echo $$basefile; \
 		$(INSTALL_DATA) $(srcdir)/$$file $(gnofract4d_helpdir)/$$basefile; \
