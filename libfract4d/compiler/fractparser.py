@@ -84,18 +84,6 @@ def p_set_exp(t):
      'set : ID ASSIGN exp'     
      t[0] = absyn.Set(t[1],[t[3]])
 
-def p_set_string(t):
-     'set : ID ASSIGN STRING stringlist'
-     t[0] = absyn.Set(t[1],[absyn.String(t[3])] + t[4])
-
-def p_stringlist_string(t):
-     'stringlist : STRING stringlist'
-     t[0] = [ absyn.String(t[1]) ] + t[2]
-
-def p_stringlist_empty(t):
-     'stringlist : empty'
-     t[0] = []
-
 def p_set_empty(t):
      'set : empty'
      t[0] = t[1]
@@ -234,7 +222,19 @@ def p_exp_num(t):
 def p_exp_boolconst(t):
     'exp : CONST'
     t[0] = absyn.Const(t[1])
-    
+
+def p_exp_string(t):
+     'exp : STRING stringlist'
+     t[0] = absyn.String(t[1],t[2])
+
+def p_stringlist_string(t):
+     'stringlist : STRING stringlist'
+     t[0] = [absyn.String(t[1],None)] + t[2]
+
+def p_stringlist_empty(t):
+     'stringlist : empty'
+     t[0] = []
+
 def p_exp_id(t):
     'exp : ID'
     t[0] = absyn.ID(t[1])
