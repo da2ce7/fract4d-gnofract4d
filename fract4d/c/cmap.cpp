@@ -14,50 +14,10 @@ rgba_t black = {0,0,0,255};
 ColorMap::ColorMap()
 {
     ncolors = 0;
-    items = NULL;
     solids[0] = solids[1] = black;
     transfers[0] = TRANSFER_LINEAR; // outer
     transfers[1] = TRANSFER_LINEAR; // inner
 }
-
-bool
-ColorMap::init(int ncolors_)
-{
-    if(ncolors_ == 0)
-    {
-	printf("No colors\n");
-	return false;
-    }
-
-    ncolors = ncolors_; 
-
-    items = new(std::nothrow) item_t[ncolors];
-    if(!items)
-    {
-	printf("No color alloc\n");
-	return false;
-    }
-
-    for(int i = 0; i < ncolors; ++i)
-    {
-	items[i].color = black;
-	items[i].index = 0;
-    }
-    return true;
-}
-
-void 
-ColorMap::set(int i, double d, int r, int g, int b, int a)
-{
-    rgba_t color;
-    color.r = (unsigned char)r;
-    color.g = (unsigned char)g;
-    color.b = (unsigned char)b;
-    color.a = (unsigned char)a;
-
-    items[i].color = color;
-    items[i].index = d;
-} 
 
 void 
 ColorMap::set_transfer(int which, e_transferType type)
@@ -121,7 +81,7 @@ cmap_delete(ColorMap *cmap)
 
 ColorMap::~ColorMap()
 { 
-    delete[] items;
+    // NO OP
 }
 
 /* finds the indices in t of the largest item which is <= key 
@@ -134,7 +94,7 @@ ColorMap::~ColorMap()
    of nearest match if there's no exact one */
 
 int 
-find(double key, item_t *array, int n)
+find(double key, list_item_t *array, int n)
 {
     int left=0,right=n-1;
     do
@@ -190,8 +150,67 @@ ColorMap::lookup_with_transfer(int fate, double index, int solid) const
     }
 }
  
+GradientColorMap::GradientColorMap() : ColorMap()
+{
+    //items = NULL;
+}
+
+GradientColorMap::~GradientColorMap()
+{
+    // NO OP
+}
+
+ListColorMap::ListColorMap() : ColorMap()
+{
+    items = NULL;
+}
+
+ListColorMap::~ListColorMap()
+{
+    delete[] items;
+}
+
+bool
+ListColorMap::init(int ncolors_)
+{
+    if(ncolors_ == 0)
+    {
+	printf("No colors\n");
+	return false;
+    }
+
+    ncolors = ncolors_; 
+
+    items = new(std::nothrow) list_item_t[ncolors];
+    if(!items)
+    {
+	printf("No color alloc\n");
+	return false;
+    }
+
+    for(int i = 0; i < ncolors; ++i)
+    {
+	items[i].color = black;
+	items[i].index = 0;
+    }
+    return true;
+}
+
+void 
+ListColorMap::set(int i, double d, int r, int g, int b, int a)
+{
+    rgba_t color;
+    color.r = (unsigned char)r;
+    color.g = (unsigned char)g;
+    color.b = (unsigned char)b;
+    color.a = (unsigned char)a;
+
+    items[i].color = color;
+    items[i].index = d;
+} 
+
 rgba_t 
-ColorMap::lookup(double index) const
+ListColorMap::lookup(double index) const
 {
     int i,j;
     rgba_t mix, left, right;
