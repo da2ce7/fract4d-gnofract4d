@@ -64,7 +64,6 @@ def createDefaultDict():
         "pixel" : Var(Complex), 
         "#z" : Alias("z"),
         "z"  : Var(Complex), 
-
         }
     return d
 

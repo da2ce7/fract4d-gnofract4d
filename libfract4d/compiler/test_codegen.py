@@ -319,20 +319,19 @@ goto t__end_init;''')
     def testMandel(self):
         src = '''t_mandel{
 init:
-z = 0,c = 1.5
 loop:
-z = z*z + c
+z = z*z + pixel
 bailout:
 |z| < 4.0
 }'''
         t = self.translate(src)
-        self.codegen.output_all(t, {"z" : "", "c" : ""} )
+        self.codegen.output_all(t, {"z" : "", "pixel" : ""} )
         inserts = {
             "loop_inserts":"printf(\"(%g,%g)\\n\",z_re,z_im);",
             "main_inserts":'''
 int main()
 {
-    double params[4] = { 0.0, 0.0, 1.5, 1.0 };
+    double params[4] = { 0.0, 0.0, 1.5, 0.0 };
     int nItersDone=0;
     pf_calc(params, 100, &nItersDone);
     printf("(%d)\\n",nItersDone);
