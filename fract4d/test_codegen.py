@@ -667,6 +667,8 @@ func fn1
         t.merge(tcf0,"cf0_")
         t.merge(tcf1,"cf1_")
 
+        self.assertEqual(cg.is_direct(),True)
+        
         cg.output_decls(t)
 
         inserts = {
