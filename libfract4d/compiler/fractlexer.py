@@ -157,13 +157,18 @@ def t_NUMBER(t):
     return t
 
 # these have to be functions to give them higher precedence than ID
+# the gnarly regexp syntax is so we are case-insensitive (ick)
+# and don't match things like "x = pixel:"
+
+# default, switch, builtin
 def t_SECT_SET(t):
-    r'((default)|(switch)):'
+    r'(([Dd][Ee][Ff][Aa][Uu][Ll][Tt])|([Ss][Ww][Ii][Tt][Cc][Hh])|([Bb][Uu][Ii][Ll][Tt][Ii][Nn])):'
     t.value = re.sub(":$","",t.value)
     return t
 
+# global, transform, init, loop, final, bailout
 def t_SECT_STM(t):
-    r'((global)|(transform)|(builtin)|(init)|(loop)|(final)|(bailout))?:'
+    r'(([Gg][Ll][Oo][Bb][Aa][Ll])|([Tt][Rr][Aa][Nn][Ss][Ff][Oo][Rr][Mm])|([Ii][Nn][Ii][Tt])|([Ll][Oo][Oo][Pp])|([Ff][Ii][Nn][Aa][Ll])|([Bb][Aa][Ii][Ll][Oo][Uu][Tt]))?:'
     t.value = re.sub(":$","",t.value)
     return t
 
