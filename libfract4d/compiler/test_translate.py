@@ -312,6 +312,14 @@ class TranslateTest(testbase.TestBase):
         }''')
         self.assertNoErrors(t)
         self.assertJumpsMatchLabs(t.sections["init"])
+
+        t = self.translate('''t_bool_4 {
+        init:
+        bool a, bool b
+        c = (real(a||b),imag(a&&b))
+        float f = |a&&b|
+        }''')
+        self.assertNoErrors(t)
         
     def testMandel(self):
         t = self.translate('''t_mandel_1 {
