@@ -144,14 +144,17 @@ def pow_cf_c(gen,t,srcs):
     dst_re = TempArg(gen.symbols.newTemp(Float))
     dst_im = TempArg(gen.symbols.newTemp(Float))
 
-    gen.emit_cjump(srcs[0].im,nonzero)
+    # FIXME: this shortcut breaks 3damand01, not sure why
+    #gen.emit_cjump(srcs[0].im,nonzero)
 
     # compute result if just real
-    tdest = pow_ff_f(gen,t,[srcs[0].re,srcs[1]])
-    gen.emit_move(tdest,dst_re)
-    gen.emit_jump(done)
+    #tdest = pow_ff_f(gen,t,[srcs[0].re,srcs[1]])
+    #gen.emit_move(tdest,dst_re)
+    #gen.emit_move(ConstFloatArg(0.0),dst_im)
+    #gen.emit_jump(done)
 
-    gen.emit_label(nonzero)
+    #gen.emit_label(nonzero)\
+    
     # result if real + imag
     # temp = log(a+ib)
     # polar(y * real(temp), y * imag(temp))
