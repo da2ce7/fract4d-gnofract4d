@@ -63,3 +63,6 @@ def Empty():
 
 def Formula(id, stmlist):
     return Node("formula", stmlist, id)
+
+def Param(id,settinglist,type):
+    return Node("param", settinglist, (id,type))
