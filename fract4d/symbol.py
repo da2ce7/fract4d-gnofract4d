@@ -133,7 +133,7 @@ def createDefaultDict():
       hypercomplex(a,b,c,d) is equivalent to (a,b,c,d).''')
     
     f("sqr",
-      cfl("[_] , _",  [Int, Float, Complex]),
+      cfl("[_] , _",  [Int, Float, Complex, Hyper]),
       doc="Square the argument. sqr(x) is equivalent to x*x or x^2.")
 
     #f("cube",
@@ -141,7 +141,7 @@ def createDefaultDict():
     #  doc="Cube the argument. cube(x) is equivalent to x*x*x or x^3.")
     
     f("ident",
-      cfl("[_] , _",  [Int, Float, Complex, Bool]),
+      cfl("[_] , _",  [Int, Float, Complex, Bool, Hyper]),
       doc='''Do nothing. ident(x) is equivalent to x.
       This function is useless in normal formulas but
       comes in useful as a value for a function parameter
@@ -150,11 +150,11 @@ def createDefaultDict():
       Note: ident() is compiled out so there\'s no speed penalty involved.''')
     
     f("conj",
-      [[Complex], Complex],
+      cfl("[_] , _",  [Complex, Hyper]),
       doc="The complex conjugate. conj(a,b) is equivalent to (a,-b).")
 
     f("flip",
-      [[Complex], Complex],
+      cfl("[_] , _",  [Complex, Hyper]),
       doc='''Swap the real and imaginary parts of a complex number.
       flip(a,b) = (b,a).''')
 

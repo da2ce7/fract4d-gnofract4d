@@ -200,7 +200,11 @@ class TBase:
         fol = self.symbols.get(name)
         set_f = False
         if not fol:
-            f = Func([Complex],node.datatype,stdlib,"ident")
+            # FIXME make more general
+            argtype = Complex
+            if node.datatype == Hyper:
+                argtype = Hyper
+            f = Func([argtype],node.datatype,stdlib,"ident")
             set_f = True
         else:
             f = fol[0]

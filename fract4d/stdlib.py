@@ -373,7 +373,7 @@ def hyper_jk_h_c(gen,t,srcs):
 def ident_i_i(gen,t,srcs):
     return srcs[0]
 
-ident_f_f = ident_c_c = ident_b_b = ident_i_i
+ident_f_f = ident_c_c = ident_h_h = ident_b_b = ident_i_i
 
 def recip_f_f(gen,t,srcs):
     # reciprocal
@@ -809,3 +809,6 @@ log_h_h = make_hyper_func(log_c_c)
 sqrt_h_h = make_hyper_func(sqrt_c_c)
 exp_h_h = make_hyper_func(exp_c_c)
 
+flip_h_h = make_hyper_func(flip_c_c)
+conj_h_h = make_hyper_func(conj_c_c)
+sqr_h_h = make_hyper_func(sqr_c_c)
