@@ -34,15 +34,20 @@ class PfTest(unittest.TestCase):
         fract4d.pf_init(pfunc,0.001,[])
 
         # a point which doesn't bail out
-        result = fract4d.pf_calc(pfunc,[0.15,0.0,0.0,0.0],100,100,0,0,0)
-        self.assertEqual(result,(100,1,0.0)) 
+        result = fract4d.pf_calc(pfunc,[0.15, 0.0, 0.0, 0.0],100,100,0,0,0)
+        self.assertEqual(result,(100, 1, 0.0))
         # one which does
-        result = fract4d.pf_calc(pfunc,[17.5,14.0,0.0,0.0],100,100,0,0,0)
-        self.assertEqual(result,(1,0,0.0)) 
+        result = fract4d.pf_calc(pfunc,[1.0, 1.0, 0.0, 0.0],100,100,0,0,0)
+        self.assertEqual(result,(1,0, 0.0)) 
+
+        # one which is already out
+        result = fract4d.pf_calc(pfunc,[17.5, 14.0, 0.0, 0.0],100,100,0,0,0)
+        self.assertEqual(result,(0, 0, 0.0)) 
+
 
         # without optional args
-        result = fract4d.pf_calc(pfunc,[17.5,14.0,0.0,0.0],100,100)
-        self.assertEqual(result,(1,0,0.0)) 
+        result = fract4d.pf_calc(pfunc,[17.5, 14.0, 0.0, 0.0],100,100)
+        self.assertEqual(result,(0, 0, 0.0)) 
         
         pfunc = None
         handle = None

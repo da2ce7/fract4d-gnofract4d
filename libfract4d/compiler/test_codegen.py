@@ -654,7 +654,7 @@ bailout:
         output = self.compileAndRun(c_code)
         lines = string.split(output,"\n")
         # 1st point we try should bail out 
-        self.assertEqual(lines[0:3],["(1.5,0)","(3.75,0)", "(2,0,0)"],output)
+        self.assertEqual(lines[0:3],["(1.5,0)","(3.75,0)", "(1,0,0)"],output)
 
         # 2nd point doesn't
         self.assertEqual(lines[3],"(0.02,0.26)",output)
