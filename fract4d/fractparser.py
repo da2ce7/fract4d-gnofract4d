@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # Parser for UltraFractal + Fractint input files
 
+import re
+import types
+
 import yacc
+
 import fractlexer
 import absyn
-import types
+
 
 tokens = fractlexer.tokens
 
@@ -42,12 +46,16 @@ def p_formlist_empty(t):
         formlist : error'''
      t[0] = []
 
+def p_formid(t):
+     'formid : FORM_ID'
+     t[0] = t[1]
+     
 def p_formula(t):
-     'formula : FORM_ID formbody'
+     'formula : formid formbody'
      t[0] = absyn.Formula(t[1],t[2],t.lineno(1))
 
 def p_formula_err(t):
-     'formula : error FORM_ID formbody'
+     'formula : error formid formbody'
      t[0] = absyn.Formula(t[2],t[3],t.lineno(2))
 
 def p_formbody_2(t):

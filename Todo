@@ -12,9 +12,9 @@ todo for 2.0
 * B	fractint doesn't reset vars between calls?
 * B	parse continuation lines correctly
 * BB	more robust error reporting
+* W	last-chance exception handler
 * W	explorer mode
 * WW	parameters for colorfuncs
-* W	last-chance exception handler
 * W	exact SMP equality test
 * W	end-to-end regression test vs V1.9
 * W	formula browser

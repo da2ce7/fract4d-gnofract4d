@@ -106,7 +106,8 @@ def createDefaultDict():
 
         # predefined magic variables
         "t__h_pixel": Alias("pixel"),
-        "pixel" : Var(Complex,doc="The (X,Y) coordinates of the current point."), 
+        "t__h_xypixel": Alias("pixel"),
+        "pixel" : Var(Complex,doc="The (X,Y) coordinates of the current point. When viewing the Mandelbrot set, this has a different value for each pixel. When viewing the Julia set, it remains constant for each pixel."), 
         "t__h_z" : Alias("z"),
         "z"  : Var(Complex),
         "t__h_index": Var(Float),
@@ -115,7 +116,7 @@ def createDefaultDict():
         "maxiter" : Var(Int),
         "t__h_pi" : Var(Float,math.pi),
         "t__h_tolerance" : Var(Float),
-        "t__h_zwpixel" : Var(Complex,doc="The (Z,W) coordinates of the current point. Initialize z to some function of this to take advantage of 4D drawing.")
+        "t__h_zwpixel" : Var(Complex,doc="The (Z,W) coordinates of the current point. (See #pixel for the other two coordinates.) When viewing the Mandelbrot set, this remains constant for each pixel on the screen; when viewing the Julia set, it's different for each pixel. Initialize z to some function of this to take advantage of 4D drawing.")
         }
 
     # extra shorthand to make things as short as possible

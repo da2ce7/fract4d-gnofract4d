@@ -316,7 +316,17 @@ bailout:
             t1.children[0].children[0].leaf == "nameless" and
             t1.children[0].children[1].type == "stmlist" and
             t1.children[0].children[1].leaf == "")
-            
+
+    def testSymmetry(self):
+        t1 = self.parse('''
+MySymmetricalFractal (XAXIS) {
+loop:
+    z = zero(z)
+}
+''')
+        self.assertEqual(t1.children[0].leaf,"MySymmetricalFractal")
+        self.assertEqual(t1.children[0].symmetry,"XAXIS")
+        
     def testSimpleMandelbrot(self):
         t1 = self.parse('''
 MyMandelbrot {

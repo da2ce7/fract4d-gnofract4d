@@ -143,8 +143,7 @@ def t_COMMENT_FORMULA(t):
 def t_FORM_ID(t):
     r'[^\r\n;"\{]+{'
     # remove trailing whitespace and {
-    t.value = re.sub("\s*{$", "", t.value)
-    # TODO: chop down the expression to extract symmetry
+    t.value = re.sub("\s*{$", "", t.value)    
     return t
 
 def t_NUMBER(t):

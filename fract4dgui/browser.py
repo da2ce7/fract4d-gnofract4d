@@ -133,6 +133,22 @@ class BrowserDialog(gtk.Dialog):
         return (textview,sw)
     
     def create_panes(self):
+        # option menu for choosing Inner/Outer/Fractal
+        hbox = gtk.HBox()
+        hbox.pack_start(gtk.Label("Function to Modify : "), gtk.FALSE, gtk.FALSE)
+        
+        funcTypeMenu = gtk.OptionMenu()
+        menu = gtk.Menu()
+        for item in [
+            "Fractal Function",
+            "Inner Coloring Function",
+            "Outer Coloring Function"]:
+            mi = gtk.MenuItem(item)
+            menu.append(mi)
+        funcTypeMenu.set_menu(menu)
+        hbox.pack_start(funcTypeMenu,gtk.TRUE, gtk.TRUE)
+        self.vbox.pack_start(hbox,gtk.FALSE, gtk.FALSE)
+        
         # 3 panes: files, formulas, formula contents
         panes1 = gtk.HPaned()
         self.vbox.pack_start(panes1, gtk.TRUE, gtk.TRUE)
