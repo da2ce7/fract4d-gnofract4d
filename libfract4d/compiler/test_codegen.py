@@ -13,6 +13,7 @@ import codegen
 import translate
 import fractparser
 import fractlexer
+import stdlib
 
 class CodegenTest(unittest.TestCase):
     def setUp(self):
@@ -323,11 +324,27 @@ goto t__end_init;''')
                          "(0,0)")
 
     def testParams(self):
-        # this ought to fail, but more cleanly
         src = 't_cp0{\ninit: complex @p = (2,1)\n}'
         self.assertCSays(src,"init",self.inspect_complex("t__a_p"),
                          "t__a_p = (2,1)")
 
+        src = '''t_params {
+        init: complex x = @p1 + p2 + @my_param
+        complex y = @fn1((1,-1)) + fn2((2,0)) + @my_func((2,0))
+        }'''
+
+        t = self.translate(src)
+        t.symbols["@my_func"][0].set_func(stdlib,"sqr")
+        t.symbols["@fn1"][0].set_func(stdlib,"conj")
+        t.symbols["@fn2"][0].set_func(stdlib,"ident")
+        self.codegen.generate_all_code(t.canon_sections["init"])
+
+        check = self.inspect_complex("x") + self.inspect_complex("y")
+        postamble = "t__end_%s:\n%s\n" % ("init",check)
+        c_code = self.makeC("", postamble)        
+        output = self.compileAndRun(c_code)
+        self.assertEqual(output,"x = (0,0)\ny = (7,1)")
+        
     def testUseBeforeAssign(self):
         src = 't_uba0{\ninit: z = z - x\n}'
         self.assertCSays(src,"init",self.inspect_complex("z"),
