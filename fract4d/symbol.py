@@ -265,6 +265,11 @@ def createDefaultDict():
     f("cos",
       cfl( "[_], _", [Float, Complex]),
       doc='trigonometric sine function.')
+
+    f("cosxx",
+      cfl( "[_], _", [Complex]),
+      doc='''Incorrect version of cosine function. Provided for backwards
+      compatibility with equivalent wrong function in Fractint.''')
     
     f("tan",
       cfl( "[_], _", [Float, Complex]),

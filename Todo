@@ -8,6 +8,7 @@ todo for 2.4
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
 
+* B	error messages not showing up
 * B	make transition <-> explorer mode less slow + ugly
 * WW	cmap browser
 * WW	cmap editor - brightness/contrast/gamma/HSV/RGB
@@ -64,6 +65,7 @@ UI improvements
 * W	autosave
 * W	make easier to use on click-to-focus systems
 * W	click-and-release on angle,fourway - may require pointer_grab, though
+* WW	visible history
 
 Data gathering
 * WW	SQM
@@ -100,6 +102,10 @@ differences from fractint:
 * B	fn(z)+c: acos, acosh - think Fractint may be wrong
 * B	fn(z*z)+c : acos, acosh 
 * W	fractint-builtins.frm
+
+done in 2.4:
+* W	cosxx function
+* B	missing power in Newton function
 
 done in 2.2:
 * W	speed up 'instant recolor'

@@ -425,7 +425,11 @@ def cos_c_c(gen,t,srcs):
     
     nim = gen.emit_func('-',[im], Float)
     return ComplexArg(re,nim)
-        
+
+def cosxx_c_c(gen,t,srcs):
+    #cosxx(z) = (re(cos(z)), -im(cos(z)))
+    return conj_c_c(gen,t,[cos_c_c(gen,t,srcs)])
+
 def tan_f_f(gen,t,srcs):
     return gen.emit_func('tan', srcs, Float)
 

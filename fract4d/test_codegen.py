@@ -882,6 +882,10 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         def mycceil(z):
             return complex(math.ceil(z.real),math.ceil(z.imag))
 
+        def mycosxx(z):
+            cosz = cmath.cos(z)
+            return complex(cosz.real, -cosz.imag)
+        
         def myczero(z):
             return complex(0,0)
         
@@ -954,6 +958,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         ]
         tests += self.manufacture_tests("sin",cmath.sin)
         tests += self.manufacture_tests("cos",cmath.cos)
+        tests += self.manufacture_tests("cosxx", mycosxx)
         tests += self.manufacture_tests("tan",cmath.tan)
         tests += self.manufacture_tests("sinh",cmath.sinh)
         tests += self.manufacture_tests("cosh",cmath.cosh)

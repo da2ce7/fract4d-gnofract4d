@@ -360,17 +360,19 @@ Newton {
 ; Newton is the Newton-Raphson method applied to z^a - 1.
 init:
 	z = #zwpixel
-	nm1 = @p1 - 1.0
+	nm1 = @a - 1.0
 loop:
 	last = z
-	;z = z - (pow(z,@a) - 1.0)/ (@a * pow(z,nm1))
-	z = z - (z*z*z - 1.0)/(3.0 * z * z)
+	z = z - (z ^ @a - 1.0)/ (@a * z ^ nm1)
 bailout:
 	|z - last| > #tolerance
 default:
 xzangle=1.5707963267948966
 ywangle=1.5707963267948966
 xcenter=1.0
+param a
+	default = (3.0, 0.0)
+endparam
 }
 
 Nova {
