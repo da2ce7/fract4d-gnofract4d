@@ -310,12 +310,12 @@ public:
 	}
     
     // we've drawn a rectangle of image
-    virtual void image_changed(int x1, int x2, int y1, int y2)
+    virtual void image_changed(int x1, int y1, int x2, int y2)
 	{
 	    PyObject *ret = PyObject_CallMethod(
 		site,
 		"image_changed",
-		"iiii",x1,x2,y1,y2);
+		"iiii",x1,y1,x2,y2);
 	    Py_XDECREF(ret);
 	}
     // estimate of how far through current pass we are
@@ -396,7 +396,7 @@ pysite_create(PyObject *self, PyObject *args)
 
     IFractalSite *site = new PySite(pysite);
 
-    printf("pysite_create: %p\n",site);
+    //printf("pysite_create: %p\n",site);
     PyObject *pyret = PyCObject_FromVoidPtr(site,(void (*)(void *))site_delete);
 
     return pyret;
@@ -438,7 +438,7 @@ pycalc(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    printf("pycalc: %p\n",site);
+    //printf("pycalc: %p\n",site);
     calc(params,eaa,maxiter,nThreads,pfo,cmap,auto_deepen,im,site);
 
     Py_INCREF(Py_None);
@@ -448,7 +448,7 @@ pycalc(PyObject *self, PyObject *args)
 static void
 image_delete(IImage *image)
 {
-    printf("delete %p\n",image);
+    //printf("delete %p\n",image);
     delete image;
 }
 

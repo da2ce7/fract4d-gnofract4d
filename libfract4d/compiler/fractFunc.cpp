@@ -59,8 +59,6 @@ fractFunc::fractFunc(
     nTotalHalfIters = nTotalDoubleIters = nTotalK = 0;
     clear();
 
-    status_changed(GF4D_FRACTAL_COMPILING);
-
     worker->set_fractFunc(this);
 
     last_update_y = 0;
@@ -318,8 +316,6 @@ calc(
 
     if(worker && worker->ok())
     {
-	printf("pycalc: %p\n",site);
-	site->status_changed( GF4D_FRACTAL_CALCULATING);	
 	fractFunc ff(
 	    params, 
 	    eaa,
@@ -332,9 +328,6 @@ calc(
 
 	ff.draw_all();
     }
-
-    site->status_changed( GF4D_FRACTAL_DONE);	
-
     delete worker;
 	
 }

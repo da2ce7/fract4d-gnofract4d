@@ -7,8 +7,7 @@ enum {
     GF4D_FRACTAL_CALCULATING,
     GF4D_FRACTAL_DEEPENING,
     GF4D_FRACTAL_ANTIALIASING,
-    GF4D_FRACTAL_PAUSED,
-    GF4D_FRACTAL_COMPILING
+    GF4D_FRACTAL_PAUSED
 };
 
 typedef enum {
@@ -62,7 +61,7 @@ class IFractalSite
     // the parameters have changed (usually due to auto-deepening)
     virtual void parameters_changed() {};
     // we've drawn a rectangle of image
-    virtual void image_changed(int x1, int x2, int y1, int y2) {};
+    virtual void image_changed(int x1, int y1, int x2, int y2) {};
     // estimate of how far through current pass we are
     virtual void progress_changed(float progress) {};
     // one of the status values above
