@@ -120,8 +120,9 @@ extern "C" {
     const char *model_get_compiler_flags(model_t *m);
 
     // report an error
-    void model_on_error(model_t *m, const char *message);
-
+    void model_on_error(
+	model_t *m, const char *message, const char *extra_info);
+    
 
 #ifdef __cplusplus
 }

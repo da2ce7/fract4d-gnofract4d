@@ -35,7 +35,6 @@ Other
 * W	parameterize buffalo
 * W	make sure inner function is sensible (itercount is pointless)
 * B	pause doesn't stop subfracts
-* B	refresh button on cmapbrowser is confusing
 * BB	stupid options dialog would be better as tabbed dialog
 
 Movies-
@@ -49,14 +48,27 @@ Movies-
 * W	move keyframes up/down 
 * B	lines are ugly
 
+CmapEditor
+* W	put "click to apply" next to preview
+* B	update previews doesn't expose colorbuts
+* B 	setting to an rgb_cizer permanently breaks cmap editor
+* W	color cycling
+* W	choose range + smooth
+* W	choose every N in range
+
 Must do pre 1.7
 * B	nova, quadratic (options) doesn't work w gcc 2.96 unless -O0
 * W	compiler error dialog unusable
 * W	make interface to pointFunc extern "C"		
 * W	reduce number of installed headers
 * W	pass colorFuncs by value instead of enum
+* B 	something wrong with zero'th iteration with manzpower
+ 
 
 Done:
+* B	refresh button on cmapbrowser is confusing
+* W	bring dialog boxes to front when menu item re-chosen
+* B 	loaded colorfunc doesn't override current one
 * W	speed up compilation - remove vectors.h dependency
 * W	"maintain aspect ratio" checkbox
 * B	inner/outer function (ejection dist) doesn't work with recolor

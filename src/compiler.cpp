@@ -115,9 +115,10 @@ compiler::compile(std::string commandLine)
     if(!dlHandle)
     {
         on_error(std::string("Error '") + strerror(errno) + 
-                 "' compiling fractal code using command:\n\n" +
+                 "' compiling fractal code.", "using command:\n\n" +
                  flow(commandLine) + "\n\nCompiler output was:\n\n" +
-                 flow(complaints) + "\n\nPlease ensure your compiler settings are correct");
+                 flow(complaints) + 
+		 "\n\nPlease ensure your compiler settings are correct");
     }
     return dlHandle;
 }

@@ -56,7 +56,6 @@ update_preview_image(Gf4dFractal *f, GtkWidget *drawable, model_t *m_if_edit)
     
     if(m_if_edit)
     {
-	g_print("updating cizer %p\n",cizer);
 	delete cizer;
 	cizer = gf4d_fractal_get_colorizer(model_get_fract(m_if_edit))->clone();
 	gtk_object_set_data(GTK_OBJECT(drawable), "colorizer",cizer);

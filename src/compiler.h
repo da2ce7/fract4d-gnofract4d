@@ -32,11 +32,13 @@ class compiler
 {
     std::string cc;
     void *err_callback_data;
-    void (*err_callback)(void *,const char *);
+    void (*err_callback)(void *,const char *, const char *);
 public:
-    void set_err_callback(void (*cb)(void *, const char *), void *cbdata) {
-        err_callback = cb; err_callback_data = cbdata;
-    }
+    void set_err_callback(void (*cb)(void *, const char *, const char *), 
+			  void *cbdata) 
+	{
+	    err_callback = cb; err_callback_data = cbdata;
+	}
     void set_cc(const char *s);
     void set_cache_dir(const char *s); 
     const char *get_cc() { return cc.c_str(); }
@@ -49,9 +51,13 @@ public:
     void *getHandle(std::map<std::string,std::string> defn_map);
 
  private:
-    void on_error(std::string message) { 
+    void on_error(std::string message, std::string extra_info) { 
         assert(err_callback != NULL); 
-        (*err_callback)(err_callback_data, message.c_str()); 
+        (*err_callback)(err_callback_data, message.c_str(), extra_info.c_str()); 
+    }
+    void on_error(std::string message) {
+	assert(err_callback != NULL);
+	(*err_callback)(err_callback_data,message.c_str(), NULL);
     }
     typedef std::map<std::string,std::string> t_cache;
     t_cache cache;

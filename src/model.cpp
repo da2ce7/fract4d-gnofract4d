@@ -273,14 +273,21 @@ model_init_compiler(model_t *m,compiler *pc)
     pc->set_cache_dir(cache_dir);
     g_free(cache_dir);
 
-    pc->set_err_callback((void (*)(void *,const char *))model_on_error, (void *)m);
+    pc->set_err_callback((void (*)(void *,const char *, const char *))model_on_error, (void *)m);
 }
 
 void
-model_on_error(model_t *m, const char *message)
+model_on_error(model_t *m, const char *message, const char *extra_info)
 {
     gdk_threads_enter();
-    gnome_error_dialog(message);
+    if(extra_info)
+    {
+	
+    }
+    else
+    {
+	gnome_error_dialog(message);
+    }
     gdk_threads_leave();
 }
 
