@@ -11,14 +11,17 @@ todo for 2.2
 * W	warn if overwrite/always save as/clear name on major change
 * WW	include formula in .fct file
 * W	when loading new formula, highlight in list
-* B	can't have boolean args in initparams
-* B	jgr.ufm:Oak - compiler bug!
+
+UF Incompatibilities
+* W	boolean, int, enum params 
 * B? 	jgr.ufm:Rowan - default is blank
 * B	jgr.ufm:Willow - '@fn1' is predefined (in switch)
 * B	browse fhq.ufm - invalid UTF8 string passed to pango_layout
 * B	dmj.ufm:DHNovaJulka - '#magn' - no symbol starting with t__ is allowed
 * B	dmj.udm:dmj-ManyJulia - looks like 3 quadrants are wrong somehow
 * B	jock.ufm:neptwona = "complex z = #pixel", eg redeclare z
+* W	raise/remove limit on number of parameters
+* W	if #zwpixel not used, disable 4D in toolbar and explorer
 
 UI improvements 
 * BB	more robust error reporting
@@ -33,6 +36,7 @@ UI improvements
 * W	angles in degrees?
 * W	connect identically-named params in different parts of formula
 * W	autosave
+* W	make easier to use on click-to-focus systems
 
 Data gathering
 * WW	SQM

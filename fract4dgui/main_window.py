@@ -337,10 +337,18 @@ class MainWindow:
         self.bar = gtk.ProgressBar()
         self.vbox.pack_end(self.bar, expand=gtk.FALSE)
 
-    def update_preview(self,f):
+    def update_preview(self,f,flip2julia=False):
         self.preview.set_fractal(f.copy_f())
         self.draw_preview()
 
+    def update_preview_on_pointer(self,f,button, x,y):
+        if button == 2:
+            print "%f,%f" % (x,y)
+            self.preview.set_fractal(f.copy_f())
+            self.preview.relocate(x,y,1.0)
+            self.preview.flip_to_julia()
+            self.draw_preview()
+        
     def draw_preview(self):
         auto_deepen = preferences.userPrefs.getboolean("display","autodeepen")
         self.preview.draw_image(False,auto_deepen)
@@ -352,12 +360,14 @@ class MainWindow:
         self.toolbar = gtk.Toolbar()
         self.toolbar.set_tooltips(True)
         self.vbox.pack_start(self.toolbar,expand=gtk.FALSE)
-
+        self.toolbar.set_border_width(1)
+        
         # preview
         self.preview = gtkfractal.SubFract(self.compiler)
-        self.preview.set_size(40,40)
+        self.preview.set_size(64,64)
         self.update_preview(self.f)
         self.f.connect('parameters-changed', self.update_preview)
+        self.f.connect('pointer-moved', self.update_preview_on_pointer)
         
         self.toolbar.append_element(
             gtk.TOOLBAR_CHILD_WIDGET,            

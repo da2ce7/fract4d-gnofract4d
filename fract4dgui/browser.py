@@ -371,7 +371,8 @@ class BrowserDialog(gtk.Dialog):
         self.current_fname = fname
         text = self.compiler.get_text(self.current_fname)
         self.clear_selection()
-        self.sourcetext.get_buffer().set_text(text,-1)
+
+        self.display_text(text)
         self.dirty_formula = False
         self.populate_formula_list(self.current_fname)
         self.set_edit_sensitivity()
@@ -401,8 +402,8 @@ class BrowserDialog(gtk.Dialog):
         formula = self.compiler.get_parsetree(file,form_name)
         
         # update parse tree
-        buffer = self.text.get_buffer()
-        buffer.set_text(formula.pretty(),-1)
+        #buffer = self.text.get_buffer()
+        #buffer.set_text(formula.pretty(),-1)
 
         #update location of source buffer
         sourcebuffer = self.sourcetext.get_buffer()
@@ -411,8 +412,8 @@ class BrowserDialog(gtk.Dialog):
 
         # update IR tree
         self.ir = self.compiler.get_formula(file,form_name)
-        irbuffer = self.transtext.get_buffer()
-        irbuffer.set_text(self.ir.pretty(),-1)
+        #irbuffer = self.transtext.get_buffer()
+        #irbuffer.set_text(self.ir.pretty(),-1)
         
         # update messages
         buffer = self.msgtext.get_buffer()
@@ -424,7 +425,7 @@ class BrowserDialog(gtk.Dialog):
         if msg == "":
             msg = _("No messages")
             
-        buffer.set_text(msg,-1)
+        #buffer.set_text(msg,-1)
 
         if self.ir.errors == []:
             self.enable_apply()
@@ -452,6 +453,11 @@ class BrowserDialog(gtk.Dialog):
             iter = self.formula_list.append ()
             self.formula_list.set (iter, 0, formula)
 
-        text = ff.contents
-        self.sourcetext.get_buffer().set_text(text,-1)
+        self.display_text(ff.contents)
+        
+    def display_text(self,text):
+        # convert from latin-1 (encoding is undefined, but that seems closish)
+        # to utf-8 to keep pango happy
+        latin_text = unicode(text,'latin-1')
+        self.sourcetext.get_buffer().set_text(latin_text.encode('utf-8'),-1)
         
