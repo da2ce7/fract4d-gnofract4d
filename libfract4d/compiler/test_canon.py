@@ -30,8 +30,8 @@ class CanonTest(unittest.TestCase):
         return ir.Binop(op,stms,self.fakeNode, Int)
     def move(self,dest,exp):
         return ir.Move(dest, exp, self.fakeNode, Int)
-    def cjump(self,e1,e2):
-        return ir.CJump(">",e1,e2,"trueDest", "falseDest", self.fakeNode)
+    def cjump(self,e1,e2,trueDest="trueDest",falseDest="falseDest"):
+        return ir.CJump(">", e1, e2, trueDest, falseDest, self.fakeNode)
     def jump(self,dest):
         return ir.Jump(dest,self.fakeNode)
     def cast(self, e, type):
@@ -194,8 +194,8 @@ class CanonTest(unittest.TestCase):
         seq = self.seq([self.var(), self.var("b"), self.var("c")])
         blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
         self.assertBlockIsWellFormed(blocks[0],"t__start","t__end")
-        trace = self.canon.schedule_trace(blocks)
-        for stm in trace: print stm.pretty(),
+        trace = self.canon.schedule_trace(blocks,"t__end")
+        self.assertValidTrace(trace)
 
         # starts with a label
         seq = self.seq([self.label("t__1"),self.var()])
@@ -248,13 +248,42 @@ class CanonTest(unittest.TestCase):
         self.assertEqual(len(blocks),2)        
 
     def testTraceScheduling(self):
-        pass
-    
+        # cjump followed by falsedest
+        seq = self.seq([self.var("a"),
+                        self.cjump(self.var(),self.var(),"t__end","t__0"),
+                        self.label("t__0"),
+                        self.var("b")])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        trace = self.canon.schedule_trace(blocks,"t__end")
+        self.assertValidTrace(trace)
+
+        # cjump followed by truedest
+        seq = self.seq([self.var("a"),
+                        self.cjump(self.var(),self.var(),"t__0","t__end"),
+                        self.label("t__0"),
+                        self.var("b")])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        trace = self.canon.schedule_trace(blocks,"t__end")
+        self.assertValidTrace(trace)
+        #for stm in trace: print stm.pretty(),
+
+        
     def printAllBlocks(self,blocks):
         for b in blocks:
             for stm in b: print stm.pretty(),
             print
 
+    def assertValidTrace(self,trace):
+        # must have each cjump followed by false case
+        expecting = None
+        for stm in trace:
+            if expecting != None:
+                self.failUnless(isinstance(stm,ir.Label))
+                self.assertEqual(stm.name,expecting)
+                expecting = None
+            elif isinstance(stm, ir.CJump):
+                expecting = stm.falseDest
+                
     def assertBlocksAreWellFormed(self,blocks):
         for b in blocks:
             self.assertBlockIsWellFormed(b)
