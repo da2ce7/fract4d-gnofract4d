@@ -79,7 +79,8 @@ class STFractWorker : public IFractWorker {
     // draw a rectangle of this colour
     void rectangle(rgba_t pixel, int x, int y, int w, int h);
     void rectangle_with_iter(rgba_t pixel, fate_t fate, 
-			     int iter, int x, int y, int w, int h);
+			     int iter, float index,
+			     int x, int y, int w, int h);
 
     // calculate this point using antialiasing
     rgba_t antialias(int x, int y);

@@ -119,6 +119,18 @@ image::ratio() const
     return ((double)m_Yres / m_Xres);
 }
 
+void 
+image::fill_subpixels(int x, int y)
+{
+    fate_t fate = getFate(x,y,0);
+    float index = getIndex(x,y,0);
+    for(int i = 1; i < N_SUBPIXELS; ++i)
+    {
+	setFate(x,y,i,fate);
+	setIndex(x,y,i,index);
+    }
+}
+
 void
 image::clear_fate(int x, int y)
 {
@@ -126,6 +138,12 @@ image::clear_fate(int x, int y)
     for(int i = base; i < base+ N_SUBPIXELS; ++i)
     {
 	fate_buf[i] = FATE_UNKNOWN;
+
+#ifndef NDEBUG
+	// index is only meaningful if fate is known, but set this for
+	// testing purposes
+	index_buf[i] = 1e100; //std::numeric_limits<float>::infinity();
+#endif
     }
 }
 
@@ -140,6 +158,19 @@ image::setFate(int x, int y, int subpixel, fate_t fate)
 {
     int i = index_of_subpixel(x,y,subpixel);
     fate_buf[i] = fate;
+}
+
+float
+image::getIndex(int x, int y, int subpixel)
+{
+    return index_buf[index_of_subpixel(x,y,subpixel)];
+}
+
+void 
+image::setIndex(int x, int y, int subpixel, float index)
+{
+    int i = index_of_subpixel(x,y,subpixel);
+    index_buf[i] = index;
 }
 
 void 

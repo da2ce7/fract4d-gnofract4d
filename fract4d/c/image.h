@@ -9,7 +9,6 @@
 
 class image : public IImage
 {
-    static const int N_SUBPIXELS;
     int m_Xres;
     int m_Yres;
 
@@ -30,6 +29,8 @@ class image : public IImage
     void clear_fate(int x, int y);
 
 public:
+    static const int N_SUBPIXELS;
+
     image();
     image(const image& im);
     ~image();
@@ -59,6 +60,9 @@ public:
     fate_t getFate(int x, int y, int subpixel);
     void setFate(int x, int y, int subpixel, fate_t fate);
 
+    float getIndex(int x, int y, int subpixel);
+    void setIndex(int x, int y, int subpixel, float index);
+
     int index_of_subpixel(int x, int y, int subpixel) {
 	assert(subpixel >= 0 && subpixel < N_SUBPIXELS);
 	assert(x >= 0 && x < m_Xres);
@@ -71,6 +75,8 @@ public:
     int index_of_sentinel_subpixel() {
 	return m_Xres * m_Yres * N_SUBPIXELS;
     };
+
+    void fill_subpixels(int x, int y);
 
     bool set_resolution(int x, int y);
 

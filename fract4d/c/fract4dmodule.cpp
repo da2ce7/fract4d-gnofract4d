@@ -1066,6 +1066,39 @@ image_fate_buffer(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+image_get_color_index(PyObject *self, PyObject *args)
+{
+    PyObject *pyim;
+
+    int x=0,y=0,sub=0;
+    if(!PyArg_ParseTuple(args,"Oii|i",&pyim,&x,&y,&sub))
+    {
+	return NULL;
+    }
+
+    image *i = (image *)PyCObject_AsVoidPtr(pyim);
+    
+    if(NULL == i)
+    {
+	PyErr_SetString(PyExc_ValueError,
+			"Bad image object");
+	return NULL;
+    }
+
+    if(x < 0 || x >= i->Xres() || 
+       y < 0 || y >= i->Yres() || 
+       sub < 0 || sub >= image::N_SUBPIXELS)
+    {
+	PyErr_SetString(PyExc_ValueError,
+			"request for data outside image bounds");
+	return NULL;
+    }
+
+    float dist = i->getIndex(x,y,sub);
+    return Py_BuildValue("d", (double)dist);
+}
+
+static PyObject *
 rot_matrix(PyObject *self, PyObject *args)
 {
     double params[N_PARAMS];
@@ -1122,6 +1155,8 @@ static PyMethodDef PfMethods[] = {
       "get the rgb data from the image"},
     { "image_fate_buffer", image_fate_buffer, METH_VARARGS,
       "get the fate data from the image"},
+    { "image_get_color_index", image_get_color_index, METH_VARARGS,
+      "Get the color index data from a point on the image"},
 
     { "site_create", pysite_create, METH_VARARGS,
       "Create a new site"},
