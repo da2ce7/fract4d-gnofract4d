@@ -88,6 +88,12 @@ myComment {}
                         tokens[0].value == "myComment" and
                         tokens[0].lineno == 5)
 
+    def testKeywords(self):
+        ts = self.tokensFromString('if a elseif b else c')
+        self.failUnless(ts[0].type == "IF" and
+                        ts[2].type == "ELSEIF" and
+                        ts[4].type == "ELSE" and
+                        ts[1].type == ts[3].type == ts[5].type == "ID")
 def suite():
     return unittest.makeSuite(LexerTest,'test')
 
