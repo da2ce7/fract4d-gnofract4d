@@ -710,8 +710,75 @@ operator>>(std::istream& s, iterImpl& m)
 }
 
 
+class formula : public IFormula
+{
+private:
+    PyObject *pFormula;
+    mutable char** earray;
+public:
+    formula(PyObject *form);
+    const char** errors() const;
+    ~formula();
+};
 
-class iterFuncFactory
+formula::formula(PyObject *form)
+{
+    assert(form != NULL);
+    earray = NULL;
+    pFormula = form;
+}
+
+formula::~formula()
+{
+    Py_DECREF(pFormula);
+    if(earray)
+    {
+	int i=0;
+	while(earray[i]!= NULL)
+	{
+	    free(const_cast<char *>(earray[i]));
+	}
+	delete[] earray;
+    }
+}
+
+const char**
+formula::errors() const
+{
+    if(earray != NULL)
+    {
+	return const_cast<const char**>(earray);
+    }
+    int len;
+
+    PyObject *pErrors = PyObject_GetAttrString(pFormula,"errors");
+    if(!pErrors) goto error;
+
+    len = PySequence_Size(pErrors);
+    if(len==-1) goto error;
+    earray = new char *[len+1];
+    earray[len] = NULL;
+    for(int i = 0; i < len; ++i)
+    {
+	PyObject *pError = PySequence_GetItem(pErrors,i);
+	if(pError)
+	{
+	    const char *s = PyString_AsString(pError);
+	    if(s == NULL) goto error;
+	    earray[0] = strdup(s);
+	}
+    }
+
+    return const_cast<const char **>(earray);
+
+ error:
+    Py_XDECREF(pErrors);
+    delete[] earray;
+    earray = NULL;
+    return NULL;
+}
+
+class iterFuncFactory : public IFuncFactory
 {
 private:
     bool m_ok;
@@ -721,10 +788,23 @@ private:
 
 public:
     bool ok() const { return m_ok; };
+    bool load_file(const char *filename);
+    IFormula *get_formula(const char *filename, const char *formula); 
     iterFuncFactory();
     ~iterFuncFactory();
 };
 
+IFuncFactory *
+IFuncFactory::create()
+{
+    iterFuncFactory *iff = new iterFuncFactory();
+    if(iff && ! iff->ok())
+    {
+	delete iff;
+	return NULL;
+    }
+    return iff;
+}
 
 iterFuncFactory::iterFuncFactory()
 {
@@ -755,8 +835,10 @@ iterFuncFactory::iterFuncFactory()
 
     pCompiler = PyInstance_New(pClass,pArgs, NULL);
     if(!pCompiler) goto error;
-    
+    assert(PyInstance_Check(pCompiler));
+
     m_ok = true;
+    return;
  error:
     if(PyErr_Occurred())
     {
@@ -793,32 +875,46 @@ const char **iterFunc::names()
     return nameTable;
 }
 
-#if 0
 bool 
-iterFunc::load_file(const char *filename)
+iterFuncFactory::load_file(const char *filename)
 {
 
+    PyObject *pRetVal = NULL;
 
+    assert(pCompiler);
+    pRetVal = PyObject_CallMethod(pCompiler,"load_formula_file", "s", filename);
+    if(!pRetVal) goto error;
+       
+    return true;
+ error:
+    if(PyErr_Occurred())
+    {
+	PyErr_Print();
+    }
+    Py_XDECREF(pRetVal);
+    return false;
 }
-#endif
 
-static 
-bool ensure_initialized()
+IFormula *
+iterFuncFactory::get_formula(const char *filename, const char *formname)
 {
-    static iterFuncFactory *factory = new iterFuncFactory();
-    return factory->ok();
-}
+    PyObject *pRetVal = PyObject_CallMethod(
+	pCompiler,"get_formula","ss",filename,formname);
 
+    if(!pRetVal || PyErr_Occurred())
+    {
+	PyErr_Print();
+	Py_XDECREF(pRetVal);
+	return NULL;
+    }
+
+    return new formula(pRetVal);
+} 
 
 // factory method to make new iterFuncs
 iterFunc *iterFunc::create(const char *name, const char *filename)
 {
     if(!name) return NULL;
-    if(!ensure_initialized())
-    {
-	return NULL;
-    }
-    
 
     iterFunc_data *p = infoTable;
     while(p->name)
