@@ -2,7 +2,8 @@ gnofract4d_helpdir = $(datadir)/gnome/help/gnofract4d/C
 
 gnofract4d_help_DATA = \
 	gnofract4d.html \
-	topic.dat 
+	topic.dat \
+	docbook.css
 
 SGML_FILES = gnofract4d.sgml
 
@@ -24,27 +25,27 @@ gnofract4d.html : gnofract4d/gnofract4d.html
 	-cp gnofract4d/*.html .
 
 gnofract4d/gnofract4d.html: $(SGML_FILES)
-	-db2html gnofract4d.sgml
+	-db2html -V %use-id-as-filename% $(SGML_FILES)
 
 dist-hook:
 	mkdir -p $(distdir)/gnofract4d
 	mkdir -p $(distdir)/gnofract4d/stylesheet-images
-	-cp gnofract4d/*.html *.css $(distdir)/gnofract4d
+	-cp gnofract4d/*.html $(distdir)/gnofract4d
 	-cp gnofract4d.html $(distdir)
 	-cp gnofract4d/stylesheet-images/*.gif $(distdir)/gnofract4d/stylesheet-images
 
 install-data-local: gnofract4d.html
-	$(mkinstalldirs) $(gnofract4d_helpdir)/images
-	$(mkinstalldirs) $(gnofract4d_helpdir)/stylesheet-images
-	-for file in $(srcdir)/gnofract4d/*.html $(srcdir)/gnofract4d/*.css $(srcdir)/*.png ; do \
+	$(mkinstalldirs) $(DESTDIR)$(gnofract4d_helpdir)/images
+	$(mkinstalldirs) $(DESTDIR)$(gnofract4d_helpdir)/stylesheet-images
+	-for file in $(srcdir)/gnofract4d/*.html $(srcdir)/*.png ; do \
 		basefile=`basename $$file`; \
 		echo $$basefile; \
-		$(INSTALL_DATA) $(srcdir)/$$file $(gnofract4d_helpdir)/$$basefile; \
+		$(INSTALL_DATA) $(srcdir)/$$file $(DESTDIR)$(gnofract4d_helpdir)/$$basefile; \
 	done
 	-for file in $(srcdir)/gnofract4d/stylesheet-images/*.gif ; do \
 		basefile=`basename $$file`; \
 		echo $$basefile; \
-		$(INSTALL_DATA) $(srcdir)/$$file $(gnofract4d_helpdir)/stylesheet-images/$$basefile; \
+		$(INSTALL_DATA) $(srcdir)/$$file $(DESTDIR)$(gnofract4d_helpdir)/stylesheet-images/$$basefile; \
 	done
 
 gnofract4d.ps: gnofract4d.sgml

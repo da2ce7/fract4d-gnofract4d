@@ -1,19 +1,16 @@
-<!doctype article PUBLIC "-//Davenport//DTD DocBook V3.0//EN" [
-
-<!entity gf4 "Gnofract 4D">
-]>
+<!doctype article PUBLIC "-//Davenport//DTD DocBook V3.0//EN">
 <article id="gnofract4d">
 <artheader>
 <author><firstname>Edwin</><surname>Young</></author>
 <date>1999-12-12</date>
-<title>&gf4;</title>
+<title>Gnofract 4D</title>
 <subtitle><emphasis>For when 2D fractals just aren't weird enough</emphasis></subtitle>
 </artheader>
 
 <sect1 id="introduction">
 <title>Introduction</title>
 
-<para>&gf4; is a fractal generation program which can draw some
+<para>Gnofract 4D is a fractal generation program which can draw some
 unusual hybrids between the Mandelbrot and Julia sets. It treats both
 fractals as views of the same four-dimensional object and allows you
 to explore other views of the same object. </para>
@@ -98,13 +95,13 @@ function</emphasis>.
 julibrot(z0,c)
 z = z0
 iterations = 0
-while( magnitude(z) &lt; 4.0 and iterations < max_iterations )
+while( magnitude(z) &lt; 4.0 and iterations &lt; max_iterations )
      z = z^2 + c
      iterations = iterations + 1
 </programlisting>
 
 The Julibrot function has two complex parameters, or four real
-ones. In &gf4; I refer to the real parameters as x, y, z, and w: these
+ones. In Gnofract 4D I refer to the real parameters as x, y, z, and w: these
 are c.re , c.im, z0.re and z0.im respectively.
 
 The only difference is which points we choose to draw. To draw the
@@ -112,7 +109,7 @@ Mandelbrot set, we keep <emphasis>z0</> constant and change
 <emphasis>c</> with each pixel. To draw the Julia set, we keep
 <emphasis>c</> constant and change <emphasis>z0</>. If you squint with
 your brain a bit, you can imagine both sets as orthogonal "slices"
-through the same four-dimensional object. In &gf4; terms, the
+through the same four-dimensional object. In Gnofract 4D terms, the
 Mandelbrot set is the <emphasis>xy</> plane, and the Julia set is the
 <emphasis>zw</> plane. We can also look at other planes: here's an
 image of the <emphasis>xw</> plane:
@@ -161,13 +158,13 @@ creating a whole world of bizarre pictures.
 <para>
 There are other kinds of fractal which are commonly described as
 "four-dimensional" - hypercomplex and quaternion-based
-fractals. &gf4; doesn't currently support these fractals, so they're
+fractals. Gnofract 4D doesn't currently support these fractals, so they're
 only mentioned here to clarify the difference. (If you want to
 generate hypercomplex fractals I recommend you try <ulink url="http://www.physcip.uni-stuttgart.de/phy11733/quat_e.html">
 Quat</ulink>.) Hypercomplex
 numbers have four components (one real and three imaginary) where
 complex numbers have two. Since the hypercomplex mandelbrot has two
-hypercomplex parameters, in &gf4; terms it's actually an
+hypercomplex parameters, in Gnofract 4D terms it's actually an
 eight-dimensional object.
 </para>
 </sect2>
@@ -176,7 +173,7 @@ eight-dimensional object.
 <sect1 id="types">
 <title>Fractal Types</title>
 
-<para> &gf4; supports a variety of fractal formulae apart from the
+<para> Gnofract 4D supports a variety of fractal formulae apart from the
 vanilla mandelbrot set. These have been pillaged from a variety of
 sources, notably <emphasis>Fractint</>. I've tried to keep the names
 consistent.
@@ -204,17 +201,18 @@ described on the web page <ulink
 url="http://www.theory.org/fracdyn/">http://www.theory.org/fracdyn/</ulink>.
 The Burning Ship is essentially a Mandelbrot variant where the real
 and imaginary parts of the current point are set to their absolute
-values after each iteration, ie z <- (|x| + i |y|)^2 + c. The Buffalo
-fractal uses the same method with the function z <- z^2 - z + c,
+values after each iteration, ie z &lt;- (|x| + i |y|)^2 + c. The Buffalo
+fractal uses the same method with the function z &lt;- z^2 - z + c,
 making it equivalent to the Quadratic type with the "absolute value"
 modification.
 </para>
-<para>Nova</para>
-<para>Newton</para>
+
+<para><emphasis>Nova</> is Paul Derbyshire's Nova fractal.<emphasis>Newton</> Newton's method applied to a polynomial.</para>
+
 </sect1>
 
 <sect1 id="mouse">
-<title>Mouse Functions</title> 
+<title>Mouse and Keyboard Functions</title> 
 
 <para>
 Clicking with the left mouse button zooms in, making the picture twice
@@ -239,6 +237,11 @@ that clicking this twice doesn't take you back to where you started:
 the screen gets recentered on the point you clicked.
 </para> 
 
+<para>
+The cursor keys pan around the image. Hold down Control + cursor to
+move more quickly. Hold down Alt+ cursor to move around in the other
+two dimensions, mutating the image.
+</para>
 </sect1>
 
 <sect1 id="toolbar">
@@ -323,16 +326,17 @@ than generating fractals to do.
 
 <sect1 id="preferences">
 <title>Settings Menu</title> 
-<para> You can set all the fractal's
-parameters from here. Settings are divided into <emphasis>Fractal Settings</> and 
-<emphasis>Preferences</>. 
 
-<emphasis>Fractal Settings</> are saved in the fractal's .fct
-file - they are properties of the fractal itself. By contrast,
-<emphasis> preferences</> are your preferences for &gf4;'s general
-behavior and are saved in &gf4;'s config file (~/.gnome/gnofract4d). 
-<emphasis>Colors</> are also saved in the .fct file.
+<para> You can set all the fractal's parameters from here. Settings
+are divided into <emphasis>Fractal Settings</> and
+<emphasis>Preferences</>.  <emphasis>Fractal Settings</> are saved in
+the fractal's .fct file - they are properties of the fractal
+itself. By contrast, <emphasis> preferences</> are your preferences
+for Gnofract 4D's general behavior and are saved in Gnofract 4D's config file
+(~/.gnome/gnofract4d).  <emphasis>Colors</> are also saved in the .fct
+file.
 </para>
+
 <sect2 id="prefdialog">
 <title>Fractal Settings</title>
 <sect3 id="function">
@@ -365,7 +369,7 @@ longer). <emphasis>Default</> antialiasing is quite a lot faster than
 go through before we give up and assume it's a member of the Julibrot.
 
 If <emphasis>Auto Deepening</> is on, the maximum number of iterations
-is set automatically by &gf4; but you can change it by hand whenever
+is set automatically by Gnofract 4D but you can change it by hand whenever
 you like.
 
 <emphasis> Continuous Potential </> gives a much smoother image, by
@@ -412,33 +416,43 @@ click <emphasis> Refresh</>. To apply a colormap to the main image,
 click the map.
 </para>
 </sect2>
+
+<sect2 id="preferences2">
+<title>Preferences</title> <para> There's only one set of preferences
+at the moment- the compiler preferences. Gnofract 4D needs a C++ compiler to
+be available at runtime in order to work (it dynamically creates the
+code to compute a particular fractal when you ask for that
+fractal). This section allows you to specify a location for the
+compiler and options to pass to it. <emphasis>If Gnofract 4D is working
+fine, I suggest you leave this area alone.</></para>
+</sect2>
 </sect1>
 
 <sect1 id="about">
-<title>About &gf4;</title>
+<title>About Gnofract 4D</title>
 <para>
 
-This is &gf4; version 1.6. You can find the most recent version of
-&gf4; from <ulink url="http://gnofract4d.sourceforge.net">
+This is Gnofract 4D version 1.7. You can find the most recent version of
+Gnofract 4D from <ulink url="http://gnofract4d.sourceforge.net">
 http://gnofract4d.sourceforge.net/</ulink>. 
 </para>
 <para>
-&gf4; was originally based on Gnofract, written by Aurelien Alleaume
+Gnofract 4D was originally based on Gnofract, written by Aurelien Alleaume
 <ulink url="mailto:manchot@club-internet.fr">(manchot@club-internet.fr)
 </ulink>,
 though none of the original code remains in the current version.
-Gnofract can be obtained from 
+Gnofract could once be obtained from
 <ulink url="http://www.multimania.com/mason/">
-http://www.multimania.com/mason/</ulink>. 
-The new code in &gf4; is by Edwin Young <ulink
+http://www.multimania.com/mason/</ulink> but this no longer appears to
+work.  The new code in Gnofract 4D is by Edwin Young <ulink
 url="mailto:edwin@sourceforge.net">(edwin@sourceforge.net) </ulink>.
-&gf4; contains code from <emphasis>gundo</>, by Nat Pryce. &gf4; also
-contains palette files (by a number of authors) which were originally
+Gnofract 4D contains code from <emphasis>gundo</>, by Nat Pryce, and
+palette files (by a number of authors) which were originally
 distributed with <ulink
 url="http://spanky.triumf.ca/">Fractint</ulink>.
 </para>
 <para>
-&gf4; is distributed under the <emphasis>Gnu General Public
+Gnofract 4D is distributed under the <emphasis>Gnu General Public
 License</>. See the file "COPYING" for details.
 </para>
 </sect1>

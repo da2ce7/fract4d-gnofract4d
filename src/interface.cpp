@@ -43,16 +43,16 @@ key_event(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
     switch(event->keyval)
     {
     case GDK_Up:
-	axis = YCENTER; dir = 0.25;
+	axis = YCENTER; dir = -0.025;
 	break;
     case GDK_Down:
-	axis = YCENTER; dir = -0.25;
+	axis = YCENTER; dir = 0.025;
 	break;
     case GDK_Left:
-	axis = XCENTER; dir = 0.25;
+	axis = XCENTER; dir = -0.025;
 	break;
     case GDK_Right:
-	axis = XCENTER; dir = -0.25;
+	axis = XCENTER; dir = 0.025;
 	break;
     default:
 	return 0;
@@ -60,7 +60,12 @@ key_event(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
 
     if(event->state & GDK_CONTROL_MASK)
     { 
-	dir /= 10.0;
+	dir *= 10.0;
+    }
+    if(event->state & GDK_MOD1_MASK)
+    {
+	if(axis == XCENTER) axis = ZCENTER;
+	else axis = WCENTER;
     }
 
     if(model_cmd_start(m,"key_setpos"))

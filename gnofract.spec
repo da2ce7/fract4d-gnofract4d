@@ -1,4 +1,4 @@
-%define ver     1.6 
+%define ver     1.7 
 %define RELEASE 1
 %define prefix  /usr      
 
@@ -11,7 +11,7 @@ Group: Applications/Graphics
 Source: ftp://gnofract4d.sourceforge.net/gnofract4d-%{PACKAGE_VERSION}.tar.gz
 BuildRoot: /var/tmp/gnofract4d-%{PACKAGE_VERSION}-root
 URL: http://gnofract4d.sourceforge.net/
-Requires: gnome-libs >= 1.0.12  
+Requires: gnome-libs >= 1.0.12  gcc-c++ >= 3.0
 Docdir: %{prefix}/doc
 Prefix: %prefix
 
@@ -51,3 +51,4 @@ cp `gnome-config --datadir`/pixmaps/gnofract4d/* $RPM_BUILD_ROOT/%{prefix}/share
 %{prefix}/share/gnome/help/gnofract4d/*/*
 %{prefix}/share/maps/gnofract4d/*
 %{prefix}/share/pixmaps/gnofract4d/*
+%{prefix}/share/gnofract4d/*

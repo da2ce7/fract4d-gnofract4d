@@ -42,6 +42,8 @@ gnofract4d_SOURCES = \
 	compiler.h compiler.cpp \
 	preferences.h preferences.cpp
 
+EXTRA_DIST=compiler_template.cpp
+
 Codedir = $(datadir)/gnofract4d
 Code_DATA= compiler_template.cpp \
 	iterFunc.h \

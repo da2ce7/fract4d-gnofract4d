@@ -9,7 +9,7 @@
 # General Public License and is *not* in the public domain.
 
 PACKAGE = gnofract4d
-VERSION = 1.6
+VERSION = 1.7
 
 SHELL = /bin/sh
 
