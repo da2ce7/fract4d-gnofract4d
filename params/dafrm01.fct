@@ -14,7 +14,7 @@ zw=0.00000000000000000
 maxiter=256
 yflip=0
 [function]
-formulafile=gf4d_fractint.frm
+formulafile=fractint-g4.frm
 function=DAFRM01
 @fn1=ident
 [endsection]

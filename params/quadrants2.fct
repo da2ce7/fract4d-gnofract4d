@@ -13,6 +13,7 @@ yw=1.57079632679489656
 zw=0.00000000000000000
 maxiter=256
 yflip=0
+periodicity=1
 [function]
 formulafile=fractint-g4.frm
 function=Jm_25
@@ -31,8 +32,8 @@ function=zero
 formulafile=gf4d.cfrm
 function=default
 @_transfer=ident
-@_offset=0.00000000000000001
-@_density=8.00000000000000000
+@_offset=0.40000000000000002
+@_density=1.00000000000000000
 [endsection]
 [colors]
 colorizer=1

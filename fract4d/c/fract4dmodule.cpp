@@ -690,7 +690,7 @@ public:
     virtual void interrupt() 
 	{
 #ifdef DEBUG_THREADS
-	    printf("%p : CA : INT(%d)\n", this, tid);
+	    printf("%p : CA : INT(%p)\n", this, tid);
 #endif
 	    interrupted = true;
 	}
@@ -708,10 +708,10 @@ public:
 	    params = params_;
 	}
 
-    virtual void set_tid(int tid_) 
+    virtual void set_tid(pthread_t tid_) 
 	{
 #ifdef DEBUG_THREADS
-	    printf("%p : CA : SET(%d)\n", this,tid_);
+	    printf("%p : CA : SET(%p)\n", this,tid_);
 #endif
 	    tid = tid_;
 	}
@@ -721,7 +721,7 @@ public:
 	    if(tid != 0)
 	    {
 #ifdef DEBUG_THREADS
-		printf("%p : CA : WAIT(%d)\n", this,tid);
+		printf("%p : CA : WAIT(%p)\n", this,tid);
 #endif
 		pthread_join(tid,NULL);
 	    }
@@ -735,7 +735,7 @@ public:
 	}
 private:
     int fd;
-    int tid;
+    pthread_t tid;
     volatile bool interrupted;
     calc_args *params;
     pthread_mutex_t write_lock;

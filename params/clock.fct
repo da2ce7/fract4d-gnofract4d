@@ -14,7 +14,7 @@ zw=0.00000000000000000
 maxiter=256
 yflip=0
 [function]
-formulafile=fractint.frm
+formulafile=fractint-g4.frm
 function=Jm_03a
 @fn4=ident
 @fn2=ident

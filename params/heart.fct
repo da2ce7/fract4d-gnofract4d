@@ -15,8 +15,6 @@ maxiter=256
 [function]
 formulafile=testx.frm
 function=mandelfn
-[endsection]
-[initparams]
 @fn1=acosh
 [endsection]
 [inner]

@@ -16,7 +16,5 @@ yflip=0
 [function]
 formulafile=gf4d.frm
 function=Mandelbrot
-[endsection]
-[initparams]
 @bailfunc=cmag
 @bailout=4.00000000000000000
