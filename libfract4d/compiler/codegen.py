@@ -103,8 +103,23 @@ class T:
                 dst = [
                     self.emit_binop_exp_exp('-', [ac, bd], Float),
                     self.emit_binop_exp_exp('+', [bc, ad], Float)]
+            elif t.op==">" or t.op==">=" or t.op=="<" or t.op == "<=":
+                # compare real parts only
+                dst = [
+                    self.emit_binop_const_exp(t.op,s0.value[0],[srcs[0]], Bool)]
+            elif t.op=="==" or t.op=="!=":
+                # compare both
+                d1 = self.emit_binop_const_exp(t.op,s0.value[0],[srcs[0]], Bool)
+                d2 = self.emit_binop_const_exp(t.op,s0.value[1],[srcs[1]], Bool)
+                if t.op=="==":
+                    combine_op = "&&"
+                else:
+                    combine_op = "||"
+                dst = [
+                    self.emit_binop_exp_exp(combine_op, [d1,d2], Bool)]
             else:
-                msg = "Unsupported operation %s" % t.op
+                # need to implement /, compares, etc
+                msg = "Unsupported binary operation %s" % t.op
                 raise fracttypes.TranslationError(msg)
         else:
             dst = [
@@ -112,7 +127,9 @@ class T:
         return dst
     
     def binop_exp_const(self,t):
-        pass
+        # swap operands and call other version - is this really safe?
+        t.children = [t.children[1], t.children[0]]
+        return self.binop_const_exp(t)
 
     def binop_exp_exp(self,t):
         pass
