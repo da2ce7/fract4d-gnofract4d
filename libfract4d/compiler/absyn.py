@@ -23,10 +23,46 @@ class Node:
                     str += child.pretty(depth+1) + "\n"
                 else:
                     str += " " * (depth+1) + ("<<%s>>\n" % child)
-            str += " " * depth + "]\n"
+            str += " " * depth + "]" 
         else:
             str += "]"
         return str
+    
+    def __iter__(self):
+        return NodeIter(self)
+
+# not used or functional - might finish one day
+class NodeIter:
+    def __init__(self,node):
+        self.nodestack = [(node,-1)]
+        
+    def __iter__(self):
+        return self
+
+    def getNode(self,node,child):
+        if child == -1:
+            return node
+        else:
+            return node.children[child]
+        
+    def next(self):
+        #print map(lambda (n,x) :"%s %s" % (n,x), self.nodestack)
+        if self.nodestack == []:
+            raise StopIteration
+
+        (node,child) = self.nodestack.pop()
+        ret = self.getNode(node,child)
+        child+= 1
+        while len(node.children) <= child:
+            (node,child) = self.nodestack.pop()
+            if self.nodestack == []:
+                return ret
+            
+        self.nodestack.append((node,child+1))
+        self.nodestack.append((node.children[child],-1))                
+        
+        return ret
+                    
 
 def CheckTree(tree, nullOK=0):
     if nullOK and tree == None:
