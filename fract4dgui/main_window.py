@@ -310,8 +310,33 @@ class MainWindow:
         self.bar = gtk.ProgressBar()
         self.vbox.pack_end(self.bar, expand=gtk.FALSE)
 
+    def update_preview(self,f):
+        self.preview.set_fractal(f.copy_f())
+        self.draw_preview()
+
+    def draw_preview(self):
+        auto_deepen = preferences.userPrefs.getint("display","autodeepen")
+        self.preview.draw_image(False,auto_deepen)
+        
     def create_toolbar(self):
         self.toolbar = gtk.Toolbar()
+
+        self.preview = gtkfractal.SubFract(self.compiler)
+        self.preview.set_size(40,40)
+        self.update_preview(self.f)
+        self.f.connect('parameters-changed', self.update_preview)
+        
+        self.toolbar.append_element(
+            gtk.TOOLBAR_CHILD_WIDGET,            
+            self.preview.widget,
+            _("Preview"),
+            _("Shows what the next operation would do"),
+            None,
+            None,
+            None,
+            None
+            )
+        
         self.toolbar.insert_stock(
             gtk.STOCK_UNDO,
             _("Undo the last change"),
@@ -363,12 +388,19 @@ class MainWindow:
         self.add_fourway(
             _("warp"),
             _("Mutate the image by moving along the other 2 axes"), 2)
-        
+
+    def on_drag_fourway(self,widget,dx,dy):
+        self.preview.nudge(dx/10.0,dy/10.0, widget.axis)
+        self.draw_preview()
+    
+    def on_release_fourway(self,widget,dx,dy):
+        self.f.nudge(dx/10.0, dy/10.0, widget.axis)
+    
     def add_fourway(self, name, tip, axis):
-        xy_fourway = fourway.T(name)
+        my_fourway = fourway.T(name)
         self.toolbar.append_element(
             gtk.TOOLBAR_CHILD_WIDGET,            
-            xy_fourway.widget,
+            my_fourway.widget,
             tip,
             None,
             None,
@@ -377,18 +409,12 @@ class MainWindow:
             None
             )
 
-        def on_drag_fourway(widget,dx,dy):
-            #print "small change: (%d, %d)" % (dx,dy)
-            pass
+        my_fourway.axis = axis
         
-        def on_release_fourway(widget,dx,dy):
-            print "change: (%d, %d)" % (dx,dy)
-            self.f.nudge(dx/10.0, dy/10.0, axis)
-
-        xy_fourway.connect('value-slightly-changed', on_drag_fourway)
-        xy_fourway.connect('value-changed', on_release_fourway)
+        my_fourway.connect('value-slightly-changed', self.on_drag_fourway)
+        my_fourway.connect('value-changed', self.on_release_fourway)
         
-            
+        
     def save_file(self,file):
         try:
             self.f.save(open(file,'w'))
