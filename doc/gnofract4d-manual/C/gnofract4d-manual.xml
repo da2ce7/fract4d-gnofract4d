@@ -101,6 +101,13 @@ dimensions, mutating the image. You can recenter the image on a point
 by left-clicking on that point while holding down
 <keycap>Shift</keycap>.  </para>
 
+<note><title>Non-4D formulas</title> <para> Some fractal formulas
+(typically those originally written for Fractint or UltraFractal)
+don't support full 4D operation. (&gf4d; determines this by whether
+the formula uses the <varname>#zwpixel</varname> variable.) In this
+case, the widgets for rotating in other dimensions, warping, and the
+middle mouse button will be disabled.  </para> </note>
+
 </sect2>
 
 <sect2 id="files">
@@ -710,7 +717,7 @@ wrappers for some of the gnarlier C++ extension functions. </para>
 </row>
 
 <row>
-<entry><para>fract4d/c</para></entry>
+<entry><para><filename>fract4d/c</filename></para></entry>
 
 <entry> <para>This contains the C++ extension code which is compiled
 to produce <filename>fract4dc.so</filename>. This is divided into a
@@ -726,7 +733,7 @@ parcelling out the work to multiple MTFractWorkers via the queue in
 </row>
 
 <row>
-<entry><para>fract4dgui</para></entry>
+<entry><para><filename>fract4dgui</filename></para></entry>
 
 <entry> <para>This contains the python code which implements the
 GUI. It uses PyGTK as the GUI toolkit. The earliest PyGTK we support
@@ -742,7 +749,7 @@ calculation in a window. </para> </entry>
 </row>
 
 <row>
-<entry><para>fract4dgui/c</para></entry>
+<entry><para><filename>fract4dgui/c</filename></para></entry>
 
 <entry> <para>This contains the C code which implements the
 fract4dguic.so extension. This only has one minimal function, to wrap

@@ -12,6 +12,8 @@
 const int 
 image::N_SUBPIXELS = 4;
 
+#define MAX_RECOLOR_SIZE (1024*768)
+
 image::image()
 {
     m_Xres = m_Yres = 0;
@@ -53,10 +55,22 @@ image::alloc_buffers()
 {
     buffer = new(std::nothrow) char[bytes()];
     iter_buf = new(std::nothrow) int[m_Xres * m_Yres];
-    index_buf = new(std::nothrow) float[m_Xres * m_Yres * N_SUBPIXELS];
-    fate_buf = new(std::nothrow) fate_t[m_Xres * m_Yres * N_SUBPIXELS];
-    
-    if(!buffer || !iter_buf || !index_buf || !fate_buf)
+    if(m_Xres * m_Yres <= MAX_RECOLOR_SIZE)
+    {
+	index_buf = new(std::nothrow) float[m_Xres * m_Yres * N_SUBPIXELS];
+	fate_buf = new(std::nothrow) fate_t[m_Xres * m_Yres * N_SUBPIXELS];
+	if(!index_buf || !fate_buf)
+	{
+	    delete_buffers();
+	    return false;
+	}
+    }
+    else
+    {
+	index_buf = NULL;
+	fate_buf = NULL;
+    }
+    if(!buffer || !iter_buf)
     {
 	delete_buffers();
 	return false;
@@ -151,6 +165,8 @@ image::fill_subpixels(int x, int y)
 void
 image::clear_fate(int x, int y)
 {
+    if(!fate_buf) return;
+
     int base = index_of_subpixel(x,y,0);
     for(int i = base; i < base+ N_SUBPIXELS; ++i)
     {
@@ -167,12 +183,14 @@ image::clear_fate(int x, int y)
 fate_t
 image::getFate(int x, int y, int subpixel) const
 {
+    assert(fate_buf != NULL);
     return fate_buf[index_of_subpixel(x,y,subpixel)];
 }
 
 void 
 image::setFate(int x, int y, int subpixel, fate_t fate)
 {
+    assert(fate_buf != NULL);
     int i = index_of_subpixel(x,y,subpixel);
     fate_buf[i] = fate;
 }
@@ -180,12 +198,14 @@ image::setFate(int x, int y, int subpixel, fate_t fate)
 float
 image::getIndex(int x, int y, int subpixel) const
 {
+    assert(index_buf != NULL);
     return index_buf[index_of_subpixel(x,y,subpixel)];
 }
 
 void 
 image::setIndex(int x, int y, int subpixel, float index)
 {
+    assert(index_buf != NULL);
     int i = index_of_subpixel(x,y,subpixel);
     index_buf[i] = index;
 }

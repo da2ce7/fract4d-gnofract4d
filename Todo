@@ -14,6 +14,7 @@ Done in 2.7:
 * W	initial gradient stuff (chris le sueur)
 
 todo:
+* B	should save enum params as strings, not indexes
 * W	copy & paste to text or image
 * B	collapsar preview different color from main image?
 * B	should start drawing straight away when image returns to normal size

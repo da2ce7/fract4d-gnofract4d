@@ -50,7 +50,9 @@ public:
     virtual int getIter(int x, int y) const = 0;
     virtual void setIter(int x, int y, int iter) = 0;
 
+    
     // accessors for fate data
+    virtual bool hasFate() const = 0;
     virtual fate_t getFate(int x, int y, int sub) const = 0;
     virtual void setFate(int x, int y, int sub, fate_t fate) = 0;
     // set all subpixels equal to zero'th one

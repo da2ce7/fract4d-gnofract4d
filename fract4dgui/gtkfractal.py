@@ -19,7 +19,7 @@ sys.path.append("..")
 from fract4d import fractal,fract4dc,fracttypes
 import fract4dguic
 
-import undo
+import utils
 
 class T(gobject.GObject):
     __gsignals__ = {
@@ -94,7 +94,7 @@ class T(gobject.GObject):
         drawing_area.connect('button_press_event', self.onButtonPress)
         drawing_area.connect('expose_event',self.onExpose)
 
-        c = self.get_rgb_colormap()
+        c = utils.get_rgb_colormap()
         
         drawing_area.set_colormap(c)        
         drawing_area.set_size_request(self.width,self.height)
@@ -110,15 +110,7 @@ class T(gobject.GObject):
         except IOError, err:
             self.error(_("Can't load default fractal"), err)
             return False
-        
-    def get_rgb_colormap(self):
-        # work around a difference between pygtk versions
-        if hasattr(gtk.gdk,'rgb_get_colormap'):
-            c = gtk.gdk.rgb_get_colormap()
-        else:
-            c = gtk.gdk.rgb_get_cmap()
-        return c
-    
+            
     def update_formula(self):
         if self.f != None:
             self.f.dirtyFormula = True

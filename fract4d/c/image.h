@@ -40,6 +40,8 @@ public:
     int getNSubPixels() const { return N_SUBPIXELS; };
     inline bool hasUnknownSubpixels(int x, int y) const
 	{
+	    if(!hasFate()) return true;
+
 	    for(int i = 0; i < N_SUBPIXELS; ++i)
 	    {
 		if(getFate(x,y,i) == FATE_UNKNOWN)
@@ -51,8 +53,14 @@ public:
 	}
     inline int Xres() const { return m_Xres; };
     inline int Yres() const { return m_Yres; };
-    inline char *getBuffer() { return buffer; };
-    inline fate_t *getFateBuffer() { return fate_buf; };
+    inline char *getBuffer() {
+	assert(buffer != NULL);
+	return buffer; 
+    };
+    inline fate_t *getFateBuffer() {
+	assert(fate_buf != NULL);
+	return fate_buf; 
+    };
 
     // utilities
     inline int row_length() const {return m_Xres * 3; };
@@ -70,6 +78,10 @@ public:
     void setIter(int x, int y, int iter) { 
       iter_buf[x + y * m_Xres] = iter;
     };
+
+    bool hasFate() const { 
+	return fate_buf != NULL;
+    }
 
     fate_t getFate(int x, int y, int subpixel) const;
     void setFate(int x, int y, int subpixel, fate_t fate);
