@@ -255,7 +255,7 @@ int gf4d_fractal_set_precision(Gf4dFractal *f, int digits)
 
 void gf4d_fractal_set_color(Gf4dFractal *f, double r, double g, double b)
 {
-	fract_set_color(f->f,r,g,b);
+	f->f->set_color(r,g,b);
 }
 
 /* image-related functions: to be removed */

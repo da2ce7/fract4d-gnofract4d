@@ -26,7 +26,8 @@
 
 struct fractal
 {
-public:
+private:
+        // basic params
 	d params[N_PARAMS];
 	int nbit_max;
 	int fractal_type;
@@ -39,6 +40,8 @@ public:
 	bool running;
 	bool finished;
 
+	// rotated params
+	dmat4 rot;
 public:
 	fractal();
 	fractal(fractal& f); // copy ctor
@@ -61,7 +64,13 @@ public:
 	double get_r();
 	double get_g();
 	double get_b();
-	bool set_precision(int digits); // not implemented
+	bool check_precision();
+	bool set_precision(int digits); 
+	void set_color(double r, double g, double b);
+
+	void update_matrix();
+	dvec4 get_center();
+	friend class fract_rot;
 private:
 	void recenter(const dvec4& delta);
 };
@@ -81,7 +90,7 @@ double fract_get_ratio(fractal_t *f);
 /* update functions */
 
 int  fract_set_resolution(fractal_t *f, int xres, int yres);
-void fract_set_color(fractal_t *f, double r, double g, double b);
+
 void fract_realloc_image(fractal_t *f);
 void fract_delete_image(fractal_t *f);
 

@@ -196,9 +196,10 @@ fractal::get_auto()
 	return auto_deepen;
 }
 
-void fract_set_color(fractal_t *p, double r, double g, double b)
+void 
+fractal::set_color(double _r, double _g, double _b)
 {
-	p->r = r; p->g = g; p->b = b;
+	r = _r; g = _g; b = _b;
 }
 
 double 
@@ -220,7 +221,8 @@ fractal::get_b()
 }
 
 
-bool fractal::set_precision(int digits)
+bool 
+fractal::set_precision(int digits)
 {
 #ifdef HAVE_CLN
 	cl_float_format_t fmt = cl_float_format(digits);
@@ -245,33 +247,35 @@ bool fractal::set_precision(int digits)
 /* see if we have run out of precision. either extend float format or 
  * (if CLN isn't available) warn user 
  */
-int fract_check_precision(fractal *p)
+bool
+fractal::check_precision()
 {
 	// assume image < 1024 pixels wide
-	d delta = (p->params[SIZE])/D_LIKE(1024.0,p->params[SIZE]);
+	d delta = (params[SIZE])/D_LIKE(1024.0,params[SIZE]);
 
-	debug_precision(p->params[SIZE],"check precision");
+	debug_precision(params[SIZE],"check precision");
 
 #ifdef HAVE_CLN
-	if (delta < float_epsilon(cl_float_format(p->params[SIZE]))*D_LIKE(10.0,p->params[SIZE])) { 
+	if (delta < float_epsilon(cl_float_format(params[SIZE]))*D_LIKE(10.0,params[SIZE])) { 
 		g_print("increasing precision from %d\n",float_digits(delta)); 
 		// float_digits gives bits of precision,
 		// cl_float takes decimal digits. / by 3 should be safe?
-		p->set_precision(float_digits(delta)/3 +4);
-		return 0;
+		set_precision(float_digits(delta)/3 +4);
+		return false;
 	}
 #else
 	if ( delta < 1.0e-15)
 	{
 		gtk_widget_show(gnome_warning_dialog(_("Sorry, max precision was reached, the image will become horrible !")));
-		return 0;
+		return false;
 	}	
 #endif
 
-	return 1;
+	return true;
 }
 
-bool fractal::set_param(param_t pnum, const char *val)
+bool 
+fractal::set_param(param_t pnum, const char *val)
 {
 	g_return_val_if_fail(pnum > -1 && pnum < N_PARAMS,false);
 	params[pnum] = A2D(val);
@@ -286,48 +290,34 @@ fractal::get_param(param_t pnum)
 	return D2A(params[pnum]);
 }
 
-dmat4 get_rotated_matrix(fractal *f)
+void
+fractal::update_matrix()
 {
-	debug_precision(f->params[XYANGLE],"xyangle");
-	d one = D_LIKE(1.0,f->params[SIZE]);
-	d zero = D_LIKE(0.0, f->params[SIZE]);
-	dmat4 id = identity3D<d>(f->params[SIZE],zero);
+	debug_precision(params[XYANGLE],"xyangle");
+	d one = D_LIKE(1.0,params[SIZE]);
+	d zero = D_LIKE(0.0, params[SIZE]);
+	dmat4 id = identity3D<d>(params[SIZE],zero);
 
 	debug_precision(id[VX][VY],"id 1");
 
-	id =  id * 
-		rotXY<d>(f->params[XYANGLE],one,zero) *
-		rotXZ<d>(f->params[XZANGLE],one,zero) * 
-		rotXW<d>(f->params[XWANGLE],one,zero) *
-		rotYZ<d>(f->params[YZANGLE],one,zero) *
-		rotYW<d>(f->params[YWANGLE],one,zero) *
-		rotZW<d>(f->params[ZWANGLE],one,zero);
+	rot =  id * 
+		rotXY<d>(params[XYANGLE],one,zero) *
+		rotXZ<d>(params[XZANGLE],one,zero) * 
+		rotXW<d>(params[XWANGLE],one,zero) *
+		rotYZ<d>(params[YZANGLE],one,zero) *
+		rotYW<d>(params[YWANGLE],one,zero) *
+		rotZW<d>(params[ZWANGLE],one,zero);
 
 	// id *= param->size/param->Xres;
-	debug_precision(id[VX][VY],"id 3");
-
-	return id;
+	debug_precision(rot[VX][VY],"id 3");
 }
 
-dvec4 get_deltax(fractal *f)
+dvec4 
+fractal::get_center()
 {
-	return get_rotated_matrix(f)[VX];
+	return dvec4(params[XCENTER],params[YCENTER],
+		     params[ZCENTER],params[WCENTER]);
 }
-
-
-dvec4 get_deltay(fractal *f)
-{
-	return get_rotated_matrix(f)[VY];
-
-}
-
-dvec4 get_center(fractal_t *f)
-{
-	return dvec4(f->params[XCENTER],f->params[YCENTER],
-		     f->params[ZCENTER],f->params[WCENTER]);
-}
-
-inline int scan_double(fractal_t *f, bool visual);
 
 void
 fractal::recenter(const dvec4& delta)
@@ -350,8 +340,9 @@ fractal::relocate(double x, double y, double zoom)
 	d dx = D_LIKE(x,params[SIZE]);
 	d dy = D_LIKE(y,params[SIZE]);  
 
-	deltax=get_deltax(this);	
-	deltay=get_deltay(this);
+	update_matrix();
+	deltax=rot[VX];
+	deltay=rot[VY];
 
 	debug_precision(deltax[VX],"relocate:deltax");
 	recenter(dx *deltax + dy *deltay);
@@ -362,35 +353,19 @@ fractal::relocate(double x, double y, double zoom)
 
 	debug_precision(params[SIZE],"relocate 2");
 
-	fract_check_precision(this);
+	check_precision();
 }	
-
-template<class T>
-void swap(T& a, T& b)
-{
-	T tmp(a);
-	a = b;
-	b = tmp;
-}
 
 void
 fractal::flip2julia(double x, double y)
 {
-	static double rot=M_PI/2;
-	d dx = D_LIKE(x,params[SIZE]);
-	d dy = D_LIKE(y,params[SIZE]);
+	static double rot_by=M_PI/2;
+	relocate(x,y,1.0);
+	
+	params[XZANGLE] += D_LIKE(rot_by,params[SIZE]);
+	params[YWANGLE] += D_LIKE(rot_by,params[SIZE]);
 
-	dvec4 deltax,deltay;
-	
-	deltax=get_deltax(this);
-	deltay=get_deltay(this);
-	
-	recenter(dx*deltax + dy*deltay);
-	
-	params[XZANGLE] += D_LIKE(rot,params[SIZE]);
-	params[YWANGLE] += D_LIKE(rot,params[SIZE]);
-
-	rot = -rot;
+	rot_by = -rot_by;
 }
 
 class fract_rot {
@@ -420,7 +395,8 @@ public:
 		f = _f; cf = _cf ; pf = _pf;
 		depth = f->aa_profondeur ? f->aa_profondeur : 1; 
 
-		rot = get_rotated_matrix(f)/D_LIKE(im->Xres,f->params[SIZE]);
+		f->update_matrix();
+		rot = f->rot/D_LIKE(im->Xres,f->params[SIZE]);
 		deltax = rot[VX];
 		deltay = rot[VY];
 		ddepth = D_LIKE((double)(depth*2),f->params[SIZE]);
@@ -429,7 +405,7 @@ public:
 
 		debug_precision(deltax[VX],"deltax");
 		debug_precision(f->params[XCENTER],"center");
-		topleft = get_center(f) -
+		topleft = f->get_center() -
 			deltax * D_LIKE(im->Xres / 2.0, f->params[SIZE])  -
 			deltay * D_LIKE(im->Yres / 2.0, f->params[SIZE]);
 
@@ -522,17 +498,18 @@ fract_rot::pixel(int x, int y,int w, int h)
 	int i=0;
 	if(f->auto_deepen && k++ % 30 == 0)
 	{
-		if(i = pf(pos,f->params[BAILOUT], f->nbit_max)==-1)
+		i = pf(pos,f->params[BAILOUT], f->nbit_max*2);
+		if( (i > f->nbit_max/2) && (i < f->nbit_max))
 		{
-			if(pf(pos,f->params[BAILOUT], f->nbit_max*2) != -1)
-			{
-				ndoubleiters++; 
-			}
+			/* we would have got this wrong if we used 
+			 * half as many iterations */
+			nhalfiters++;
 		}
-		else
+		else if( (i > f->nbit_max) && (i < f->nbit_max*2))
 		{
-			if(i > f->nbit_max/2)
-				nhalfiters++;
+			/* we would have got this right if we used
+			 * twice as many iterations */
+			ndoubleiters++;
 		}
 	}
 };
