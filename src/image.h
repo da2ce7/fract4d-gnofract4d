@@ -18,12 +18,13 @@ struct image
     image();
     ~image();
 
-	void put(int x, int y, rgb_t pixel);
-	rgb_t get(int x, int y);
+    void put(int x, int y, rgb_t pixel);
+    rgb_t get(int x, int y);
+    int getIter(int x, int y);
 
-	inline int row_length();
-	inline int image_bytes();
-	inline int bytes();
+    inline int row_length();
+    inline int image_bytes();
+    inline int bytes();
 
     image(const image& im);
     bool set_resolution(int x, int y);

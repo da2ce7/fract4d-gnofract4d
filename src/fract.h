@@ -33,7 +33,7 @@ class iterFunc;
 struct fractal
 {
     // member vars
-    private:
+private:
 
     // basic params
     d params[N_PARAMS];
@@ -45,12 +45,15 @@ struct fractal
     // color params
     colorizer *cizer;
 
-    public:
+public:
 
     e_bailFunc bailout_type;    
     iterFunc *pIterFunc;
 
-    private:
+    // not saved
+    int nThreads;
+
+private:
     // parameters which aren't saved
 
     // direction to move in for flip2julia
@@ -61,7 +64,9 @@ struct fractal
 
     bool auto_deepen;
 
-    public:
+
+
+public:
     
     // member funs
     fractal();

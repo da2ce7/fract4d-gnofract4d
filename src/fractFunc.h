@@ -12,6 +12,22 @@ typedef struct _Gf4dFractal Gf4dFractal;
 #include "fract.h"
 #include "image.h"
 #include "colorizer.h"
+#include "threadpool.h"
+
+/* enum for jobs */
+typedef enum {
+    JOB_NONE,
+    JOB_BOX,
+    JOB_ROW,
+    JOB_ROW_AA
+} job_type_t;
+
+/* bootstrap info for worker threads */
+typedef struct {
+    fractFunc *ff;
+    job_type_t job;
+    int x, y, param;
+} thread_data_t;
 
 /* this contains stuff which is useful for drawing the fractal,
    but can be recalculated at will, so isn't part of the fractal's
@@ -20,12 +36,14 @@ typedef struct _Gf4dFractal Gf4dFractal;
 class fractFunc {
  public:
     fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf);
-    ~fractFunc() {
-        delete pf;
-    }
-    void draw(int rsize, int drawsize);
+    ~fractFunc();
+   
+    void draw(int rsize, int drawsize);    
     void draw_aa();
     int updateiters();
+
+    // top-level function for multi-threaded workers
+    void work(thread_data_t *jobdata);
 
  private:
     // MEMBER VARS
@@ -59,19 +77,38 @@ class fractFunc {
     fractal_t *f; // pointer to fract passed in to ctor
     image *im;    // pointer to image passed in to ctor
     pointFunc *pf; // function for calculating 1 point
-    
-    // MEMBER FUNCTIONS
 
+    tpool *ptp;
+
+    /* wait for a ready thread then give it some work */
+    void send_cmd(job_type_t job, int x, int y, int param);
+    void send_quit();
+
+    // MEMBER FUNCTIONS
+    
     // calculate a single pixel
     void pixel(int x, int y, int h, int w);
     // calculate a single pixel in aa-mode
     void pixel_aa(int x, int y);
 
-    // calculate a row of pixels
+    // calculate an 8-by-8 box of pixels...
+    void box(int x, int y, int rsize);
+    // ... in a worker thread
+    void send_box(int x, int y, int rsize);
+
+    // calculate a row of pixels...
     void row(int x, int y, int n);
-    
+    // ... in a worker thread
+    void send_row(int x, int y, int n);
+
+    // calculate a row of antialiased pixels
+    void row_aa(int x, int y, int n);
+    // ... in a worker thread
+    void send_row_aa(int x, int y, int n);
+
     // redraw the image to this line
     void update_image(int i);
+
     // clear auto-deepen and last_update
     void reset_counts();
 
@@ -81,7 +118,8 @@ class fractFunc {
     // calculate this point using antialiasing
     struct rgb antialias(const dvec4& pos);
 
-    void soi(); // broken
+    // calculate the whole image using worker threads
+    void draw_threads(int rsize, int drawsize);
 
     // reset image
     void clear();

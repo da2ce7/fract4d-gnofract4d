@@ -1,6 +1,12 @@
 #include "fractFunc.h"
 #include "pointFunc.h"
 
+/* redirect back to a member function */
+void worker(thread_data_t *tdata)
+{
+    tdata->ff->work(tdata);
+}
+
 fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
 {
     gf = _gf;
@@ -34,11 +40,24 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
     
     debug_precision(topleft[VX],"topleft");
     nhalfiters = ndoubleiters = k = 0;
-    //p = im->iter_buf;
     clear();
 
+    /* threading */
+    if(f->nThreads > 1)
+    {
+        ptp = new tpool(2,2);
+    }
+    else
+    {
+        ptp = NULL;
+    }
     last_update_y = 0;
 };
+
+fractFunc::~fractFunc()
+{
+    delete ptp;
+}
 
 void 
 fractFunc::clear()
@@ -46,6 +65,60 @@ fractFunc::clear()
     im->clear();    
 }
 
+/* we're in a worker thread - nID is our serial number */
+void
+fractFunc::work(thread_data_t *jobdata)
+{
+    /* carry them out */
+    switch(jobdata->job)
+    {
+    case JOB_BOX:
+        //cout << "box on thread " << pthread_self() << "\n";
+        box(jobdata->x,jobdata->y,jobdata->param);
+        break;
+    case JOB_ROW:
+        //cout << "row on thread " << pthread_self() << "\n";
+        row(jobdata->x,jobdata->y,jobdata->param);
+        break;
+    case JOB_ROW_AA:
+        //cout << "aa row on thread " << pthread_self() << "\n";        
+        row_aa(jobdata->x,jobdata->y,jobdata->param);
+        break;
+    default:
+        cerr << "Unknown job id" << jobdata->job << "\n";
+    }
+}
+
+void
+fractFunc::send_cmd(job_type_t job, int x, int y, int param)
+{
+    // cout << "SEND :" << x << " " << y << " " << param << endl;
+
+    thread_data_t *work = new thread_data_t;
+
+    work->job = job; work->ff = this;
+    work->x = x; work->y = y; work->param = param;
+
+    ptp->add_work((void (*)(void *))worker, work);
+}
+
+void
+fractFunc::send_row(int x, int y, int w)
+{
+    send_cmd(JOB_ROW,x,y,w);
+}
+
+void
+fractFunc::send_box(int x, int y, int rsize)
+{
+    send_cmd(JOB_BOX,x,y,rsize);
+}
+
+void
+fractFunc::send_row_aa(int x, int y, int w)
+{
+    send_cmd(JOB_ROW_AA, x, y, w);
+}
 
 inline void
 fractFunc::rectangle(struct rgb pixel, int x, int y, int w, int h)
@@ -216,8 +289,13 @@ void fractFunc::draw_aa()
     gf4d_fractal_progress_changed(gf,0.0);
 
     for(int y = 0; y < h ; y++) {
-        for(int x = 0; x < w ; x++) {
-            pixel_aa ( x, y);
+        if(f->nThreads > 1)
+        {
+            send_row_aa(0,y,w);
+        }
+        else
+        {
+            row_aa(0,y,w);
         }
         update_image(y);
     }
@@ -231,104 +309,6 @@ inline int fractFunc::RGB2INT(int y, int x)
 	int ret = (pixel.r << 16) | (pixel.g << 8) | pixel.b;
     return ret;
 }
-
-/*
-void
-fractFunc::scan_rect(soidata_t& s)
-{
-    int w = s.x2 - s.x1;
-    int h = s.y2 - s.y1;
-
-    colorizer_t *cf = f->cizer;
-
-    for(int y = 0; y < h ; ++y)
-    {
-        for(int x = 0; x < w; ++x)
-        {			
-            scratch_space scratch;
-            s.interp_both(scratch,(double)x/w,(double)y/h);
-            int iter = s.iter;
-            do
-            {
-                mandelbrot_iter(scratch);
-                if(iter++ >= f->maxiter) {
-                    iter=-1; break;
-                }
-                mag_bailout(scratch,HAS_X2 | HAS_Y2);
-            }while(scratch[EJECT_VAL] < 4.0);
-			
-            rgb_t pixel = (*cf)(iter,scratch,0);
-            rectangle(pixel,s.x1+x,s.y1+y,1,1);		       
-        } 
-    }
-    gf4d_fractal_image_changed(gf,s.x1,s.y1,s.x2,s.y2);
-}
-*/
-#if 0
-void fractFunc::soi()
-{
-    /* create first chunk of data, describing whole screen */
-    soidata_t soi_init(0,0,im->Xres,im->Yres,0,topleft,deltax,deltay);
-    soi_queue.push(soi_init);
-
-    /* insert into queue */
-	
-    do
-    {
-        soidata_t s = soi_queue.front();
-        /* remove element */
-        soi_queue.pop();
-		
-        /* if too small, draw by scanning */
-        if(s.x2 - s.x1 < 8) 
-        {
-            scan_rect(s);
-            continue;
-        }
-        int old_iter = s.iter;
-        /* iterate until it splits or maxiter */
-        do {
-            s.iterate();
-            if(s.iter >= f->maxiter) 
-            {
-				/* draw black box */
-                break;
-            }
-        }while(! s.needs_split());
-
-        colorizer_t *cf = f->cizer;
-
-        // this rect is entirely within the set
-        if(s.iter >= f->maxiter)
-        {
-            rgb_t pixel = (*cf)(-1,s.data[0],0);
-            /* draw interior rect */
-            rectangle(pixel,s.x1,s.y1,s.x2-s.x1,s.y2-s.y1);
-            gf4d_fractal_image_changed(gf,s.x1,s.y1,s.x2,s.y2);
-        }
-        else
-        {
-            // undo the last iteration, which broke tolerance
-            s.revert(); 
-			
-            //printf("progress: %d\n",s.iter - old_iter);
-            rgb_t pixel = (*cf)(s.iter,s.data[0],0);
-			
-            /* draw with split number of iterations */
-            rectangle(pixel,s.x1,s.y1,s.x2-s.x1,s.y2-s.y1);
-            gf4d_fractal_image_changed(gf,s.x1,s.y1,s.x2,s.y2);
-			
-            /* create 4 new rectangles & add to front of queue */
-            soi_queue.push(s.topleft());
-            soi_queue.push(s.topright());
-            soi_queue.push(s.botleft());
-            soi_queue.push(s.botright());			
-        }
-    }while(!(soi_queue.empty()));
-
-    gf4d_fractal_status_changed(gf,GF4D_FRACTAL_DONE);
-}
-#endif
 
 inline bool fractFunc::isTheSame(
     bool bFlat, int targetIter, int targetCol, int x, int y)
@@ -351,20 +331,66 @@ void fractFunc::reset_counts()
     nhalfiters=0;
 }
 
+void fractFunc::box(int x, int y, int rsize)
+{
+    // calculate edges of box to see if they're all the same colour
+    // if they are, we assume that the box is a solid colour and
+    // don't calculate the interior points
+    bool bFlat = true;
+    int iter = im->getIter(x,y);
+    int pcol = RGB2INT(y,x);
+    
+    // check top and bottom of box for flatness
+    for(int x2 = x+1; x2 <= x + rsize; ++x2)
+    {
+        bFlat = isTheSame(bFlat,iter,pcol,x2,y);
+        bFlat = isTheSame(bFlat,iter,pcol,x2,y+rsize);
+    }
+    // calc left of next box over & check for flatness
+    for(int y2 = y+1; y2 <= y + rsize; ++y2)
+    {
+        bFlat = isTheSame(bFlat, iter, pcol, x, y2);
+        pixel(x+rsize,y2,1,1);
+        bFlat = isTheSame(bFlat,iter,pcol,x+rsize,y2);
+    }
+    
+    if(bFlat)
+    {
+        // just draw a solid rectangle
+        struct rgb pixel = im->get(x,y);
+        rectangle(pixel,x+1,y+1,rsize-1,rsize-1);
+    }
+    else
+    {
+        // we do need to calculate the interior 
+        // points individually
+        for(int y2 = y + 1 ; y2 < y + rsize; ++y2)
+        {
+            row(x+1,y2,rsize-1);
+        }		
+    }		
+}
+
 void fractFunc::draw(int rsize, int drawsize)
 {
+    if(f->nThreads > 1)
+    {
+        draw_threads(rsize, drawsize);
+        return;
+    }
+
     int x,y;
     int w = im->Xres;
     int h = im->Yres;
 
+    /* reset progress indicator & clear screen */
     reset_counts();
-
     gf4d_fractal_image_changed(gf,0,0,w,h);
     gf4d_fractal_progress_changed(gf,0.0);
 
+    // first pass - big blocks and edges
     for (y = 0 ; y < h - rsize ; y += rsize) 
     {
-        update_image(y);
         // main large blocks 
         for ( x = 0 ; x< w - rsize ; x += rsize) 
         {
@@ -375,18 +401,31 @@ void fractFunc::draw(int rsize, int drawsize)
         {
             row (x, y2, w-x);
         }
+        update_image(y);
     }
     // remaining lines
     for ( ; y < h ; y++)
     {
-        update_image(y);
         row(0,y,w);
+        update_image(y);
     }
 
     reset_counts();
 
-    // calculate the first row
-    row(0,0,w);
+    // second pass - fill in the remaining pixels
+
+    // calculate tops of next row down
+    for ( y = 0; y < h - rsize; y += rsize) {        
+        for(x = 0; x < w - rsize ; x += rsize) {
+            for(int x2 = x+1; x2 < x + rsize; ++x2)
+            {
+                pixel(x2,y,1,1);
+            }
+        }        
+        update_image(y);
+    }
+
+    reset_counts();
 
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
@@ -397,48 +436,86 @@ void fractFunc::draw(int rsize, int drawsize)
         {
             pixel(0,y2,1,1);
         }
-        
+
         for(x = 0; x < w - rsize ; x += rsize) {
-            // calculate edges of box to see if they're all the same colour
-            // if they are, we assume that the box is a solid colour and
-            // don't calculate the interior points
-            bool bFlat = true;
-            int iter = im->iter_buf[y * w + x];
-            int pcol = RGB2INT(y,x);
-
-            // calc top of next box down & check for flatness
-            for(int x2 = x+1; x2 <= x + rsize; ++x2)
-            {
-                //pixel(x2,y,1,1);
-                bFlat = isTheSame(bFlat,iter,pcol,x2,y);
-                pixel(x2,y+rsize,1,1);
-                bFlat = isTheSame(bFlat,iter,pcol,x2,y+rsize);
-            }
-            // calc left of next box over & check for flatness
-            for(int y2 = y+1; y2 <= y + rsize; ++y2)
-            {
-                //pixel(x,y2,1,1);
-                bFlat = isTheSame(bFlat, iter, pcol, x, y2);
-                pixel(x+rsize,y2,1,1);
-                bFlat = isTheSame(bFlat,iter,pcol,x+rsize,y2);
-            }
-
-            if(!bFlat)
-            {
-                // we do need to calculate the interior 
-                // points individually
-                for(int y2 = y + 1 ; y2 < y + rsize; ++y2)
-                {
-                    row(x+1,y2,rsize-1);
-                }		
-            }		
-            else
-            {
-            }
+            box(x,y,rsize);
         }		
     }
 
+    /* refresh entire image & reset progress bar */
     gf4d_fractal_image_changed(gf,0,0,im->Xres,im->Yres);	
     gf4d_fractal_progress_changed(gf,1.0);	
 }
 
+void fractFunc::draw_threads(int rsize, int drawsize)
+{
+    int x,y;
+    int w = im->Xres;
+    int h = im->Yres;
+
+    /* reset progress indicator & clear screen */
+    reset_counts();
+    gf4d_fractal_image_changed(gf,0,0,w,h);
+    gf4d_fractal_progress_changed(gf,0.0);
+
+    // first pass - big blocks and edges
+    for (y = 0 ; y < h - rsize ; y += rsize) 
+    {
+        // main large blocks 
+        for ( x = 0 ; x< w - rsize ; x += rsize) 
+        {
+            pixel ( x, y, drawsize, drawsize);
+        }
+        // extra pixels at end of lines
+        for(int y2 = y; y2 < y + rsize; ++y2)
+        {
+            row (x, y2, w-x);
+        }
+        update_image(y);
+    }
+    // remaining lines
+    for ( ; y < h ; y++)
+    {
+        send_row(0,y,w);
+        update_image(y);
+    }
+
+    reset_counts();
+
+    // second pass - fill in the remaining pixels
+
+    // calculate tops of boxes for future cross-reference
+    for ( y = 0; y < h - rsize; y += rsize) {
+        send_row(0,y,w);
+        update_image(y);
+    }
+
+    reset_counts();
+
+    // fill in gaps in the rsize-blocks
+    for ( y = 0; y < h - rsize; y += rsize) {
+        update_image(y);
+
+        // calculate left edge of the row
+        for(int y2 = y+1; y2 < y + rsize; ++y2)
+        {
+            pixel(0,y2,1,1);
+        }
+
+        for(x = 0; x < w - rsize ; x += rsize) {
+            send_box(x,y,rsize);
+        }		
+    }
+
+    /* refresh entire image & reset progress bar */
+    gf4d_fractal_image_changed(gf,0,0,im->Xres,im->Yres);	
+    gf4d_fractal_progress_changed(gf,1.0);	
+}
+
+void
+fractFunc::row_aa(int, int y, int w)
+{
+    for(int x = 0; x < w ; x++) {
+        pixel_aa ( x, y);
+    }
+}

@@ -754,7 +754,7 @@ set_func_parameter_cb(GtkWidget * entry, GdkEventFocus *, model_t *m)
     
     if(newVal != oldVal && model_cmd_start(m,"set_func_param"))
     {
-        func->setOption(index,newVal);
+        func->setOption(index/2,newVal);
         model_cmd_finish(m,"set_func_param");
     }        
 }
@@ -1151,7 +1151,3 @@ create_propertybox (model_t *m)
 
     gtk_widget_show(global_propertybox);
 }
-
-
-
-

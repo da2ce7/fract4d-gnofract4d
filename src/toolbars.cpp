@@ -28,7 +28,8 @@
 #include "preview.h"
 #include "gf4d_fourway.h"
 
-void position_set_cb (GtkWidget *button, gpointer user_data)
+void 
+position_set_cb (GtkWidget *button, gpointer user_data)
 {
     set_cb_data *pdata = (set_cb_data *)user_data;
 
@@ -40,31 +41,36 @@ void position_set_cb (GtkWidget *button, gpointer user_data)
     }
 }
 
-void undo_cb(GtkMenuItem *menuitem, gpointer user_data)
+void 
+undo_cb(GtkMenuItem *menuitem, gpointer user_data)
 {
     model_t *m = (model_t *)user_data;
     model_undo(m);
 }
 
-void redo_cb(GtkMenuItem *menuitem, gpointer user_data)
+void 
+redo_cb(GtkMenuItem *menuitem, gpointer user_data)
 {
     model_t *m = (model_t *)user_data;
     model_redo(m);
 }
 
-void explore_cb(GtkWidget *widget, gpointer user_data)
+void 
+explore_cb(GtkWidget *widget, gpointer user_data)
 {
     model_t *m = (model_t *)user_data;	
     model_toggle_explore_mode(m);
 }
 
-void explore_refresh_cb(GtkWidget *widget, gpointer user_data)
+void 
+explore_refresh_cb(GtkWidget *widget, gpointer user_data)
 {
     model_t *m = (model_t *)user_data;
     model_update_subfracts(m);
 }
 
-void weirdness_callback(GtkAdjustment *adj, gpointer user_data)
+void 
+weirdness_cb(GtkAdjustment *adj, gpointer user_data)
 {
     model_t *m = (model_t *)user_data;
     model_set_weirdness_factor(m,adj->value);
@@ -131,68 +137,32 @@ create_param_button(
 }
 
 void
-pause_status_callback(Gf4dFractal *f, gint val, void *user_data)
+deepen_now_cb(GtkWidget *button, model_t *m)
 {
-    GtkWidget *pause_widget = GTK_WIDGET(user_data);
-    GtkWidget *pause_pixmap = GTK_BIN(pause_widget)->child;
-    switch(val)
+    if(model_cmd_start(m, "deepen"))
     {
-    case GF4D_FRACTAL_CALCULATING: 
-        gtk_widget_set_sensitive(pause_widget, TRUE); 
-        break;
-    case GF4D_FRACTAL_DONE:
-        gtk_widget_set_sensitive(pause_widget, FALSE); 
-        break;        
-    default:
-        // do nothing
-        ;
+        Gf4dFractal *f = model_get_fract(m);
+        int nIters = gf4d_fractal_get_max_iterations(f);
+        gf4d_fractal_set_max_iterations(f,nIters * 2);
+        model_cmd_finish(m, "deepen");
     }
 }
 
 void
-pause_toggled_callback(GtkToggleButton *button, gpointer user_data)
+create_deepen_widget(GtkToolbar *toolbar, model_t *m)
 {
-    Gf4dFractal *f = GF4D_FRACTAL(user_data);
-    gf4d_fractal_pause(f,gtk_toggle_button_get_active(button));
+    GtkWidget *deepen_pixmap = gnome_pixmap_new_from_file(
+        gnome_pixmap_file(PACKAGE "/deepen_now.png"));
+
+    GtkWidget *deepen_widget = gtk_toolbar_append_item(
+        toolbar,NULL,
+        _("Increase the maximum number of iterations"),
+        NULL, deepen_pixmap, 
+        GTK_SIGNAL_FUNC(deepen_now_cb), m);        
+
+    gtk_widget_show_all(deepen_widget);
 }
 
-void
-add_pause_widget(GtkToolbar *toolbar, model_t *m)
-{
-    GtkWidget *pause_pixmap = gnome_pixmap_new_from_file(
-        gnome_pixmap_file(PACKAGE "/pause.png"));
-
-    GtkWidget *pause_widget = gtk_toggle_button_new();
-    gtk_container_add(GTK_CONTAINER(pause_widget),pause_pixmap);
-
-    gtk_toolbar_append_widget (
-        toolbar,
-        pause_widget,
-        _("Pause"),
-        _("Pause the current calculation"));
-
-    // connect the fractal's stop/start calculation callbacks to 
-    // the pause button's sensitivity
-    Gf4dFractal *f = model_get_fract(m);
-
-    gtk_signal_connect(
-        GTK_OBJECT(f),
-        "status_changed",
-        (GtkSignalFunc)pause_status_callback,
-        pause_widget);
-
-    // connect the pause button's signal to the fractal
-    gtk_signal_connect(
-        GTK_OBJECT(pause_widget),
-        "toggled",
-        (GtkSignalFunc)pause_toggled_callback,
-        f);
-
-    // initially insensitive
-    gtk_widget_set_sensitive(pause_widget, FALSE);
-
-    gtk_widget_show_all(pause_widget);
-}
 
 Gf4dFractal *preview_shadow = NULL;
 
@@ -324,7 +294,7 @@ create_explore_widgets(GtkToolbar *toolbar, model_t *m)
     gtk_signal_connect(
         GTK_OBJECT(explore_adj),
         "value-changed",
-        (GtkSignalFunc)weirdness_callback, 
+        (GtkSignalFunc)weirdness_cb, 
         m);
 
     gtk_toolbar_append_widget(
@@ -373,15 +343,12 @@ create_move_toolbar (model_t *m, GtkWidget *appbar)
     gtk_toolbar_append_space(toolbar);
 
     create_fourway_widgets(toolbar, m, preview_shadow);
+    create_deepen_widget(toolbar, m);
     gtk_toolbar_append_space(toolbar);
 
     create_undo_widgets(toolbar, m);
     gtk_toolbar_append_space(toolbar);
-
-    /* PAUSE */
-    add_pause_widget(toolbar, m);
-    gtk_toolbar_append_space(toolbar);
-
+    
     create_explore_widgets(toolbar, m);
 
     return toolbar_widget;

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cmath>
+#include <iostream>
 
 inline double MIN(double x, double y) { return x < y ? x : y; }
 inline double MAX(double x, double y) { return x > y ? x : y; }
@@ -95,6 +96,9 @@ bailFunc *bailFunc_new(e_bailFunc e)
     case BAILOUT_AND:
         pbf = new and_bailout;
         break;
+    default:
+        std::cerr << "Warning: unknown bailFunc value" << e << "\n";
     }
+     
     return pbf;
 }

@@ -34,7 +34,8 @@ gnofract4d_SOURCES = \
 	fractFunc.h fractFunc.cpp \
 	cmapbrowser.h cmapbrowser.cpp \
 	movie_editor.h movie_editor.cpp \
-	io.h io.cpp 
+	io.h io.cpp \
+	threadpool.h threadpool.cpp
 
 gnofract4d_LDADD = $(GNOME_LIBDIR) $(GTK_LIBS) \
 	$(GNOMEUI_LIBS) $(INTLLIBS) $(PTHREAD_LIB)

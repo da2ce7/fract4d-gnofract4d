@@ -300,8 +300,11 @@ void gf4d_fractal_calc(Gf4dFractal *f, int nThreads)
         gf4d_fractal_pause(f,TRUE);
     }
 
+    f->f->nThreads = nThreads;
+
     if(nThreads)
     {
+        /* calculate asynchronously in another thread */
         if(pthread_create(&f->tid,NULL,calculation_thread,(void *)f))
         {
             g_warning("Error, couldn't start thread\n");
@@ -318,6 +321,7 @@ void gf4d_fractal_calc(Gf4dFractal *f, int nThreads)
     }
     else
     {
+        /* blocking calculation in current thread */
         calculation_thread((void *)f);
     }
 }

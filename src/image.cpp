@@ -49,7 +49,8 @@ image::bytes()
 	return row_length() * Yres;
 }
 
-void image::put(int x, int y, rgb_t pixel)
+void 
+image::put(int x, int y, rgb_t pixel)
 {
 #ifdef _WIN32
 	char *start = buffer + bytes() - row_length() + x*3 - y * row_length();
@@ -62,7 +63,8 @@ void image::put(int x, int y, rgb_t pixel)
 	start[BLUE] = pixel.b;
 }
 
-rgb_t image::get(int x, int y)
+rgb_t 
+image::get(int x, int y)
 {
 #ifdef _WIN32
 	char *start = buffer + bytes() - row_length() + x*3 - y * row_length();
@@ -75,6 +77,12 @@ rgb_t image::get(int x, int y)
 	pixel.b = start[BLUE];
 
 	return pixel;
+}
+
+int 
+image::getIter(int x, int y)
+{
+    return iter_buf[x + y * Xres];
 }
 
 #ifdef _WIN32

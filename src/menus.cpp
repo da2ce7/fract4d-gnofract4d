@@ -202,7 +202,9 @@ void
 pause_cb(GtkMenuItem     *menuitem,
          gpointer         user_data)
 {
-    // FIXME
+    Gf4dFractal *f = model_get_fract((model_t *)user_data);
+    bool isPaused = GTK_CHECK_MENU_ITEM(menuitem)->active;
+    gf4d_fractal_pause(f,isPaused);
 }
 
 void
@@ -250,7 +252,7 @@ static GnomeUIInfo file1_menu_uiinfo[] =
         0, (enum GdkModifierType)'l', NULL
     },
     {
-        GNOME_APP_UI_ITEM, N_("P_ause"),
+        GNOME_APP_UI_TOGGLEITEM, N_("P_ause"),
         NULL,
         pause_cb, NULL, NULL,
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
