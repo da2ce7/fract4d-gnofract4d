@@ -219,7 +219,7 @@ class T:
                     # insert extra label and jump to make it work
                     jump = ir.Jump(lastjump.falseDest, lastjump.node)
                     newFalse = self.symbols.newLabel()
-                    label = ir.Label(newFalse)
+                    label = ir.Label(newFalse, lastjump.node)
                     lastjump.falseDest = newFalse
                     trace += [label,jump]
         trace += block
