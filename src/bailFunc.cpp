@@ -15,7 +15,7 @@ public:
             {
                 p[X2] = p[X] * p[X];
                 p[Y2] = p[Y] * p[Y];
-            }
+            }            
             p[EJECT_VAL] = p[X2] + p[Y2];
         }
 };

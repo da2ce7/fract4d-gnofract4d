@@ -200,7 +200,6 @@ fractFunc::updateiters()
     {
         // less than .5% would be wrong if we used half as many iters
         // therefore we are working too hard!
-        f->maxiter /= 2;
         return -1;
     }
     return 0;
@@ -217,10 +216,10 @@ void fractFunc::draw_aa()
     gf4d_fractal_progress_changed(gf,0.0);
 
     for(int y = 0; y < h ; y++) {
-        update_image(y);
         for(int x = 0; x < w ; x++) {
             pixel_aa ( x, y);
         }
+        update_image(y);
     }
     gf4d_fractal_image_changed(gf,0,0,w,h);		     
     gf4d_fractal_progress_changed(gf,1.0);	
