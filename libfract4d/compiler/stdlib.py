@@ -45,6 +45,28 @@ def add_cc_c(gen,t,srcs):
 # sub implemented same way as add
 sub_cc_c = add_cc_c
 
+def div_cc_c(gen,t,srcs):
+    # (a+ib)/(c+id) = (a+ib)*(c-id) / (c+id)*(c-id)
+    # = (ac + bd + i(bc - ad))/mag(c+id)
+    denom = mag_c_f(gen,'mag', srcs[1])
+    ac = gen.emit_binop('*', [srcs[0].re, srcs[1].re], Float)
+    bd = gen.emit_binop('*', [srcs[0].im, srcs[1].im], Float)
+    bc = gen.emit_binop('*', [srcs[0].im, srcs[1].re], Float)
+    ad = gen.emit_binop('*', [srcs[0].re, srcs[1].im], Float)
+    dre = gen.emit_binop('+', [ac, bd], Float)
+    dim = gen.emit_binop('-', [bc, ad], Float)
+    return ComplexArg(
+        gen.emit_binop('/', [dre, denom], Float),
+        gen.emit_binop('/', [dim, denom], Float))
+
+def div_cf_c(gen,t,srcs):
+    # divide a complex number by a real one
+    return ComplexArg(
+        gen.emit_binop(t.op,[srcs[0].re, srcs[1]], Float),
+        gen.emit_binop(t.op,[srcs[0].im, srcs[1]], Float))
+
+mul_cf_c = div_cf_c
+
 def mag_c_f(gen,t,src):
     # |x| = x_re * x_re + x_im * x_im
     re_2 = gen.emit_binop('*',[src.re,src.re],Float)
@@ -105,4 +127,3 @@ def imag_c_f(gen,t,srcs):
 
 def real_c_f(gen,t,srcs):
     return srcs[0].re
-
