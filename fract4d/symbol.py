@@ -52,6 +52,8 @@ def createDefaultDict():
         "manhattan" : [ Func([Complex], Float, stdlib, "manhattan")],
         "manhattanish" : [ Func([Complex], Float, stdlib, "manhattanish")],
         "manhattanish2" : [ Func([Complex], Float, stdlib, "manhattanish2")],
+        "max2" : [ Func([Complex], Float, stdlib, "max2")],
+        "min2" : [ Func([Complex], Float, stdlib, "min2")],
         
         "sin" :  efl("sin", "[_], _", [Float, Complex]),
         "cos" :  efl("cos", "[_], _", [Float, Complex]),

@@ -260,6 +260,46 @@ def cabs_c_f(gen,t,srcs):
 def sqrt_f_f(gen,t,srcs):
     return gen.emit_func('sqrt', srcs, Float)
 
+def min2_c_f(gen,t,srcs):
+    r2 = real2_c_f(gen,t,srcs)
+    i2 = imag2_c_f(gen,t,srcs)
+    real_larger = gen.symbols.newLabel()
+    done = gen.symbols.newLabel()
+    dst = TempArg(gen.symbols.newTemp(Float))
+
+    rgt = gen.emit_binop('>=',[r2,i2], Float)
+    gen.emit_cjump(rgt,real_larger)
+
+    # imag larger
+    gen.emit_move(r2,dst)
+    gen.emit_jump(done)
+
+    gen.emit_label(real_larger)
+    gen.emit_move(i2,dst)
+    gen.emit_label(done)
+
+    return dst
+
+def max2_c_f(gen,t,srcs):
+    r2 = real2_c_f(gen,t,srcs)
+    i2 = imag2_c_f(gen,t,srcs)
+    real_larger = gen.symbols.newLabel()
+    done = gen.symbols.newLabel()
+    dst = TempArg(gen.symbols.newTemp(Float))
+
+    rgt = gen.emit_binop('>=',[r2,i2], Float)
+    gen.emit_cjump(rgt,real_larger)
+
+    # imag larger
+    gen.emit_move(i2,dst)
+    gen.emit_jump(done)
+
+    gen.emit_label(real_larger)
+    gen.emit_move(r2,dst)
+    gen.emit_label(done)
+
+    return dst
+
 def sqrt_c_c(gen,t,srcs):
     xnonzero = gen.symbols.newLabel()
     done = gen.symbols.newLabel()
