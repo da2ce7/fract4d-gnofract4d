@@ -221,6 +221,31 @@ class CanonTest(unittest.TestCase):
         blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
         self.assertBlocksAreWellFormed(blocks)
         self.assertEqual(len(blocks),2)
+
+        # cjump midway
+        seq = self.seq([self.var("a"),self.cjump(self.var(),self.var()),self.var("b")])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        self.assertBlocksAreWellFormed(blocks)
+        self.assertEqual(len(blocks),2)
+
+        # label midway
+        seq = self.seq([self.var("a"), self.label("x"), self.var("b")])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        self.assertBlocksAreWellFormed(blocks)
+        self.assertEqual(len(blocks),2)
+
+        # starts with a jump and ends with label
+        seq = self.seq([self.jump("d"),self.var("a"), self.label("x")])
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        self.assertBlocksAreWellFormed(blocks)
+        self.assertEqual(len(blocks),3)
+
+        # jump to next stm
+        seq = self.seq([self.jump("d"),self.label("d")])        
+        blocks = self.canon.basic_blocks(seq, "t__start", "t__end")
+        self.assertBlocksAreWellFormed(blocks)
+        self.assertEqual(len(blocks),2)        
+
         
     def printAllBlocks(self,blocks):
         for b in blocks:
