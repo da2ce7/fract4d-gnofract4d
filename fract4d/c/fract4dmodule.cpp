@@ -207,6 +207,8 @@ pf_calc(PyObject *self, PyObject *args)
     int outIters=0, outFate=-777;
     double outDist=0.0;
     int outSolid=0;
+    int fDirectColorFlag=0;
+    double colors[4] = {0.0, 0.0, 0.0, 0.0};
 
     if(!PyArg_ParseTuple(args,"O(dddd)i|iii",
 			 &pyobj,
@@ -228,7 +230,8 @@ pf_calc(PyObject *self, PyObject *args)
     pfh->pfo->vtbl->calc(pfh->pfo,params,
 			 nIters, 
 			 x,y,aa,
-			 &outIters,&outFate,&outDist,&outSolid);
+			 &outIters,&outFate,&outDist,&outSolid,
+			 &fDirectColorFlag, &colors[0]);
     assert(outFate != -777);
     pyret = Py_BuildValue("iidi",outIters,outFate,outDist,outSolid);
     return pyret; // Python can handle errors if this is NULL

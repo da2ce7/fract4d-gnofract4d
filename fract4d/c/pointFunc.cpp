@@ -44,18 +44,24 @@ public:
 	    double dist = 0.0; 
 	    int fate = 0;
 	    int solid = 0;
-	    
+	    int fUseColors = 0;
+	    double colors[4];
+
 	    if (checkPeriod)
 	    {
-		m_pfo->vtbl->calc_period(m_pfo, params, nIters, 
-					 x, y, aa,
-					 pnIters, &fate, &dist, &solid);
+		m_pfo->vtbl->calc_period(
+		    m_pfo, params, nIters, 
+		    x, y, aa,
+		    pnIters, &fate, &dist, &solid,
+		    &fUseColors, &colors[0]);
 	    }
 	    else
 	    {
-		m_pfo->vtbl->calc(m_pfo, params, nIters, 
-				  x, y, aa,
-				  pnIters, &fate, &dist, &solid);
+		m_pfo->vtbl->calc(
+		    m_pfo, params, nIters, 
+		    x, y, aa,
+		    pnIters, &fate, &dist, &solid,
+		    &fUseColors, &colors[0]);
 	    }
 
 	    if(fate == 1)

@@ -70,7 +70,8 @@ struct s_pf_vtable {
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        int *pnIters, int *pFate, double *pDist, int *pSolid
+        int *pnIters, int *pFate, double *pDist, int *pSolid,
+	int *pDirectColorFlag, double *pColors
 	);
     /* calculate one point, using periodicity checking */
     void (*calc_period)(
@@ -80,7 +81,8 @@ struct s_pf_vtable {
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        int *pnIters, int *pFate, double *pDist, int *pSolid
+        int *pnIters, int *pFate, double *pDist, int *pSolid,
+	int *pDirectColorFlag, double *pColors
 	);
     /* deallocate data in p */
     void (*kill)(

@@ -47,6 +47,9 @@ int main()
     int nFate=0;
     double dist=0.0;
     int solid=0;
+    int fDirectUsed=0;
+    double colors[4] = {0.0};
+    
     pf_obj *pf = pf_new();
     pf->vtbl->init(pf,0.001,initparams,6);
     
@@ -55,7 +58,7 @@ int main()
          pparams,
          100, 
          0,0,0,
-         &nItersDone, &nFate, &dist,&solid);
+         &nItersDone, &nFate, &dist,&solid,&fDirectUsed, &colors[0]);
     
     printf("(%d,%d,%g)\\n",nItersDone,nFate,dist);
 
@@ -68,7 +71,7 @@ int main()
         pparams,
         20, 
         0,0,0,
-        &nItersDone, &nFate, &dist,&solid);
+        &nItersDone, &nFate, &dist,&solid,&fDirectUsed, &colors[0]);
 
     printf("(%d,%d,%g)\\n",nItersDone,nFate,dist);
 
@@ -1125,6 +1128,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         init:
         color black = rgb(0,0,0)
         color something = rgba(0.4, 0.7, 0.3,0.9)
+        #color = something
         }'''
 
         check = "\n".join([self.inspect_color("black"),
