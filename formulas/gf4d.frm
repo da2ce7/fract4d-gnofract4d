@@ -508,17 +508,48 @@ endparam
 zwcenter = (0.02,0.01)
 }
 
-CubicConnectednessLocus {
-; a cubic mandelbrot where we iterate both critical points
-; and render based on the results
+Cubic Connectedness Locus {
+; iterates both critical points of the cubic set,
+; bails out only if both escape
+
 init:
 k = #zwpixel
 z1 = k
 z2 = -k
-_3k = 3.0 * k
+
 loop:
-z1 = z1*z1*z1 - _3k * z1 + #pixel
-z2 = z2*z2*z2 - _3k * z2 + #pixel
+z1 = z1*z1*z1 - 3*k + #pixel
+z2 = z2*z2*z2 - 3*k + #pixel
+z = z1 + z2 ; so coloring algorithms have something to work ond
+
 bailout:
-|z1| < bailout || |z2| < bailout
+|z1| < @bailout || |z2| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+}
+
+Cubic Connectedness Locus 2 {
+; iterates both critical points of the cubic set,
+; bails out only if both escape
+
+init:
+k = #zwpixel
+z1 = k
+z2 = -k
+z1_iter = -1
+z2_iter = -1
+
+loop:
+z1 = z1*z1*z1 - 3*k + #pixel
+z2 = z2*z2*z2 - 3*k + #pixel
+z = z1 + z2 ; so coloring algorithms have something to work ond
+
+bailout:
+|z1| < @bailout && |z2| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
 }
