@@ -5,7 +5,9 @@ comment {
  Mandelbrot and Julia versions in the same formula).
 
  The formulas at the beginning of this file are from Mark Peterson, who
- built this fractal interpreter feature.  The rest are grouped by contributor.
+ built Fractint's fractal interpreter feature.  
+ The rest are grouped by contributor.
+
  Formulas by unidentified authors are grouped at the end.
 
  All contributions are assumed to belong to the public domain.
@@ -1041,22 +1043,37 @@ SJMAND11 {;Mandelbrot lambda function - lower bailout
 {--- KEVIN LEE -----------------------------------------------------------}
 
 LeeMandel1(XYAXIS) {; Kevin Lee
-  z=Pixel:
+  z=#pixel + #zwpixel:
 ;; c=sqr(pixel)/z, c=z+c, z=sqr(z),  this line was an error in v16
    c=sqr(pixel)/z, c=z+c, z=sqr(c)
-    |z|<4
+    |z|<@bailout
+default:
+float param bailout
+	default=4.0
+endparam
   }
 
 LeeMandel2(XYAXIS) {; Kevin Lee
-  z=Pixel:
+  z=#pixel + #zwpixel:
    c=sqr(pixel)/z, c=z+c, z=sqr(c*pixel)
-    |z|<4
+    |z|<@bailout
+default:
+float param bailout
+	default=4.0
+endparam
    }
 
 LeeMandel3(XAXIS) {; Kevin Lee
-  z=Pixel, c=Pixel-sqr(z):
+init:
+  z=#pixel + #zwpixel, c=#pixel + #zwpixel-sqr(z):
+loop:
    c=Pixel+c/z, z=c-z*pixel
-    |z|<4
+bailout:
+    |z|<@bailout
+default:
+float param bailout
+	default=4.0
+endparam
   }
 
 {--- RON LEWEN -----------------------------------------------------------}

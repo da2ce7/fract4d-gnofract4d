@@ -756,7 +756,7 @@ class MainWindow:
 
     def check_save_fractal(self):
         msg = _("Do you want to save the current parameters before quitting?")
-        if not self.f.saved:
+        while not self.f.is_saved():
             d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                   gtk.MESSAGE_QUESTION,
                                   gtk.BUTTONS_YES_NO,
@@ -765,7 +765,8 @@ class MainWindow:
             d.destroy()
             if response == gtk.RESPONSE_YES:
                 self.save(None,None)
-        
+            elif response == gtk.RESPONSE_NO:
+                return
             
     def about(self,action,widget):
         self.display_help("about")

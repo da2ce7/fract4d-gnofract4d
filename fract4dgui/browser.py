@@ -183,9 +183,9 @@ class BrowserDialog(gtk.Dialog):
     def populate_file_list(self):
         self.file_list.clear()
         if self.func_type == FRACTAL:
-            files = self.compiler.formula_files()
+            files = self.compiler.find_formula_files()
         else:
-            files = self.compiler.colorfunc_files()
+            files = self.compiler.find_colorfunc_files()
             
         for (fname,formulalist) in files:
             iter = self.file_list.append ()
@@ -365,7 +365,7 @@ class BrowserDialog(gtk.Dialog):
                 return
         
         self.current_fname = fname
-        text = self.compiler.files[self.current_fname].contents
+        text = self.compiler.get_text(self.current_fname)
         self.clear_selection()
         self.sourcetext.get_buffer().set_text(text,-1)
         self.dirty_formula = False

@@ -422,7 +422,10 @@ class T(gobject.GObject):
         new_f.loadFctFile(file)
         self.set_fractal(new_f)
         self.f.saved = True
-        
+
+    def is_saved(self):
+        return self.f.saved
+    
     def save_image(self,filename):
         fract4dguic.image_save(self.image,filename)
         
