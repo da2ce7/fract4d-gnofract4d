@@ -35,6 +35,45 @@ def format_string(t,index,pos):
     else:
         return ("%%(s%d)s" % pos,pos+1)
 
+class ComplexArg:
+    ' a pair of args'
+    def __init__(self,re,im):
+        self.re = re
+        self.im = im
+    def format(self):
+        [self.re.format(), self.i.format()]
+        
+class ConstFloatArg:
+    def __init__(self,value):
+        self.value = value
+    def format(self):
+        return "%.17f" % self.value
+
+class ConstIntArg:
+    def __init__(self,value):
+        self.value = value
+    def format(self):
+        return "%d" % self.value
+
+class TempArg:
+    def __init__(self,value):
+        self.value = value
+    def format(self):
+        return self.value
+
+def create_arg_from_val(type,val):
+    if type == Int or type == Bool:
+        return ConstIntArg(val)
+    elif type == Float:
+        return ConstFloatArg(val)
+    elif type == Complex:
+        return ComplexArg(ConstFloatArg(val[0]),ConstFloatArg(val[1]))
+    else:
+        raise TranslationError("Unknown constant type %s", type)
+    
+def create_arg(t):
+    return create_arg_from_val(t.datatype,t.value)
+    
 class Insn:
     'An instruction to be written to output stream'
     def __init__(self,assem):
@@ -46,13 +85,13 @@ class Insn:
             if self.src != None:
                 for src in self.src:
                     sname = "s%d" % i
-                    lookup[sname] = src
+                    lookup[sname] = src.format()
                     i = i+1
                 i = 0
             if self.dst != None:
                 for dst in self.dst:
                     dname = "d%d" % i
-                    lookup[dname] = dst
+                    lookup[dname] = dst.format()
                     i = i+1
         try:
             return self.assem % lookup
@@ -124,13 +163,13 @@ class T:
         # thus performing a crude 'maximal munch' instruction generation
         self.templates = self.expand_templates([
             [ "[Binop]" , T.binop],
+            [ "[Unop]", T.unop],
             [ "[Var]" , T.var],
             [ "[Const]", T.const],
             [ "[Label]", T.label],
             [ "[Move]", T.move],
             [ "[Jump]", T.jump],
             [ "[Cast]", T.cast],
-            [ "[Unop]", T.unop]
             ])
         self.output_template = '''
 #include <stdio.h>
@@ -156,13 +195,10 @@ while(nIters < nMaxIters)
 return 0;
 }'''
 
-    def emit_binop(self,op,s0,index1,s1,index2,srcs,type):
-        dst = self.symbols.newTemp(type)
+    def emit_binop(self,op,srcs,type):
+        dst = TempArg(self.symbols.newTemp(type))
 
-        (f1,pos) = format_string(s0,index1,0)
-        (f2,pos) = format_string(s1,index2,pos)
-
-        assem = "%%(d0)s = %s %s %s;" % (f1, op, f2)
+        assem = "%(d0)s = %(s0)s " + op + " %(s1)s;"
         self.out.append(Oper(assem, srcs ,[ dst ]))
         return dst
 
@@ -319,18 +355,18 @@ return 0;
                 msg = "Unsupported binary operation %s" % t.op
                 raise fracttypes.TranslationError(msg)
         else:
-            dst = [
-                self.emit_binop(t.op,s0,-1,s1,-1,reals(srcs),t.datatype)]
+            dst = self.emit_binop(t.op,srcs,t.datatype)
+            
         return dst
     
     def const(self,t):
-        return []
+        return create_arg(t)
     
     def var(self,t):
         if t.datatype == fracttypes.Complex:
-            return [ t.name + "_re", t.name + "_im"]
+            return ComplexArg(TempArg(t.name + "_re"),TempArg(t.name + "_im"))
         else:
-            return [ t.name ]
+            return TempArg(t.name)
     
     # matching machinery
     def generate_all_code(self,treelist):
