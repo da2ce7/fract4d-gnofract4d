@@ -38,6 +38,7 @@ class CanonTest(unittest.TestCase):
         self.assertTreesEqual(tree, ltree)
         self.assertESeqsNotNested(ltree,1)
 
+    def testLHBinop(self):
         # left-hand eseq
         tree = self.binop([self.eseq([self.move(self.var(),self.const())],
                                       self.var("b")),
@@ -60,6 +61,7 @@ class CanonTest(unittest.TestCase):
         ltree = self.canon.linearize(tree)
         self.assertESeqsNotNested(ltree,1)
 
+    def testRHBinop(self):
         # right-hand eseq
         tree = self.binop([self.var("a"),
                            self.eseq([self.move(self.var("b"),self.const())],
@@ -68,7 +70,7 @@ class CanonTest(unittest.TestCase):
         self.assertESeqsNotNested(ltree,1)
         self.failUnless(isinstance(ltree.children[0].children[0], ir.Var) and \
                         ltree.children[0].children[0].name == \
-                        ltree.children[1].children[1].children[0].name)
+                        ltree.children[2].children[0].name)
 
         # commuting right-hand eseq
         tree = self.binop([self.const(4),
@@ -78,23 +80,44 @@ class CanonTest(unittest.TestCase):
         self.assertESeqsNotNested(ltree,1)
         self.failUnless(isinstance(ltree.children[1].children[0],ir.Const))
 
+    def testNestRHBinop(self):
         # nested right-hand eseq
         tree = self.binop([self.var("a"),
                            self.eseq([self.move(self.var("b"),self.const())],
                                                 self.var("b"))])
         tree = self.binop([self.const(),tree])
 
-        print tree.pretty()
+        # what we ought to produce
+        exptree = self.eseq([self.move(self.var("t__temp0"), self.var()),
+                             self.move(self.var("b"),self.const())],
+                            self.binop([self.const(),
+                                        self.binop([self.var("t__temp0"),
+                                                    self.var("b")])]))
         ltree = self.canon.linearize(tree)
-        print ltree.pretty()
+        self.assertESeqsNotNested(ltree,1)
+        self.assertTreesEqual(ltree,exptree)
+
+    def testESeq(self):
+        tree = self.eseq([self.var("a")], self.var("b"))
+        ltree = self.canon.linearize(tree)
+        self.assertTreesEqual(tree,ltree)
         self.assertESeqsNotNested(ltree,1)
         
+        tree = self.eseq([self.eseq([self.var("a")], self.var("b"))], self.var("c"))
+        ltree = self.canon.linearize(tree)
+        self.assertESeqsNotNested(ltree,1)
+        
+        tree2 = self.eseq([self.var("a")], self.eseq([self.var("b")], self.var("c")))
+        ltree2 = self.canon.linearize(tree2)
+        self.assertESeqsNotNested(ltree2,1)
+        self.assertTreesEqual(ltree, ltree2)
+        
     def assertESeqsNotNested(self,t,parentAllowsESeq):
-        'check that no ESeqs are left below nodes if other types'
+        'check that no ESeqs are left below other nodes'
         if isinstance(t,ir.ESeq):
             if parentAllowsESeq:
                 for child in t.children:
-                    self.assertESeqsNotNested(child,1)
+                    self.assertESeqsNotNested(child,0)
             else:
                 self.fail("tree not well-formed after linearize")
         else:
