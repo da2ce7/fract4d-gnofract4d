@@ -71,11 +71,16 @@ class tpool {
             queue_closed = 0;
             shutdown = 0;
 
+            total_work_done = -num_threads;
+            target_work_done = INT_MAX;
+            work_queued = 0;
+
             pthread_mutex_init(&queue_lock, NULL);
             pthread_cond_init(&queue_not_empty, NULL);
             pthread_cond_init(&queue_not_full, NULL);
             pthread_cond_init(&queue_empty, NULL);
-            
+            pthread_cond_init(&queue_work_complete, NULL);
+
             /* create low-priority attribute block */
             pthread_attr_t lowprio_attr;
             struct sched_param lowprio_param;
@@ -161,9 +166,10 @@ class tpool {
 
             /* record keeping */
             cur_queue_size++;
+            work_queued++;
             if(1 == cur_queue_size)
             {
-                pthread_cond_signal(&queue_not_empty);
+                pthread_cond_broadcast(&queue_not_empty);
             }
             assert(cur_queue_size <= max_queue_size);
             
@@ -177,9 +183,21 @@ class tpool {
         while(1)
         {
             pthread_mutex_lock(&queue_lock);
+            total_work_done++;
+            //printf("work done: %d\n",total_work_done);
             while( cur_queue_size == 0 && !(shutdown))
             {
+                if(total_work_done == target_work_done)
+                {
+                    printf("work complete sent\n");
+                    pthread_cond_signal(&queue_work_complete);
+                }
                 pthread_cond_wait(&queue_not_empty,&queue_lock);
+                if(total_work_done == target_work_done)
+                {
+                    printf("work complete sent\n");
+                    pthread_cond_signal(&queue_work_complete);
+                }
             }
         
             if(shutdown)
@@ -190,6 +208,7 @@ class tpool {
 
             tpool_work<work_t,threadInfo> *my_workp = &queue[queue_tail];
             cur_queue_size--;
+
             assert(cur_queue_size >= 0);
             queue_tail = ( queue_tail + 1 ) % max_queue_size;
 
@@ -226,10 +245,22 @@ class tpool {
     void flush()
         {
             pthread_mutex_lock(&queue_lock);
-            while(cur_queue_size != 0)
+
+            target_work_done = work_queued;
+
+            // this signal in case all work already done
+            printf("sent queue not empty from flush\n");
+            pthread_cond_broadcast(&queue_not_empty); 
+
+            while(total_work_done != target_work_done)
             {
-                pthread_cond_wait(&queue_empty,&queue_lock);
+                pthread_cond_wait(&queue_work_complete,&queue_lock);
             }
+
+            printf("reset work done (%d,%d)\n",target_work_done,work_queued);
+            target_work_done = INT_MAX;
+            total_work_done = 0;
+            work_queued=0;
             pthread_mutex_unlock(&queue_lock);
         }
 
@@ -247,6 +278,10 @@ class tpool {
     /* pool state */
     pthread_t *threads;
     int cur_queue_size;
+    int total_work_done;
+    int work_queued;
+    int target_work_done;
+
     int queue_head;
     int queue_tail;
     tpool_work<work_t,threadInfo> *queue;
@@ -254,6 +289,7 @@ class tpool {
     pthread_cond_t queue_not_empty;
     pthread_cond_t queue_not_full;
     pthread_cond_t queue_empty;
+    pthread_cond_t queue_work_complete;
 
     int queue_closed;
     int shutdown;

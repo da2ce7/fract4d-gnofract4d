@@ -85,7 +85,7 @@ compiler::compile(std::string commandLine)
     char buf[PATH_MAX];
     std::string complaints;
 
-    //cout << commandLine << std::endl;
+    cout << commandLine << std::endl;
     FILE *compiler_output = popen(commandLine.c_str(),"r");
     if(NULL == compiler_output)
     {

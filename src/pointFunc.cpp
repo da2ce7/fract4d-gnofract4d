@@ -32,10 +32,11 @@
 //#define STATIC_FUNCTION
 
 #ifdef STATIC_FUNCTION
-#define ITER pTemp[X2] = pIter[X] * pIter[X];pTemp[Y2] = pIter[Y] * pIter[Y];atmp = pTemp[X2] - pTemp[Y2] + pInput[CX];pIter[Y] = 2.0 * pIter[X] * pIter[Y] + pInput[CY];pIter[X] = atmp
-#define DECL double atmp 
-#define RET 
-#define BAIL pTemp[EJECT_VAL] = pTemp[X2] + pTemp[Y2];
+
+#define ITER z = (2.0 *z*z*z + c)/ 3.0 * z * z
+#define DECL std::complex<double> z(pIter[X],pIter[Y]) , c(pInput[CX],pInput[CY]) 
+#define RET  pIter[X] = z.real(); pIter[Y] = z.imag()
+#define BAIL 
 
 #include "compiler_template.cpp"
 #endif
@@ -49,7 +50,7 @@ pointFunc *pointFunc_new(
     e_colorFunc innerCfType)
 {
 #ifdef STATIC_FUNCTION
-    return (pointFunc *)create_pointfunc(bailout,pcf,outerCfType,innerCfType);
+    return (pointFunc *)create_pointfunc(NULL,bailout,pcf,outerCfType,innerCfType);
 #else
     bailFunc *b = bailFunc_new(bailType);
 
@@ -82,7 +83,10 @@ pointFunc_delete(pointFunc *pF)
     {
         void *handle = pF->handle();
         delete pF;
-        dlclose(handle);
+        if(NULL != handle) 
+        {
+            dlclose(handle);
+        }
     }
 }
 

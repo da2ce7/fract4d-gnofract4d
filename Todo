@@ -1,3 +1,23 @@
+Compiler
+* W	tidy up #include files
+* W	max size for .so cache
+
+Must do pre 1.7
+* BBB	random glitches in black areas (usually horizontal lines *)
+* BB	fix old fractal types
+* B	can't interrupt 8x8 squares, plus they don't multi-thread
+* B	Newton doesn't work
+* W	image size != window size (scrollable)
+* W	periodicity tolerance should be based on pixel size
+* W	introduce z^A (complex) type
+
+Other
+* B	moving weirdness slider causes too many restarts - unusable
+* W	libgf4d
+* W	for multi-proc aa on n procs, first do every nth row, then go back
+	and fill in gaps - fewer cache clashes and more repeatable rendering 
+* WW	visible history/undo buffer
+* B	SIGSEGV when changing mutant weirdness - hard to repro
 * W	sort out fractal types a bit
 * W 	Keyboard
 *		- Cursors : left/right/up/down
@@ -10,23 +30,18 @@
 * W	full-screen mode
 * W 	desktop mode
 * W 	demo mode
-* W 	no-X mode
+* WWW 	no-X mode
 * W	dirty/clean stuff won't work unless 
 	- eject val / (scratch?) is kept freach point
 	- can calc color without recalcing iter 
-* W	lower priority for drawing threads?
 * W	bookmarks
 * B	Mutants don't work at deep zooms
-* W	plugins
+* WW	plugins
 * W	fast single-undo
 * B	absolute paths in parameter save files
-* B	sometimes all work gets serialized to one thread
-* W	preview .fcts in open dialog
+* WW	preview .fcts in open dialog
 * B 	invalid bailfunc # = crash
 * W	parameterize buffalo
-* W	image size != window size (scrollable)
-* W	persistent user prefs, rather than per-fractal
-* W	
 
 Movies-
 * B	deadlock when render movie while image is being drawn
@@ -38,10 +53,26 @@ Movies-
 * W 	actually save movie images -> disk
 * W	move keyframes up/down 
 * W	profile number of threads: is > 2 better?
-* B	SMP auto-deepening broken
 * B	lines are ugly
 
 Done:
+* B	sometimes all work gets serialized to one thread
+* B	failed nNoPeriodIters <= nMaxIters - due to race between flush() and last work items
+* W	persistent user prefs, rather than per-fractal
+* W	configuration (compiler location & flags, not saved with fractal)
+* W	remove hack that looks for compiler_template locally
+* W	persist settings across sessions
+* B	crash if change compiler while calculating
+* B	crash if couldn't compile
+* B	remove inlined compiler_template
+* B 	weird glitches in valley_test.fct
+* W	lower priority for drawing threads?
+* B	colormap browser previews are wrong
+* B	periodicity makes low-count images like param.fct 2.5x slower
+* B	SMP auto-deepening theoretically broken
+* W	cache .so files
+* W 	move parameters to compile-time, not runtime
+* B	periodicity gives weird wrong pixels in bailed-out area
 * W	removing mallocing from work queue
 * B	Fixed recoloring
 * W	Undo/Redo
@@ -81,3 +112,4 @@ Done:
 * B 	about from docs
 * W	fractal widget
 * W 	sort out sizing!
+* W	move temporary files to /tmp

@@ -45,6 +45,25 @@ public:
         } 
     void init(void) {};
 };
+
+/* eject if difference between this point and last iteration is < epsilon */
+class diff_bailout : public bailFunc {
+public:
+    std::string bail_code(int flags) const
+        {
+            return 
+                "double epsilon = 0.01;"
+                "double diffx = pIter[X] - pTemp[LASTX];"
+                "double diffy = pIter[Y] - pTemp[LASTY];"
+
+                "double diff = diffx * diffx + diffy * diffy;"
+
+                "pTemp[LASTX] = pIter[X]; pTemp[LASTY] = pIter[Y];"
+                // FIXME: continuous potential doesn't work well with this
+                "pTemp[EJECT_VAL] = pInput[EJECT] + epsilon - diff;";
+        }
+};
+
 /*
 class real_bailout : public bailFunc {
 public:
@@ -127,29 +146,6 @@ public:
 };
 */
 
-/* eject if difference between this point and last iteration is < epsilon */
-class diff_bailout : public bailFunc {
-public:
-    static const double epsilon = 0.01;
-    /*
-    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
-        {
-            double diffx = pIter[X] - pTemp[LASTX];
-            double diffy = pIter[Y] - pTemp[LASTY];
-
-            double diff = diffx * diffx + diffy * diffy;
-
-            pTemp[LASTX] = pIter[X]; pTemp[LASTY] = pIter[Y];
-            // FIXME: continuous potential doesn't work well with this
-            pTemp[EJECT_VAL] = pInput[EJECT] + epsilon - diff;
-
-        }
-    */
-    std::string bail_code(int flags) const
-        {
-            return "";
-        }
-};
 
 bailFunc *bailFunc_new(e_bailFunc e)
 {
