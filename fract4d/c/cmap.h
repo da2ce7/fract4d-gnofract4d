@@ -70,9 +70,9 @@ class ListColorMap: public ColorMap
 typedef struct 
 {
     double left;
-    double lr, lg, lb, la;
+    double left_color[4];
     double right;
-    double rr, rg, rb, ra;
+    double right_color[4];
     e_blendType bmode;
     e_colorType cmode;
 } gradient_item_t;
@@ -85,7 +85,8 @@ class GradientColorMap: public ColorMap
     ~GradientColorMap();
 
     bool init(int n_colors);
-    void set(double left, double right,
+    void set(int i,
+	     double left, double right,
 	     double *left_col,
 	     double *right_col,
 	     e_blendType bmode, e_colorType cmode);
