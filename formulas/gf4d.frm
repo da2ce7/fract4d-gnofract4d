@@ -34,6 +34,21 @@ float func bailfunc
 endfunc
 }
 
+HyperMandel {
+; Hypercomplex Mandelbrot set
+init:
+	hyper h
+	hyper c = (real(#pixel),imag(#pixel),real(#zwpixel), imag(#zwpixel)) 
+loop:
+	h = h*h + c
+bailout:
+	|h| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+}
+
 Mandelbar {
 ; I first came across this at http://mathworld.wolfram.com/MandelbarSet.html
 init:

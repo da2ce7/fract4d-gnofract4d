@@ -5,8 +5,10 @@ gtkfractal.py: 307
 preferences.py: 251
 
 done in 2.5:
+* BB	if formula didn't mention z, compilation failed
 
 todo:
+* B	if you declare a function called fn1, you can't change what it is
 * BB	settings dialog doesn't update - can't repro
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
@@ -23,6 +25,7 @@ todo:
 * B	click on colormap calls calc() twice
 * B	recoloring during deepening can make things shallower
 * BB	intermittently failing test in test_fract4d
+* B     var called 'loat' would clashe with C reserved word
 
 UF Incompatibilities
 * W	boolean, int, enum params 

@@ -726,7 +726,9 @@ extern pf_obj *pf_new(void);
                     k = m;
                 }'''
         else:
-            pass #print "no z"
+            inserts["decl_period"]=""
+            inserts["init_period"]=""
+            inserts["check_period"]=""
             
         f = Formatter(self,t,inserts)
         if output_template == None:

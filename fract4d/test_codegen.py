@@ -602,16 +602,19 @@ func fn1
         hyper y = x + (4,1,-1,0)
         hyper h2 = x * y
         hyper h3 = y * x ; check commutativity
+        float m = |x|
         }'''
         self.assertCSays(src,"init",
                          self.inspect_hyper("x") +
                          self.inspect_hyper("y") +
                          self.inspect_hyper("h2") +
-                         self.inspect_hyper("h3"),
+                         self.inspect_hyper("h3") +
+                         self.inspect_float("m"),
                          "x = (1,2,-3,4)\n" +
                          "y = (5,3,-4,4)\n" +
                          "h2 = (3,41,-39,7)\n" +
-                         "h3 = (3,41,-39,7)")
+                         "h3 = (3,41,-39,7)\n" +
+                         "m = 30")
 
         # access to parts
         src = '''t_hyper3 {

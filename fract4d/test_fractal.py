@@ -614,6 +614,14 @@ version=3.4
             '''This file was created by a newer version of Gnofract 4D.
 The image may not display correctly. Please upgrade to version 3.4.''')
 
+    def testNoPeriodIfNoZ(self):
+        'if z isn\'t used in the fractal, disable periodicity'
+        f = fractal.T(self.compiler)
+
+        f.set_formula("test.frm","test_noz")
+        f.compile()
+        
+
     def testCircle(self):
         f = fractal.T(self.compiler)
 

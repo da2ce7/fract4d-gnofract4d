@@ -94,7 +94,6 @@ def createDefaultDict():
                 Func([Complex, Float], Complex, stdlib, "pow"),
                 Func([Complex, Complex], Complex, stdlib, "pow")]),
         
-        "cmag": OverloadList([ Func([Complex], Float, stdlib, "cmag")]),
         "t__neg": efl("neg", "[_], _", [Int, Float, Complex]),
         
         # unary negation already factored out
@@ -245,6 +244,11 @@ def createDefaultDict():
       doc='''The complex modulus of a complex number z.
       cabs(a,b) is equivalent to sqrt(a*a+b*b).
       This is also the same as sqrt(|z|)''')
+
+    f("cmag",
+      [[[Complex], Float], [[Hyper], Float]],
+      doc='''The squared modulus of a complex or hypercomplex number z.
+      cmag(a,b) is equivalent to a*a+b*b. This is the same as |z|.''')
 
     f("log",
       cfl("[_], _", [Float, Complex]),
