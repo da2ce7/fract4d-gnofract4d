@@ -128,16 +128,17 @@ class Compiler:
                       filename)
 
     def compile_all(self,formula,cf0,cf1):        
-        cg = self.compile(formula)
+        self.compile(formula)
         self.compile(cf0)
         self.compile(cf1)
 
         # create temp empty formula and merge everything into that
         t = translate.T(absyn.Formula("",[],-1))
+        cg = self.compile(t)
         t.merge(formula,"")
         t.merge(cf0,"cf0_")        
         t.merge(cf1,"cf1_")
-        
+
         #print t.symbols.keys()
         #print cg.symbols.keys()
         
