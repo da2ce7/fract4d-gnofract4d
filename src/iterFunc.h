@@ -29,18 +29,24 @@
 #include <iosfwd>
 #include <complex>
 
-// offsets into parameter array
+// iter state
 #define X 0
 #define Y 1
-#define CX 2
-#define CY 3
-#define X2 4
-#define Y2 5
-#define EJECT 6
+#define ITER_SPACE (Y+1)
+
+// input state
+#define CX 0
+#define CY 1
+#define EJECT 2
+#define INPUT_SPACE (EJECT+1)
+
+// temp state
+#define X2 5
+#define Y2 6
 #define EJECT_VAL 7
 #define LASTX 8
 #define LASTY 9
-#define SCRATCH_SPACE LASTY+1
+#define TEMP_SPACE (LASTY+1)
 
 /* bailout flags */
 #define HAS_X2 1
@@ -51,8 +57,14 @@
 
 class iterFunc {
  public:
-    virtual void operator()(double *p) const = 0;
-    virtual void iter8(double *p) const = 0;
+    virtual void operator()(
+        double *pIterState, 
+        double *pInputState, 
+        double *pTempState) const = 0;
+    virtual void iter8(
+        double *pIterState, 
+        double *pInputState, 
+        double *pTempState) const = 0;
 #ifdef HAVE_GMP
     virtual void operator()(gmp::f *p) const = 0;
 #endif
@@ -62,7 +74,7 @@ class iterFunc {
     // make a new one Just Like This
     virtual iterFunc *clone() const = 0;
 
-    // boring things
+    // boring things like I/O and equality
     virtual std::ostream& put(std::ostream&) const = 0;
     virtual std::istream& get(std::istream&) = 0;
     virtual bool operator==(const iterFunc&) const = 0;

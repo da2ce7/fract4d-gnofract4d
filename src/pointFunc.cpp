@@ -59,16 +59,16 @@ public:
             delete m_pInnerColor;
         }
 
-    inline rgb_t colorize(int iter, double *p)
+    inline rgb_t colorize(int iter, double *pIter, double *pInput, double *pTemp)
         {
             double colorDist;
             if(iter == -1)
             {
-                colorDist = (*m_pInnerColor)(iter, p);
+                colorDist = (*m_pInnerColor)(iter, pIter, pInput, pTemp);
             }
             else
             {
-                colorDist = (*m_pOuterColor)(iter, p);
+                colorDist = (*m_pOuterColor)(iter, pIter, pInput, pTemp);
             }
             return (*m_pcf)(colorDist);
         }
@@ -80,14 +80,14 @@ public:
         {
             int flags = m_pIter->flags();
 
-            T p[SCRATCH_SPACE];
-            T save[SCRATCH_SPACE];
-            p[X] =  params.n[VZ]; 
-            p[Y] =  params.n[VW];
-            p[CX] = params.n[VX];
-            p[CY] = params.n[VY];
-            p[EJECT] = m_eject;
-            p[LASTX] = p[LASTY] = DBL_MAX;
+            T pIter[ITER_SPACE], pInput[INPUT_SPACE], pTemp[TEMP_SPACE];
+            T save[ITER_SPACE];
+            pIter[X] =  params.n[VZ]; 
+            pIter[Y] =  params.n[VW];
+            pInput[CX] = params.n[VX];
+            pInput[CY] = params.n[VY];
+            pInput[EJECT] = m_eject;
+            pTemp[LASTX] = pTemp[LASTY] = DBL_MAX;
 
             int iter = 0;
 
@@ -99,19 +99,19 @@ public:
                 int nMax8Iters = (nMaxIters/8) * 8;
                 do
                 {
-                    save[X] = p[X];
-                    save[Y] = p[Y];
-                    m_pIter->iter8(p);
+                    save[X] = pIter[X];
+                    save[Y] = pIter[Y];
+                    m_pIter->iter8(pIter,pInput,pTemp);
                     if((iter+= 8) >= nMax8Iters)
                     {
                         goto finished8;
                     }
-                    (*m_pBail)(p,flags);  
-                }while(p[EJECT_VAL] < m_eject);
+                    (*m_pBail)(pIter,pInput,pTemp,flags);  
+                }while(pTemp[EJECT_VAL] < m_eject);
 
                 // we bailed out - need to go back to saved position & 
                 // recalculate
-                p[X] = save[X]; p[Y] = save[Y];
+                pIter[X] = save[X]; pIter[Y] = save[Y];
                 iter -= 8;
             }
 
@@ -119,19 +119,19 @@ public:
             // we finished the 8some iterations without bailing out
             do
             {
-                (*m_pIter)(p);                
+                (*m_pIter)(pIter,pInput,pTemp);                
                 if(iter++ >= nMaxIters) 
                 {
                     // ran out of iterations
                     iter = -1; break; 
                 }
-                (*m_pBail)(p,flags);            
-            }while(p[EJECT_VAL] < m_eject);
+                (*m_pBail)(pIter,pInput,pTemp,flags);            
+            }while(pTemp[EJECT_VAL] < m_eject);
 
             *pnIters = iter;
             if(color)
             {
-                *color = colorize(iter,p);
+                *color = colorize(iter,pIter,pInput,pTemp);
             }
         };
 
@@ -153,10 +153,12 @@ public:
 #endif
     virtual rgb_t recolor(int iter)
         {
-            // fake scratch space
-            d s[SCRATCH_SPACE]= { 0.0 };
-            s[EJECT_VAL] = 1.0; // otherwise we have 0/0 = NaN for some colorFuncs
-            return colorize(iter, s);
+            // fake the calculation state
+            d inputSpace[INPUT_SPACE]= { 0.0 };
+            d iterSpace[ITER_SPACE] = { 0.0 };
+            // set ejectval = 1.0 , otherwise we have 0/0 = NaN for some colorFuncs
+            d tempSpace[TEMP_SPACE] = { 0.0, 0.0, 1.0, 0.0, 0.0 };
+            return colorize(iter, &inputSpace[0], &iterSpace[0], &tempSpace[0]);
         }
 
 };

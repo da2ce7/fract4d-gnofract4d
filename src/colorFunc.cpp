@@ -28,13 +28,13 @@
 // just returns the number of iterations, cast to a double
 class flat_colorFunc : public colorFunc {
 public:
-    double operator()(int iter, double *scratch) const
+    double operator()(int iter, double *pIter, double *pInput, double *pTemp) const
         {
             return (double) iter;
         }
 
 #ifdef HAVE_GMP
-    double operator()(int iter, gmp::f *scratch) const
+    double operator()(int iter, gmp::f *pIter, double *pInput, double *pTemp) const
         {
             return (double) iter;
         }
@@ -46,13 +46,13 @@ public:
 // this smooths the color bands which would otherwise appear
 class cont_colorFunc : public colorFunc {
 public:
-    double operator()(int iter, double *scratch) const
+    double operator()(int iter, double *pIter, double *pInput, double *pTemp) const
         {
-            return ((double) iter) + scratch[EJECT]/scratch[EJECT_VAL];
+            return ((double) iter) + pInput[EJECT]/pTemp[EJECT_VAL];
         }
 
 #ifdef HAVE_GMP
-    double operator()(int iter, gmp::f *scratch) const
+    double operator()(int iter, gmp::f *pIter, double *pInput, double *pTemp) const
         {
             ((double) iter) + scratch[EJECT]/scratch[EJECT_VAL];
         }
@@ -63,13 +63,13 @@ public:
 // just return zero, whatever - used by default for the inside of the Mset
 class zero_colorFunc : public colorFunc {
 public:
-    double operator()(int iter, double *scratch) const
+    double operator()(int iter, double *pIter, double *pInput, double *pTemp) const
         {
             return (double) 0.0;
         }
 
 #ifdef HAVE_GMP
-    double operator()(int iter, gmp::f *scratch) const
+    double operator()(int iter, gmp::f *pIter, double *pInput, double *pTemp) const
         {
             return (double) 0.0;
         }
@@ -81,9 +81,9 @@ public:
 // iterations.
 class ejectDist_colorFunc : public colorFunc {
 public:
-    double operator()(int iter, double *scratch) const
+    double operator()(int iter, double *pIter, double *pInput, double *pTemp) const
         {
-            return 256.0 * scratch[EJECT]/scratch[EJECT_VAL];
+            return 256.0 * pInput[EJECT]/pTemp[EJECT_VAL];
         }
 };
 

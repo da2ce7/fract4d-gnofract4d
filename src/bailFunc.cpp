@@ -30,22 +30,22 @@ inline double MAX(double x, double y) { return x > y ? x : y; }
 
 class mag_bailout : public bailFunc {
 public:
-    void operator()(double *p, int flags)
+    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
         {
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
-                p[X2] = p[X] * p[X];
-                p[Y2] = p[Y] * p[Y];
+                pTemp[X2] = pIter[X] * pIter[X];
+                pTemp[Y2] = pIter[Y] * pIter[Y];
             }            
-            p[EJECT_VAL] = p[X2] + p[Y2];
+            pTemp[EJECT_VAL] = pTemp[X2] + pTemp[Y2];
         };
     bool iter8_ok() { return true; };
     void init(void) {};
 };
-
+/*
 class real_bailout : public bailFunc {
 public:
-    void operator()(double *p, int flags)
+    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
         {
             if(!(flags & (HAS_X2)))
             {
@@ -58,7 +58,7 @@ public:
 
 class imag_bailout : public bailFunc {
 public:
-    void operator()(double *p, int flags)
+    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
         {
             if(!(flags & (HAS_Y2)))
             {
@@ -71,7 +71,7 @@ public:
 
 class and_bailout : public bailFunc {
 public:
-    void operator()(double *p, int flags)
+    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
         {
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
@@ -86,7 +86,7 @@ public:
 
 class or_bailout : public bailFunc {
 public:
-    void operator()(double *p, int flags)
+    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
         {
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
@@ -101,7 +101,7 @@ public:
 
 class manhattan2_bailout : public bailFunc {
 public:
-    void operator()(double *p, int flags)
+    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
         {
             if(!(flags & (HAS_X2 | HAS_Y2)))
             {
@@ -116,27 +116,28 @@ public:
 
 class manhattan_bailout : public bailFunc {
 public:
-    void operator()(double *p, int flags)
+    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
         {
             p[EJECT_VAL] = p[X] + p[Y];
         }
     bool iter8_ok() { return false; }
 };
+*/
 
 /* eject if difference between this point and last iteration is < epsilon */
 class diff_bailout : public bailFunc {
 public:
     static const double epsilon = 0.01;
-    void operator()(double *p, int flags)
+    void operator()(double *pIter, double *pInput, double *pTemp, int flags)
         {
-            double diffx = p[X] - p[LASTX];
-            double diffy = p[Y] - p[LASTY];
+            double diffx = pIter[X] - pTemp[LASTX];
+            double diffy = pIter[Y] - pTemp[LASTY];
 
             double diff = diffx * diffx + diffy * diffy;
 
-            p[LASTX] = p[X]; p[LASTY] = p[Y];
+            pTemp[LASTX] = pIter[X]; pTemp[LASTY] = pIter[Y];
             // FIXME: continuous potential doesn't work well with this
-            p[EJECT_VAL] = p[EJECT] + epsilon - diff;
+            pTemp[EJECT_VAL] = pInput[EJECT] + epsilon - diff;
 
         }
     bool iter8_ok() { return false; }
@@ -149,6 +150,7 @@ bailFunc *bailFunc_new(e_bailFunc e)
     case BAILOUT_MAG:
         pbf = new mag_bailout;
         break;
+/*
     case BAILOUT_MANH:
         pbf = new manhattan_bailout;
         break;
@@ -167,6 +169,7 @@ bailFunc *bailFunc_new(e_bailFunc e)
     case BAILOUT_IMAG:
         pbf = new imag_bailout;
         break;
+*/
     case BAILOUT_DIFF:
         pbf = new diff_bailout;
         break;

@@ -174,47 +174,53 @@ operator>>(std::istream& s, iterImpl<T, NOPTIONS>& m)
 #endif
 
 #define ITER_DECLS(decl, func) \
-    template<class T>inline void calc(T *p) const \
+    template<class T>inline void calc(T *pIter, T *pInput, T *pTemp) const \
         { \
             decl; \
             func; \
         }\
-    template<class T>inline void calc8(T *p) const \
+    template<class T>inline void calc8(T *pIter, T *pInput, T *pTemp) const \
         { \
             decl; \
             func; func; func; func; func; func; func; func; \
         }\
-    void operator()(double *p) const \
+    void operator()( \
+            double *pIterState, \
+            double *pInputState, \
+            double *pTempState) const \
         {\
-            calc<double>(p);\
+            calc<double>(pIterState,pInputState,pTempState);\
         }\
     GMP_FUNC_OP \
-    void iter8(double *p) const \
+    void iter8( \
+            double *pIterState, \
+            double *pInputState, \
+            double *pTempState) const \
         { \
-            calc8<double>(p); \
+            calc8<double>(pIterState,pInputState,pTempState); \
         } 
 
 #define ITER_DECLS_RET(decl,func,ret) \
-    template<class T>inline void calc(T *p) const \
+    template<class T>inline void calc(T *pIter, T *pInput, T *pTemp) const \
         { \
             decl; \
             func; \
             ret; \
         }\
-    template<class T>inline void calc8(T *p) const \
+    template<class T>inline void calc8(T *pIter, T *pInput, T *pTemp) const \
         { \
             decl; \
             func; func; func; func; func; func; func; func; \
             ret; \
         }\
-    void operator()(double *p) const \
+    void operator()(double *pIter, double *pInput, double *pTemp) const \
         {\
-            calc<double>(p);\
+            calc<double>(pIter,pInput,pTemp);\
         }\
     GMP_FUNC_OP \
-    void iter8(double *p) const \
+    void iter8(double *pIter, double *pInput, double *pTemp) const \
         { \
-            calc8<double>(p); \
+            calc8<double>(pIter,pInput,pTemp); \
         } 
 
 // z <- z^2 +c
@@ -226,11 +232,11 @@ public:
 
 #define MAND_DECL T atmp
 #define MAND_ITER \
-    p[X2] = p[X] * p[X]; \
-    p[Y2] = p[Y] * p[Y]; \
-    atmp = p[X2] - p[Y2] + p[CX]; \
-    p[Y] = 2.0 * p[X] * p[Y] + p[CY]; \
-    p[X] = atmp
+    pTemp[X2] = pIter[X] * pIter[X]; \
+    pTemp[Y2] = pIter[Y] * pIter[Y]; \
+    atmp = pTemp[X2] - pTemp[Y2] + pInput[CX]; \
+    pIter[Y] = 2.0 * pIter[X] * pIter[Y] + pInput[CY]; \
+    pIter[X] = atmp
 
     ITER_DECLS(MAND_DECL,MAND_ITER)
 
@@ -240,6 +246,7 @@ public:
         }
 };
 
+#if 0
 // Newton's method for a quadratic complex polynomial
 // z <- (z^2 + A)/2z
 class newtFunc : public iterImpl<newtFunc,0>
@@ -556,12 +563,14 @@ public:
 };
 */
 
+#endif
+
 #define CTOR_TABLE_ENTRY(className) \
     { className::name(), className::create }
 
 ctorInfo ctorTable[] = {
     CTOR_TABLE_ENTRY(mandFunc),
-    CTOR_TABLE_ENTRY(shipFunc),
+/*    CTOR_TABLE_ENTRY(shipFunc),
     CTOR_TABLE_ENTRY(buffaloFunc),
     CTOR_TABLE_ENTRY(cubeFunc),
     CTOR_TABLE_ENTRY(quadFunc),
@@ -570,6 +579,7 @@ ctorInfo ctorTable[] = {
     CTOR_TABLE_ENTRY(lambdaFunc),
     CTOR_TABLE_ENTRY(novaFunc),
     //CTOR_TABLE_ENTRY(newtFunc),
+*/
     { NULL, NULL}
 };
 
