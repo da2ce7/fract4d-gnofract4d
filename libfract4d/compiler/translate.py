@@ -138,6 +138,18 @@ class T:
                 self.warnCast(node,expectedType)
                 # fixme - rewrite exp with coercion
                 return node
+        elif node.datatype == Int:
+            if expectedType == Bool or expectedType == Float or expectedType == Complex:
+                self.warnCast(node,expectedType)
+                return node
+        elif node.datatype == Float:
+            if expectedType == Bool or expectedType == Complex:
+                self.warnCast(node, expectedType)
+                return node
+        elif node.datatype == Complex:
+            if expectedType == Bool:
+                self.warnCast(node, expectedType)
+                return node
             
         # if we didn't cast successfully, fall through to here
         self.badCast(node,expectedType)

@@ -55,11 +55,19 @@ class TranslateTest(unittest.TestCase):
         self.assertNoProbs(t1)
         self.assertVar(t1, "a", fracttypes.Int)
         self.assertVar(t1, "b", fracttypes.Complex)
-        t1 = self.translate("t1 {\ninit:float a = true\n}")
+        t1 = self.translate('''
+        t1 {
+        init:
+        float a = true,complex c = 1.0
+        complex x = 2
+        }''')
         self.assertNoErrors(t1)
         self.assertVar(t1, "a", fracttypes.Float)
-        self.assertWarning(t1, "conversion from bool to float on line 2")
-        
+        self.assertVar(t1, "c", fracttypes.Complex)
+        self.assertVar(t1, "x", fracttypes.Complex)
+        self.assertWarning(t1, "conversion from bool to float on line 4")
+        self.assertWarning(t1, "conversion from float to complex on line 4")
+        self.assertWarning(t1, "conversion from int to complex on line 5")
         
     def testBadDecls(self):
         t1 = self.translate("t1 {\nglobal:int z\n}")

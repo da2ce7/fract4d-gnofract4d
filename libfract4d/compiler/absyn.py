@@ -4,6 +4,7 @@
 import types
 import string
 import fracttypes
+import re
 
 class Node:
     def __init__(self,type,pos,children=None,leaf=None,datatype=None):
@@ -21,6 +22,8 @@ class Node:
     
     def pretty(self,depth=0):
         str = " " * depth + "[%s : %s" % (self.type , self.leaf)
+        if self.datatype != None:
+            str += "(%s)" % fracttypes.strOfType(self.datatype)
         if self.children:
             str += "\n"
             for child in self.children:
@@ -119,7 +122,13 @@ def Set(id, s, pos):
     return Node("set", pos, s,id)
 
 def Number(n,pos):
-    return Node("const", pos, None, n, fracttypes.Float)
+    if re.search('[.eE]',n):
+        t = fracttypes.Float
+        n = string.atof(n)
+    else:
+        t = fracttypes.Int
+        n = string.atoi(n)
+    return Node("const", pos, None, n, t)
 
 def Const(n,pos):
     return Node("const", pos, None, n=="true", fracttypes.Bool)
