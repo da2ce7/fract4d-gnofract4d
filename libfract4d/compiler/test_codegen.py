@@ -419,7 +419,8 @@ goto t__end_init;''')
             [ "p = (2^2,9^0.5)","p", "(4,3)"],
             [ "pow1 = (1,0)^2","pow1", "(1,0)"],
             [ "pow2 = (-2,-3)^7.5","pow2","(-13320.5,6986.17)"],
-            
+            [ "pow3 = (-2,-3)^(1.5,-3.1)","pow3","(0.00507248,-0.00681128)"],
+            [ "pow4 = (0,0)^(1.5,-3.1)","pow4","(0,0)"],
             # trig functions
             [ "t_sin = (sin(0),sin(1))","t_sin", self.predict(math.sin)],
             [ "t_cos = (cos(0),cos(1))","t_cos", self.predict(math.cos)],
@@ -445,7 +446,9 @@ goto t__end_init;''')
         tests += self.manufacture_tests("sinh",cmath.sinh)
         tests += self.manufacture_tests("cosh",cmath.cosh)
         tests += self.manufacture_tests("tanh",cmath.tanh)
+        tests += self.manufacture_tests("exp",cmath.exp)
         logtests = self.manufacture_tests("log",cmath.log)
+        
         logtests[0][2] = "(-inf,0)" # log(0+0j) is overflow in python
         tests += logtests
 
