@@ -1,0 +1,49 @@
+* W 	Different fractal types
+* W 	Keyboard
+*		- Cursors : left/right/up/down
+* W	Documentation
+		Interface doc
+		Maths doc
+		Internals doc
+		Attention Conservation Notices
+
+* W	Session remembers last parameters
+* W	Cmd-line arguments
+* WW	MDI
+* W	associate with file type?
+* W 	sort out sizing!
+* W	separate main/ motion toolbars
+* W	proper toolbar widgets
+* W	main toolbar: home, pause, exit, undo, redo
+* B	make it work with CLN again
+* W	faster CLN (get at internals during loop, maybe?)
+* W	fract, model -> GTK+ objects
+* B	Hide/Show menu items need to work
+* B 	black squares bug
+* B	Applying a colour sometimes moves image: properties not in sync?
+* B 	do/undo printfs
+* B	add docs to distribution
+* B	remove model_save() from main
+* B	*.c -> *.cpp
+* B	interface.cpp still contains global variables
+* B	interface.h contains unused function decls
+* B	entries which convert strings to CLN format need to do validation 
+	or the program exits!
+* B	CRASH in quit_cb (changes fract after fract is deleted) if exit 
+	after calculation has finished
+* W	Deepening...(n iters)
+* W	grey undo/redo when not available
+
+Done:
+Online Help
+Undo/Redo Zoom
+* W	create_angle_button : should be a widget
+* W	better widget for antialias (slider?)
+* W 	get rid of gnomenumberentries
+* B	resize more nicely
+* B	quit_cb isn't passed the right user_data so it can't interrupt. hmph.
+* B	don't resize when toolbar comes/goes
+* W	turn on/off auto-deepening
+* B	Load/Save 
+* B 	about from docs
+* W	fractal widget
