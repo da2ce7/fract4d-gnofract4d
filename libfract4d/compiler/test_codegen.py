@@ -391,6 +391,7 @@ goto t__end_init;''')
             [ "i = ident(y)","i","(1,2)"],
             [ "a = (abs(4),abs(-4))","a","(4,4)"],
             [ "a2 = abs((4,-4))","a2","(4,4)"],
+            [ "cab = (cabs((0,0)), cabs((3,4)))", "cab", "(0,5)"],
             [ "sq = (sqrt(4),sqrt(2))", "sq", self.predict(math.sqrt,4,2)],
             
             # trig functions
