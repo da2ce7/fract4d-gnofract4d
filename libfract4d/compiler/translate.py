@@ -117,12 +117,13 @@ class T:
         
     def stm(self,node,expectedType=None):
         if node.type == "decl":
-            self.decl(node, None)
+            r = self.decl(node, None)
         elif node.type == "assign":
-            self.assign(node)
+            r = self.assign(node)
         else:
-            self.exp(node,expectedType)
-        
+            r = self.exp(node,expectedType)
+        return r
+    
     def assign(self, node):
         '''assign a new value to a variable, creating it if required'''
         if not self.symbols.has_key(node.leaf):
@@ -130,9 +131,10 @@ class T:
             self.symbols[node.leaf] = Var(fracttypes.Complex,0,node.pos)
 
         expectedType = self.symbols[node.leaf].type
-        self.exp(node.children[0],expectedType)        
+        e = self.exp(node.children[0],expectedType)        
         node.datatype = expectedType
-        
+        return ir.Move(ir.Name(node.leaf, expectedType), e, expectedType)
+    
     def decl(self,node,expectedType):
         if expectedType != None:
             if expectedType != node.datatype:
