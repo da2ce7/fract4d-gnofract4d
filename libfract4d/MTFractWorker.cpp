@@ -1,4 +1,5 @@
-#include "fractFunc.h" // FIXME should be fractWorker
+#include "fractWorker.h" 
+#include "fractFunc.h"
 
 /* redirect back to a member function */
 void worker(job_info_t& tdata, STFractWorker *pFunc)
@@ -8,7 +9,6 @@ void worker(job_info_t& tdata, STFractWorker *pFunc)
 
 MTFractWorker::MTFractWorker(
     int n, 
-    fractFunc *ff,
     fractal_t *f, 
     IImage *im)
 {
@@ -18,7 +18,7 @@ MTFractWorker::MTFractWorker(
     ptf = new STFractWorker[nWorkers];
     for(int i = 0; i < nWorkers; ++i)
     {
-        if(!ptf[i].init(ff,f,im))
+        if(!ptf[i].init(f,im))
         {
             // failed to create - mark this dead 
             m_ok = false;	    
@@ -40,6 +40,15 @@ MTFractWorker::~MTFractWorker()
 {
     delete ptp;
     delete[] ptf;
+}
+
+void
+MTFractWorker::set_fractFunc(fractFunc *ff_)
+{
+    for(int i = 0; i < nWorkers; ++i)
+    {
+	ptf[i].set_fractFunc(ff_);
+    }
 }
 
 void

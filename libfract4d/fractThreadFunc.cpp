@@ -2,13 +2,30 @@
 #include "pointFunc.h"
 #include "iterFunc.h"
 #include "bailFunc.h"
+#include "fractWorker.h"
 #include <stdio.h>
 
+IFractWorker *
+IFractWorker::create(int nThreads,fractal_t *f_, IImage *im_)
+{
+// can IFDEF here if threads are not available
+    if ( nThreads > 1)
+    {
+	return new MTFractWorker(nThreads,f_,im_);
+    }
+    else
+    {
+	STFractWorker *w = new STFractWorker();
+	if(!w) return w;
+	w->init(f_,im_);
+	return w;
+    }
+} 
 
 bool
-STFractWorker::init(fractFunc *ff_,fractal_t *f_, IImage *im_)
+STFractWorker::init(fractal_t *f_, IImage *im_)
 {
-    ff = ff_;
+    ff = NULL;
     f = f_;
     im = im_;
 
@@ -33,6 +50,12 @@ STFractWorker::init(fractFunc *ff_,fractal_t *f_, IImage *im_)
 STFractWorker::~STFractWorker()
 {
     delete pf;
+}
+
+void
+STFractWorker::set_fractFunc(fractFunc *ff_)
+{
+    ff = ff_;
 }
 
 /* we're in a worker thread */
@@ -156,7 +179,8 @@ inline bool STFractWorker::isTheSame(
 rgb_t
 STFractWorker::antialias(int x, int y)
 {
-    dvec4 topleft = ff->aa_topleft + I2D_LIKE(x, f->params[MAGNITUDE]) * ff->deltax + 
+    dvec4 topleft = ff->aa_topleft + 
+	I2D_LIKE(x, f->params[MAGNITUDE]) * ff->deltax + 
         I2D_LIKE(y, f->params[MAGNITUDE]) * ff->deltay;
 
     dvec4 pos = topleft; 

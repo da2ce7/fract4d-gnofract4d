@@ -31,6 +31,8 @@
 #define _THREADPOOL_H_
 
 #include "pthread.h"
+#include <cassert>
+#include <limits.h>
 
 /* one unit of work */
 template<class work_t, class threadInfo>

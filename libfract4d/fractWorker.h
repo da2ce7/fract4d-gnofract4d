@@ -1,4 +1,10 @@
-#include "threadpool.h"
+
+#ifndef FRACT_WORKER_H_
+#define FRACT_WORKER_H_
+
+
+
+#include "fractWorker_public.h"
 
 /* enum for jobs */
 typedef enum {
@@ -15,56 +21,19 @@ typedef struct {
     int x, y, param;
 } job_info_t;
 
-void worker(job_info_t& tdata, STFractWorker *pFunc);
-
-class IFractWorker {
-public:
-    // calculate a row of antialiased pixels
-    virtual void row_aa(int x, int y, int n) =0;
-
-    // calculate a row of pixels
-    virtual void row(int x, int y, int n) =0;
-
-    // calculate an rsize-by-rsize box of pixels
-    virtual void box(int x, int y, int rsize) =0;
-
-    // calculate a row of boxes
-    virtual void box_row(int w, int y, int rsize) =0;
-
-    // calculate a single pixel
-    virtual void pixel(int x, int y, int h, int w) =0;
-
-    // calculate a single pixel in aa-mode
-    virtual void pixel_aa(int x, int y) =0;
-
-    // auto-deepening record keeping
-    virtual void reset_counts() =0;
-    virtual void stats(int *pnDoubleIters, int *pnHalfIters, int *pk) =0;
-
-    virtual ~IFractWorker() {};
-
-    virtual void flush() = 0;
-    virtual bool ok() = 0;
-};
-
 /* per-worker-thread fractal info */
 class STFractWorker : public IFractWorker {
  public:
-    fractFunc *ff;
+    void set_fractFunc(fractFunc *ff); 
 
     /* pointers to data also held in fractFunc */
     fractal_t *f; 
     IImage *im;    
 
     /* not a ctor because we always create a whole array then init them */
-    bool init(fractFunc *ff, fractal_t *f, IImage *im);
+    bool init(fractal_t *f, IImage *im);
 
     ~STFractWorker();
-
-    // function object which calculates the colors of points 
-    // this is per-thread-func so it doesn't have to be re-entrant
-    // and can have member vars
-    pointFunc *pf; 
 
 
     STFractWorker() {
@@ -122,6 +91,13 @@ class STFractWorker : public IFractWorker {
     bool ok() { return true; }
  
  private:
+    fractFunc *ff;
+
+    // function object which calculates the colors of points 
+    // this is per-thread-func so it doesn't have to be re-entrant
+    // and can have member vars
+    pointFunc *pf; 
+
     // n pixels correctly classified that would be wrong 
     // if we halved iterations
     int nhalfiters;
@@ -133,16 +109,21 @@ class STFractWorker : public IFractWorker {
 
 };
 
+#include "threadpool.h"
+
+void worker(job_info_t& tdata, STFractWorker *pFunc);
+
 // a composite subclass which holds an array of STFractWorkers and
 // divides the work among them
 class MTFractWorker : public IFractWorker
 {
  public:
     MTFractWorker(int n, 
-		  fractFunc *ff, 
 		  fractal_t *f, 
 		  IImage *im);
     ~MTFractWorker();
+
+    void set_fractFunc(fractFunc *ff); 
 
     // operations
     virtual void row_aa(int x, int y, int n) ;
@@ -178,3 +159,5 @@ private:
     tpool<job_info_t,STFractWorker> *ptp;
     bool m_ok;
 };
+
+#endif /* FRACT_WORKER_H_ */
