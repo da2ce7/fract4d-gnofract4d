@@ -67,12 +67,19 @@ class FctTest(unittest.TestCase):
         pass
 
     def testRead(self):
-        global g_testfile
         file = g_testfile
         
         f = fractal.T(self.compiler);
         f.loadFctFile(StringIO.StringIO(file))
         self.assertExpectedValues(f)
+
+    def testUpsideDown(self):
+        file = g_testfile
+
+        file = file.replace('version=2.0','version=1.9',1)
+        f = fractal.T(self.compiler);
+        f.loadFctFile(StringIO.StringIO(file))
+        self.assertEqual(f.params[f.XYANGLE], math.pi + 0.00000001)
         
     def assertExpectedValues(self,f):        
         self.assertEqual(f.params[f.XCENTER],0.0891)
