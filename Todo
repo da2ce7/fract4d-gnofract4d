@@ -30,6 +30,7 @@ libfract4d
 * W	make sure inner function is sensible (itercount is pointless)
 * W	pass colorFuncs by value instead of enum
 * W	is it really faster w/out HAS_X2 ?
+* WW	make cizer per-fate (initially inner, outer) + combine with transfer, colorfunc
 
 netfract
 * WWW	write it

@@ -470,13 +470,13 @@ int  gf4d_fractal_set_resolution(Gf4dFractal *f, int xres, int yres)
 
 colorizer_t *gf4d_fractal_get_colorizer(Gf4dFractal *f)
 {
-    return f->f->get_colorizer();
+    return f->f->get_colorizer(0); // FIXME
 }
 
 void gf4d_fractal_set_colorizer(Gf4dFractal *f, colorizer_t *cizer)
 {
     kill_slave_threads(f);
-    f->f->set_colorizer(cizer);
+    f->f->set_colorizer(cizer,0); // FIXME
 }
 
 /* stop calculating now! */

@@ -148,8 +148,8 @@ public:
     virtual int get_threads() const = 0;
 
     // color functions
-    virtual colorizer_t *get_colorizer() const = 0;
-    virtual void set_colorizer(colorizer_t *cizer) = 0;
+    virtual colorizer_t *get_colorizer(int which_cf) const = 0;
+    virtual void set_colorizer(colorizer_t *cizer, int which_cf) = 0;
 };
 
 #endif /* _FRACT_PUBLIC_H_ */

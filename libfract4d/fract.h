@@ -44,7 +44,7 @@ private:
     int digits;
 
     // color params
-    colorizer *cizer;
+    colorizer **cizers;
 
     e_colorFunc colorFuncs[N_COLORFUNCS];
     const char *colorTransferFuncs[N_COLORFUNCS];
@@ -118,8 +118,8 @@ public:
     bool set_precision(int digits); 
 
     // color functions
-    colorizer_t *get_colorizer() const ;
-    void set_colorizer(colorizer_t *cizer);
+    colorizer_t *get_colorizer(int which_cizer) const ;
+    void set_colorizer(colorizer_t *cizer, int which_cizer);
 
     e_bailFunc get_bailFunc() const;
     void set_bailFunc(e_bailFunc bf);

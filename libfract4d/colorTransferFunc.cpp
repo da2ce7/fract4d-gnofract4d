@@ -54,6 +54,20 @@ public:
     }
 };
   
+
+// sqrt
+class sqrt_colorTransferFunc : public colorTransferFunc {
+public:
+    double calc(double in) const
+        {
+	    return sqrt(in);
+        }
+    static colorTransferFunc *create() { 
+	return new sqrt_colorTransferFunc(); 
+    }
+};
+
+
 typedef struct 
 {
     const char *name; 
@@ -63,6 +77,7 @@ typedef struct
 static ctorInfo infoTable[] = {
     { "Linear", linear_colorTransferFunc::create },
     { "Log", log_colorTransferFunc::create },
+    { "Square Root",sqrt_colorTransferFunc::create },
     { NULL, NULL}
 };
 

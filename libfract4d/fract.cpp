@@ -61,8 +61,11 @@
 #define FIELD_INNER "inner"
 #define FIELD_OUTER "outer"
 
+#define FIELD_ID "id"
+
 #define SECTION_ITERFUNC "[function]"
-#define SECTION_COLORIZER "[colors]"
+#define SECTION_LEGACY_COLORIZER "[colors]"
+#define SECTION_COLORIZER "[colorizer]"
 #define SECTION_BAILFUNC "[bailout]"
 
 void 
@@ -90,13 +93,18 @@ fractal::fractal()
 
     digits = 0;
 	
-    cizer = colorizer_new(COLORIZER_RGB);
+    cizers = new colorizer *[N_COLORFUNCS];
+    for(int i = 0; i < N_COLORFUNCS; ++i)
+    {
+	cizers[i] = colorizer_new(COLORIZER_RGB);
+    }
+
     bailout_type=bailFunc::create(BAILOUT_MAG);
 
     colorFuncs[OUTER]=COLORFUNC_CONT;
     colorFuncs[INNER]=COLORFUNC_ZERO;
 
-    colorTransferFuncs[OUTER]="Linear";
+    colorTransferFuncs[OUTER]="Log";
     colorTransferFuncs[INNER]="Linear";
 
     assert(bailout_type > (void *)0x4);
@@ -105,7 +113,7 @@ fractal::fractal()
 /* dtor */
 fractal::~fractal()
 {
-    colorizer_delete(&cizer);
+    delete[] cizers;
     delete pIterFunc;
     delete bailout_type;
 }
@@ -134,10 +142,11 @@ fractal::copy(const fractal& f)
 
     rot = f.rot;
 
-    set_colorizer(f.cizer);
+
 
     for(int i = 0; i < N_COLORFUNCS; ++i)
     {
+	set_colorizer(f.cizers[i],i);
         colorFuncs[i] = f.colorFuncs[i];
 	colorTransferFuncs[i] = f.colorTransferFuncs[i];
     }
@@ -155,7 +164,11 @@ fractal::fractal(const fractal& f)
     // ensure these are initialized to something that is
     // safe to be deleted
     pIterFunc = NULL;
-    cizer = NULL;
+    cizers = new colorizer *[N_COLORFUNCS];
+    for(int i = 0; i < N_COLORFUNCS; ++i)
+    {
+	cizers[i] = NULL;
+    }
     bailout_type = NULL;
 
     copy(f);
@@ -200,11 +213,12 @@ fractal::operator==(const fractal& f) const
     if(digits != f.digits) return false;
     if(rot_by != f.rot_by) return false;
 
-    if(!(*cizer == *f.cizer)) return false;
-    if(colorFuncs[OUTER] != f.colorFuncs[OUTER]) return false;
-    if(colorFuncs[INNER] != f.colorFuncs[INNER]) return false;
-    if(colorTransferFuncs[OUTER] != f.colorTransferFuncs[OUTER]) return false;
-    if(colorTransferFuncs[INNER] != f.colorTransferFuncs[INNER]) return false;
+    for(int i = 0; i < N_COLORFUNCS; ++i)
+    {
+	if(!(*cizers[i] == *f.cizers[i])) return false;
+	if(colorFuncs[i] != f.colorFuncs[i]) return false;
+	if(colorTransferFuncs[i] != f.colorTransferFuncs[i]) return false;
+    }
 
     if(bailout_type->type() != f.bailout_type->type()) return false;
     
@@ -327,18 +341,18 @@ fractal::reset()
 }
 
 colorizer_t *
-fractal::get_colorizer() const
+fractal::get_colorizer(int i) const
 {
-    return cizer;
+    return cizers[i];
 }
 
 void
-fractal::set_colorizer(colorizer_t *c)
+fractal::set_colorizer(colorizer_t *c, int i)
 {
-    if(cizer == c) return;
+    if(cizers[i] == c) return;
 
-    colorizer_delete(&cizer);
-    cizer = c->clone();
+    delete cizers[i];
+    cizers[i] = c->clone();
 }
 
 static const char *param_names[] = {
@@ -371,8 +385,12 @@ fractal::write_params(const char *filename) const
     os << FIELD_INNER << "=" << (int) colorFuncs[INNER] << "\n";
     os << FIELD_OUTER << "=" << (int) colorFuncs[OUTER] << "\n";
     os << SECTION_ITERFUNC << "\n" << *pIterFunc;
-    os << SECTION_COLORIZER << "\n" << *cizer;
-
+    for(int i = 0; i < N_COLORFUNCS; ++i)
+    {
+	os << SECTION_COLORIZER << "\n";
+	os << FIELD_ID << "=" << i << "\n";
+	os << *cizers[i];
+    }
     if(!os) return false;
     return true;
 }
@@ -449,13 +467,37 @@ fractal::load_params(const char *filename)
                 pIterFunc = iter_tmp;
             }
         }
-        else if(SECTION_COLORIZER==name)
+	else if(SECTION_COLORIZER==name)
+	{
+	    // id must be first field in cizer section
+	    if(!read_field(is,name,val))
+	    {
+		break;
+	    }
+	    int id=0;
+	    if(FIELD_ID==name)
+		vs >> id;
+	    else
+		break;
+	    
+	    colorizer *cizer_tmp = colorizer_read(is);
+            if(cizer_tmp)
+            {
+		set_colorizer(cizer_tmp, id);
+		delete cizer_tmp;
+            }
+	}
+        else if(SECTION_LEGACY_COLORIZER==name)
         {
+	    // apply to all colorizers since old files only specify 1
             colorizer *cizer_tmp = colorizer_read(is);
             if(cizer_tmp)
             {
-                colorizer_delete(&cizer);
-                cizer = cizer_tmp;
+		for(int i = 0; i < N_COLORFUNCS; ++i)
+		{
+		    set_colorizer(cizer_tmp, i);
+		}
+		delete cizer_tmp;
             }
         }
         else if(SECTION_BAILFUNC==name)
@@ -695,7 +737,7 @@ fractal::recolor(IImage *im)
         bailout_type,
         params[BAILOUT],
         tolerance(im),
-        cizer,
+        cizers[0],
         colorFuncs[OUTER],
         colorFuncs[INNER],
 	colorTransferFuncs[OUTER],
