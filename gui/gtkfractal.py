@@ -187,9 +187,7 @@ class T(gobject.GObject):
                 widget.set_text("%.17f" % self.initparams[order])
                     
             def set_fractal(entry,event,f,order):
-                print "set"
                 f.set_initparam(order,entry.get_text())
-                print "done"
                 return False
             
             set_entry(self)
@@ -285,7 +283,6 @@ class T(gobject.GObject):
 
         widget.update = set_selected_function
 
-        print "set callback", funclist
         widget.connect('changed',set_fractal_function,self,param)
         
         table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL,0,2,2)
