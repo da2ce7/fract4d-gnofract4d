@@ -9,6 +9,7 @@ import testbase
 
 import gradient
 import fract4dc
+import fractal
 
 from gradient import Blend, ColorMode
 
@@ -36,6 +37,7 @@ class Test(testbase.TestBase):
         grad = gradient.Gradient()
         grad.load_list(colorlist)
 
+        self.assertWellFormedGradient(grad)
         cmap = fract4dc.cmap_create(colorlist)
         for i in xrange(1000):
             fi = i / 1000.0
@@ -77,7 +79,15 @@ class Test(testbase.TestBase):
         self.assertEqual(g.segments[1].right_color, self.blue)
 
         self.checkColorMapAndGradientEquivalent(colorlist)
-                
+
+        # and a 256-color one
+        c = fractal.Colorizer()
+        f = open("../maps/4zebbowx.map","r")
+        c.parse_map_file(f)
+        colorlist = c.colorlist
+
+        self.checkColorMapAndGradientEquivalent(colorlist)
+        
     def create_rgb_gradient(self):
         # make a simple gradient which goes from R -> G -> B
         g = gradient.Gradient()
