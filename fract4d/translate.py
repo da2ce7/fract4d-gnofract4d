@@ -160,10 +160,14 @@ class TBase:
         else:
             datatype = node.datatype
             
-        # create param
+        # create param if not already present
+        name = "@" + node.leaf
+        v = self.symbols.get(name)
+        set_v = False
+        if not v:
+            v = Var(datatype, default_value(datatype), node.pos)
+            set_v = True
             
-        v = Var(datatype, default_value(datatype), node.pos)
-
         # process settings
         for child in node.children:
             if child.type == "set":
@@ -177,7 +181,9 @@ class TBase:
                 v.value = default_value(v.type)
             v.default = self.const_convert(v.default,v.type)
 
-        self.symbols["@" + node.leaf] = v
+        # if we created new var, write it back
+        if set_v:
+            self.symbols[name] = v
 
     def funcsetting(self,node,func):
         name = node.children[0].leaf
@@ -191,16 +197,23 @@ class TBase:
         # translate a func block
         name = "@" + node.leaf
 
-        f = Func([Complex],node.datatype,stdlib,"ident")
-        
+        fol = self.symbols.get(name)
+        set_f = False
+        if not fol:
+            f = Func([Complex],node.datatype,stdlib,"ident")
+            set_f = True
+        else:
+            f = fol[0]
+            
         # create func
         for child in node.children:
             if child.type == "set":
                 self.funcsetting(child,f)
             else:
                 self.error("%d: invalid statement in func block" % node.pos)
-            
-        self.symbols[name] = symbol.OverloadList([f])
+
+        if set_f:
+            self.symbols[name] = symbol.OverloadList([f])
         
     def setting(self,node):
         if node.type == "param":
@@ -268,6 +281,9 @@ class TBase:
     
     def set(self,node):
         name = node.children[0].leaf
+        if name == "method":
+            # skip this, we don't use it
+            return
         val = node.children[1]
         self.defaults[name] = self.const_exp(val)
     

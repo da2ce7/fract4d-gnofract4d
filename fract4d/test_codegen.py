@@ -392,6 +392,8 @@ bailout:
 
     def testBirch(self):
         'Test whether a UF formula which used to be problematic works'
+
+        # from jgr.ufm
         src = '''Birch {
 init:
   z=fn1(fn2((#pixel^@power)))
@@ -413,12 +415,70 @@ default:
 }
 '''
         t = self.translate(src)
-
-        #print "b", t.sections["bailout"].pretty()
         cg = codegen.T(t.symbols)
         cg.output_all(t)
         c = cg.output_c(t)
-        
+
+    def testDeclareP1andFN1(self):
+        'Test that having a param which clashes with built-in names is OK'
+
+        #from jos.ufm
+        src='''
+        Ball {
+init:
+  z = @ps
+  c = fn1(#pixel)*@jp
+loop:
+  z = @p1*c^@exp*z+@p3*z
+  c = c*@p2
+    
+bailout:  
+  |z| <= @bailout
+default:
+  title = "Ball"
+  maxiter=30
+  param ps
+     caption = "Start Parameter"
+     default = (20.0,0.0)
+  endparam
+param jp
+     caption = "Julia Parameter"
+     default = (1.0,0.0)
+  endparam
+
+  param p1
+     caption = "Param1"
+     default = (0.1,0.0)
+  endparam
+
+  param p2
+     caption = "Param2"
+     default = (0.95,0.0)
+  endparam
+param p3
+     caption = "Param3"
+     default = (0.0,0.0)
+  endparam
+  param exp
+     caption = "Exponent"
+     default = (1.0,0.0)
+  endparam
+
+param bailout
+    caption = "Bailout value"
+    default = 4000000.0    
+  endparam
+func fn1
+  caption = "Function 1"
+     default = ident()
+  endfunc
+}'''
+        t = self.translate(src)
+        cg = codegen.T(t.symbols)
+        cg.output_all(t)
+        c = cg.output_c(t)
+
+
     def testCF(self):
         tcf0 = self.translatecf('''
         biomorph {

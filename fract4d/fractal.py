@@ -870,7 +870,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         if ord == None:
             # no bailout value for this function
             return
-        params[ord] = self.bailout
+        params[ord] = float(self.bailout)
             
     def loadFctFile(self,f):
         line = f.readline()
