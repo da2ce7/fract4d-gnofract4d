@@ -147,6 +147,10 @@ class TranslateTest(testbase.TestBase):
         xyangle = 4.9
         center = (8.1,2.0)
         title = "Hello World"
+        param foo
+            caption = "Angle"
+            default = 10.0
+        endparam
         }''')
         self.assertNoErrors(t)
         self.assertEqual(t.defaults["maxiter"].value,100)
@@ -154,6 +158,11 @@ class TranslateTest(testbase.TestBase):
         self.assertEqual(t.defaults["center"][0].value,8.1)
         self.assertEqual(t.defaults["center"][1].value,2.0)
         self.assertEqual(t.defaults["title"].value,"Hello World")
+
+        k = t.symbols.parameters().keys()
+        k.sort()
+        exp_k = ["t__a_foo"]
+        self.assertEqual(k,exp_k)        
 
     def testStringErrors(self):
         t = self.translate('''t_se {
