@@ -63,7 +63,7 @@ class SettingsDialog(gtk.Dialog):
         table.attach(entry,1,2,row,row+1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         def set_entry(f):
-            entry.set_text("%.17f" % f.params[param])
+            entry.set_text("%.17f" % f.get_param(param))
 
         def set_fractal(*args):
             self.f.set_param(param,entry.get_text())

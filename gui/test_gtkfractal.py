@@ -124,11 +124,11 @@ class FctTest(unittest.TestCase):
         (xp,yp) = (f.width/2,f.height/2)
         f.onButtonPress(f.widget,FakeEvent(x=xp,y=yp))
         self.assertEqual((f.x,f.y,f.newx,f.newy),(xp,yp,xp,yp))
-        tparams = copy.copy(f.params)
+        tparams = copy.copy(f.params())
         tparams[f.MAGNITUDE] /= 2.0
 
         f.onButtonRelease(f.widget,FakeEvent(button=1))
-        self.assertEqual(f.params,tparams)
+        self.assertEqual(f.params(),tparams)
 
         # select entire screen & release should be a no-op
         f.onButtonPress(f.widget,FakeEvent(x=0,y=0))
@@ -138,7 +138,7 @@ class FctTest(unittest.TestCase):
         self.assertEqual((f.x,f.y,f.newx,f.newy),(0,0,f.width-1,f.height-1))
 
         f.onButtonRelease(f.widget,FakeEvent(button=1))
-        self.assertEqual(f.params,tparams)
+        self.assertEqual(f.params(),tparams)
 
         # same if you do the corners the other way and get newx automatically
         (wm1,hm1) = (f.width-1,f.height-1)
@@ -149,13 +149,13 @@ class FctTest(unittest.TestCase):
         self.assertEqual((f.x,f.y,f.newx,f.newy),(wm1,hm1,0,0))
 
         f.onButtonRelease(f.widget,FakeEvent(button=1))
-        self.assertEqual(f.params,tparams)
+        self.assertEqual(f.params(),tparams)
 
     def testZooms(self):
         # select each quarter of the screen to zoom into - check
         # that resulting params look correct
         f = self.f
-        tparams = copy.copy(f.params)
+        tparams = copy.copy(f.params())
         
         # select the top LH quadrant zooms and recenters
         f.onButtonPress(f.widget,FakeEvent(x=0,y=0))
@@ -166,7 +166,7 @@ class FctTest(unittest.TestCase):
         tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] /= 2.0
 
-        self.assertEqual(f.params,tparams)
+        self.assertEqual(f.params(),tparams)
 
         # top RH quadrant
         f.onButtonPress(f.widget,FakeEvent(x=f.width/2,y=0))
@@ -177,7 +177,7 @@ class FctTest(unittest.TestCase):
         tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] /= 2.0
 
-        self.assertEqual(f.params,tparams)
+        self.assertEqual(f.params(),tparams)
 
         # bottom LH quadrant
         f.onButtonPress(f.widget,FakeEvent(x=0,y=f.height/2))
@@ -188,7 +188,7 @@ class FctTest(unittest.TestCase):
         tparams[f.YCENTER] += tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] /= 2.0
 
-        self.assertEqual(f.params,tparams)
+        self.assertEqual(f.params(),tparams)
 
         # bottom RH quadrant
         f.onButtonPress(f.widget,FakeEvent(x=f.width/2,y=f.height/2))
@@ -199,18 +199,18 @@ class FctTest(unittest.TestCase):
         tparams[f.YCENTER] += tparams[f.MAGNITUDE]/4.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] /= 2.0
 
-        self.assertEqual(f.params,tparams)
+        self.assertEqual(f.params(),tparams)
 
     def testButton3(self):
         f = self.f
-        tparams = copy.copy(f.params)
+        tparams = copy.copy(f.params())
 
         # right click in center just zooms out
         evt = FakeEvent(button=3,x=f.width/2,y=f.height/2)
         f.onButtonRelease(f.widget,evt)
         tparams[f.MAGNITUDE] *= 2.0
 
-        self.assertEqual(f.params,tparams)
+        self.assertEqual(f.params(),tparams)
 
         # right click in top corner zooms + recenters
         evt = FakeEvent(button=3,x=0,y=0)
@@ -219,11 +219,11 @@ class FctTest(unittest.TestCase):
         tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
         tparams[f.MAGNITUDE] *= 2.0
 
-        self.assertEqual(f.params,tparams)
+        self.assertEqual(f.params(),tparams)
 
     def testButton2(self):
         f = self.f
-        tparams = copy.copy(f.params)
+        tparams = copy.copy(f.params())
 
         # middle click in center goes to Julia 
         evt = FakeEvent(button=2,x=f.width/2,y=f.height/2)
@@ -231,7 +231,7 @@ class FctTest(unittest.TestCase):
         tparams[f.XZANGLE] = math.pi/2
         tparams[f.YWANGLE] = math.pi/2
         
-        self.assertEqual(f.params,tparams)
+        self.assertEqual(f.params(),tparams)
 
         # middle click again goes back to Mandelbrot
         evt = FakeEvent(button=2,x=f.width/2,y=f.height/2)
@@ -239,7 +239,7 @@ class FctTest(unittest.TestCase):
         tparams[f.XZANGLE] = 0.0
         tparams[f.YWANGLE] = 0.0
         
-        self.assertEqual(f.params,tparams)
+        self.assertEqual(f.params(),tparams)
 
         # click off to one side changes center
         evt = FakeEvent(button=2,x=f.width,y=0)
@@ -249,7 +249,7 @@ class FctTest(unittest.TestCase):
         tparams[f.ZCENTER] += tparams[f.MAGNITUDE]/2.0
         tparams[f.WCENTER] -= tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
         
-        self.assertNearlyEqual(f.params,tparams)
+        self.assertNearlyEqual(f.params(),tparams)
 
         # click off to the other side changes xycenter
         evt = FakeEvent(button=2,x=0,y=f.height)
@@ -259,7 +259,7 @@ class FctTest(unittest.TestCase):
         tparams[f.XCENTER] -= tparams[f.MAGNITUDE]/2.0
         tparams[f.YCENTER] += tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
         
-        self.assertNearlyEqual(f.params,tparams)
+        self.assertNearlyEqual(f.params(),tparams)
 
     def assertNearlyEqual(self,a,b):
         # check that each element is within epsilon of expected value
