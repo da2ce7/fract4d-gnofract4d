@@ -21,8 +21,6 @@ class SymbolTest(unittest.TestCase):
 
     def testNoOverride(self):
         self.assertRaises(KeyError,self.t.__setitem__,("sqr"),1)
-        self.t["#wombat"] = Var(Int,1,7)
-        self.assertRaises(KeyError,self.t.__setitem__,"#wombat",1)
         
     def testAddCheckVar(self):
         self.t["fish"] = Var(Int,1)
@@ -51,6 +49,9 @@ class SymbolTest(unittest.TestCase):
 
     def test_clash_with_secret_vars(self):
         self.assertRaises(KeyError, self.t.__setitem__, ("t__temp0"), 1)
+
+    def testStartsWithHash(self):
+        self.assertRaises(KeyError,self.t.__setitem__,"#wombat",1)
 
     def testZ(self):
         self.assertEqual(self.t["z"].type, Complex)

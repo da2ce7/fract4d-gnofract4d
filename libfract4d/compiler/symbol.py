@@ -128,8 +128,13 @@ class T(UserDict):
             raise KeyError, ("symbol '%s' %s" % (key,msg))
         elif string.find(k,"t__",0,3)==0:
             raise KeyError, \
-                ("symbol '%s': no symbol starting with t__ is allowed" % key)
-        self.data[mangle(key)] = value
+                  ("symbol '%s': no symbol starting with t__ is allowed" % key)
+        elif key[0]=='#':
+            raise KeyError, \
+                  ("symbol '%s': only predefined symbols can begin with '#'" % key)
+        
+        
+        self.data[k] = value
         
     def __delitem__(self,key):
         del self.data[mangle(key)]
