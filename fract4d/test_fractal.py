@@ -192,6 +192,13 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
         self.assertEqual(f.title,"Hello World")
         self.assertEqual(f.initparams,[8.0,7.0,1.0])
 
+    def testCircle(self):
+        f = fractal.T(self.compiler)
+
+        f.set_formula("test.frm","test_circle")
+        f.reset()
+        self.assertEqual(f.initparams,[4.0])
+        
     def failBuf(self,buf):
         self.failUnless(False)
         

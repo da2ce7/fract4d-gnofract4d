@@ -2,6 +2,17 @@ parse_error {
   ===
 }
 
+test_circle {
+loop:
+z = pixel
+bailout:
+|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+}
+
 test_defaults {
 default:
 maxiter = 200

@@ -281,7 +281,8 @@ class T(FctUtils):
         handle = fract4dc.pf_load(self.outputfile)
         pfunc = fract4dc.pf_create(handle)
         cmap = fract4dc.cmap_create(self.colorlist)
-        
+
+        print "init with %s" % self.initparams
         fract4dc.pf_init(pfunc,0.001,self.initparams)
 
         fract4dc.calc(self.params,self.antialias,self.maxiter,1,
@@ -409,6 +410,7 @@ class T(FctUtils):
                 self.parseVal(name,val,f)
             
             line = f.readline()
+        self.reset()
         
 if __name__ == '__main__':
     import sys
