@@ -92,4 +92,4 @@ def suite():
     return unittest.makeSuite(LexerTest,'test')
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(defaultTest='suite')
