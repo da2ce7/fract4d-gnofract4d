@@ -45,6 +45,7 @@ class MainWindow:
         self.window.add(self.vbox)
         
         self.f = gtkfractal.T(self.compiler,self)
+        self.f.freeze() # create frozen - main prog will thaw us
         self.create_subfracts(self.f)
         
         self.set_filename(None)
@@ -76,7 +77,6 @@ class MainWindow:
         self.update_compiler_prefs(preferences.userPrefs)
         self.update_image_prefs(preferences.userPrefs)
         
-
         self.statuses = [ _("Done"),
                           _("Calculating"),
                           _("Deepening (%d iterations)"),
@@ -87,13 +87,11 @@ class MainWindow:
         if visible:
             for f in self.subfracts:
                 f.widget.show()
-            self.weirdness.show()
-            self.color_weirdness.show()
+            self.weirdbox.show_all()
         else:
             for f in self.subfracts:
                 f.widget.hide()
-            self.weirdness.hide()
-            self.color_weirdness.hide()
+            self.weirdbox.hide_all()
                 
         self.show_subfracts = visible
         self.update_image_prefs(preferences.userPrefs)
@@ -458,6 +456,7 @@ class MainWindow:
             self.toolbar_toggle_explorer,
             None)
 
+        
         self.weirdness_adjustment = gtk.Adjustment(
             20.0, 0.0, 100.0, 5.0, 5.0, 0.0)
 
@@ -468,12 +467,37 @@ class MainWindow:
         self.weirdness.set_update_policy(
             gtk.UPDATE_DISCONTINUOUS)
 
+        self.weirdbox = gtk.VBox()
+        shapebox = gtk.HBox(False,2)
+        shape_label = gtk.Label(_("Shape:"))
+        shapebox.pack_start(shape_label)
+        shapebox.pack_start(self.weirdness)
+
+        self.weirdbox.pack_start(shapebox)
+        
+        self.toolbar.append_element(
+            gtk.TOOLBAR_CHILD_WIDGET,            
+            self.weirdbox,
+            _("Weirdness"),
+            _("How different to make the random mutant fractals"),
+            None,
+            None,
+            None,
+            None
+            )
+
         self.color_weirdness_adjustment = gtk.Adjustment(
             20.0, 0.0, 100.0, 5.0, 5.0, 0.0)
 
         self.color_weirdness = gtk.HScale(self.color_weirdness_adjustment)
         self.color_weirdness.set_size_request(100, 20)
         self.color_weirdness.set_property("value-pos",gtk.POS_RIGHT)
+
+        colorbox = gtk.HBox(False,2)
+        color_label = gtk.Label(_("Color:"))
+        colorbox.pack_start(color_label)
+        colorbox.pack_start(self.color_weirdness)
+        self.weirdbox.pack_start(colorbox)
         
         self.color_weirdness.set_update_policy(
             gtk.UPDATE_DISCONTINUOUS)
@@ -486,28 +510,6 @@ class MainWindow:
         self.color_weirdness_adjustment.connect(
             'value-changed',on_weirdness_changed)
         
-        self.toolbar.append_element(
-            gtk.TOOLBAR_CHILD_WIDGET,            
-            self.weirdness,
-            _("Weirdness"),
-            _("How different to make the random mutant fractals"),
-            None,
-            None,
-            None,
-            None
-            )
-
-        self.toolbar.append_element(
-            gtk.TOOLBAR_CHILD_WIDGET,            
-            self.color_weirdness,
-            _("Color Weirdness"),
-            _("How different to make the colors of the mutant fractals"),
-            None,
-            None,
-            None,
-            None
-            )
-
     def toolbar_toggle_explorer(self,widget):
         self.set_explorer_state(widget.get_active())
 
@@ -714,6 +716,7 @@ class MainWindow:
                 if self.load_formula(fs.get_filename()):
                     break
             else:
+                fs.destroy()
                 return
             
         fs.destroy()
