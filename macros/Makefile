@@ -38,10 +38,10 @@ pkglibdir = $(libdir)/gnofract4d
 pkgincludedir = $(includedir)/gnofract4d
 top_builddir = ..
 
-ACLOCAL = ${SHELL} /home/edwin/gnofract4d-ng/missing --run aclocal-1.6 -I macros
-AUTOCONF = ${SHELL} /home/edwin/gnofract4d-ng/missing --run autoconf
-AUTOMAKE = ${SHELL} /home/edwin/gnofract4d-ng/missing --run automake-1.6
-AUTOHEADER = ${SHELL} /home/edwin/gnofract4d-ng/missing --run autoheader
+ACLOCAL = ${SHELL} /home/edwin/gnofract4d/missing --run aclocal-1.6 -I macros
+AUTOCONF = ${SHELL} /home/edwin/gnofract4d/missing --run autoconf
+AUTOMAKE = ${SHELL} /home/edwin/gnofract4d/missing --run automake-1.6
+AUTOHEADER = ${SHELL} /home/edwin/gnofract4d/missing --run autoheader
 
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = /usr/bin/install -c
@@ -65,7 +65,7 @@ host_triplet = i686-pc-linux-gnu
 EXEEXT = 
 OBJEXT = o
 PATH_SEPARATOR = :
-AMTAR = ${SHELL} /home/edwin/gnofract4d-ng/missing --run tar
+AMTAR = ${SHELL} /home/edwin/gnofract4d/missing --run tar
 AS = @AS@
 AWK = gawk
 BUILD_INCLUDED_LIBINTL = @BUILD_INCLUDED_LIBINTL@
@@ -130,7 +130,7 @@ am__include = include
 am__quote = 
 cflags_set = yes
 cxxflags_set = @cxxflags_set@
-install_sh = /home/edwin/gnofract4d-ng/install-sh
+install_sh = /home/edwin/gnofract4d/install-sh
 MACROS = \
   aclocal-include.m4				\
   compiler-flags.m4				\
