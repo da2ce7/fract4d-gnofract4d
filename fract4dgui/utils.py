@@ -49,13 +49,13 @@ def get_rgb_colormap():
 def get_file_save_chooser(title, parent):
     try:
         return gtk.FileChooserDialog(
-            title, parent, gtk.FILE_CHOOSER_ACTION_SAVE)
+            title, parent, gtk.FILE_CHOOSER_ACTION_SAVE, (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
     except:
         return gtk.FileSelection(title)
 
-def get_file_save_chooser(title, parent):
+def get_file_open_chooser(title, parent):
     try:
         return gtk.FileChooserDialog(
-            title, parent, gtk.FILE_CHOOSER_ACTION_OPEN)
+            title, parent, gtk.FILE_CHOOSER_ACTION_OPEN, (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
     except:
         return gtk.FileSelection(title)
