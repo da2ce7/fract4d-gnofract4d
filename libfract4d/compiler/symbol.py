@@ -52,11 +52,10 @@ def createDefaultDict():
         "||": [ Func([Bool, Bool], Bool) ],
         "!" : [ Func([Bool],Bool) ],
         
-        "#pixel": Var(Complex,0.0), # fixme, value 
-        "#z" : Var(Complex,0.0),
-        "z"  : Var(Complex,0.0), # same as #z
+        "#pixel": Var(Complex), 
+        "#z" : Var(Complex),
+        "z"  : Var(Complex), # FIXME: same as #z
 
-        "iter" : Var(Int, 0) # number of iterations
         }
     return d
 
@@ -111,5 +110,5 @@ class T(UserDict):
         name = "t__temp%d" % self.nextTemp
         self.nextTemp += 1
         # bypass normal setitem because that checks for t__
-        self.data[name] = Var(type,0) # fixme type of value
+        self.data[name] = Var(type) 
         return name
