@@ -48,8 +48,10 @@ def createDefaultDict():
 
         # arithmetic
         "%":  efl("mod",   "[_,_] , _", [Int, Float]),
-        "/":  efl("div",   "[_,_] , _", [Float, Complex]) + \
-              [ Func([Color, Float], Float, stdlib, "div")],
+        "/":  [ Func([Float, Float], Float, stdlib, "div"),
+                Func([Complex, Float], Complex, stdlib, "div"),
+                Func([Complex, Complex], Complex, stdlib, "div"),
+                Func([Color, Float], Float, stdlib, "div")],
         "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex]) + \
               [ Func([Color, Float], Float, stdlib, "mul")],
         "+":  efl("add",   "[_,_] , _", [Int, Float, Complex, Color]),
