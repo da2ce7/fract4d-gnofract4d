@@ -12,6 +12,7 @@ todo for 2.3
 * W	assert that correct number of params passed to init()
 * B	click on colormap calls calc() twice
 * B	recoloring during deepening can make things shallower
+* BB	intermittently failing test in test_fract4d
 
 UF Incompatibilities
 * W	boolean, int, enum params 

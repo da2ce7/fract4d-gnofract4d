@@ -142,7 +142,7 @@ class MainWindow:
         f.connect('parameters-changed', self.on_fractal_change)
         f.connect('formula-changed', self.on_formula_change)
         
-        window.set_size_request(640+8,480+8)
+        window.set_size_request(640+8,400+8)
 
         self.fixed = gtk.Fixed()
         self.ftable = gtk.Table(4,4,False)
