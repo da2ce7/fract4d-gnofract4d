@@ -61,11 +61,11 @@ def p_formbody_sectlist(t):
      
 def p_sectlist_2(t):
      'sectlist : section sectlist'
-     t[0] = [ t[1] ] + t[2]
+     t[0] = listify(t[1]) + t[2]
 
-def p_sectlist_empty(t):
-     'sectlist : empty'
-     t[0] = [] # absyn.Empty() ]
+def p_sectlist_section(t):
+     'sectlist : section'
+     t[0] = listify(t[1])
 
 def p_section_set(t):
      '''section : SECT_SET NEWLINE setlist
