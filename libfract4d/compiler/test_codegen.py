@@ -10,7 +10,8 @@ import codegen
 class CodegenTest(unittest.TestCase):
     def setUp(self):
         self.fakeNode = absyn.Empty(0)
-        pass
+        self.codegen = codegen.T(symbol.T())
+
     def tearDown(self):
         pass
 
@@ -52,10 +53,20 @@ class CodegenTest(unittest.TestCase):
         self.assertMatchResult(tree, template,1)
         
     def assertMatchResult(self, tree, template,result):
-        template = eval(codegen.expand(template))
-        self.assertEqual(codegen.match_template(tree,template),result,
+        template = self.codegen.expand(template)
+        self.assertEqual(self.codegen.match_template(tree,template),result,
                          "%s mismatches %s" % (tree.pretty(),template))
-        
+
+    def testWhichMatch(self):
+        tree = self.binop([self.const(),self.const()])
+        self.assertEqual(self.codegen.match(tree).__name__,"binop_const_exp")
+
+    def testGen(self):
+        tree = self.binop([self.const(),self.var()])
+        self.codegen.generate_code(tree)
+        for insn in self.codegen.out:
+            print insn
+            
 def suite():
     return unittest.makeSuite(CodegenTest,'test')
 
