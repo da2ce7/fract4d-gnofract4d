@@ -239,7 +239,7 @@ double z_im = params[3];
 
 /* variable declarations */
 %(decls)s
-int t__p_nIters = 0;
+int t__h_numiter = 0;
 %(init)s
 t__end_init:
 do
@@ -250,8 +250,8 @@ do
     %(bailout)s
     t__end_bailout:
     %(bailout_inserts)s
-    t__p_nIters++;
-}while(%(bailout_var)s && t__p_nIters < t__p_nMaxIters);
+    t__h_numiter++;
+}while(%(bailout_var)s && t__h_numiter < t__p_nMaxIters);
 
 %(pre_final_inserts)s
 %(final)s
@@ -259,8 +259,8 @@ t__end_final:
 %(done_inserts)s
 
 /* fate of 0 = escaped, 1 = trapped */
-*t__p_pFate = (t__p_nIters >= t__p_nMaxIters);
-*t__p_pnIters = t__p_nIters;
+*t__p_pFate = (t__h_numiter >= t__p_nMaxIters);
+*t__p_pnIters = t__h_numiter;
 
 return;
 }
@@ -327,17 +327,22 @@ pf_obj *pf_new()
     def emit_label(self,name):
         self.out.append(Label(name))
         
-    def output_symbols(self,overrides):
+    def output_symbols(self,user_overrides):
+        overrides = {"z" : "", "pixel" : "", "t__h_numiter" : ""}
+        for (k,v) in user_overrides.items():
+            #print "%s = %s" % (k,v)
+            overrides[k] = v
+            
         out = []
         op = self.symbols.order_of_params()
         for (key,sym) in self.symbols.items():
             if isinstance(sym,fracttypes.Var):
                 t = fracttypes.ctype(sym.type)
                 val = sym.value
-                override = overrides.get(key,None)
+                override = overrides.get(key)
                 if override == None:
                     if sym.type == fracttypes.Complex:
-                        ord = op.get(key,None)
+                        ord = op.get(key)
                         if ord == None:
                             out += [ Decl("%s %s_re = %.17f;" % (t,key,val[0])),
                                      Decl("%s %s_im = %.17f;" % (t,key,val[1]))]
@@ -442,8 +447,10 @@ pf_obj *pf_new()
             pass
         
         if dst == None:
-            msg = "Invalid Cast from %s to %s" % (child.datatype, t.datatype)
-            raise TranslationError(msg)
+            msg = "Invalid Cast from %s to %s" % \
+                  (fracttypes.strOfType(child.datatype),
+                   fracttypes.strOfType(t.datatype))
+            raise fracttypes.TranslationError(msg)
         
         return dst
                 

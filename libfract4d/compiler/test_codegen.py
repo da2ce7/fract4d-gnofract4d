@@ -129,6 +129,7 @@ int main()
         pf_fake f;
         f.p = params;
         pf_fake *pfo = &f;
+        double z_re = 0.0, z_im = 0.0, pixel_re = 0.0, pixel_im = 0.0;
         '''
         decls = string.join(map(lambda x: x.format(),
                                 self.codegen.output_symbols({})),"\n")
@@ -327,10 +328,13 @@ a_im = t__temp2;
 goto t__end_init;''')
         
     def testSymbols(self):
-        z = self.codegen.symbols["z"] # ping z to get it in output list
+        self.codegen.symbols["q"] = Var(Complex)
+        z = self.codegen.symbols["q"] # ping z to get it in output list
         out = self.codegen.output_symbols({})
-        l = [x for x in out if x.assem == "double z_re = 0.00000000000000000;"]
-        self.failUnless(len(l)==1)
+        l = [x for x in out if x.assem == "double q_re = 0.00000000000000000;"]
+        self.failUnless(len(l)==1,l)
+
+        z = self.codegen.symbols["z"] # ping z to get it in output list
         out = self.codegen.output_symbols({ "z" : "foo"})
         l = [x for x in out if x.assem == "foo"]
         self.failUnless(len(l)==1)
@@ -415,7 +419,19 @@ goto t__end_init;''')
         c_code = self.makeC("", postamble)        
         output = self.compileAndRun(c_code)
         self.assertEqual(output,"x = (0,0)\ny = (7,1)")
-        
+
+    def testAndy3(self):
+        # this caused an error
+        t = self.translate('''andy03 {
+        z = c = pixel/4:
+        z = p1*z + c
+        z = p2*z^3 + c
+        z = c + c/2 + z
+        ;SOURCE: andy_1.frm
+        }''')
+
+        self.assertNoErrors(t)
+
     def testUseBeforeAssign(self):
         src = 't_uba0{\ninit: z = z - x\n}'
         self.assertCSays(src,"init",self.inspect_complex("z"),
@@ -523,7 +539,7 @@ bailout:
 |z| < 4.0
 }'''
         t = self.translate(src)
-        self.codegen.output_all(t, {"z" : "", "pixel" : ""} )
+        self.codegen.output_all(t)
 
         inserts = {
             "loop_inserts":"printf(\"(%g,%g)\\n\",z_re,z_im);",
