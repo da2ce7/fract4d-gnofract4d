@@ -179,11 +179,12 @@ sources, notably <emphasis>Fractint</>. I've tried to keep the names
 consistent.
 </para>
 <para>
-The <emphasis>Cubic Mandelbrot</> function calculates z^3 + c, rather
-than the standard z^2 +c. The <emphasis>Quadratic</> function
+The <emphasis>Quadratic</> function
 calculates a family of functions of the form A*z^2 - B*z + C*c.
+The <emphasis>Cubic Mandelbrot</> function calculates z^3 + c, rather
+than the standard z^2 +c. 
 <emphasis>MandelZPower</> calculates z^A + c, where A is a complex parameter. 
-Setting this to 2.0 produces the standard Mandelbrot set.
+Setting this to 2.0 produces the standard Mandelbrot set, and 3.0 produces the cubic mandelbrot. The more specialized functions are naturally much faster.
 </para>
 <para>
 The <emphasis>Lambda</> function calculates lambda * z * ( 1 - z). The
@@ -196,6 +197,7 @@ The <emphasis>Barnsley</> fractals originally come from Michael Barnsley's book
 have copied the implementation from Fractint. 
 </para>
 <para>
+The <emphasis>Mandelbar</> fractal is the same as the Mandelbrot, except that the complex conjugate of the number is used at each iteration step, eg z &lt;- (x + i |y|)^2 + c.
 The <emphasis>Burning Ship</> and <emphasis>Buffalo</> fractals are
 described on the web page <ulink
 url="http://www.theory.org/fracdyn/">http://www.theory.org/fracdyn/</ulink>.
@@ -207,7 +209,7 @@ making it equivalent to the Quadratic type with the "absolute value"
 modification.
 </para>
 
-<para><emphasis>Nova</> is Paul Derbyshire's Nova fractal.<emphasis>Newton</> Newton's method applied to a polynomial.</para>
+<para><emphasis>Nova</> is Paul Derbyshire's Nova fractal.<emphasis>Newton</> is Newton's method applied to z^a - 1.</para>
 
 </sect1>
 
@@ -236,6 +238,11 @@ you're looking at something else, you'll get something weird. Note
 that clicking this twice doesn't take you back to where you started:
 the screen gets recentered on the point you clicked.
 </para> 
+
+<para>
+In explorer mode, the central window behaves the same as normal - you
+can zoom as normal. The smaller windows only understand left-click,
+which transfers that image to the central window.  </para>
 
 <para>
 The cursor keys pan around the image. Hold down Control + cursor to
@@ -283,10 +290,14 @@ also affects parameters such as color, not just position on screen.
 </para>
 
 <para>
+
 The <emphasis>Explorer</> mode helps you find neat-looking fractals
-easily. It divides the screen into 9 sections; the central section is
+easily. It divides the screen into a large central section and smaller
+"subfractals" which surround it.
+
+The central section is
 the main image - you can click on this to zoom in, or update it as
-normal. The other eight images around the edges are "mutant" versions
+normal. The other images around the edges are "mutant" versions
 of the main image - they're formed by starting with the base
 parameters and randomly changing them a bit. Whenever you change the
 main images, you get a whole new set of mutants. If you like a mutant
@@ -311,13 +322,8 @@ disk. I recommend using .png images for high quality output, or JPEGs
 when image size is important. GIFs are not recommended, since they can
 only manage 256 colors.
 
-<guimenuitem>Reset Parameters</guimenuitem> returns you to the
-standard view, in case you get lost. <guimenuitem>Reset
-Zoom</guimenuitem> zooms out so the picture is four units on a side,
-but doesn't reset the other parameters. <guimenuitem>Save
-Parameters</guimenuitem> and <guimenuitem>Load
-Parameters</guimenuitem> save and load plain-text parameter
-description files, so you can return to images in the future.
+<guimenuitem>Open Parameter File</guimenuitem> and <guimenuitem>Save Parameter File</guimenuitem> load and save plain-text parameter
+description files (extension ".fct"), so you can return to images in the future.
 <guimenuitem>Pause</guimenuitem> temporarily halts the current
 calculation, in the unlikely event you have something more important
 than generating fractals to do.
@@ -356,9 +362,9 @@ parameters there are depends on the fractal type.
 </sect3>
 
 <sect3 id="rendering">
-<title>Rendering Section</title>
-<para>
-This has various options to trade off image quality against rendering time.
+<title>Rendering Section</title> <para> This has various options to
+trade off image quality against rendering time and generally change
+the appearance of the image.
 
 <emphasis>Antialiasing</> makes the image smoother and nice looking,
 but takes a lot longer to draw (up to five times
@@ -372,11 +378,19 @@ If <emphasis>Auto Deepening</> is on, the maximum number of iterations
 is set automatically by Gnofract 4D but you can change it by hand whenever
 you like.
 
-<emphasis> Continuous Potential </> gives a much smoother image, by
-basing the color not only on how many iterations the point took to
-escape, but on how far away from the origin it ended up on its last iteration.
-</para>
-</sect3>
+<emphasis> Inner </> and <emphasis> Outer </> select the function used
+to translate the raw fractal data into colors, for the inside and
+outside of the set respectively. The functions have the following
+effects: <emphasis>Iteration Count</> uses the number of iterations
+required to bail out to set the color directly.  <emphasis> Continuous
+Potential </> gives a much smoother image, by basing the color not
+only on how many iterations the point took to escape, but on how far
+away from the origin it ended up on its last
+iteration. <emphasis>Ejection Distance</> ignores the count altogether
+and uses only the distance. <emphasis>Decomposition</> chooses one of
+four colors based on the location in the complex plane of the point's
+final position.<emphasis> Angle</> translates the angle between the
+point's final position and the x-axis into a color.</para> </sect3>
 
 <sect3 id="bailout">
 <title>Bailout Section</title>
@@ -426,6 +440,7 @@ fractal). This section allows you to specify a location for the
 compiler and options to pass to it. <emphasis>If Gnofract 4D is working
 fine, I suggest you leave this area alone.</></para>
 </sect2>
+
 </sect1>
 
 <sect1 id="about">

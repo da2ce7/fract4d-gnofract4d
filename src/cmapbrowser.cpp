@@ -611,7 +611,7 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
 
     /* make pages */
     GtkWidget *table = create_current_maps_page(notebook, m);
-    GtkWidget *table3 = create_edit_colormap_page(notebook,m);
+    //GtkWidget *table3 = create_edit_colormap_page(notebook,m);
     GtkWidget *table2 = create_new_color_page(notebook, m);
 
 
@@ -626,12 +626,12 @@ create_cmap_browser(GtkMenuItem *menu, model_t *m)
         GTK_OBJECT(f), "status_changed", 
         GTK_SIGNAL_FUNC(preview_status_callback),
         table2);
-
+/*
     gtk_signal_connect(
         GTK_OBJECT(f), "status_changed", 
         GTK_SIGNAL_FUNC(preview_status_callback),
         table3);
-    
+*/    
     /* kick off async update */
     gf4d_fractal_calc(f,1);
 

@@ -37,6 +37,7 @@ Other
 * B	pause doesn't stop subfracts
 * BB	stupid options dialog would be better as tabbed dialog
 * W	pass colorFuncs by value instead of enum
+* W	remember .fct filenames and re-save to same place
 
 Movies-
 * B	deadlock when render movie while image is being drawn
@@ -50,19 +51,22 @@ Movies-
 * B	lines are ugly
 
 CmapEditor
-* W	put "click to apply" next to preview
+* W	put "click to apply" right next to preview
 * B	update previews doesn't expose colorbuts
 * B 	setting to an rgb_cizer permanently breaks cmap editor
 * W	color cycling
 * W	choose range + smooth
-* W	choose every N in range
+* W	choose every other in range
+* W 	save new .map + add to preview list
+* W 	remove debug printfs
 
 Must do pre 1.7
 * W	finish cmapeditor
 * W	update docs
-* B	outer_cf not saved correctly - itercount changes to cont_potential
+* W	is it really faster w/out HAS_X2 ?
 
 Done:
+* B	outer_cf not saved correctly - itercount changes to cont_potential
 * B 	something wrong with zero'th iteration with manzpower - unroll-related
 * B	nova, quadratic (options) doesn't work w gcc 2.96 unless -O0
 * W	disable periodicity if innerFunc != color zero
