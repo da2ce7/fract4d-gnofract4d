@@ -9,9 +9,83 @@ import sys
 sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4d
 
+#typedef enum
+#
+#   BAILOUT_MAG = 0,
+#   BAILOUT_MANH,
+#   BAILOUT_MANH2,
+#   BAILOUT_OR,
+#   BAILOUT_AND,
+#   BAILOUT_REAL,
+#   BAILOUT_IMAG,
+#   BAILOUT_DIFF
+# e_bailFunc;
 
-class T:
+# generally useful funcs for reading in .fct files
+class FctUtils:
+    def __init__(self):
+        self.endsect = "[endsection]"
+        self.tr = string.maketrans("[]","__")
+        
+    def parseVal(self,name,val,f,sect=""):
+        # try to find a method matching name        
+        meth = "parse_" + sect + name.translate(self.tr)
+        try:
+            return self.__class__.__dict__[meth](self,val,f)
+        except KeyError:
+            #print "ignoring unknown attribute %s" % meth
+            pass
+
+    def nameval(self,line):
+        x = line.rstrip().split("=",1)
+        if len(x) == 0: return (None,None)
+        if len(x) < 2:
+            val = None
+        else:
+            val = x[1]
+        return (x[0],val)
+
+class Colorizer(FctUtils):
+    def __init__(self):
+        FctUtils.__init__(self)
+        self.name = "default"
+        self.colorlist = []
+
+    def load(self,f):
+        line = f.readline()
+        while line != "":
+            (name,val) = self.nameval(line)
+            if name != None:
+                if name == self.endsect: break
+                self.parseVal(name,val,f)
+            line = f.readline()
+
+    def parse_colorizer(self,val,f):
+        colorfunc_names = [
+            "default", 
+            "continuous_potential",
+            "zero",
+            "ejection_distance",
+            "decomposition",
+            "external_angle"]
+
+        self.name = colorfunc_names[int(val)]
+        #print "colorizer:", self.name
+
+    def parse_colordata(self,val,f):
+        nc =len(val)//6
+        i = 0
+        self.colorlist = []
+        while i < nc:
+            pos = i*6
+            (r,g,b) = (val[pos:pos+2],val[pos+2:pos+4],val[pos+4:pos+6])
+            c = (float(i)/(nc-1),int(r,16),int(g,16),int(b,16),255)
+            self.colorlist.append(c)
+            i+= 1
+        
+class T(FctUtils):
     def __init__(self,compiler):
+        FctUtils.__init__(self)
         # set up defaults
         self.params = [
             0.0, 0.0, 0.0, 0.0, # center
@@ -22,7 +96,6 @@ class T:
         self.bailout = 4.0
         self.funcName = "Mandelbrot"
         self.maxiter = 256
-        self.endsect = "[endsection]"
         self.antialias = 1
 
         # utilities - this fakes a C-style enum
@@ -33,14 +106,13 @@ class T:
         for name in paramnames:
             self.__dict__[name] = i
             i += 1
-        
-        self.tr = string.maketrans("[]","__")
 
         # formula support
         self.formula = None
         self.cfuncs = [None,None]
         self.compiler = compiler
         self.outputfile = None
+        self.set_formula("gf4d.frm","Mandelbrot")
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","default")
 
@@ -119,14 +191,6 @@ class T:
         fract4d.calc(self.params,self.antialias,self.maxiter,1,
                      pfunc,cmap,1,image,self.site)
 
-    def parseVal(self,name,val,f,sect=""):
-        # try to find a method matching name        
-        meth = "parse_" + sect + name.translate(self.tr)
-        try:
-            self.__class__.__dict__[meth](self,val,f)
-        except KeyError:
-            #print "ignoring unknown attribute %s" % meth
-            pass
         
     def set_param(self,n,val):
         self.params[n] = float(val)
@@ -143,7 +207,17 @@ class T:
     def parse_func_function(self,val,f):
         self.funcName = val
         self.set_formula("gf4d.frm",self.funcName)
-        
+
+    def parse__colorizer_(self,val,f):
+        which_cf = int(val)
+        cf = Colorizer()
+        cf.load(f)        
+        if which_cf == 0:
+            self.set_outer("gf4d.cfrm",cf.name)
+            self.colorlist = cf.colorlist
+        elif which_cf == 1:
+            self.set_inner("gf4d.cfrm",cf.name)        
+                
     def parse_x(self,val,f):
         self.set_param(self.XCENTER,val)
 
@@ -185,15 +259,6 @@ class T:
 
     def parse_antialias(self,val,f):
         self.antialias = int(val)
-
-    def nameval(self,line):
-        x = line.rstrip().split("=",1)
-        if len(x) == 0: return (None,None)
-        if len(x) < 2:
-            val = None
-        else:
-            val = x[1]
-        return (x[0],val)
     
     def loadFctFile(self,f):
         line = f.readline()
