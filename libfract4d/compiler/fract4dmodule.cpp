@@ -9,6 +9,7 @@
 #include "pf.h"
 #include "cmap.h"
 #include "fractFunc.h"
+#include "image.h"
 
 /* not sure why this isn't defined already */
 #ifndef PyMODINIT_FUNC 
@@ -71,7 +72,7 @@ pf_delete(void *p)
 static PyObject *
 pf_create(PyObject *self, PyObject *args)
 {
-    struct pfHandle *pfh = malloc(sizeof(struct pfHandle));
+    struct pfHandle *pfh = (pfHandle *)malloc(sizeof(struct pfHandle));
     void *dlHandle;
     PyObject *pyobj;
     pf_obj *(*pfn)(void); 
@@ -122,7 +123,7 @@ pf_init(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    pfh = PyCObject_AsVoidPtr(pyobj);
+    pfh = (struct pfHandle *)PyCObject_AsVoidPtr(pyobj);
     /* printf("pfo:%p\n",pfo); */
 
     if(!PySequence_Check(pyarray))
@@ -135,7 +136,7 @@ pf_init(PyObject *self, PyObject *args)
     int len = PySequence_Size(pyarray);
     if(len == 0)
     {
-	params = malloc(sizeof(double));
+	params = (double *)malloc(sizeof(double));
 	params[0] = 0.0;
     }
     else if(len > PF_MAXPARAMS)
@@ -146,7 +147,7 @@ pf_init(PyObject *self, PyObject *args)
     else
     {
 	int i = 0;
-	params = malloc(len * sizeof(double));
+	params = (double *)malloc(len * sizeof(double));
 	if(!params) return NULL;
 	for(i = 0; i < len; ++i)
 	{
@@ -172,6 +173,7 @@ pf_init(PyObject *self, PyObject *args)
 	pfh->pfo->vtbl->init(pfh->pfo,period_tolerance,params,len);
 	free(params);
     }
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -198,7 +200,7 @@ pf_calc(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    pfh = PyCObject_AsVoidPtr(pyobj);
+    pfh = (struct pfHandle *)PyCObject_AsVoidPtr(pyobj);
     pfh->pfo->vtbl->calc(pfh->pfo,params,
 		    nIters,nNoPeriodIters,
 		    x,y,aa,
@@ -274,7 +276,7 @@ cmap_pylookup(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    cmap = PyCObject_AsVoidPtr(pyobj);
+    cmap = (cmap_t *)PyCObject_AsVoidPtr(pyobj);
     if(!cmap)
     {
 	return NULL;
@@ -287,8 +289,126 @@ cmap_pylookup(PyObject *self, PyObject *args)
     return pyret;
 }
 
-static 
-PyObject *pycalc(PyObject *self, PyObject *args)
+
+class PySite :public IFractalSite
+{
+public:
+    PySite(
+	PyObject *parameters_changed_cb_,
+	PyObject *image_changed_cb_,
+	PyObject *progress_changed_cb_,
+	PyObject *status_changed_cb_,
+	PyObject *is_interrupted_cb_)
+	{
+	    parameters_changed_cb = parameters_changed_cb_;
+	    image_changed_cb =image_changed_cb_;
+	    progress_changed_cb = progress_changed_cb_;
+	    status_changed_cb = status_changed_cb_;
+	    is_interrupted_cb = is_interrupted_cb_;
+	    
+	    Py_INCREF(parameters_changed_cb);
+	    Py_INCREF(image_changed_cb);
+	    Py_INCREF(progress_changed_cb);
+	    Py_INCREF(status_changed_cb);
+	    Py_INCREF(is_interrupted_cb);
+	}
+
+    virtual void parameters_changed()
+	{
+	    PyObject *args = Py_BuildValue("");
+	    PyObject *ret = PyEval_CallObject(parameters_changed_cb,args);
+	    Py_DECREF(ret);
+	}
+    
+    // we've drawn a rectangle of image
+    virtual void image_changed(int x1, int x2, int y1, int y2)
+	{
+	    
+	}
+    // estimate of how far through current pass we are
+    virtual void progress_changed(float progress)
+	{
+
+	}
+    // one of the status values above
+    virtual void status_changed(int status_val)
+	{
+
+	}
+
+    // return true if we've been interrupted and are supposed to stop
+    virtual bool is_interrupted()
+	{
+	    return false;
+	}
+
+    ~PySite()
+	{
+	    Py_DECREF(parameters_changed_cb);
+	    Py_DECREF(image_changed_cb);
+	    Py_DECREF(progress_changed_cb);
+	    Py_DECREF(status_changed_cb);
+	    Py_DECREF(is_interrupted_cb);
+	}
+private:
+    PyObject *parameters_changed_cb;
+    PyObject *image_changed_cb;
+    PyObject *progress_changed_cb;
+    PyObject *status_changed_cb;
+    PyObject *is_interrupted_cb;
+};
+
+static void
+site_delete(IFractalSite *site)
+{
+    delete site;
+}
+
+static PyObject *
+pysite_create(PyObject *self, PyObject *args)
+{
+    PyObject *parameters_changed_cb;
+    PyObject *image_changed_cb;
+    PyObject *progress_changed_cb;
+    PyObject *status_changed_cb;
+    PyObject *is_interrupted_cb;
+
+    if(!PyArg_ParseTuple(
+	   args,
+	   "OOOOO",
+	   &parameters_changed_cb,
+	   &image_changed_cb,
+	   &progress_changed_cb,
+	   &status_changed_cb,
+	   &is_interrupted_cb))
+    {
+	return NULL;
+    }
+
+    if(!PyCallable_Check(parameters_changed_cb) ||
+       !PyCallable_Check(image_changed_cb) ||
+       !PyCallable_Check(progress_changed_cb) ||
+       !PyCallable_Check(status_changed_cb) ||
+       !PyCallable_Check(is_interrupted_cb))
+    {
+	PyErr_SetString(PyExc_ValueError,"All arguments must be callable");
+	return NULL;
+    }
+
+    IFractalSite *site = new PySite(
+	parameters_changed_cb,
+	image_changed_cb,
+	progress_changed_cb,
+	status_changed_cb,
+	is_interrupted_cb);
+
+    PyObject *pyret = PyCObject_FromVoidPtr(site,(void (*)(void *))site_delete);
+
+    return pyret;
+}
+
+static PyObject *
+pycalc(PyObject *self, PyObject *args)
 {
     PyObject *pypfo, *pycmap, *pyim, *pysite;
     double params[N_PARAMS];
@@ -300,6 +420,7 @@ PyObject *pycalc(PyObject *self, PyObject *args)
     IFractalSite *site;
 
     if(!PyArg_ParseTuple(
+	   args,
 	   "(dddddddddddd)iiiOOiOO",
 	   &params[0],&params[1],&params[2],&params[3],
 	   &params[4],&params[5],&params[6],&params[7],
@@ -313,10 +434,10 @@ PyObject *pycalc(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    cmap = PyCObject_AsVoidPtr(pycmap);
-    pfo = PyCObject_AsVoidPtr(pypfo);
-    im = PyCObject_AsVoidPtr(pyim);
-    site = PyCObject_AsVoidPtr(pysite);
+    cmap = (cmap_t *)PyCObject_AsVoidPtr(pycmap);
+    pfo = ((pfHandle *)PyCObject_AsVoidPtr(pypfo))->pfo;
+    im = (IImage *)PyCObject_AsVoidPtr(pyim);
+    site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);
     if(!cmap || !pfo || !im || !site)
     {
 	return NULL;
@@ -324,8 +445,52 @@ PyObject *pycalc(PyObject *self, PyObject *args)
 
     calc(params,eaa,maxiter,nThreads,pfo,cmap,auto_deepen,im,site);
 
+    Py_INCREF(Py_None);
     return Py_None;
 }
+
+static void
+image_delete(IImage *image)
+{
+    delete image;
+}
+
+static PyObject *
+image_create(PyObject *self, PyObject *args)
+{
+    int x, y;
+
+    if(!PyArg_ParseTuple(args,"ii",&x,&y))
+    { 
+	return NULL;
+    }
+
+    IImage *i = new image();
+    i->set_resolution(x,y);
+
+    PyObject *pyret = PyCObject_FromVoidPtr(i,(void (*)(void *))image_delete);
+
+    return pyret;
+}
+
+static PyObject *
+image_resize(PyObject *self, PyObject *args)
+{
+    int x, y;
+    PyObject *pyim;
+
+    if(!PyArg_ParseTuple(args,"Oii",&pyim,&x,&y))
+    { 
+	return NULL;
+    }
+
+    IImage *i = (IImage *)PyCObject_AsVoidPtr(pyim);
+    i->set_resolution(x,y);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 
 static PyMethodDef PfMethods[] = {
     {"pf_load",  pf_load, METH_VARARGS, 
@@ -342,10 +507,21 @@ static PyMethodDef PfMethods[] = {
     { "cmap_lookup", cmap_pylookup, METH_VARARGS,
       "Get a color tuple from a distance value"},
 
+    { "image_create", image_create, METH_VARARGS,
+      "Create a new image buffer"},
+    { "image_resize", image_resize, METH_VARARGS,
+      "Change image dimensions - data is deleted" },
+
+    { "site_create", pysite_create, METH_VARARGS,
+      "Create a new site"},
+
+    { "calc", pycalc, METH_VARARGS,
+      "Calculate a fractal image"},
+
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
-PyMODINIT_FUNC
+extern "C" PyMODINIT_FUNC
 initfract4d(void)
 {
     (void) Py_InitModule("fract4d", PfMethods);
