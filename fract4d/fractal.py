@@ -70,7 +70,9 @@ class Colorizer(FctUtils):
     def parse_colorizer(self,val,f):
         t = int(val)
         if t == 0:
-            raise ValueError("Sorry, color ranges not currently supported")
+            # FIXME
+            #raise ValueError("Sorry, color ranges not currently supported")
+            pass
         elif t == 1:
             pass
         else:

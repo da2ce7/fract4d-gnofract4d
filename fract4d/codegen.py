@@ -217,7 +217,7 @@ static void pf_init(
     for(i = 0; i < nparams; ++i)
     {
         pfo->p[i] = params[i];
-        /* printf("param %%d = %%.17g\n",i,params[i]); */
+        /* printf("param %%d = %%.17g\\n",i,params[i]); */
     }
 }
 

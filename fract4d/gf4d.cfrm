@@ -17,6 +17,42 @@ final:
 
 continuous_potential {
 final:
-float ed = 4.0/|z| ;FIXME - get real bailout
+float ed = @bailout/|z| 
 #index = (#numiter + ed) / 256.0
+default:
+float param bailout
+	default = 4.0
+endparam
 }
+
+external_angle {
+final:
+float angle = atan2(z)
+if angle < 0.0 
+	angle = 2.0 * #pi + angle
+endif
+#index = angle / (2.0 * #pi)
+}
+
+decomposition {
+final:
+float quadrant = 0.0;
+if(real(z) < 0.0) 
+	quadrant = quadrant + 0.25
+endif
+if(imag(z) < 0.0) 
+	quadrant = quadrant + 0.5
+endif
+#index = quadrant
+}
+
+ejection_distance {
+final:
+float ed = @bailout/|z| 
+#index = ed
+default:
+float param bailout
+	default = 4.0
+endparam
+}
+
