@@ -20,6 +20,7 @@
 
 #include "bailFunc.h"
 #include "iterFunc.h"
+#include "io.h"
 
 #include <cstddef>
 #include <cmath>
@@ -30,9 +31,51 @@
 inline double MIN(double x, double y) { return x < y ? x : y; }
 inline double MAX(double x, double y) { return x > y ? x : y; }
 
-class mag_bailout : public bailFunc {
+class bailFuncImpl : public bailFunc
+{
 public:
-    virtual std::string bail_code(int flags) const 
+    virtual ~bailFuncImpl() {};
+
+    friend std::ostream& operator<< (std::ostream& s, const bailFuncImpl& m);
+    friend std::istream& operator>> (std::istream& s, bailFuncImpl& m);
+    std::ostream& put(std::ostream& s) const { return s << *this; } 
+    std::istream& get(std::istream& s) { return s >> *this;  } 
+
+    bool operator==(const bailFunc& a) const
+	{
+	    return type() == a.type();
+	}
+};
+
+
+std::ostream& 
+operator<<(std::ostream& s, const bailFuncImpl& m) 
+{ 
+    write_field(s,FIELD_FUNCTION);
+    s << m.type() << "\n";
+    s << SECTION_STOP << "\n"; 
+    return s; 
+} 
+
+std::istream& 
+operator>>(std::istream& s, bailFuncImpl& m) 
+{ 
+    while(s)
+    {
+        std::string name,val;
+        
+        if(!read_field(s,name,val))
+        {
+            break;
+        }
+        if(SECTION_STOP == name) break;
+    }
+    return s; 
+}
+
+class mag_bailout : public bailFuncImpl {
+public:
+    std::string bail_code(int flags) const 
         {
             std::string bail("");
             
@@ -52,19 +95,18 @@ public:
             bail += "p[EJECT_VAL] = p[X2] + p[Y2];";
             return bail;
         } 
-    void init(void) {};
     bool iter8_ok() const { return true; };
     bool period_ok() const { return true; };
     e_bailFunc type() const { return BAILOUT_MAG ; };
 };
 
 /* eject if difference between this point and last iteration is < epsilon */
-class diff_bailout : public bailFunc {
+class diff_bailout : public bailFuncImpl {
 public:
     std::string bail_code(int flags) const
         {
             return 
-                "double epsilon = 0.01;"
+                "double epsilon = pfo->m_period_tolerance;"
                 "double diffx = XPOS - p[LASTX];"
                 "double diffy = YPOS - p[LASTY];"
 
@@ -80,7 +122,7 @@ public:
 };
 
 
-class real_bailout : public bailFunc {
+class real_bailout : public bailFuncImpl {
 public:
     virtual std::string bail_code(int flags) const     
         {
@@ -99,7 +141,7 @@ public:
     e_bailFunc type() const { return BAILOUT_REAL ; };
 };
 
-class imag_bailout : public bailFunc {
+class imag_bailout : public bailFuncImpl {
 public:
     virtual std::string bail_code(int flags) const 
         {
@@ -116,7 +158,7 @@ public:
     e_bailFunc type() const { return BAILOUT_IMAG ; };
 };
 
-class and_bailout : public bailFunc {
+class and_bailout : public bailFuncImpl {
 public:
     virtual std::string bail_code(int flags) const 
         {
@@ -135,7 +177,7 @@ public:
     e_bailFunc type() const { return BAILOUT_AND ; };
 };
 
-class or_bailout : public bailFunc {
+class or_bailout : public bailFuncImpl {
 public:
     virtual std::string bail_code(int flags) const 
         {
@@ -154,7 +196,7 @@ public:
     e_bailFunc type() const { return BAILOUT_OR ; };
 };
 
-class manhattan2_bailout : public bailFunc {
+class manhattan2_bailout : public bailFuncImpl {
 public:
     virtual std::string bail_code(int flags) const 
         {
@@ -173,17 +215,51 @@ public:
     e_bailFunc type() const { return BAILOUT_MANH2 ; };
 };
 
-class manhattan_bailout : public bailFunc {
+class manhattan_bailout : public bailFuncImpl {
 public:
     virtual std::string bail_code(int flags) const 
         {
             return "p[EJECT_VAL] = XPOS + YPOS;";
         }
     bool iter8_ok() const { return false; }
-    bool period_ok() const { return true; };
+    bool period_ok() const { return true; }
 
-    e_bailFunc type() const { return BAILOUT_MANH ; };
+    e_bailFunc type() const { return BAILOUT_MANH ; }
+    static const char *name() { return "Manhattan"; }
+    static bailFunc *create() { return new manhattan_bailout(); } 
 };
+
+/*
+typedef struct 
+{
+    const char *name;
+    bailFunc *(*ctor)();
+} bailFunc_data;
+
+static bailFunc_data infoTable[] = {
+    { manhattan_bailout::name(), manhattan_bailout::create },
+    { NULL, NULL }
+};
+
+static const char **createNameTable()
+{
+    int nNames = sizeof(infoTable)/sizeof(infoTable[0]);
+    const char **names = new const char *[ nNames + 1 ];
+
+    for(int i = 0; i < nNames; ++i)
+    {
+	names[i] = infoTable[i].name;
+    }
+    return names;
+}
+
+const char **bailFunc::names()
+{ 
+    static const char **nameTable = createNameTable();
+
+    return nameTable;
+}
+*/
 
 bailFunc *bailFunc::create(e_bailFunc e)
 {

@@ -34,6 +34,7 @@ class bailFunc {
  public:
     static bailFunc *create(e_bailFunc);
     static bailFunc *read(std::istream& is);
+    static const char **names();
 
     virtual ~bailFunc() {};
     /* returns a code snippet which does bailout */
@@ -51,6 +52,7 @@ class bailFunc {
 
     // what kind of bailFunc is this anyway? (for persistence)
     virtual e_bailFunc type() const = 0;
+    //virtual const char *name() const = 0;
 
     /* is it OK to unroll the loop with this bailout type? */
     virtual bool iter8_ok() const = 0;
