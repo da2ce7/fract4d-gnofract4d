@@ -6,6 +6,7 @@ import os
 import commands
 import math
 import cmath
+import sys
 
 import testbase
 
@@ -18,6 +19,8 @@ import translate
 import fractparser
 import fractlexer
 import stdlib
+
+g_exp = None
 
 class CodegenTest(testbase.TestBase):
     def setUp(self):
@@ -596,7 +599,16 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
 
     def predict(self,f,arg1=0,arg2=1):
         # compare our compiler results to Python stdlib
-        return "(%.6g,%.6g)" % (f(arg1),f(arg2))
+        try:
+            x = "%.6g" % f(arg1)
+        except ZeroDivisionError:
+            x = "inf"
+        try:
+            y = "%.6g" % f(arg2)
+        except ZeroDivisionError:
+            y = "inf"
+        
+        return "(%s,%s)" % (x,y)
 
     def cpredict(self,f,arg=(1+0j)):
         try:
@@ -604,6 +616,8 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
             return "(%.6g,%.6g)" % (z.real,z.imag) 
         except OverflowError:
             return "(inf,inf)"
+        except ZeroDivisionError:
+            return "(nan,nan)"
     
     def make_test(self,myfunc,pyfunc,val,n):
         codefrag = "ct_%s%d = %s((%d,%d))" % (myfunc, n, myfunc, val.real, val.imag)
@@ -617,6 +631,10 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
                    zip(vals,range(1,len(vals))))
                                 
     def test_stdlib(self):
+
+        def myfcotan(x):
+            return math.cos(x)/math.sin(x)
+        
         tests = [
             # code to run, var to inspect, result
             [ "fm = (3.0 % 2.0, 3.1 % 1.5)","fm","(1,0.1)"], 
@@ -657,7 +675,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
             [ "t_sin = (sin(0),sin(1))","t_sin", self.predict(math.sin)],
             [ "t_cos = (cos(0),cos(1))","t_cos", self.predict(math.cos)],
             [ "t_tan = (tan(0),tan(1))","t_tan", self.predict(math.tan)],
-            #[ "t_cotan
+            [ "t_cotan = (cotan(0),cotan(1))","t_cotan", self.predict(myfcotan)],
             [ "t_sinh = (sinh(0),sinh(1))","t_sinh", self.predict(math.sinh)],
             [ "t_cosh = (cosh(0),cosh(1))","t_cosh", self.predict(math.cosh)],
             [ "t_tanh = (tanh(0),tanh(1))","t_tanh", self.predict(math.tanh)],
@@ -682,7 +700,17 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         tests += self.manufacture_tests("tanh",cmath.tanh)
         tests += self.manufacture_tests("exp",cmath.exp)
         tests += self.manufacture_tests("sqrt",cmath.sqrt)
+        def mycotan(z):
+            return cmath.cos(z)/cmath.sin(z)
+        cottests = self.manufacture_tests("cotan",mycotan)
+
+        # CONSIDER: comes out as -0,1.31304 in python, but +0 in C++ and gf4d
+        # think Python's probably in error, but not 100% sure
+        cottests[6][2] = "(0,1.31304)" 
+        tests += cottests
+        
         logtests = self.manufacture_tests("log",cmath.log)
+        
         # asin,acos,atan,atan2, asinh, acosh, atanh, cotan, cotanh
             
         logtests[0][2] = "(-inf,0)" # log(0+0j) is overflow in python
@@ -697,6 +725,19 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         exp = map(lambda x : "%s = %s" % (x[1],x[2]), tests)
 
         self.assertCSays(src,"init",check,exp)
+
+    def testExpression(self):
+        # this is for quick manual experiments - skip if input var not set
+        global g_exp
+        if g_exp == None:
+            return
+        
+        src = 't_test {\ninit:\nresult = %s\n}' % g_exp
+        asm = self.sourceToAsm(src,"init",{})
+        postamble = "t__end_init:\nprintf(\"(%g,%g)\\n\",result_re,result_im);"
+        c_code = self.makeC("", postamble)        
+        output = self.compileAndRun(c_code)
+        print output
 
     def testMandel(self):
         src = '''t_mandel{
@@ -843,5 +884,15 @@ def suite():
     return unittest.makeSuite(CodegenTest,'test')
 
 if __name__ == '__main__':
+    try:
+        # special case for manual experiments.
+        # ./test_codegen.py --exp "1+2" compiles and runs 1+2 and prints
+        # the result
+        index = sys.argv.index("--exp")
+        g_exp = sys.argv[index+1]
+        sys.argv[index] = "CodegenTest.testExpression"
+        del sys.argv[index+1]
+    except ValueError:
+        pass
     unittest.main(defaultTest='suite')
 
