@@ -137,8 +137,8 @@ class PfTest(unittest.TestCase):
         self.assertEqual(len(buf),80*60*4 - (10*80+5)*4)
 
     def testFractWorker(self):
-        xsize = 64
-        ysize = int(xsize * 3.0/4.0)
+        xsize = 8
+        ysize = 8
         image = fract4dc.image_create(xsize,ysize)
         siteobj = FractalSite()
         site = fract4dc.site_create(siteobj)
@@ -168,6 +168,23 @@ class PfTest(unittest.TestCase):
             image,
             site,
             fw)
+
+        fract4dc.image_clear(image)
+
+        fate_buf = fract4dc.image_fate_buffer(image)
+        buf = fract4dc.image_buffer(image)
+
+        self.assertEqual(list(fate_buf), [chr(255)] * 4 * xsize * ysize)
+
+        # draw 1 pixel, check it's set properly
+        fract4dc.fw_pixel(fw,0,0,1,1)
+        self.assertEqual(fate_buf[0],chr(0))
+        self.assertEqual(buf[0:3],"\x00\x00\x00")
+        self.assertEqual(fate_buf[1:4], "\xff\xff\xff")
+        self.assertEqual(fract4dc.image_get_color_index(image,0,0),0.0)
+
+        
+
         
     def testCalc(self):
         xsize = 64

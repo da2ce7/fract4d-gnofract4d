@@ -929,6 +929,26 @@ fw_create(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+fw_pixel(PyObject *self, PyObject *args)
+{
+    PyObject *pyworker;
+    int x,y,w,h;
+
+    if(!PyArg_ParseTuple(args, "Oiiii",
+			 &pyworker,
+			 &x,&y,&w,&h))
+    {
+	return NULL;
+    }
+    
+    IFractWorker *worker = (IFractWorker *)PyCObject_AsVoidPtr(pyworker);
+    worker->pixel(x,y,w,h);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 ff_create(PyObject *self, PyObject *args)
 {
     PyObject *pypfo, *pycmap, *pyim, *pysite, *pyworker;
@@ -1120,7 +1140,34 @@ image_resize(PyObject *self, PyObject *args)
     }
 
     IImage *i = (IImage *)PyCObject_AsVoidPtr(pyim);
+    if(NULL == i)
+    {
+	return NULL;
+    }
+
     i->set_resolution(x,y);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+image_clear(PyObject *self, PyObject *args)
+{
+    PyObject *pyim;
+
+    if(!PyArg_ParseTuple(args,"O",&pyim))
+    { 
+	return NULL;
+    }
+
+    IImage *i = (IImage *)PyCObject_AsVoidPtr(pyim);
+    if(NULL == i)
+    {
+	return NULL;
+    }
+
+    i->clear();
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -1302,6 +1349,8 @@ static PyMethodDef PfMethods[] = {
       "get the fate data from the image"},
     { "image_get_color_index", image_get_color_index, METH_VARARGS,
       "Get the color index data from a point on the image"},
+    { "image_clear", image_clear, METH_VARARGS,
+      "Clear all iteration and color data from image" },
 
     { "site_create", pysite_create, METH_VARARGS,
       "Create a new site"},
@@ -1312,7 +1361,9 @@ static PyMethodDef PfMethods[] = {
       "Create a fractWorker." },
     { "ff_create", ff_create, METH_VARARGS,
       "Create a fractFunc." },
-
+    { "fw_pixel", fw_pixel, METH_VARARGS,
+      "Draw a single pixel." },
+    
     { "calc", pycalc, METH_VARARGS,
       "Calculate a fractal image"},
 

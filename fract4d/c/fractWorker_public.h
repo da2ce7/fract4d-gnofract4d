@@ -30,7 +30,7 @@ public:
     virtual void box_row(int w, int y, int rsize) =0;
 
     // calculate a single pixel
-    virtual void pixel(int x, int y, int h, int w) =0;
+    virtual void pixel(int x, int y, int w, int h) =0;
 
     // calculate a single pixel in aa-mode
     virtual void pixel_aa(int x, int y) =0;
