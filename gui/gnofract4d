@@ -22,6 +22,7 @@ import settings
 import preferences
 import autozoom
 import model
+import colors
 
 # We don't use GDK threads because RedHat seem to compile pygtk
 # without thread support. Grrr.
@@ -209,7 +210,7 @@ class MainWindow:
         settings.show_settings(self.window,self.f)
         
     def colors(self,action,widget):
-        print "colors"
+        colors.show_colors(self.window,self.f)
         
     def preferences(self,action,widget):
         preferences.show_preferences(self.window, self.f)
