@@ -6,6 +6,7 @@
 
 fractFunc::fractFunc(
     fractal_t *f_, 
+    IFractWorker *fw,
     IImage *im_, 
     IFractalSite *site_)
 {
@@ -13,6 +14,7 @@ fractFunc::fractFunc(
     im = im_;
     f = f_; 
     ok = true;
+    worker = fw;
 
     depth = f->eaa ? 2 : 1; 
     
@@ -38,17 +40,6 @@ fractFunc::fractFunc(
     clear();
 
     status_changed(GF4D_FRACTAL_COMPILING);
-
-    worker = IFractWorker::create(f->nThreads,f,im);
-
-    if(worker->ok())
-    {
-	site->status_changed( GF4D_FRACTAL_CALCULATING);
-    }
-    else
-    {
-	site->status_changed(GF4D_FRACTAL_DONE);    
-    }
 
     worker->set_fractFunc(this);
 

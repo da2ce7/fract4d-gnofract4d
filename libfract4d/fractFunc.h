@@ -36,7 +36,8 @@
 class fractFunc {
  public:
     fractFunc(
-	fractal_t *_f, 
+	fractal_t *_f,
+	IFractWorker *fw,
 	IImage *_im, 
 	IFractalSite *_site);
     ~fractFunc();

@@ -719,7 +719,19 @@ fractal::calc(IFractalSite *site, IImage *im)
     {
         eaa = antialias;
     }
-    fractFunc pr(this, im, site);
+
+    IFractWorker *worker = IFractWorker::create(nThreads,this,im);
+
+    if(worker->ok())
+    {
+	site->status_changed( GF4D_FRACTAL_CALCULATING);
+    }
+    else
+    {
+	site->status_changed(GF4D_FRACTAL_DONE);    
+    }
+
+    fractFunc pr(this, worker, im, site);
     
     if(!pr.ok)
     {
