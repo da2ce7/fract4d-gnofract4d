@@ -764,7 +764,7 @@ GtkWidget *create_function_menu(Gf4dFractal *shadow)
     GtkWidget *func_type = gtk_option_menu_new();
     GtkWidget *func_menu = gtk_menu_new();
 
-    const char **names = iterFunc_names();
+    const char **names = iterFunc::names();
     int i = 0;
     while(names[i])
     {

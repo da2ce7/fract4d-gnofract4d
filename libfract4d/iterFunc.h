@@ -35,8 +35,13 @@
 
 class iterFunc {
  public:
+    // factory method for create-by-name
     static iterFunc *create(const char *name);
+
     static iterFunc *read(std::istream& is);
+
+    // a list of all the types we know about
+    static const char **names();
 
     virtual ~iterFunc() {};
     // return the fragments of C++ code which we'll interpolate
@@ -75,8 +80,6 @@ class iterFunc {
     virtual std::string save_iter_code() const = 0;
     virtual std::string restore_iter_code() const = 0;
 };
-
-const char **iterFunc_names();
 
 std::ostream& operator<<(std::ostream& s, const iterFunc& iter);
 std::istream& operator>>(std::istream& s, iterFunc& iter);

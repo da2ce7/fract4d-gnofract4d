@@ -32,6 +32,9 @@
 
 class bailFunc {
  public:
+    static bailFunc *create(e_bailFunc);
+    static bailFunc *read(std::istream& is);
+
     virtual ~bailFunc() {};
     /* returns a code snippet which does bailout */
     virtual std::string bail_code(int flags) const = 0;
@@ -55,9 +58,5 @@ class bailFunc {
     /* does periodicity checking work with this bailout type? */
     virtual bool period_ok() const = 0;
 };
-
-// factory method to construct bailout function objects 
-bailFunc *bailFunc_new(e_bailFunc);
-bailFunc *bailFunc_read(std::istream& s);
 
 #endif /* _BAILFUNC_H_ */

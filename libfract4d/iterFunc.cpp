@@ -168,6 +168,30 @@ iterFunc_data infoTable[] = {
 	novaOverrides,
 	novaOverrideValues
     },
+    /* barnsley t1: z <- ( re(z) > 0 ? (z - 1) * c : (z + 1) * c) */
+    {
+	"Barnsley Type 1",
+	NO_UNROLL,
+	BAILOUT_MAG,
+	"T x_cy, x_cx, y_cy, y_cx",
+	//iter code
+	"x_cy = p[X] * p[CY]; x_cx = p[X] * p[CX];"
+	"y_cy = p[Y] * p[CY]; y_cx = p[Y] * p[CX];"
+	
+	"if(p[X] >= 0)"
+	"{"
+	"p[X] = (x_cx - p[CX] - y_cy );"
+	"p[Y] = (y_cx - p[CY] + x_cy );"
+	"}"
+	"else"
+	"{"
+	"p[X] = (x_cx + p[CX] - y_cy);"
+	"p[Y] = (y_cx + p[CY] + x_cy);"
+	"}",
+	DEFAULT_SIMPLE_CODE,
+	NO_OPTIONS,
+	NO_OVERRIDES
+    },
     /* sentinel value */
     {
 	NULL, // name
@@ -210,21 +234,21 @@ public:
         { 
             return m_data->nOptions;
         }
-    virtual void setOption(int n, std::complex<double> val) 
+    void setOption(int n, std::complex<double> val) 
         {
             if(n < 0 || n >= m_data->nOptions) return; 
             m_a[n] = val;
         }
-    virtual std::complex<double> *opts()
+    std::complex<double> *opts()
         {
             return m_a;
         }
-    virtual std::complex<double> getOption(int n) const
+    std::complex<double> getOption(int n) const
         {
             if(n < 0 || n >= m_data->nOptions) return 0.0;
             return m_a[n];
         }
-    virtual const char *optionName(int n) const
+    const char *optionName(int n) const
         {
 	    if(n < 0 || n >= m_data->nOptions) return NULL;
             return m_data->optNames[n];
@@ -237,7 +261,7 @@ public:
         {
             return m_data->flags;
         }
-    virtual void reset(double *params)
+    void reset(double *params)
         {
             /* suitable defaults for most types */
             // FIXME : duplicated in fractal.cpp
@@ -270,7 +294,7 @@ public:
 		    m_data->optDefaults[2*i],m_data->optDefaults[2*i+1]);
 	    }	    
 	}
-    virtual e_bailFunc preferred_bailfunc(void)
+    e_bailFunc preferred_bailfunc(void)
         {
             return m_data->preferred_bailFunc;
         }
@@ -324,24 +348,24 @@ public:
             }
             return true;
         }
-    virtual std::string decl_code() const { 
+    std::string decl_code() const { 
 	return m_data->decl_code; 
     };
-    virtual std::string iter_code() const {
+    std::string iter_code() const {
         return m_data->iter_code;
     }
 
-    virtual std::string ret_code() const { 
+    std::string ret_code() const { 
 	return m_data->ret_code; 
     };
-    virtual std::string save_iter_code() const {
+    std::string save_iter_code() const {
         return m_data->save_iter_code;
     }
-    virtual std::string restore_iter_code() const {
+    std::string restore_iter_code() const {
         return m_data->restore_iter_code;
     }
     
-    virtual void get_code(std::map<std::string,std::string>& code_map) const 
+    void get_code(std::map<std::string,std::string>& code_map) const 
         {
             code_map["ITER"]=iter_code();
             code_map["DECL"]=decl_code();
@@ -405,42 +429,6 @@ operator>>(std::istream& s, iterImpl& m)
 }
 
 #if 0
-
-
-
-// z <- ( re(z) > 0 ? (z - 1) * c : (z + 1) * c)
-class barnsleyFunc: public iterImpl<barnsleyFunc,0>
-{
-public:
-    enum {  FLAGS = NO_UNROLL };
-    barnsleyFunc() : iterImpl<barnsleyFunc,0>(name()) {};
-
-    static char *name()
-        {
-            return "Barnsley Type 1";
-        }
-    std::string decl_code() const 
-        { 
-            return "double x_cy, x_cx, y_cy, y_cx";
-        }
-    std::string iter_code() const 
-        { 
-            return 
-                "x_cy = p[X] * p[CY]; x_cx = p[X] * p[CX];"
-                "y_cy = p[Y] * p[CY]; y_cx = p[Y] * p[CX];"
-                
-                "if(p[X] >= 0)"
-                "{"
-                    "p[X] = (x_cx - p[CX] - y_cy );"
-                    "p[Y] = (y_cx - p[CY] + x_cy );"
-                "}"
-                "else"
-                "{"
-                    "p[X] = (x_cx + p[CX] - y_cy);"
-                    "p[Y] = (y_cx + p[CY] + x_cy);"
-                "}";
-        }
-};
 
 
 class barnsley2Func: public iterImpl<barnsley2Func,0>
@@ -794,7 +782,7 @@ static const char **createNameTable()
     return names;
 }
 
-const char **iterFunc_names()
+const char **iterFunc::names()
 { 
     static const char **nameTable = createNameTable();
 

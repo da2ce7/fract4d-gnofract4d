@@ -25,6 +25,8 @@
 #include <cmath>
 #include <iostream>
 
+#define FIELD_FUNCTION "function"
+
 inline double MIN(double x, double y) { return x < y ? x : y; }
 inline double MAX(double x, double y) { return x > y ? x : y; }
 
@@ -183,7 +185,7 @@ public:
     e_bailFunc type() const { return BAILOUT_MANH ; };
 };
 
-bailFunc *bailFunc_new(e_bailFunc e)
+bailFunc *bailFunc::create(e_bailFunc e)
 {
     bailFunc *pbf=NULL;
     switch(e){
@@ -216,4 +218,28 @@ bailFunc *bailFunc_new(e_bailFunc e)
     }
      
     return pbf;
+}
+
+bailFunc *bailFunc::read(std::istream& s)
+{
+    std::string name, value;
+/*
+  FIXME
+    while(s)
+    {
+        read_field(s,name,value);
+    
+        if(FIELD_FUNCTION == name)
+        {
+            bailFunc *f = bailFunc::create(value.c_str());
+            if(f)
+            {
+                s >> *f;
+            }
+            return f;
+        }
+    }
+*/
+    return NULL;
+
 }

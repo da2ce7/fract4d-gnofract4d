@@ -63,6 +63,7 @@
 
 #define SECTION_ITERFUNC "[function]"
 #define SECTION_COLORIZER "[colors]"
+#define SECTION_BAILFUNC "[bailout]"
 
 void 
 debug_precision(const d& s, char *location)
@@ -78,7 +79,7 @@ debug_precision(const d& s, char *location)
 fractal::fractal()
 {
     // set fractal type to first type in list
-    const char **names = iterFunc_names();
+    const char **names = iterFunc::names();
     pIterFunc = iterFunc::create(names[0]);
 
     reset();
@@ -90,7 +91,7 @@ fractal::fractal()
     digits = 0;
 	
     cizer = colorizer_new(COLORIZER_RGB);
-    bailout_type=bailFunc_new(BAILOUT_MAG);
+    bailout_type=bailFunc::create(BAILOUT_MAG);
 
     colorFuncs[OUTER]=COLORFUNC_CONT;
     colorFuncs[INNER]=COLORFUNC_ZERO;
@@ -423,6 +424,7 @@ fractal::load_params(const char *filename)
             vs >> (int&)antialias;
         else if(FIELD_BAILFUNC==name)
 	{
+	    // legacy support for old files. New ones have a bailFunc section
 	    e_bailFunc bf;
             vs >> (int&)bf;
 	    set_bailFunc(bf);
@@ -448,7 +450,16 @@ fractal::load_params(const char *filename)
                 colorizer_delete(&cizer);
                 cizer = cizer_tmp;
             }
-        }        
+        }
+        else if(SECTION_BAILFUNC==name)
+	{
+	    bailFunc *bf_tmp = bailFunc::read(is);
+	    if(bf_tmp)
+	    {
+		delete bailout_type;
+		bailout_type = bf_tmp;
+	    }
+	}
     }
 
     return true;
@@ -715,7 +726,7 @@ void
 fractal::set_bailFunc(e_bailFunc bf)
 {
     delete bailout_type;
-    bailout_type = bailFunc_new(bf);
+    bailout_type = bailFunc::create(bf);
     assert(bailout_type > (void *)0x4);
 }
 
