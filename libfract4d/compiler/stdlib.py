@@ -178,7 +178,7 @@ def atan_f_f(gen,t,srcs):
     return gen.emit_func('atan', srcs, Float)
 
 def atan2_c_f(gen,t,srcs):
-    return gen.emit_func2('atan2', [srcs[0].re, srcs[1].im], Float)
+    return gen.emit_func2('atan2', [srcs[0].re, srcs[0].im], Float)
 
 def asinh_f_f(gen,t,srcs):
     return gen.emit_func('asinh', srcs, Float)
