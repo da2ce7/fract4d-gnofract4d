@@ -178,29 +178,29 @@ reset_zoom_cb(GtkMenuItem *menuitem, gpointer user_data)
     
 }
 void
-save_image_cb(GtkMenuItem     *menuitem,
-              gpointer         user_data)
+save_image_cb(GtkMenuItem *menuitem,
+              gpointer user_data)
 {
     gtk_widget_show (create_save_image ((model_t *)user_data));
 }
 
 void
-save_param_cb(GtkMenuItem     *menuitem,
-              gpointer         user_data)
+save_param_cb(GtkMenuItem *menuitem,
+              gpointer user_data)
 {
     gtk_widget_show (create_save_param ((model_t *)user_data));
 }
 
 void
-load_param_cb(GtkMenuItem     *menuitem,
-              gpointer         user_data)
+load_param_cb(GtkMenuItem *menuitem,
+              gpointer user_data)
 {
     gtk_widget_show (create_load_param ((model_t *)user_data));
 }
 
 void
-pause_cb(GtkMenuItem     *menuitem,
-         gpointer         user_data)
+pause_cb(GtkMenuItem *menuitem,
+         gpointer user_data)
 {
     Gf4dFractal *f = model_get_fract((model_t *)user_data);
     bool isPaused = GTK_CHECK_MENU_ITEM(menuitem)->active;
@@ -208,8 +208,8 @@ pause_cb(GtkMenuItem     *menuitem,
 }
 
 void
-preferences_cb(GtkMenuItem     *menuitem,
-               gpointer         user_data)
+preferences_cb(GtkMenuItem *menuitem,
+               gpointer user_data)
 {
     create_propertybox((model_t *)user_data);
 }
@@ -273,6 +273,7 @@ static GnomeUIInfo parameters1_menu_uiinfo[] =
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
         0, (enum GdkModifierType) 'c', NULL
     },
+    /*
     {
         GNOME_APP_UI_ITEM, N_("_Movie Editor..."),
         NULL,
@@ -280,6 +281,7 @@ static GnomeUIInfo parameters1_menu_uiinfo[] =
         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BLANK,
         0, (enum GdkModifierType)'m', NULL
     },
+    */
     GNOMEUIINFO_END
 };
 
