@@ -73,9 +73,10 @@ class SettingsDialog(gtk.Dialog):
             self.table2.show_all()
             vbox.pack_start(self.table2)
 
-        add_current_formula_parameters()
-
+        # this handler must be attached first before populating table
         self.f.connect('parameters-changed',add_current_formula_parameters)
+        
+        add_current_formula_parameters()
         
         self.notebook.append_page(vbox,gtk.Label("Formula"))
 
