@@ -44,8 +44,17 @@ class FormulaFile:
         self.contents = contents
         self.mtime = mtime
         self.filename = filename
+        self.file_backed = True
+    def override_buffer(self,buffer,formulas):
+        'file has been changed in memory'
+        self.contents = buffer
+        self.formulas = formulas
+        self.file_backed= False
+        
     def out_of_date(self):
-        return os.stat(self.filename)[stat.ST_MTIME] > self.mtime
+        return self.file_backed and \
+               os.stat(self.filename)[stat.ST_MTIME] > self.mtime
+    
     def get_formula(self,formula):
         return self.formulas.get(formula)
     def get_formula_names(self, skip_type=None):
@@ -53,12 +62,10 @@ class FormulaFile:
         for the OTHER kind (inside vs outside)'''
         names = []
         for name in self.formulas.keys():
-            if type:
-                sym = self.formulas[name].symmetry
-                if sym == None  or sym == "BOTH" or sym != skip_type:
-                   names.append(name)
-            else:
+            sym = self.formulas[name].symmetry
+            if sym == None  or sym == "BOTH" or sym != skip_type:
                 names.append(name)
+
         return names
     
 class Compiler:
@@ -124,16 +131,20 @@ class Compiler:
                 return f
 
         return self.last_chance(filename)        
-        
+
+    def parse_file(self,s):
+        self.lexer.lineno = 1
+        result = self.parser.parse(s)
+        formulas = {}
+        for formula in result.children:
+            formulas[formula.leaf] = formula
+        return formulas
+    
     def load_formula_file(self, filename):
         try:
             filename = self.find_file(filename)
             s = open(filename,"r").read() # read in a whole file
-            self.lexer.lineno = 1
-            result = self.parser.parse(s)
-            formulas = {}
-            for formula in result.children:
-                formulas[formula.leaf] = formula
+            formulas = self.parse_file(s)
 
             basefile = os.path.basename(filename)
             mtime = os.stat(filename)[stat.ST_MTIME]

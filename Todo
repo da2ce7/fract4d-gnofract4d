@@ -12,9 +12,8 @@ UI improvements
 * W	formula browser
 	manage search path (user prefs)
 	auto-list all formula files on path, parse on first click
-	edit & continue
-	save/save-as
-	run $EDITOR, refresh
+	remember selected formula on compile
+	if no compile errors, reapply current formula
 * W	review human interface guidelines
 * W	recently-used files
 * W	angles in degrees?
@@ -34,6 +33,15 @@ Math weirdness:
 * W	default chebyshev gives blank screen
 * B	standard.cfrm:triangle = all black
 
+Outright bugs:
+(gnofract4d:13094): Gtk-WARNING **: GtkEntry - did not receive focus-out-event.
+If you
+connect a handler to this signal, it must return
+FALSE so the entry gets the event as well
+
+Gtk-ERROR **: file gtkentry.c: line 4214 (blink_cb): assertion failed: (GTK_WIDGET_HAS_FOCUS (entry))
+aborting...
+
 Testing:
 * W	end-to-end regression test vs V1.9
 
@@ -51,6 +59,7 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* W	Browser: run $EDITOR, refresh
 * W	warn before quitting or save current fractal to autosave by default?
 * B	translationerror on load doesn't pop up
 * B	change width or setting to something which isn't a number/float: 
