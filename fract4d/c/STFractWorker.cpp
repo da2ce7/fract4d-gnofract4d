@@ -401,19 +401,22 @@ STFractWorker::rectangle(
 			tb=new_pixel.b, 
 			ta=new_pixel.a;
 
-		    for(int k = 1; k < im->getNSubPixels(); ++k)
+		    int nSubPixels = im->getNSubPixels();
+		    for(int k = 1; k < nSubPixels; ++k)
 		    {
-			new_pixel = 
-			    pf->recolor(im->getIndex(j,i,k), fate);
+			fate = im->getFate(j,i,k);
+			float index = im->getIndex(j,i,k);
+			new_pixel = pf->recolor(index, fate);
 			tr += new_pixel.r;
 			tg += new_pixel.g;
 			tb += new_pixel.b;
 			ta += new_pixel.a;
 		    }
-		    new_pixel.r = tr/4;
-		    new_pixel.g = tg/4;
-		    new_pixel.b = tb/4;
-		    new_pixel.a = ta/4;
+
+		    new_pixel.r = tr/nSubPixels;
+		    new_pixel.g = tg/nSubPixels;
+		    new_pixel.b = tb/nSubPixels;
+		    new_pixel.a = ta/nSubPixels;
 		}
 		im->put(j,i,new_pixel);
 	    }
