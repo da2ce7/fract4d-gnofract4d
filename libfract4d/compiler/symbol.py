@@ -73,6 +73,7 @@ def createDefaultDict():
         "t__h_z" : Alias("z"),
         "z"  : Var(Complex),        
         }
+    
     # predefined parameters
     for f in xrange(1,7):
         name = "p%d" % f
@@ -82,9 +83,7 @@ def createDefaultDict():
     for f in xrange(1,5):
         name = "fn%d" % f
         d[name] = Alias("t__a_" + name)
-        d["t__a_" + name ] = [
-            Func([Float],Float, stdlib, name),
-            Func([Complex],Complex, stdlib, name) ]
+        d["t__a_" + name ] = [Func([Complex],Complex, stdlib, name) ]
     return d
 
 

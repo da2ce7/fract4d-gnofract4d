@@ -90,16 +90,18 @@ class Func:
         self.args = args
         self.ret = ret
         self.pos = pos
+        self.set_func(module,fname)
         
+    def set_func(self,module,fname):
         # compute the name of the stdlib function to call
         # this is sort of equivalent to C++ overload resolution
         if fname == None:
             self.genFunc = None
         else:
             typed_fname = fname + "_"
-            for arg in args:
+            for arg in self.args:
                 typed_fname = typed_fname + strOfType(arg)[0]
-            typed_fname = typed_fname + "_" + strOfType(ret)[0]
+            typed_fname = typed_fname + "_" + strOfType(self.ret)[0]
         
             #print typed_fname
             self.genFunc = module.__dict__.get(typed_fname,typed_fname)

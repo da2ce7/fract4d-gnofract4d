@@ -354,7 +354,12 @@ return;
     def call(self,t):
         srcs = [self.generate_code(x) for x in t.children]
         op = self.findOp(t)
-        dst = op.genFunc(self, t, srcs)
+        try:
+            dst = op.genFunc(self, t, srcs)
+        except TypeError, err:
+            print op.genFunc
+            raise
+        
         return dst
         
     def binop(self,t):
