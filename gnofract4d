@@ -9,12 +9,20 @@ import struct
 import math
 import types
 
+# gettext
+import os, gettext
+os.environ.setdefault('LANG', 'en')
+if os.path.isdir('po'):
+    gettext.install('gnofract4d','po')
+else:
+    gettext.install('gnofract4d')
+
 # gtk
 try:
     import gtk
     import gobject
 except ImportError, err:
-    print "Can't find PyGTK. You need to install it before you can run Gnofract 4D."
+    print _("Can't find PyGTK. You need to install it before you can run Gnofract 4D.")
     sys.exit(1)
     
 try:
@@ -26,11 +34,12 @@ try:
     from fract4dgui import colors, undo, browser
 
 except ImportError, err:
-    print "Can't import a required module."
-    print "If you haven't set up Gnofract 4D yet, run './setup.py build'"
-    print "Error was: '%s'" % err
+    print _('''
+Can't import a required module.
+If you haven't set up Gnofract 4D yet, run './setup.py build'
+Error was: '%s' ''') % err
     sys.exit(1)
-    
+
 # We don't use GDK threads because RedHat seem to compile pygtk
 # without thread support. Grrr.
 #gtk.gdk.threads_init()
@@ -89,11 +98,11 @@ class MainWindow:
         
         self.window.show_all()
 
-        self.statuses = [ "Done",
-                          "Calculating",
-                          "Deepening",
-                          "Antialiasing",
-                          "Paused" ]
+        self.statuses = [ _("Done"),
+                          _("Calculating"),
+                          _("Deepening (%d iterations)"),
+                          _("Antialiasing"),
+                          _("Paused") ]
 
     def create_fractal(self,f):
         window = gtk.ScrolledWindow()
@@ -135,7 +144,7 @@ class MainWindow:
 
     def set_window_title(self):
         if self.filename == None:
-            title = "(Untitled %s)" % self.f.funcName
+            title = _("(Untitled %s)") % self.f.funcName
         else:
             title = self.filename
         self.window.set_title(title)
@@ -157,7 +166,7 @@ class MainWindow:
     def status_changed(self,f,status):
         if status == 2:
             # deepening
-            text = "Deepening (%d iterations)" % self.f.maxiter
+            text = self.statuses[status] % self.f.maxiter
         else:
             text = self.statuses[status]
             
@@ -165,47 +174,47 @@ class MainWindow:
         
     def create_menu(self):
         menu_items = (
-            ('/_File', None, None, 0, '<Branch>' ),
-            ('/File/_Open Parameter File...', '<control>O',
+            (_('/_File'), None, None, 0, '<Branch>' ),
+            (_('/File/_Open Parameter File...'), '<control>O',
              self.open, 0, '<StockItem>', gtk.STOCK_OPEN),
-            ('/File/Open _Formula File...', '<control><shift>O',
+            (_('/File/Open _Formula File...'), '<control><shift>O',
              self.open_formula, 0, ''),
-            ('/File/_Save', '<control>S',
+            (_('/File/_Save'), '<control>S',
              self.save, 0, '<StockItem>', gtk.STOCK_SAVE),
-            ('/File/Save _As...', '<control><shift>S',
+            (_('/File/Save _As...'), '<control><shift>S',
              self.saveas, 0, '<StockItem>', gtk.STOCK_SAVE_AS),
-            ('/File/Save _Image', '<control>I',
+            (_('/File/Save _Image'), '<control>I',
              self.save_image, 0, ''),
-            ('/File/sep1', None,
+            (_('/File/sep1'), None,
              None, 0, '<Separator>'),
-            ('/File/_Quit', '<control>Q',
+            (_('/File/_Quit'), '<control>Q',
              self.quit, 0, '<StockItem>', gtk.STOCK_QUIT),   
 
-            ('/_Edit', None,
+            (_('/_Edit'), None,
              None, 0, '<Branch>'),
-            ('/Edit/_Fractal Settings...','<control>F',
+            (_('/Edit/_Fractal Settings...'),'<control>F',
              self.settings, 0, ''),
-            ('/Edit/_Colors...', '<control>L',
+            (_('/Edit/_Colors...'), '<control>L',
              self.colors, 0, ''),
-            ('/Edit/_Preferences...', '<control>P',
+            (_('/Edit/_Preferences...'), '<control>P',
              self.preferences, 0, '<StockItem>', gtk.STOCK_PREFERENCES),
-            ('/Edit/_Undo', '<control>Z',
+            (_('/Edit/_Undo'), '<control>Z',
              self.undo, 0, ''),
-            ('/Edit/_Redo', '<control>Y',
+            (_('/Edit/_Redo'), '<control>Y',
              self.redo, 0, ''),
-            ('/Edit/R_eset', 'Home',
+            (_('/Edit/R_eset'), 'Home',
              self.reset, 0, '<StockItem>', gtk.STOCK_HOME),
 
-            ('/_Tools', None,
+            (_('/_Tools'), None,
              None, 0, '<Branch>'),
-            ('/_Tools/_Autozoom', '<control>A',
+            (_('/_Tools/_Autozoom'), '<control>A',
              self.autozoom, 0, ''),
 
-            ('/_Help', None,
+            (_('/_Help'), None,
              None, 0, '<Branch>'),
-            ('/_Help/_Contents', 'F1',
+            (_('/_Help/_Contents'), 'F1',
              self.contents, 0, ''),
-            ('/Help/_About', None,
+            (_('/Help/_About'), None,
              self.about, 0, ''),
             )
     
@@ -214,9 +223,9 @@ class MainWindow:
 
         menubar = item_factory.get_widget('<main>')
 
-        undo = item_factory.get_item("/Edit/Undo")
+        undo = item_factory.get_item(_("/Edit/Undo"))
         self.model.seq.make_undo_sensitive(undo)
-        redo = item_factory.get_item("/Edit/Redo")
+        redo = item_factory.get_item(_("/Edit/Redo"))
         self.model.seq.make_redo_sensitive(redo)
 
         # need to reference the item factory or the menus
@@ -232,8 +241,8 @@ class MainWindow:
         self.toolbar = gtk.Toolbar()
         self.toolbar.insert_stock(
             gtk.STOCK_UNDO,
-            "Undo the last change",
-            "Undo the last change",
+            _("Undo the last change"),
+            _("Undo the last change"),
             self.undo,
             None,
             -1)
@@ -242,8 +251,8 @@ class MainWindow:
         
         self.toolbar.insert_stock(
             gtk.STOCK_REDO,
-            "Redo the last undone change",
-            "Redo the last undone change",
+            _("Redo the last undone change"),
+            _("Redo the last undone change"),
             self.redo,
             None,
             -1)
@@ -258,7 +267,7 @@ class MainWindow:
             self.set_filename(file)
             return True
         except Exception, err:
-            self.show_error_message("Error saving to file %s: '%s'" %
+            self.show_error_message(_("Error saving to file %s: '%s'") %
                                     (file, err))
             return False
 
@@ -271,7 +280,7 @@ class MainWindow:
 
     def saveas(self,action,widget):
         # need to gather a filename
-        fs = gtk.FileSelection("Save Parameters")
+        fs = gtk.FileSelection(_("Save Parameters"))
         fs.show_all()
 
         name = None
@@ -294,7 +303,7 @@ class MainWindow:
             d = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                   gtk.MESSAGE_QUESTION,
                                   gtk.BUTTONS_YES_NO,
-                                  "File %s already exists. Overwrite?" % name)
+                                  _("File %s already exists. Overwrite?") % name)
             response = d.run()                
             d.destroy()
             return response == gtk.RESPONSE_YES
@@ -332,7 +341,7 @@ class MainWindow:
                     self.f.save_image(name)
                     break
                 except Exception, err:
-                    self.show_error_message("Error saving %s:\n%s" % (name, err))
+                    self.show_error_message(_("Error saving %s:\n%s") % (name, err))
         fs.destroy()
                 
     def settings(self,action,widget):
@@ -374,7 +383,7 @@ class MainWindow:
             abs_file = os.path.join(sys.exec_prefix, dir, base_help_file)
 
         if not os.path.isfile(abs_file):
-            self.show_error_message("Can't find help file %s" % abs_file)
+            self.show_error_message(_("Can't find help file %s") % abs_file)
             return
         
         if section == None:
@@ -385,7 +394,7 @@ class MainWindow:
         os.system("yelp ghelp://%s%s 2>/dev/null &" % (abs_file, anchor))
 
     def open_formula(self,action,widget):
-        fs = gtk.FileSelection("Open Formula File")
+        fs = gtk.FileSelection(_("Open Formula File"))
         fs.show_all()
         
         while True:
@@ -400,7 +409,7 @@ class MainWindow:
         
     
     def open(self,action,widget):
-        fs = gtk.FileSelection("Open Parameter File")
+        fs = gtk.FileSelection(_("Open Parameter File"))
         fs.show_all()
         
         while True:
@@ -419,7 +428,7 @@ class MainWindow:
             self.set_filename(file)
             return True
         except Exception, err:
-            self.show_error_message("Error opening %s: '%s'" % (file, err))
+            self.show_error_message(_("Error opening %s: '%s'") % (file, err))
             return False
 
     def load_formula(self,file):
@@ -428,7 +437,7 @@ class MainWindow:
             browser.update()
             return True
         except Exception, err:
-            self.show_error_message("Error opening %s: '%s'" % (file, err))
+            self.show_error_message(_("Error opening %s: '%s'") % (file, err))
             return False
 
     def about(self,action,widget):
