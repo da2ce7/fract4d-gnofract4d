@@ -232,47 +232,55 @@ STFractWorker::pixel(int x, int y,int w, int h)
     float index;
     fate_t fate;
 
-    if(iter != -1) return;
-
     // calculate coords of this point
     dvec4 pos = ff->topleft + x * ff->deltax + y * ff->deltay;
 
     //printf("(%g,%g,%g,%g)\n",pos[VX],pos[VY],pos[VZ],pos[VW]);
 
     assert(pf != NULL && m_ok == true);
-    pf->calc(pos.n, ff->maxiter,periodGuess(),x,y,0,
-	     &pixel,&iter,&index,&fate); 
 
-    periodSet(&iter);
-    im->setIter(x,y,iter);
-    im->setFate(x,y,0,fate);
-    im->setIndex(x,y,0,index);
-
-    rectangle(pixel,x,y,w,h);
-
-    // test for iteration depth
-    if(ff->auto_deepen && k++ % ff->AUTO_DEEPEN_FREQUENCY == 0)
+    fate = im->getFate(x,y,0);
+    if(fate == FATE_UNKNOWN)
     {
-        if( iter > ff->maxiter/2)
-        {
-            /* we would have got this wrong if we used 
-             * half as many iterations */
-            nhalfiters++;
-        }
-        else if(iter == -1)
-	{
-	    /* didn't bail out, try again with 2x as many iterations */
-	    pf->calc(pos.n, ff->maxiter*2,periodGuess(),x,y,-1,
-		     &pixel,&iter, &index, &fate);
+	pf->calc(pos.n, ff->maxiter,periodGuess(),x,y,0,
+		 &pixel,&iter,&index,&fate); 
+	
+	periodSet(&iter);
+	im->setIter(x,y,iter);
+	im->setFate(x,y,0,fate);
+	im->setIndex(x,y,0,index);
 
-	    if(iter != -1)
+	rectangle(pixel,x,y,w,h);
+
+	// test for iteration depth
+	if(ff->auto_deepen && k++ % ff->AUTO_DEEPEN_FREQUENCY == 0)
+	{
+	    if( iter > ff->maxiter/2)
 	    {
-		/* we would have got this right if we used
-		 * twice as many iterations */
-		ndoubleiters++;
+		/* we would have got this wrong if we used 
+		 * half as many iterations */
+		nhalfiters++;
+	    }
+	    else if(iter == -1)
+	    {
+		/* didn't bail out, try again with 2x as many iterations */
+		pf->calc(pos.n, ff->maxiter*2,periodGuess(),x,y,-1,
+			 &pixel,&iter, &index, &fate);
+		
+		if(iter != -1)
+		{
+		    /* we would have got this right if we used
+		     * twice as many iterations */
+		    ndoubleiters++;
+		}
 	    }
 	}
     }
+    else
+    {
+	pixel = pf->recolor(im->getIndex(x,y,0), fate);
+	rectangle(pixel,x,y,w,h);
+    } 
 }
 
 void 
@@ -369,8 +377,18 @@ STFractWorker::rectangle(rgba_t pixel, int x, int y, int w, int h)
 {
     for(int i = y ; i < y+h; i++)
     {
-        for(int j = x; j < x+w; j++) {
-            im->put(j,i,pixel);
+        for(int j = x; j < x+w; j++) 
+	{
+	    fate_t fate = im->getFate(j,i,0);
+	    if(FATE_UNKNOWN == fate)
+	    {
+		im->put(j,i,pixel);
+	    }
+	    else
+	    {
+		rgba_t np = pf->recolor(im->getIndex(j,i,0), fate);
+		im->put(j,i,np);
+	    }
         }
     }
 }
@@ -382,7 +400,8 @@ STFractWorker::rectangle_with_iter(
 {
     for(int i = y ; i < y+h; i++)
     {
-        for(int j = x; j < x+w; j++) {
+        for(int j = x; j < x+w; j++) 
+	{
             im->put(j,i,pixel);
             im->setIter(j,i,iter);
 	    im->setFate(j,i,0,fate);
