@@ -110,7 +110,8 @@ def createDefaultDict():
         "pi" : Var(Float,math.pi, doc="The constant pi, 3.14159..."),
         "t__h_tolerance" : Var(Float),
         "t__h_zwpixel" : Var(Complex,doc="The (Z,W) coordinates of the current point. (See #pixel for the other two coordinates.) When viewing the Mandelbrot set, this remains constant for each pixel on the screen; when viewing the Julia set, it's different for each pixel. Initialize z to some function of this to take advantage of 4D drawing."),
-        "t__h_solid" : Var(Bool,doc="Set this to true in a coloring function to use the solid color rather than the color map.")
+        "t__h_solid" : Var(Bool,doc="Set this to true in a coloring function to use the solid color rather than the color map."),
+        "t__h_color" : Var(Color,doc="Set this from a coloring function to directly set the color instead of using a gradient")
         }
 
     # extra shorthand to make things as short as possible

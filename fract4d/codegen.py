@@ -257,7 +257,9 @@ static void pf_calc(
     // only used for debugging
     int t__p_x, int t__p_y, int t__p_aa,
     // out params
-    int *t__p_pnIters, int *t__p_pFate, double *t__p_pDist, int *t__p_pSolid)
+    int *t__p_pnIters, int *t__p_pFate, double *t__p_pDist, int *t__p_pSolid,
+    int *pDirectColorFlag, double *pColors
+    )
 {
     pf_real *t__pfo = (pf_real *)t__p_stub;
 
@@ -330,7 +332,9 @@ static void pf_calc_period(
     // only used for debugging
     int t__p_x, int t__p_y, int t__p_aa,
     // out params
-    int *t__p_pnIters, int *t__p_pFate, double *t__p_pDist, int *t__p_pSolid)
+    int *t__p_pnIters, int *t__p_pFate, double *t__p_pDist, int *t__p_pSolid,
+    int *pDirectColorFlag, double *pColors
+    )
 {
     pf_real *t__pfo = (pf_real *)t__p_stub;
 
@@ -497,7 +501,8 @@ struct s_pf_vtable {
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        int *pnIters, int *pFate, double *pDist, int *pSolid
+        int *pnIters, int *pFate, double *pDist, int *pSolid,
+	int *pDirectColorFlag, double *pColors
 	);
     /* calculate one point, using periodicity checking */
     void (*calc_period)(
@@ -507,7 +512,8 @@ struct s_pf_vtable {
 	// only used for debugging
 	int x, int y, int aa,
         // out params
-        int *pnIters, int *pFate, double *pDist, int *pSolid
+        int *pnIters, int *pFate, double *pDist, int *pSolid,
+	int *pDirectColorFlag, double *pColors
 	);
     /* deallocate data in p */
     void (*kill)(
