@@ -35,6 +35,7 @@ class T:
             return
 
         self.canonicalizeSections(f)
+        #print f.pretty()
         
         # lookup sections in order
         s = f.childByName("default")
@@ -73,14 +74,14 @@ class T:
         if not s:
             return
         
-        bailout = s.children[-1]
+        bailout = [s.children[-1]]
         loop = s.children[:-1]
         
         oldbailout = f.childByName("bailout")
         if oldbailout:
             self.dupSectionWarning("bailout")
         else:
-            f.children.append(Stmlist("bailout",bailout, bailout.pos))
+            f.children.append(Stmlist("bailout",bailout, bailout[0].pos))
         
         oldloop = f.childByName("loop")
         if oldloop:
@@ -181,8 +182,8 @@ class T:
 
     def badCast(self, node, expectedType):
         raise TranslationError(
-           ("invalid type %s for %s on line %s, expecting %s" %
-            (strOfType(node.datatype), node.type, node.pos, strOfType(expectedType))))
+           ("invalid type %s for %s %s on line %s, expecting %s" %
+            (strOfType(node.datatype), node.type, node.leaf, node.pos, strOfType(expectedType))))
     def warnCast(self,node,expectedType):
         msg = "Warning: conversion from %s to %s on line %s" % \
         (strOfType(node.datatype), strOfType(expectedType), node.pos)
