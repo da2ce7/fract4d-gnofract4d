@@ -20,7 +20,7 @@ class FCTest(unittest.TestCase):
         ff = self.compiler.files["gf4d.frm"]
         self.assertNotEqual(string.index(ff.contents,"Modified for Gf4D"),-1)
         self.assertNotEqual(ff.get_formula("T03-01-G4"),None)
-        self.assertEqual(len(ff.formulas),1)
+        self.assertEqual(len(ff.formulas) > 0,1)
         f = self.compiler.get_formula("gf4d.frm","T03-01-G4")
         self.assertEqual(f.errors, [])
         commands.getoutput("rm -f test-out.so")

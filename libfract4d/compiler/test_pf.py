@@ -61,7 +61,7 @@ class PfTest(unittest.TestCase):
         printable_image = string.join(image,"\n")
         self.assertEqual(printable_image[0], " ")
         self.assertEqual(printable_image[20*41+20],"#") # in the middle
-        # print printable_image # shows low-res mbrot in text mode 
+        #print printable_image # shows low-res mbrot in text mode 
         
     def testBadLoad(self):
         # wrong arg type/number
