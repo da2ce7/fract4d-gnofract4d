@@ -81,7 +81,8 @@ def show_preferences(parent,f):
     if not _prefs:
         _prefs = PrefsDialog(parent,f)
     _prefs.show_all()
-
+    _prefs.present()
+    
 class PrefsDialog(gtk.Dialog):
     def __init__(self,main_window,f):
         global userPrefs
@@ -96,7 +97,7 @@ class PrefsDialog(gtk.Dialog):
         self.notebook = gtk.Notebook()
         self.vbox.add(self.notebook)
         self.prefs = userPrefs
-        
+        self.tips = gtk.Tooltips()
         self.create_image_options_page()
         self.create_compiler_options_page()
 
@@ -112,6 +113,8 @@ class PrefsDialog(gtk.Dialog):
 
     def create_width_entry(self):
         entry = gtk.Entry()
+        self.tips.set_tip(entry,"The image's width in pixels")
+        
         def set_entry(*args):
             entry.set_text(self.prefs.get("display","width"))
 
@@ -138,6 +141,8 @@ class PrefsDialog(gtk.Dialog):
 
     def create_height_entry(self):
         entry = gtk.Entry()
+        self.tips.set_tip(entry,"The image's height in pixels")
+        
         def set_entry(*args):
             entry.set_text(self.prefs.get("display","height"))
 
@@ -164,6 +169,7 @@ class PrefsDialog(gtk.Dialog):
 
     def create_compiler_entry(self,propname):
         entry = gtk.Entry()
+        
         def set_entry(*args):
             entry.set_text(self.prefs.get("compiler",propname))
 
@@ -177,19 +183,33 @@ class PrefsDialog(gtk.Dialog):
 
     def create_compiler_options_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
-        self.notebook.append_page(table,gtk.Label("Compiler"))
-
-        table.attach(gtk.Label("Compiler :"),0,1,0,1,0,0,2,2)
+        label = gtk.Label("Com_piler")
+        label.set_use_underline(True)
+        self.notebook.append_page(table,label)
+                        
         entry = self.create_compiler_entry("name")
+        self.tips.set_tip(entry,"The C compiler to use")
         table.attach(entry,1,2,0,1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
-        table.attach(gtk.Label("Compiler Options :"),0,1,1,2,0,0,2,2)
+        name_label = gtk.Label("Compi_ler :")
+        name_label.set_use_underline(True)
+        name_label.set_mnemonic_widget(entry)
+        table.attach(name_label,0,1,0,1,0,0,2,2)
+        
         entry = self.create_compiler_entry("options")
+        self.tips.set_tip(entry, "Options to pass to the C compiler")
         table.attach(entry,1,2,1,2,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
+        flags_label = gtk.Label("Compiler _Flags :")
+        flags_label.set_use_underline(True)
+        table.attach(flags_label,0,1,1,2,0,0,2,2)
+        flags_label.set_mnemonic_widget(entry)
+        
     def create_auto_deepen_widget(self):
-        widget = gtk.CheckButton("Auto Deepen")
-
+        widget = gtk.CheckButton("Auto _Deepen")
+        self.tips.set_tip(widget,"Adjust number of iterations automatically")
+        widget.set_use_underline(True)
+        
         def set_widget(*args):
             widget.set_active(self.prefs.getboolean("display","autodeepen"))
 
@@ -225,18 +245,29 @@ class PrefsDialog(gtk.Dialog):
     
     def create_image_options_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
-        self.notebook.append_page(table,gtk.Label("Image"))
-
-        table.attach(gtk.Label("Width :"),0,1,0,1,0,0,2,2)
-        table.attach(gtk.Label("Height :"),0,1,1,2,0,0,2,2)
+        label = gtk.Label("_Image")
+        label.set_use_underline(True)
+        self.notebook.append_page(table,label)
 
         wentry = self.create_width_entry()
         table.attach(wentry,1,2,0,1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
+        wlabel = gtk.Label("_Width :")
+        wlabel.set_mnemonic_widget(wentry)
+        wlabel.set_use_underline(True)
+        table.attach(wlabel,0,1,0,1,0,0,2,2)
+
         hentry = self.create_height_entry()
         table.attach(hentry,1,2,1,2,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
-        self.fix_ratio = gtk.CheckButton("Maintain Aspect Ratio")
+        hlabel = gtk.Label("_Height :")
+        hlabel.set_mnemonic_widget(hentry)
+        hlabel.set_use_underline(True)
+        table.attach(hlabel,0,1,1,2,0,0,2,2)
+
+        self.fix_ratio = gtk.CheckButton("Maintain Aspect _Ratio")
+        self.tips.set_tip(self.fix_ratio,"Keep the image rectangle the same shape when changing its size")
+        self.fix_ratio.set_use_underline(True)
         table.attach(self.fix_ratio,0,2,2,3,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         self.fix_ratio.set_active(True)
 
@@ -245,9 +276,13 @@ class PrefsDialog(gtk.Dialog):
         table.attach(self.auto_deepen,0,2,3,4,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         
         # antialiasing
-        table.attach(gtk.Label("Antialiasing : "),0,1,4,5,0,0,2,2)
         optMenu = self.create_antialias_menu()
         table.attach(optMenu,1,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        aalabel = gtk.Label("_Antialiasing : ")
+        aalabel.set_use_underline(True)
+        aalabel.set_mnemonic_widget(optMenu)
+        table.attach(aalabel,0,1,4,5,0,0,2,2)
         
     def onResponse(self,widget,id):
         if id == gtk.RESPONSE_CLOSE or \

@@ -25,7 +25,10 @@ todo for 2.0
 * W	review human interface guidelines
 * B	warnings for several fractal types
 * B	other windows always in front - is that good?
-* WW	docs
+
+* WW	doc
+* B	footnotes are fucked in yelp
+
 * BB	some horror (closing settings window?) then applying formula gave:
 	(gnofract4d:29936): Gtk-CRITICAL **: file gtkcontainer.c: line 880 
 	(gtk_container_remove): assertion 

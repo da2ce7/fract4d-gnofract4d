@@ -12,7 +12,8 @@ def show_autozoom(parent,f):
     if not _autozoom:
         _autozoom = AutozoomDialog(parent,f)
     _autozoom.show_all()
-
+    _autozoom.present()
+    
 class AutozoomDialog(gtk.Dialog):
     def __init__(self,main_window,f):
         gtk.Dialog.__init__(

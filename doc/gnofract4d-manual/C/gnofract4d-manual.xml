@@ -1,6 +1,9 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY stdlib SYSTEM "stdlib.xml">
+<!ENTITY gf4d "<application>Gnofract 4D</application>">
+<!ENTITY fractint "<application>Fractint</application>">
+<!ENTITY ultrafractal "<application>UltraFractal</application>">
 ]>
 <article id="gnofract4d">
 <articleinfo>
@@ -12,8 +15,13 @@
 
 <sect1 id="introduction">
 <title>Introduction</title>
+<blockquote><attribution>Francis Bacon</attribution>
+<para>
+There is no excellent beauty which hath not some strangeness in the proportion.
+</para>
+</blockquote>
 
-<para>Gnofract 4D is a program which draws complex mathematical
+<para>&gf4d; is a program which draws complex mathematical
 objects known as fractals, including the Mandelbrot and Julia sets and
 many others. It allows you to treat a fractal which has more than one
 parameter as a four-dimensional object and interactively view slices
@@ -30,6 +38,260 @@ http://gnofract4d.sourceforge.net</ulink>.
 
 </sect1>
 
+<sect1 id="using">
+<title>Using &gf4d;</title>
+<para>
+
+&gf4d;'s screen layout is deliberately simple. Most of the screen is
+taken up by a viewport onto the fractal you're investigating. By
+default, this is the Mandelbrot set. You can directly click on this to
+zoom. The toolbar provides quick access to frequently used functions,
+and more complex properties of the fractal are accessed through dialog
+boxes brought up via the menu bar.
+</para>
+
+<para>
+Initially, just play around - after all, generating fractals isn't
+meant to be <emphasis>work</emphasis>. If you make a change you don't
+like, just hit Undo.
+</para>
+
+<sect2 id="basics">
+<title>Interacting with the Fractal</title> 
+
+<para>
+Each fractal is an infinitely complex image, which you can see a slice
+of in the main window. By left-clicking on the window, you can zoom in
+to view finer and finer details. Just click on an area you like to
+view it more closely. If you click and drag with the left button, you can
+draw a white box around an area. When you let go, you zoom in
+so that the area inside that box fills the window. 
+</para>
+
+<para>
+To zoom back out, click with the right button. You can also press
+<keycap>Home</keycap> to return to the starting point for this
+fractal, or use <guibutton>Undo</guibutton> to go back one step.
+There isn't a click and drag feature for the right button.
+</para>
+
+<para>
+Clicking with the middle button rotates the view by 90 degrees in the
+<emphasis>xz</emphasis> and <emphasis>yw</emphasis> axes. If you're
+currently looking at the Mandelbrot set, you'll get a Julia set, and
+vice versa. If you're looking at something else, you'll get something
+weird. Note that clicking this twice doesn't take you back to where
+you started: the screen also gets recentered on the point you clicked,
+so clicking twice will normally give you a perturbed, deformed-looking
+Mandelbrot.
+</para>
+
+<para>
+In explorer mode, the central window behaves the same as normal - you
+can zoom as normal. The smaller windows only understand left-click,
+which transfers that image to the central window.  </para>
+
+<para>
+The cursor keys pan around the image. Hold down Control + cursor to
+move more quickly. Hold down Alt+ cursor to move around in the other
+two dimensions, mutating the image.
+</para>
+</sect2>
+
+<sect2 id="toolbar">
+<title>Toolbar buttons</title>
+<para>
+On the left of the toolbar you can see a small preview window, which
+updates as you change the angle or position buttons, to give you an
+idea of what the fractal will look like when you release the button.
+</para>
+
+<para>
+The first eight toolbar buttons correspond to the ten parameters which
+define the view. The circular angle buttons, labelled <emphasis>xy</emphasis> to
+<emphasis>zw</emphasis>, can changed by dragging the dot around. When you let
+go, the fractal will update. You can see the angle's current value in
+degrees in the status bar. By the way, the <emphasis>zw</emphasis> angle does
+work, you just can't see its effects until you rotate in some other
+dimensions first.
+</para>
+
+<para>
+The square position buttons, <emphasis>xy</emphasis> and
+<emphasis>zw</emphasis>, can be used to alter the view. The
+<emphasis>xy</emphasis> button allows you to pan around the current
+view (it doesn't move along the actual <emphasis>x</emphasis> or
+<emphasis>y</emphasis> axes, but along axes relative to the current
+view). The <emphasis>zw</emphasis> button allows you to move along the
+other two axes, resulting in a mutated version of the current image.
+Click inside one then drag the mouse, watching the preview window
+update, then release the mouse when you like the results.  </para>
+
+<para>
+The weird black and white button (OK, so I can't draw) allows you to
+increase the current interation count, for those occasions when the
+auto-deepening doesn't get it right.  </para> <para> The
+<emphasis>Undo</emphasis> and <emphasis>Redo</emphasis> buttons should
+be fairly obvious. You can undo as many times as you like. Note that
+undo also affects parameters such as color, not just position on
+screen.  </para>
+
+<para>
+
+The <emphasis>Explore</emphasis> mode helps you find neat-looking fractals
+easily. It divides the screen into a large central section and smaller
+"subfractals" which surround it.The central section is
+the main image - you can click on this to zoom in, or update it as
+normal. The other images around the edges are "mutant" versions
+of the main image - they're formed by starting with the base
+parameters and randomly changing them a bit. Whenever you change the
+main images, you get a whole new set of mutants. If you like a mutant
+more than the main picture, click on it to move it to the middle - it
+then becomes the main picture and you get eight new mutants based on
+the new main image. To return to normal mode, click the Explorer
+button again.
+</para>
+<para>
+The "weirdness slider" determines how different the mutants are from
+the standard image. If it's set to 1.0, they're almost unrecognizable
+- if it's 0.0, they're exactly the same. You can also generate more
+mutants with the refresh button.
+</para>
+</sect2>
+
+<sect2 id="filemenu">
+<title>File Menu</title> 
+<para>
+<guimenuitem>Save Image</guimenuitem> writes the current image to
+disk. Only the PNG and JPEG image formats are supported. I recommend
+using PNG images for high quality output, and JPEGs only when image
+size is important, because JPEGs introduce artifacts which blur the
+fine details of your fractal.
+
+<guimenuitem>Open Parameter File</guimenuitem> and <guimenuitem>Save Parameter File</guimenuitem> load and save plain-text parameter
+description files (extension ".fct"), so you can return to images in the future.
+<guimenuitem>Pause</guimenuitem> temporarily halts the current
+calculation, in the unlikely event you have something more important
+than generating fractals to do.
+</para>
+</sect2>
+
+<sect2 id="preferences">
+<title>Settings Menu</title> 
+
+<para> You can set all the fractal's parameters from here. Settings
+are divided into <emphasis>Fractal Settings</emphasis> and
+<emphasis>Preferences</emphasis>.  <emphasis>Fractal
+Settings</emphasis> are saved in the fractal's .fct file - they are
+properties of the fractal itself. By contrast, <emphasis>
+preferences</emphasis> are your preferences for &gf4d;'s general
+behavior and are saved in &gf4d;'s config file
+(~/.gnome/gnofract4d). <emphasis>Colors</emphasis> are also saved in
+the .fct file.
+</para>
+
+<sect3 id="prefdialog">
+<title>Fractal Settings</title>
+<sect4 id="function">
+<title>Function Section</title>
+<para>
+Allows you to choose which fractal type to draw. 
+</para>
+</sect4>
+
+<sect4 id="parameters">
+<title>Parameters</title>
+<para>
+Some fractal types (such as the Quadratic fractal) have additional
+parameters which you can set. These are displayed here. What
+parameters there are depends on the fractal type.
+</para>
+</sect4>
+
+<sect4 id="rendering">
+<title>Rendering Section</title> <para> This has various options to
+trade off image quality against rendering time and generally change
+the appearance of the image.
+
+<emphasis>Antialiasing</emphasis> makes the image smoother and nice looking,
+but takes a lot longer to draw (up to five times
+longer). <emphasis>Default</emphasis> antialiasing is quite a lot faster than
+<emphasis>Best</emphasis> mode, but can miss some small details.
+
+<emphasis>Max Iterations</emphasis> sets the number of iterations a point will
+go through before we give up and assume it's a member of the Julibrot.
+
+If <emphasis>Auto Deepening</emphasis> is on, the maximum number of iterations
+is set automatically by &gf4d; but you can change it by hand whenever
+you like.
+
+<emphasis> Inner </emphasis> and <emphasis> Outer </emphasis> select
+the function used to translate the raw fractal data into colors, for
+the inside and outside of the set respectively. The functions have the
+following effects: <emphasis>Iteration Count</emphasis> uses the
+number of iterations required to bail out to set the color directly.
+<emphasis> Continuous Potential </emphasis> gives a much smoother
+image, by basing the color not only on how many iterations the point
+took to escape, but on how far away from the origin it ended up on its
+last iteration. <emphasis>Ejection Distance</emphasis> ignores the
+count altogether and uses only the distance. <emphasis>
+Decomposition</emphasis> chooses one of four colors based on the
+location in the complex plane of the point's final position.<emphasis>
+Angle</emphasis> translates the angle between the point's final
+position and the x-axis into a color.</para> </sect4>
+
+<sect4 id="bailout">
+<title>Bailout Section</title>
+<para>
+The <emphasis>Bailout Function</emphasis> is used to decide whether a point
+has left the set. If <emphasis>function(z)</emphasis> is greater than the
+<emphasis>Distance</emphasis>, the point has left the set. A few functions
+don't work very well with some fractal types, for example Barnsley
+fractals don't mix well with the <emphasis>Or</emphasis> bailout function.
+
+</para>
+</sect4>
+
+<sect4 id="image">
+<title>Other Sections</title>
+<para>
+<emphasis>Width</emphasis> and <emphasis>Height</emphasis> 
+set the size of the image in pixels.
+
+The <emphasis>Location</emphasis> entryboxes allow you to
+change the coordinates of the screen center and the image size. 
+
+The <emphasis>Angles</emphasis> tab allows you to set the rotation
+angles. Only values between 0 and 2 * pi are different; values outside
+this range "wrap" to points inside that range.
+</para>
+</sect4>
+</sect3>
+<sect3 id="colors">
+<title>Color Browser</title>
+<para>
+The Color Browser is designed to let you quickly choose a color scheme
+which suits the current fractal, by generating a set of previews to
+choose between. To update the previews to match the current fractal,
+click <emphasis> Refresh</emphasis>. To apply a colormap to the main image,
+click the map.
+</para>
+</sect3>
+
+<sect3 id="preferences2">
+<title>Preferences</title> <para> There's only one set of preferences
+at the moment- the compiler preferences. &gf4d; needs a C++ compiler to
+be available at runtime in order to work (it dynamically creates the
+code to compute a particular fractal when you ask for that
+fractal). This section allows you to specify a location for the
+compiler and options to pass to it. <emphasis>If &gf4d; is working
+fine, I suggest you leave this area alone.</emphasis></para>
+</sect3>
+
+</sect2>
+
+</sect1>
+
 <sect1 id="maths">
 <title> About the maths</title>
 
@@ -41,16 +303,12 @@ insultingly oversimplified or just plain wrong.
 </caution>
 
 <sect2 id="mset" >
-<title>The Mandelbrot Set</title> <para> The Mandelbrot may be calculated as
-the set of all complex numbers which, when you repeatedly square them
-and add them again, never become infinite.
-
-<footnote>
-<para>
-The official definition of the set is somewhat different: it is the
-set of points in the complex plane whose corresponding Julia sets are
-connected. These end up being the same thing.  </para>
-</footnote>
+<title>The Mandelbrot Set</title> <para> The Mandelbrot may be
+calculated as the set of all complex numbers which, when you
+repeatedly square them and add them again, never become infinite. (The
+official definition of the set is somewhat different: it is the set of
+points in the complex plane whose corresponding Julia sets are
+connected. These end up being the same thing.)
 
 We can tell that a number will eventually reach infinity if it ever
 gets outside a circle of radius 2 around the origin. Unfortunately, we
@@ -80,15 +338,13 @@ very mathematically significant, but they look nice.
 </para>
 
 <para>
-So what happens if <emphasis>z</emphasis> is initially set to a complex value
-other than zero? <footnote>
-
-<para>
-Strictly speaking, you shouldn't do this. Zero is important because it
-is the <emphasis>critical value</emphasis> of z^2+c - other values are
-not mathematically meaningful. However, as with most fractal programs,
-Gnofract 4D allows you to draw anything which looks interesting,
-regardless of its mathematical purity.  </para> </footnote>
+So what happens if <emphasis>z</emphasis> is initially set to a
+complex value other than zero? (Strictly speaking, you shouldn't do
+this. Zero is important because it is the <emphasis>critical
+value</emphasis> of z^2+c - other values are not mathematically
+meaningful. However, as with most fractal programs, &gf4d; allows you
+to draw anything which looks interesting, regardless of its
+mathematical purity.)
 
 Well, you get a rather odd-looking, deformed M-set.  This initial
 value, which we'll call <emphasis>z0</emphasis>, is called the intial
@@ -148,7 +404,7 @@ while( magnitude(z) &lt; 4.0 and iterations &lt; max_iterations )
 </programlisting>
 
 The Julibrot function has two complex parameters, or four real
-ones. In Gnofract 4D I refer to the real parameters as x, y, z, and w:
+ones. In &gf4d; I refer to the real parameters as x, y, z, and w:
 these are c.re , c.im, z0.re and z0.im respectively.
 
 The only difference is which points we choose to draw. To draw the
@@ -157,7 +413,7 @@ Mandelbrot set, we keep <emphasis>z0</emphasis> constant and change
 <emphasis>c</emphasis> constant and change <emphasis>z0</emphasis>. If
 you squint with your brain a bit, you can imagine both sets as
 orthogonal "slices" through the same four-dimensional object. In
-Gnofract 4D terms, the Mandelbrot set is the <emphasis>xy</emphasis>
+&gf4d; terms, the Mandelbrot set is the <emphasis>xy</emphasis>
 plane, and the Julia set is the <emphasis>zw</emphasis> plane. We can
 also look at other planes: here's an image of the
 <emphasis>xw</emphasis> plane:
@@ -211,7 +467,7 @@ creating a whole world of bizarre pictures.
 
 <para> There are other kinds of fractal which are commonly described
 as "four-dimensional" - hypercomplex and quaternion-based
-fractals. Gnofract 4D doesn't currently support these fractals
+fractals. &gf4d; doesn't currently support these fractals
 directly (though you can create your own quaternion-based formulas),
 so they're only mentioned here to clarify the difference. (If you want
 to generate hypercomplex fractals I recommend you try <ulink
@@ -231,12 +487,12 @@ hypercomplex mandelbrot has two hypercomplex parameters, in Gnofract
 When you get tired of the fractal functions which come with Gnofract
 4D, you can write your own, or take advantage of thousands of formulas
 written by other fractal enthusiasts. Gnofract4D can load most fractal
-formula files written for Fractint (and some written for
+formula files written for &fractint; (and some written for
 UltraFractal). However the compiler is not 100%
-backwards-compatible with Fractint, so unfortunately some fractals
-can't be loaded, or will display differently when they do. Gnofract 4D
-also supports many constructs Fractint doesn't, so you need to take
-extra care when writing formulas if you want them to work in Fractint
+backwards-compatible with &fractint;, so unfortunately some fractals
+can't be loaded, or will display differently when they do. &gf4d;
+also supports many constructs &fractint; doesn't, so you need to take
+extra care when writing formulas if you want them to work in &fractint;
 too.
 </para>
 
@@ -246,14 +502,14 @@ Here are links to some online resources for formula files:
 
 <listitem><para> <ulink
 url="http://home.att.net/~Paul.N.Lee/OrgForm.html">ORGFORM.ZIP</ulink>
-A collection of about 25,000 Fractint formula files by many authors,
+A collection of about 25,000 &fractint; formula files by many authors,
 originally compiled by George C. Martin and currently maintained by
 Paul N. Lee. Indispensable. </para></listitem>
 
 <listitem><para> <ulink
 url="http://formulas.ultrafractal.com/">UltraFractal public formula
 database</ulink> Over 4.5MB of formulas by users of UltraFractal. Many
-(but by no means all) of these will work with Gnofract 4D. Let me know
+(but by no means all) of these will work with &gf4d;. Let me know
 of any issues, since I aim to improve compatibility further in future
 releases. </para></listitem>
 
@@ -269,9 +525,9 @@ releases. </para></listitem>
 <title>Compatibility Notes</title>
 
 <para>
-Most Fractint formulas are compatible with Gnofract 4D, but not
-all. Gnofract 4D also supports many extensions (most of which are
-taken from UltraFractal), which Fractint doesn't understand.
+Most &fractint; formulas are compatible with &gf4d;, but not
+all. &gf4d; also supports many extensions (most of which are
+taken from UltraFractal), which &fractint; doesn't understand.
 </para>
 <para>
 Specific differences:
@@ -279,10 +535,10 @@ Specific differences:
 
 <listitem><para> 
 
-Gnofract 4D does not include Fractint's <function>cosxx</function> (a
+&gf4d; does not include &fractint;'s <function>cosxx</function> (a
 bogus version of cos provided for backwards compatibility), and
 produces different results for <function>acos</function> and
-<function>acosh</function>. I believe Fractint's results are
+<function>acosh</function>. I believe &fractint;'s results are
 incorrect for the latter two, but I could be wrong.
 
 </para></listitem>
@@ -304,236 +560,6 @@ incorrect for the latter two, but I could be wrong.
 &stdlib;
 </sect1>
 
-<sect1 id="mouse">
-<title>Mouse and Keyboard Functions</title> 
-
-<para>
-Clicking with the left mouse button zooms in, making the picture twice
-as large as before. The new image is centered on the point where you
-clicked the mouse. If you click and drag with the left button, you can
-draw a white box around an area. When you let go, the image zooms in
-so that the area inside that box fills the window. 
-</para>
-
-<para>
-Clicking with the right mouse button zooms out, making the picture
-twice as small as before. There isn't a click and drag feature for the
-right button.
-</para>
-
-<para>
-Clicking with the middle button rotates by 90 degrees in the
-<emphasis>xz</emphasis> and <emphasis>yw</emphasis> axes. If you're currently looking
-at the Mandelbrot set, you'll get a Julia set, and vice versa. If
-you're looking at something else, you'll get something weird. Note
-that clicking this twice doesn't take you back to where you started:
-the screen gets recentered on the point you clicked.
-</para> 
-
-<para>
-In explorer mode, the central window behaves the same as normal - you
-can zoom as normal. The smaller windows only understand left-click,
-which transfers that image to the central window.  </para>
-
-<para>
-The cursor keys pan around the image. Hold down Control + cursor to
-move more quickly. Hold down Alt+ cursor to move around in the other
-two dimensions, mutating the image.
-</para>
-</sect1>
-
-<sect1 id="toolbar">
-<title>Toolbar buttons</title>
-<para>
-On the left of the toolbar you can see a small preview window, which
-updates as you change the angle or position buttons, to give you an
-idea of what the fractal will look like when you release the button.
-</para>
-
-<para>
-The first eight toolbar buttons correspond to the ten parameters which
-define the view. The circular angle buttons, labelled <emphasis>xy</emphasis> to
-<emphasis>zw</emphasis>, can changed by dragging the dot around. When you let
-go, the fractal will update. You can see the angle's current value in
-degrees in the status bar. By the way, the <emphasis>zw</emphasis> angle does
-work, you just can't see its effects until you rotate in some other
-dimensions first.
-</para>
-
-<para>
-The square position buttons, <emphasis>xy</emphasis> and
-<emphasis>zw</emphasis>, can be used to alter the view. The
-<emphasis>xy</emphasis> button allows you to pan around the current
-view (it doesn't move along the actual <emphasis>x</emphasis> or
-<emphasis>y</emphasis> axes, but along axes relative to the current
-view). The <emphasis>zw</emphasis> button allows you to move along the
-other two axes, resulting in a mutated version of the current image.
-Click inside one then drag the mouse, watching the preview window
-update, then release the mouse when you like the results.  </para>
-
-<para>
-The weird black and white button (OK, so I can't draw) allows you to
-increase the current interation count, for those occasions when the
-auto-deepening doesn't get it right.  </para> <para> The
-<emphasis>Undo</emphasis> and <emphasis>Redo</emphasis> buttons should
-be fairly obvious. You can undo as many times as you like. Note that
-undo also affects parameters such as color, not just position on
-screen.  </para>
-
-<para>
-
-The <emphasis>Explore</emphasis> mode helps you find neat-looking fractals
-easily. It divides the screen into a large central section and smaller
-"subfractals" which surround it.The central section is
-the main image - you can click on this to zoom in, or update it as
-normal. The other images around the edges are "mutant" versions
-of the main image - they're formed by starting with the base
-parameters and randomly changing them a bit. Whenever you change the
-main images, you get a whole new set of mutants. If you like a mutant
-more than the main picture, click on it to move it to the middle - it
-then becomes the main picture and you get eight new mutants based on
-the new main image. To return to normal mode, click the Explorer
-button again.
-</para>
-<para>
-The "weirdness slider" determines how different the mutants are from
-the standard image. If it's set to 1.0, they're almost unrecognizable
-- if it's 0.0, they're exactly the same. You can also generate more
-mutants with the refresh button.
-</para>
-</sect1>
-
-<sect1 id="filemenu">
-<title>File Menu</title> 
-<para>
-<guimenuitem>Save Image</guimenuitem> writes the current image to
-disk. Only the PNG and JPEG image formats are supported. I recommend
-using PNG images for high quality output, and JPEGs only when image
-size is important, because JPEGs introduce artifacts which blur the
-fine details of your fractal.
-
-<guimenuitem>Open Parameter File</guimenuitem> and <guimenuitem>Save Parameter File</guimenuitem> load and save plain-text parameter
-description files (extension ".fct"), so you can return to images in the future.
-<guimenuitem>Pause</guimenuitem> temporarily halts the current
-calculation, in the unlikely event you have something more important
-than generating fractals to do.
-</para>
-</sect1>
-
-<sect1 id="preferences">
-<title>Settings Menu</title> 
-
-<para> You can set all the fractal's parameters from here. Settings
-are divided into <emphasis>Fractal Settings</emphasis> and
-<emphasis>Preferences</emphasis>.  <emphasis>Fractal
-Settings</emphasis> are saved in the fractal's .fct file - they are
-properties of the fractal itself. By contrast, <emphasis>
-preferences</emphasis> are your preferences for Gnofract 4D's general
-behavior and are saved in Gnofract 4D's config file
-(~/.gnome/gnofract4d). <emphasis>Colors</emphasis> are also saved in
-the .fct file.
-</para>
-
-<sect2 id="prefdialog">
-<title>Fractal Settings</title>
-<sect3 id="function">
-<title>Function Section</title>
-<para>
-Allows you to choose which fractal type to draw. See <xref
-linkend="types"/> for details of the types available.
-</para>
-</sect3>
-
-<sect3 id="parameters">
-<title>Parameters</title>
-<para>
-Some fractal types (such as the Quadratic fractal) have additional
-parameters which you can set. These are displayed here. What
-parameters there are depends on the fractal type.
-</para>
-</sect3>
-
-<sect3 id="rendering">
-<title>Rendering Section</title> <para> This has various options to
-trade off image quality against rendering time and generally change
-the appearance of the image.
-
-<emphasis>Antialiasing</emphasis> makes the image smoother and nice looking,
-but takes a lot longer to draw (up to five times
-longer). <emphasis>Default</emphasis> antialiasing is quite a lot faster than
-<emphasis>Best</emphasis> mode, but can miss some small details.
-
-<emphasis>Max Iterations</emphasis> sets the number of iterations a point will
-go through before we give up and assume it's a member of the Julibrot.
-
-If <emphasis>Auto Deepening</emphasis> is on, the maximum number of iterations
-is set automatically by Gnofract 4D but you can change it by hand whenever
-you like.
-
-<emphasis> Inner </emphasis> and <emphasis> Outer </emphasis> select
-the function used to translate the raw fractal data into colors, for
-the inside and outside of the set respectively. The functions have the
-following effects: <emphasis>Iteration Count</emphasis> uses the
-number of iterations required to bail out to set the color directly.
-<emphasis> Continuous Potential </emphasis> gives a much smoother
-image, by basing the color not only on how many iterations the point
-took to escape, but on how far away from the origin it ended up on its
-last iteration. <emphasis>Ejection Distance</emphasis> ignores the
-count altogether and uses only the distance. <emphasis>
-Decomposition</emphasis> chooses one of four colors based on the
-location in the complex plane of the point's final position.<emphasis>
-Angle</emphasis> translates the angle between the point's final
-position and the x-axis into a color.</para> </sect3>
-
-<sect3 id="bailout">
-<title>Bailout Section</title>
-<para>
-The <emphasis>Bailout Function</emphasis> is used to decide whether a point
-has left the set. If <emphasis>function(z)</emphasis> is greater than the
-<emphasis>Distance</emphasis>, the point has left the set. A few functions
-don't work very well with some fractal types, for example Barnsley
-fractals don't mix well with the <emphasis>Or</emphasis> bailout function.
-
-</para>
-</sect3>
-
-<sect3 id="image">
-<title>Other Sections</title>
-<para>
-<emphasis>Width</emphasis> and <emphasis>Height</emphasis> 
-set the size of the image in pixels.
-
-The <emphasis>Location</emphasis> entryboxes allow you to
-change the coordinates of the screen center and the image size. 
-
-The <emphasis>Angles</emphasis> tab allows you to set the rotation
-angles. Only values between 0 and 2 * pi are different; values outside
-this range "wrap" to points inside that range.
-</para>
-</sect3>
-</sect2>
-<sect2 id="colors">
-<title>Color Browser</title>
-<para>
-The Color Browser is designed to let you quickly choose a color scheme
-which suits the current fractal, by generating a set of previews to
-choose between. To update the previews to match the current fractal,
-click <emphasis> Refresh</emphasis>. To apply a colormap to the main image,
-click the map.
-</para>
-</sect2>
-
-<sect2 id="preferences2">
-<title>Preferences</title> <para> There's only one set of preferences
-at the moment- the compiler preferences. Gnofract 4D needs a C++ compiler to
-be available at runtime in order to work (it dynamically creates the
-code to compute a particular fractal when you ask for that
-fractal). This section allows you to specify a location for the
-compiler and options to pass to it. <emphasis>If Gnofract 4D is working
-fine, I suggest you leave this area alone.</emphasis></para>
-</sect2>
-
-</sect1>
 
 <sect1 id="bugs">
 <title>Bugs and Known Issues</title>
@@ -566,7 +592,7 @@ convert it. I hope to fix most of these issues in future versions.
 Specific known issues:
 <itemizedlist>
 
-<listitem> <para> Files generated by Gnofract 4D versions older than
+<listitem> <para> Files generated by &gf4d; versions older than
 1.4 can't be loaded. </para>
 </listitem>
 
@@ -584,30 +610,30 @@ one). Inner colormaps are ignored. </para> </listitem>
 </sect1>
 
 <sect1 id="about">
-<title>About Gnofract 4D</title>
+<title>About &gf4d;</title>
 <para>
 
-This is Gnofract 4D version 2.0. You can find the most recent version of
-Gnofract 4D from <ulink url="http://gnofract4d.sourceforge.net">
+This is &gf4d; version 2.0. You can find the most recent version of
+&gf4d; from <ulink url="http://gnofract4d.sourceforge.net">
 http://gnofract4d.sourceforge.net/</ulink>. 
 </para>
 <para>
-Gnofract 4D was originally based on Gnofract, written by Aurelien Alleaume
+&gf4d; was originally based on Gnofract, written by Aurelien Alleaume
 <ulink url="mailto:manchot@club-internet.fr">(manchot@club-internet.fr)
 </ulink>,
 though none of the original code remains in the current version.
 Gnofract could once be obtained from
 <ulink url="http://www.multimania.com/mason/">
 http://www.multimania.com/mason/</ulink> but this no longer appears to
-work.  Gnofract 4D is by Edwin Young <ulink
+work.  &gf4d; is by Edwin Young <ulink
 url="mailto:edwin@sourceforge.net">(edwin@sourceforge.net) </ulink>.
-The Gnofract 4D distribution contains palette files by a number of
+The &gf4d; distribution contains palette (.map) files by a number of
 authors which were originally distributed with <ulink
-url="http://spanky.triumf.ca/">Fractint</ulink> under somewhat murky
+url="http://spanky.triumf.ca/">&fractint;</ulink> under somewhat murky
 licensing conditions.
 </para>
 <para>
-Gnofract 4D is distributed under the <emphasis>BSD license</emphasis>. 
+&gf4d; is distributed under the <emphasis>BSD license</emphasis>. 
 See the file "COPYING" for details.
 </para>
 </sect1>
