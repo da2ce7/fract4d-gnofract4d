@@ -88,8 +88,13 @@ def create_arg_from_val(type,val):
         return ConstFloatArg(val)
     elif type == Complex:
         return ComplexArg(ConstFloatArg(val[0]),ConstFloatArg(val[1]))
+    elif type == Hyper:
+        return HyperArg(
+            ConstFloatArg(val[0]),ConstFloatArg(val[1]),
+            ConstFloatArg(val[2]),ConstFloatArg(val[3]))
     else:
-        raise TranslationError("Unknown constant type %s", type)
+        raise fracttypes.TranslationError(
+            "Internal Compiler Error: Unknown constant type %s" % type)
     
 def create_arg(t):
     return create_arg_from_val(t.datatype,t.value)

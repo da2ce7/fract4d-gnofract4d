@@ -189,15 +189,25 @@ def createDefaultDict():
       While not a generally useful function, this is provided to ease porting
       of files from older Gnofract 4D versions.''')
 
-    f("imag_j",
+    f("hyper_ri",
+      [[Hyper], Complex],
+      doc='''The real and imaginary parts of a hypercomplex number.
+      Can be assigned to. hyper_ri(a,b,c,d) = (a,b).''')
+
+    f("hyper_jk",
+      [[Hyper], Complex],
+      doc='''The 3rd and 4th parts of a hypercomplex number.
+      Can be assigned to. hyper_jk(a,b,c,d) = (c,d).''')
+    
+    f("hyper_j",
       [[Hyper], Float],
       doc='''The 3rd component of a hypercomplex number. Can be assigned to.
-      imag_j(a,b,c,d) = c.''')
+      hyper_j(a,b,c,d) = c.''')
 
-    f("imag_k",
+    f("hyper_k",
       [[Hyper], Float],
       doc='''The 4th component of a hypercomplex number. Can be assigned to.
-      imag_k(a,b,c,d) = d.''')
+      hyper_k(a,b,c,d) = d.''')
       
     f("recip",
       cfl("[_] , _", [ Float, Complex]),
