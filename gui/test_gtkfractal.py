@@ -2,6 +2,7 @@
 
 import unittest
 import copy
+import math
 
 import gtkfractal
 import gtk
@@ -132,6 +133,73 @@ class FctTest(unittest.TestCase):
         tparams[f.MAGNITUDE] /= 2.0
 
         self.assertEqual(f.params,tparams)
+
+    def testButton3(self):
+        f = self.f
+        tparams = copy.copy(f.params)
+
+        # right click in center just zooms out
+        evt = FakeEvent(button=3,x=f.width/2,y=f.height/2)
+        f.onButtonRelease(f.widget,evt)
+        tparams[f.MAGNITUDE] *= 2.0
+
+        self.assertEqual(f.params,tparams)
+
+        # right click in top corner zooms + recenters
+        evt = FakeEvent(button=3,x=0,y=0)
+        f.onButtonRelease(f.widget,evt)
+        tparams[f.XCENTER] -= tparams[f.MAGNITUDE]/2.0
+        tparams[f.YCENTER] -= tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
+        tparams[f.MAGNITUDE] *= 2.0
+
+        self.assertEqual(f.params,tparams)
+
+    def testButton2(self):
+        f = self.f
+        tparams = copy.copy(f.params)
+
+        # middle click in center goes to Julia 
+        evt = FakeEvent(button=2,x=f.width/2,y=f.height/2)
+        f.onButtonRelease(f.widget,evt)
+        tparams[f.XZANGLE] = math.pi/2
+        tparams[f.YWANGLE] = math.pi/2
+        
+        self.assertEqual(f.params,tparams)
+
+        # middle click again goes back to Mandelbrot
+        evt = FakeEvent(button=2,x=f.width/2,y=f.height/2)
+        f.onButtonRelease(f.widget,evt)
+        tparams[f.XZANGLE] = 0.0
+        tparams[f.YWANGLE] = 0.0
+        
+        self.assertEqual(f.params,tparams)
+
+        # click off to one side changes center
+        evt = FakeEvent(button=2,x=f.width,y=0)
+        f.onButtonRelease(f.widget,evt)
+        tparams[f.XZANGLE] = math.pi/2
+        tparams[f.YWANGLE] = math.pi/2
+        tparams[f.ZCENTER] += tparams[f.MAGNITUDE]/2.0
+        tparams[f.WCENTER] -= tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
+        
+        self.assertNearlyEqual(f.params,tparams)
+
+        # click off to the other side changes xycenter
+        evt = FakeEvent(button=2,x=0,y=f.height)
+        f.onButtonRelease(f.widget,evt)
+        tparams[f.XZANGLE] = 0.0
+        tparams[f.YWANGLE] = 0.0
+        tparams[f.XCENTER] -= tparams[f.MAGNITUDE]/2.0
+        tparams[f.YCENTER] += tparams[f.MAGNITUDE]/2.0*(float(f.height)/f.width)
+        
+        self.assertNearlyEqual(f.params,tparams)
+
+    def assertNearlyEqual(self,a,b):
+        # check that each element is within epsilon of expected value
+        epsilon = 1.0e-12
+        for (ra,rb) in zip(a,b):
+            d = abs(ra-rb)
+            self.failUnless(d < epsilon,"%f != %f (by %f)" % (ra,rb,d))
 
 def suite():
     return unittest.makeSuite(FctTest,'test')
