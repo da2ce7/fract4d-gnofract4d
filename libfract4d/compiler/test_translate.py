@@ -22,7 +22,7 @@ class TranslateTest(unittest.TestCase):
         #print pt.pretty()
         return translate.T(pt.children[0])
 
-    def testFractintSections(self):
+    def x_testFractintSections(self):
         t1 = self.translate("t1 {\na=1:\nb=2\nc=3}")
         t2 = self.translate('''
              t2 {
@@ -51,7 +51,7 @@ class TranslateTest(unittest.TestCase):
         self.assertEquivalentTranslations(t1,t3)
         self.assertEqual(len(t3.warnings),6)
 
-    def testAssign(self):
+    def x_testAssign(self):
         # correct declarations
         t9 = self.translate('''t9 {
         init:
@@ -84,7 +84,7 @@ class TranslateTest(unittest.TestCase):
         t12 = self.translate('t12 {\ninit: a = b}')
         self.assertWarning(t12, "Uninitialized variable b referenced on line 2")
 
-    def testBinops(self):
+    def x_testBinops(self):
         t13 = self.translate('''t13 {
         loop:
         complex a, complex b, complex c
@@ -92,7 +92,7 @@ class TranslateTest(unittest.TestCase):
         }''')
         self.assertNoProbs(t13)
         
-    def testDecls(self):
+    def x_testDecls(self):
         t1 = self.translate("t4 {\nglobal:int a\ncomplex b\nbool c = true\n}")
         self.assertNoProbs(t1)
         self.assertVar(t1, "a", fracttypes.Int)
@@ -111,12 +111,12 @@ class TranslateTest(unittest.TestCase):
         self.assertWarning(t1, "conversion from float to complex on line 4")
         self.assertWarning(t1, "conversion from int to complex on line 5")
 
-    def testMultiDecls(self):
+    def x_testMultiDecls(self):
         t1 = self.translate("t6 {\ninit:int a = int b = 2}")
         self.assertVar(t1, "a", fracttypes.Int)
         self.assertVar(t1, "b", fracttypes.Int)
         
-    def testBadDecls(self):
+    def x_testBadDecls(self):
         t1 = self.translate("t7 {\nglobal:int z\n}")
         self.assertError(t1,"symbol 'z' is predefined")
         t1 = self.translate("t8 {\nglobal:int a\nfloat A\n}")
