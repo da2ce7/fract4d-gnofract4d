@@ -6,6 +6,8 @@ import StringIO
 import sys
 import math
 import copy
+import os
+import time
 
 import fc
 import fractal
@@ -153,6 +155,40 @@ class FctTest(unittest.TestCase):
         image = fract4dc.image_create(40,30)
         f.draw(image)
 
+    def testRefresh(self):
+        try:
+            formula = '''
+test_circle {
+loop:
+z = pixel
+bailout:
+|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+}
+'''
+            ff = open("fracttest.frm","w")
+            ff.write(formula)
+            ff.close()
+
+            f = fractal.T(self.compiler)
+            f.set_formula("fracttest.frm","test_circle")
+
+            self.assertEqual(f.get_initparam(0,0), 4.0)
+            time.sleep(1.0)
+            formula = formula.replace('4.0','6.0')
+            ff = open("fracttest.frm","w")
+            ff.write(formula)
+            ff.close()
+
+            self.assertEqual(f.get_initparam(0,0), 4.0)
+            f.refresh()
+            self.assertEqual(f.get_initparam(0,0), 6.0)
+        finally:
+            os.remove("fracttest.frm")
+        
     def testLoadFileWithBadFormula(self):
         bad_testfile = '''gnofract4d parameter file
 version=2.0

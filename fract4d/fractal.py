@@ -413,6 +413,13 @@ class T(FctUtils):
             params[n] = val
             self.changed()
 
+    def refresh(self):
+        if self.compiler.out_of_date(self.funcFile):
+            self.set_formula(self.funcFile,self.funcName)
+        for i in xrange(2):
+            if self.compiler.out_of_date(self.cfunc_files[i]):
+                self.set_colorfunc(i,self.cfunc_files[i],self.cfunc_names[i])
+            
     def set_formula_defaults(self):
         if self.formula == None:
             return
