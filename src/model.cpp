@@ -212,6 +212,11 @@ model_set_save_file(model_t *m, char *filename)
 void 
 model_set_name(model_t *m, const char *filename)
 {
+    if(filename == m->fileName)
+    {
+	return; 
+    }
+    g_assert(filename != m->fileName && "memory corruption if this doesn't hold");
     g_free(m->fileName);
     m->fileName = g_strdup(filename);
     if(NULL != main_app_window)
@@ -219,7 +224,6 @@ model_set_name(model_t *m, const char *filename)
 	gtk_window_set_title(
 	    GTK_WINDOW(main_app_window), 
 	    model_get_display_name(m));
-	g_print("title: %s\n", model_get_display_name(m));
     }
 }
 
@@ -563,7 +567,18 @@ model_cmd_save_image(model_t *m, const char *filename)
 	type = "png";
     }
     // FIXME: deal with errors
-    gdk_pixbuf_save(image, filename, type, NULL, NULL); 
+    if(!gdk_pixbuf_save(image, filename, type, NULL, NULL))
+    {
+	GtkWidget *widget = gtk_message_dialog_new(
+	    GTK_WINDOW(main_app_window),
+	    GTK_DIALOG_DESTROY_WITH_PARENT,
+	    GTK_MESSAGE_ERROR,
+	    GTK_BUTTONS_CLOSE,
+	    _("Could not save image to '%s'"),
+	    filename);
+	gtk_dialog_run(GTK_DIALOG(widget));
+	gtk_widget_destroy(widget);
+    } 
     gdk_pixbuf_unref(image);
 
     return 1;
@@ -572,8 +587,24 @@ model_cmd_save_image(model_t *m, const char *filename)
 int 
 model_cmd_save(model_t *m, const char *filename)
 {
-    model_set_name(m,filename);
-    return gf4d_fractal_write_params(m->fract,filename);
+    int ret = gf4d_fractal_write_params(m->fract,filename);
+    if(ret)
+    {
+	model_set_name(m,filename);
+    }
+    else
+    {
+	GtkWidget *widget = gtk_message_dialog_new(
+	    GTK_WINDOW(main_app_window),
+	    GTK_DIALOG_DESTROY_WITH_PARENT,
+	    GTK_MESSAGE_ERROR,
+	    GTK_BUTTONS_CLOSE,
+	    _("Could not save parameters to '%s'"),
+	    filename);
+	gtk_dialog_run(GTK_DIALOG(widget));
+	gtk_widget_destroy(widget);
+    }
+    return ret;
 }
 	
 int 
@@ -591,8 +622,24 @@ model_cmd_load(model_t *m, const char *filename)
 int
 model_nocmd_load(model_t *m, const char *filename)
 {
-    model_set_name(m,filename);
-    return gf4d_fractal_load_params(m->fract,filename);
+    int ret = gf4d_fractal_load_params(m->fract,filename);
+    if(ret)
+    {
+	model_set_name(m,filename);
+    }
+    else
+    {
+	GtkWidget *widget = gtk_message_dialog_new(
+	    GTK_WINDOW(main_app_window),
+	    GTK_DIALOG_DESTROY_WITH_PARENT,
+	    GTK_MESSAGE_ERROR,
+	    GTK_BUTTONS_CLOSE,
+	    _("Could not load parameters from '%s'"),
+	    filename);
+	gtk_dialog_run(GTK_DIALOG(widget));
+	gtk_widget_destroy(widget);
+    }
+    return ret;
 }
 
 void 
