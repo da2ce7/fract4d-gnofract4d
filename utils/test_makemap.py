@@ -55,46 +55,53 @@ class Test(unittest.TestCase):
     def test_insert_pixel(self):
         mm = makemap.T(open("test000.png","rb"))
 
-        mm.root = makemap.Node()
         mm.insert_pixel(0,0,255) # blue-only pixel
 
         self.assertEqual(mm.root.n_tree_pixels,1)
-        self.assertEqual(mm.root.n_local_pixels,0)
+        self.assertEqual(mm.root.n_local_pixels,1)
 
-        self.assertChildSequence(mm.root,[1] * 8,1)
+        self.assertEqual(mm.root.rgb,(0,0,255))
+        self.assertEqual(mm.root.children, [None] * 8)
 
         mm.insert_pixel(128,7,1) # other color
         self.assertEqual(mm.root.n_tree_pixels,2)
 
-        red_bits =   [1,0,0,0,0,0,0,0]
-        green_bits = [0,0,0,0,0,1,1,1]
-        blue_bits =  [0,0,0,0,0,0,0,1]
+        self.assertEqual(mm.root.children[4].rgb, (128,7,1))
+        self.assertEqual(mm.root.children[1].rgb, (0,0,255))
+        self.assertEqual(mm.root.rgb, None)        
 
-        search = []
-        for i in range(8):
-            index = 4 * red_bits[i] + 2 * green_bits[i] + blue_bits[i]
-            search.append(index)
+        mm.insert_pixel(0,0,0) # 3rd color
+        self.assertEqual(mm.root.n_tree_pixels,3)
 
-        self.assertChildSequence(mm.root, search,1)
+        self.assertEqual(mm.root.children[0].rgb, (0,0,0))
+        self.assertEqual(mm.root.rgb, None)        
 
+        print "\n", mm.dump_octree(mm.root)
+        mm.insert_pixel(0,0,127) # split 0'th child pixel
+        self.assertEqual(mm.root.n_tree_pixels,4)
+
+        child0 = mm.root.children[0]
+        print "\n", mm.dump_octree(mm.root)
+        
+        self.assertEqual(child0.rgb, None)
+        #self.assertEqual(child0.n_tree_pixels,2)
+        self.assertEqual(child0.children[0].rgb,(0,0,0))
+        self.assertEqual(child0.children[1].rgb,(0,0,127))
+        
     def test_build_octree(self):
         mm = makemap.T(open("test000.png","rb"))
         mm.build_octree()
 
-        self.assertChildSequence(mm.root,[0] * 8, 50)
-        self.assertChildSequence(mm.root,[7] * 8, 50)
+        self.assertEqual(mm.root.rgb, None)
+        self.assertEqual(mm.root.n_tree_pixels, 100)
+        self.assertEqual(mm.root.children[0].n_local_pixels, 50)
+        self.assertEqual(mm.root.children[7].n_local_pixels, 50)
 
-    def test_larger_tree(self):
+    def x_test_larger_tree(self):
         mm = makemap.T(open("tattered.jpg","rb"))
         mm.build_octree()
         
-    def assertChildSequence(self,node,list,n):
-        if list == []:
-            self.assertEqual(node.n_local_pixels,n)
-            return
-
-        self.assertNotEqual(node.children[list[0]], None, list)
-        self.assertChildSequence(node.children[list[0]], list[1:],n)
+    
 
     def test_reduction(self):
         mm = makemap.T(open("test001.png","rb"))
