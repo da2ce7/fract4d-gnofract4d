@@ -756,7 +756,9 @@ class MainWindow:
         abs_file = os.path.abspath(helpfile)
         
         if not os.path.isfile(abs_file):
-            self.show_error_message(_("Can't find help file %s") % abs_file)
+            self.show_error_message(
+                _("Can't display help"),
+                _("Can't find help file '%s'") % abs_file)
             return
         
         if section == None:
