@@ -246,6 +246,77 @@ int t__h_solid = 0;
 
 /* variable declarations */
 %(decls)s
+int t__h_numiter = 0;
+%(init)s
+t__end_finit:
+%(cf0_init)s
+t__end_cf0init:
+%(cf1_init)s
+t__end_cf1init:
+do
+{
+    %(loop)s
+    t__end_floop:
+    %(loop_inserts)s
+    %(bailout)s
+    t__end_fbailout:
+    %(bailout_inserts)s
+    if(!%(bailout_var)s) break;
+    %(cf0_loop)s
+    t__end_cf0loop:
+    %(cf1_loop)s
+    t__end_cf1loop:
+    t__h_numiter++;
+}while(t__h_numiter < maxiter);
+
+%(pre_final_inserts)s
+%(final)s
+t__end_ffinal:
+%(done_inserts)s
+
+/* fate of 0 = escaped, 1 = trapped */
+*t__p_pFate = (t__h_numiter >= maxiter);
+*t__p_pnIters = t__h_numiter;
+if(*t__p_pFate == 0)
+{
+    %(cf0_final)s
+    t__end_cf0final:
+}
+else
+{
+    %(cf1_final)s
+    t__end_cf1final:
+}
+*t__p_pDist = t__h_index;
+*t__p_pSolid = t__h_solid;
+
+%(return_inserts)s
+return;
+}
+
+
+static void pf_calc_period(
+    // "object" pointer
+    struct s_pf_data *t__p_stub,
+    // in params
+    const double *t__params, int maxiter,
+    // only used for debugging
+    int t__p_x, int t__p_y, int t__p_aa,
+    // out params
+    int *t__p_pnIters, int *t__p_pFate, double *t__p_pDist, int *t__p_pSolid)
+{
+    pf_real *t__pfo = (pf_real *)t__p_stub;
+
+double pixel_re = t__params[0];
+double pixel_im = t__params[1];
+double t__h_zwpixel_re = t__params[2];
+double t__h_zwpixel_im = t__params[3];
+
+double t__h_index = 0.0;
+int t__h_solid = 0;
+
+/* variable declarations */
+%(decls)s
 %(decl_period)s
 int t__h_numiter = 0;
 %(init)s
@@ -307,7 +378,7 @@ static struct s_pf_vtable vtbl =
 {
     pf_init,
     pf_calc,
-    NULL, /* FIXME */
+    pf_calc_period,
     pf_kill
 };
 
