@@ -118,7 +118,6 @@ class TBase:
         return None
     
     def default(self,node):
-        # fixme - deal with these someday
         self.add_to_section("default", self.setlist(node))
 
     def add_to_section(self,sectname,stmlist):
@@ -168,13 +167,35 @@ class TBase:
             v.default = self.const_convert(v.default,v.type)
 
         self.symbols["@" + node.leaf] = v
+
+    def funcsetting(self,node,func):
+        name = node.children[0].leaf
+        if name == "default":
+            func.set_func(stdlib,node.children[1].leaf)
+        else:
+            val = self.const_exp(node.children[1])
+            setattr(func,name,val)
+        
+    def func(self, node):
+        # translate a func block
+        name = "@" + node.leaf
+
+        f = Func([Complex],Complex,stdlib,"ident")
+        
+        # create func
+        for child in node.children:
+            if child.type == "set":
+                self.funcsetting(child,f)
+            else:
+                self.error("%d: invalid statement in func block" % node.pos)
+            
+        self.symbols[name] = [f]
         
     def setting(self,node):
         if node.type == "param":
             self.param(node)
         elif node.type == "func":
-            print "func"
-            pass
+            self.func(node)
         elif node.type == "heading":
             print "heading"
             pass

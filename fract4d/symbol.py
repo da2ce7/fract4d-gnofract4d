@@ -178,7 +178,10 @@ class T(UserDict):
 
     def is_param(self,key):
         return key[0:5] == 't__a_'
-            
+
+    def is_private(self,key):
+        return key[0:3] == "t__"
+    
     def realName(self,key):
         ' returns mangled key even if var not present for test purposes'
         k = mangle(key)
@@ -229,9 +232,25 @@ class T(UserDict):
         for (name,sym) in self.data.items():
             if self.is_param(name):
                 if not varOnly or isinstance(sym,Var):
-                    params[name] = sym
+                    if isinstance(sym,types.ListType):
+                        # just take 1st overload for functions
+                        params[name] = sym[0]
+                    else:
+                        params[name] = sym
         return params
 
+    def available_param_functions(self):
+        # a list of all function names which take a complex
+        # and return one (for GUI to select a function)
+        flist = []
+        for (name,func) in self.default_dict.items():
+            if isinstance(func,types.ListType):
+                for f in func:
+                    if f.ret == Complex and f.args == [ Complex] and \
+                           not self.is_private(name):
+                        flist.append(name)
+        return flist
+    
     def order_of_params(self):
         # a hash which maps param name -> order in input list
         p = self.parameters(True)
@@ -262,6 +281,10 @@ class T(UserDict):
             else:
                 defaults[i] = defval.value
         return defaults
+
+    def set_std_func(self,func,fname):
+        # repoint parameter @func to use fname next time we compile
+        func.set_func(stdlib,fname)
         
     def __delitem__(self,key):
         del self.data[mangle(key)]

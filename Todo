@@ -9,19 +9,25 @@ todo for 2.0
 * W	combine 2 classes in gtkfractal.py
 * W	command-line arguments
 * W	save images
-* WW	save parameter files
+* WW	save parameter files (define a format first)
 * WW	undo/redo
 * W	explorer mode
 * WW	cmap browser
-* B	exception if you open and choose OK without selecting a file
 * WW	bailFuncs
 * W	set size of diff_bailout check from periodicity info
 * WW	parameters for colorfuncs
 * B	test_fract4d.testMiniTextRender unreliable
 * W	last-chance exception handler
+* W	exact SMP equality test
+* W	end-to-end regression test vs V1.9
+* W	user parameter functions
+* W 	enums, int parameters
+* W	formula browser
+* W	i18n, gettext
 
 done:
 * W	SMP/nthreads > 1
+* B	exception if you open and choose OK without selecting a file
 
 postponed
 * W	logmap

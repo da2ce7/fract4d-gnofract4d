@@ -144,7 +144,7 @@ class T(Threaded,gobject.GObject):
         if param.type == fracttypes.Float or param.type == fracttypes.Complex:
             widget = gtk.Entry()
 
-            def set_entry(f):
+            def set_entry(*args):
                 widget.set_text("%.17f" % self.initparams[order])
 
             def set_fractal(*args):
@@ -157,23 +157,75 @@ class T(Threaded,gobject.GObject):
             raise "Unsupported parameter type"
 
         table.attach(widget,1,2,i,i+1,0,0,2,2)
+
+    def construct_function_menu(self):
+        funclist = self.formula.symbols.available_param_functions()
+        funclist.sort()
+
+        menu = gtk.Menu()
+        menu.funclist = funclist
+        for func in funclist:
+            mi = gtk.MenuItem(func)
+            menu.append(mi)
+
+        return menu
+
+    def set_func(self,func,fname):
+        if func.cname != fname:
+            fractal.T.set_func(self,func,fname)
+            self.emit('parameters-changed')
+        
+    def add_formula_function(self,table,i,name,param):
+        label = gtk.Label(self.param_display_name(name,param))
+        label.set_justify(gtk.JUSTIFY_RIGHT)
+        table.attach(label,0,1,i,i+1,0,0,2,2)
+
+        widget = gtk.OptionMenu()
+        menu = self.construct_function_menu()
+        widget.set_menu(menu)
+
+        def set_selected_function(*args):
+            try:
+                index = menu.funclist.index(param.cname)
+            except ValueError, err:
+                # func.cname not in list
+                print "bad cname"
+                return
+            
+            widget.set_history(index)
+
+        def set_fractal_function(*args):
+            index = widget.get_history()
+            if index != -1:
+                fname = menu.funclist[index]
+                self.set_func(param,fname)
+
+        set_selected_function()
+        
+        self.connect('parameters-changed',set_selected_function)
+        widget.connect('changed',set_fractal_function)
+        
+        table.attach(widget,1,2,i,i+1,0,0,2,2)
         
     def populate_formula_settings(self,table):
         # create widget to fiddle with this fractal's settings
         params = self.formula.symbols.parameters()
         op = self.formula.symbols.order_of_params()
 
-        print self.initparams
-        
         i = 0
         for (name,param) in params.items():
-            if param.type == fracttypes.Complex:
-                self.add_formula_setting(table,i,name + " (re)",param ,op[name])
-                self.add_formula_setting(table,i+1,name+" (im)",param,op[name]+1)
-                i+= 2
+            if isinstance(param,fracttypes.Func):
+                self.add_formula_function(table,i,name,param)                
             else:
-                self.add_formula_setting(table,i,name,param,op[name])
-                i += 1
+                if param.type == fracttypes.Complex:
+                    self.add_formula_setting(
+                        table,i,name + " (re)",param,op[name])
+                    self.add_formula_setting(
+                        table,i+1,name+" (im)",param,op[name]+1)
+                    i+= 1
+                else:
+                    self.add_formula_setting(table,i,name,param,op[name])
+            i += 1
         
     def set_size(self, new_width, new_height):
         if self.width == new_width and self.height == new_height :

@@ -98,8 +98,7 @@ class Func:
         self.args = args
         self.ret = ret
         self.pos = pos
-        self.set_func(module,fname)
-        self.cname = fname
+        self.set_func(module,fname)        
         
     def set_func(self,module,fname):
         # compute the name of the stdlib function to call
@@ -114,6 +113,7 @@ class Func:
         
             #print typed_fname
             self.genFunc = module.__dict__.get(typed_fname,typed_fname)
+        self.cname = fname
         
     def matchesArgs(self, potentialArgs):
         if len(potentialArgs) != len(self.args):

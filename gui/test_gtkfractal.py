@@ -46,6 +46,13 @@ class FctTest(unittest.TestCase):
         self.f.draw_image()
         self.wait()
 
+    def testParamSettings(self):
+        self.f.set_formula("test.frm","test_func")
+
+        table = gtk.Table(5,2,gtk.FALSE)
+        self.f.populate_formula_settings(table)
+        
+        
     def testButton1(self):
         f = self.f
 

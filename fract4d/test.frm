@@ -30,6 +30,20 @@ param woggle
 endparam
 }
 
+test_func {
+loop:
+z = sqr(@myfunc(z)) + #pixel
+bailout:
+|z| < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+func myfunc
+	default = sqr()
+endfunc
+}
+
 ; a new-year's eve fractal - looks like a good torture test...
 
 ;ny04-1a            { ; Version 2002 Patchlevel 3
