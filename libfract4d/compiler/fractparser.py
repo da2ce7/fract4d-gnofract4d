@@ -120,9 +120,10 @@ def p_stmlist_stm(t):
          t[0] = [ t[1] ]
 
 def p_stmlist_2(t):
-    'stmlist : stm NEWLINE stmlist'
+    '''stmlist : stm NEWLINE stmlist
+       stmlist : stm COMMA stmlist'''
     t[0] = [t[1]] + t[3]
-    
+
 def p_stm_exp(t):
     'stm : exp'
     t[0] = t[1]

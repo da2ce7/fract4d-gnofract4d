@@ -170,6 +170,9 @@ default:
 ''')
         self.assertIsValidParse(t1)
 
+    def testComma(self):
+        self.assertParsesEqual("a=1,b=2","a=1\nb=2")
+        
     def testParseErrors(self):
         self.assertIsBadFormula(self.makeMinimalFormula("2 + 3 +"),
                                  "unexpected newline",3)
