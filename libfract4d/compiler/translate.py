@@ -5,6 +5,7 @@
 from absyn import *
 import symbol
 import fractparser
+import fractlexer
 import exceptions
 import ir
 from fracttypes import *
@@ -19,7 +20,6 @@ class T:
         self.errors = []
         self.warnings = []
         self.sections = {}
-        self.iterFunc = None
         self.fakeNode = Empty(-1) # node used for code not written by user
         
         self.dumpCanon = 0
@@ -27,7 +27,7 @@ class T:
         self.dumpProbs = 0
         self.dumpTranslation = 0
         self.dumpVars = 0
-        
+
         try:
             self.formula(f)
         except TranslationError, e:
@@ -78,9 +78,6 @@ class T:
         s = f.childByName("bailout")
         if s: self.bailout(s)
         #  ignore switch and builtin for now
-
-        if self.errors == []:
-            self.makeIterFunc()
         
     def dupSectionWarning(self,sect):
         self.warning(
@@ -131,43 +128,6 @@ class T:
             return self.sections[sectname]
         return None
     
-    def makeIterFunc(self):
-        ''' iterFunc is
-            iter = 0
-            <init>; 
-            startloop:
-               loop;
-               iter = iter + 1
-               cjump(bailout, end, startloop)
-               cjump(iter >= maxiter, end, startloop)
-            end'''
-
-        startLabel = self.newLabel(self.fakeNode)
-        self.iterFunc = ir.Seq(
-            [ # iter = 0
-              ir.Move(ir.Var("iter",self.fakeNode, fracttypes.Int),
-                      ir.Const(0,self.fakeNode, fracttypes.Int),
-                      self.fakeNode, fracttypes.Int),
-              # init 
-              self.sectionOrNone("init"),
-              # startloop
-              startLabel,
-              # loop 
-              self.sectionOrNone("loop"),
-              # iter = iter + 1
-              ir.Move(ir.Var("iter",self.fakeNode, fracttypes.Int),
-                      ir.Binop("+",
-                               [ ir.Var("iter",self.fakeNode, fracttypes.Int),
-                                 ir.Const(1,self.fakeNode, fracttypes.Int) ],
-                               self.fakeNode, fracttypes.Int),
-                      self.fakeNode, fracttypes.Int)
-              # check bailout
-              
-            ], self.fakeNode)
-              
-        if 
-            pass
-            
     def default(self,node):
         self.sections["default"] = 1
 

@@ -234,7 +234,6 @@ class TranslateTest(unittest.TestCase):
         }''')
 
         self.assertNoErrors(t)
-        self.assertNotEqual(t.iterFunc, None, "should have an iterfunc")
 
         t = self.translate('''t_mandel_2 {
         : z = z * z + c, |z| < 4.0
