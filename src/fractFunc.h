@@ -100,7 +100,12 @@ class fractFunc {
     // try that many without periodicity checking if it did bail out,
     // if it didn't bail, start periodicity checking immediately
     inline int periodGuess() { 
-        return (lastIter == -1) ? 0 : lastIter;
+        return (lastIter == -1 && f->maxiter > 4096) ? 0 : f->maxiter; //lastIter;
+    }
+
+    // period guesser for when we have the last count to hand (as for antialias pass)
+    inline int periodGuess(int last) {
+        return (last == -1 && f->maxiter > 4096) ? 0 : f->maxiter;
     }
 
     // update whether last pixel bailed

@@ -82,6 +82,7 @@ compiler::compile(std::string commandLine)
 {
     char buf[PATH_MAX];
 
+    cout << commandLine << std::endl;
     FILE *compiler_output = popen(commandLine.c_str(),"r");
     if(NULL == compiler_output)
     {

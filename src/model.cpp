@@ -211,11 +211,12 @@ model_init_compiler(compiler *pc)
 
     if(NULL == template_location)
     {
-        template_location = gnome_datadir_file(PACKAGE "/compiler_template.cpp");
+        //template_location = gnome_datadir_file(PACKAGE "/compiler_template.cpp");
+        template_location = "compiler_template.cpp";
     }
     pc->in = template_location;
 
-    g_free(template_location);
+    //g_free(template_location);
 }
 
 model_t *

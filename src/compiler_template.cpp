@@ -10,6 +10,8 @@
 
 const d PERIOD_TOLERANCE = 1.0E-10;
 
+typedef double T;
+
 class pointCalc : public pointFunc {
 private:
     /* members */
@@ -49,7 +51,7 @@ public:
         }
 
     /* do some iterations without periodicity */
-    template<class T>
+    //template<class T>
     inline bool calcNoPeriod(int& iter, int maxIter, T *pIter, T *pInput, T *pTemp)
         {
             while(iter + 8 < maxIter)
@@ -70,7 +72,7 @@ public:
                 }
                 iter += 8;
             }
-
+            
             do
             {
                 //iter1(pIter,pInput,pTemp);
@@ -90,7 +92,12 @@ public:
             }while(true);
         }
 
-    template<class T>
+    void testFunc(T *pIter, T*pInput, T*pTemp)
+        {
+            DECL; ITER; RET;
+        }
+
+    //template<class T>
     inline bool calcWithPeriod(
         int &iter, int nMaxIters, 
         T *pIter, T *pInput, T *pTemp)
@@ -130,7 +137,7 @@ public:
             }while(1);
         }
 
-    template<class T>
+    //template<class T>
     inline void calc(
         const vec4<T>& params, int nMaxIters, int nNoPeriodIters,
         struct rgb *color, int *pnIters
@@ -147,8 +154,7 @@ public:
             int iter = 0;
             bool done = false;
 
-            //assert(nNoPeriodIters <= nMaxIters);
-
+            assert(nNoPeriodIters <= nMaxIters);
             if(nNoPeriodIters > 0)
             {
                 done = calcNoPeriod(iter,nNoPeriodIters,pIter,pInput, pTemp);
@@ -161,6 +167,7 @@ public:
             *pnIters = iter;
             if(color)
             {
+                //iter = nNoPeriodIters;
                 *color = colorize(iter,pIter,pInput,pTemp);
             }
         };
@@ -170,7 +177,7 @@ public:
         struct rgb *color, int *pnIters
         )
         {
-            calc<double>(params, nMaxIters, nNoPeriodIters, color, pnIters);
+            calc(params, nMaxIters, nNoPeriodIters, color, pnIters);
         }
 #ifdef HAVE_GMP
     virtual void operator()(
@@ -189,26 +196,6 @@ public:
             // set ejectval = 1.0 , otherwise we have 0/0 = NaN for some colorFuncs
             d tempSpace[TEMP_SPACE] = { 0.0, 0.0, 1.0, 0.0, 0.0 };
             return colorize(iter, &inputSpace[0], &iterSpace[0], &tempSpace[0]);
-        }
-
-    //template<class T>
-    inline void iter1(
-        double *pIter, 
-        double *pInput, 
-        double *pTemp) const 
-        {
-            DECL;
-            ITER;
-            RET;
-        }
-    inline void iter8(
-        double *pIter, 
-        double *pInput, 
-        double *pTemp) const 
-        {
-            DECL;
-            ITER; ITER; ITER; ITER; ITER; ITER; ITER; ITER;
-            RET;
         }
 
     inline void bail(

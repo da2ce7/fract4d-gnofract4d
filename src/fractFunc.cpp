@@ -169,28 +169,48 @@ fractFunc::antialias(int x, int y)
     dvec4 topleft = aa_topleft + I2D_LIKE(x, f->params[MAGNITUDE]) * deltax + 
         I2D_LIKE(y, f->params[MAGNITUDE]) * deltay;
 
-    struct rgb ptmp;
-    unsigned int pixel_r_val=0, pixel_g_val=0, pixel_b_val=0;
-    int i,j;
+    dvec4 pos = topleft; 
 
-    for(i=0;i<depth;i++) {
-        dvec4 pos = topleft; 
-        for(j=0;j<depth;j++) {
-            int p;
-            (*pf)(pos, f->maxiter,periodGuess(),&ptmp,&p); 
-            periodSet(&p);
-            pixel_r_val += ptmp.r;
-            pixel_g_val += ptmp.g;
-            pixel_b_val += ptmp.b;
-            pos+=delta_aa_x;
-        }
-        topleft += delta_aa_y;
-    }
-    ptmp.r = pixel_r_val / (depth * depth);
-    ptmp.g = pixel_g_val / (depth * depth);
-    ptmp.b = pixel_b_val / (depth * depth);
+    struct rgb ptmp;
+    unsigned int pixel_r_val=0, pixel_g_val=0, pixel_b_val=0;    
+    int p=0;
+
+    int single_iters = im->getIter(x,y);
+    int nNoPeriodIters = periodGuess(single_iters); 
+    
+    // top left
+    (*pf)(pos, f->maxiter,nNoPeriodIters,&ptmp,&p); 
+    pixel_r_val += ptmp.r;
+    pixel_g_val += ptmp.g;
+    pixel_b_val += ptmp.b;
+    pos+=delta_aa_x;
+
+    // top right
+    (*pf)(pos, f->maxiter,nNoPeriodIters,&ptmp,&p); 
+    pixel_r_val += ptmp.r;
+    pixel_g_val += ptmp.g;
+    pixel_b_val += ptmp.b;
+    pos = topleft + delta_aa_y;
+
+    // bottom left
+    (*pf)(pos, f->maxiter,nNoPeriodIters,&ptmp,&p); 
+    pixel_r_val += ptmp.r;
+    pixel_g_val += ptmp.g;
+    pixel_b_val += ptmp.b;
+    pos+=delta_aa_x;
+
+    // bottom right
+    (*pf)(pos, f->maxiter,nNoPeriodIters,&ptmp,&p); 
+    pixel_r_val += ptmp.r;
+    pixel_g_val += ptmp.g;
+    pixel_b_val += ptmp.b;
+
+    ptmp.r = pixel_r_val / 4;
+    ptmp.g = pixel_g_val / 4;
+    ptmp.b = pixel_b_val / 4;
     return ptmp;
 }
+
 
 inline void 
 fractFunc::pixel(int x, int y,int w, int h)
@@ -200,6 +220,7 @@ fractFunc::pixel(int x, int y,int w, int h)
 
     if(*ppos != -1) return;
 
+    int pg = f->maxiter;
     // calculate coords of this point
     dvec4 pos = topleft + 
         I2D_LIKE(x, f->params[MAGNITUDE]) * deltax + 
@@ -213,7 +234,7 @@ fractFunc::pixel(int x, int y,int w, int h)
     {
         int i=0;
 
-        (*pf)(pos, f->maxiter*2,periodGuess(),NULL,&i);
+        (*pf)(pos, f->maxiter*2,periodGuess()*2,NULL,&i);
 
         if( (i > f->maxiter/2) && (i < f->maxiter))
         {
@@ -237,13 +258,13 @@ fractFunc::pixel_aa(int x, int y)
 {
     struct rgb pixel;
 
+    int iter = im->getIter(x,y);
     // if aa type is fast, short-circuit some points
     if(f->eaa == AA_FAST &&
        x > 0 && x < im->Xres()-1 && y > 0 && y < im->Yres()-1)
     {
         // check to see if this point is surrounded by others of the same colour
         // if so, don't bother recalculating
-        int iter = im->getIter(x,y);
         int pcol = RGB2INT(y,x);
         bool bFlat = true;
 
