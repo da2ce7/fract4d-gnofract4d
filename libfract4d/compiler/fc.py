@@ -89,21 +89,17 @@ def generate(fc,formulafile, formula, outputfile):
     # find the function we want
     ir = fc.get_formula(formulafile,formula)
     if ir == None:
-        print "Can't find formula %s in %s" % \
-              (formula, formulafile)
+        raise Exception("Can't find formula %s in %s" % \
+              (formula, formulafile))
         sys.exit(1)
 
     if ir.errors != []:
         print "Errors during translation"
         for e in ir.errors:
             print e
-        sys.exit(1)
+        raise Exception("Errors during translation")
 
-    try:
-        fc.generate_code(ir, outputfile)
-    except fracttypes.TranslationError, err:
-        print err
-        sys.exit(1)
+    fc.generate_code(ir, outputfile)
 
 def main():
     fc = Compiler()
@@ -133,8 +129,15 @@ def main():
     if formula == "*":
         for formula in fc.files[os.path.basename(formulafile)].formulas.keys():
             print "%s:%s" % (formulafile, formula)
-            generate(fc,formulafile,formula,outputfile)
+            try:
+                generate(fc,formulafile,formula,outputfile)
+            except Exception, err:
+                print err
     else:
-        generate(fc,formulafile,formula,outputfile)
-    
+        try:
+            generate(fc,formulafile,formula,outputfile)
+        except Exception, err:
+            print err
+            sys.exit(1)
+            
 if __name__ =='__main__': main()

@@ -75,6 +75,17 @@ class TranslateTest(unittest.TestCase):
 
         t4 = self.translate('t_c3{\n:init: a = 1 + 3 * 7\n}')
         self.assertNoErrors(t4)
+
+    def testImplicitConversionToComplex(self):
+        t_icc = self.translate('''t11 {
+        init: x = exp(1.0,0.0)
+        }''')
+        t_icc2 = self.translate('''t11 {
+        init: x = exp((1.0,0.0))
+        }''')
+        self.assertNoErrors(t_icc)
+        self.assertNoErrors(t_icc2)
+        self.assertEquivalentTranslations(t_icc,t_icc2)
         
     def testBailout(self):
         # empty bailout
