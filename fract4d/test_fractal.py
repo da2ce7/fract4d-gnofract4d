@@ -189,7 +189,11 @@ colorlist=[
     def testSaveFlag(self):
         'Test that we know when we\'re up-to-date on disk'
         f = fractal.T(self.compiler)
+        self.assertEqual(f.saved, True)
+
+        f.set_param(0,7.3)
         self.assertEqual(f.saved, False)
+
         savefile = StringIO.StringIO("")
         f.save(savefile)
         self.assertEqual(f.saved, True)
@@ -198,6 +202,9 @@ colorlist=[
         self.assertEqual(c.saved, True)
 
         f.set_param(0,7.3)
+        self.assertEqual(f.saved, True)
+
+        f.set_param(0,7.7)
         self.assertEqual(f.saved, False)
 
         x = f.serialize()

@@ -210,7 +210,8 @@ class T(gobject.GObject):
 
         if param.type == fracttypes.Float or param.type == fracttypes.Complex:
             widget = gtk.Entry()
-
+            widget.set_activates_default(True)
+            
             def set_entry(*args):
                 widget.set_text("%.17f" % self.f.get_initparam(order,param_type))
                     
@@ -333,7 +334,8 @@ class T(gobject.GObject):
         table.attach(label,0,1,i,i+1,0,0,2,2)
 
         widget = gtk.Entry()
-
+        widget.set_activates_default(True)
+        
         def set_entry(*args):
             widget.set_text("%d" % self.maxiter)
 

@@ -29,12 +29,14 @@ class BrowserDialog(gtk.Dialog):
     def __init__(self,main_window,f):
         gtk.Dialog.__init__(
             self,
-            "Formula Browser",
+            _("Formula Browser"),
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (gtk.STOCK_APPLY, gtk.RESPONSE_APPLY,
+             gtk.STOCK_OK, gtk.RESPONSE_OK,
              gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
+        self.set_default_response(gtk.RESPONSE_OK)
         self.disable_apply()
         
         self.formula_list = gtk.ListStore(
@@ -47,10 +49,9 @@ class BrowserDialog(gtk.Dialog):
         self.compiler = f.compiler
         self.current_fname = None
         self.func_type = FRACTAL
+        self.tooltips = gtk.Tooltips()
         
-        self.set_size_request(750,500)
-        #self.accelgroup = gtk.AccelGroup()
-        #self.window.add_accel_group(self.accelgroup)
+        self.set_size_request(600,500)
 
         self.create_panes()
         
@@ -63,6 +64,9 @@ class BrowserDialog(gtk.Dialog):
             self.hide()
         elif id == gtk.RESPONSE_APPLY:
             self.onApply()
+        elif id == gtk.RESPONSE_OK:
+            self.onApply()
+            self.hide()
         else:
             print "unexpected response %d" % id
 
@@ -98,18 +102,24 @@ class BrowserDialog(gtk.Dialog):
 
     def create_file_list(self):
         sw = gtk.ScrolledWindow ()
+
         sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
         sw.set_policy (gtk.POLICY_NEVER,
                        gtk.POLICY_AUTOMATIC)
 
-        self.treeview = gtk.TreeView (self.file_list)
-        sw.add(self.treeview)
+        self.filetreeview = gtk.TreeView (self.file_list)
+        self.tooltips.set_tip(
+            self.filetreeview,
+            _("A list of files containing fractal formulas"))
+        
+        sw.add(self.filetreeview)
 
         renderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn ('File', renderer, text=0)
-        self.treeview.append_column (column)
+        column = gtk.TreeViewColumn ('_File', renderer, text=0)
+        
+        self.filetreeview.append_column (column)
 
-        selection = self.treeview.get_selection()
+        selection = self.filetreeview.get_selection()
         selection.connect('changed',self.file_selection_changed)
         return sw
 
@@ -147,43 +157,58 @@ class BrowserDialog(gtk.Dialog):
                        gtk.POLICY_AUTOMATIC)
 
         self.treeview = gtk.TreeView (self.formula_list)
+
+        self.tooltips.set_tip(
+            self.treeview,
+            _("A list of formulas in the selected file"))
+
         sw.add(self.treeview)
 
         renderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn ('Formula', renderer, text=0)
+        column = gtk.TreeViewColumn (_('F_ormula'), renderer, text=0)
         self.treeview.append_column (column)
 
         selection = self.treeview.get_selection()
         selection.connect('changed',self.formula_selection_changed)
         return sw
 
-    def create_scrolled_textview(self):
+    def create_scrolled_textview(self,tip):
         sw = gtk.ScrolledWindow ()
         sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
-        sw.set_policy (gtk.POLICY_AUTOMATIC,
-                       gtk.POLICY_AUTOMATIC)
+        sw.set_policy (gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         textview = gtk.TextView()
+        self.tooltips.set_tip(textview, tip)
+
         sw.add(textview)
         return (textview,sw)
 
     def create_panes(self):
         # option menu for choosing Inner/Outer/Fractal
-        hbox = gtk.HBox()
-        hbox.pack_start(gtk.Label("Function to Modify : "), gtk.FALSE, gtk.FALSE)
-        
         self.funcTypeMenu = gtk.OptionMenu()
         menu = gtk.Menu()
         for item in [
-            "Fractal Function",
-            "Inner Coloring Function",
-            "Outer Coloring Function"]:
+            _("Fractal Function"),
+            _("Inner Coloring Function"),
+            _("Outer Coloring Function")]:
             mi = gtk.MenuItem(item)
             menu.append(mi)
         self.funcTypeMenu.set_menu(menu)
 
+        self.tooltips.set_tip(
+            self.funcTypeMenu,
+            _("Which formula of the current fractal to change"))
+
         self.funcTypeMenu.connect('changed',self.set_type_cb)
+
+        # label for the menu
+        hbox = gtk.HBox()
+        label = gtk.Label(_("Function _Type to Modify : "))
+        label.set_use_underline(True)
+        label.set_mnemonic_widget(self.funcTypeMenu)
         
+        hbox.pack_start(label, gtk.FALSE, gtk.FALSE)
+                
         hbox.pack_start(self.funcTypeMenu,gtk.TRUE, gtk.TRUE)
         self.vbox.pack_start(hbox,gtk.FALSE, gtk.FALSE)
         
@@ -206,23 +231,32 @@ class BrowserDialog(gtk.Dialog):
         notebook = gtk.Notebook()
 
         # source
-        (self.sourcetext,sw) = self.create_scrolled_textview()
-        notebook.append_page(sw, gtk.Label('Source'))
+        (self.sourcetext,sw) = self.create_scrolled_textview(
+            _("The contents of the currently selected formula file"))
         
-        # parse tree
-        (self.text,sw) = self.create_scrolled_textview()
-        notebook.append_page(sw, gtk.Label('Parse Tree'))
-
-        # translated tree
-        (self.transtext,sw) = self.create_scrolled_textview()
-        notebook.append_page(sw, gtk.Label('IR Tree'))
+        label = gtk.Label(_('_Source'))
+        label.set_use_underline(True)
+        notebook.append_page(sw, label)
 
         # messages
-        (self.msgtext, sw) = self.create_scrolled_textview()
-        notebook.append_page(sw, gtk.Label('Messages'))
+        (self.msgtext, sw) = self.create_scrolled_textview(
+            _("Any compiler warnings or errors in the current function"))
+        
+        label = gtk.Label(_('_Messages'))
+        label.set_use_underline(True)
+        notebook.append_page(sw, label)
+
+        # parse tree
+        (self.text,sw) = self.create_scrolled_textview("")
+        #notebook.append_page(sw, gtk.Label(_('_Parse Tree')))
+
+        # translated tree
+        (self.transtext,sw) = self.create_scrolled_textview("")
+        #notebook.append_page(sw, gtk.Label(_('_IR Tree')))
+
 
         # asm
-        #(self.asmtext, sw) = self.create_scrolled_textview()
+        (self.asmtext, sw) = self.create_scrolled_textview("")
         #notebook.append_page(sw, gtk.Label('Generated Code'))
         
         panes1.add2(notebook)
@@ -277,26 +311,21 @@ class BrowserDialog(gtk.Dialog):
         buffer = self.msgtext.get_buffer()
         msg = ""
         if self.ir.errors != []:
-            msg += "Errors:\n" + string.join(self.ir.errors,"\n") + "\n"
+            msg += _("Errors:\n") + string.join(self.ir.errors,"\n") + "\n"
         if self.ir.warnings != []:
-            msg += "Warnings:\n" + string.join(self.ir.warnings,"\n")
+            msg += _("Warnings:\n") + string.join(self.ir.warnings,"\n")
         if msg == "":
-            msg = "No messages"
+            msg = _("No messages")
             
         buffer.set_text(msg,-1)
 
         if self.ir.errors == []:
             self.enable_apply()
         else:
-            self.disable_apply()
-        
-        #self.compiler.generate_code(formula,"browser-tmp.c")
-        
-        #buffer = self.asmtext.get_buffer()
-        #buffer.set_text(self.compiler.c_code,-1)
+            self.disable_apply()        
         
     def open(self,action,widget):
-        fs = gtk.FileSelection("Open Formula File")
+        fs = gtk.FileSelection(_("Open Formula File"))
         result = fs.run()
         
         if result == gtk.RESPONSE_OK:

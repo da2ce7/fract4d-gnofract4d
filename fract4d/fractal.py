@@ -205,9 +205,7 @@ class T(FctUtils):
         self.set_outer("gf4d.cfrm","default")
         self.dirtyFormula = True # formula needs recompiling
         self.dirty = True # parameters have changed
-        self.saved = False
         self.auto_deepen = True
-
         
         self.reset()
 
@@ -229,6 +227,8 @@ class T(FctUtils):
             "ejection_distance",
             "decomposition",
             "external_angle"]
+
+        self.saved = True # initial params not worth saving
 
     def serialize(self):
         out = StringIO.StringIO()
