@@ -71,8 +71,10 @@ formulafile=gf4d.cfrm
 function=zero
 [endsection]
 [outer]
-formulafile=standard.cfrm
-function=T2
+formulafile=test.cfrm
+function=Triangle
+@power=3.0
+@bailout=1.0e12
 [endsection]
 [colors]
 colorizer=1
@@ -254,19 +256,23 @@ blue=0
         file1 = StringIO.StringIO(g_test2file)
         f1.loadFctFile(file1)
 
+        self.assertEqual(f1.cfunc_params[0],[1.0e12,3.0])
         # save again
         file2 = StringIO.StringIO()
         f1.save(file2)
         saved = file2.getvalue()
+        #print saved
         self.failUnless(saved.startswith("gnofract4d parameter file"))
+        self.assertNotEqual(saved.find("@power=3.0"),-1)
         
         # load it into another instance
         file3 = StringIO.StringIO(saved)
-        f2 = fractal.T(self.compiler)
-        f2.loadFctFile(file3)
+        f3 = fractal.T(self.compiler)
+        f3.loadFctFile(file3)
 
-        self.assertFractalsEqual(f1,f2)
-        
+        self.assertFractalsEqual(f1,f3)
+        self.assertEqual(f3.cfunc_params[0][1],3.0)
+            
     def assertFractalsEqual(self,f1,f2):
         # check that they are equivalent
         self.assertEqual(f1.params, f2.params)
@@ -643,7 +649,7 @@ blue=0.5543108971162746
         self.assertDirty(f)
 
         f.clean()
-        f.set_named_func("@bailfunc","real2")
+        f.set_named_func("@bailfunc","real2",f.formula)
         self.assertDirty(f)
 
     def testLoadGivesCorrectParameters(self):
