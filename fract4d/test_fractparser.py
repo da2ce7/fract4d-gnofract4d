@@ -6,6 +6,7 @@ import fractparser
 import absyn
 import re
 import fractlexer
+import preprocessor
 
 class ParserTest(unittest.TestCase):
     def setUp(self):
@@ -15,7 +16,8 @@ class ParserTest(unittest.TestCase):
 
     def parse(self,s):
         fractlexer.lexer.lineno = 1
-        return self.parser.parse(s)
+        pp = preprocessor.T(s)
+        return self.parser.parse(pp.out())
     
     def tearDown(self):
         self.parser.restart()
@@ -73,10 +75,19 @@ class ParserTest(unittest.TestCase):
         t1 = self.parse("t1 {\nt=1\n}")
         self.assertIsValidParse(t1)
         
-    def testIfdefMessage(self):
-        self.assertIsBadFormula(self.makeMinimalFormula("$define foo"),
-                                "not supported", 3)
-            
+    def testIfdef(self):
+        self.assertParsesEqual('''
+        $define foo
+        $ifdef foo
+        x = 2 * 3
+        $else
+        x = 3 * 2
+        $endif''','x = 2 * 3')
+
+    def testBadPreProcessor(self):
+        self.assertIsBadFormula(self.makeMinimalFormula('$foo'),
+                                "unexpected preprocessor", 3)
+
     def testPrecedence(self):
         self.assertParsesEqual(
             "x = 2 * 3 + 1 ^ -7 / +2 - |4 - 1|",
