@@ -32,7 +32,8 @@ class CanonTest(unittest.TestCase):
         return ir.Move(dest, exp, self.fakeNode, Int)
     def cjump(self,e1,e2):
         return ir.CJump(">",e1,e2,"trueDest", "falseDest", self.fakeNode)
-    
+    def cast(self, e, type):
+        return ir.Cast(e,self.fakeNode, type)
     def testEmptyTree(self):
         self.assertEqual(self.canon.linearize(None),None)
 
@@ -174,6 +175,12 @@ class CanonTest(unittest.TestCase):
                                     self.var("b")),
                           self.eseq([self.move(self.var("a"),self.const())],
                                     self.var("b")))
+        ltree = self.canon.linearize(tree)
+        self.assertESeqsNotNested(ltree,1)
+
+    def testCast(self):
+        tree = self.cast(self.eseq([self.const(4)], self.var()), Float)
+
         ltree = self.canon.linearize(tree)
         self.assertESeqsNotNested(ltree,1)
         

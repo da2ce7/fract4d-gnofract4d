@@ -25,11 +25,6 @@
 #ifndef IMAGE_PUBLIC_H_
 #define IMAGE_PUBLIC_H_
 
-#ifdef _WIN32
-#include <windows.h>
-#include <atlbase.h>
-#endif
-
 #include "colorizer_public.h"
 
 /* image must provide a rectangular (x by y) array of 
@@ -76,7 +71,7 @@ public:
     virtual int getIter(int x, int y) const = 0;
     virtual void setIter(int x, int y, int iter) = 0;
 
-    // we will both read & write data using the pointer returned by this method */
+    // we will both read & write data using the pointer returned by this method
     virtual void *getData(int x, int y) = 0;
 };
 

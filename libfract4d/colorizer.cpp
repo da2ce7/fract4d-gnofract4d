@@ -8,7 +8,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-
+#include <cassert>
 #include <cmath>
 
 #define FIELD_COLORIZER "colorizer"
