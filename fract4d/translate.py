@@ -337,6 +337,8 @@ class TBase:
             r = self.funcall(node)
         elif node.type == "assign":
             r = self.assign(node)
+        elif node.type == "string":
+            r = self.string(node)
         else:
             self.badNode(node,"exp")
 

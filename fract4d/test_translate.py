@@ -154,6 +154,13 @@ class TranslateTest(testbase.TestBase):
         self.assertEqual(t.defaults["center"][0].value,8.1)
         self.assertEqual(t.defaults["center"][1].value,2.0)
         self.assertEqual(t.defaults["title"].value,"Hello World")
+
+    def testStringErrors(self):
+        t = self.translate('''t_se {
+        init:
+        x = 1 + "hello"
+        }''')
+        self.assertError(t, "Invalid argument types ['int', 'string'] for + on line 3")
         
     def testParams(self):
         t12 = self.translate('''t_params {
