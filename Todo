@@ -35,8 +35,21 @@ todo for 2.0
 * BB	lattice.fct - 1.9 is wrong too!
 * B	other windows always in front - is that good?
 * WW	docs
+* BB	some horror (closing settings window) then applying formula gave:
+	(gnofract4d:29936): Gtk-CRITICAL **: file gtkcontainer.c: line 880 
+	(gtk_container_remove): assertion 
+	`widget->parent == GTK_WIDGET (container)' failed
+	(gnofract4d:29936): Gtk-CRITICAL **: file gtkcontainer.c: line 1173 
+	(gtk_container_foreach): assertion `GTK_IS_CONTAINER (container)' failed
+* B	3damand01.fct gives "list index out of range" when loaded.
+
+* differences from fractint
+* b	3rdim05 - default params bulge with fractint 
 
 done:
+* B	3rdim01 - p1=(0.5,0.3). Flipped across x axis. 
+	Gf4d has y increasing down, Fractint has it increasing up
+* B	3daMand01,02 - left half of image (x < 0) is black
 * B	browser pops up whenever click on fractal
 * B	opening color broser sometimes applies 1st item
 * W	formula browser : load formula file

@@ -1,6 +1,6 @@
 #include "fractFunc.h"
 #include <stdio.h>
-
+#include <iostream>
 
 dmat4
 rotated_matrix(double *params)
@@ -42,10 +42,13 @@ fractFunc::fractFunc(
 
     rot = rotated_matrix(params);
     rot = rot/im->Xres();
-    // distance to jump for one pixel up or across
+    // distance to jump for one pixel down or across
     deltax = rot[VX];
-    deltay = rot[VY];
-    
+    deltay = -rot[VY];
+
+    std::cout << "deltax " << deltax[0] << " " << deltax[1] << std::endl;
+    std::cout << "deltay " << deltay[0] << " " << deltay[1] << std::endl;
+
     // half that distance
     delta_aa_x = deltax / 2.0;    
     delta_aa_y = deltay / 2.0;

@@ -494,7 +494,7 @@ class T(FctUtils):
         m = fract4dc.rot_matrix(self.params)
 
         deltax = self.mul_vs(m[0],dx)        
-        deltay = self.mul_vs(m[1],dy)
+        deltay = self.mul_vs(m[1],-dy)
 
         #print "dx: %s dy: %s" % (deltax,deltay)
         
@@ -565,9 +565,17 @@ class T(FctUtils):
     def parse_gnofract4d_parameter_file(self,val,f):
         pass
 
-    def parse_version(self,val,f):
+    def parse_version(self,val,f):        
         self.format_version=float(val)
-    
+        if self.format_version > 2.0:
+            warning = \
+'''This file was created by a newer version of Gnofract 4D.
+The image may not display correctly. Please upgrade to version %f.''' 
+
+            warn(warning % self.format_version)
+    def warn(self,msg):
+        print msg
+        
     def parse__function_(self,val,f):
         line = f.readline()
         while line != "":
@@ -661,6 +669,10 @@ class T(FctUtils):
         self.set_param(self.MAGNITUDE,val)
 
     def parse_xy(self,val,f):
+        if self.format_version < 2.0:
+            # old versions displayed everything upside down
+            # switch the rotation so they load OK
+            val = float(val) + math.pi
         self.set_param(self.XYANGLE,val)
 
     def parse_xz(self,val,f):
