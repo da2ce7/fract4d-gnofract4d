@@ -9,12 +9,12 @@ done in 2.4:
 * W	cosxx function
 * B	missing power in Newton function
 * BB	fixed formula load
+* B	compiler error on start won't let gf4d open
 
 todo for 2.4
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
 
-* B	compiler error on start won't let gf4d open
 * B	make transition <-> explorer mode less slow + ugly
 * WW	cmap browser
 * WW	cmap editor - brightness/contrast/gamma/HSV/RGB
