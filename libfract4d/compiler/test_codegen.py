@@ -481,8 +481,9 @@ goto t__end_init;''')
         output = self.compileAndRun(c_code)
         self.assertEqual(output,"x = (0,0)\ny = (7,1)")
 
-    def testAndy3(self):
-        # this caused an error
+    def testFormulas(self):
+        # these caused an error at one point in development
+        # so have been added ro regression suite
         t = self.translate('''andy03 {
         z = c = pixel/4:
         z = p1*z + c
@@ -492,6 +493,37 @@ goto t__end_init;''')
         }''')
 
         self.assertNoErrors(t)
+
+        # compiler error
+        
+        t = self.translate('''
+TileMandel {; Terren Suydam (terren@io.com), 1996
+            ; modified by Sylvie Gallet [101324,3444]
+            ; Modified for if..else logic 3/19/97 by Sylvie Gallet
+            ; p1 = center = coordinates for a good Mandel
+   ; 0 <= real(p2) = magnification. Default for magnification is 1/3
+   ; 0 <= imag(p2) = numtiles. Default for numtiles is 3
+  center = p1
+  IF (p2 > 0)
+     mag = real(p2)
+  ELSE
+     mag = 1/3
+  ENDIF
+  IF (imag(p2) > 0)
+     numtiles = imag(p2)
+  ELSE
+     numtiles = 3
+  ENDIF
+  omega = numtiles*2*pi/3
+  x = asin(sin(omega*real(pixel))), y = asin(sin(omega*imag(pixel)))
+  z = c = (x+flip(y)) / mag + center:
+  z = z*z + c
+  |z| <= 4
+  ;SOURCE: fract196.frm
+}
+''')
+        self.assertNoErrors(t)
+        
 
     def testUseBeforeAssign(self):
         src = 't_uba0{\ninit: z = z - x\n}'

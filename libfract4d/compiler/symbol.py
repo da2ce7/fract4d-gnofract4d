@@ -91,8 +91,8 @@ def createDefaultDict():
                 Func([Complex, Float], Complex, stdlib, "pow"),
                 Func([Complex, Complex], Complex, stdlib, "pow")],
         
-        "mag":[ Func([Complex], Float, stdlib, "mag")],
-        "neg": efl("neg", "[_], _", [Int, Float, Complex]),
+        "t__mag":[ Func([Complex], Float, stdlib, "mag")],
+        "t__neg": efl("neg", "[_], _", [Int, Float, Complex]),
         
         # unary negation already factored out
 

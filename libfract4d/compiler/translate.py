@@ -219,7 +219,12 @@ class TBase:
                 self.symbols[name] = \
                     Var(Complex,default_value(Complex),lvalue.pos)
 
-            expectedType = self.symbols[name].type
+            if isinstance(self.symbols[name],fracttypes.Var): 
+                expectedType = self.symbols[name].type
+            else:
+                msg = "%d: %s is not a variable, assignment to it is not allowed" % (node.pos, name)
+                raise TranslationError(msg)
+            
             lhs = ir.Var(name, node, expectedType)
             
         elif lvalue.type == "funcall":
