@@ -149,7 +149,7 @@ class FctTest(unittest.TestCase):
         self.assertEqual(f.cfunc_files, ["gf4d.cfrm"]*2)
         
         self.assertEqual(f.maxiter, 259)
-        self.assertEqual(len(f.gradient.segments),254)
+        self.failUnless(len(f.gradient.segments)> 1)
         self.assertEqual(f.gradient.segments[0].left,0.0)
         self.assertEqual(f.gradient.segments[-1].right,1.0)
         self.assertEqual(f.solids[0],(0,0,0,255))

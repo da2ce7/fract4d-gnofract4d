@@ -116,12 +116,17 @@ class Test(testbase.TestBase):
         self.assertEqual(len(g.segments),1)
 
     def testfromColormap4(self):
-        # and a 256-color one
+        # this should always produce 255 segments
         colorlist = self.colorMapFromFile("../maps/4zebbowx.map")
         grad = self.checkColorMapAndGradientEquivalent(colorlist)
         self.assertEqual(len(grad.segments),255)
 
-    def testFromColormap5(self):
+    def testfromColormapHlsrain(self):
+        # this map once caused issues
+        colorlist = self.colorMapFromFile("../maps/hlsrain5.map")
+        grad = self.checkColorMapAndGradientEquivalent(colorlist)
+
+    def testFromColormapCompressible(self):
         colorlist = self.colorMapFromFile("../maps/Gallet02.map")
         grad = self.checkColorMapAndGradientEquivalent(colorlist)
         self.failUnless(len(grad.segments) < 255,"should have been compressed")
@@ -137,7 +142,11 @@ class Test(testbase.TestBase):
                 (r,g,b) = (int(m.group(1)),
                            int(m.group(2)),
                            int(m.group(3)))
- 
+
+                # in case they're over 255 - as some badly-behaved
+                # Fractint gradients are 
+                [r,g,b] = map(lambda x: min(x,255), [r,g,b])
+
                 if i == 0:
                     # first color is inside solid color
                     pass 
