@@ -230,6 +230,31 @@ colordata=0000000000a80400ac0408ac040cac0410ac0814b00818b0081cb00c20b00c24b41028
                 a = buf[apos:apos+3]
                 b = buf[bpos:bpos+3]
                 self.assertEqual(a,b)
+
+    def testDiagonal(self):
+        f = fractal.T(self.compiler)
+        #f.pixel_changed = f._pixel_changed
+        f.set_formula("test.frm","test_simpleshape")
+        f.set_outer("gf4d.cfrm","default")
+        f.compile()
+        f.reset()
+        self.assertEqual(f.initparams,[])
+        self.assertEqual(f.antialias,1)
+        (w,h) = (30,30)
+        im = fract4dc.image_create(w,h)
+        f.draw(im)
+
+        buf = fract4dc.image_buffer(im,0,0)
+        for y in xrange(h):
+            for x in xrange(w):
+                if x > y:
+                    self.assertWhite(buf,x,y,w)
+                elif y > x:
+                    self.assertBlack(buf,x,y,w)
+                else:
+                    # pixels on boundary should be antialiased to 25% grey
+                    # because 3 subpixels are white and 1 black
+                    self.assertColor(buf,x,y,w,(255*3)/4)
         
     def testCubicRead(self):
         file = '''gnofract4d parameter file

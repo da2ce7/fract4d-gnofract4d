@@ -225,7 +225,7 @@ class T(FctUtils):
 
     def set_func(self,func,fname):
         self.formula.symbols.set_std_func(func,fname)
-        self.compile()
+        # FIXME self.compile()
         
     def set_inner(self,funcfile,func):
         self.cfuncs[1] = self.compiler.get_colorfunc(funcfile,func,"cf1")
@@ -309,6 +309,7 @@ class T(FctUtils):
         
         fract4dc.pf_init(pfunc,0.001,self.initparams)
 
+        #print "draw aa: %d %d %d" % (self.antialias,self.maxiter,threads)
         fract4dc.calc(self.params,self.antialias,self.maxiter,1,
                      pfunc,cmap,1,image,self.site)
 
@@ -430,6 +431,7 @@ class T(FctUtils):
 
     def parse_antialias(self,val,f):
         self.antialias = int(val)
+        print "aa : %d" % self.antialias
     
     def loadFctFile(self,f):
         line = f.readline()
@@ -455,8 +457,7 @@ if __name__ == '__main__':
         file = open(arg)
         f.loadFctFile(file)
         f.compile()
-        image = fract4dc.image_create(640,480)
+        image = fract4dc.image_create(64,48)
         f.draw(image)
         fract4dc.image_save(image,os.path.basename(arg) + ".tga")
-
         

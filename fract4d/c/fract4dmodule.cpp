@@ -669,6 +669,10 @@ public:
 	double dist, int fate, int nIters,
 	int r, int g, int b, int a) 
 	{
+	    printf("pixel: <%g,%g,%g,%g>(%d,%d,%d) = (%g,%d,%d)\n",
+		   params[0],params[1],params[2],params[3],
+		   x,y,aa,dist,fate,nIters);
+
 	    return; // FIXME
 	};
 
@@ -797,8 +801,8 @@ pycalc(PyObject *self, PyObject *args)
 {
     PyObject *pypfo, *pycmap, *pyim, *pysite;
     double params[N_PARAMS];
-    int eaa, maxiter, nThreads;
-    bool auto_deepen;
+    int eaa=-7, maxiter=-8, nThreads=-9;
+    int auto_deepen;
     pf_obj *pfo;
     cmap_t *cmap;
     IImage *im;
@@ -829,7 +833,7 @@ pycalc(PyObject *self, PyObject *args)
     }
 
     //((PySite *)site)->state = PyEval_SaveThread();
-    calc(params,eaa,maxiter,nThreads,pfo,cmap,auto_deepen,im,site);
+    calc(params,eaa,maxiter,nThreads,pfo,cmap,(bool)auto_deepen,im,site);
     //PyEval_RestoreThread(((PySite *)site)->state);
 
     Py_INCREF(Py_None);

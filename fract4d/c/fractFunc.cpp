@@ -47,7 +47,6 @@ fractFunc::fractFunc(
     ddepth = (depth*2);
     delta_aa_x = deltax / ddepth;    
     delta_aa_y = deltay / ddepth;
-    
     topleft = vec4<d>(params[XCENTER],params[YCENTER],
 		      params[ZCENTER],params[WCENTER]) -
         deltax * im->Xres() / 2.0 -
