@@ -58,17 +58,6 @@
 
 class iterFunc {
  public:
-    virtual void _iter1(
-        double *pIterState, 
-        double *pInputState, 
-        double *pTempState) const = 0;
-    virtual void _iter8(
-        double *pIterState, 
-        double *pInputState, 
-        double *pTempState) const = 0;
-#ifdef HAVE_GMP
-    virtual void operator()(gmp::f *p) const = 0;
-#endif
     // return the fragments of C++ code which we'll interpolate
     // into the template
     virtual std::string decl_code() const = 0;

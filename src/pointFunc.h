@@ -52,10 +52,6 @@ class pointFunc {
         double *pIterState, 
         double *pInputState, 
         double *pTempState) const = 0;
-    virtual void iter8(
-        double *pIterState, 
-        double *pInputState, 
-        double *pTempState) const = 0;
 #ifdef HAVE_GMP
     virtual void operator()(gmp::f *p) const = 0;
 #endif

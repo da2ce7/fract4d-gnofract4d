@@ -35,17 +35,17 @@ compiler::compiler()
 }
 
 std::string
-compiler::Dstring(std::string iter, std::string decl)
+compiler::Dstring(std::string iter, std::string decl, std::string ret)
 {
-    return "-DITER=\"" + iter + "\" -DDECL=\"" + decl + "\"";
+    return "-DITER=\"" + iter + "\" -DDECL=\"" + decl + "\" -DRET=\"" + ret + "\"";
 }
 
 int 
-compiler::run(std::string iter, std::string decl)
+compiler::run(std::string iter, std::string decl, std::string ret)
 {
     char buf[1000];
 
-    std::string dflags = Dstring(iter, decl);
+    std::string dflags = Dstring(iter, decl, ret);
     std::string commandLine = 
         "g++ -shared " + flags + " " + dflags + " " + in + " -o " + out + " 2>&1";
 

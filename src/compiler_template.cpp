@@ -55,7 +55,7 @@ public:
             return (*m_pcf)(colorDist);
         }
 
-    /* do a set of 8some iterations without periodicity */
+    /* do some iterations without periodicity */
     template<class T>
     bool calcNoPeriod(int& iter, int maxIter, T *pIter, T *pInput, T *pTemp)
         {
@@ -63,8 +63,8 @@ public:
 
             do
             {
-                iter8(pIter,pInput,pTemp);
-                if((iter+= 8) >= maxIter)
+                iter1(pIter,pInput,pTemp);
+                if((iter++) >= maxIter)
                 {   
                     return false;
                 }                    
@@ -73,13 +73,13 @@ public:
                 {
                     return true;
                 }
-                pIter[X] = pIter[X + (2*8)];
-                pIter[Y] = pIter[Y + (2*8)];
+                pIter[X] = pIter[X + (2*1)];
+                pIter[Y] = pIter[Y + (2*1)];
             }while(true);
         }
 
     template<class T>
-    bool calcSingleWithPeriod(
+    bool calcWithPeriod(
         int &iter, int nMaxIters, 
         T *pIter, T *pInput, T *pTemp)
         {
@@ -120,68 +120,7 @@ public:
         }
 
     template<class T>
-    bool calcWithPeriod(
-        int &iter, int nMaxIters, 
-        T *pIter, T *pInput, T *pTemp)
-        {
-            int flags = m_pIter->flags();
-
-            /* periodicity vars */
-            d lastx = pIter[X], lasty=pIter[Y];
-            int k =1, m = 1;
-            
-            do
-            {
-                iter8(pIter,pInput,pTemp);
-                if((iter+= 8) >= nMaxIters)
-                {
-                    return false;
-                }                    
-                for(int i = ITER_SPACE; i < 9*ITER_SPACE; i+= ITER_SPACE)
-                {
-                    if(fabs(pIter[X+i] - lastx) < PERIOD_TOLERANCE &&
-                       fabs(pIter[Y+i] - lasty) < PERIOD_TOLERANCE)
-                    {
-                        // period detected!
-                        iter = -1; return true;
-                    }
-                }
-                if(--k == 0)
-                {
-                    lastx = pIter[X]; lasty = pIter[Y];
-                    m *= 2;
-                    k = m;
-                }                    
-                (*m_pBail)(pIter,pInput,pTemp,flags);  
-                if(pTemp[EJECT_VAL] >= m_eject)
-                {
-                    return true;
-                }
-                pIter[X] = pIter[X + (2*8)];
-                pIter[Y] = pIter[Y + (2*8)];                    
-            }while(true);
-        }
-
-    template<class T> 
-    int findExactIter(int iter, T *pIter, T *pInput, T *pTemp)
-        {
-            // we bailed out - need to look through the list to
-            // see where (could do binary search, but can't be bothered)
-            int i = 0;
-            for(; i < 9; ++i)
-            {
-                // 0 for flags because X2, Y2 data not up to date
-                (*m_pBail)(pIter + 2*i, pInput, pTemp, 0);
-                if(pTemp[EJECT_VAL] >= m_eject)
-                {
-                    iter = iter - 8 + i;
-                    return iter;
-                }
-            }
-            assert(false && "we must bailout before reaching this point");
-        }
-
-    template<class T>inline void calc(
+    inline void calc(
         const vec4<T>& params, int nMaxIters, int nNoPeriodIters,
         struct rgb *color, int *pnIters
         )
@@ -198,41 +137,14 @@ public:
             bool done = false;
 
             assert(nNoPeriodIters <= nMaxIters);
-            /* to save on bailout tests and function call overhead, we
-               try to calculate 8 iterations at a time. Some bailout
-               functions don't allow this, however */
-            if(m_pBail->iter8_ok())
+
+            if(nNoPeriodIters > 0)
             {
-                int nMax8Iters = (nMaxIters/8) * 8;
-                int nNoPeriod8Iters = min<int>((nNoPeriodIters/8) *8, nMax8Iters);
-
-                // do the first chunk of iterations without periodicity
-                // (the size of this chunk depends on whether the last point
-                // bailed or not)
-
-                done = calcNoPeriod(iter,nNoPeriod8Iters,pIter,pInput,pTemp);
-                if(!done && iter < nMax8Iters)
-                {
-                    // we have 8way iterations still to do, this time using
-                    // periodicity
-                    iter -= 8;                    
-                    
-                    done = calcWithPeriod(iter,nMax8Iters,pIter,pInput,pTemp);
-                }
-                if(done && iter != -1)
-                {
-                    // we bailed out some time in the past 8 iters, 
-                    // and we need to know on exactly which iteration
-                    iter = findExactIter(iter, pIter, pInput, pTemp);
-                }
+                done = calcNoPeriod(iter,nNoPeriodIters,pIter,pInput, pTemp);
             }
-
             if(!done)
             {
-                // we finished the 8some iterations without bailing out,
-                // so finish off any remaining ones (could be all of them
-                // if iter8ok was false)                
-                done = calcSingleWithPeriod(iter,nMaxIters,pIter,pInput,pTemp);
+                done = calcWithPeriod(iter,nMaxIters,pIter,pInput,pTemp);
             }
 
             *pnIters = iter;
@@ -276,17 +188,9 @@ public:
         {
             DECL;
             ITER;
+            RET;
         }
 
-    //template<class T>
-    void iter8(
-        double *pIter, 
-        double *pInput, 
-        double *pTemp) const
-        {
-            DECL;
-            ITER; ITER; ITER; ITER; ITER; ITER; ITER; ITER;
-        }
 };
 
 extern "C" {

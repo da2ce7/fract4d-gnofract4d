@@ -173,56 +173,8 @@ operator>>(std::istream& s, iterImpl<T, NOPTIONS>& m)
 #define GMP_FUNC_OP
 #endif
 
-#define ITER_DECLS(decl, func) \
-    template<class T>inline void calc(T *pIter, T *pInput, T *pTemp) const \
-        { \
-            decl; \
-            func; \
-        }\
-    template<class T>inline void calc8(T *pIter, T *pInput, T *pTemp) const \
-        { \
-            decl; \
-            func; func; func; func; func; func; func; func; \
-        }\
-    void _iter1( \
-            double *pIterState, \
-            double *pInputState, \
-            double *pTempState) const \
-        {\
-            calc<double>(pIterState,pInputState,pTempState);\
-        }\
-    GMP_FUNC_OP \
-    void _iter8( \
-            double *pIterState, \
-            double *pInputState, \
-            double *pTempState) const \
-        { \
-            calc8<double>(pIterState,pInputState,pTempState); \
-        } \
 
 
-#define ITER_DECLS_RET(decl,func,ret) \
-    template<class T>inline void calc(T *pIter, T *pInput, T *pTemp) const \
-        { \
-            decl; \
-            func; \
-            ret; \
-        }\
-    template<class T>inline void calc8(T *pIter, T *pInput, T *pTemp) const \
-        { \
-            decl; \
-            func; func; func; func; func; func; func; func; \
-            ret; \
-        }\
-    void operator()(double *pIter, double *pInput, double *pTemp) const \
-        {\
-            calc<double>(pIter,pInput,pTemp);\
-        }\
-    GMP_FUNC_OP \
-    void iter8(double *pIter, double *pInput, double *pTemp) const \
-        { \
-            calc8<double>(pIter,pInput,pTemp); \
-        } 
 
 // z <- z^2 +c
 class mandFunc : public iterImpl<mandFunc,0>
@@ -230,17 +182,6 @@ class mandFunc : public iterImpl<mandFunc,0>
 public:
     enum { FLAGS = HAS_X2 | HAS_Y2 };
     mandFunc() : iterImpl<mandFunc,0>(name()) {} 
-
-#define MAND_DECL T atmp;
-#define MAND_ITER \
-    pTemp[X2] = pIter[X] * pIter[X]; \
-    pTemp[Y2] = pIter[Y] * pIter[Y]; \
-    atmp = pTemp[X2] - pTemp[Y2] + pInput[CX]; \
-    pIter[Y+ITER_SPACE] = 2.0 * pIter[X] * pIter[Y] + pInput[CY]; \
-    pIter[X+ITER_SPACE] = atmp; \
-    pIter += 2;
-
-    ITER_DECLS(MAND_DECL,MAND_ITER)
 
     static const char *name()
         {

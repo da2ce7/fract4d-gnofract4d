@@ -33,10 +33,10 @@ public:
 
     compiler();
 
-    int run(std::string iter, std::string decl);
+    int run(std::string iter, std::string decl, std::string ret);
 
 private:
-    std::string Dstring(std::string iter, std::string decl);
+    std::string Dstring(std::string iter, std::string decl, std::string ret);
 };
 
 #endif /* COMPILER_H_ */
