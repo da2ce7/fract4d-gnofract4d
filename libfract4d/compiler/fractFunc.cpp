@@ -182,8 +182,8 @@ void fractFunc::draw_all()
     {
         maxiter /= 2;
     }
-    status_changed(GF4D_FRACTAL_DONE);
     progress_changed(0.0);
+    status_changed(GF4D_FRACTAL_DONE);
 }
 
 void fractFunc::draw(int rsize, int drawsize)

@@ -5,6 +5,9 @@ import string
 import re
 import os
 import sys
+import thread
+import threading
+import Queue
 
 sys.path.append("build/lib.linux-i686-2.2") # FIXME
 import fract4d
@@ -202,7 +205,7 @@ class T(FctUtils):
         pass
     
     def image_changed(self,x1,y1,x2,y2):
-        #print "image: %d %d %d %d" %  (x1, x2, y1, y2)
+        print "image: %d %d %d %d" %  (x1, x2, y1, y2)
         #self.image_list.append((x1,y1,x2,y2))
         pass
 
@@ -334,11 +337,36 @@ class T(FctUtils):
             
             line = f.readline()
 
-def Threaded(T):
+class Threaded(T):
     def __init__(self,comp):
-        T.__init__(comp)
+        T.__init__(self,comp)
+        self.worker = threading.Thread(
+            name="worker",target=self.threadStart,args=(self,1))
+        self.worker.setDaemon(True)
+        self.q = Queue.Queue(1)
+        self.worker.start()
         
+    def is_interrupted(self):
+        return self.interrupted
     
+    def threadStart(*args):
+        try:
+            print "thread started"
+            self = args[0]
+            while True:
+                print "enter loop"
+                image = self.q.get()
+                print "something to do"
+                self.interrupted = False
+                T.draw(self,image)
+        except Exception, err:
+            print "oops", err
+            
+    def draw(self,image):
+        self.interrupted = True
+        self.q.put(image)
+        print "put image in queue"
+        
 if __name__ == '__main__':
     import sys
     import fc
