@@ -61,6 +61,7 @@ public:
 	fractal& operator=(const fractal& f); // assignment op
 	~fractal();
 
+	void set_inexact(const fractal& f); // assign & mess about
 
 	void reset();
 	void calc(Gf4dFractal *gf4d, image *im);
@@ -95,6 +96,7 @@ public:
 	void update_matrix();
 	dvec4 get_center();
 	friend class fract_rot;
+
 private:
 	void recenter(const dvec4& delta);
 };

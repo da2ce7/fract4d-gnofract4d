@@ -56,6 +56,13 @@ extern "C" {
 
 	/* retrieve things */
 	Gf4dFractal *model_get_fract(model_t *m);
+	Gf4dFractal *model_get_subfract(model_t *m, int num);
+
+	/* copy subfract n onto main fract */
+	void model_set_subfract(model_t *m, int num);
+
+	/* make subfracts weird versions of main one */
+	void model_update_subfracts(model_t *m);
 
 	void model_make_undo_sensitive(model_t *m, GtkWidget *widget);
 	void model_make_redo_sensitive(model_t *m, GtkWidget *widget);

@@ -38,7 +38,7 @@
 #include "fract.h"
 #include "colorizer_public.h"
 
-//GtkWidget *appbar1;
+GtkWidget *appbar1;
 //GtkWidget *toolbar_move;
 GtkWidget *propertybox=NULL;
   
@@ -274,10 +274,10 @@ create_drawing_area(model_t *m)
 
 	/* connect widget signals */
 	gtk_signal_connect (GTK_OBJECT(drawing_area), "expose_event", 
-			    (GtkSignalFunc) expose_event, m);
+			    (GtkSignalFunc) expose_event, model_get_fract(m));
 
 	gtk_signal_connect (GTK_OBJECT(drawing_area), "configure_event",
-			    (GtkSignalFunc) configure_event, m);
+			    (GtkSignalFunc) configure_event, model_get_fract(m));
 
 	gtk_signal_connect (GTK_OBJECT(drawing_area), "button_press_event",
 			    (GtkSignalFunc) mouse_event, m);
@@ -296,17 +296,74 @@ create_drawing_area(model_t *m)
 	return drawing_area;
 }
 
+/* other areas around the edge of the screen in the Explorer */
+GtkWidget *
+create_sub_drawing_area(model_t *m, GtkWidget *table, int num, int x, int y)
+{
+	GtkWidget *drawing_area=NULL;
+	gtk_widget_push_visual (gdk_rgb_get_visual ());
+	gtk_widget_push_colormap (gdk_rgb_get_cmap ());
+	
+	drawing_area = gtk_drawing_area_new();
+	gtk_widget_pop_colormap ();
+	gtk_widget_pop_visual ();
+
+	gtk_widget_set_events (drawing_area, 
+			       GDK_EXPOSURE_MASK |
+			       GDK_BUTTON_PRESS_MASK | 
+			       GDK_BUTTON_RELEASE_MASK |
+			       GDK_BUTTON1_MOTION_MASK |
+			       GDK_POINTER_MOTION_HINT_MASK);
+
+	subfract_cb_data *pdata = new subfract_cb_data;
+
+	pdata->m = m;
+	pdata->num = num;
+
+	Gf4dFractal *f = model_get_subfract(m,num);
+	/* connect widget signals */
+	gtk_signal_connect (GTK_OBJECT(drawing_area), "expose_event", 
+			    (GtkSignalFunc) expose_event, 
+			    f);
+	
+	gtk_signal_connect (GTK_OBJECT(drawing_area), "configure_event",
+			    (GtkSignalFunc) configure_event, 
+			    f);
+	
+	gtk_signal_connect (GTK_OBJECT(drawing_area), "button_press_event",
+			    (GtkSignalFunc) sub_mouse_event, pdata);
+
+	/* connect fractal object signals */
+	gtk_signal_connect(GTK_OBJECT(f),
+			   "image_changed",
+			   GTK_SIGNAL_FUNC (update_callback), 
+			   drawing_area);
+	
+	gtk_signal_connect(GTK_OBJECT(f),
+			   "parameters_changed",
+			   GTK_SIGNAL_FUNC(redraw_callback),
+			   m);
+
+	gtk_widget_show (drawing_area);
+	gtk_table_attach(GTK_TABLE(table),drawing_area,x,x+1,y,y+1, 
+			 (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+			 (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+			 1,1);
+
+	return drawing_area;
+}
+
 GtkWidget *
 create_app (model_t *m)
 {
-	GtkWidget *vbox1;
+	GtkWidget *table;
 	GtkWidget *scrolledwindow1;
 	GtkWidget *drawing_area;
 
 	GtkWidget *app = gnome_app_new ("Gnofract4D", _("Gnofract4D"));
-	//gtk_window_
 
 	gnome_app_create_menus_with_data (GNOME_APP (app), menubar1_uiinfo, m);
+	gtk_window_set_policy(GTK_WINDOW(app),true,true,false);
 
 	GtkWidget *toolbar_move = create_move_toolbar(m);
 
@@ -317,36 +374,30 @@ create_app (model_t *m)
 			      GNOME_DOCK_TOP,
 			      1,0,0);
 
+	appbar1 = gnome_appbar_new(TRUE,TRUE,GNOME_PREFERENCES_NEVER); 
+	gtk_widget_show (appbar1);
+	gnome_app_set_statusbar (GNOME_APP (app), appbar1);
 
-	// appbar1 = gnome_appbar_new 
-	//gtk_widget_show (appbar1);
-	//gnome_app_set_statusbar (GNOME_APP (app), appbar1);
-
-	vbox1 = gtk_vbox_new (FALSE, 0);
-	gtk_widget_show (vbox1);
-	gnome_app_set_contents (GNOME_APP (app), vbox1);
-
-	scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow1),
-				       GTK_POLICY_AUTOMATIC,
-				       GTK_POLICY_AUTOMATIC);
+	table = gtk_table_new (3,3,false);
+	gtk_widget_show (table);
+	gnome_app_set_contents (GNOME_APP (app), table);
 
 	drawing_area = create_drawing_area(m);
 	gtk_widget_show (drawing_area);
 
-	/* the scrolledwindow seems to produce a 2-pixel border around the 
-	 * drawing area */
-	gtk_widget_set_usize(GTK_WIDGET(scrolledwindow1),640+4,480+4);
+	gtk_table_attach(GTK_TABLE(table),drawing_area,1,2,1,2, 
+			 (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+			 (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+			 1,1);
 
-	gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow1),0);
-	gtk_widget_show (scrolledwindow1);
-
-	gtk_box_pack_start (GTK_BOX (vbox1), scrolledwindow1, TRUE, TRUE, 0);
-
-
-	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolledwindow1),
-					       drawing_area);
-	
+	create_sub_drawing_area(m,table,0,0,0);
+	create_sub_drawing_area(m,table,1,1,0);
+	create_sub_drawing_area(m,table,2,2,0);
+	create_sub_drawing_area(m,table,3,0,1);
+	create_sub_drawing_area(m,table,4,2,1);
+	create_sub_drawing_area(m,table,5,0,2);
+	create_sub_drawing_area(m,table,6,1,2);
+	create_sub_drawing_area(m,table,7,2,2);
 	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)), "parameters_changed",
 			   GTK_SIGNAL_FUNC(redraw_callback),
 			   m);
@@ -358,6 +409,13 @@ create_app (model_t *m)
 			    GTK_SIGNAL_FUNC (quit_cb),
 			    m);
 
+	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)),"progress_changed",
+			   GTK_SIGNAL_FUNC(progress_callback),
+			   appbar1);
+
+	gtk_signal_connect(GTK_OBJECT(model_get_fract(m)),"status_changed",
+			   GTK_SIGNAL_FUNC(message_callback),
+			   appbar1);
 	return app;
 }
 

@@ -540,3 +540,9 @@ void gf4d_fractal_set_potential(Gf4dFractal *f, gboolean potential)
 	kill_slave_threads(f);
 	f->f->set_potential(potential);
 }
+
+void gf4d_fractal_set_inexact(Gf4dFractal *gf_dst, Gf4dFractal *gf_src)
+{
+	kill_slave_threads(gf_dst);
+	gf_dst->f->set_inexact(*gf_src->f);
+}

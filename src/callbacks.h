@@ -32,6 +32,11 @@ typedef struct {
 	GtkAdjustment *adj;
 	gint dir;
 } set_cb_data;
+
+typedef struct {
+	model_t *m;
+	int num;
+} subfract_cb_data;
 		
 gboolean
 quit_cb                                (GtkWidget       *widget,
@@ -97,10 +102,8 @@ propertybox_help                       (GnomePropertyBox *gnomepropertybox,
 void
 propertybox_destroy                    (GtkObject *gnomepropertybox, gpointer user_data );
 
-void
-mouse_event		               (GtkWidget *widget, 
-					GdkEvent *event, 
-					gpointer user_data);
+void mouse_event (GtkWidget *widget, GdkEvent *event, gpointer user_data);
+void sub_mouse_event(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 
 void property_box_refresh (model_t *);
 

@@ -47,6 +47,7 @@ struct _model {
 	GundoSequence *undo_seq;
 	GundoActionType undo_action;
 	Gf4dFractal *fract;
+	Gf4dFractal *subfracts[8];
 	fractal *old_fract;
 
 	int interrupted;
@@ -56,7 +57,6 @@ static void
 model_restore_old_fractal(gpointer undo_data)
 {
 	undo_action_data *p = (undo_action_data *)undo_data;
-	gf4d_fractal_interrupt(p->m->fract);
 	gf4d_fractal_set_fract(p->m->fract, p->old);
 	gf4d_fractal_parameters_changed(p->m->fract);
 }
@@ -65,7 +65,6 @@ static void
 model_restore_new_fractal(gpointer undo_data)
 {
 	undo_action_data *p = (undo_action_data *)undo_data;
-	gf4d_fractal_interrupt(p->m->fract);
 	gf4d_fractal_set_fract(p->m->fract, p->new_);
 	gf4d_fractal_parameters_changed(p->m->fract);
 }
@@ -85,6 +84,11 @@ model_new(void)
 	model_t *m = new model_t;
 
 	m->fract = GF4D_FRACTAL(gf4d_fractal_new());
+	for(int i = 0; i < 8; i++)
+	{
+		m->subfracts[i] = GF4D_FRACTAL(gf4d_fractal_new());
+	}
+	model_update_subfracts(m);
 	m->undo_seq = gundo_sequence_new();
 
 	m->undo_action.undo = model_restore_old_fractal;
@@ -169,6 +173,21 @@ model_get_fract(model_t *m)
 	return m->fract;
 }
 
+Gf4dFractal *
+model_get_subfract(model_t *m, int num)
+{
+	g_assert(num > -1 && num < 8);
+	return m->subfracts[num];
+}
+
+void
+model_set_subfract(model_t *m, int num)
+{
+	model_cmd_start(m);
+	gf4d_fractal_set_fract(m->fract,gf4d_fractal_copy_fract(m->subfracts[num]));
+	model_cmd_finish(m);
+}
+
 void
 model_cmd_finish(model_t *m)
 {
@@ -181,6 +200,17 @@ model_cmd_finish(model_t *m)
 	gundo_sequence_add_action(m->undo_seq, &m->undo_action, p);
 
 	gf4d_fractal_parameters_changed(m->fract);
+	model_update_subfracts(m);
+}
+
+void
+model_update_subfracts(model_t *m)
+{
+	for(int i = 0; i < 8; i++)
+	{
+		gf4d_fractal_set_inexact(m->subfracts[i],m->fract);
+		gf4d_fractal_parameters_changed(m->subfracts[i]);
+	}
 }
 
 void

@@ -279,6 +279,12 @@ redraw_image_rect(GtkWidget *widget, guchar *img, int x, int y, int width, int h
 			   3*image_width);
 }
 
+void sub_mouse_event(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	subfract_cb_data *pdata = (subfract_cb_data *)data;
+	model_set_subfract(pdata->m, pdata->num);
+}
+
 void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
 {	
 	model_t *m = (model_t *)data;
@@ -372,8 +378,7 @@ void mouse_event(GtkWidget *widget, GdkEvent * event, gpointer data)
 gint 
 expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
-	model_t *m = (model_t *)user_data;
-	Gf4dFractal *f = model_get_fract(m);
+	Gf4dFractal *f = GF4D_FRACTAL(user_data);
 	redraw_image_rect(widget, gf4d_fractal_get_image(f),
 			  event->area.x, event->area.y,
 			  event->area.width, event->area.height,
@@ -384,22 +389,21 @@ expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 gint 
 configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
 {
-	model_t *m = (model_t *)user_data;
+	Gf4dFractal *f = GF4D_FRACTAL(user_data);
 
-	gf4d_fractal_set_resolution(model_get_fract(m),
+	gf4d_fractal_set_resolution(f,
 			 widget->allocation.width, 
 			 widget->allocation.height);
-	gf4d_fractal_parameters_changed(model_get_fract(m));
+	gf4d_fractal_parameters_changed(f);
+
 	return TRUE;
 }
 
 void redraw_callback(Gf4dFractal *f, gpointer m)
 {
-	f = model_get_fract((model_t *)m);
 	property_box_refresh((model_t *)m);
 	gf4d_fractal_calc(f);
 }
-
 
 void 
 message_callback(Gf4dFractal *f, gint val, void *user_data)

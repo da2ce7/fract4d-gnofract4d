@@ -128,6 +128,17 @@ fractal::operator=(const fractal& f)
 	return *this;
 }
 
+void
+fractal::set_inexact(const fractal& f)
+{
+	*this = f; // invoke op=
+
+	for(int i = 0; i < N_PARAMS; i++)
+	{
+		params[i] += drand48() - 0.5;
+	}
+}
+
 /* return to mandelbrot set */
 void 
 fractal::reset()
@@ -730,8 +741,7 @@ void fract_rot::soi()
 	do
 	{
 		soidata_t s = soi_queue.front();
-
-		/* remove element we've just processed */
+		/* remove element */
 		soi_queue.pop();
 		
 		/* if too small, draw by scanning */
@@ -740,6 +750,7 @@ void fract_rot::soi()
 			scan_rect(s);
 			continue;
 		}
+		int old_iter = s.iter;
 		/* iterate until it splits or maxiter */
 		do {
 			s.iterate();
@@ -765,6 +776,7 @@ void fract_rot::soi()
 			// undo the last iteration, which broke tolerance
 			s.revert(); 
 			
+			//printf("progress: %d\n",s.iter - old_iter);
 			rgb_t pixel = (*cf)(s.iter,s.data[0],0);
 			
 			/* draw with split number of iterations */
