@@ -187,14 +187,34 @@ def cos_c_c(gen,t,srcs):
 def tan_f_f(gen,t,srcs):
     return gen.emit_func('tan', srcs, Float)
 
+def tan_c_c(gen,t,srcs):
+    return div_cc_c(gen,t, [sin_c_c(gen,t, [srcs[0]]), cos_c_c(gen,t,[srcs[0]])])
+
 def cosh_f_f(gen,t,srcs):
     return gen.emit_func('cosh', srcs, Float)
+
+def cosh_c_c(gen,t,srcs):
+    # cosh(a+ib) = cosh(a)*cos(b) + i (sinh(a) * sin(b))
+    a = [srcs[0].re]; b = [srcs[0].im]
+    re = gen.emit_binop('*', [ cosh_f_f(gen,t,a), cos_f_f(gen,t,b)], Float)
+    im = gen.emit_binop('*', [ sinh_f_f(gen,t,a), sin_f_f(gen,t,b)], Float)    
+    return ComplexArg(re,im)
 
 def sinh_f_f(gen,t,srcs):
     return gen.emit_func('sinh', srcs, Float)
 
+def sinh_c_c(gen,t,srcs):
+    # sinh(a+ib) = sinh(a)*cos(b) + i (cosh(a) * sin(b))
+    a = [srcs[0].re]; b = [srcs[0].im]
+    re = gen.emit_binop('*', [ sinh_f_f(gen,t,a), cos_f_f(gen,t,b)], Float)
+    im = gen.emit_binop('*', [ cosh_f_f(gen,t,a), sin_f_f(gen,t,b)], Float)    
+    return ComplexArg(re,im)
+
 def tanh_f_f(gen,t,srcs):
     return gen.emit_func('tanh', srcs, Float)
+
+def tanh_c_c(gen,t,srcs):
+    return div_cc_c(gen,t, [sinh_c_c(gen,t, [srcs[0]]), cosh_c_c(gen,t,[srcs[0]])])
 
 def asin_f_f(gen,t,srcs):
     return gen.emit_func('asin', srcs, Float)
