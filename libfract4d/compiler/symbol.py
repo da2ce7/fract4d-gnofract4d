@@ -39,7 +39,7 @@ class T(UserDict):
     def __setitem__(self,key,value):
         k = mangle(key)
         if self.data.has_key(k):
-            raise KeyError, ("can't override existing key %s" % k)
+            raise KeyError, ("can't override existing symbol %s" % k)
         self.data[mangle(key)] = value
     def __delitem__(self,key):
         del self.data[mangle(key)]
