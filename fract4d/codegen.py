@@ -129,10 +129,10 @@ class Oper(Insn):
 class Label(Insn):
     'A label which can be jumped to'
     def __init__(self, label):
-        Insn.__init__(self,"%s:" % label)
+        Insn.__init__(self,"%s: ;\n" % label)
         self.label = label
     def format(self, lookup=None):
-        return "%s" % self
+        return "%s ;\n" % self
     def __str__(self):
         return "%s:" % self.label
     
@@ -202,6 +202,7 @@ typedef struct {
     pf_obj parent;
     double p[PF_MAXPARAMS];
     double period_tolerance;
+    %(var_decls)s
 } pf_real ;
 
 static void pf_init(
@@ -246,7 +247,7 @@ double t__h_index = 0.0;
 int t__h_solid = 0;
 
 /* variable declarations */
-%(decls)s
+%(var_inits)s
 int t__h_numiter = 0;
 %(init)s
 t__end_finit:
@@ -282,11 +283,13 @@ if(*t__p_pFate == 0)
 {
     %(cf0_final)s
     t__end_cf0final:
+        ;
 }
 else
 {
     %(cf1_final)s
     t__end_cf1final:
+        ;
 }
 *t__p_pDist = t__h_index;
 *t__p_pSolid = t__h_solid;
@@ -317,7 +320,7 @@ double t__h_index = 0.0;
 int t__h_solid = 0;
 
 /* variable declarations */
-%(decls)s
+%(var_inits)s
 %(decl_period)s
 int t__h_numiter = 0;
 %(init)s
@@ -356,11 +359,13 @@ if(*t__p_pFate == 0)
 {
     %(cf0_final)s
     t__end_cf0final:
+        ;
 }
 else
 {
     %(cf1_final)s
     t__end_cf1final:
+        ;
 }
 *t__p_pDist = t__h_index;
 *t__p_pSolid = t__h_solid;
@@ -531,10 +536,84 @@ extern pf_obj *pf_new(void);
     def emit_label(self,name):
         self.out.append(Label(name))
 
-    def make_cdecl(self,type,varname,format, re_val,im_val):
-        return [ Decl(("%s %s_re = " + format +";") % (type,varname,re_val)),
-                 Decl(("%s %s_im = " + format +";") % (type,varname,im_val))]
-    
+    def make_complex_init(self,type,varname, re_val,im_val):
+        return [ Decl("%s %s_re = %s;" % (type,varname,re_val)),
+                 Decl("%s %s_im = %s;" % (type,varname,im_val))]
+
+    def output_symbol(self,key,sym,op,out,overrides):
+        if isinstance(sym,fracttypes.Var):
+            t = fracttypes.ctype(sym.type)
+            val = sym.value
+            override = overrides.get(key)
+            if override == None:
+                if sym.type == fracttypes.Complex:
+                    ord = op.get(key)
+                    if ord == None:
+                        re_val = "%.17f" % val[0]
+                        im_val = "%.17f" % val[1]
+                        out += self.make_complex_init(t,sym.cname, re_val, im_val)
+                    else:
+                        re_val = "t__pfo->p[%d]" % ord
+                        im_val = "t__pfo->p[%d]" % (ord+1)
+                        out += self.make_complex_init(t,sym.cname, re_val, im_val)
+                            
+                elif sym.type == fracttypes.Float:
+                    ord = op.get(key)
+                    if ord == None:
+                        out.append(Decl("%s %s = %.17f;" % (t,sym.cname,val)))
+                    else:
+                        out.append(Decl("%s %s = t__pfo->p[%d];" % \
+                                            (t, sym.cname, ord)))
+                else:
+                    out.append(Decl("%s %s = %d;" % (t,sym.cname,val)))
+            else:
+                #print "override %s for %s" % (override, key)
+                out.append(Decl(override))
+        else:
+            #print "Weird symbol %s: %s" %( key,sym)
+            pass
+
+    def make_complex_decl(self,type,varname):
+        return [ Decl("%s %s_re;" % (type,varname)),
+                 Decl("%s %s_im;" % (type,varname))]
+
+    def output_decl(self,key,sym,out,overrides):
+        if not isinstance(sym,fracttypes.Var):
+            return
+        
+        t = fracttypes.ctype(sym.type)
+        val = sym.value
+        override = overrides.get(key)
+        if override == None:
+            if sym.type == fracttypes.Complex:
+                out += self.make_complex_decl(t,sym.cname)
+            else:
+                out.append(Decl("%s %s;" % (t,sym.cname)))
+        else:
+            #print "override %s for %s" % (override, key)
+            out.append(Decl(override))
+
+    def output_var_decls(self,ir,user_overrides):
+        overrides = {
+                     "t__h_zwpixel" : "",
+                     "pixel" : "",
+                     "t__h_numiter" : "",
+                     "t__h_index" : "",
+                     "maxiter" : "",
+                     "t__h_tolerance" : "",
+                     "t__h_solid" : ""
+                     }
+        for (k,v) in user_overrides.items():
+            overrides[k] = v
+            
+        out = []
+        for (key,sym) in ir.symbols.items():
+            self.output_decl(key,sym,out,overrides)
+
+        if hasattr(ir,"output_sections"):
+            ir.output_sections["var_decls"] = out
+        return out
+
     def output_symbols(self,ir,user_overrides):
         overrides = {
                      "t__h_zwpixel" : "",
@@ -553,33 +632,10 @@ extern pf_obj *pf_new(void);
         out = []
         op = ir.symbols.order_of_params()
         for (key,sym) in ir.symbols.items():
-            if isinstance(sym,fracttypes.Var):
-                t = fracttypes.ctype(sym.type)
-                val = sym.value
-                override = overrides.get(key)
-                if override == None:
-                    if sym.type == fracttypes.Complex:
-                        ord = op.get(key)
-                        if ord == None:
-                            out += self.make_cdecl(t,sym.cname,"%.17f",val[0],val[1])
-                        else:
-                            out += self.make_cdecl(t,sym.cname,"t__pfo->p[%d]",ord,ord+1)
-                            
-                    elif sym.type == fracttypes.Float:
-                        ord = op.get(key)
-                        if ord == None:
-                            out.append(Decl("%s %s = %.17f;" % (t,sym.cname,val)))
-                        else:
-                            out.append(Decl("%s %s = t__pfo->p[%d];" % \
-                                            (t, sym.cname, ord)))
-                    else:
-                        out.append(Decl("%s %s = %d;" % (t,sym.cname,val)))
-                else:
-                    #print "override %s for %s" % (override, key)
-                    out.append(Decl(override))
-            else:
-                #print "Weird symbol %s: %s" %( key,sym)
-                pass
+            self.output_symbol(key,sym,op,out,overrides)
+
+        if hasattr(ir,"output_sections"):
+            ir.output_sections["var_inits"] = out
         return out
 
     def output_section(self,t,section):
@@ -593,7 +649,8 @@ extern pf_obj *pf_new(void);
 
     def output_decls(self,t,overrides={}):
         # must be done after other sections or temps are missing
-        t.output_sections["decls"] = self.output_symbols(t,overrides)
+        self.output_symbols(t,overrides)
+        self.output_var_decls(t,overrides)
     
     def output_c(self,t,inserts={},output_template=None):
         # find bailout variable

@@ -40,7 +40,7 @@ if not pygtk_ok:
 
 try:
     # we install our libs privately instead of to site-packages
-    sys.path.append('/usr/lib/gnofract4d-2.2')
+    sys.path.append('/usr/lib/gnofract4d-2.3')
     # gui modules
     from fract4dgui import main_window, preferences
     

@@ -139,8 +139,15 @@ class Var:
             self.value = value
         self.pos = pos
         self.cname = None
+        self.is_temp = False
         self.__doc__ = kwds.get("doc")
-        
+
+    def struct_name(self):
+        if self.is_temp:
+            return "pfo->" + self.cname
+        else:
+            return self.cname
+    
     def first(self):
         return self
         

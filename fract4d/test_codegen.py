@@ -331,7 +331,8 @@ int a = 1
 loop:
 z = z + a
 }''', "loop")
-        self.assertOutputMatch('''t__start_floop:
+        self.assertOutputMatch('''t__start_floop: ;
+
 t__ftemp0 = ((double)fa);
 t__ftemp1 = 0.0;
 t__ftemp2 = z_re + t__ftemp0;
@@ -341,7 +342,8 @@ z_im = t__ftemp3;
 goto t__end_floop;''')
 
         asm = self.sourceToAsm('t_s2a_2{\ninit: a = -1.5\n}',"init")
-        self.assertOutputMatch('''t__start_finit:
+        self.assertOutputMatch('''t__start_finit: ;
+
 t__ftemp0 = -(1.50000000000000000);
 t__ftemp1 = t__ftemp0;
 t__ftemp2 = 0.0;
