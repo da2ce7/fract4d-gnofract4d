@@ -69,7 +69,7 @@ class ColorDialog(dialog.T):
             _("Gradient Editor"),
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
-            (#gtk.STOCK_REFRESH, ColorDialog.RESPONSE_REFRESH,
+            (gtk.STOCK_REFRESH, ColorDialog.RESPONSE_REFRESH,
              gtk.STOCK_APPLY, gtk.RESPONSE_APPLY,
              gtk.STOCK_OK, gtk.RESPONSE_OK,
              gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
@@ -77,8 +77,7 @@ class ColorDialog(dialog.T):
         self.set_size_request(500,300)
         
         self.f = f
-        self.grad= copy.copy(self.f.gradient)
-        self.solids = copy.copy(self.f.solids)
+        self.update_gradient()
         
         self.model = _get_model()
         sw = self.create_map_file_list()
@@ -90,6 +89,10 @@ class ColorDialog(dialog.T):
         hbox.pack_start(gradbox)
         self.vbox.add(hbox)
         self.treeview.get_selection().unselect_all()
+
+    def update_gradient(self):
+        self.grad= copy.copy(self.f.gradient)
+        self.solids = copy.copy(self.f.solids)
 
     def copy_left(self,widget):
         i = self.selected_segment
@@ -345,6 +348,11 @@ class ColorDialog(dialog.T):
         self.redraw_rect(self.gradarea,
                          0,0,allocation.width, allocation.height)
         
+        self.inner_solid_button.set_color(
+            utils.floatColorFrom256(self.solids[1]))
+        self.outer_solid_button.set_color(
+            utils.floatColorFrom256(self.solids[0]))
+            
     def create_map_file_list(self):
         sw = gtk.ScrolledWindow ()
         sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
@@ -380,7 +388,8 @@ class ColorDialog(dialog.T):
             self.map_list.set (iter, 0, k)
 
     def onRefresh(self):
-        print "not implemented"
+        self.update_gradient()
+        self.redraw()
 
     def onApply(self):
         self.f.freeze()
