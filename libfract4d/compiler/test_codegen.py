@@ -149,7 +149,14 @@ int a = 1
 loop:
 z = z + a
 }''', "loop")
-        self.printAsm()
+        self.assertOutputMatch('''t__start_loop:
+t__temp0 = ((double)a)
+t__temp1 = 0.0
+t__temp2 = z_re + t__temp0
+t__temp3 = z_im + t__temp1
+z_re = t__temp2
+z_im = t__temp3
+goto t__end_loop''')
 
 
     def testFormatString(self):

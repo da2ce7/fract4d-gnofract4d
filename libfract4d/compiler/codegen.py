@@ -131,8 +131,6 @@ class T:
         dst = self.generate_code(t.children[0])
         src = self.generate_code(t.children[1])
         if t.datatype == Complex:
-            print src
-            print dst
             self.out.append(Move([src[0]],[dst[0]]))
             self.out.append(Move([src[1]],[dst[1]]))
         else:
