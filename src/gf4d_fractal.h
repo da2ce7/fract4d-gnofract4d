@@ -140,8 +140,9 @@ void gf4d_fractal_set_func(Gf4dFractal *f, const char *type);
 colorizer_t *gf4d_fractal_get_colorizer(Gf4dFractal *f);
 void gf4d_fractal_set_colorizer(Gf4dFractal *f, colorizer_t *cizer);
 
-gboolean gf4d_fractal_get_potential(Gf4dFractal *f);
-void gf4d_fractal_set_potential(Gf4dFractal *f, gboolean potential);
+// type = 0 for outer, 1 for inner
+e_colorFunc gf4d_fractal_get_colorFunc(Gf4dFractal *f, int type);
+void gf4d_fractal_set_colorFunc(Gf4dFractal *f, e_colorFunc, int type); 
 
     /* bailout type */
 e_bailFunc gf4d_fractal_get_bailout_type(Gf4dFractal *f);

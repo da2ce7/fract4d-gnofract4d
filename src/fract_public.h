@@ -32,6 +32,11 @@ typedef enum {
     ZWANGLE,
 } param_t;
 
+// colorFunc indices
+#define OUTER 0
+#define INNER 1
+#define N_COLORFUNCS 2
+
 #define N_PARAMS 12
 
 #define SECTION_STOP "[endsection]"

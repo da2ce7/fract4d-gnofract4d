@@ -569,15 +569,14 @@ Gf4dFractal *gf4d_fractal_copy(Gf4dFractal *f)
     return fnew;
 }
 
-gboolean gf4d_fractal_get_potential(Gf4dFractal *f)
+e_colorFunc gf4d_fractal_get_colorFunc(Gf4dFractal *f, int type)
 {
-    return f->f->get_potential();
+    return f->f->colorFuncs[type];
 }
 
-void gf4d_fractal_set_potential(Gf4dFractal *f, gboolean potential)
+void gf4d_fractal_set_colorFunc(Gf4dFractal *f, e_colorFunc cf, int type)
 {
-    kill_slave_threads(f);
-    f->f->set_potential(potential);
+    f->f->colorFuncs[type] = cf;
 }
 
 void gf4d_fractal_set_mixed(

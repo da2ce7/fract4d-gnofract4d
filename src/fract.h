@@ -40,7 +40,6 @@ private:
     int maxiter;
     e_antialias antialias;
     int digits;
-    bool potential;
 
     // color params
     colorizer *cizer;
@@ -48,7 +47,7 @@ private:
 public:
 
     e_bailFunc bailout_type;    
-    e_colorFunc outer_colorFunc, inner_colorFunc;
+    e_colorFunc colorFuncs[N_COLORFUNCS];
     iterFunc *pIterFunc;
 
     // parameters beyond this point aren't saved
@@ -100,8 +99,6 @@ public:
     int get_max_iterations();
     e_antialias get_aa();
     bool get_auto();
-    bool get_potential() { return potential; };
-    void set_potential(bool p) { potential = p; };
     bool check_precision();
     bool set_precision(int digits); 
 

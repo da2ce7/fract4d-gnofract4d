@@ -19,8 +19,8 @@ fractFunc::fractFunc(fractal_t *_f, image *_im, Gf4dFractal *_gf)
         f->bailout_type, 
         f->params[BAILOUT], 
         f->cizer, 
-        f->outer_colorFunc,
-        f->inner_colorFunc);
+        f->colorFuncs[OUTER],
+        f->colorFuncs[INNER]);
     
     depth = f->eaa ? 2 : 1; 
     
@@ -350,9 +350,8 @@ inline bool fractFunc::isTheSame(
     {
         // does this point have the target # of iterations?
         if(im->getIter(x,y) != targetIter) return false;
-        // if we're using continuous potential, does it have
-        // the same colour too?
-        if(f->potential && RGB2INT(y,x) != targetCol) return false;
+        // does it have the same colour too?
+        if(RGB2INT(y,x) != targetCol) return false;
     }
     return bFlat;
 }

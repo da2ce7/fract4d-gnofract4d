@@ -348,6 +348,25 @@ set_aa_callback(GtkWidget *widget, gpointer user_data)
 }
 
 void
+set_cf_callback(GtkWidget *widget, gpointer user_data)
+{
+    Gf4dFractal *f = GF4D_FRACTAL(user_data);
+
+    e_colorFunc cf_type = (e_colorFunc)GPOINTER_TO_INT(gtk_object_get_data(
+        GTK_OBJECT(widget),"type"));
+
+    int whichCf = GPOINTER_TO_INT(gtk_object_get_data(
+        GTK_OBJECT(widget->parent), "whichCf"));
+
+    e_colorFunc old_type = gf4d_fractal_get_colorFunc(f,whichCf);
+    if(cf_type != old_type)
+    {
+        gf4d_fractal_set_colorFunc(f,cf_type,whichCf);
+        gf4d_fractal_parameters_changed(f);
+    }
+}
+
+void
 refresh_aa_callback(Gf4dFractal *f, gpointer user_data)
 {
     GtkOptionMenu *om = GTK_OPTION_MENU(user_data);
@@ -365,6 +384,37 @@ refresh_aa_callback(Gf4dFractal *f, gpointer user_data)
             gtk_object_get_data(GTK_OBJECT(mi),"type"));
         
         if(aa == aa_val)
+        {
+            gtk_option_menu_set_history(om,index);
+            return;
+        }
+        list = g_list_next(list);
+        index++;
+    }
+    g_warning(_("Unknown antialias type ignored"));
+}
+
+void
+refresh_cf_callback(Gf4dFractal *f, gpointer user_data)
+{
+    GtkOptionMenu *om = GTK_OPTION_MENU(user_data);
+    GtkWidget *m = gtk_option_menu_get_menu(om);
+
+    int whichCf = GPOINTER_TO_INT(gtk_object_get_data(
+        GTK_OBJECT(m), "whichCf"));
+
+    GList *list = gtk_container_children(GTK_CONTAINER(m));
+    int index=0;
+    e_colorFunc cf_val = gf4d_fractal_get_colorFunc(f,whichCf);
+
+    // find an element with the same antialias value as the one the fractal has
+    while(list)
+    {
+        GtkMenuItem *mi = GTK_MENU_ITEM(list->data);
+        e_colorFunc cf = (e_colorFunc)GPOINTER_TO_INT(
+            gtk_object_get_data(GTK_OBJECT(mi),"type"));
+        
+        if(cf == cf_val)
         {
             gtk_option_menu_set_history(om,index);
             return;
@@ -432,20 +482,6 @@ refresh_autodeepen_callback(Gf4dFractal *f, gpointer user_data)
     gtk_toggle_button_set_active(b,gf4d_fractal_get_auto(f));
 }
 
-
-
-void set_potential_callback(GtkToggleButton *button, gpointer user_data)
-{
-    Gf4dFractal *f = GF4D_FRACTAL(user_data);
-    gf4d_fractal_set_potential(f,gtk_toggle_button_get_active(button));
-    gf4d_fractal_parameters_changed(f);
-}
-
-void refresh_potential_callback(Gf4dFractal *f, gpointer user_data)
-{
-    GtkToggleButton *b = GTK_TOGGLE_BUTTON(user_data);
-    gtk_toggle_button_set_active(b,gf4d_fractal_get_potential(f));
-}
 
 void show_page_child_callback(GtkWidget *button, GtkWidget *child)
 {
@@ -534,6 +570,55 @@ create_propertybox_bailout_page(
         _("Stop iterating points which get further from the origin than this"));
 }
 
+GtkWidget *
+create_cf_menu(Gf4dFractal *shadow, int whichCf)
+{
+    GtkWidget *cf_type = gtk_option_menu_new();
+    GtkWidget *cf_menu = gtk_menu_new();
+
+    static const gchar *cf_names[] = 
+    {
+        N_("Flat"),
+        N_("Continuous Potential"),
+        N_("Color Zero")
+    };
+
+    gtk_object_set_data(
+        GTK_OBJECT (cf_menu),
+        "whichCf",
+        GINT_TO_POINTER(whichCf));
+
+    for(unsigned int i=0; i < sizeof(cf_names)/sizeof(cf_names[0]); ++i)
+    {
+        GtkWidget *menu_item = gtk_menu_item_new_with_label(cf_names[i]);
+    
+        gtk_object_set_data(
+            GTK_OBJECT (menu_item), 
+            "type",
+            GINT_TO_POINTER(i));
+    
+        gtk_signal_connect(
+            GTK_OBJECT(menu_item),
+            "activate",
+            GTK_SIGNAL_FUNC(set_cf_callback),
+            shadow);
+
+        gtk_menu_append(GTK_MENU(cf_menu), menu_item);
+        gtk_widget_show(menu_item);
+    }    
+
+    gtk_option_menu_set_menu(GTK_OPTION_MENU(cf_type), cf_menu);
+
+    // refresh when shadow changes
+
+    gtk_signal_connect(
+        GTK_OBJECT(shadow),
+        "parameters_changed",
+        GTK_SIGNAL_FUNC(refresh_cf_callback),
+        cf_type);
+
+    return cf_type;
+}
 
 void
 create_propertybox_rendering_page(
@@ -541,7 +626,7 @@ create_propertybox_rendering_page(
     GtkTooltips *tooltips,
     Gf4dFractal *shadow)
 {
-    GtkWidget *table = gtk_table_new (3, 2, FALSE);
+    GtkWidget *table = gtk_table_new (4, 2, FALSE);
     GtkWidget *auto_deepen_button;
     
     GtkWidget *general_page = create_page(table,_("Rendering"));
@@ -596,28 +681,20 @@ create_propertybox_rendering_page(
                         GTK_SIGNAL_FUNC(refresh_autodeepen_callback),
                         (gpointer) auto_deepen_button);
 
-    // continuous potential
-    GtkWidget *potential = gtk_check_button_new_with_label(_("Continuous Potential"));
-    gtk_table_attach(GTK_TABLE(table), potential,
-                     1,2,2,3, 
-                     (GtkAttachOptions)0, 
+    /* outer colorFunc type */
+    GtkWidget *outerCfMenu = create_cf_menu(shadow,OUTER);
+    gtk_table_attach(GTK_TABLE(table), outerCfMenu, 1,2,3,4, 
+                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
                      (GtkAttachOptions)0, 
                      0, 2);
 
-    gtk_signal_connect(GTK_OBJECT(potential),
-                       "toggled",
-                       GTK_SIGNAL_FUNC(set_potential_callback),
-                       shadow);
+    /* inner colorFunc type */
+    GtkWidget *innerCfMenu = create_cf_menu(shadow,INNER);
+    gtk_table_attach(GTK_TABLE(table), innerCfMenu, 1,2,4,5, 
+                     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 
+                     (GtkAttachOptions)0, 
+                     0, 2);
 
-    gtk_signal_connect(GTK_OBJECT(shadow),
-                       "parameters_changed",
-                       GTK_SIGNAL_FUNC(refresh_potential_callback),
-                       potential);
-
-    gtk_label_set_justify(
-        GTK_LABEL(GTK_BIN(potential)->child),GTK_JUSTIFY_LEFT);
-
-    gtk_widget_show(potential);
 }
 
 void

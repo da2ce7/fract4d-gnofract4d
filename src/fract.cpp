@@ -60,6 +60,9 @@
 #define FIELD_AA "antialias"
 #define FIELD_BAILFUNC "bailfunc"
 
+#define FIELD_INNER "inner"
+#define FIELD_OUTER "outer"
+
 #define SECTION_ITERFUNC "[function]"
 #define SECTION_COLORIZER "[colors]"
 
@@ -89,10 +92,9 @@ fractal::fractal()
     digits = 0;
 	
     cizer = colorizer_new(COLORIZER_RGB);
-    potential=1;
     bailout_type=BAILOUT_MAG;
-    outer_colorFunc=COLORFUNC_CONT;
-    inner_colorFunc=COLORFUNC_ZERO;
+    colorFuncs[OUTER]=COLORFUNC_CONT;
+    colorFuncs[INNER]=COLORFUNC_ZERO;
 }
 
 /* dtor */
@@ -128,7 +130,10 @@ fractal::copy(const fractal& f)
     rot = f.rot;
 
     cizer = f.cizer->clone();
-    potential = f.potential;
+    for(int i = 0; i < N_COLORFUNCS; ++i)
+    {
+        colorFuncs[i] = f.colorFuncs[i];
+    }
     bailout_type = f.bailout_type;
 }
 
@@ -166,7 +171,8 @@ fractal::operator==(const fractal& f)
     if(rot_by != f.rot_by) return false;
 
     if(!(*cizer == *f.cizer)) return false;
-    if(potential != f.potential) return false;
+    if(colorFuncs[OUTER] != f.colorFuncs[OUTER]) return false;
+    if(colorFuncs[INNER] != f.colorFuncs[INNER]) return false;    
     if(bailout_type != f.bailout_type) return false;
     
     return true;
@@ -320,6 +326,8 @@ fractal::write_params(const char *filename)
     os << FIELD_MAXITER << "=" << maxiter << "\n";
     os << FIELD_AA << "=" << (int) antialias << "\n";
     os << FIELD_BAILFUNC << "=" << (int) bailout_type << "\n";
+    os << FIELD_INNER << "=" << (int) colorFuncs[INNER] << "\n";
+    os << FIELD_OUTER << "=" << (int) colorFuncs[OUTER] << "\n";
     os << SECTION_ITERFUNC << "\n" << *pIterFunc;
     os << SECTION_COLORIZER << "\n" << *cizer;
 
@@ -376,6 +384,10 @@ fractal::load_params(const char *filename)
             vs >> (int&)antialias;
         else if(FIELD_BAILFUNC==name)
             vs >> (int&)bailout_type;
+        else if(FIELD_INNER==name)
+            vs >> (int&)colorFuncs[INNER];
+        else if(FIELD_OUTER==name)
+            vs >> (int&)colorFuncs[OUTER];
         else if(SECTION_ITERFUNC==name)
         {
             iterFunc *iter_tmp = iterFunc_read(is);
@@ -632,8 +644,8 @@ fractal::recolor(image *im)
         bailout_type,
         params[BAILOUT],
         cizer,
-        outer_colorFunc,
-        inner_colorFunc);
+        colorFuncs[OUTER],
+        colorFuncs[INNER]);
 
     int width = im->Xres();
     int height = im->Yres();
