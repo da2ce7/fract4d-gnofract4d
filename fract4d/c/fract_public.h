@@ -1,6 +1,8 @@
 #ifndef _FRACT_PUBLIC_H_
 #define _FRACT_PUBLIC_H_
 
+#include <pthread.h>
+
 // current state of calculation
 enum {
     GF4D_FRACTAL_DONE,
@@ -87,7 +89,7 @@ class IFractalSite
     virtual void start(calc_args *params) {};
 
     // having started it, set the thread id of the calc thread to wait for
-    virtual void set_tid(int tid) {};
+    virtual void set_tid(pthread_t tid) {};
 
     // wait for it to finish
     virtual void wait() {};
