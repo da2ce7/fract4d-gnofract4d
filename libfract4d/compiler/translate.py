@@ -25,13 +25,16 @@ class T:
         self.dumpProbs = 0
         self.dumpTranslation = 0
         self.dumpVars = 0
-
+        self.dumpPreCanon = 0
+        
         if dump != None:
             for k in dump.keys():
                 self.__dict__[k]=1
 
         try:
             self.formula(f)
+            if self.dumpPreCanon:
+                self.dumpSections(f)
             self.canonicalize()
         except TranslationError, e:
             self.errors.append(e.msg)
@@ -49,13 +52,15 @@ class T:
                     print name,": ",sym
         
         if self.dumpTranslation:
-            print f.leaf + "{"
-            for (name,tree) in self.sections.items():
-                if tree != None:
-                    print " " + name + "("
-                    print tree.pretty(2) + " )"
-            print "}\n"
+            self.dumpSections(f)
 
+    def dumpSections(self,f):
+        print f.leaf + "{"
+        for (name,tree) in self.sections.items():
+            if tree != None:
+                print " " + name + "("
+                print tree.pretty(2) + " )"
+        print "}\n"
         
     def error(self,msg):
         self.errors.append(msg)
@@ -317,7 +322,7 @@ class T:
             # code to set temp to false
             falseBlock = ir.Seq(
                 [falseDest,
-                 ir.Move(temp, ir.Const(0,Bool,node),node, Bool),
+                 ir.Move(temp, ir.Const(0,node,Bool),node, Bool),
                  ir.Jump(doneDest.name, node)], node)
             
         else:
@@ -326,7 +331,7 @@ class T:
             # code to set temp to true
             trueBlock = ir.Seq(
                 [trueDest,
-                 ir.Move(temp, ir.Const(1,Bool,node),node, Bool),
+                 ir.Move(temp, ir.Const(1,node,Bool),node, Bool),
                  ir.Jump(doneDest.name, node)], node)
 
             # set temp to (bool)b
@@ -336,9 +341,9 @@ class T:
                  ir.Jump(doneDest.name, node)], node)
             
         # construct actual if operation
-        test = ir.CJump(node.children[0].leaf,
-                        node.children[0].children[0],
-                        node.children[0].children[1],
+        test = ir.CJump(children[0].op,
+                        children[0].children[0],
+                        children[0].children[1],
                         trueDest.name, falseDest.name, node)
         
         r = ir.ESeq([test, trueBlock, falseBlock, doneDest],

@@ -314,7 +314,8 @@ class TranslateTest(unittest.TestCase):
                 for stm in item:
                     self.assertESeqsNotNested(stm,1)
                 self.assertValidTrace(item)
-
+        self.assertWellTyped(t)
+        
     def assertValidTrace(self,trace):
         # must have each cjump followed by false case
         expecting = None
@@ -330,7 +331,6 @@ class TranslateTest(unittest.TestCase):
         self.assertEqual(len(t.warnings),0,
                          "Unexpected warnings %s" % t.warnings)
         self.assertNoErrors(t)
-        self.assertWellTyped(t)
         
     def assertVar(self,t, name,type):
         self.assertEquals(t.symbols[name].type,type)
@@ -429,11 +429,8 @@ class TranslateTest(unittest.TestCase):
                 if isinstance(ob,ir.Stm):
                     self.assertEqual(dt,None,"bad type %s for %s" % (dt, ob))
                 else:
-                    self.failUnless(dt in [fracttypes.Bool,
-                                           fracttypes.Color,
-                                           fracttypes.Complex,
-                                           fracttypes.Float,
-                                           fracttypes.Int], "bad type %s for %s" % (dt, ob))
+                    self.failUnless(dt in fracttypes.typeList,
+                                    "bad type %s for %s" % (dt, ob))
 
 def suite():
     return unittest.makeSuite(TranslateTest,'test')
