@@ -1,7 +1,6 @@
-todo for 2.2
+todo for 2.3
 * WW	cmap browser
 * WW	cmap editor - brightness/contrast/gamma/HSV/RGB
-* W	recoloring
 * B	opening color browser sometimes applies 1st item
 * W	logmap
 * B	fractint doesn't reset vars between calls
@@ -12,7 +11,7 @@ todo for 2.2
 * B	O-fractals in fractint-g4.frm broken
 * W	assert that correct number of params passed to init()
 * B	click on colormap calls calc() twice
-* W	speed up 'instant recolor'
+* B	recoloring during deepening can make things shallower
 
 UF Incompatibilities
 * W	boolean, int, enum params 
@@ -77,6 +76,8 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done in 2.2:
+* W	speed up 'instant recolor'
+* W	recoloring
 * B	deepening doesn't happen until aa pass
 * BB	close window with decoration = gtk-critical complaints
 * W	reselect current fname and formula when reopening browser
