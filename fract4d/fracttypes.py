@@ -128,7 +128,7 @@ class Func:
         return 1            
 
 class Var:
-    def __init__(self,type_,value=None,pos=-1):
+    def __init__(self,type_,value=None,pos=-1,**kwds):
         assert(type_ != None)
         assert(isinstance(pos,types.IntType))
         self.type = type_
@@ -138,6 +138,8 @@ class Var:
             self.value = value
         self.pos = pos
         self.cname = None
+        self.__doc__ = kwds.get("doc")
+        
     def first(self):
         return self
         

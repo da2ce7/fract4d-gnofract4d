@@ -14,20 +14,26 @@ from fracttypes import *
 import stdlib
 
 class OverloadList(UserList):
-    def __init__(self,list):
+    def __init__(self,list,**kwds):
         UserList.__init__(self,list)
         self.pos = -1
+        self._is_operator = kwds.get("operator")
+        self.__doc__ = kwds.get("doc")
+        
     def first(self):
         return self[0]
+
+    def is_operator(self):
+        return self._is_operator
     
-def efl(fname, template, tlist):
+def efl(fname, template, tlist,**kwds):
     'short-hand for expandFuncList - just reduces the amount of finger-typing'
     list = []
     for t in tlist:            
         f = "Func(%s,stdlib,\"%s\")" % (re.sub("_", str(t), template), fname)
         realf = eval(f)
         list.append(eval(f))
-    return OverloadList(list)
+    return OverloadList(list,**kwds)
 
 class Alias:
     def __init__(self,realName):
@@ -40,12 +46,23 @@ def createDefaultDict():
     d = {
         # standard library functions
         
-        "sqr": efl("sqr", "[_] , _",  [Int, Float, Complex]),
-        "ident": efl("ident", "[_] , _",  [Int, Float, Complex, Bool]),
-        "complex" : OverloadList(
-        [ Func([Float, Float], Complex, stdlib, "complex")]),
+        "sqr": efl("sqr", "[_] , _",  [Int, Float, Complex],
+                   doc="Square the argument. sqr(x) is equivalent to x*x."),
         
-        "conj" : OverloadList([ Func([Complex], Complex, stdlib, "conj")]),
+        "ident": efl("ident", "[_] , _",  [Int, Float, Complex, Bool],
+                     doc='''Do nothing. ident(x) is equivalent to x.
+                     This function is useless in normal formulas but
+                     comes in useful as a value for a function parameter
+                     to a formula.'''),
+        
+        "complex" : OverloadList(
+        [ Func([Float, Float], Complex, stdlib, "complex")],
+        doc='''Construct a complex number from two real parts.
+        complex(a,b) is equivalent to (a,b).'''),
+        
+        "conj" : OverloadList([ Func([Complex], Complex, stdlib, "conj")],
+                              doc="The complex conjugate. conj(a,b) is equivalent to (a,-b)"),
+        
         "flip" : OverloadList([ Func([Complex], Complex, stdlib, "flip")]),
         "real" : OverloadList([ Func([Complex], Float, stdlib, "real")]),
         "real2" : OverloadList([ Func([Complex], Float, stdlib, "real2")]),        
@@ -85,7 +102,10 @@ def createDefaultDict():
         # standard operators
 
         # comparison
-        "!=": efl("noteq", "[_,_] , Bool", [Int, Float, Complex, Bool]),
+        "!=": efl("noteq", "[_,_] , Bool", [Int, Float, Complex, Bool],
+                  operator=True,precedence=3,
+                  doc="Inequality operator. Compare two values and return true if they are different. The values are converted to the same type first if necessary."
+                  ),
         "==": efl("eq",    "[_,_] , Bool", [Int, Float, Complex, Bool]),
         
         # fixme - issue a warning for complex compares
@@ -95,14 +115,14 @@ def createDefaultDict():
         "<=": efl("lte",   "[_,_] , Bool", [Int, Float, Complex]),
 
         # arithmetic
-        "%":  efl("mod",   "[_,_] , _", [Int, Float]),
+        "%":  efl("mod",   "[_,_] , _", [Int, Float],operator=True),
 
         "/":  OverloadList([
                 Func([Float, Float], Float, stdlib, "div"),
                 Func([Complex, Float], Complex, stdlib, "div"),
                 Func([Complex, Complex], Complex, stdlib, "div"),
                 #Func([Color, Float], Float, stdlib, "div")
-                ]),
+                ],operator=True),
 
         "*":  efl("mul",   "[_,_] , _", [Int, Float, Complex]), #+ \
               #[ Func([Color, Float], Float, stdlib, "mul")],
@@ -117,7 +137,7 @@ def createDefaultDict():
         "cmag": OverloadList([ Func([Complex], Float, stdlib, "cmag")]),
         "t__neg": efl("neg", "[_], _", [Int, Float, Complex]),
         
-        # unary negation already factored out
+        # un,ary negation already factored out
 
         # logical ops
         "&&": OverloadList([ Func([Bool, Bool], Bool, stdlib, None) ]),
@@ -126,7 +146,7 @@ def createDefaultDict():
 
         # predefined magic variables
         "t__h_pixel": Alias("pixel"),
-        "pixel" : Var(Complex), 
+        "pixel" : Var(Complex,doc="The (Z,W) coordinates of the current point."), 
         "t__h_z" : Alias("z"),
         "z"  : Var(Complex),
         "t__h_index": Var(Float),
