@@ -150,15 +150,19 @@ class T:
         s = f.childByName("")
         if not s or s.children == []:
             return
-        
-        bailout = [s.children[-1]]
-        loop = s.children[:-1]
-        
+        elif len(s.children) == 1:
+            self.warning("No bailout condition specified")
+            bailout = []
+            loop = s.children
+        else:
+            bailout = [s.children[-1]]
+            loop = s.children[:-1]
+            
         oldbailout = f.childByName("bailout")
         if oldbailout:
             self.dupSectionWarning("bailout")
         else:
-            f.children.append(Stmlist("bailout",bailout, bailout[0].pos))
+            f.children.append(Stmlist("bailout",bailout, -1))
         
         oldloop = f.childByName("loop")
         if oldloop:

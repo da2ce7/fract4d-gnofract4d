@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
 # an interactive browser to examine and debug fractal functions
+import string
 
 import gobject
 import gtk
 
+
 import fractparser
 import fractlexer
 import translate
+import codegen
 
 class MainWindow:
     def __init__(self):
@@ -106,6 +109,26 @@ class MainWindow:
         self.transtext = gtk.TextView()
         sw.add(self.transtext)
         notebook.append_page(sw, gtk.Label('IR Tree'))
+
+        # messages
+        sw = gtk.ScrolledWindow ()
+        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
+        sw.set_policy (gtk.POLICY_AUTOMATIC,
+                       gtk.POLICY_AUTOMATIC)
+
+        self.msgtext = gtk.TextView()
+        sw.add(self.msgtext)
+        notebook.append_page(sw, gtk.Label('Messages'))
+
+        # asm
+        sw = gtk.ScrolledWindow ()
+        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
+        sw.set_policy (gtk.POLICY_AUTOMATIC,
+                       gtk.POLICY_AUTOMATIC)
+
+        self.asmtext = gtk.TextView()
+        sw.add(self.asmtext)
+        notebook.append_page(sw, gtk.Label('Code Sections'))
         
         panes.add2(notebook)
 
@@ -127,12 +150,39 @@ class MainWindow:
         self.ir = translate.T(formula)
         irbuffer = self.transtext.get_buffer()
         irbuffer.set_text(self.ir.pretty(),-1)
+
+        # update messages
+        buffer = self.msgtext.get_buffer()
+        msg = ""
+        if self.ir.errors != []:
+            msg += "Errors:\n" + string.join(self.ir.errors,"\n") + "\n"
+        if self.ir.warnings != []:
+            msg += "Warnings:\n" + string.join(self.ir.warnings,"\n")
+        if msg == "":
+            msg = "No messages"
+            
+        buffer.set_text(msg,-1)
+
+        # generate code
+        cg = codegen.T(self.ir.symbols)
+        cg.output_all(self.ir)
+        asm = ""
+        for (name,sect) in self.ir.output_sections.items():
+            asm += "\nSection %s:\n" % name
+            asm += string.join([x.format() for x in sect],"\n") + "\n"
+        buffer = self.asmtext.get_buffer()
+        buffer.set_text(asm,-1)
         
     def quit(self,action,widget=None):
         gtk.main_quit()
         
     def open(self,action,widget):
-        print "open"
+        fs = gtk.FileSelection("Open Formula File")
+        result = fs.run()
+        
+        if result == gtk.RESPONSE_OK:
+            self.load(fs.get_filename())
+        fs.destroy()
 
     def load(self,file):
         s = open(file,"r").read() # read in a whole file
@@ -151,7 +201,7 @@ class MainWindow:
         
 def main():
     mainWindow = MainWindow()
-    mainWindow.load('fractint.frm')
+    mainWindow.load('formulas/fractint.frm')
     gtk.main()
 
     

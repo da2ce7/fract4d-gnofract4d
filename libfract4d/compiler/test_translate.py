@@ -326,6 +326,15 @@ class TranslateTest(unittest.TestCase):
     def testAssignToFunc(self):
         t = self.translate("t_a2f {\ninit:real(z) = 2.0, imag(z)=1.5\n}")
         self.assertNoErrors(t)
+
+    def testBjax(self):
+        t = self.translate('''Bjax {;
+  z=c=2/pixel:
+   z =(1/((z^(real(p1)))*(c^(real(p2))))*c) + c
+  }
+''')
+        self.assertNoErrors(t)
+        self.assertWarning(t,"No bailout condition specified")
         
     def assertError(self,t,str):
         self.assertNotEqual(len(t.errors),0)
