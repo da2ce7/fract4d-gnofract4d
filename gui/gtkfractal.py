@@ -399,16 +399,19 @@ class T(gobject.GObject):
                 zoom= (1+abs(self.x - self.newx))/float(self.width)
                 x = 0.5 + (self.x + self.newx)/2.0;
                 y = 0.5 + (self.y + self.newy)/2.0;
-                
+            self.recenter(x,y,zoom)
+            
         elif event.button == 2:
             (x,y) = (event.x, event.y)
             zoom = 1.0
+            self.recenter(x,y,zoom)
             self.flip_to_julia()
+            
         else:
             (x,y) = (event.x, event.y)
             zoom = 2.0
-            
-        self.recenter(x,y,zoom)
+            self.recenter(x,y,zoom)
+
         if self.thaw():
             self.changed()
             
