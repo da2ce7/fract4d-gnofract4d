@@ -97,7 +97,8 @@ class MainWindow:
 
     def draw(self):
         aa = preferences.userPrefs.getint("display","antialias")
-        self.f.draw_image(aa)
+        auto_deepen = preferences.userPrefs.getint("display","autodeepen")
+        self.f.draw_image(aa,auto_deepen)
         
     def update_compiler_prefs(self,prefs):
         # update compiler
@@ -109,7 +110,6 @@ class MainWindow:
         (w,h) = (prefs.getint("display","width"),
                  prefs.getint("display","height"))
         self.f.set_size(w,h)
-        self.f.set_auto_deepen(prefs.getboolean("display","autodeepen"))
 
     def on_prefs_changed(self,prefs):
         self.f.freeze()

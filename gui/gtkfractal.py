@@ -341,10 +341,11 @@ class T(gobject.GObject):
     def save_image(self,filename):
         fract4dguic.image_save(self.image,filename)
         
-    def draw_image(self,aa):
+    def draw_image(self,aa,auto_deepen):
         self.interrupt()
         self.f.compile()
         self.f.antialias = aa
+        self.f.auto_deepen = auto_deepen
         self.draw(self.image,self.width,self.height,self.nthreads)
         return gtk.FALSE
 
