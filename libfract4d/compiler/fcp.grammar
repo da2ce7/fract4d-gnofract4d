@@ -71,5 +71,4 @@ Productions
             |  Exp ('<' | '>' | '==' | '<=' | '>=' | '!=' ) Exp [Cond: left,op,right]    
    Priorities
        right(Exponentiation), left(Mul), left(Plus), left(Minus), left(Cond)
-       FunCall > Assignment = TypedAssignment > UnaryMinus > Exponentiation > Div = Mul > Plus = Minus > Cond
-       #Plus = Minus
+       FunCall > UnaryMinus > Exponentiation > Div = Mul > Plus = Minus > Cond > Assignment = TypedAssignment
