@@ -25,7 +25,7 @@ Productions
 
     Section -> 'init' ':' Newline Statements [Section: name, _, _, statements]
             |  'loop' ':' Newline Statements [Section: name, _, _, statements]
-            |  'bailout' ':' Newline Exp Newline  [Section: name, _, _, exp]
+            |  'bailout' ':' Newline Exp Newline  [Section: name, _, _, statements]
             |  'default' ':' Newline Defstatements [Section: name, _, _, statements]
 #            # global, transform, builtin, switch, final
 
