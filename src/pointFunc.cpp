@@ -109,7 +109,7 @@ public:
                     {
                         goto finished8;
                     }                    
-                    for(int i = 2; i < 18; ++i)
+                    for(int i = 2; i < 18; i+=2)
                     {
                         if(fabs(pIter[X+i] - lastx) < PERIOD_TOLERANCE &&
                            fabs(pIter[Y+i] - lasty) < PERIOD_TOLERANCE)
