@@ -120,7 +120,7 @@ public:
         int &iter, int nMaxIters)
         {
             /* periodicity vars */
-            d lastx = pIter[X], lasty=pIter[Y];
+            d lastx = XPOS, lasty=YPOS;
             int k =1, m = 1;
             
             // single iterations
@@ -137,15 +137,15 @@ public:
                     // ran out of iterations
                     iter = -1; return false;
                 }
-                if(fabs(pIter[X] - lastx) < PERIOD_TOLERANCE &&
-                   fabs(pIter[Y] - lasty) < PERIOD_TOLERANCE)
+                if(fabs(XPOS - lastx) < PERIOD_TOLERANCE &&
+                   fabs(YPOS - lasty) < PERIOD_TOLERANCE)
                 {
                     // period detected!
-                    iter = -1; return false;
+                    iter = -1;  return false;
                 }
                 if(--k == 0)
                 {
-                    lastx = pIter[X]; lasty = pIter[Y];
+                    lastx = XPOS; lasty = YPOS;
                     m *= 2;
                     k = m;
                 }
@@ -179,8 +179,6 @@ public:
 
             int iter = 0;
             bool done = false;
-
-            nNoPeriodIters = nMaxIters;
 
             assert(nNoPeriodIters >= 0 && nNoPeriodIters <= nMaxIters);
             if(nNoPeriodIters > 0)
