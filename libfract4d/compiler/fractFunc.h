@@ -61,9 +61,9 @@ class fractFunc {
     friend class STFractWorker;
 
     // callback wrappers
-    inline void parameters_changed()
+    inline void iters_changed(int iters)
 	{
-	    site->parameters_changed();
+	    site->iters_changed(iters);
 	}
     inline void image_changed(int x1, int x2, int y1, int y2)
 	{

@@ -313,13 +313,14 @@ public:
 	    Py_INCREF(site);
 	}
 
-    virtual void parameters_changed()
+    virtual void iters_changed(int numiters)
 	{
 	    GET_LOCK;
 	    PyObject *ret = PyObject_CallMethod(
 		site,
-		"parameters_changed",
-		NULL);
+		"iters_changed",
+		"i",
+		numiters);
 	    Py_XDECREF(ret);
 	    RELEASE_LOCK;
 	}
@@ -336,7 +337,7 @@ public:
 	    RELEASE_LOCK;
 	}
     // estimate of how far through current pass we are
-    virtual void progress_changed(float progress)
+    virtual void progress_vchanged(float progress)
 	{
 	    double d = (double)progress;
 
@@ -444,7 +445,7 @@ private:
 
 typedef enum
 {
-    PARAMS,
+    ITERS,
     IMAGE,
     PROGRESS,
     STATUS,
@@ -527,9 +528,10 @@ public:
 #endif
 	}
 
-    virtual void parameters_changed()
+    virtual void iters_changed(int numiters)
 	{
-	    msg_t m = { PARAMS, 0, 0, 0, 0};
+	    msg_t m = { ITERS, 0, 0, 0, 0};
+	    m.p1 = numiters;
 	    write(fd,&m,sizeof(m));
 	}
     

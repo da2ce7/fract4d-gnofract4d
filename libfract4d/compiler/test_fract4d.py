@@ -15,7 +15,7 @@ class FractalSite:
     def __init__(self):
         self.status_list = []
         self.progress_list = []
-        self.parameters_times = 0
+        self.iters_list = []
         self.image_list = []
         
     def status_changed(self,val):
@@ -29,9 +29,9 @@ class FractalSite:
     def is_interrupted(self):
         return False
 
-    def parameters_changed(self):
-        #print "params changed"
-        self.parameters_times += 1
+    def iters_changed(self,iters):
+        print "iters changed to %d" % iters
+        self.iters_list.append(iters)
         
     def image_changed(self,x1,y1,x2,y2):
         #print "image: %d %d %d %d" %  (x1, x2, y1, y2)

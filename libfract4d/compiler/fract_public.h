@@ -60,7 +60,7 @@ class IFractalSite
     virtual ~IFractalSite() {};
 
     // the parameters have changed (usually due to auto-deepening)
-    virtual void parameters_changed() {};
+    virtual void iters_changed(int numiters) {};
     // we've drawn a rectangle of image
     virtual void image_changed(int x1, int y1, int x2, int y2) {};
     // estimate of how far through current pass we are

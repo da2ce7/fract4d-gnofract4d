@@ -171,6 +171,7 @@ void fractFunc::draw_all()
     while((deepen = updateiters()) > 0)
     {
         maxiter *= 2;
+	iters_changed(maxiter);
         status_changed(GF4D_FRACTAL_DEEPENING);
         draw(8,1);
     }
@@ -185,6 +186,7 @@ void fractFunc::draw_all()
     if(deepen < 0)
     {
         maxiter /= 2;
+	iters_changed(maxiter);
     }
     progress_changed(0.0);
     status_changed(GF4D_FRACTAL_DONE);

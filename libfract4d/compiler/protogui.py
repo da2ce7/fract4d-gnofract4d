@@ -77,7 +77,7 @@ class Threaded(fractal.T):
         m = self.name_of_msg[t] 
         #print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
         if t == 0:
-            if not self.skip_updates: self.parameters_changed()
+            if not self.skip_updates: self.iters_changed(p1)
         elif t == 1:
             if not self.skip_updates: self.image_changed(p1,p2,p3,p4)
         elif t == 2:
@@ -124,9 +124,6 @@ class GuiFractal(Threaded):
         #gtk.idle_add(self.redraw_rect,x1,y1,x2-y1,y2-y1)
         self.redraw_rect(x1,y1,x2-x1,y2-y1)
 
-    def progress_changed(self,progress):
-        self.widget.parent.bar.set_fraction(progress/100.0)
-        
     def onExpose(self,widget,exposeEvent):
         r = exposeEvent.area
         self.redraw_rect(r.x,r.y,r.width,r.height)
@@ -212,7 +209,13 @@ class MainWindow:
         self.bar.set_fraction(progress/100.0)
 
     def status_changed(self,status):
-        self.bar.set_text(self.statuses[status])
+        if status == 2:
+            # deepening
+            text = "Deepening (%d iterations)" % self.f.maxiter
+        else:
+            text = self.statuses[status]
+            
+        self.bar.set_text(text)
         
     def create_menu(self):
         menu_items = (

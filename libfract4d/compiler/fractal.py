@@ -210,26 +210,19 @@ class T(FctUtils):
         
     # status callbacks
     def status_changed(self,val):
-        #print "status: %d" % val
-        #self.status_list.append(val)
         pass
     
     def progress_changed(self,d):
-        #print "progress:", d
-        #self.progress_list.append(d)
         pass
     
     def is_interrupted(self):
         return False
 
-    def parameters_changed(self):
-        #print "params changed"
-        #self.parameters_times += 1
-        pass
+    def iters_changed(self,iters):
+        print "iters changed to %d" % iters
+        self.maxiter = iters
     
     def image_changed(self,x1,y1,x2,y2):
-        #print "image: %d %d %d %d" %  (x1, x2, y1, y2)
-        #self.image_list.append((x1,y1,x2,y2))
         pass
 
     def _pixel_changed(self,params,x,y,aa,maxIters,nNoPeriodIters,dist,fate,nIters,r,g,b,a):
