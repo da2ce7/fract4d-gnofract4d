@@ -4,6 +4,7 @@ import sys
 import os
 import struct
 import math
+import types
 
 import gtk
 import gobject
@@ -73,7 +74,6 @@ class Threaded(fractal.T):
         fract4dc.pf_init(self.pfunc,0.001,self.initparams)
 
         self.running = True
-        print self.params,self.antialias,self.maxiter,self.pfunc,self.cmap,image,self.site
         fract4dc.async_calc(self.params,self.antialias,self.maxiter,1,
                            self.pfunc,self.cmap,1,image,self.site)
 
@@ -140,7 +140,8 @@ class GuiFractal(Threaded,gobject.GObject):
         return gtk.FALSE
 
     def set_param(self,n,val):
-        print "set param: %s %s" % (n, val)
+        #print "set param: %s %s" % (n, val)
+        val = float(val)
         if self.params[n] != val:
             self.params[n] = val
             self.emit('parameters-changed')
