@@ -87,11 +87,13 @@ class MainWindow:
         if visible:
             for f in self.subfracts:
                 f.widget.show()
-                self.weirdness.show()
+            self.weirdness.show()
+            self.color_weirdness.show()
         else:
             for f in self.subfracts:
                 f.widget.hide()
-                self.weirdness.hide()
+            self.weirdness.hide()
+            self.color_weirdness.hide()
                 
         self.show_subfracts = visible
         self.update_image_prefs(preferences.userPrefs)
@@ -99,13 +101,18 @@ class MainWindow:
     def update_subfracts(self):
         if not self.show_subfracts:
             return
-        
+
+        aa = preferences.userPrefs.getint("display","antialias")
+        auto_deepen = preferences.userPrefs.getboolean("display","autodeepen")
+        maps = colors.maps().values()
+
         for f in self.subfracts:
             f.interrupt()
             f.set_fractal(self.f.copy_f())
-            f.mutate(self.weirdness_adjustment.get_value()/100.0)
-            aa = preferences.userPrefs.getint("display","antialias")
-            auto_deepen = preferences.userPrefs.getboolean("display","autodeepen")
+            f.mutate(
+                self.weirdness_adjustment.get_value()/100.0,
+                self.color_weirdness_adjustment.get_value()/100.0,
+                maps)
             f.draw_image(aa,auto_deepen)
         
     def create_subfracts(self,f):
@@ -460,16 +467,39 @@ class MainWindow:
         self.weirdness.set_update_policy(
             gtk.UPDATE_DISCONTINUOUS)
 
+        self.color_weirdness_adjustment = gtk.Adjustment(
+            20.0, 0.0, 100.0, 5.0, 5.0, 0.0)
+
+        self.color_weirdness = gtk.HScale(self.color_weirdness_adjustment)
+        self.color_weirdness.set_size_request(80, 40)
+
+        self.color_weirdness.set_update_policy(
+            gtk.UPDATE_DISCONTINUOUS)
+
         def on_weirdness_changed(adjustment):
             self.update_subfracts()
             
-        self.weirdness_adjustment.connect('value-changed',on_weirdness_changed)
+        self.weirdness_adjustment.connect(
+            'value-changed',on_weirdness_changed)
+        self.color_weirdness_adjustment.connect(
+            'value-changed',on_weirdness_changed)
         
         self.toolbar.append_element(
             gtk.TOOLBAR_CHILD_WIDGET,            
             self.weirdness,
             _("Weirdness"),
             _("How different to make the random mutant fractals"),
+            None,
+            None,
+            None,
+            None
+            )
+
+        self.toolbar.append_element(
+            gtk.TOOLBAR_CHILD_WIDGET,            
+            self.color_weirdness,
+            _("Color Weirdness"),
+            _("How different to make the colors of the mutant fractals"),
             None,
             None,
             None,
