@@ -200,8 +200,16 @@ class TranslateTest(unittest.TestCase):
         self.assertNoErrors(t)
         #print t.sections["init"].pretty()
         self.assertJumpsMatchLabs(t.sections["init"])
-        
+
         t = self.translate('''t_bool_1 {
+        init:
+        a == 1 || b == 2
+        }''')
+        self.assertNoErrors(t)
+        print t.sections["init"].pretty()
+        self.assertJumpsMatchLabs(t.sections["init"])
+        
+        t = self.translate('''t_bool_2 {
         init:
         if a == 1 && b == 2
            a = 2
@@ -212,7 +220,7 @@ class TranslateTest(unittest.TestCase):
         self.assertJumpsMatchLabs(t.sections["init"])
 
         return
-        t = self.translate('''t_bool_2 {
+        t = self.translate('''t_bool_3 {
         init:
         if a == 1 || b == 2
            a = 2
