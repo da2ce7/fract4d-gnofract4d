@@ -158,7 +158,7 @@ def Funcall(id,arglist,pos):
     return Node("funcall", pos, arglist, id)
 
 def Assign(id,exp,pos):
-    return Node("assign", pos, [exp], id)
+    return Node("assign", pos, [id, exp], None)
 
 def Decl(type, id, pos, exp=None):
     if exp == None:

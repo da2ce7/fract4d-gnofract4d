@@ -322,6 +322,10 @@ class TranslateTest(unittest.TestCase):
     def testMultiAssign(self):
         t = self.translate("t_ma {\ninit:z = c = 1.0\n}")
         self.assertNoErrors(t)
+
+    def testAssignToFunc(self):
+        t = self.translate("t_a2f {\ninit:real(z) = 2.0, imag(z)=1.5\n}")
+        self.assertNoErrors(t)
         
     def assertError(self,t,str):
         self.assertNotEqual(len(t.errors),0)

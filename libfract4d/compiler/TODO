@@ -28,5 +28,6 @@ float   rho = cabs(a)^2+cabs(b)^2+cabs(c)^2+cabs(d)^2
 - $IFDEF ( see mt2.ufm)
 - strings in formulas (blb.ufm)
 - linearizing trees with casts
-- fractint.frm: DAFRM09 : syntax error on line 88
-- fractint.frm: InvMandel, others: c = z = 1/pixel
+- fractint.frm: DAFRM09 : syntax error on line 88: 
+  real(tmp) = real(tmp) * real(c) - imag(tmp) * imag(c)
+  problem is assigning to result of a function
