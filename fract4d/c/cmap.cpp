@@ -7,87 +7,66 @@
 #include <stdio.h>
 #include <math.h>
 
-typedef struct 
-{
-    double index;
-    rgba_t color;
-} item_t;
-
-struct s_cmap
-{
-    int ncolors;
-    item_t *items;
-    rgba_t solids[2];
-    e_transferType transfers[2];
-};
+#include <new>
 
 rgba_t black = {0,0,0,255};
 
-cmap_t *
-cmap_new(int ncolors)
+ColorMap::ColorMap()
 {
-    cmap_t *cmap = NULL;
-    int i =0;
+    ncolors = 0;
+    items = NULL;
+    solids[0] = solids[1] = black;
+    transfers[0] = TRANSFER_LINEAR; // outer
+    transfers[1] = TRANSFER_LINEAR; // inner
+}
 
-    if(ncolors == 0)
+bool
+ColorMap::init(int ncolors_)
+{
+    if(ncolors_ == 0)
     {
-	goto cleanup;
+	printf("No colors\n");
+	return false;
     }
 
-    cmap = new cmap_t;
-    if(!cmap) 
-    {  
-	goto cleanup;
-    }
+    ncolors = ncolors_; 
 
-    cmap->ncolors = ncolors; cmap->items = NULL; 
-    cmap->solids[0] = cmap->solids[1] = black;
-    cmap->transfers[0] = TRANSFER_LINEAR; // outer
-    cmap->transfers[1] = TRANSFER_LINEAR; // inner
-
-    cmap->items = (item_t *)malloc(sizeof(item_t) * ncolors);
-    if(!cmap->items) goto cleanup;
-
-    for(i = 0; i < ncolors; ++i)
+    items = new(std::nothrow) item_t[ncolors];
+    if(!items)
     {
-	cmap->items[i].color = black;
-	cmap->items[i].index = 0;
+	printf("No color alloc\n");
+	return false;
     }
-    return cmap;
- cleanup:
-    if(cmap)
+
+    for(int i = 0; i < ncolors; ++i)
     {
-	free(cmap->items);
+	items[i].color = black;
+	items[i].index = 0;
     }
-    delete cmap;
-    return NULL;
+    return true;
 }
 
 void 
-cmap_set(cmap_t *cmap, int i, double d, int r, int g, int b, int a)
+ColorMap::set(int i, double d, int r, int g, int b, int a)
 {
-    assert(NULL != cmap);
-
     rgba_t color;
     color.r = (unsigned char)r;
     color.g = (unsigned char)g;
     color.b = (unsigned char)b;
     color.a = (unsigned char)a;
 
-    cmap->items[i].color = color;
-    cmap->items[i].index = d;
+    items[i].color = color;
+    items[i].index = d;
 } 
 
 void 
-cmap_set_transfer(cmap_t *cmap, int which, e_transferType type)
+ColorMap::set_transfer(int which, e_transferType type)
 {
-    assert(NULL != cmap);
-
     if(which >= 0 && which < 2)
     {
 	if(type < TRANSFER_SIZE && type >= 0)
 	{
-	    cmap->transfers[which] = type;
+	    transfers[which] = type;
 	}
 	else
 	{
@@ -101,10 +80,8 @@ cmap_set_transfer(cmap_t *cmap, int which, e_transferType type)
 }
 
 void
-cmap_set_solid(cmap_t *cmap, int which, int r, int g, int b, int a)
+ColorMap::set_solid(int which, int r, int g, int b, int a)
 {
-    assert(NULL != cmap);
-
     rgba_t color;
     color.r = (unsigned char)r;
     color.g = (unsigned char)g;
@@ -113,7 +90,7 @@ cmap_set_solid(cmap_t *cmap, int which, int r, int g, int b, int a)
 
     if(which >= 0 && which < 2)
     {
-	cmap->solids[which] = color;
+	solids[which] = color;
     }
     else
     {
@@ -122,14 +99,12 @@ cmap_set_solid(cmap_t *cmap, int which, int r, int g, int b, int a)
 }
 
 rgba_t 
-cmap_get_solid(cmap_t *cmap, int which)
+ColorMap::get_solid(int which) const
 {
-    assert(NULL != cmap);
-
     rgba_t color = {0,0,0,1};
     if(which >= 0 && which < 2)
     {
-	color = cmap->solids[which];
+	color = solids[which];
     }
     else
     {
@@ -138,14 +113,15 @@ cmap_get_solid(cmap_t *cmap, int which)
     return color;
 } 
 
-void 
-cmap_delete(cmap_t *cmap)
+void
+cmap_delete(ColorMap *cmap)
 {
-    if(cmap)
-    {
-	free(cmap->items);
-    }
     delete cmap;
+}
+
+ColorMap::~ColorMap()
+{ 
+    delete[] items;
 }
 
 /* finds the indices in t of the largest item which is <= key 
@@ -185,24 +161,22 @@ find(double key, item_t *array, int n)
 }
 
 rgba_t 
-cmap_lookup_with_transfer(cmap_t *cmap, int fate, double index, int solid)
+ColorMap::lookup_with_transfer(int fate, double index, int solid) const
 {
-    assert(NULL != cmap);
-
     if(fate >= 0 && fate < 2)
     {
 	if(solid)
 	{
-	    return cmap->solids[fate];
+	    return solids[fate];
 	}
 
-	e_transferType t = cmap->transfers[fate];
+	e_transferType t = transfers[fate];
 	switch(t)
 	{
 	case TRANSFER_NONE:
-	    return cmap->solids[fate];
+	    return solids[fate];
 	case TRANSFER_LINEAR:
-	    return cmap_lookup(cmap,index);
+	    return lookup(index);
 	default:
 	    assert("bad transfer type" && 0);
 	    return black;
@@ -217,38 +191,38 @@ cmap_lookup_with_transfer(cmap_t *cmap, int fate, double index, int solid)
 }
  
 rgba_t 
-cmap_lookup(cmap_t *cmap, double index)
+ColorMap::lookup(double index) const
 {
     int i,j;
     rgba_t mix, left, right;
     double dist, r;
 
     index = index == 1.0 ? 1.0 : fmod(index,1.0);
-    i = find(index, cmap->items, cmap->ncolors); 
-    assert(i >= 0 && i < cmap->ncolors);
+    i = find(index, items, ncolors); 
+    assert(i >= 0 && i < ncolors);
 
     /* printf("%g->%d\n",index,i); */
-    if(index <= cmap->items[i].index || i == cmap->ncolors-1) 
+    if(index <= items[i].index || i == ncolors-1) 
     {
-	return cmap->items[i].color;
+	return items[i].color;
     }
 
     j = i+1;
 
     /* mix colors i & j in proportion to the distance between them */
-    dist = cmap->items[j].index - cmap->items[i].index;
+    dist = items[j].index - items[i].index;
 
     /* printf("dist: %g\n",dist); */
     if(dist == 0.0)
     {
-	return cmap->items[i].color;
+	return items[i].color;
     }
     
-    r = (index - cmap->items[i].index)/dist;
+    r = (index - items[i].index)/dist;
     /* printf("r:%g\n",r); */
 
-    left = cmap->items[i].color;
-    right = cmap->items[j].color;
+    left = items[i].color;
+    right = items[j].color;
 
     mix.r = (unsigned char)((left.r * (1.0-r) + right.r * r));
     mix.g = (unsigned char)((left.g * (1.0-r) + right.g * r));
@@ -257,4 +231,3 @@ cmap_lookup(cmap_t *cmap, double index)
 
     return mix;
 }
-

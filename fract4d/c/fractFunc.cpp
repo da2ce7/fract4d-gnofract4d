@@ -342,7 +342,7 @@ calc(
     int maxiter,
     int nThreads,
     pf_obj *pfo, 
-    cmap_t *cmap, 
+    ColorMap *cmap, 
     bool auto_deepen,
     bool yflip,
     bool periodicity,

@@ -13,7 +13,7 @@ class pointFunc {
     /* factory method for making new pointFuncs */
     static pointFunc *create(
 	pf_obj *pfo,
-	cmap_t *cmap,
+	ColorMap *cmap,
 	IFractalSite *site);
 	
     virtual ~pointFunc() {};
