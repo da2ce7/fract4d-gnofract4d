@@ -67,6 +67,17 @@ public:
     }
 };
 
+// cosine
+class cos_colorTransferFunc : public colorTransferFunc {
+public:
+    double calc(double in) const
+	{
+	    return 128.0 * (cos(2.0 * M_PI * in / 256.0) + 1.0);
+	}
+    static colorTransferFunc *create() {  
+	return new cos_colorTransferFunc();
+    }
+};
 
 typedef struct 
 {
@@ -76,8 +87,9 @@ typedef struct
 
 static ctorInfo infoTable[] = {
     { "Linear", linear_colorTransferFunc::create },
-    { "Log", log_colorTransferFunc::create },
+    { "PseudoLog", log_colorTransferFunc::create },
     { "Square Root",sqrt_colorTransferFunc::create },
+    { "Cos", cos_colorTransferFunc::create },
     { NULL, NULL}
 };
 

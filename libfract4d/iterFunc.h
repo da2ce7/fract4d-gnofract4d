@@ -73,6 +73,9 @@ class iterFunc {
     virtual void reset(double *fract_params) = 0;
     virtual e_bailFunc preferred_bailfunc(void) = 0;
 
+    // how many critical points does this have?
+    virtual int nCriticalValues() const = 0;
+
  protected:
     virtual std::string decl_code() const = 0;
     virtual std::string iter_code() const = 0;

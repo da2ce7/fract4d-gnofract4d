@@ -39,6 +39,7 @@ class pf_wrapper : public pointFunc
 private:
     colorizer **m_ppcizer;
     void *m_handle; 
+    iterFunc *m_iterType;
     colorFunc *m_pOuterColor;
     colorFunc *m_pInnerColor;
     colorTransferFunc *m_pOuterCTF;    
@@ -50,6 +51,7 @@ private:
 public:
     pf_wrapper(
 	pf_obj *pfo,
+	iterFunc *iterType,
 	double bailout,
 	double period_tolerance,
 	std::complex<double> *params,
@@ -58,7 +60,7 @@ public:
 	e_colorFunc outerCfType, e_colorFunc innerCfType,
 	const char *outerCtfType, const char *innerCtfType
 	) : 
-	m_ppcizer(ppcizer), m_handle(dlHandle), m_pfo(pfo)
+	m_ppcizer(ppcizer), m_handle(dlHandle), m_iterType(iterType), m_pfo(pfo)
 	{
 	    m_pfo->vtbl->init(m_pfo,bailout,period_tolerance,params);
 
@@ -92,7 +94,7 @@ public:
         // out params
         struct rgb *color, int *pnIters, void *out_buf) const
 	{
-	    double colorDist=-777.4;
+
 
 	    if(NULL == out_buf) out_buf = one_space;
 
@@ -101,7 +103,7 @@ public:
 	    m_pfo->vtbl->calc(m_pfo, params, nIters, nNoPeriodIters, x, y, aa,
 			      pnIters, &pIterData);
 
-	    colorDist = colorize(*pnIters,pIterData,out_buf);
+	    double colorDist= colorize(*pnIters,pIterData,out_buf);
 
 	    if(color)
 	    {
@@ -198,6 +200,7 @@ pointFunc *pointFunc::create(
 	    
     return new pf_wrapper(
 	p,
+	iterType,
 	bailout,
 	periodicity_tolerance,
 	iterType->opts(),

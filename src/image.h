@@ -89,6 +89,8 @@ public:
     void resetDIB();
 
 #endif
+ private:
+    void alloc_data();
 };
 
 #endif /* _IMAGE_H_ */

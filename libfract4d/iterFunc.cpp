@@ -43,6 +43,8 @@ typedef struct
     int nParamOverrides;
     const param_t *paramOverrideNames;
     const double *paramOverrideValues;
+    int nCriticalValues;
+    const char *criticalValueCode;
 } iterFunc_data;
 
 const char *newtonOptNames[] = { "a" };
@@ -94,6 +96,7 @@ const double cubicOptDefaults[] = {
     DEFAULT_SIMPLE_SAVE_CODE, \
     DEFAULT_SIMPLE_RESTORE_CODE
 
+#define DEFAULT_CRITICAL_VALUES 1,"cv[0] = std::complex<double>(0.0)"
 
 iterFunc_data infoTable[] = {
     /* mandFunc */
@@ -113,7 +116,8 @@ iterFunc_data infoTable[] = {
 	"p[X] = atmp",
 	DEFAULT_SIMPLE_CODE,
 	NO_OPTIONS,
-	NO_OVERRIDES
+	NO_OVERRIDES,
+	DEFAULT_CRITICAL_VALUES
     },
     /* mandelBarFunc : z <- conj(z)^2 + c */
     { 
@@ -132,7 +136,8 @@ iterFunc_data infoTable[] = {
 	mandelBarOptDefaults,
 	1,
 	mandelBarOverrides,
-	mandelBarOverrideValues
+	mandelBarOverrideValues,
+	DEFAULT_CRITICAL_VALUES
     },
     /* newtFunc */
     {
@@ -152,7 +157,8 @@ iterFunc_data infoTable[] = {
 	newtonOptDefaults,
 	3,
 	newtonOverrides,
-	newtonOverrideValues
+	newtonOverrideValues,
+	DEFAULT_CRITICAL_VALUES
     },
     /* novaFunc: z <- (Az^3-B)/C z^2 + c */
     {
@@ -171,7 +177,8 @@ iterFunc_data infoTable[] = {
 	novaOptDefaults,
 	2,
 	novaOverrides,
-	novaOverrideValues
+	novaOverrideValues,
+	DEFAULT_CRITICAL_VALUES
     },
     /* barnsley t1: z <- ( re(z) > 0 ? (z - 1) * c : (z + 1) * c) */
     {
@@ -195,7 +202,8 @@ iterFunc_data infoTable[] = {
 	"}",
 	DEFAULT_SIMPLE_CODE,
 	NO_OPTIONS,
-	NO_OVERRIDES
+	NO_OVERRIDES,
+	DEFAULT_CRITICAL_VALUES
     },
     {
 	"Cubic Mandelbrot",
@@ -209,7 +217,9 @@ iterFunc_data infoTable[] = {
 	1,
 	cubicOptNames,
 	cubicOptDefaults,
-	NO_OVERRIDES
+	NO_OVERRIDES,
+	2,
+	"cv[0] = -a[0]; cv[1] = a[0]"
     },
     /* sentinel value */
     {
@@ -317,6 +327,10 @@ public:
         {
             return m_data->preferred_bailFunc;
         }
+    int nCriticalValues() const 
+	{
+	    return m_data->nCriticalValues;
+	}
     /* utility functions */
 
     /* copy constructor & friends */
@@ -383,7 +397,9 @@ public:
     std::string restore_iter_code() const {
         return m_data->restore_iter_code;
     }
-    
+    std::string cv_code() const {
+	return m_data->criticalValueCode;
+    }
     void get_code(std::map<std::string,std::string>& code_map) const 
         {
             code_map["ITER"]=iter_code();
@@ -396,8 +412,9 @@ public:
             code_map["RESTORE_ITER"]=restore_iter_code();
             code_map["XPOS"]= flags() & USE_COMPLEX ? "z.real()" : "p[X]";
             code_map["YPOS"]= flags() & USE_COMPLEX ? "z.imag()" : "p[Y]";
+	    code_map["SETCV"] = cv_code();
         }
-
+    
     friend std::ostream& operator<< (std::ostream& s, const iterImpl& m);
     friend std::istream& operator>> (std::istream& s, iterImpl& m);
     std::ostream& put(std::ostream& s) const { return s << *this; } 

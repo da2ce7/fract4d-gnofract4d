@@ -103,7 +103,7 @@ fractal::fractal()
     colorFuncs[OUTER]=COLORFUNC_CONT;
     colorFuncs[INNER]=COLORFUNC_ZERO;
 
-    colorTransferFuncs[OUTER]="Log";
+    colorTransferFuncs[OUTER]="PseudoLog";
     colorTransferFuncs[INNER]="Linear";
 
     assert(bailout_type > (void *)0x4);
