@@ -8,6 +8,7 @@ todo for 2.1
 * B	fractint doesn't reset vars between calls
 * B	parse continuation lines correctly
 * BB	changing inner colormap modifies outer appearance
+* W	warn if overwrite/always save as/clear name on major change
 
 UI improvements 
 * BB	more robust error reporting
@@ -23,6 +24,12 @@ UI improvements
 * W	recently-used files
 * W	angles in degrees?
 * W	connect identically-named params in different parts of formula
+* W	autosave
+
+
+* WW	SQM
+* WW	Watson
+* WW	Content Watson
 
 Math weirdness:
 * B	untitled_5 displays weirdly - 
@@ -56,6 +63,7 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* B	prompt if not saved
 * W	tdis, other fractint colorfuncs
 * B	Undo/redo behaves weirdly sometimes 
 * W	periodicity

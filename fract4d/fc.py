@@ -87,6 +87,31 @@ class Compiler:
         return [ (x,y) for (x,y) in self.files.items() 
                  if Compiler.isFRM.search(x)]
 
+    def find_files(self):
+        files = []
+        for dir in self.file_path:
+            if not os.path.isdir(dir):
+                continue
+            for file in os.listdir(dir):
+                if os.path.isfile(os.path.join(dir,file)):
+                    files.append(file)
+        return files
+
+    def find_formula_files(self):
+        return [(file,None) for file in self.find_files()
+                if Compiler.isFRM.search(file)]
+                
+    def get_text(self,fname):
+        file = self.files.get(fname)
+        if not file:
+            self.load_formula_file(fname)
+        
+        return self.files[fname].contents
+
+    def find_colorfunc_files(self):
+        return [(file,None) for file in self.find_files()
+                if Compiler.isCFRM.search(file)]
+        
     def colorfunc_files(self):
         return [ (x,y) for (x,y) in self.files.items() 
                  if Compiler.isCFRM.search(x)]
