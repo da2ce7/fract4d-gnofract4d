@@ -5,6 +5,7 @@ Compiler
 
 
 libfract4d
+* BB	assert 'colorizer.cpp:263: virtual rgb_t cmap_colorizer::calc(double) const: Assertion `n != 0 && n2 != 0' failed.' while changing inner under load
 * W 	namespace
 * W	single top-level header
 * B	why is Barnsley so slow?

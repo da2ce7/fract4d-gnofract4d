@@ -101,6 +101,12 @@ const double quadraticOptDefaults[] = {
     1.0, 0.0  // c
 };
 
+const param_t magnetOverrides[] = { XCENTER, MAGNITUDE };
+const double magnetOverrideValues[] = { 2.0, 8.0 };
+
+const param_t magnet2Overrides[] = { XCENTER, MAGNITUDE };
+const double magnet2OverrideValues[] = { 2.0, 3.0 };
+
 #define NO_OPTIONS 0, NULL, NULL
 #define NO_OVERRIDES 0, NULL, NULL
 
@@ -272,8 +278,8 @@ iterFunc_data infoTable[] = {
 	"}" 
 	"else"
 	"{" 
-	    "p[X] = p[X2] - p[Y2] - 1.0 + p[CX] * p[Y];"
 	    "p[Y] = xy * 2.0 + p[CY] * p[X];"
+	    "p[X] = p[X2] - p[Y2] - 1.0 + p[CX] * p[X];"
 	"}",
 	DEFAULT_SIMPLE_CODE,
 	NO_OPTIONS,
@@ -348,6 +354,44 @@ iterFunc_data infoTable[] = {
 	buffaloOverrideValues,
 	DEFAULT_CRITICAL_VALUES
     },
+    /* Magnet 1: z <- ((z^2 + c - 1)/(2z + c -2))^2 */
+    {
+	"Magnet",
+	USE_COMPLEX | NO_UNROLL,
+	BAILOUT_MAG,
+	"std::complex<double> z(p[X],p[Y]);"
+	"std::complex<double> c(p[CX],p[CY]);",
+	//iter code
+	"z = (z * z + c - 1.0)/(2.0 * z + c - 2.0);"
+	"z *= z;",
+	DEFAULT_COMPLEX_CODE,
+	NO_OPTIONS,
+	2,
+	magnetOverrides,
+	magnetOverrideValues,
+	DEFAULT_CRITICAL_VALUES
+    },
+    /* Magnet 2: z <- ((z^3 + 3(c-1)*z + (c-1)*(c-2))/
+                      (3z^2 + 3(c-2)^2+ (c-1)(c-2) + 1))^2 */
+    {
+	"Magnet 2",
+	USE_COMPLEX | NO_UNROLL,
+	BAILOUT_MAG,
+	"std::complex<double> z(p[X],p[Y]);"
+	"std::complex<double> c(p[CX],p[CY]), cm1, cm2;",
+	//iter code
+	"cm1 = c - 1.0; cm2 = c - 2.0;"
+	"z = (z * z * z + 3.0 * cm1 * z + cm1 * cm2)/"
+	     "(3.0 * z * z + 3.0 * cm2 * cm2 + cm1 * cm2 + 1.0);"
+	"z *= z;",
+	DEFAULT_COMPLEX_CODE,
+	NO_OPTIONS,
+	2,
+	magnet2Overrides,
+	magnet2OverrideValues,
+	DEFAULT_CRITICAL_VALUES
+    },
+
     /* quadratic mandelbrot: z <- A z^2 + B z + C c */
     {
 	"Quadratic",
@@ -403,6 +447,24 @@ iterFunc_data infoTable[] = {
 	mandelPowerOverrideValues,
 	DEFAULT_CRITICAL_VALUES
     },
+    /* tetrate: z <- c^z */
+    {
+	"Tetrate",
+	USE_COMPLEX | NO_UNROLL, //flags
+	BAILOUT_MAG,
+	// decl code
+	"std::complex<double> z(p[X],p[Y]);" 
+	"std::complex<double> c(p[CX],p[CY]);",
+	// iter code
+	"z = pow(c,z);",
+	DEFAULT_COMPLEX_CODE,
+	NO_OPTIONS,
+	1,
+	mandelPowerOverrides,
+	mandelPowerOverrideValues,
+	DEFAULT_CRITICAL_VALUES
+    },
+
     /* sentinel value */
     {
 	NULL, // name
