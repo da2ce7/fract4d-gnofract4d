@@ -30,20 +30,19 @@ class GuiFractal(fractal.Threaded):
         self.image = fract4d.image_create(640,480)
         self.buf = fract4d.image_buffer(self.image)
 
-        c = gtk.gdk.rgb_get_cmap()        
+
         drawing_area = gtk.DrawingArea()
         drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
                                 gtk.gdk.BUTTON_PRESS_MASK)
         drawing_area.connect('button_release_event', self.onButtonRelease)
         drawing_area.connect('expose_event',self.onExpose)
-        
+
+        c = gtk.gdk.rgb_get_cmap()
         drawing_area.set_colormap(c)        
         drawing_area.set_size_request(640,480)
 
         self.widget = drawing_area
         self.compile()
-
-        self.draw(self.image)
         
     def draw_image(self,dummy):
         print "draw image"
@@ -85,10 +84,15 @@ class MainWindow:
         global g_comp
         self.window = gtk.Window()
         self.window.connect('destroy', self.quit)
-        self.window.set_default_size(640,400)
+        self.window.set_default_size(640,480)
         self.window.set_title('Gnofract 4D')
 
         self.f = GuiFractal(g_comp)
+        if len(sys.argv) > 1:
+            self.f.loadFctFile(open(sys.argv[1]))
+            self.f.compile()
+
+        self.f.draw_image(None)
         self.window.add(self.f.widget)
 
         self.window.show_all()
