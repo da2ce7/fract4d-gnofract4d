@@ -61,7 +61,7 @@ class Label(Insn):
 class Move(Insn):
     ' A move instruction'
     def __init__(self,src,dst):
-        Insn.__init__(self,"%(d0)s = %(s0)s")
+        Insn.__init__(self,"%(d0)s = %(s0)s;")
         self.src = src
         self.dst = dst
     def __str__(self):
@@ -92,7 +92,7 @@ class T:
         (f1,pos) = self.format_string(s0,index1,0)
         (f2,pos) = self.format_string(s1,index2,pos)
 
-        assem = "%%(d0)s = %s %s %s" % (f1, op, f2)
+        assem = "%%(d0)s = %s %s %s;" % (f1, op, f2)
         self.out.append(Oper(assem, srcs ,[ dst ]))
         return dst
         
@@ -109,7 +109,22 @@ class T:
                 raise KeyError, "Invalid type %s" % t.datatype.__class__.__name__
         else:
             return ("%%(s%d)s" % pos,pos+1)
-        
+
+    def output_symbols(self):
+        out = []
+        for (key,sym) in self.symbols.items():
+            if isinstance(sym,fracttypes.Var):
+                t = fracttypes.ctype(sym.type)
+                val = sym.value
+                if sym.type == fracttypes.Complex:
+                    out += [ "%s %s_re = %.17f;" % (t,key,val[0]),
+                             "%s %s_im = %.17f;" % (t,key,val[1])]
+                elif sym.type == fracttypes.Float:
+                    out.append("%s %s = %.17f;" % (t,key,val))
+                else:
+                    out.append("%s %s = %d;" % (t,key,val))
+        return out
+    
     # action routines
     def cast(self,t):
         child = t.children[0]
@@ -119,9 +134,9 @@ class T:
             (d0,d1) = (self.symbols.newTemp(Float), self.symbols.newTemp(Float))
             if child.datatype == Int:
                 (f1,pos) = self.format_string(child,-1,0)
-                assem = "%%(d0)s = ((double)%s)" % f1
+                assem = "%%(d0)s = ((double)%s);" % f1
                 self.out.append(Oper(assem,src, [d0]))
-                assem = "%(d0)s = 0.0"
+                assem = "%(d0)s = 0.0;"
                 self.out.append(Oper(assem,src, [d1]))
                 dst = [d0, d1]
 
@@ -142,7 +157,7 @@ class T:
         self.out.append(Label(t.name))
 
     def jump(self,t):
-        assem = "goto %s" % t.dest
+        assem = "goto %s;" % t.dest
         self.out.append(Oper(assem,[],[],[t.dest]))
         
     def binop_exp_exp(self,t):

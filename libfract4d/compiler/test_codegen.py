@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 import unittest
+import tempfile
+import popen2
+
 import absyn
 import ir
 import symbol
@@ -93,8 +96,8 @@ class CodegenTest(unittest.TestCase):
         self.assertEqual(len(self.codegen.out),2)
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
 
-        expAdd = "t__temp0 = 1.00000000000000000 + a_re\n" + \
-                 "t__temp1 = 3.00000000000000000 + a_im"
+        expAdd = "t__temp0 = 1.00000000000000000 + a_re;\n" + \
+                 "t__temp1 = 3.00000000000000000 + a_im;"
         self.assertOutputMatch(expAdd)
 
         # a + (1,3) gets reversed
@@ -103,8 +106,8 @@ class CodegenTest(unittest.TestCase):
         self.assertEqual(len(self.codegen.out),2)
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
 
-        expAdd = "t__temp0 = a_re + 1.00000000000000000\n" + \
-                 "t__temp1 = a_im + 3.00000000000000000"
+        expAdd = "t__temp0 = a_re + 1.00000000000000000;\n" + \
+                 "t__temp1 = a_im + 3.00000000000000000;"
 
         self.assertOutputMatch(expAdd)
 
@@ -112,35 +115,35 @@ class CodegenTest(unittest.TestCase):
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"*",Complex)
         self.generate_code(tree)
         self.assertEqual(len(self.codegen.out),6)
-        exp = '''t__temp0 = 1.00000000000000000 * a_re
-t__temp1 = 3.00000000000000000 * a_im
-t__temp2 = 3.00000000000000000 * a_re
-t__temp3 = 1.00000000000000000 * a_im
-t__temp4 = t__temp0 - t__temp1
-t__temp5 = t__temp2 + t__temp3'''
+        exp = '''t__temp0 = 1.00000000000000000 * a_re;
+t__temp1 = 3.00000000000000000 * a_im;
+t__temp2 = 3.00000000000000000 * a_re;
+t__temp3 = 1.00000000000000000 * a_im;
+t__temp4 = t__temp0 - t__temp1;
+t__temp5 = t__temp2 + t__temp3;'''
         
         self.assertOutputMatch(exp)
 
     def testCompare(self):
         tree = self.binop([self.const(3,Int),self.var("a",Int)],">",Bool)
         self.generate_code(tree)
-        self.assertOutputMatch("t__temp0 = 3 > a")
+        self.assertOutputMatch("t__temp0 = 3 > a;")
 
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],">",Complex)
         self.generate_code(tree)
-        self.assertOutputMatch("t__temp0 = 1.00000000000000000 > a_re")
+        self.assertOutputMatch("t__temp0 = 1.00000000000000000 > a_re;")
 
         tree.op = "=="
         self.generate_code(tree)
-        self.assertOutputMatch('''t__temp0 = 1.00000000000000000 == a_re
-t__temp1 = 3.00000000000000000 == a_im
-t__temp2 = t__temp0 && t__temp1''')
+        self.assertOutputMatch('''t__temp0 = 1.00000000000000000 == a_re;
+t__temp1 = 3.00000000000000000 == a_im;
+t__temp2 = t__temp0 && t__temp1;''')
 
         tree.op = "!="
         self.generate_code(tree)
-        self.assertOutputMatch('''t__temp0 = 1.00000000000000000 != a_re
-t__temp1 = 3.00000000000000000 != a_im
-t__temp2 = t__temp0 || t__temp1''')
+        self.assertOutputMatch('''t__temp0 = 1.00000000000000000 != a_re;
+t__temp1 = 3.00000000000000000 != a_im;
+t__temp2 = t__temp0 || t__temp1;''')
 
     def testS2A(self):
         asm = self.sourceToAsm('''t_s2a {
@@ -150,13 +153,13 @@ loop:
 z = z + a
 }''', "loop")
         self.assertOutputMatch('''t__start_loop:
-t__temp0 = ((double)a)
-t__temp1 = 0.0
-t__temp2 = z_re + t__temp0
-t__temp3 = z_im + t__temp1
-z_re = t__temp2
-z_im = t__temp3
-goto t__end_loop''')
+t__temp0 = ((double)a);
+t__temp1 = 0.0;
+t__temp2 = z_re + t__temp0;
+t__temp3 = z_im + t__temp1;
+z_re = t__temp2;
+z_im = t__temp3;
+goto t__end_loop;''')
 
 
     def testFormatString(self):
@@ -173,6 +176,19 @@ goto t__end_loop''')
         t = self.var("a",Int)
         self.assertEqual(self.codegen.format_string(t,0,0),("%(s0)s",1))
 
+    def testSymbols(self):
+        out = self.codegen.output_symbols()
+        self.failUnless("double z_re = 0.00000000000000000;" in out)
+        print string.join(out,"\n")
+
+    def testC(self):
+        asm = self.sourceToAsm('''t_s2a {
+init:
+int a = 1
+loop:
+z = z + a
+}''', "loop")
+        self.compileAndRun()
         
     def assertOutputMatch(self,exp):
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
@@ -185,6 +201,18 @@ goto t__end_loop''')
                 print i.format()
             except Exception, e:
                 print "Can't format %s:%s" % (i,e)
+
+    def makeC(self,user_preamble="", user_postamble=""):
+        # construct a C stub for testing
+        preamble = "#include <stdio.h>\nint main(){\n"
+        str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
+        postamble = "\n}\n"
+
+        return string.join([preamble,user_preamble,str_output,user_postamble,postamble],"")
+
+    def compileAndRun(self,user_preamble="", user_postamble=""):
+        c_code = self.makeC(user_preamble, user_postamble)
+        print c_code
         
 def suite():
     return unittest.makeSuite(CodegenTest,'test')
