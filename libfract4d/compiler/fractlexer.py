@@ -101,7 +101,7 @@ def t_COMMENT(t):
     r';[^\n]*'
     
 def t_NEWLINE(t):
-    r'\n'
+    r'\r?\n'
     t.lineno += 1 # track line numbers
     return t
 
@@ -112,7 +112,7 @@ def t_STRING(t):
     return t
     
 # A string containing ignored characters (spaces and tabs)
-t_ignore  = ' \t\r'
+t_ignore  = ' \t'
 
 # Error handling rule
 def t_error(t):

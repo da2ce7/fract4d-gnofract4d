@@ -16,8 +16,36 @@ precedence = (
     ('right', 'BOOL_NEG', 'UMINUS', 'POWER')
 )
 
+def p_section(t):
+    'section : stmlist'
+    t[0] = absyn.Stmlist(t[1])
+    
+def p_stmlist_stm(t):
+    'stmlist : stm NEWLINE'
+    t[0] = [ t[1] ]
 
-def p_exp_plus(t):
+def p_stmlist_2(t):
+    'stmlist : stm NEWLINE stmlist'
+    t[0] = [t[1]] + t[3]
+    
+def p_stm_exp(t):
+    'stm : exp'
+    t[0] = t[1]
+
+# ignore blank or comment-only lines
+def p_stm_nl(t):
+    'stm : NEWLINE'
+    pass
+    
+def p_stm_decl(t):
+    'stm : ID ID'
+    t[0] = absyn.Decl(t[1], t[2])
+
+def p_stm_decl_assign(t):
+    'stm : ID ID ASSIGN exp'
+    t[0] = absyn.Decl(t[1],t[2],t[4])
+
+def p_exp_binop(t):
     '''exp : exp PLUS exp
        exp : exp MINUS exp
        exp : exp TIMES exp
@@ -35,6 +63,10 @@ def p_exp_plus(t):
        '''
     t[0] = absyn.Binop(t[2],t[1],t[3])
 
+def p_exp_assign(t):
+    'exp : ID ASSIGN exp'
+    t[0] = absyn.Assign(t[1],t[3])
+    
 # implement unary minus as 0 - n
 def p_exp_uminus(t):
     'exp : MINUS exp %prec UMINUS'
@@ -60,6 +92,10 @@ def p_exp_funcall(t):
     'exp : ID LPAREN arglist RPAREN'
     t[0] = absyn.Funcall(t[1],t[3])
 
+def p_exp_funcall_noargs(t):
+    'exp : ID LPAREN RPAREN'
+    t[0] = absyn.Funcall(t[1], None)
+    
 def p_exp_parexp(t):
     'exp : LPAREN exp RPAREN'
     t[0] = t[2]
@@ -88,6 +124,11 @@ if __name__ == '__main__':
         except EOFError:
             break
         if not s: continue
+        if s[0] == '#':
+            s = open(s[1:],"r").read() # read in a whole file
+            print s
+        else:
+            s += "\n"
         result = yacc.parse(s)
         print result.pretty()
 
