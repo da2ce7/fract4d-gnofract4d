@@ -143,6 +143,13 @@ class T(UserDict):
         self.nextlabel = 0
         self.nextTemp = 0
         self.prefix = prefix
+
+    def merge(self,other):
+        # self = union(self,other)
+        # any clashes are won by self
+        for k in other.data.keys():
+            if self.data.get(k) == None:
+                self.data[k] = other.data[k]
         
     def has_key(self,key):
         if self.data.has_key(mangle(key)):
