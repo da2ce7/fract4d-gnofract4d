@@ -123,9 +123,6 @@ class fractFunc {
 
     // calculate the whole image using worker threads
     void draw_threads(int rsize, int drawsize);
-
-    // reset image
-    void clear();
 };
 
 
@@ -145,6 +142,7 @@ extern void calc(
     bool auto_deepen,
     bool yflip,
     bool periodicity,
+    bool dirty,
     IImage *im, 
     IFractalSite *site);
 

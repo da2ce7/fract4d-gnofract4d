@@ -551,7 +551,7 @@ struct calc_args
 {
     double params[N_PARAMS];
     int eaa, maxiter, nThreads;
-    int auto_deepen, yflip, periodicity;
+    int auto_deepen, yflip, periodicity, dirty;
     pf_obj *pfo;
     cmap_t *cmap;
     IImage *im;
@@ -563,6 +563,7 @@ struct calc_args
 #ifdef DEBUG_CREATION
 	    printf("%p : CA : CTOR\n",this);
 #endif
+	    dirty = 1;
 	}
 
     void set_cmap(PyObject *pycmap_)
@@ -815,6 +816,7 @@ pycalc(PyObject *self, PyObject *args)
     int eaa=-7, maxiter=-8, nThreads=-9;
     int auto_deepen, periodicity;
     int yflip;
+    int dirty=1;
     pf_obj *pfo;
     cmap_t *cmap;
     IImage *im;
@@ -822,7 +824,7 @@ pycalc(PyObject *self, PyObject *args)
  
     if(!PyArg_ParseTuple(
 	   args,
-	   "(ddddddddddd)iiiiOOiiOO",
+	   "(ddddddddddd)iiiiOOiiOO|i",
 	   &params[0],&params[1],&params[2],&params[3],
 	   &params[4],&params[5],&params[6],&params[7],
 	   &params[8],&params[9],&params[10],
@@ -830,7 +832,8 @@ pycalc(PyObject *self, PyObject *args)
 	   &pypfo,&pycmap,
 	   &auto_deepen,
 	   &periodicity,
-	   &pyim, &pysite
+	   &pyim, &pysite,
+	   &dirty
 	   ))
     {
 	return NULL;
@@ -847,7 +850,7 @@ pycalc(PyObject *self, PyObject *args)
 
     //((PySite *)site)->state = PyEval_SaveThread();
     calc(params,eaa,maxiter,nThreads,pfo,cmap,
-	 (bool)auto_deepen,(bool)yflip, (bool)periodicity,
+	 (bool)auto_deepen,(bool)yflip, (bool)periodicity, (bool)dirty,
 	 im,site);
     //PyEval_RestoreThread(((PySite *)site)->state);
 
@@ -867,7 +870,7 @@ calculation_thread(void *vdata)
 
     calc(args->params,args->eaa,args->maxiter,
 	 args->nThreads,args->pfo,args->cmap,
-	 args->auto_deepen,args->yflip, args->periodicity,
+	 args->auto_deepen,args->yflip, args->periodicity, args->dirty,
 	 args->im,args->site);
 
 #ifdef DEBUG_THREADS 
@@ -886,15 +889,16 @@ pycalc_async(PyObject *self, PyObject *args)
     double *p = cargs->params;
     if(!PyArg_ParseTuple(
 	   args,
-	   "(ddddddddddd)iiiiOOiiOO",
+	   "(ddddddddddd)iiiiOOiiOO|i",
 	   &p[0],&p[1],&p[2],&p[3],
 	   &p[4],&p[5],&p[6],&p[7],
 	   &p[8],&p[9],&p[10],
 	   &cargs->eaa,&cargs->maxiter,&cargs->yflip,&cargs->nThreads,
 	   &pypfo,&pycmap,
 	   &cargs->auto_deepen,
-	   &cargs->periodicity,
-	   &pyim, &pysite
+	   &cargs->periodicity,	   
+	   &pyim, &pysite,
+	   &cargs->dirty
 	   ))
     {
 	return NULL;
