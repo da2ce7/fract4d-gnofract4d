@@ -44,7 +44,7 @@ GtkWidget *current_colorbut = NULL;
 void update_previews(GtkWidget *button, gpointer user_data);
 
 void
-update_preview_image(Gf4dFractal *f, GtkWidget *drawable)
+update_preview_image(Gf4dFractal *f, GtkWidget *drawable, model_t *m_if_edit)
 {
     g_assert(drawable);
 
@@ -53,11 +53,7 @@ update_preview_image(Gf4dFractal *f, GtkWidget *drawable)
         GTK_OBJECT(drawable), "colorizer"); 
     g_assert(cizer);
 
-    // if this preview is on the edit page, we now update
-    // its colormap from the model
-    model_t *m_if_edit = (model_t *)gtk_object_get_data(
-	GTK_OBJECT(drawable), "get_from_main");
-
+    
     if(m_if_edit)
     {
 	g_print("updating cizer %p\n",cizer);
@@ -65,8 +61,9 @@ update_preview_image(Gf4dFractal *f, GtkWidget *drawable)
 	cizer = gf4d_fractal_get_colorizer(model_get_fract(m_if_edit))->clone();
 	gtk_object_set_data(GTK_OBJECT(drawable), "colorizer",cizer);
     }
+    
 
-    // fractal takes ownership of new cizer
+    // fractal copies new cizer
     gf4d_fractal_set_colorizer(f,cizer);
     gf4d_fractal_recolor(f);
     
@@ -99,7 +96,12 @@ preview_status_callback(Gf4dFractal *f, gint val, void *user_data)
             GtkWidget *drawable = GTK_BIN(button)->child;
             if(drawable && GTK_IS_DRAWING_AREA(drawable))
             {
-                update_preview_image(f, drawable);
+		// if this preview is on the edit page, we now update
+		// its colormap from the model
+		model_t *m_if_edit = (model_t *)gtk_object_get_data(
+		    GTK_OBJECT(drawable), "get_from_main");
+
+                update_preview_image(f, drawable, m_if_edit);
             }
         }
         children = children->next;
@@ -323,13 +325,12 @@ color_change_callback(GtkWidget *colorsel, gpointer user_data)
 
     rgb_cizer->set_colors(colors[0],colors[1],colors[2]);
 
-    update_preview_image(f, drawable);
+    update_preview_image(f, drawable, NULL);
 }
 
-gboolean
-colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
+
+void colorbut_draw(GtkWidget *widget)
 {
-    //model_t *m = (model_t *)data;
     int index = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(widget),"index"));
 
     colorizer_t *cizer = (colorizer *)gtk_object_get_data(
@@ -346,13 +347,10 @@ colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
     {
 	color = 0;
     }
-    gdk_window_clear_area (widget->window,
-			   event->area.x, event->area.y,
-			   event->area.width, event->area.height);
 
     GdkGC *gc = widget->style->fg_gc[widget->state];
-    gdk_gc_set_clip_rectangle (gc,
-			       &event->area);
+    // gdk_gc_set_clip_rectangle (gc,
+//			       &event->area);
 
     gdk_draw_rectangle(widget->window,
 		       widget->style->bg_gc[GTK_WIDGET_STATE(widget)],
@@ -371,6 +369,15 @@ colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 			widget->allocation.width-2, widget->allocation.height-2);
     
     gdk_gc_set_foreground(gc,&values.foreground);
+}
+
+gboolean
+colorbut_expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer data)
+{
+    gdk_window_clear_area (widget->window,
+			   event->area.x, event->area.y,
+			   event->area.width, event->area.height);
+    colorbut_draw(widget);
     return TRUE;
 }
 
@@ -406,7 +413,7 @@ void colorbut_mouse_event(
     g_print("color selected\n");
 }
 
-void colorbut_set_event(GtkWidget *colorsel, gpointer)
+void colorbut_set_event(GtkWidget *colorsel, gpointer user_data)
 {
     GtkWidget *colorbut = current_colorbut;
     if(!current_colorbut) return;
@@ -426,6 +433,17 @@ void colorbut_set_event(GtkWidget *colorsel, gpointer)
 
     g_print("%d\n",index);
     cizer->cmap[index] = rgb_color;
+
+    colorbut_draw(current_colorbut);
+
+    GtkWidget *button = GTK_WIDGET(user_data);  
+    GtkWidget *drawable = GTK_BIN(button)->child;
+
+    Gf4dFractal *f = GF4D_FRACTAL(
+	gtk_object_get_data(GTK_OBJECT(dialog), "fractal"));
+
+    update_preview_image(f, drawable, NULL);
+
 }
 
 GtkWidget *
@@ -468,7 +486,7 @@ create_edit_colormap_page(GtkWidget *notebook, model_t *m)
 
     gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed",
 		       (GtkSignalFunc)colorbut_set_event,
-		       NULL);
+		       cmap_preview);
 
     gtk_object_set_data(GTK_OBJECT(colorbox),"colorsel",colorsel);
     gtk_object_set_data(GTK_OBJECT(colorbox),"cizer",cizer);
