@@ -9,28 +9,27 @@
    rgb_t : r,g,b triple - this is the actual color of the pixel.
    iter: int - the number of iterations performed before bailout. 
          -1 indicates that this point did not bail out
-   data: some fractal types want to store additional info. The 
-         image type should allocate the number of bytes set by
-	 set_data_size() per pixel. The data_size can be 0.
-
 
    pixel in this context is without antialiasing, that occurs before
    the data is stored.
+
+   These fields are stored per subpixel, so there's an (x by y by 4) array
+   of them.
+
+   fate_t: what happened to this point. 
+   index : the value of #index after calculating this point.
+
 */
    
 #include "color.h"
+#include "fate.h"
 
 class IImage
 {
 public:
-    //static IImage *create();
-    //virtual IImage *clone();
-
     virtual ~IImage() {};
     // return true if this resulted in a change of size
     virtual bool set_resolution(int x, int y) = 0;
-    // return true if this resulted in a changed amount of data stored
-    virtual bool set_data_size(int size) = 0;
 
     // return xres()/yres()
     virtual double ratio() const = 0;
@@ -49,9 +48,6 @@ public:
     // accessors for iteration data
     virtual int getIter(int x, int y) const = 0;
     virtual void setIter(int x, int y, int iter) = 0;
-
-    // we will both read & write data using the pointer returned by this method
-    virtual void *getData(int x, int y) = 0;
 };
 
 #endif /* IMAGE_PUBLIC_H_ */

@@ -3,28 +3,52 @@
 
 #include "image.h"
 
-#undef NDEBUG
-
-#include <assert.h>
-
 #define RED 0
 #define GREEN 1
 #define BLUE 2
 
-image::~image()
-{
-    delete[] buffer;
-    delete[] iter_buf;
-    //free(data_buf);
-}
+const int 
+image::N_SUBPIXELS = 4;
 
 image::image()
 {
     m_Xres = m_Yres = 0;
     buffer = NULL;
     iter_buf = NULL;
-    data_buf = NULL;
-    data_size = 0;
+    fate_buf = NULL;
+    index_buf = NULL;
+}
+
+image::image(const image& im)
+{
+    m_Xres = im.m_Xres;
+    m_Yres = im.m_Yres;
+
+    alloc_buffers();
+}
+
+image::~image()
+{
+    delete_buffers();
+}
+
+
+void
+image::delete_buffers()
+{
+    delete[] buffer;
+    delete[] iter_buf;
+    delete[] fate_buf;
+    delete[] index_buf;
+}
+
+void
+image::alloc_buffers()
+{
+    buffer = new char[bytes()];
+    iter_buf = new int[m_Xres * m_Yres];
+    index_buf = new float[m_Xres * m_Yres * N_SUBPIXELS];
+    fate_buf = new fate_t[m_Xres * m_Yres * N_SUBPIXELS];
 }
 
 int
@@ -57,29 +81,24 @@ image::get(int x, int y) const
     return pixel;
 }
 
-image::image(const image& im)
-{
-    m_Xres = im.m_Xres;
-    m_Yres = im.m_Yres;
-    data_size = im.data_size;
-    buffer = new char[bytes()];
-    iter_buf = new int[m_Xres * m_Yres];
-    //data_buf = malloc(data_size * m_Xres * m_Yres);
-}
-
-bool image::set_resolution(int x, int y)
+bool 
+image::set_resolution(int x, int y)
 {
     if(buffer && m_Xres == x && m_Yres == y) return 0;
     m_Xres = x;
     m_Yres = y;
-    delete[] buffer;
-    delete[] iter_buf;
-    //free(data_buf);
-    buffer = new char[bytes()];
-    iter_buf = new int[m_Xres * m_Yres];
-    //data_buf = malloc(data_size * m_Xres * m_Yres);
 
-    rgba_t pixel = { 200, 178, 98, 255};
+    delete_buffers();
+
+    alloc_buffers();
+
+    rgba_t pixel = { 
+#ifndef NDEBUG
+	200, 178, 98, 255 // distracting mustard-yellow color
+#else
+	0,0,0,255 // soothing black
+#endif
+    };
 
     for(int i = 0; i < y; ++i)
     {
@@ -92,26 +111,43 @@ bool image::set_resolution(int x, int y)
     return 1;
 }
 
-double image::ratio() const
+double 
+image::ratio() const
 {
     return ((double)m_Yres / m_Xres);
 }
 
-void image::clear()
+void
+image::clear_fate(int x, int y)
 {
-    // no need to clear image buffer
-    for(int i = 0; i < m_Xres * m_Yres; i++) {
-        iter_buf[i]=-1;
+    int base = index_of_subpixel(x,y,0);
+    for(int i = base; i < base+ N_SUBPIXELS; ++i)
+    {
+	fate_buf[i] = FATE_UNKNOWN;
     }
 }
 
-bool image::set_data_size(int size)
+void 
+image::set_fate(int x, int y, int subpixel, fate_t fate)
 {
-    if(size == data_size) return false;
-    data_size = size;
-    //data_buf = realloc(data_buf,size * m_Xres * m_Yres);
-    return true;
+    int i = index_of_subpixel(x,y,subpixel);
+    fate_buf[i] = fate;
 }
+
+void 
+image::clear()
+{
+    // no need to clear image buffer
+    for(int y = 0; y < m_Yres; ++y) 
+    {
+	for(int x = 0; x < m_Xres; ++x)
+	{
+	    iter_buf[y * m_Xres + x]=-1;
+	    clear_fate(x,y);
+	}
+    }
+}
+
 	       
 bool image::save(const char *filename)
 {

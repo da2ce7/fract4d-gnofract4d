@@ -26,9 +26,11 @@ def show(parent, f,type):
     _browser.populate_file_list()
     _browser.show_all()
 
-def update():
+def update(file=None):
     global _browser
     if _browser:
+        if file:
+            _browser.current_fname=os.path.basename(file)
         _browser.populate_file_list()
     
 class BrowserDialog(gtk.Dialog):
@@ -202,9 +204,10 @@ class BrowserDialog(gtk.Dialog):
         # re-select current file, if any
         if current_iter:
             sel = self.filetreeview.get_selection()
-            sel.unselect_all()
-            sel.select_iter(current_iter)
-            self.populate_formula_list(self.current_fname)
+            if sel:
+                sel.unselect_all()
+                sel.select_iter(current_iter)
+                self.populate_formula_list(self.current_fname)
         else:
             self.formula_list.clear()
             self.formula_selection_changed(None)
