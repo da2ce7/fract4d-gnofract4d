@@ -356,9 +356,9 @@ goto t__end_init;''')
     def inspect_complex(self,name):
         return "printf(\"%s = (%%g,%%g)\\n\", %s_re, %s_im);" % (name,name,name)
 
-    def predict(self,f):
+    def predict(self,f,arg1=0,arg2=1):
         # compare our compiler results to Python stdlib
-        return "(%.6g,%.6g)" % (f(0),f(1))
+        return "(%.6g,%.6g)" % (f(arg1),f(arg2))
     
     def test_stdlib(self):
         tests = [
@@ -376,6 +376,8 @@ goto t__end_init;''')
             [ "i = ident(y)","i","(1,2)"],
             [ "a = (abs(4),abs(-4))","a","(4,4)"],
             [ "a2 = abs((4,-4))","a2","(4,4)"],
+            [ "sq = (sqrt(4),sqrt(2))", "sq", self.predict(math.sqrt,4,2)],
+            
             # trig functions
             [ "t_sin = (sin(0),sin(1))","t_sin", self.predict(math.sin)],
             [ "t_cos = (cos(0),cos(1))","t_cos", self.predict(math.cos)],
@@ -383,6 +385,16 @@ goto t__end_init;''')
             [ "t_sinh = (sinh(0),sinh(1))","t_sinh", self.predict(math.sinh)],
             [ "t_cosh = (cosh(0),cosh(1))","t_cosh", self.predict(math.cosh)],
             [ "t_tanh = (tanh(0),tanh(1))","t_tanh", self.predict(math.tanh)],
+
+            # inverse trig functions
+            [ "t_asin = (asin(0),asin(1))","t_asin", self.predict(math.asin)],
+            [ "t_acos = (acos(0),acos(1))","t_acos", self.predict(math.acos)],
+            [ "t_atan = (atan(0),atan(1))","t_atan", self.predict(math.atan)],
+
+            # these aren't in python stdlib, need to hard-code results
+            [ "t_asinh = (asinh(0),asinh(1))","t_asinh", "(0,0.881374)" ],
+            [ "t_acosh = (acosh(10),acosh(1))","t_acosh", "(2.99322,0)" ],
+            [ "t_atanh = (atanh(0),atanh(0.5))","t_atanh", "(0,0.549306)" ],
             
             ]
 
