@@ -78,8 +78,8 @@ debug_precision(const d& s, char *location)
 fractal::fractal()
 {
     // set fractal type to first type in list
-    const ctorInfo *names = iterFunc_names();
-    pIterFunc = iterFunc::create(names[0].name);
+    const char **names = iterFunc_names();
+    pIterFunc = iterFunc::create(names[0]);
 
     reset();
 

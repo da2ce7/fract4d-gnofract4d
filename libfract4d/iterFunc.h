@@ -76,13 +76,7 @@ class iterFunc {
     virtual std::string restore_iter_code() const = 0;
 };
 
-
-typedef struct {
-    const char *name;
-    iterFunc *(*ctor)(const char *name);
-} ctorInfo;
-
-const ctorInfo *iterFunc_names();
+const char **iterFunc_names();
 
 std::ostream& operator<<(std::ostream& s, const iterFunc& iter);
 std::istream& operator>>(std::istream& s, iterFunc& iter);

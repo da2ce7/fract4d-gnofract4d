@@ -764,11 +764,11 @@ GtkWidget *create_function_menu(Gf4dFractal *shadow)
     GtkWidget *func_type = gtk_option_menu_new();
     GtkWidget *func_menu = gtk_menu_new();
 
-    const ctorInfo *names = iterFunc_names();
+    const char **names = iterFunc_names();
     int i = 0;
-    while(names[i].name)
+    while(names[i])
     {
-        const char *name = names[i].name;
+        const char *name = names[i];
         GtkWidget *menu_item = gtk_menu_item_new_with_label(name);
     
         gtk_object_set_data(
