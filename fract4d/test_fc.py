@@ -102,7 +102,6 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         self.assertEqual(f.errors, [])
         commands.getoutput("rm -f test-out.so")
         cg = self.compiler.compile(f)
-        print cg.symbols.has_key("t__ftemp5")
         self.compiler.generate_code(f,cg,"test-out.so",None)
         # check the output contains the right functions
         (status,output) = commands.getstatusoutput('nm test-out.so')
@@ -169,11 +168,25 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         cg = self.compiler.compile(f)
         of1 = self.compiler.generate_code(f,cg)
 
-        cg2 = self.compiler.compile(f)
+        f2 = self.compiler.get_formula("gf4d.frm","Mandelbrot")
+        cg2 = self.compiler.compile(f2)
         of2 = self.compiler.generate_code(f,cg2)
 
         self.assertEqual(of1,of2)
 
+    def testFormulasNotConnected(self):
+        'fetch the same thing twice, check symbols tables differ'
+        f = self.compiler.get_formula("fractint-builtin.frm","julfn+exp")
+        f2 = self.compiler.get_formula("fractint-builtin.frm","julfn+exp")
+        self.assertNotEqual(f,f2)
+        self.assertNotEqual(f.symbols, f2.symbols)
+        ol = f.symbols["@fn1"]
+        ol2 = f2.symbols["@fn1"]
+        self.assertNotEqual(ol, ol2)
+        func = ol[0]
+        func2 = ol2[0]
+        self.assertNotEqual(func,func2)
+        
     def testAllFormulasCompile(self):
         'Go through every formula and check for errors'
         for filename in self.compiler.find_formula_files():

@@ -12,8 +12,14 @@ Done in 2.6:
 * BB	settings dialog doesn't update - can't repro
 * BB	CCL formula doesn't work
 * BB	resetting doesn't change bailout text in settings dialog
+* W	added CCL formulae
+* W	added initial fractint-builtin
+* BB	trigcentric.fct no longer works
+* B     related to failure in test_fc.testDoubleCompile?
 
 todo:
+* B	each fractal gets compiled twice, 2nd time with extra vars:
+
 * W	don't allocate memory for recoloring buffer when image very large
 * B	opening browser should select current fractfile and formula
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
@@ -34,6 +40,7 @@ todo:
 * B     var called 'loat' would clash with C reserved word
 * WWW	create colormap from picture (eg digital photo)
 * W	create random colormap
+* W 	update spec for RPMs to use desktop-file-install (per DAG spec)
 
 UF Incompatibilities
 * W	boolean, int, enum params 

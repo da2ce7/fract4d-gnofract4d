@@ -427,16 +427,12 @@ class T(UserDict):
         self.prefix = prefix
 
     def __copy__(self):
-        #print inspect.stack()
         c = T(self.prefix)
         c.nextlabel = self.nextlabel
         c.nextTemp = self.nextTemp
         for k in self.data.keys():
-            #print k
             c.data[k] = copy.copy(self.data[k])
 
-        #print self.data
-        #print c.data
         return c
     
     def merge(self,other):
@@ -446,14 +442,14 @@ class T(UserDict):
             if self.data.get(k) == None:
                 if self.is_param(k):
                     new_key = self.insert_prefix(other.prefix,k)
-                    self.data[new_key] = other.data[k]
+                    self.data[new_key] = copy.copy(other.data[k])
                 else:
-                    self.data[k] = other.data[k]
+                    self.data[k] = copy.copy(other.data[k])
             elif hasattr(self.data[k],"cname") and \
                  hasattr(other.data[k],"cname") and \
                  self.data[k].cname != other.data[k].cname:
                     new_key = self.insert_prefix(other.prefix,k)
-                    self.data[new_key] = other.data[k]
+                    self.data[new_key] = copy.copy(other.data[k])
 
     def has_user_key(self,key):
         return self.data.has_key(mangle(key))
@@ -510,7 +506,9 @@ class T(UserDict):
             val = self.default_dict[mangle(key)]
             if isinstance(val,Alias):
                 key = val.realName
-                val = self.default_dict[mangle(key)]
+                return self.__getitem__(key)
+
+            val = copy.copy(val)
             self.data[mangle(key)] = val
             
         return val

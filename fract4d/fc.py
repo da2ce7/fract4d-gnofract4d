@@ -237,6 +237,7 @@ class Compiler:
         cmd = "%s %s %s -o %s %s" % \
               (self.compiler_name, cfile, self.flags, outputfile, self.libs)
         #print "cmd: %s" % cmd
+
         (status,output) = commands.getstatusoutput(cmd)
         if status != 0:
             raise fracttypes.TranslationError(
