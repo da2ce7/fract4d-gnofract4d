@@ -587,8 +587,6 @@ class T(FctUtils):
         '''randomly adjust position, colors, angles and parameters.
         weirdness is between 0 and 1 - 0 is no change, 1 is lots'''
 
-        print "mutate: %f %f" % (weirdness, color_weirdness)
-        
         size = self.params[self.MAGNITUDE]
         self.params[self.XCENTER] += self.xy_random(weirdness, size)
         self.params[self.YCENTER] += self.xy_random(weirdness, size)

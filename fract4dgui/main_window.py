@@ -462,8 +462,9 @@ class MainWindow:
             20.0, 0.0, 100.0, 5.0, 5.0, 0.0)
 
         self.weirdness = gtk.HScale(self.weirdness_adjustment)
-        self.weirdness.set_size_request(80, 40)
-
+        self.weirdness.set_size_request(100, 20)
+        self.weirdness.set_property("value-pos",gtk.POS_RIGHT)
+        
         self.weirdness.set_update_policy(
             gtk.UPDATE_DISCONTINUOUS)
 
@@ -471,8 +472,9 @@ class MainWindow:
             20.0, 0.0, 100.0, 5.0, 5.0, 0.0)
 
         self.color_weirdness = gtk.HScale(self.color_weirdness_adjustment)
-        self.color_weirdness.set_size_request(80, 40)
-
+        self.color_weirdness.set_size_request(100, 20)
+        self.color_weirdness.set_property("value-pos",gtk.POS_RIGHT)
+        
         self.color_weirdness.set_update_policy(
             gtk.UPDATE_DISCONTINUOUS)
 
@@ -513,7 +515,6 @@ class MainWindow:
         #self.explore_menu.set_active(active)
         #self.explorer_toggle.set_active(active)
         self.update_subfract_visibility(active)
-        self.update_subfracts()
 
     def create_angle_widget(self,name,tip,axis):
         my_angle = angle.T(name)
