@@ -11,7 +11,7 @@ from fract4d import fractal,fc,fract4dc
 
 
 import gtkfractal, model, preferences, autozoom, settings
-import colors, undo, browser, fourway, angle
+import colors, undo, browser, fourway, angle, utils
 
 class MainWindow:
     def __init__(self):
@@ -48,10 +48,10 @@ class MainWindow:
         
         try:
             # try to make default image more interesting
-            self.f.set_cmap(os.path.join(
-                sys.exec_prefix,
-                "share/maps/gnofract4d",
-                "basic.map"))
+            self.f.set_cmap(utils.find_resource(
+                "basic.map",
+                "maps",
+                "share/maps/gnofract4d"))
         except:
             pass
             
@@ -297,14 +297,15 @@ class MainWindow:
         redo = item_factory.get_item(_("/Edit/Redo"))
         self.model.seq.make_redo_sensitive(redo)
 
+        self.explore_menu = item_factory.get_item(_("/Tools/Explorer"))
+        
         # need to reference the item factory or the menus
         # later disappear randomly - some sort of bug in pygtk, python, or gtk
         self.save_factory = item_factory
         self.vbox.pack_start(menubar, gtk.FALSE, gtk.TRUE, 0)
 
     def toggle_explorer(self, action, menuitem):
-        self.update_subfract_visibility(menuitem.get_active())
-        self.update_subfracts()
+        self.set_explorer_state(menuitem.get_active())
         
     def create_status_bar(self):
         self.bar = gtk.ProgressBar()
@@ -320,7 +321,7 @@ class MainWindow:
         
     def create_toolbar(self):
         self.toolbar = gtk.Toolbar()
-
+        self.toolbar.set_tooltips(True)
         self.vbox.pack_start(self.toolbar,expand=gtk.FALSE)
 
         # preview
@@ -340,6 +341,7 @@ class MainWindow:
             None
             )
 
+        # angles
         self.toolbar.append_space()
 
         self.create_angle_widget(
@@ -360,13 +362,16 @@ class MainWindow:
         self.create_angle_widget(
             _("zw"), _("Angle in the ZW plane"), self.f.ZWANGLE)
 
+        # fourways
         self.toolbar.append_space()
         
         self.add_fourway(_("pan"), _("Pan around the image"), 0)
         self.add_fourway(
-            _("warp"),
+            _("wrp"),
             _("Mutate the image by moving along the other 2 axes"), 2)
 
+
+        # undo/redo
         self.toolbar.append_space()
         
         self.toolbar.insert_stock(
@@ -386,10 +391,28 @@ class MainWindow:
             self.redo,
             None,
             -1)
-
-        self.toolbar.append_space()
         
         self.model.seq.make_redo_sensitive(self.toolbar.get_children()[-1])
+
+        # explorer mode widgets
+        self.toolbar.append_space()
+
+        image = gtk.Image()
+        image.set_from_file(
+            utils.find_resource('explorer_mode.png',
+                                'pixmaps',
+                                'share/pixmaps/gnofract4d'))
+                            
+        self.explorer_toggle = gtk.ToggleButton()
+        self.toolbar.append_element(
+            gtk.TOOLBAR_CHILD_TOGGLEBUTTON,
+            None,
+            _("Explore"),
+            _("Toggle Explorer Mode"),
+            None,
+            image,
+            self.toolbar_toggle_explorer,
+            None)
 
         self.weirdness_adjustment = gtk.Adjustment(
             20.0, 0.0, 100.0, 5.0, 5.0, 0.0)
@@ -415,6 +438,15 @@ class MainWindow:
             None,
             None
             )
+
+    def toolbar_toggle_explorer(self,widget):
+        self.set_explorer_state(widget.get_active())
+
+    def set_explorer_state(self,active):
+        #self.explore_menu.set_active(active)
+        #self.explorer_toggle.set_active(active)
+        self.update_subfract_visibility(active)
+        self.update_subfracts()
 
     def create_angle_widget(self,name,tip,axis):
         my_angle = angle.T(name)
@@ -587,15 +619,12 @@ class MainWindow:
         loc = "C" # FIXME
 
         # look locally first to support run-before-install
-        build_dir = "doc/gnofract4d-manual/%s/" % loc
-        helpfile = os.path.join(build_dir,base_help_file)
+        local_dir = "doc/gnofract4d-manual/%s/" % loc
+        install_dir = "share/gnome/help/gnofract4d/%s/" % loc
+
+        helpfile = utils.find_resource(base_help_file, local_dir, install_dir)
         abs_file = os.path.abspath(helpfile)
         
-        if not os.path.isfile(abs_file):
-            # otherwise try where the installer should have put it
-            dir = "share/gnome/help/gnofract4d/%s/" % loc
-            abs_file = os.path.join(sys.exec_prefix, dir, base_help_file)
-
         if not os.path.isfile(abs_file):
             self.show_error_message(_("Can't find help file %s") % abs_file)
             return

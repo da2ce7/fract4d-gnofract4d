@@ -2,9 +2,9 @@ todo for 2.0
 * BB	giger.fct - results of extangle are different vs 1.9
 * BB	horrible_drawing_bug.fct - zoom out & it looks very different
 
-* WW	angle and 4way widgets
 * B	if load rgb colorizer .fct, report ValueError: Empty color array
-
+* W	tie menu-based and toolbar-based explorer toggling
+ 
 * BB	more robust error reporting
 * W	last-chance exception handler
 
@@ -53,6 +53,7 @@ differences from fractint:
 * W	fractint-builtins.frm
 
 done:
+* WW	angle and 4way widgets
 * W	weirdness setting 
 * W	explorer mode
 * B	temp variables in colorfuncs persist across compilations?
