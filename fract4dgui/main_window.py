@@ -835,7 +835,7 @@ class MainWindow:
     def load(self,file):
         try:
             self.f.loadFctFile(open(file))
-            #self.set_filename(file)
+            self.set_filename(file)
             return True
         except Exception, err:
             self.show_error_message(_("Error opening %s") % file,err)
