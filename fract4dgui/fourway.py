@@ -5,6 +5,7 @@
 
 import gtk
 import gobject
+import pango
 
 class T(gobject.GObject):
     __gsignals__ = {
@@ -25,7 +26,7 @@ class T(gobject.GObject):
         self.text=text
 
         self.widget = gtk.DrawingArea()
-        self.widget.set_size_request(32,32)
+        self.widget.set_size_request(40,40)
 
         self.widget.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
                                gtk.gdk.BUTTON1_MOTION_MASK |
@@ -77,6 +78,21 @@ class T(gobject.GObject):
         yc = h//2
         radius = min(w,h)//2
 
+        context = widget.get_pango_context()
+        layout = pango.Layout(context)
+        layout.set_text(self.text,len(self.text))
+        (text_width, text_height) = layout.get_pixel_size()
+        style.paint_layout(
+            widget.window,
+            widget.state,
+            True,
+            r,
+            widget,
+            "",
+            xc - text_width//2,
+            yc - text_height//2,
+            layout)
+        
         gc = style.fg_gc[widget.state]
         # Triangle pointing left        
         points = [

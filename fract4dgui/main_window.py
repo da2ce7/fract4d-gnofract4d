@@ -359,26 +359,35 @@ class MainWindow:
             None
             )
 
-        xy_fourway = fourway.T(_("xy"))
+        self.add_fourway(_("pan"), _("Pan around the image"), 0)
+        self.add_fourway(
+            _("warp"),
+            _("Mutate the image by moving along the other 2 axes"), 2)
+        
+    def add_fourway(self, name, tip, axis):
+        xy_fourway = fourway.T(name)
         self.toolbar.append_element(
             gtk.TOOLBAR_CHILD_WIDGET,            
             xy_fourway.widget,
-            _("Weirdness"),
-            _("How different to make the random mutant fractals"),
+            tip,
+            None,
             None,
             None,
             None,
             None
             )
-        xy_fourway.connect('value-slightly-changed', self.on_drag_fourway)
-        xy_fourway.connect('value-changed', self.on_release_fourway)
-        
-    def on_drag_fourway(self,widget,dx,dy):
-        print "small change: (%d, %d)" % (dx,dy)
 
-    def on_release_fourway(self,widget,dx,dy):
-        print "change: (%d, %d)" % (dx,dy)
-        self.f.nudge(dx/10.0, dy/10.0, 0)
+        def on_drag_fourway(widget,dx,dy):
+            #print "small change: (%d, %d)" % (dx,dy)
+            pass
+        
+        def on_release_fourway(widget,dx,dy):
+            print "change: (%d, %d)" % (dx,dy)
+            self.f.nudge(dx/10.0, dy/10.0, axis)
+
+        xy_fourway.connect('value-slightly-changed', on_drag_fourway)
+        xy_fourway.connect('value-changed', on_release_fourway)
+        
             
     def save_file(self,file):
         try:
