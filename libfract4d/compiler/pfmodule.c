@@ -70,7 +70,7 @@ pf_create(PyObject *self, PyObject *args)
 	return NULL;
     }
     pf_obj *p = pfn();
-    printf("created %p\n",p);
+    /* printf("created %p\n",p); */
     return PyCObject_FromVoidPtr(p,pf_delete);
 }
 
@@ -94,11 +94,11 @@ pf_init(PyObject *self, PyObject *args)
     }
 
     pfo = PyCObject_AsVoidPtr(pyobj);
-    printf("pfo:%p\n",pfo);
+    /* printf("pfo:%p\n",pfo); */
 
     if(!PySequence_Check(pyarray))
     {
-	PyErr_SetString(PyExc_ValueError,
+	PyErr_SetString(PyExc_TypeError,
 			"Argument 3 should be an array of floats");
 	return NULL;
     }
@@ -141,8 +141,41 @@ pf_init(PyObject *self, PyObject *args)
 	} 
 	/*finally all args are assembled */
 	pfo->vtbl->init(pfo,period_tolerance,params,len);
+	free(params);
     }
     return Py_None;
+}
+
+static PyObject *
+pf_calc(PyObject *self, PyObject *args)
+{
+    PyObject *pyobj, *pyret;
+    double params[4];
+    pf_obj *pfo; 
+    int nIters, nNoPeriodIters,x=0,y=0,aa=0;
+    int outIters=0, outFate=0;
+    double outDist=0.0;
+
+    if(!PyArg_ParseTuple(args,"O(dddd)ii|iii",
+			 &pyobj,
+			 &params[0],&params[1],&params[2],&params[3],
+			 &nIters,&nNoPeriodIters,&x,&y,&aa))
+    {
+	return NULL;
+    }
+    if(!PyCObject_Check(pyobj))
+    {
+	PyErr_SetString(PyExc_ValueError,"Not a valid handle");
+	return NULL;
+    }
+
+    pfo = PyCObject_AsVoidPtr(pyobj);
+    pfo->vtbl->calc(pfo,params,
+		    nIters,nNoPeriodIters,
+		    x,y,aa,
+		    &outIters,&outFate,&outDist);
+    pyret = Py_BuildValue("iid",outIters,outFate,outDist);
+    return pyret; // Python can handle errors if this is NULL
 }
 
 static PyMethodDef PfMethods[] = {
@@ -152,6 +185,8 @@ static PyMethodDef PfMethods[] = {
      "Create a new point function"},
     {"init", pf_init, METH_VARARGS,
      "Init a point function"},
+    {"calc", pf_calc, METH_VARARGS,
+     "Calculate one point"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
