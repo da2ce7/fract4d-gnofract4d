@@ -14,15 +14,16 @@
    int nItersDone=0;
    int nFate=0;
    double dist=0.0;
+   int solid=0;
    pf_obj *pf = pf_new();
    pf->vtbl->init(pf,0.001,initparams,2);
    
    pf->vtbl->calc(
         pf,
         pparams,
-        100, 
+        100,
         0,0,0,
-        &nItersDone, &nFate, &dist);
+        &nItersDone, &nFate, &dist, &solid);
    
    pf->vtbl->kill(pf);
 */
@@ -57,7 +58,7 @@ struct s_pf_vtable {
         // out params
         int *pnIters, int *pFate, double *pDist, int *pSolid
 	);
-    /* calc as above using periodicity checking */
+    /* calculate one point, using periodicity checking */
     void (*calc_period)(
 	struct s_pf_data *p,
         // in params
@@ -67,7 +68,6 @@ struct s_pf_vtable {
         // out params
         int *pnIters, int *pFate, double *pDist, int *pSolid
 	);
-
     /* deallocate data in p */
     void (*kill)(
 	struct s_pf_data *p

@@ -30,6 +30,9 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             },
             "editor" : {
               "name" : "emacs"
+            },
+            "general" : {
+              "threads" : "1"
             }
         }
 
@@ -100,6 +103,7 @@ class PrefsDialog(dialog.T):
         self.tips = gtk.Tooltips()
         self.create_image_options_page()
         self.create_compiler_options_page()
+        self.create_general_page()
         
         self.set_size_request(500,-1)
 
@@ -190,6 +194,21 @@ class PrefsDialog(dialog.T):
         self.prefs.connect('preferences-changed',set_entry)
         entry.connect('focus-out-event', set_prefs)
         return entry
+
+    def create_general_page(self):
+        table = gtk.Table(5,2,gtk.FALSE)
+        label = gtk.Label(_("_General"))
+        label.set_use_underline(True)
+        self.notebook.append_page(table,label)
+
+        entry = self.create_option_entry("general","threads")
+        self.tips.set_tip(entry,_("How many threads to use for calculations"))
+        table.attach(entry,1,2,0,1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        name_label = gtk.Label(_("_Number of threads :"))
+        name_label.set_use_underline(True)
+        name_label.set_mnemonic_widget(entry)
+        table.attach(name_label,0,1,0,1,0,0,2,2)
 
     def create_compiler_options_page(self):
         table = gtk.Table(5,2,gtk.FALSE)

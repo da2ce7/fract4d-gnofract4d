@@ -13,6 +13,15 @@ float param bailout
 endparam
 }
 
+test_builtin_func {
+loop:
+	z = @fn1(z) + #pixel
+bailout:
+	|z| < 4.0
+default:
+func fn1
+endfunc
+}
 test_noz {
 init:
 	complex x

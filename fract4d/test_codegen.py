@@ -179,7 +179,13 @@ int main()
         return output
 
     # test methods
+    def testPFHeader(self):
+        'Check inline copy of pf.h is up-to-date'
+        pfh = open('c/pf.h').read()
+        self.assertEqual(pfh,self.codegen.pf_header)
+        
     def testMatching(self):
+        'test tree matching works'
         template = "[Binop, Const, Const]"
 
         tree = self.binop([self.const(),self.const()])
@@ -195,10 +201,12 @@ int main()
         self.assertMatchResult(tree, template,1)
         
     def testWhichMatch(self):
+        'check we get the rignt tree match'
         tree = self.binop([self.const(),self.const()])
         self.assertEqual(self.codegen.match(tree).__name__,"binop")
 
     def testGen(self):
+        'test simple code generation from ir trees'
         tree = self.const()
         x = self.codegen.generate_code(tree)
         self.assertEqual(isinstance(x,codegen.ConstIntArg),1)
@@ -229,6 +237,7 @@ int main()
         self.assertEqual(op.format(),"t__temp0 = 0 + a;",op.format())
 
     def testHyperGen(self):
+        'generate hypercomplex code'
         tree = self.var("h",Hyper)
         x = self.codegen.generate_code(tree)
         self.assertEqual(isinstance(x,codegen.HyperArg),1)
@@ -238,6 +247,7 @@ int main()
         self.assertEqual(x.parts[3].value,"h_k")
         
     def testComplexAdd(self):
+        'simple complex srithmetic'
         # (1,3) + a
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"+",Complex)
         x = self.codegen.generate_code(tree)
@@ -313,6 +323,7 @@ t__temp11 = t__temp8 + t__temp9;'''
         self.assertOutputMatch(expAdd)
 
     def testCompare(self):
+        'test comparisons produce correct code'
         tree = self.binop([self.const(3,Int),self.var("a",Int)],">",Bool)
         self.generate_code(tree)
         self.assertOutputMatch("t__temp0 = 3 > a;")
@@ -334,6 +345,7 @@ t__temp1 = 3.00000000000000000 != a_im;
 t__temp2 = t__temp0 || t__temp1;''')
 
     def testS2A(self):
+        'test C code produced by simple code snippets'
         asm = self.sourceToAsm('''t_s2a {
 init:
 int a = 1
@@ -361,6 +373,7 @@ fa_im = t__ftemp2;
 goto t__end_finit;''')
     
     def testSymbols(self):
+        'test symbols used are declared correctly'
         self.codegen.symbols["q"] = Var(Complex)
         z = self.codegen.symbols["q"] # ping z to get it in output list
         out = self.codegen.output_symbols(self.codegen,{})
@@ -373,6 +386,7 @@ goto t__end_finit;''')
         self.failUnless(len(l)==1)
 
     def testNoZ(self):
+        'test a formula which doesn\'t use Z' 
         src = '''t_mandel{
 init:
 x = #zwpixel
@@ -491,6 +505,7 @@ func fn1
 
 
     def testCF(self):
+        'generate code for a coloring function'
         tcf0 = self.translatecf('''
         biomorph {
         init:
@@ -534,6 +549,7 @@ func fn1
         self.assertEqual(["(0,0,3)", "(20,1,789.1)"],output.split("\n"))
 
     def testSolidCF(self):
+        'test that #solid works correctly'
         tcf0 = self.translatecf('''
         biomorph {
         init:
@@ -578,7 +594,7 @@ func fn1
         self.assertEqual(outlines[2],"1")
 
     def testCHyper(self):
-        # test arithmetic in hypercomplex numbers
+        'test arithmetic in hypercomplex numbers'
 
         # basic invariants
         src = '''t_hyper1{
@@ -657,6 +673,7 @@ func fn1
                          "y = (3,4,1,2)")
 
     def testHyperFuncs(self):
+        'test calling an example hypercomplex function' 
         src = '''t_hyperfunc {
         init:
         hyper s = sin((1,2,3,4))
@@ -665,8 +682,9 @@ func fn1
                          self.inspect_hyper("s"),
                          "s = (-5.9761,-36.897,-36.5636,4.49641)")
     def testC(self):
-        # basic end-to-end testing. Compile a code fragment + instrumentation,
-        # run it and check output
+        '''basic end-to-end testing. Compile a code fragment + instrumentation,
+        run it and check output'''
+        
         src = 't_c1 {\nloop: int a = 1\nz = z + a\n}'
         self.assertCSays(src,"loop","printf(\"%g,%g\\n\",z_re,z_im);","1,0")
         
@@ -771,6 +789,7 @@ func fn1
         self.assertCSays(src,"init",tests,results)
 
     def testParams(self):
+        'test formulas with parameters work correctly'
         src = 't_cp0{\ninit: complex @p = (2,1)\n}'
         self.assertCSays(src,"init",self.inspect_complex("t__a_fp",""),
                          "t__a_fp = (2,1)")
@@ -804,8 +823,9 @@ func fn1
         self.assertEqual(output,"x = (0,0)\ny = (7,1)")
 
     def testFormulas(self):
-        # these caused an error at one point in development
-        # so have been added to regression suite
+        '''these formulas caused an error at one point in development
+        so have been added to regression suite'''
+        
         t = self.translate('''andy03 {
         z = c = pixel/4:
         z = p1*z + c
@@ -954,7 +974,10 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         pass
     
     def test_stdlib(self):
-
+        '''This is the slowest test, due to how much compilation it does.
+        Calls standard functions with a variety
+        of values, checking that they produce the right answers'''
+        
         # additions to python math stdlib
         def myfcotan(x):
             return math.cos(x)/math.sin(x)
@@ -1092,7 +1115,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         self.assertCSays(src,"init",check,exp)
 
     def testExpression(self):
-        # this is for quick manual experiments - skip if input var not set
+        '''this is for quick manual experiments - skip if input var not set'''
         global g_exp,g_x
         if g_exp == None:
             return
@@ -1105,6 +1128,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         print output
 
     def testPeriodicity(self):
+        'test that periodicity actually short-circuits calculations'
         src = '''t_mandel{
 init:
 z = 0
@@ -1138,6 +1162,8 @@ bailout:
         return real + imag * 1j
 
     def testMandel(self):
+        '''test that formula for the mandelbrot set does the right thing
+        for a couple of selected values'''
         src = '''t_mandel{
 init:
 z = #zwpixel

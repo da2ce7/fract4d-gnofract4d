@@ -283,6 +283,11 @@ class T(gobject.GObject):
 
         return (menu,funclist)
 
+    def set_nthreads(self, n):
+        if self.nthreads != n:
+            self.nthreads = n
+            self.changed()
+    
     def set_fractal(self,f):
         if f != self.f:
             if self.f:

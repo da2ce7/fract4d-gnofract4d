@@ -206,7 +206,8 @@ class MainWindow:
                 f.set_size(w//2, h//2)
             w += 2; h += 2
         self.f.set_size(w,h)
-
+        self.f.set_nthreads(prefs.getint("general","threads"))
+                            
     def on_prefs_changed(self,prefs):
         self.f.freeze()
         self.update_compiler_prefs(prefs)

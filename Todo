@@ -4,18 +4,19 @@ browser.py: 269 (use ComboBox)
 gtkfractal.py: 307
 preferences.py: 251
 
-done in 2.5:
-* BB	if formula didn't mention z, compilation failed
-* W	hypercomplex mandelbrot set
+Done in 2.6:
+
+* W	prefs dialog option to change number of threads
 
 todo:
-* B	if you declare a function called fn1, you can't change what it is
+* B	opening browser should select current fractfile and formula
 * BB	settings dialog doesn't update - can't repro
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
 * WW	cmap browser
 * WW	cmap editor - brightness/contrast/gamma/HSV/RGB
 * B	opening color browser sometimes applies 1st item
+* B	click on colormap calls calc() twice
 * W	logmap
 * B	fractint doesn't reset vars between calls
 * B	parse continuation lines correctly
@@ -23,10 +24,9 @@ todo:
 * WW	include formula in .fct file
 * B	O-fractals in fractint-g4.frm broken
 * W	assert that correct number of params passed to init()
-* B	click on colormap calls calc() twice
 * B	recoloring during deepening can make things shallower
 * BB	intermittently failing test in test_fract4d
-* B     var called 'loat' would clashe with C reserved word
+* B     var called 'loat' would clash with C reserved word
 
 UF Incompatibilities
 * W	boolean, int, enum params 
@@ -103,6 +103,10 @@ differences from fractint:
 * B	fn(z)+c: acos, acosh - think Fractint may be wrong
 * B	fn(z*z)+c : acos, acosh 
 * W	fractint-builtins.frm
+
+done in 2.5:
+* BB	if formula didn't mention z, compilation failed
+* W	hypercomplex mandelbrot set
 
 done in 2.4:
 * BB	more robust error reporting
