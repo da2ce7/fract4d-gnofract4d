@@ -36,10 +36,11 @@ class pf_wrapper : public pointFunc
 private:
     inner_pointFunc *m_pf;
     colorizer *m_pcizer;
+    void *m_handle; 
 
 public:
-    pf_wrapper(inner_pointFunc *pf, colorizer *pcizer) : 
-	m_pf(pf), m_pcizer(pcizer)
+    pf_wrapper(inner_pointFunc *pf, colorizer *pcizer, void *dlHandle) : 
+	m_pf(pf), m_pcizer(pcizer), m_handle(dlHandle)
 	{
 
 	}
@@ -63,15 +64,15 @@ public:
     virtual ~pf_wrapper()
 	{
 	    delete m_pf;
+	    if(NULL != m_handle) 
+	    {
+		dlclose(m_handle);
+	    }
 	}
     virtual rgb_t recolor(int iter, double eject, const void *buf) const
 	{
 	    double dist = m_pf->recolor(iter, eject, buf);
             return m_pcizer->calc(dist);
-	}
-    virtual void *handle()
-	{
-	    return m_pf->handle();
 	}
     virtual int buffer_size() const
 	{
@@ -96,13 +97,12 @@ pointFunc *pointFunc_new(
     void *dlHandle = g_pCompiler->getHandle(code_map);
 
     inner_pointFunc *(*pFunc)(
-        void *, 
         double, 
         double, 
         std::complex<double> *,
         e_colorFunc, 
         e_colorFunc) = 
-        (inner_pointFunc *(*)(void *, double, double, std::complex<double> *, e_colorFunc, e_colorFunc)) 
+        (inner_pointFunc *(*)(double, double, std::complex<double> *, e_colorFunc, e_colorFunc)) 
         dlsym(dlHandle, "create_pointfunc");
 
     if(NULL == pFunc)
@@ -111,10 +111,10 @@ pointFunc *pointFunc_new(
     }
 
     inner_pointFunc *inner_pf = pFunc(
-	dlHandle, bailout, periodicity_tolerance, 
+	bailout, periodicity_tolerance, 
 	iterType->opts(), outerCfType, innerCfType);
 
-    return new pf_wrapper(inner_pf, pcf);
+    return new pf_wrapper(inner_pf, pcf, dlHandle);
 }
 
 /* can't just call dtor because we need to free the handle to the .so
@@ -122,14 +122,6 @@ pointFunc *pointFunc_new(
 void
 pointFunc_delete(pointFunc *pF)
 {
-    if(NULL != pF)
-    {
-        void *handle = pF->handle();
-        delete pF;
-        if(NULL != handle) 
-        {
-            dlclose(handle);
-        }
-    }
+    delete pF;
 }
 

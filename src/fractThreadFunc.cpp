@@ -28,7 +28,7 @@ fractThreadFunc::init(fractFunc *ff_,fractal_t *f_, image *im_)
 
 fractThreadFunc::~fractThreadFunc()
 {
-    pointFunc_delete(pf);
+    delete pf;
 }
 
 /* we're in a worker thread */

@@ -26,7 +26,6 @@ private:
     double m_eject;
     T m_period_tolerance;
     colorizer *m_pcizer;
-    void *m_handle; // handle of .so which keeps us in memory
     // enough space for one color data buffer, in case we aren't passed one
     void *one_space;
 
@@ -38,13 +37,12 @@ private:
 #endif
 public:
     /* ctor */
-    pointCalc(void *handle,
-              double eject,
+    pointCalc(double eject,
               double period_tolerance,
               std::complex<double> *options,
               e_colorFunc outerCfType,
               e_colorFunc innerCfType) 
-        : m_eject(eject), m_period_tolerance(period_tolerance), m_handle(handle)
+        : m_eject(eject), m_period_tolerance(period_tolerance)
         {
 #if N_OPTIONS > 0
             for(int i = 0; i < N_OPTIONS; ++i)
@@ -280,10 +278,6 @@ public:
 	    double dist = (*pcf)(iter, eject, buf);
 	    return dist;
         }
-    virtual void *handle()
-        {
-            return m_handle;
-        }
     virtual int buffer_size() const
 	{
 	    return std:: max(m_pInnerColor->buffer_size(),
@@ -293,7 +287,6 @@ public:
 
 extern "C" {
     void *create_pointfunc(
-        void *handle,
         double bailout,
         double period_tolerance,
         std::complex<double> *params,
@@ -301,7 +294,6 @@ extern "C" {
         e_colorFunc innerCfType)
     {
         return new pointCalc(
-            handle, 
             bailout, 
             period_tolerance, 
             params, 

@@ -38,7 +38,6 @@ class pointFunc {
         struct rgb *color, int *pnIters, void *out_buf
         ) = 0;
     virtual rgb_t recolor(int iter, double eject, const void *buf) const = 0;
-    virtual void *handle() = 0;
     virtual int buffer_size() const = 0;
 };
  
@@ -53,7 +52,6 @@ class inner_pointFunc {
         double *colorDist, int *pnIters, void *out_buf
         ) = 0;
     virtual double recolor(int iter, double eject, const void *buf) const = 0;
-    virtual void *handle() = 0;
     virtual int buffer_size() const = 0;
 };
 
@@ -67,8 +65,6 @@ pointFunc *pointFunc_new(
     colorizer *pcf,
     e_colorFunc outerCfType,    
     e_colorFunc innerCfType);
-
-void pointFunc_delete(pointFunc *pF);
 
 #endif
 
