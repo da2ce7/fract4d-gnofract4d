@@ -30,6 +30,10 @@ def p_formlist(t):
      'formlist : formula NEWLINE formlist'
      t[0] = [ t[1] ] + t[3]
 
+def p_formlist_singleform(t):
+     'formlist : formula'
+     t[0] = [ t[1] ]
+     
 def p_formlist_empty(t):
      '''formlist : empty
         formlist : error'''
