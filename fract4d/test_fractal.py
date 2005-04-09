@@ -73,9 +73,15 @@ function=Mandelbrot
 [inner]
 formulafile=test.cfrm
 function=flat
-@myfunc=sqrt
-@val2=(2.0,3.7,6.1,8.9)
+@_density=2.0
+@_offset=0.5
+@b=0
+@col=(0.09,0.08,0.07,0.06)
+@ep=2
 @i=78
+@myfunc=sqrt
+@val=3.3
+@val2=(2.0,3.7,6.1,8.9)
 [endsection]
 [outer]
 formulafile=test.cfrm
@@ -105,6 +111,16 @@ class FctTest(unittest.TestCase):
     def setUp(self):
         global g_comp
         self.compiler = g_comp
+        self.default_flat_params = [
+            1.0, #_density
+            0.0, #_offset
+            1, # bool b
+            0.01, 0.02, 0.03, 0.04, # color col
+            1, # enum ep
+            4, # int i 
+            0.4, # float val
+            0.7, 0.8, 0.9, 1.0 # hyper val2
+            ]
 
     def tearDown(self):
         pass
@@ -420,7 +436,16 @@ blue=0.3
         f1.compile()
         
         self.assertEqual(f1.cfunc_params[0],[1.0, 0.0, 1.0e12, 3.0])
-        self.assertEqual(f1.cfunc_params[1],[1.0, 0.0, 1, 1, 78, 0.4, 2.0, 3.7,6.1, 8.9])
+        self.assertEqual(f1.cfunc_params[1],[
+            2.0, #_density
+            0.5, #_offset
+            0, # bool b
+            0.09, 0.08, 0.07, 0.06, # color col
+            2, # enum ep
+            78, # int i 
+            3.3, # float val
+            2.0, 3.7, 6.1, 8.9 # hyper val2
+            ])
         self.assertEqual(f1.get_func_value("@myfunc",f1.cfuncs[1]),"sqrt")
         
         # save again
@@ -628,8 +653,10 @@ blue=0.3
         self.assertEqual(f.params[f.XZANGLE],0.789)
         self.assertEqual(f.title,"Hello World")
         self.assertEqual(f.initparams,[8.0,7.0,1.0])
-        self.assertEqual(f.cfunc_params[1],[1.0,0.0,1,1,4,0.4,0.7,0.8,0.9,1.0])
-
+        self.assertEqual(
+            f.cfunc_params[1],
+            self.default_flat_params)
+        
     def testFutureWarning(self):
         'load a file from the future and check we complain'
         file='''gnofract4d parameter file

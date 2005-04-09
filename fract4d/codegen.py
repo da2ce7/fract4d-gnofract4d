@@ -101,6 +101,10 @@ def create_arg_from_val(type,val):
         return HyperArg(
             ConstFloatArg(val[0]),ConstFloatArg(val[1]),
             ConstFloatArg(val[2]),ConstFloatArg(val[3]))
+    elif type == Color:
+        return ColorArg(
+            ConstFloatArg(val[0]),ConstFloatArg(val[1]),
+            ConstFloatArg(val[2]),ConstFloatArg(val[3]))
     else:
         raise fracttypes.TranslationError(
             "Internal Compiler Error: Unknown constant type %s" % type)
