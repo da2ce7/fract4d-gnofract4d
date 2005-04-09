@@ -300,6 +300,41 @@ class T(gobject.GObject):
         widget.connect('toggled', set_fractal, self, order, param_type)
         return widget
 
+    def make_color_widget(
+        self, table, i, name, param, order, formula, param_type):
+
+        label = gtk.Label(self.param_display_name(name,param))
+        label.set_justify(gtk.JUSTIFY_RIGHT)
+        table.attach(label,0,1,i,i+1,0,0,2,2)
+
+        def set_fractal(r, g, b, is_left):
+            self.freeze()
+            self.f.set_initparam(order, r, param_type)
+            self.f.set_initparam(order+1, g, param_type)
+            self.f.set_initparam(order+2, b, param_type)
+            if self.thaw():
+                self.changed()
+                
+
+        rgba = []
+        for j in xrange(4):
+            rgba.append(self.f.get_initparam(order+j,param_type))
+
+        # do we need to keep this ref?
+        color_button = utils.ColorButton(rgba, set_fractal, False)
+
+        def set_selected_value(*args):
+            rgba = []
+            for j in xrange(4):
+                rgba.append(self.f.get_initparam(order+j,param_type))
+            color_button.set_color(rgba)
+            
+        set_selected_value()
+        
+        color_button.widget.set_data("update_function", set_selected_value)
+
+        return color_button.widget
+
     def make_enumerated_widget(
         self, table, i, name, part, param, order, formula, param_type):
 
@@ -353,7 +388,11 @@ class T(gobject.GObject):
             widget = self.make_numeric_widget(
                 table, i,name,part,param,order,formula,param_type)
         elif param.type == fracttypes.Bool:
-            widget = self.make_bool_widget(name,param,order,formula,param_type)
+            widget = self.make_bool_widget(
+                name,param,order,formula,param_type)
+        elif param.type == fracttypes.Color:
+            widget = self.make_color_widget(
+                table,i,name,param,order,formula,param_type)
         else:
             raise "Unsupported parameter type"
 
@@ -550,6 +589,11 @@ class T(gobject.GObject):
                         self.add_formula_setting(
                             table,i+j,name,suffixes[j],
                             param,op[name]+j,formula,param_type)
+                    i += 3
+                elif param.type == fracttypes.Color:
+                    self.add_formula_setting(
+                        table,i,name,"",
+                        param,op[name],formula,param_type)
                     i += 3
                 else:
                     self.add_formula_setting(

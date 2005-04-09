@@ -57,24 +57,17 @@ endparam
 }
 
 rgb {
-; for backwards compatibility with 1.x versions of Gnofract 4D
+; for backwards compatibility with 1.x versions of Gnofract 4D.
+; also rather cool looking
+init:
+	color ccol = @col * 10.0
+	ccol = rgb(red(@col) + 1.0, green(@col) + 1.0, blue(@col) + 1.0)
 final:
 	float dist = #numiter / 256.0
-	float r = (dist * (1.0 + 10.0 * @base_red)) % 256.0
-	float g = (dist * (1.0 + 10.0 * @base_green)) % 256.0
-	float b = (dist * (1.0 + 10.0 * @base_blue)) % 256.0
-	#color = rgb(r,g,b)
+	ccol = ccol * dist
+	#color = rgb(red(ccol) % 256, green(ccol) % 256, blue(ccol) % 256)
 default:
-float param bailout
-	default = 4.0
-endparam
-float param base_red
-	default = 1.0 
-endparam
-float param base_green
-	default = 0.0 
-endparam
-float param base_blue
-	default = 0.0 
+color param col
+	default = rgb(1.0,0.0,0.0) 
 endparam
 }

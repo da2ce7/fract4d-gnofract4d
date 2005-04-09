@@ -125,7 +125,8 @@ class FctTest(unittest.TestCase):
 
         self.assertEqual(
             names,
-            [ "_density", "_offset", "_transfer", "ep", "i", "myfunc", "val",
+            [ "_density", "_offset", "_transfer",
+              "col", "ep", "i", "myfunc", "val",
               "val2 (re)", "val2 (i)", "val2 (j)", "val2 (k)"])
 
     def testIntParamSetting(self):

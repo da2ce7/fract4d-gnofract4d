@@ -7,6 +7,10 @@ preferences.py: 251
 fixed in 2.8:
 * B	jock.ufm:neptwona = "complex z = #pixel", ie redeclare z
 * BB	horrible dots during pass 2 for formulas which redeclare z
+* B	coolness.fct - need direct coloring algorithm
+* W	direct coloring algorithms
+* B	old rgb colorizers don't work
+* B	bool params wouldn't load correctly
 
 todo:
 
@@ -40,7 +44,6 @@ bugs (the more B's, the worse the bug):
 * B	default chebyshev gives blank screen
 * B	deeper.fct, hive.fct, image.fct doesn't load properly - old format
 * B	daisychain.fct - bailFunc != diff for newton
-* B	coolness.fct - need direct coloring algorithm
 * B	compile whenever resolution changes - pointless
 * B	O-fractals in fractint-g4.frm broken
 * B	Mandrake: desktop icon not added to menu
