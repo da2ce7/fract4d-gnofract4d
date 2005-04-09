@@ -367,6 +367,16 @@ def createDefaultDict():
       cfl( "[_], _", [Float, Complex, Hyper]),
       doc='Inverse hyperbolic tangent function.')
 
+    # color functions
+    f("blend",
+      [ [Color, Color, Float], Color],
+      doc='Blend two colors together in the ratio given by the 3rd parameter.')
+
+    f("compose",
+      [ [Color, Color, Float], Color],
+      doc='''Composite the second color on top of the first, with opacity given
+by the 3rd parameter.''')
+    
     # operators
     
     f("+", 

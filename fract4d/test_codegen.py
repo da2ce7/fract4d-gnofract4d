@@ -715,6 +715,7 @@ func fn1
                          self.inspect_color("yellow3"),
                          exp)
 
+    def testColorParts(self):
         # access to parts
         src = '''t_color3 {
         init:
@@ -733,6 +734,34 @@ func fn1
                          self.inspect_color("x"),
                          "a = 1\nb = 2\nc = 3\nd = 4\n" +
                          "x = (4,3,2,1)")
+
+    def testColorStdlib(self):
+        # functions on colors
+        src = '''t_color4 {
+        init:
+        color x = rgba(1.0,2.0,3.0,4.0)
+        color y = rgba(0.1,0.2,0.3,0.4)
+
+        color b1 = blend(x,y,0.0)
+        color b2 = blend(x,y,1.0)
+        color b3 = blend(x,y,0.25)
+
+        color r = rgb(1.0,0.0,0.0)
+        color gp5 = rgba(0.0,1.0,0.0,0.5)
+        
+        color c1 = compose(r, gp5,0)
+        color c2 = compose(r, gp5,0.5)
+        color c3 = compose(r, gp5,1)
+        }'''
+        self.assertCSays(src,"init",
+                         self.inspect_colors(["b1","b2","b3","c1","c2","c3"]),
+                         "b1 = (1,2,3,4)\n"+
+                         "b2 = (0.1,0.2,0.3,0.4)\n"+
+                         "b3 = (0.775,1.55,2.325,3.1)\n"+
+                         "c1 = (1,0,0,1)\n"+
+                         "c2 = (0.75,0.25,0,1)\n"+
+                         "c3 = (0.5,0.5,0,1)"
+                         )
 
     def testCHyper(self):
         'test arithmetic in hypercomplex numbers'
@@ -1095,6 +1124,9 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
 
     def inspect_color(self,name,prefix="f"):
         return self.inspect_hyper(name, prefix)
+
+    def inspect_colors(self,namelist):
+        return "".join(map(lambda x : self.inspect_color(x), namelist))
     
     def predict(self,f,arg1=0,arg2=1):
         # compare our compiler results to Python stdlib

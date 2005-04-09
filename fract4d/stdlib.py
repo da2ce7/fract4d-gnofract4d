@@ -894,3 +894,20 @@ def rgb_fff_C(gen,t,srcs):
 
 def rgba_ffff_C(gen,t,srcs):
     return ColorArg(srcs[0], srcs[1], srcs[2], srcs[3])
+
+def blend_CCf_C(gen,t,srcs):
+    (a, b, factor) = srcs
+    one_m_factor = gen.emit_binop('-',[ConstFloatArg(1.0), factor], Float)
+    return add_CC_C(
+        gen,t,
+        [ mul_Cf_C(gen,t,[a,one_m_factor]),
+          mul_Cf_C(gen,t,[b,factor])])
+        
+def compose_CCf_C(gen,t,srcs):
+    (a, b, factor) = srcs
+
+    # factor *alpha(b)
+    factor = gen.emit_binop('*', [b.parts[3], factor], Float)
+    blend = blend_CCf_C(gen,t,[a,b,factor])
+    gen.emit_move(a.parts[3],blend.parts[3])
+    return blend
