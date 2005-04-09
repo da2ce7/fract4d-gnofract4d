@@ -138,6 +138,12 @@ class SymbolTest(unittest.TestCase):
         for exp in exp_fnames:
             self.assertEqual(fnames.count(exp),1,exp)
 
+        cnames = self.t.available_param_functions(Color, [Color, Color])
+        self.assertEqual(cnames.count('+'),0, "shouldn't find operators")
+        exp_cnames = ['mergenormal']
+        for exp in exp_cnames:
+            self.assertEqual(cnames.count(exp),1,exp)
+        
     def testAllSymbolsWork(self):
         for (name,val) in self.t.default_dict.items():
             try:

@@ -911,3 +911,6 @@ def compose_CCf_C(gen,t,srcs):
     blend = blend_CCf_C(gen,t,[a,b,factor])
     gen.emit_move(a.parts[3],blend.parts[3])
     return blend
+
+def mergenormal_CC_C(gen,t,srcs):
+    return srcs[1]

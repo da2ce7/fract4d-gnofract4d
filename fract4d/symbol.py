@@ -376,6 +376,10 @@ def createDefaultDict():
       [ [Color, Color, Float], Color],
       doc='''Composite the second color on top of the first, with opacity given
 by the 3rd parameter.''')
+
+    f("mergenormal",
+      [ [Color, Color], Color],
+      doc='''Returns second color, ignoring first.''')
     
     # operators
     
@@ -635,14 +639,15 @@ class T(UserDict):
         return func_names
 
     def available_param_functions(self,ret,args):
-        # a list of all function names which take a complex
-        # and return one (for GUI to select a function)
+        # a list of all function names which take args of type 'args'
+        # and return 'ret' (for GUI to select a function)
         flist = []
         for (name,func) in self.default_dict.items():
             try:
                 for f in func:
                     if f.ret == ret and f.args == args and \
-                           not self.is_private(name):
+                           not self.is_private(name) and \
+                           not func.is_operator():
                         flist.append(name)
             except TypeError:
                 # wasn't a list
