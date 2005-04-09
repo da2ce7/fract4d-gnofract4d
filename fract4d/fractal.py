@@ -929,9 +929,8 @@ The image may not display correctly. Please upgrade to version %.1f.'''
             cfunc = self.cfuncs[0]
             params = self.cfunc_params[0]
 
-            self.set_named_item("@base_red",cf.rgb[0], cfunc, params)
-            self.set_named_item("@base_green",cf.rgb[1], cfunc, params)
-            self.set_named_item("@base_blue",cf.rgb[2], cfunc, params)
+            val = "(%f,%f,%f,1.0)" % tuple(cf.rgb) 
+            self.set_named_item("@col",val, cfunc, params)
 
     def parse__colors_(self,val,f):
         cf = Colorizer(self)
