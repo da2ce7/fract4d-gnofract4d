@@ -1,6 +1,6 @@
 flat {
 final:
-#index = real(@myfunc(@val)) + |@val2|*0.0
+ #index = real(@myfunc(@val)) + |@val2|*0.0
 default:
 float param val
 	default = 0.4
@@ -20,6 +20,9 @@ endparam
 param ep
 	enum = "hello" "world" "zook"
 	default = "world"
+endparam
+color param col
+	default = rgba(0.01, 0.02, 0.03, 0.04)
 endparam
 } 
 

@@ -658,7 +658,7 @@ class T(UserDict):
             op[k] = i
             if p[k].type == Complex:
                 i += 2
-            elif p[k].type == Hyper:
+            elif p[k].type == Hyper or p[k].type == Color:
                 i += 4
             else:
                 i += 1
@@ -673,18 +673,19 @@ class T(UserDict):
         karray.sort(self.keysort)
         tp = []; 
         for k in karray:
-            if p[k].type == Complex:
+            t = p[k].type
+            if t == Complex:
                 tp += [Float, Float]
-            elif p[k].type == Hyper:
+            elif t == Hyper or t == Color:
                 tp += [Float, Float, Float, Float]
-            elif p[k].type == Float:
+            elif t == Float:
                 tp.append(Float)
-            elif p[k].type == Int:
+            elif t == Int:
                 tp.append(Int)
-            elif p[k].type == Bool:
+            elif t == Bool:
                 tp.append(Int)
             else:
-                raise ValueError("Unknown param type %s for %s" % (p[k].type, k))
+                raise ValueError("Unknown param type %s for %s" % (t, k))
         return tp
 
 
@@ -699,7 +700,7 @@ class T(UserDict):
             if param.type == Complex:
                 defaults[i] = defval.value[0].value
                 defaults[i+1] = defval.value[1].value
-            elif param.type == Hyper:
+            elif param.type == Hyper or param.type == Color:
                 for j in xrange(len(defval.value)):
                     defaults[i+j] = defval.value[j].value
             else:

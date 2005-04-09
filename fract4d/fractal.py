@@ -17,7 +17,6 @@ import gradient
 rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
 cmplx_re = re.compile(r'\((.*?),(.*?)\)')
 hyper_re = re.compile(r'\((.*?),(.*?),(.*?),(.*?)\)')
-
 THIS_VERSION=2.8
 
 # generally useful funcs for reading in .fct files
@@ -342,7 +341,7 @@ class T(FctUtils):
         
         if type == fracttypes.Complex:
             return "(%.17f,%.17f)"%(params[ord],params[ord+1])
-        elif type == fracttypes.Hyper:
+        elif type == fracttypes.Hyper or type == fracttypes.Color:
             return "(%.17f,%.17f,%.17f,%.17f)"% \
                    (params[ord],params[ord+1],params[ord+2],params[ord+3])
         elif type == fracttypes.Float:
@@ -898,7 +897,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
                 if params[ord+1] != im:                
                     params[ord+1] = im
                     self.changed()
-        elif t == fracttypes.Hyper:
+        elif t == fracttypes.Hyper or t == fracttypes.Color:
             m = hyper_re.match(val)
             if m!= None:
                 for i in xrange(4):
@@ -911,7 +910,8 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         elif t == fracttypes.Int:
             params[ord] = int(val)
         elif t == fracttypes.Bool:
-            params[ord] = bool(val)
+            i = int(val)
+            params[ord] = (i != 0)
         else:
             raise ValueError("Unknown param type %s for %s" % (t,name))
         
