@@ -763,6 +763,30 @@ func fn1
                          "c3 = (0.5,0.5,0,1)"
                          )
 
+    def testMergeFunctions(self):
+        # color merging functions
+        funcs = [
+            ("mergenormal", "(0,1,0,0.5)")
+            ]
+
+        srcs = []
+        inspects = []
+        results = []
+        for (f,res) in funcs:
+            srcs.append("color c_%s = %s(r,gp5)" % (f,f))
+            inspects.append(self.inspect_color("c_%s" % f))
+            results.append("c_%s = %s" % (f,res))
+
+        src = '''t_merge {
+        init:
+        color r = rgb(1.0,0.0,0.0)
+        color gp5 = rgba(0.0,1.0,0.0,0.5)
+        
+        %s
+        }''' % "\n".join(srcs)
+
+        self.assertCSays(src,"init", "".join(inspects), "\n".join(results))
+        
     def testCHyper(self):
         'test arithmetic in hypercomplex numbers'
 

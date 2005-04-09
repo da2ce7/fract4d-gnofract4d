@@ -24,6 +24,9 @@ endparam
 color param col
 	default = rgba(0.01, 0.02, 0.03, 0.04)
 endparam
+color func mycolorfunc
+	default = mergenormal()
+endfunc
 } 
 
 flat2 {

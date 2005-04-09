@@ -227,10 +227,12 @@ class TBase:
         set_f = False
         if not fol:
             # FIXME make more general
-            argtype = Complex
+            argtype = [Complex]
             if node.datatype == Hyper:
-                argtype = Hyper
-            f = Func([argtype],node.datatype,stdlib,"ident")
+                argtype = [Hyper]
+            elif node.datatype == Color:
+                argtype = [Color, Color]
+            f = Func(argtype,node.datatype,stdlib,"ident")
             set_f = True
         else:
             f = fol[0]

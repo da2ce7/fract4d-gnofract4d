@@ -600,6 +600,9 @@ default:
             default = sqr
             hint = "not used"
         endfunc
+        color func mycolorfunc
+            default = mergenormal()
+        endfunc
         }
         ''')
         self.assertNoErrors(t)
