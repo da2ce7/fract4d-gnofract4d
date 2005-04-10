@@ -1544,7 +1544,7 @@ pyrgb_to_hsv(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-pyrgb_to_hls(PyObject *self, PyObject *args)
+pyrgb_to_hsl(PyObject *self, PyObject *args)
 {
     double r,g,b,a=1.0,h,l,s;
     if(!PyArg_ParseTuple(
@@ -1555,26 +1555,26 @@ pyrgb_to_hls(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    rgb_to_hls(r,g,b,&h,&l,&s);
+    rgb_to_hsl(r,g,b,&h,&s,&l);
 
     return Py_BuildValue(
 	"(dddd)",
-	h,l,s,a);
+	h,s,l,a);
 }
 
 static PyObject *
-pyhls_to_rgb(PyObject *self, PyObject *args)
+pyhsl_to_rgb(PyObject *self, PyObject *args)
 {
     double r,g,b,a=1.0,h,l,s;
     if(!PyArg_ParseTuple(
 	   args,
 	   "ddd|d",
-	   &h,&l,&s,&a))
+	   &h,&s,&l,&a))
     {
 	return NULL;
     }
 
-    hls_to_rgb(h,l,s,&r,&g,&b);
+    hsl_to_rgb(h,s,l,&r,&g,&b);
 
     return Py_BuildValue(
 	"(dddd)",
@@ -1606,9 +1606,9 @@ static PyMethodDef PfMethods[] = {
     
     { "rgb_to_hsv", pyrgb_to_hsv, METH_VARARGS,
       "Convert a rgb(a) list into an hsv(a) one"},
-    { "rgb_to_hls", pyrgb_to_hls, METH_VARARGS,
+    { "rgb_to_hsl", pyrgb_to_hsl, METH_VARARGS,
       "Convert a rgb(a) list into an hls(a) one"},
-    { "hls_to_rgb", pyhls_to_rgb, METH_VARARGS,
+    { "hsl_to_rgb", pyhsl_to_rgb, METH_VARARGS,
       "Convert an hls(a) list into an rgb(a) one"},
 
     { "image_create", image_create, METH_VARARGS,

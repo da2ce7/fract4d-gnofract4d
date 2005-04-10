@@ -570,6 +570,17 @@ extern pf_obj *pf_new(void);
         assem = "%(d0)s = " + op + "(%(s0)s,%(s1)s);"
         self.out.append(Oper(assem, srcs, [dst]))
         return dst
+
+    def emit_func3_3(self,op,srcs,type):
+        # emit a call to a C func which takes 3 args and returns 3 out params
+        # This rather specialized feature is to call hls2rgb
+        dst = [
+            TempArg(self.symbols.newTemp(type)),
+            TempArg(self.symbols.newTemp(type)),
+            TempArg(self.symbols.newTemp(type))]
+        assem = op + "(%(s0)s,%(s1)s,%(s2)s, &%(d0)s, &%(d1)s, &%(d2)s);"
+        self.out.append(Oper(assem,srcs, dst))
+        return dst
     
     def emit_move(self, src, dst):
         self.out.append(Move([src],[dst]))

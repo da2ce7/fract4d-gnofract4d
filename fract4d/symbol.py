@@ -443,7 +443,11 @@ by the 3rd parameter.''')
     f("rgba",
       [ [Float, Float, Float, Float], Color],
       doc='Create a color from three color components and an alpha channel.')
-    
+
+    f("hsl",
+      [ [Float, Float, Float], Color],
+      doc='''Create a color from hue, saturation and lightness components. The alpha channel is set to to 1.0 (=100%).''')
+
     # predefined parameters
     for p in xrange(1,7):
         name = "p%d" % p

@@ -892,6 +892,10 @@ sqr_h_h = make_hyper_func(sqr_c_c)
 def rgb_fff_C(gen,t,srcs):
     return ColorArg(srcs[0], srcs[1], srcs[2], ConstFloatArg(1.0))
 
+def hsl_fff_C(gen,t,srcs):
+    [d1,d2,d3] = gen.emit_func3_3("hsl_to_rgb", srcs, Float)
+    return ColorArg(d1,d2,d3,ConstFloatArg(1.0))
+
 def rgba_ffff_C(gen,t,srcs):
     return ColorArg(srcs[0], srcs[1], srcs[2], srcs[3])
 
@@ -922,3 +926,4 @@ def mergemultiply_CC_C(gen,t,srcs):
         gen.emit_binop('*', [ a.parts[1], b.parts[1]], Float),
         gen.emit_binop('*', [ a.parts[2], b.parts[2]], Float),
         b.parts[3])
+
