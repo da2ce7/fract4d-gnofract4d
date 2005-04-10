@@ -166,7 +166,8 @@ int main()
         typedef enum
 	{
 	    INT = 0,
-	    FLOAT = 1
+	    FLOAT = 1,
+            GRADIENT = 2
 	} e_paramtype;
 	
 	struct s_param
@@ -174,19 +175,27 @@ int main()
 	    e_paramtype t;
 	    int intval;
 	    double doubleval;
+            void *gradient;
 	};
 
         typedef struct {
             struct s_param *p;
         } pf_fake;
-
+        
         int main(){
         struct s_param params[20];
         int i = 0;
+
+        ListColorMap *pMap = new ListColorMap();
+        pMap->init(2);
+        pMap->set(0,0.0,255,0,0,0);
+        pMap->set(1,1.0,0,255,0,0);
+
         for(i = 0; i < 20; ++i) {
             params[i].t = FLOAT;
             params[i].intval = 773;
             params[i].doubleval = 0.0;
+            params[i].gradient = pMap;
         };
         pf_fake t__f;
         t__f.p = params;
@@ -817,7 +826,7 @@ func fn1
         }''' % "\n".join(srcs)
 
         self.assertCSays(src,"init", "".join(inspects), "\n".join(results))
-        
+
     def testCHyper(self):
         'test arithmetic in hypercomplex numbers'
 

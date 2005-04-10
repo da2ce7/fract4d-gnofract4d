@@ -204,6 +204,7 @@ else
 endif
 #solid = false
 default:
+periodicity = 0
 float param bailout
 	default = 4.0
 endparam
@@ -216,5 +217,4 @@ endparam
 color param out
 	default = rgb(0,0,1)
 endparam
-periodicity = 0
 }

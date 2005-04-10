@@ -354,7 +354,7 @@ class T(FctUtils):
             raise ValueError("Unknown type %s for param %s" % (type,name))
 
     def parse_periodicity(self,val,f):
-        self.set_periodicity(bool(val))
+        self.set_periodicity(int(val))
         
     def parse__inner_(self,val,f):
         params = ParamBag()
@@ -528,7 +528,7 @@ class T(FctUtils):
         self.paramtypes = self.formula.symbols.type_of_params()
         
         for (name,val) in self.formula.defaults.items():
-            # FIXME helpfile,helptopic,method,periodicity,precision,
+            # FIXME helpfile,helptopic,method,precision,
             #render,skew,stretch
             if name == "maxiter":
                 self.maxiter = int(val.value)
@@ -544,6 +544,8 @@ class T(FctUtils):
                 self.params[self.MAGNITUDE] = float(val.value)
             elif name == "title":
                 self.title = val.value
+            elif name == "periodicity":
+                self.periodicity=int(val.value)
             else:
                 if hasattr(self,name.upper()):
                     self.params[getattr(self,name.upper())] = float(val.value)

@@ -12,8 +12,9 @@ Complex = 3
 Color = 4
 String = 5
 Hyper = 6
+Gradient = 7
 
-typeList = [ Bool, Int, Float, Complex, Color, String, Hyper]
+typeList = [ Bool, Int, Float, Complex, Color, String, Hyper, Gradient]
 
 suffixOfType = {
     Int : "i",
@@ -22,7 +23,8 @@ suffixOfType = {
     Bool : "b",
     Color : "C",
     String : "S",
-    Hyper : "h"
+    Hyper : "h",
+    Gradient : "G"
     }
 
 _typeOfStr = {
@@ -32,7 +34,8 @@ _typeOfStr = {
     "bool" : Bool,
     "color" : Color,
     "string" : String,
-    "hyper" : Hyper
+    "hyper" : Hyper,
+    "grad" : Gradient
     }
 
 _strOfType = {
@@ -43,7 +46,8 @@ _strOfType = {
     Color : "color",
     None : "none",
     String : "string",
-    Hyper : "hyper"
+    Hyper : "hyper",
+    Gradient : "grad"
    }
 
 _defaultOfType = {
@@ -53,7 +57,8 @@ _defaultOfType = {
     Bool : 0,
     Color : [0.0, 0.0, 0.0, 0.0],
     String : "",
-    Hyper : [0.0, 0.0, 0.0, 0.0]
+    Hyper : [0.0, 0.0, 0.0, 0.0],
+    Gradient : 0
     }
 
 _cTypeOfType = {
@@ -63,7 +68,8 @@ _cTypeOfType = {
     Hyper : "double",
     Bool : "int",
     Color : "double",
-    String : "<Error>"
+    String : "<Error>",
+    Gradient : "void *"
     }
 
 def typeOfStr(tname):
@@ -81,14 +87,15 @@ def default_value(t):
 
 _canBeCast = [
     # rows are from, columns are to
-    # Bool Int Float Complex Color String Hyper
-    [ 1,   1,  1,    1,      0,    0,     1 ], # Bool
-    [ 1,   1,  1,    1,      0,    0,     1 ], # Int
-    [ 1,   0,  1,    1,      0,    0,     1 ], # Float
-    [ 1,   0,  0,    1,      0,    0,     1 ], # Complex
-    [ 0,   0,  0,    0,      1,    0,     0 ], # Color
-    [ 0,   0,  0,    0,      0,    1,     0 ], # String
-    [ 1,   0,  0,    0,      0,    0,     1 ]
+    # Bool Int Float Complex Color String Hyper Gradient 
+    [ 1,   1,  1,    1,      0,    0,     1,    0 ], # Bool
+    [ 1,   1,  1,    1,      0,    0,     1,    0 ], # Int
+    [ 1,   0,  1,    1,      0,    0,     1,    0 ], # Float
+    [ 1,   0,  0,    1,      0,    0,     1,    0 ], # Complex
+    [ 0,   0,  0,    0,      1,    0,     0,    0 ], # Color
+    [ 0,   0,  0,    0,      0,    1,     0,    0 ], # String
+    [ 1,   0,  0,    0,      0,    0,     1,    0 ], # Hyper
+    [ 0,   0,  0,    0,      0,    0,     0,    1 ]  # Gradient
     ]
 
 def canBeCast(t1,t2):

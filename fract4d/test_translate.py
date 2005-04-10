@@ -363,6 +363,17 @@ default:
         }''')
 
         self.assertError(t, "invalid type none")
+
+    def disabled_testDeclareGradient(self):
+        t = self.translate('''t {
+        init:
+        grad g
+        #color = gradient(1.0)
+        default:
+        grad param gp
+        endparam
+        }''')
+        self.assertNoProbs(t)
         
     def testAssign(self):
         # correct declarations
