@@ -780,58 +780,58 @@ class Test(unittest.TestCase):
         (h,s,v,a2) = fract4dc.rgb_to_hsv(r,g,b,a)
         self.assertEqual((h,s,v,a),(eh,es,ev,a2))
 
-    def assertColorTransformHLS(self,r,g,b,eh,es,ev,a=1.0):
-        (h,s,v,a2) = fract4dc.rgb_to_hls(r,g,b,a)
+    def assertColorTransformHSL(self,r,g,b,eh,es,ev,a=1.0):
+        (h,s,v,a2) = fract4dc.rgb_to_hsl(r,g,b,a)
         self.assertEqual((h,s,v,a),(eh,es,ev,a2))
 
-        (r2,g2,b2,a3) = fract4dc.hls_to_rgb(eh,es,ev,a)
+        (r2,g2,b2,a3) = fract4dc.hsl_to_rgb(eh,es,ev,a)
         self.assertEqual((r2,g2,b2,a3),(r,g,b,a))
         
-    def testColorTransformHLS(self):
+    def testColorTransformHSL(self):
         # black
-        self.assertColorTransformHLS(
+        self.assertColorTransformHSL(
             0.0,0.0,0.0,
             0.0,0.0,0.0)
 
         # white
-        self.assertColorTransformHLS(
+        self.assertColorTransformHSL(
             1.0,1.0,1.0,
-            0.0,1.0,0.0)
+            0.0,0.0,1.0)
 
         # mid-grey
-        self.assertColorTransformHLS(
+        self.assertColorTransformHSL(
             0.5,0.5,0.5,
-            0.0,0.5,0.0)
+            0.0,0.0,0.5)
 
         # red
-        self.assertColorTransformHLS(
+        self.assertColorTransformHSL(
             1.0,0.0,0.0,
-            0.0,0.5,1.0)
+            0.0,1.0,0.5)
 
         # green
-        self.assertColorTransformHLS(
+        self.assertColorTransformHSL(
             0.0,1.0,0.0,
-            2.0,0.5,1.0)
+            2.0,1.0,0.5)
 
         # blue
-        self.assertColorTransformHLS(
+        self.assertColorTransformHSL(
             0.0,0.0,1.0,
-            4.0,0.5,1.0)
+            4.0,1.0,0.5)
         
         # cyan
-        self.assertColorTransformHLS(
+        self.assertColorTransformHSL(
             0.0,1.0,1.0,
-            3.0,0.5,1.0)
+            3.0,1.0,0.5)
 
         # magenta
-        self.assertColorTransformHLS(
+        self.assertColorTransformHSL(
             1.0,0.0,1.0,
-            5.0,0.5,1.0)
+            5.0,1.0,0.5)
 
         # yellow
-        self.assertColorTransformHLS(
+        self.assertColorTransformHSL(
             1.0,1.0,0.0,
-            1.0,0.5,1.0)
+            1.0,1.0,0.5)
 
         
     def testColorTransformHSV(self):

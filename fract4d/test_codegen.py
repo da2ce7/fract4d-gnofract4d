@@ -161,6 +161,8 @@ int main()
         #include <stdio.h>
         #include <math.h>
 
+        #include "cmap.cpp"
+        
         typedef enum
 	{
 	    INT = 0,
@@ -203,10 +205,10 @@ int main()
                             user_postamble,postamble],"")
 
     def compileAndRun(self,c_code):
-        cFileName = self.codegen.writeToTempFile(c_code,".c")
+        cFileName = self.codegen.writeToTempFile(c_code,".cpp")
         oFileName = self.codegen.writeToTempFile("")
         #print c_code
-        cmd = "gcc -Wall %s -o %s -lm" % (cFileName, oFileName)
+        cmd = "g++ -Wall %s -o %s -Ic -lm" % (cFileName, oFileName)
         #print cmd
         (status,output) = commands.getstatusoutput(cmd)
         self.assertEqual(status,0,"C error:\n%s\nProgram:\n%s\n" % \
@@ -763,6 +765,16 @@ func fn1
                          "c3 = (0.5,0.5,0,1)"
                          )
 
+    def testColorHSL(self):
+        src = '''t_color_hsl {
+        init:
+        color r = hsl(0.0,1.0,0.5)
+        }'''
+        self.assertCSays(src,"init",
+                         self.inspect_colors(["r"]),
+                         "r = (1,0,0,1)"
+                         )
+        
     def testMergeFunctions(self):
         # color merging functions
         funcs = [

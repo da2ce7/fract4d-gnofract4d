@@ -536,7 +536,7 @@ ListColorMap::lookup(double index) const
     return mix;
 }
 
-/* Convert from rgb colorspace to hsv 
+/* Convert from rgb colorspace to hsv and hsl
    all components in [0,1] except hue in [0,6]
 
    Taken from Foley, van Dam, Feiner & Hughes
@@ -591,9 +591,9 @@ rgb_to_hsv(
 }
 
 void
-rgb_to_hls(
+rgb_to_hsl(
     double r, double g, double b,
-    double *h, double *l, double *s)
+    double *h, double *s, double *l)
 {
     double min = MIN3( r, g, b );
     double max = MAX3( r, g, b );
@@ -651,8 +651,8 @@ double rgb_component(double n1, double n2, double hue)
     return n1;
 }
 
-void hls_to_rgb(
-    double h, double l, double s,
+void hsl_to_rgb(
+    double h, double s, double l,
     double *r, double *g, double *b)
 {
     if(s == 0.0)
@@ -679,4 +679,6 @@ void hls_to_rgb(
 	*g = rgb_component(n1, n2, h);
 	*b = rgb_component(n1, n2, h - 2.0);
     }
+
+    //printf("hsl(%g,%g,%g) -> rgb(%g,%g,%g)\n", h,s,l,*r,*g,*b);
 }
