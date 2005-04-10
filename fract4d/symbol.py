@@ -219,6 +219,18 @@ def createDefaultDict():
       [[Color], Float],
       doc='''The alpha component of a color. Can be assigned to.''')
 
+    f("hue",
+      [[Color], Float],
+      doc='''The hue of a color.''')
+
+    f("sat",
+      [[Color], Float],
+      doc='''The saturation of a color.''')
+
+    f("lum",
+      [[Color], Float],
+      doc='''The luminance (or brightness) of a color.''')
+
     f("recip",
       cfl("[_] , _", [Float, Complex, Hyper]),
       doc='''The reciprocal of a number. recip(x) is equivalent to 1/x.
@@ -448,6 +460,11 @@ by the 3rd parameter.''')
       [ [Float, Float, Float], Color],
       doc='''Create a color from hue, saturation and lightness components. The alpha channel is set to to 1.0 (=100%).''')
 
+    f("hsla",
+      [ [Float, Float, Float,Float], Color],
+      doc='''Create a color from hue, saturation and lightness components and an alpha channel.''')
+
+    
     # predefined parameters
     for p in xrange(1,7):
         name = "p%d" % p

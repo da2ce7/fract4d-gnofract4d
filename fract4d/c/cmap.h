@@ -106,18 +106,21 @@ extern void cmap_delete(ColorMap *cmap);
 
 extern "C" {
 
-void rgb_to_hsv(
-    double r, double g, double b,
-    double *h, double *s, double *v);
+    void rgb_to_hsv(
+	double r, double g, double b,
+	double *h, double *s, double *v);
 
-void rgb_to_hsl(
-    double r, double g, double b,
-    double *h, double *s, double *l);
+    void rgb_to_hsl(
+	double r, double g, double b,
+	double *h, double *s, double *l);
 
-void hsl_to_rgb(
-    double h, double s, double l,
-    double *r, double *g, double *);
+    void hsl_to_rgb(
+	double h, double s, double l,
+	double *r, double *g, double *);
 
+    double hue(double r, double g, double b);
+    double sat(double r, double g, double b);
+    double lum(double r, double g, double b);
 }
 
 #endif /* CMAP_H_ */

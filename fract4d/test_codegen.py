@@ -769,10 +769,28 @@ func fn1
         src = '''t_color_hsl {
         init:
         color r = hsl(0.0,1.0,0.5)
+        color g = hsl(2.0,1.0,0.5)
+        color b = hsl(4.0,1.0,0.5)
+        color white = hsl(0.0,0.0,1.0)
+        color black = hsl(0.0,0.0,0.0)
+        color transyellow = hsla(1.0,1.0,0.3,0.5)
+
+        float h = hue(b)
+        float s = sat(b)
+        float l = lum(b)
         }'''
         self.assertCSays(src,"init",
-                         self.inspect_colors(["r"]),
-                         "r = (1,0,0,1)"
+                         self.inspect_colors(["r","g","b","white","black", "transyellow"]) +
+                         self.inspect_float("h")+
+                         self.inspect_float("s")+
+                         self.inspect_float("l"),
+                         "r = (1,0,0,1)\n"+
+                         "g = (0,1,0,1)\n"+
+                         "b = (0,0,1,1)\n"+
+                         "white = (1,1,1,1)\n"+
+                         "black = (0,0,0,1)\n"+
+                         "transyellow = (0.6,0.6,0,0.5)\n"+
+                         "h = 4\ns = 1\nl = 0.5"
                          )
         
     def testMergeFunctions(self):
