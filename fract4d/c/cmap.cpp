@@ -682,3 +682,26 @@ void hsl_to_rgb(
 
     //printf("hsl(%g,%g,%g) -> rgb(%g,%g,%g)\n", h,s,l,*r,*g,*b);
 }
+
+// accessors for hsl components
+double hue(double r, double g, double b)
+{
+    double h,s,l;
+    rgb_to_hsl(r,g,b,&h,&s,&l);
+    return h;
+}
+
+double sat(double r, double g, double b)
+{
+    double h,s,l;
+    rgb_to_hsl(r,g,b,&h,&s,&l);
+    return s;
+
+}
+
+double lum(double r, double g, double b)
+{
+    double h,s,l;
+    rgb_to_hsl(r,g,b,&h,&s,&l);
+    return l;
+}

@@ -896,6 +896,22 @@ def hsl_fff_C(gen,t,srcs):
     [d1,d2,d3] = gen.emit_func3_3("hsl_to_rgb", srcs, Float)
     return ColorArg(d1,d2,d3,ConstFloatArg(1.0))
 
+def hsla_ffff_C(gen,t,srcs):
+    [d1,d2,d3] = gen.emit_func3_3("hsl_to_rgb", srcs, Float)
+    return ColorArg(d1,d2,d3,srcs[3])
+
+def hue_C_f(gen,t,srcs):
+    c = srcs[0]
+    return gen.emit_func3("hue",[c.parts[0], c.parts[1], c.parts[2]], Float)
+
+def sat_C_f(gen,t,srcs):
+    c = srcs[0]
+    return gen.emit_func3("sat", [c.parts[0], c.parts[1], c.parts[2]], Float)
+
+def lum_C_f(gen,t,srcs):
+    c = srcs[0]
+    return gen.emit_func3("lum",[c.parts[0], c.parts[1], c.parts[2]], Float)
+
 def rgba_ffff_C(gen,t,srcs):
     return ColorArg(srcs[0], srcs[1], srcs[2], srcs[3])
 

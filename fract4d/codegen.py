@@ -571,6 +571,13 @@ extern pf_obj *pf_new(void);
         self.out.append(Oper(assem, srcs, [dst]))
         return dst
 
+    def emit_func3(self,op,srcs,type):
+        # emit a call to a C func which takes 3 args and returns 1
+        dst = TempArg(self.symbols.newTemp(type))
+        assem = "%(d0)s = " + op + "(%(s0)s,%(s1)s,%(s2)s);"
+        self.out.append(Oper(assem,srcs, [dst]))
+        return dst
+
     def emit_func3_3(self,op,srcs,type):
         # emit a call to a C func which takes 3 args and returns 3 out params
         # This rather specialized feature is to call hls2rgb
