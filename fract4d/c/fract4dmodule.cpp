@@ -1524,6 +1524,63 @@ rot_matrix(PyObject *self, PyObject *args)
 	rot[3][0], rot[3][1], rot[3][2], rot[3][3]);
 }
 
+static PyObject *
+pyrgb_to_hsv(PyObject *self, PyObject *args)
+{
+    double r,g,b,a=1.0,h,s,v;
+    if(!PyArg_ParseTuple(
+	   args,
+	   "ddd|d",
+	   &r,&g,&b,&a))
+    {
+	return NULL;
+    }
+
+    rgb_to_hsv(r,g,b,&h,&s,&v);
+
+    return Py_BuildValue(
+	"(dddd)",
+	h,s,v,a);
+}
+
+static PyObject *
+pyrgb_to_hls(PyObject *self, PyObject *args)
+{
+    double r,g,b,a=1.0,h,l,s;
+    if(!PyArg_ParseTuple(
+	   args,
+	   "ddd|d",
+	   &r,&g,&b,&a))
+    {
+	return NULL;
+    }
+
+    rgb_to_hls(r,g,b,&h,&l,&s);
+
+    return Py_BuildValue(
+	"(dddd)",
+	h,l,s,a);
+}
+
+static PyObject *
+pyhls_to_rgb(PyObject *self, PyObject *args)
+{
+    double r,g,b,a=1.0,h,l,s;
+    if(!PyArg_ParseTuple(
+	   args,
+	   "ddd|d",
+	   &h,&l,&s,&a))
+    {
+	return NULL;
+    }
+
+    hls_to_rgb(h,l,s,&r,&g,&b);
+
+    return Py_BuildValue(
+	"(dddd)",
+	r,g,b,a);
+}
+
 static PyMethodDef PfMethods[] = {
     {"pf_load",  pf_load, METH_VARARGS, 
      "Load a new point function shared library"},
@@ -1542,11 +1599,17 @@ static PyMethodDef PfMethods[] = {
       "Get a color tuple from a distance value"},
     { "cmap_fate_lookup", cmap_pylookup_with_fate, METH_VARARGS,
       "Get a color tuple from a distance value and a fate"},
-
     { "cmap_set_solid", pycmap_set_solid, METH_VARARGS,
       "Set the inner or outer solid color"},
     { "cmap_set_transfer", pycmap_set_transfer, METH_VARARGS,
       "Set the inner or outer transfer function"},
+    
+    { "rgb_to_hsv", pyrgb_to_hsv, METH_VARARGS,
+      "Convert a rgb(a) list into an hsv(a) one"},
+    { "rgb_to_hls", pyrgb_to_hls, METH_VARARGS,
+      "Convert a rgb(a) list into an hls(a) one"},
+    { "hls_to_rgb", pyhls_to_rgb, METH_VARARGS,
+      "Convert an hls(a) list into an rgb(a) one"},
 
     { "image_create", image_create, METH_VARARGS,
       "Create a new image buffer"},
@@ -1588,7 +1651,7 @@ static PyMethodDef PfMethods[] = {
 
     { "rot_matrix", rot_matrix, METH_VARARGS,
       "Return a rotated and scaled identity matrix based on params"},
- 
+
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

@@ -68,7 +68,7 @@ class ImageWrapper:
     def get_color_index(self,x,y,sub=0):
         return fract4dc.image_get_color_index(self.img,x,y,sub)
     
-class PfTest(unittest.TestCase):
+class Test(unittest.TestCase):
 
     def compileMandel(self):
         self.compiler.file_path.append('../formulas')
@@ -775,11 +775,113 @@ class PfTest(unittest.TestCase):
         self.assertEqual(color,(177,177,177,255))
         color = fract4dc.cmap_fate_lookup(cmap,0,0.1,1)
         self.assertEqual(color,(166,166,166,255))
+
+    def assertColorTransformHSV(self,r,g,b,eh,es,ev,a=1.0):
+        (h,s,v,a2) = fract4dc.rgb_to_hsv(r,g,b,a)
+        self.assertEqual((h,s,v,a),(eh,es,ev,a2))
+
+    def assertColorTransformHLS(self,r,g,b,eh,es,ev,a=1.0):
+        (h,s,v,a2) = fract4dc.rgb_to_hls(r,g,b,a)
+        self.assertEqual((h,s,v,a),(eh,es,ev,a2))
+
+        (r2,g2,b2,a3) = fract4dc.hls_to_rgb(eh,es,ev,a)
+        self.assertEqual((r2,g2,b2,a3),(r,g,b,a))
         
+    def testColorTransformHLS(self):
+        # black
+        self.assertColorTransformHLS(
+            0.0,0.0,0.0,
+            0.0,0.0,0.0)
+
+        # white
+        self.assertColorTransformHLS(
+            1.0,1.0,1.0,
+            0.0,1.0,0.0)
+
+        # mid-grey
+        self.assertColorTransformHLS(
+            0.5,0.5,0.5,
+            0.0,0.5,0.0)
+
+        # red
+        self.assertColorTransformHLS(
+            1.0,0.0,0.0,
+            0.0,0.5,1.0)
+
+        # green
+        self.assertColorTransformHLS(
+            0.0,1.0,0.0,
+            2.0,0.5,1.0)
+
+        # blue
+        self.assertColorTransformHLS(
+            0.0,0.0,1.0,
+            4.0,0.5,1.0)
         
+        # cyan
+        self.assertColorTransformHLS(
+            0.0,1.0,1.0,
+            3.0,0.5,1.0)
+
+        # magenta
+        self.assertColorTransformHLS(
+            1.0,0.0,1.0,
+            5.0,0.5,1.0)
+
+        # yellow
+        self.assertColorTransformHLS(
+            1.0,1.0,0.0,
+            1.0,0.5,1.0)
+
+        
+    def testColorTransformHSV(self):
+        # red
+        self.assertColorTransformHSV(
+            1.0,0.0,0.0,
+            0.0,1.0,1.0)
+
+        # green
+        self.assertColorTransformHSV(
+            0.0,1.0,0.0,
+            2.0,1.0,1.0)
+
+        # blue
+        self.assertColorTransformHSV(
+            0.0,0.0,1.0,
+            4.0,1.0,1.0)
+        
+        # cyan
+        self.assertColorTransformHSV(
+            0.0,1.0,1.0,
+            3.0,1.0,1.0)
+
+        # magenta
+        self.assertColorTransformHSV(
+            1.0,0.0,1.0,
+            5.0,1.0,1.0)
+
+        # yellow
+        self.assertColorTransformHSV(
+            1.0,1.0,0.0,
+            1.0,1.0,1.0)
+
+        # black
+        self.assertColorTransformHSV(
+            0.0,0.0,0.0,
+            0.0,0.0,0.0)
+
+        # white
+        self.assertColorTransformHSV(
+            1.0,1.0,1.0,
+            0.0,0.0,1.0)
+
+        # mid-grey
+        self.assertColorTransformHSV(
+            0.5,0.5,0.5,
+            0.0,0.0,0.5)
 
 def suite():
-    return unittest.makeSuite(PfTest,'test')
+    return unittest.makeSuite(Test,'test')
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

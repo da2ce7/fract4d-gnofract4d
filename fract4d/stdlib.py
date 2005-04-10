@@ -914,3 +914,11 @@ def compose_CCf_C(gen,t,srcs):
 
 def mergenormal_CC_C(gen,t,srcs):
     return srcs[1]
+
+def mergemultiply_CC_C(gen,t,srcs):
+    (a,b) = (srcs[0],srcs[1])
+    return ColorArg(
+        gen.emit_binop('*', [ a.parts[0], b.parts[0]], Float),
+        gen.emit_binop('*', [ a.parts[1], b.parts[1]], Float),
+        gen.emit_binop('*', [ a.parts[2], b.parts[2]], Float),
+        b.parts[3])

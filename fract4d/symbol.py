@@ -380,7 +380,13 @@ by the 3rd parameter.''')
     f("mergenormal",
       [ [Color, Color], Color],
       doc='''Returns second color, ignoring first.''')
+
+    f("mergemultiply",
+      [ [Color, Color], Color],
+      doc='''Multiplies colors together. Result is always darker than either input.''')
+
     
+      
     # operators
     
     f("+", 

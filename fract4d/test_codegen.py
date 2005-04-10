@@ -24,7 +24,7 @@ import stdlib
 g_exp = None
 g_x = None
 
-class CodegenTest(testbase.TestBase):
+class Test(testbase.TestBase):
     def setUp(self):
         self.fakeNode = absyn.Empty(0)
         self.codegen = codegen.T(symbol.T())
@@ -766,7 +766,8 @@ func fn1
     def testMergeFunctions(self):
         # color merging functions
         funcs = [
-            ("mergenormal", "(0,1,0,0.5)")
+            ("mergenormal", "(0,1,0,0.5)"),
+            ("mergemultiply", "(0,0,0,0.5)")
             ]
 
         srcs = []
@@ -1601,7 +1602,7 @@ Newton4(XYAXIS) {; Mark Peterson
 
     
 def suite():
-    return unittest.makeSuite(CodegenTest,'test')
+    return unittest.makeSuite(Test,'test')
 
 if __name__ == '__main__':
     # special cases for manual experiments.
@@ -1611,7 +1612,7 @@ if __name__ == '__main__':
     try:
         index = sys.argv.index("--exp")
         g_exp = sys.argv[index+1]
-        sys.argv[index] = "CodegenTest.testExpression"
+        sys.argv[index] = "Test.testExpression"
         del sys.argv[index+1]
     except ValueError:
         pass

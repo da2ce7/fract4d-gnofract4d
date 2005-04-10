@@ -536,3 +536,147 @@ ListColorMap::lookup(double index) const
     return mix;
 }
 
+/* Convert from rgb colorspace to hsv 
+   all components in [0,1] except hue in [0,6]
+
+   Taken from Foley, van Dam, Feiner & Hughes
+*/
+
+#define MAX3(a,b,c) ((a) > (b) ? \
+                       ((a) > (c) ? (a) : (c)) : \
+                       ((b) > (c) ? (b) : (c)))
+
+#define MIN3(a,b,c) ((a) < (b) ? \
+                       ((a) < (c) ? (a) : (c)) : \
+                       ((b) < (c) ? (b) : (c)))
+  
+void
+rgb_to_hsv(
+    double r, double g, double b,
+    double *h, double *s, double *v)
+{
+    double min = MIN3( r, g, b );
+    double max = MAX3( r, g, b );
+    *v = max;			
+
+    double delta = max - min;
+
+    *s = (max == 0.0) ? 0.0 : (delta/max);
+
+    if(*s == 0.0)
+    {
+	// achromatic
+    	*h = 0; // strictly, undefined. we choose 0
+    	return;
+    }
+
+    
+    if( r == max )
+    {
+    	*h = ( g - b ) / delta;		// between yellow & magenta
+    }
+    else if( g == max )
+    {
+	*h = 2 + ( b - r ) / delta;	// between cyan & yellow
+    }    
+    else
+    {
+    	*h = 4 + ( r - g ) / delta;	// between magenta & cyan
+    }
+
+    if( *h < 0 )
+    {
+	*h += 6.0;
+    }
+}
+
+void
+rgb_to_hls(
+    double r, double g, double b,
+    double *h, double *l, double *s)
+{
+    double min = MIN3( r, g, b );
+    double max = MAX3( r, g, b );
+
+    *l = (max+min)/2.0;			
+
+    if(max == min)
+    {
+	// achromatic
+	*s = 0;
+	*h = 0;
+    }
+    else
+    {
+	double delta = max - min;
+
+    	*s = (*l <= 0.5) ? (delta / (max + min)) : (delta / (2.0 - (max+min)));
+
+	if( r == max )
+	{
+	    *h = ( g - b ) / delta;		// between yellow & magenta
+	}
+	else if( g == max )
+	{
+	    *h = 2 + ( b - r ) / delta;	// between cyan & yellow
+	}    
+	else
+	{
+	    *h = 4 + ( r - g ) / delta;	// between magenta & cyan
+	}
+	
+	if( *h < 0 )
+	{
+	    *h += 6.0;
+	}
+    }
+}
+
+// hue is assumed to be in degrees
+double rgb_component(double n1, double n2, double hue)
+{
+    hue = (hue > 6.0) ? (hue - 6.0) : (hue < 0.0) ? hue + 6.0 : hue;
+    if (hue < 1.0)
+    {
+	return n1 + (n2 - n1)*hue;
+    }
+    if (hue < 3.0)
+    {
+	return n2;
+    }
+    if (hue < 4.0)
+    {
+	return n1 + (n2 - n1)*(4.0 - hue);
+    }
+    return n1;
+}
+
+void hls_to_rgb(
+    double h, double l, double s,
+    double *r, double *g, double *b)
+{
+    if(s == 0.0)
+    {
+	// achromatic
+	*r = *g = *b = l;
+    }
+    else
+    {
+	// chromatic
+	double n2;
+	if(l <= 0.5)
+	{
+	    n2 = l * (1.0 + s);
+	}
+	else
+	{
+	    n2 = l + s - l*s;
+	}
+
+	double n1 = 2.0 * l - n2;
+
+	*r = rgb_component(n1, n2, h + 2.0);
+	*g = rgb_component(n1, n2, h);
+	*b = rgb_component(n1, n2, h - 2.0);
+    }
+}
