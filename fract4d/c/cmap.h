@@ -101,4 +101,17 @@ class GradientColorMap: public ColorMap
 };
 
 extern void cmap_delete(ColorMap *cmap);
+
+void rgb_to_hsv(
+    double r, double g, double b,
+    double *h, double *s, double *v);
+
+void rgb_to_hls(
+    double r, double g, double b,
+    double *h, double *l, double *s);
+
+void hls_to_rgb(
+    double h, double l, double s,
+    double *r, double *g, double *b);
+
 #endif /* CMAP_H_ */
