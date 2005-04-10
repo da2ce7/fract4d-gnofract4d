@@ -1,0 +1,58 @@
+
+velocity {
+init:
+complex oldz = 0.0
+float speed = 0.0
+loop:
+	speed = |#z - oldz|
+	oldz = z
+final:
+	#index = log(speed)
+}
+
+angular_velocity {
+init:
+complex oldz = 0.0
+float speed = 0.0
+float oldspeed = 0.0
+loop:
+	oldspeed = speed
+	speed = atan2(#z) - atan2(oldz)
+	oldz = z
+final:
+	if speed < 0
+	speed = speed + #pi * 2.0
+	endif
+	if oldspeed < 0
+	oldspeed = oldspeed + #pi * 2.0
+	endif 
+	float factor = @bailout/(|z| + 1.0e-9)	
+	#index = #numiter + speed * factor ; + oldspeed * (1.0 - factor)
+default:
+float param @bailout
+	default = 4.0
+endparam
+}
+
+cumulative_1 {
+init:
+complex oldz = 0.0
+float speed = 0.0
+float oldspeed = 0.0
+loop:
+	oldspeed = speed
+	speed = |#z - oldz|
+	oldz = z
+final:
+	float factor = 4.0/|z|
+	#index = oldspeed * (1.0 - factor) + factor * speed
+default:
+float param dampfactor
+	default = 0.99
+endparam
+}
+
+dca {
+final:
+	#color = rgb(1,1,1)
+}
