@@ -95,6 +95,7 @@ types = ["bool",
          "complex",
          "float",
          "hyper",
+         "grad",
          "int"]
 
 consts = ["true", "false"]

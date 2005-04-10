@@ -51,6 +51,7 @@ zwcenter = (7.1,2.9)
 angle = 0.001
 magn = 8.0
 title = "Hello World"
+periodicity = 0
 float param bailout
 	default = 8.0
 endparam

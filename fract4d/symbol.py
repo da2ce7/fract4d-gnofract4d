@@ -231,6 +231,10 @@ def createDefaultDict():
       [[Color], Float],
       doc='''The luminance (or brightness) of a color.''')
 
+    #f("gradient",
+    #  [[Float], Color],
+    #  doc='''Look up a color from the default gradient.''')
+    
     f("recip",
       cfl("[_] , _", [Float, Complex, Hyper]),
       doc='''The reciprocal of a number. recip(x) is equivalent to 1/x.

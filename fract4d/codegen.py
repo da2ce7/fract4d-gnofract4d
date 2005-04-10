@@ -471,7 +471,8 @@ pf_obj *pf_new()
 typedef enum
 {
     INT = 0,
-    FLOAT = 1
+    FLOAT = 1,
+    GRADIENT = 2
 } e_paramtype;
 
 struct s_param
@@ -479,6 +480,7 @@ struct s_param
     e_paramtype t;
     int intval;
     double doubleval;
+    void *gradient;
 };
 
 struct s_pf_data;

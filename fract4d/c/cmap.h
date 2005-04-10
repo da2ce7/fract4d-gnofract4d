@@ -40,6 +40,7 @@ public:
  
     virtual rgba_t get_solid(int which) const;
     virtual rgba_t lookup(double index) const = 0;
+
     virtual rgba_t lookup_with_transfer(
 	int fate, double index, int solid) const;
     virtual rgba_t lookup_with_dca(int fate, int solid, double *colors) const;
@@ -121,6 +122,10 @@ extern "C" {
     double hue(double r, double g, double b);
     double sat(double r, double g, double b);
     double lum(double r, double g, double b);
+
+    void gradient(
+	void *grad_object, double index, 
+	double *r, double *g, double *b);
 }
 
 #endif /* CMAP_H_ */

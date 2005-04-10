@@ -7,8 +7,13 @@ fixed in 2.8:
 * B	bool params wouldn't load correctly
 * W	color params in GUI
 * W	color func params
-
+* B	parse periodicity in formulas and .fct file
+ 
 todo:
+
+make gradient() function work. 
+Move _offset, _density, _transfer out of compiled code and into cmap objects.
+user-supplied additional gradient params
 
 DeprecationWarnings:
 main_window:344 (use gtk.UIManager), 545 (use combobox)

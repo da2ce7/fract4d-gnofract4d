@@ -705,3 +705,13 @@ double lum(double r, double g, double b)
     rgb_to_hsl(r,g,b,&h,&s,&l);
     return l;
 }
+
+void gradient(void *grad_object, double index, double *r, double *g, double *b)
+{
+    ColorMap *pmap = (ColorMap *)grad_object;
+
+    rgba_t col = pmap->lookup(index);
+    *r = ((double)col.r)/255.0;
+    *g = ((double)col.g)/255.0;
+    *b = ((double)col.b)/255.0;
+}

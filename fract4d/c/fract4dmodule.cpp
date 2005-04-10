@@ -179,11 +179,17 @@ pf_init(PyObject *self, PyObject *args)
 		params[i].t = INT;
 		params[i].intval = PyInt_AS_LONG(pyitem);
 	    }
+	    else if(PyCObject_Check(pyitem))
+	    {
+		params[i].t = GRADIENT;
+		params[i].gradient = PyCObject_AsVoidPtr(pyitem);
+	    }
 	    else
 	    {
 		Py_XDECREF(pyitem);
 		PyErr_SetString(
-		    PyExc_ValueError,"All params must be floats or ints");
+		    PyExc_ValueError,
+		    "All params must be floats, ints, or gradients");
 		free(params);
 		return NULL;
 	    }

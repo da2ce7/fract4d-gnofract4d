@@ -653,6 +653,8 @@ blue=0.3
         self.assertEqual(f.params[f.XZANGLE],0.789)
         self.assertEqual(f.title,"Hello World")
         self.assertEqual(f.initparams,[8.0,7.0,1.0])
+        self.assertEqual(f.periodicity, 0)
+        
         self.assertEqual(
             f.cfunc_params[1],
             self.default_flat_params)
