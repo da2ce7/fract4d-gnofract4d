@@ -350,6 +350,9 @@ class T(FctUtils):
             return "%d" % params[ord]
         elif type == fracttypes.Bool:
             return "%s" % params[ord]
+        elif type == fracttypes.Gradient:
+            # FIXME make this work
+            pass
         else:
             raise ValueError("Unknown type %s for param %s" % (type,name))
 
@@ -912,8 +915,11 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         elif t == fracttypes.Int:
             params[ord] = int(val)
         elif t == fracttypes.Bool:
+            # don't use bool(val) - that makes "0" = True
             i = int(val)
             params[ord] = (i != 0)
+        elif t == fracttypes.Gradient:
+            params[ord] = self.gradient # FIXME!
         else:
             raise ValueError("Unknown param type %s for %s" % (t,name))
         

@@ -827,6 +827,20 @@ func fn1
 
         self.assertCSays(src,"init", "".join(inspects), "\n".join(results))
 
+    def testGradientFunc(self):
+        # gradient() functionality
+        src = '''t_grad {
+        init:
+        color r = gradient(0.0)
+        color g = gradient(1.0)
+        }'''
+
+        self.assertCSays(
+            src,
+            "init",
+            self.inspect_color("r"),
+            "r = (1,0,0,1)")
+        
     def testCHyper(self):
         'test arithmetic in hypercomplex numbers'
 

@@ -728,6 +728,10 @@ class T(TBase):
             return
 
         self.canonicalizeSections(f)
+
+        # reference gradient, even if user doesn't do so explicitly
+        self.symbols.ensure("@_gradient", Var(Gradient, 0, -1))
+        self.symbols["@_gradient"].default = ir.Const(0, f, Gradient)
         
         # lookup sections in order
         s = f.childByName("default")
