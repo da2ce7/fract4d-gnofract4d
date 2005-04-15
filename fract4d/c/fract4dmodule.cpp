@@ -117,6 +117,166 @@ pf_create(PyObject *self, PyObject *args)
     return PyCObject_FromVoidPtr(pfh,pf_delete);
 }
 
+void *
+get_double_field(PyObject *pyitem, char *name, double *pVal)
+{
+    PyObject *pyfield = PyObject_GetAttrString(pyitem,name);
+    if(pyfield == NULL)
+    {
+	PyErr_SetString(PyExc_ValueError, "Bad segment object");
+	return NULL;
+    }
+    *pVal = PyFloat_AsDouble(pyfield);
+    Py_DECREF(pyfield);
+
+    return pVal;
+}
+
+/* member 'name' of pyitem is a N-element list of doubles */
+void *
+get_double_array(PyObject *pyitem, char *name, double *pVal, int n)
+{
+    PyObject *pyfield = PyObject_GetAttrString(pyitem,name);
+    if(pyfield == NULL)
+    {
+	PyErr_SetString(PyExc_ValueError, "Bad segment object");
+	return NULL;
+    }
+
+    if(!PySequence_Check(pyfield))
+    {
+	PyErr_SetString(PyExc_ValueError, "Bad segment object");
+	return NULL;
+    }
+
+    if(!(PySequence_Size(pyfield) == n))
+    {
+	PyErr_SetString(PyExc_ValueError, "Bad segment object");
+	return NULL;
+    }
+
+    for(int i = 0; i < n; ++i)
+    {
+	PyObject *py_subitem = PySequence_GetItem(pyfield,i);
+	if(!py_subitem)
+	{
+	    PyErr_SetString(PyExc_ValueError, "Bad segment object");
+	    return NULL; 
+	}
+	*(pVal+i)=PyFloat_AsDouble(py_subitem);
+
+	Py_DECREF(py_subitem);
+    }
+
+    Py_DECREF(pyfield);
+
+    return pVal;
+}
+
+void *
+get_int_field(PyObject *pyitem, char *name, int *pVal)
+{
+    PyObject *pyfield = PyObject_GetAttrString(pyitem,name);
+    if(pyfield == NULL)
+    {
+	PyErr_SetString(PyExc_ValueError, "Bad segment object");
+	return NULL;
+    }
+    *pVal = PyInt_AsLong(pyfield);
+    Py_DECREF(pyfield);
+
+    return pVal;
+}
+
+static ColorMap *
+cmap_from_pyobject(PyObject *pyarray)
+{
+    int len, i;
+    GradientColorMap *cmap;
+
+    len = PySequence_Size(pyarray);
+    if(len == 0)
+    {
+	PyErr_SetString(PyExc_ValueError,"Empty color array");
+	return NULL;
+    }
+
+    cmap = new(std::nothrow)GradientColorMap();
+
+    if(!cmap)
+    {
+	PyErr_SetString(PyExc_MemoryError,"Can't allocate colormap");
+	return NULL;
+    }
+    if(! cmap->init(len))
+    {
+	PyErr_SetString(PyExc_MemoryError,"Can't allocate colormap array");
+	delete cmap;
+	return NULL;
+    }
+
+    for(i = 0; i < len; ++i)
+    {
+	double left, right, mid, left_col[4], right_col[4];
+	int bmode, cmode;
+	PyObject *pyitem = PySequence_GetItem(pyarray,i);
+	if(!pyitem)
+	{
+	    return NULL; 
+	}
+
+	if(!get_double_field(pyitem, "left", &left) ||
+	   !get_double_field(pyitem, "right", &right) ||
+	   !get_double_field(pyitem, "mid", &mid) ||
+	   !get_int_field(pyitem, "cmode", &cmode) ||
+	   !get_int_field(pyitem, "bmode", &bmode) ||
+	   !get_double_array(pyitem, "left_color", left_col, 4) ||
+	   !get_double_array(pyitem, "right_color", right_col, 4))
+	{
+	    return NULL;
+	}
+	
+	cmap->set(i, left, right, mid,
+		  left_col,right_col,
+		  (e_blendType)bmode, (e_colorType)cmode);
+
+	Py_DECREF(pyitem);
+    }
+    return cmap;
+}
+
+static PyObject *
+cmap_create_gradient(PyObject *self, PyObject *args)
+{
+    /* args = a gradient object:
+       an array of objects with:
+       float: left,right,mid 
+       int: bmode, cmode
+       [f,f,f,f] : left_color, right_color
+    */
+    PyObject *pyarray, *pyret;
+
+    if(!PyArg_ParseTuple(args,"O",&pyarray))
+    {
+	return NULL;
+    }
+
+    if(!PySequence_Check(pyarray))
+    {
+	return NULL;
+    }
+    
+    ColorMap *cmap = cmap_from_pyobject(pyarray);
+
+    if(NULL == cmap)
+    {
+	return NULL;
+    }
+
+    pyret = PyCObject_FromVoidPtr(cmap,(void (*)(void *))cmap_delete);
+
+    return pyret;
+}
 
 static PyObject *
 pf_init(PyObject *self, PyObject *args)
@@ -179,10 +339,36 @@ pf_init(PyObject *self, PyObject *args)
 		params[i].t = INT;
 		params[i].intval = PyInt_AS_LONG(pyitem);
 	    }
-	    else if(PyCObject_Check(pyitem))
+	    else if(
+		PyObject_HasAttrString(pyitem,"cobject") &&
+		PyObject_HasAttrString(pyitem,"segments"))
 	    {
+		PyObject *pycob = PyObject_GetAttrString(pyitem,"cobject");
+		if(pycob == Py_None)
+		{
+		    Py_DECREF(pycob);
+		    PyObject *pysegs = PyObject_GetAttrString(
+			pyitem,"segments");
+
+		    ColorMap *cmap = cmap_from_pyobject(pysegs);
+		    Py_DECREF(pysegs);
+
+		    if(NULL == cmap)
+		    {
+			return NULL;
+		    }
+
+		    pycob = PyCObject_FromVoidPtr(
+			cmap,(void (*)(void *))cmap_delete);
+
+		    if(NULL != pycob)
+		    {
+			PyObject_SetAttrString(pyitem,"cobject",pycob);
+		    }
+		}
 		params[i].t = GRADIENT;
-		params[i].gradient = PyCObject_AsVoidPtr(pyitem);
+		params[i].gradient = PyCObject_AsVoidPtr(pycob);
+		Py_XDECREF(pycob);
 	    }
 	    else
 	    {
@@ -298,148 +484,6 @@ cmap_create(PyObject *self, PyObject *args)
 	    return NULL;
 	}
 	cmap->set(i,d,r,g,b,a);
-	Py_DECREF(pyitem);
-    }
-    pyret = PyCObject_FromVoidPtr(cmap,(void (*)(void *))cmap_delete);
-
-    return pyret;
-}
-
-void *
-get_double_field(PyObject *pyitem, char *name, double *pVal)
-{
-    PyObject *pyfield = PyObject_GetAttrString(pyitem,name);
-    if(pyfield == NULL)
-    {
-	PyErr_SetString(PyExc_ValueError, "Bad segment object");
-	return NULL;
-    }
-    *pVal = PyFloat_AsDouble(pyfield);
-    Py_DECREF(pyfield);
-
-    return pVal;
-}
-
-/* member 'name' of pyitem is a N-element list of doubles */
-void *
-get_double_array(PyObject *pyitem, char *name, double *pVal, int n)
-{
-    PyObject *pyfield = PyObject_GetAttrString(pyitem,name);
-    if(pyfield == NULL)
-    {
-	PyErr_SetString(PyExc_ValueError, "Bad segment object");
-	return NULL;
-    }
-
-    if(!PySequence_Check(pyfield))
-    {
-	PyErr_SetString(PyExc_ValueError, "Bad segment object");
-	return NULL;
-    }
-
-    if(!(PySequence_Size(pyfield) == n))
-    {
-	PyErr_SetString(PyExc_ValueError, "Bad segment object");
-	return NULL;
-    }
-
-    for(int i = 0; i < n; ++i)
-    {
-	PyObject *py_subitem = PySequence_GetItem(pyfield,i);
-	if(!py_subitem)
-	{
-	    PyErr_SetString(PyExc_ValueError, "Bad segment object");
-	    return NULL; 
-	}
-	*(pVal+i)=PyFloat_AsDouble(py_subitem);
-
-	Py_DECREF(py_subitem);
-    }
-
-    Py_DECREF(pyfield);
-
-    return pVal;
-}
-
-void *
-get_int_field(PyObject *pyitem, char *name, int *pVal)
-{
-    PyObject *pyfield = PyObject_GetAttrString(pyitem,name);
-    if(pyfield == NULL)
-    {
-	PyErr_SetString(PyExc_ValueError, "Bad segment object");
-	return NULL;
-    }
-    *pVal = PyInt_AsLong(pyfield);
-    Py_DECREF(pyfield);
-
-    return pVal;
-}
-
-static PyObject *
-cmap_create_gradient(PyObject *self, PyObject *args)
-{
-    /* args = an array of (index,r,g,b,a) tuples */
-    PyObject *pyarray, *pyret;
-    int len, i;
-    GradientColorMap *cmap;
-
-    if(!PyArg_ParseTuple(args,"O",&pyarray))
-    {
-	return NULL;
-    }
-
-    if(!PySequence_Check(pyarray))
-    {
-	return NULL;
-    }
-    
-    len = PySequence_Size(pyarray);
-    if(len == 0)
-    {
-	PyErr_SetString(PyExc_ValueError,"Empty color array");
-	return NULL;
-    }
-
-    cmap = new(std::nothrow)GradientColorMap();
-
-    if(!cmap)
-    {
-	PyErr_SetString(PyExc_MemoryError,"Can't allocate colormap");
-	return NULL;
-    }
-    if(! cmap->init(len))
-    {
-	PyErr_SetString(PyExc_MemoryError,"Can't allocate colormap array");
-	delete cmap;
-	return NULL;
-    }
-
-    for(i = 0; i < len; ++i)
-    {
-	double left, right, mid, left_col[4], right_col[4];
-	int bmode, cmode;
-	PyObject *pyitem = PySequence_GetItem(pyarray,i);
-	if(!pyitem)
-	{
-	    return NULL; 
-	}
-
-	if(!get_double_field(pyitem, "left", &left) ||
-	   !get_double_field(pyitem, "right", &right) ||
-	   !get_double_field(pyitem, "mid", &mid) ||
-	   !get_int_field(pyitem, "cmode", &cmode) ||
-	   !get_int_field(pyitem, "bmode", &bmode) ||
-	   !get_double_array(pyitem, "left_color", left_col, 4) ||
-	   !get_double_array(pyitem, "right_color", right_col, 4))
-	{
-	    return NULL;
-	}
-	
-	cmap->set(i, left, right, mid,
-		  left_col,right_col,
-		  (e_blendType)bmode, (e_colorType)cmode);
-
 	Py_DECREF(pyitem);
     }
     pyret = PyCObject_FromVoidPtr(cmap,(void (*)(void *))cmap_delete);

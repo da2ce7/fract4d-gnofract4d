@@ -660,6 +660,14 @@ extern pf_obj *pf_new(void);
                     else:
                         out.append(Decl("%s %s = t__pfo->p[%d].intval;" % \
                                             (t, sym.cname, ord)))
+                elif sym.type == fracttypes.Gradient:
+                    ord = op.get(key)
+                    if ord == None:
+                        raise TranslationError(
+                            "Internal Compiler Error: gradient not as a param")
+                    else:
+                        out.append(Decl("%s %s = t__pfo->p[%d].gradient;" % \
+                                        (t, sym.cname, ord)))
                 else:
                     raise ValueError("Unknown symbol type %d for %s" % \
                                      (sym.type, key))

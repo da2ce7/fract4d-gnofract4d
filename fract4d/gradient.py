@@ -171,7 +171,8 @@ class Gradient:
         self.name=None
         self.alternate=0
         self.offset=0
-
+        self.cobject=None
+        
     def __copy__(self):
         c = Gradient()
         c.name = self.name

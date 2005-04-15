@@ -100,7 +100,7 @@ def createDefaultDict():
         "t__h_pixel": Alias("pixel"),
         "t__h_xypixel": Alias("pixel"),
         "pixel" : Var(Complex,doc="The (X,Y) coordinates of the current point. When viewing the Mandelbrot set, this has a different value for each pixel. When viewing the Julia set, it remains constant for each pixel."),
-        "pi": Var(Float,),
+        "pi": Var(Float),
         "t__h_z" : Alias("z"),
         "z"  : Var(Complex),
         "t__h_index": Var(Float),
@@ -231,9 +231,9 @@ def createDefaultDict():
       [[Color], Float],
       doc='''The luminance (or brightness) of a color.''')
 
-    #f("gradient",
-    #  [[Float], Color],
-    #  doc='''Look up a color from the default gradient.''')
+    f("gradient",
+      [[Float], Color],
+      doc='''Look up a color from the default gradient.''')
     
     f("recip",
       cfl("[_] , _", [Float, Complex, Hyper]),
@@ -483,6 +483,7 @@ by the 3rd parameter.''')
             [Func([Complex],Complex, stdlib, "ident") ])
 
     d["t__a__transfer"] = OverloadList([Func([Float],Float, stdlib, "ident") ])
+    d["t__a__gradient"] = Var(Gradient)
     
     for (k,v) in d.items():
         if hasattr(v,"cname") and v.cname == None:
@@ -594,7 +595,7 @@ class T(UserDict):
             self.data[mangle(key)] = val
             
         return val
-    
+     
     def __setitem__(self,key,value):
         k = mangle(key)
         if self.data.has_key(k):
@@ -623,6 +624,11 @@ class T(UserDict):
         self.data[k] = value
         if hasattr(value,"cname") and value.cname == None:
             value.cname=self.insert_prefix(self.prefix,k)
+
+    def ensure(self, name, var):
+        # make sure an item is referred to in main dict
+        self.__setitem__(name, var)
+        self.__getitem__(name)
         
     def parameters(self,varOnly=False):
         params = {}
@@ -730,6 +736,8 @@ class T(UserDict):
                 tp.append(Int)
             elif t == Bool:
                 tp.append(Int)
+            elif t == Gradient:
+                tp.append(Gradient)
             else:
                 raise ValueError("Unknown param type %s for %s" % (t, k))
         return tp

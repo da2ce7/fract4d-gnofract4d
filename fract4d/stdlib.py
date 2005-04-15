@@ -943,3 +943,9 @@ def mergemultiply_CC_C(gen,t,srcs):
         gen.emit_binop('*', [ a.parts[2], b.parts[2]], Float),
         b.parts[3])
 
+def gradient_f_C(gen,t,srcs):
+    # fixme return the right thing
+    
+    return ColorArg(
+        ConstFloatArg(1.0),ConstFloatArg(1.0),
+        ConstFloatArg(1.0),ConstFloatArg(1.0))

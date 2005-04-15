@@ -107,7 +107,7 @@ class WarningCatcher:
     def warn(self,msg):
         self.warnings.append(msg)
         
-class FctTest(unittest.TestCase):
+class Test(unittest.TestCase):
     def setUp(self):
         global g_comp
         self.compiler = g_comp
@@ -196,16 +196,16 @@ endparam
             f = fractal.T(self.compiler)
             f.set_formula("fracttest.frm","test_circle")
 
-            self.assertEqual(f.get_initparam(0,0), 4.0)
+            self.assertEqual(f.get_initparam(1,0), 4.0)
             time.sleep(1.0)
             formula = formula.replace('4.0','6.0')
             ff = open("fracttest.frm","w")
             ff.write(formula)
             ff.close()
 
-            self.assertEqual(f.get_initparam(0,0), 4.0)
+            self.assertEqual(f.get_initparam(1,0), 4.0)
             f.refresh()
-            self.assertEqual(f.get_initparam(0,0), 6.0)
+            self.assertEqual(f.get_initparam(1,0), 6.0)
         finally:
             os.remove("fracttest.frm")
 
@@ -355,31 +355,33 @@ colorlist=[
 
         p2 = f.formula.symbols.parameters()
 
-        # 10 = 2 x bailout, bailfunc, size, 2x (density, offset, transfer)
-        self.assertEqual(len(p2),10) 
+        # 11 = (2 x bailout), bailfunc, size, gradient +
+        #      2x (density, offset, transfer)
+        self.assertEqual(len(p2),11) 
         self.assertEqual(p2["t__a_bailout"].cname, "t__a_fbailout")
         self.assertEqual(p2["t__a_cf0bailout"].cname, "t__a_cf0bailout") 
 
         op2 = f.formula.symbols.order_of_params()
         self.assertEqual(op2, {
-            't__a_bailout' : 0,
-            't__a_cf0_density' : 1,
-            't__a_cf0_offset' : 2,
-            't__a_cf0bailout' : 3,
-            't__a_cf0power' : 4,
-            't__a_cf1_density' : 5,
-            't__a_cf1_offset' : 6,
-            '__SIZE__' : 7
+            't__a__gradient' : 0,
+            't__a_bailout' : 1,
+            't__a_cf0_density' : 2,
+            't__a_cf0_offset' : 3,
+            't__a_cf0bailout' : 4,
+            't__a_cf0power' : 5,
+            't__a_cf1_density' : 6,
+            't__a_cf1_offset' : 7,
+            '__SIZE__' : 8
             })
         params = f.all_params()
-        self.assertEqual(params,[4.0,1.0, 0.0, 1.0e20, 2.0, 1.0, 0.0])
+        self.assertEqual(params,[0.0, 4.0,1.0, 0.0, 1.0e20, 2.0, 1.0, 0.0])
 
         # check for appropriate snippets in the code
         cg.output_decls(f.formula)
         c_code = cg.output_c(f.formula)
 
         self.assertNotEqual( # init
-            c_code.find("double t__a_cf0bailout = t__pfo->p[3]"),-1)
+            c_code.find("double t__a_cf0bailout = t__pfo->p[4]"),-1)
         self.assertNotEqual( # use
             c_code.find("log(t__a_cf0bailout)"),-1)
         
@@ -652,7 +654,7 @@ blue=0.3
         self.assertEqual(f.params[f.XYANGLE],0.001)
         self.assertEqual(f.params[f.XZANGLE],0.789)
         self.assertEqual(f.title,"Hello World")
-        self.assertEqual(f.initparams,[8.0,7.0,1.0])
+        self.assertEqual(f.initparams,[0, 8.0,7.0,1.0])
         self.assertEqual(f.periodicity, 0)
         
         self.assertEqual(
@@ -728,7 +730,7 @@ The image may not display correctly. Please upgrade to version 3.4.''')
         f.set_outer("gf4d.cfrm","default")
         f.compile()
         f.reset()
-        self.assertEqual(f.initparams,[0.0])
+        self.assertEqual(f.initparams,[0, 0.0])
         self.assertEqual(f.antialias,1)
         (w,h) = (30,30)
         im = fract4dc.image_create(w,h)
@@ -753,7 +755,7 @@ The image may not display correctly. Please upgrade to version 3.4.''')
         f.set_outer("gf4d.cfrm","default")
         f.compile()
         f.reset()
-        self.assertEqual(f.initparams,[0.0])
+        self.assertEqual(f.initparams,[0, 0.0])
         self.assertEqual(f.antialias,1)
         (w,h) = (30,30)
         im = fract4dc.image_create(w,h)
@@ -974,9 +976,9 @@ blue=0.5543108971162746
 
     def testLoadGivesCorrectParameters(self):
         f = fractal.T(self.compiler)
-        self.assertEqual(len(f.formula.symbols.parameters()),2)
+        self.assertEqual(len(f.formula.symbols.parameters()),3)
         f.loadFctFile(open("../testdata/elfglow.fct"))
-        self.assertEqual(len(f.formula.symbols.parameters()),4)
+        self.assertEqual(len(f.formula.symbols.parameters()),5)
         
         
     def testFractalBadness(self):
@@ -990,7 +992,7 @@ blue=0.5543108971162746
         f.compile()
 
 def suite():
-    return unittest.makeSuite(FctTest,'test')
+    return unittest.makeSuite(Test,'test')
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

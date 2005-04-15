@@ -9,6 +9,7 @@ import struct
 import math
 
 import fract4dc
+import gradient
 
 class FractalSite:
     def __init__(self):
@@ -128,6 +129,7 @@ class Test(unittest.TestCase):
             "STATUS",
             "PIXEL"
             ]
+        self.gradient = gradient.Gradient()
         
     def tearDown(self):
         pass
@@ -137,8 +139,8 @@ class Test(unittest.TestCase):
         handle = fract4dc.pf_load("./test-pf.so")
         pfunc = fract4dc.pf_create(handle)
 
-        fract4dc.pf_init(pfunc,0.001,[4.0, 0.5])
-
+        fract4dc.pf_init(pfunc,0.001,[self.gradient, 4.0, 0.5])
+        
         # a point which doesn't bail out
         result = fract4dc.pf_calc(pfunc,[0.15, 0.0, 0.0, 0.0],100,0,0,0)
         self.assertEqual(result,(100, 1, 0.0,0))
