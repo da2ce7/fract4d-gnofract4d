@@ -78,7 +78,7 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
             
             f2.load_formula_file("fttest.frm")
             frm = f2.get_formula("fttest.frm","test_circle")
-            self.assertEqual(frm.symbols.default_params(),[4.0])
+            self.assertEqual(frm.symbols.default_params(),[0, 4.0])
 
             formulas = formulas.replace('4.0','6.0')
             time.sleep(1.0) # ensure filesystem will have a different time
@@ -87,7 +87,7 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
             f.close()
 
             frm2 = f2.get_formula("fttest.frm","test_circle")
-            self.assertEqual(frm2.symbols.default_params(),[6.0])
+            self.assertEqual(frm2.symbols.default_params(),[0, 6.0])
             
         finally:
             os.remove("fttest.frm")
