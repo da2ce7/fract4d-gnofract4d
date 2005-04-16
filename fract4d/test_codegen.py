@@ -36,6 +36,7 @@ int main()
 {
     double pparams[] = { 1.5, 0.0, 0.0, 0.0};
     struct s_param initparams[] = {
+        { GRADIENT, 0, 0},
         { FLOAT, 0, 1.0},
         { FLOAT, 0, 0.0},
         { FLOAT, 0, 1.0},
@@ -68,7 +69,7 @@ int main()
     
     pparams[0] = 0.1; pparams[1] = 0.2;
     pparams[2] = 0.1; pparams[3] = 0.3;
-    initparams[4].doubleval = 3.0; initparams[5].doubleval = 3.5;
+    initparams[5].doubleval = 3.0; initparams[6].doubleval = 3.5;
     
     pf->vtbl->calc(
         pf,

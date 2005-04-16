@@ -856,7 +856,7 @@ blue=0.5543108971162746
         f.warn = wc.warn
         f.loadFctFile(StringIO.StringIO(file))
 
-        self.assertEqual(f.initparams,[0.34,-0.28,4.0])
+        self.assertEqual(f.initparams,[f.gradient, 0.34,-0.28,4.0])
                          
     def failBuf(self,buf):
         self.failUnless(False)
