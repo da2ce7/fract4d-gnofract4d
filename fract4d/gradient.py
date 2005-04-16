@@ -5,6 +5,7 @@ import re
 import StringIO
 import copy
 import random
+import types
 
 #Class definition for Gradients
 #These use the format defined by the GIMP
@@ -72,6 +73,28 @@ class Segment:
             self.left, self.left_color[:],
             self.right, self.right_color[:], self.mid,
             self.blend_mode, self.color_mode)
+
+    def __eq__(self,other):
+        return self.cmode == other.cmode and \
+               self.bmode == other.bmode and \
+               self.close(self.left, other.left) and \
+               self.close(self.right, other.right) and \
+               self.close(self.mid, other.mid) and \
+               self.close(self.left_color, other.left_color) and \
+               self.close(self.right_color, other.right_color)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def close(self, a, b):
+        # True if a is nearly == b
+        if isinstance(a, types.ListType):
+            for (ax,bx) in zip(a,b):
+                if abs(ax-bx) > 1.0E-5:
+                    return False
+            return True
+        else:
+            return abs(a-b) < 1.0E-5
     
     def center(self):
         self.mid = (self.left + self.right) / 2.0
@@ -180,6 +203,15 @@ class Gradient:
         c.offset = self.offset
         c.segments = copy.deepcopy(self.segments)
         return c
+
+    def __eq__(self, other):
+        if not isinstance(other, Gradient): return False
+        if self.name != other.name: return False
+        if self.segments != other.segments: return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
     
     def serialize(self):
         s = StringIO.StringIO()

@@ -318,19 +318,19 @@ colorlist=[
         p = f.formula.symbols.parameters()
         op = f.formula.symbols.order_of_params()
         
-        self.assertEqual(len(p), 1)
+        self.assertEqual(len(p), 2)
         self.assertEqual(p["t__a_x"].type, fracttypes.Int)
-        self.assertEqual(op["t__a_x"], 0)
-        self.assertEqual(op["__SIZE__"], 1)
+        self.assertEqual(op["t__a_x"], 1)
+        self.assertEqual(op["__SIZE__"], 2)
 
         tp = f.formula.symbols.type_of_params()
 
-        self.assertEqual(len(tp),1)
-        self.assertEqual(tp[0], fracttypes.Int)
+        self.assertEqual(len(tp),2)
+        self.assertEqual(tp[1], fracttypes.Int)
         
-        f.set_initparam(0, "17", 0)
-        self.assertEqual(f.initparams[0],17)
-        self.failUnless(isinstance(f.initparams[0],types.IntType))
+        f.set_initparam(1, "17", 0)
+        self.assertEqual(f.initparams[1],17)
+        self.failUnless(isinstance(f.initparams[1],types.IntType))
             
     def testCFParams(self):
         f = fractal.T(self.compiler)
@@ -374,7 +374,7 @@ colorlist=[
             '__SIZE__' : 8
             })
         params = f.all_params()
-        self.assertEqual(params,[0.0, 4.0,1.0, 0.0, 1.0e20, 2.0, 1.0, 0.0])
+        self.assertEqual(params,[f.gradient, 4.0,1.0, 0.0, 1.0e20, 2.0, 1.0, 0.0])
 
         # check for appropriate snippets in the code
         cg.output_decls(f.formula)
@@ -489,13 +489,15 @@ blue=0.3
         self.assertFuncsEqual(f1, f1.cfuncs[0],f2, f2.cfuncs[0])
         self.assertFuncsEqual(f1, f1.cfuncs[1],f2, f2.cfuncs[1])
         self.assertEqual(f1.yflip,f2.yflip)
+
+        self.assertEqual(f1.gradient, f2.gradient)
         
     def testSave(self):
         # load some settings
         f1 = fractal.T(self.compiler)
         file1 = StringIO.StringIO(g_testfile)        
         f1.loadFctFile(file1)
-        
+
         # save again
         file2 = StringIO.StringIO()
         f1.save(file2)
@@ -507,7 +509,7 @@ blue=0.3
         f2 = fractal.T(self.compiler)
         f2.loadFctFile(file3)
         f2.auto_deepen = False
-        
+
         self.assertExpectedValues(f2)
 
         # check that they are equivalent
@@ -603,7 +605,7 @@ blue=0.3
         self.assertEqual(f.params[f.YZANGLE],0.0)
         self.assertEqual(f.params[f.YWANGLE],0.0)
         self.assertEqual(f.params[f.ZWANGLE],0.0)
-        self.assertEqual(f.initparams, [4.0])
+        self.assertEqual(f.initparams, [f.gradient, 4.0])
 
         f.compile()
         (w,h) = (40,30)
@@ -654,7 +656,7 @@ blue=0.3
         self.assertEqual(f.params[f.XYANGLE],0.001)
         self.assertEqual(f.params[f.XZANGLE],0.789)
         self.assertEqual(f.title,"Hello World")
-        self.assertEqual(f.initparams,[0, 8.0,7.0,1.0])
+        self.assertEqual(f.initparams,[f.gradient, 8.0,7.0,1.0])
         self.assertEqual(f.periodicity, 0)
         
         self.assertEqual(
@@ -692,7 +694,7 @@ The image may not display correctly. Please upgrade to version 3.4.''')
         f.set_outer("gf4d.cfrm","continuous_potential")
         f.compile()
         f.reset()
-        self.assertEqual(f.initparams,[4.0])
+        self.assertEqual(f.initparams,[f.gradient, 4.0])
         (w,h) = (40,30)
         im = fract4dc.image_create(w,h)
         f.draw(im)
@@ -730,7 +732,7 @@ The image may not display correctly. Please upgrade to version 3.4.''')
         f.set_outer("gf4d.cfrm","default")
         f.compile()
         f.reset()
-        self.assertEqual(f.initparams,[0, 0.0])
+        self.assertEqual(f.initparams,[f.gradient, 0.0])
         self.assertEqual(f.antialias,1)
         (w,h) = (30,30)
         im = fract4dc.image_create(w,h)
@@ -755,7 +757,7 @@ The image may not display correctly. Please upgrade to version 3.4.''')
         f.set_outer("gf4d.cfrm","default")
         f.compile()
         f.reset()
-        self.assertEqual(f.initparams,[0, 0.0])
+        self.assertEqual(f.initparams,[f.gradient, 0.0])
         self.assertEqual(f.antialias,1)
         (w,h) = (30,30)
         im = fract4dc.image_create(w,h)

@@ -35,6 +35,16 @@ class Test(testbase.TestBase):
         self.assertEqual(len(g.segments), 1)
         self.assertWellFormedGradient(g)
 
+    def testEquals(self):
+        g1 = gradient.Gradient()
+        g2 = gradient.Gradient()
+
+        self.failUnless(g1 == g2) # calls __eq__
+        self.assertEqual(g1,g2) # calls __ne__
+
+        g1.segments[0].left_color[0] = 0.7
+        self.assertNotEqual(g1,g2)
+        
     def checkColorMapAndGradientEquivalent(self,colorlist,maxdiff=0):
         grad = gradient.Gradient()
         grad.load_list(colorlist,maxdiff)

@@ -74,7 +74,18 @@ class ParamBag(FctUtils):
         while line != "":
             (name,val) = self.nameval(line)
             if name != None:
-                if name == self.endsect: break
+                if name == self.endsect:
+                    break
+                
+                if val == "[":
+                    # start of a multi-line parameter
+                    line = f.readline()
+                    vals = []
+                    while line != "" and line.rstrip() != "]":
+                        vals.append(line)
+                        line = f.readline()
+                    val = "".join(vals)
+
                 self.parseVal(name,val,f)
             line = f.readline()
 
@@ -243,6 +254,17 @@ class T(FctUtils):
         self.antialias = 1
         self.compiler = compiler
         self.outputfile = None
+
+        # gradient
+        
+        # default is just white outside
+        self.gradient = gradient.Gradient()
+        self.gradient.segments[0].left_color = [1.0,1.0,1.0,1.0]
+        self.gradient.segments[0].right_color = [1.0,1.0,1.0,1.0]
+
+        self.solids = [(0,0,0,255),(0,0,0,255)]
+        
+        # formula
         self.set_formula("gf4d.frm",self.funcName)
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","continuous_potential")
@@ -256,13 +278,6 @@ class T(FctUtils):
         # interaction with fract4dc library
         self.site = site or fract4dc.site_create(self)
 
-        # default is just white outside
-        self.gradient = gradient.Gradient()
-        self.gradient.segments[0].left_color = [1.0,1.0,1.0,1.0]
-        self.gradient.segments[0].right_color = [1.0,1.0,1.0,1.0]
-
-        self.solids = [(0,0,0,255),(0,0,0,255)]
-        
         # colorfunc lookup
         self.colorfunc_names = [
             "default", 
@@ -351,8 +366,7 @@ class T(FctUtils):
         elif type == fracttypes.Bool:
             return "%s" % params[ord]
         elif type == fracttypes.Gradient:
-            # FIXME make this work
-            pass
+            return "[\n" + self.gradient.serialize() + "]"
         else:
             raise ValueError("Unknown type %s for param %s" % (type,name))
 
@@ -522,13 +536,19 @@ class T(FctUtils):
         for i in xrange(2):
             if self.compiler.out_of_date(self.cfunc_files[i]):
                 self.set_colorfunc(i,self.cfunc_files[i],self.cfunc_names[i])
-            
+
+    def set_initparams_from_formula(self,formula):
+        self.initparams = self.formula.symbols.default_params()
+        self.paramtypes = self.formula.symbols.type_of_params()
+        for i in xrange(len(self.paramtypes)):
+            if self.paramtypes[i] == fracttypes.Gradient:
+                self.initparams[i] = self.gradient
+        
     def set_formula_defaults(self):
         if self.formula == None:
             return
 
-        self.initparams = self.formula.symbols.default_params()
-        self.paramtypes = self.formula.symbols.type_of_params()
+        self.set_initparams_from_formula(self.formula)
         
         for (name,val) in self.formula.defaults.items():
             # FIXME helpfile,helptopic,method,precision,
@@ -572,8 +592,7 @@ class T(FctUtils):
         self.funcName = func
         self.funcFile = formulafile
 
-        self.initparams = self.formula.symbols.default_params()
-        self.paramtypes = self.formula.symbols.type_of_params()
+        self.set_initparams_from_formula(formula)
         self.set_bailfunc()
 
         self.formula_changed()
@@ -882,7 +901,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
             else:
                 self.set_named_item(name,val,self.formula,
                                     self.initparams)
-
+                
     def set_named_param(self,name,val,formula,params):
         #print "named param %s : %s" % (name, val)
         op = formula.symbols.order_of_params()
@@ -919,7 +938,9 @@ The image may not display correctly. Please upgrade to version %.1f.'''
             i = int(val)
             params[ord] = (i != 0)
         elif t == fracttypes.Gradient:
-            params[ord] = self.gradient # FIXME!
+            grad = gradient.Gradient()
+            grad.load(StringIO.StringIO(val))
+            params[ord] = grad
         else:
             raise ValueError("Unknown param type %s for %s" % (t,name))
         
@@ -1032,7 +1053,14 @@ The image may not display correctly. Please upgrade to version %.1f.'''
                 self.cfuncs[0].symbols,self.cfunc_params[0])
             self.update_bailout_param(
                 self.cfuncs[1].symbols,self.cfunc_params[1])
-            
+
+    def fix_gradients(self, old_gradient):
+        # new gradient is read in after the gradient params have been set,
+        # so this is needed to fix any which are using that default
+        for i in xrange(len(self.initparams)):
+            if self.initparams[i] == old_gradient:
+                self.initparams[i] = self.gradient
+        
     def update_bailout_param(self,symbols,params):
         ord = self.order_of_name("@bailout",symbols)
         if ord == None:
@@ -1041,6 +1069,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         params[ord] = float(self.bailout)
             
     def loadFctFile(self,f):
+        old_gradient = self.gradient
         line = f.readline()
         if line == None or not line.startswith("gnofract4d parameter file"):
             raise Exception("Not a valid parameter file")
@@ -1051,6 +1080,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
             
             line = f.readline()
         self.fix_bailout()
+        self.fix_gradients(old_gradient)
         self.saved = True
         
 if __name__ == '__main__':
