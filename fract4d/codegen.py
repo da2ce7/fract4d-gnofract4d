@@ -7,6 +7,7 @@ import tempfile
 import copy
 import os
 
+import absyn
 import ir
 import symbol
 import re
@@ -590,7 +591,17 @@ extern pf_obj *pf_new(void);
         assem = op + "(%(s0)s,%(s1)s,%(s2)s, &%(d0)s, &%(d1)s, &%(d2)s);"
         self.out.append(Oper(assem,srcs, dst))
         return dst
-    
+
+    def emit_func2_3(self,op,srcs,type):
+        # take 2 objects and return 3, as in gradient func
+        dst = [
+            TempArg(self.symbols.newTemp(type)),
+            TempArg(self.symbols.newTemp(type)),
+            TempArg(self.symbols.newTemp(type))]
+        assem = op + "(%(s0)s,%(s1)s, &%(d0)s, &%(d1)s, &%(d2)s);"
+        self.out.append(Oper(assem,srcs, dst))
+        return dst
+        
     def emit_move(self, src, dst):
         self.out.append(Move([src],[dst]))
 
@@ -605,6 +616,11 @@ extern pf_obj *pf_new(void);
     def emit_label(self,name):
         self.out.append(Label(name))
 
+    def get_var(self,name):
+        temp_ir = ir.Var(name, absyn.Empty(0), fracttypes.Gradient)
+        var = self.var(temp_ir)
+        return var
+    
     def make_complex_init(self,type,varname, re_val,im_val):
         return [ Decl("%s %s_re = %s;" % (type,varname,re_val)),
                  Decl("%s %s_im = %s;" % (type,varname,im_val))]
