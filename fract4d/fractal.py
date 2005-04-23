@@ -258,12 +258,13 @@ class T(FctUtils):
         # gradient
         
         # default is just white outside
-        self.gradient = gradient.Gradient()
-        self.gradient.segments[0].left_color = [1.0,1.0,1.0,1.0]
-        self.gradient.segments[0].right_color = [1.0,1.0,1.0,1.0]
+        self.default_gradient = gradient.Gradient()
+        self.default_gradient.segments[0].left_color = [1.0,1.0,1.0,1.0]
+        self.default_gradient.segments[0].right_color = [1.0,1.0,1.0,1.0]
 
+        # solid colors are black
         self.solids = [(0,0,0,255),(0,0,0,255)]
-        
+
         # formula
         self.set_formula("gf4d.frm",self.funcName)
         self.set_inner("gf4d.cfrm","zero")
@@ -334,7 +335,7 @@ class T(FctUtils):
         print >>file, "]"
         
         print >>file, "gradient="
-        self.gradient.save(file)
+        self.get_gradient().save(file)
         
         if update_saved_flag:
             self.saved = True
@@ -349,7 +350,25 @@ class T(FctUtils):
         for name in names:
             print >>file, "%s=%s" % \
                   (name, self.initvalue(name, formula.symbols,params))
-        
+
+    def get_gradient(self):
+        try:
+            g = self.get_named_param_value("@_gradient")
+            if g == 0:
+                g = self.default_gradient
+        except Exception, exn:
+            print exn
+            g = self.default_gradient
+        return g
+    
+    def set_gradient(self, g):
+        old_g = self.get_gradient()
+        if old_g != g:
+            op = self.formula.symbols.order_of_params()
+            ord = op.get(self.formula.symbols.mangled_name("@_gradient"))
+            self.initparams[ord] = g
+            self.changed(False)
+            
     def initvalue(self,name,symbol_table,params):
         ord = self.order_of_name(name,symbol_table)
         type = symbol_table[name].type
@@ -366,7 +385,7 @@ class T(FctUtils):
         elif type == fracttypes.Bool:
             return "%s" % params[ord]
         elif type == fracttypes.Gradient:
-            return "[\n" + self.gradient.serialize() + "]"
+            return "[\n" + params[ord].serialize() + "]"
         else:
             raise ValueError("Unknown type %s for param %s" % (type,name))
 
@@ -424,7 +443,8 @@ class T(FctUtils):
                              self.get_func_value(name,self.formula),
                              c.formula)
 
-        c.initparams = copy.copy(self.initparams) # must be after set_formula
+        # must be after set_formula
+        c.initparams = [copy.copy(x) for x in self.initparams]
 
         c.set_outer(self.cfunc_files[0], self.cfunc_names[0])
         c.set_inner(self.cfunc_files[1], self.cfunc_names[1])
@@ -437,9 +457,8 @@ class T(FctUtils):
                                  self.get_func_value(name,frm),
                                  c_frm)
 
-            c.cfunc_params[i] = copy.copy(self.cfunc_params[i]) 
+            c.cfunc_params[i] = [copy.copy(x) for x in self.cfunc_params[i]]
                     
-        c.gradient = copy.copy(self.gradient)
         c.solids = copy.copy(self.solids)
         c.yflip = self.yflip
         c.periodicity = self.periodicity
@@ -479,7 +498,7 @@ class T(FctUtils):
         self.set_param(self.MAGNITUDE, mag)
 
     def copy_colors(self, f):
-        self.gradient = copy.copy(f.gradient)
+        self.set_gradient(copy.copy(f.get_gradient()))
         self.solids[0:len(f.solids)] = f.solids[:]
         self.changed(False)
         
@@ -487,7 +506,7 @@ class T(FctUtils):
         c = Colorizer(self)
         file = open(mapfile)
         c.parse_map_file(file)
-        self.gradient = c.gradient
+        self.set_gradient(c.gradient)
         self.solids[0:len(c.solids)] = c.solids[:]
         self.changed(False)
 
@@ -525,11 +544,6 @@ class T(FctUtils):
         self.solids = solids
         self.changed(False)
         
-    def set_gradient(self, g):
-        # FIXME: compare for equality
-        self.gradient = g
-        self.changed(False)
-        
     def refresh(self):
         if self.compiler.out_of_date(self.funcFile):
             self.set_formula(self.funcFile,self.funcName)
@@ -542,7 +556,7 @@ class T(FctUtils):
         self.paramtypes = self.formula.symbols.type_of_params()
         for i in xrange(len(self.paramtypes)):
             if self.paramtypes[i] == fracttypes.Gradient:
-                self.initparams[i] = self.gradient
+                self.initparams[i] = self.get_gradient()
         
     def set_formula_defaults(self):
         if self.formula == None:
@@ -706,7 +720,7 @@ class T(FctUtils):
         return self.outputfile
 
     def make_random_colors(self, n):
-        self.gradient.randomize(n)
+        self.get_gradient().randomize(n)
         self.changed(False)
         
     def mul_vs(self,v,s):
@@ -836,7 +850,7 @@ class T(FctUtils):
     def draw(self,image):
         handle = fract4dc.pf_load(self.outputfile)
         pfunc = fract4dc.pf_create(handle)
-        cmap = fract4dc.cmap_create_gradient(self.gradient.segments)
+        cmap = fract4dc.cmap_create_gradient(self.get_gradient().segments)
         (r,g,b,a) = self.solids[0]
         fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
         (r,g,b,a) = self.solids[1]
@@ -949,7 +963,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         self.bailfunc = int(val)
 
     def apply_colorizer(self, cf):
-        self.gradient = cf.gradient
+        self.set_gradient(cf.gradient)
         self.solids[0:len(cf.solids)] = cf.solids[:]
         self.changed(False)
         if cf.direct:
@@ -1059,7 +1073,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         # so this is needed to fix any which are using that default
         for i in xrange(len(self.initparams)):
             if self.initparams[i] == old_gradient:
-                self.initparams[i] = self.gradient
+                self.initparams[i] = self.get_gradient()
         
     def update_bailout_param(self,symbols,params):
         ord = self.order_of_name("@bailout",symbols)
@@ -1069,7 +1083,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         params[ord] = float(self.bailout)
             
     def loadFctFile(self,f):
-        old_gradient = self.gradient
+        old_gradient = self.get_gradient()
         line = f.readline()
         if line == None or not line.startswith("gnofract4d parameter file"):
             raise Exception("Not a valid parameter file")

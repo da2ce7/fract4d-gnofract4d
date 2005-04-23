@@ -3,11 +3,16 @@
 import unittest
 import copy
 import math
+import os
+import gettext
 
 import gtkfractal
 import gtk
 
 from fract4d import fc
+
+os.environ.setdefault('LANG', 'en')
+gettext.install('gnofract4d')
 
 # centralized to speed up tests
 g_comp = fc.Compiler()

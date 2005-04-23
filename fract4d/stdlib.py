@@ -8,9 +8,7 @@ class Constants:
     def __init__(self):
         self.i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(1.0))
         self.iby2 = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(0.5))
-        
-        self.minus_i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(-1.0))        
-
+        self.minus_i = ComplexArg(ConstFloatArg(0.0),ConstFloatArg(-1.0))  
         self.one = ComplexArg(ConstFloatArg(1.0),ConstFloatArg(0.0))
 
 const = Constants()

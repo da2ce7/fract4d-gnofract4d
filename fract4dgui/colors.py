@@ -93,7 +93,7 @@ class ColorDialog(dialog.T):
         self.treeview.get_selection().unselect_all()
 
     def update_gradient(self):
-        self.grad= copy.copy(self.f.gradient)
+        self.grad= copy.copy(self.f.get_gradient())
         self.solids = copy.copy(self.f.solids)
         
     def copy_left(self,widget):
@@ -267,6 +267,7 @@ class ColorDialog(dialog.T):
         self.remove_button.set_sensitive(i != -1)
         self.copy_right_button.set_sensitive(i != -1)
         self.copy_left_button.set_sensitive(i != -1)
+        
     def gradarea_mousedown(self, widget, event):
         pass
 
@@ -275,7 +276,6 @@ class ColorDialog(dialog.T):
         i = self.grad.get_index_at(pos)
         self.select_segment(i)
         self.redraw()
-
 
     def gradarea_mousemoved(self, widget, event):
         pass

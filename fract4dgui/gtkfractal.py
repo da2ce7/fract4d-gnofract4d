@@ -156,7 +156,7 @@ class T(gobject.GObject):
             self.f.set_formula(fname, formula)
         
     def draw(self,image,width,height,nthreads):
-        self.cmap = fract4dc.cmap_create_gradient(self.gradient.segments)
+        self.cmap = fract4dc.cmap_create_gradient(self.get_gradient().segments)
         (r,g,b,a) = self.f.solids[0]
         fract4dc.cmap_set_solid(self.cmap,0,r,g,b,a)
         (r,g,b,a) = self.f.solids[1]
@@ -595,6 +595,9 @@ class T(gobject.GObject):
                         table,i,name,"",
                         param,op[name],formula,param_type)
                     i += 3
+                elif param.type == fracttypes.Gradient:
+                    # FIXME
+                    pass
                 else:
                     self.add_formula_setting(
                         table,i,name,"",param,op[name], formula, param_type)
@@ -728,13 +731,14 @@ class T(gobject.GObject):
         (r,g,b) = self.get_paint_color()
         
         # update colormap
-        i = self.f.gradient.get_index_at(index)
-        if index > self.f.gradient.segments[i].mid:
-            alpha = self.f.gradient.segments[i].right_color[3]
-            self.f.gradient.segments[i].right_color = [r, g, b, alpha]
+        g = self.f.get_gradient()
+        i = g.get_index_at(index)
+        if index > g.segments[i].mid:
+            alpha = g.segments[i].right_color[3]
+            g.segments[i].right_color = [r, g, b, alpha]
         else:
-            alpha = self.f.gradient.segments[i].left_color[3]
-            self.f.gradient.segments[i].left_color = [r, g, b, alpha]
+            alpha = g.segments[i].left_color[3]
+            g.segments[i].left_color = [r, g, b, alpha]
             
         self.changed(False)
 
