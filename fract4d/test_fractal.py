@@ -858,7 +858,69 @@ blue=0.5543108971162746
         f.loadFctFile(StringIO.StringIO(file))
 
         self.assertEqual(f.initparams,[f.get_gradient(), 0.34,-0.28,4.0])
-                         
+
+    def testNewGradientRead(self):
+        file = '''gnofract4d parameter file
+version=2.8
+x=0.00000000000000000
+y=0.00000000000000000
+z=0.00000000000000000
+w=0.00000000000000000
+size=4.00000000000000000
+xy=0.00000000000000000
+xz=0.00000000000000000
+xw=0.00000000000000000
+yz=0.00000000000000000
+yw=0.00000000000000000
+zw=0.00000000000000000
+maxiter=256
+yflip=0
+periodicity=1
+[function]
+formulafile=gf4d.frm
+function=Mandelbrot
+@bailfunc=cmag
+@_gradient=[
+GIMP Gradient
+Name: /usr/share/gimp/1.2/gradients/Abstract_3
+6
+0.000000 0.050083 0.435726 0.000000 0.424242 0.070751 1.000000 1.000000 0.725647 0.428066 1.000000 0 0
+0.435726 0.490818 0.590985 1.000000 0.725647 0.428066 1.000000 0.115248 0.249315 0.651515 1.000000 0 0
+0.590985 0.660267 0.799666 0.115248 0.249315 0.651515 1.000000 0.552948 0.624658 0.550758 1.000000 0 0
+0.799666 0.879800 0.943239 0.552948 0.624658 0.550758 1.000000 0.990647 1.000000 0.450000 1.000000 0 0
+0.943239 0.961603 0.979967 0.990647 1.000000 0.450000 1.000000 0.317635 0.843781 1.000000 1.000000 0 0
+0.979967 0.989983 1.000000 0.317635 0.843781 1.000000 1.000000 0.000000 1.000000 0.000000 1.000000 0 0
+]
+@bailout=4.00000000000000000
+[endsection]
+[inner]
+formulafile=gf4d.cfrm
+function=zero
+@_transfer=ident
+@_density=1.00000000000000000
+@_offset=0.00000000000000000
+[endsection]
+[outer]
+formulafile=gf4d.cfrm
+function=continuous_potential
+@_transfer=ident
+@_density=1.00000000000000000
+@_offset=0.00000000000000000
+@bailout=4.00000000000000000
+[endsection]
+[colors]
+colorizer=1
+solids=[
+000000ff
+000000ff
+]
+'''
+        f = fractal.T(self.compiler)
+        f.loadFctFile(StringIO.StringIO(file))
+
+        g = f.get_gradient()
+        self.assertEqual(len(g.segments),6)
+
     def failBuf(self,buf):
         self.failUnless(False)
         
