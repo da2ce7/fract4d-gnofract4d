@@ -98,6 +98,7 @@ class Colorizer(FctUtils):
         self.solids = [(0,0,0,255)]
         self.direct = False
         self.rgb = [0,0,0]
+        self.read_gradient = False
         
     def load(self,f):
         line = f.readline()
@@ -152,6 +153,7 @@ class Colorizer(FctUtils):
                 colorlist.append(c)
             i+= 1
         self.gradient.load_list(colorlist)
+        self.read_gradient = True
         
     def parse_solids(self,val,f):
         line = f.readline()
@@ -177,10 +179,12 @@ class Colorizer(FctUtils):
             colorlist.append(tuple([index] + cols))
             line = f.readline()
         self.gradient.load_list(colorlist)
-
+        self.read_gradient = True
+        
     def parse_gradient(self,val,f):
         'Gimp gradient format: gf4d >= 2.7'
         self.gradient.load(f)
+        self.read_gradient = True
         
     def parse_file(self,val,f):
         mapfile = open(val)
@@ -220,6 +224,7 @@ class Colorizer(FctUtils):
                     colorlist.append(((i-1)/255.0,r,g,b,255))
             i += 1
         self.gradient.load_list(colorlist,maxdiff)
+        self.read_gradient = True
         
 class T(FctUtils):
     XCENTER = 0
@@ -333,9 +338,6 @@ class T(FctUtils):
         for solid in self.solids:
             print >>file, "%02x%02x%02x%02x" % solid
         print >>file, "]"
-        
-        print >>file, "gradient="
-        self.get_gradient().save(file)
         
         if update_saved_flag:
             self.saved = True
@@ -556,7 +558,7 @@ class T(FctUtils):
         self.paramtypes = self.formula.symbols.type_of_params()
         for i in xrange(len(self.paramtypes)):
             if self.paramtypes[i] == fracttypes.Gradient:
-                self.initparams[i] = self.get_gradient()
+                self.initparams[i] = copy.copy(self.default_gradient)
         
     def set_formula_defaults(self):
         if self.formula == None:
@@ -963,7 +965,8 @@ The image may not display correctly. Please upgrade to version %.1f.'''
         self.bailfunc = int(val)
 
     def apply_colorizer(self, cf):
-        self.set_gradient(cf.gradient)
+        if cf.read_gradient:
+            self.set_gradient(cf.gradient)
         self.solids[0:len(cf.solids)] = cf.solids[:]
         self.changed(False)
         if cf.direct:
@@ -1094,7 +1097,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
             
             line = f.readline()
         self.fix_bailout()
-        self.fix_gradients(old_gradient)
+        #self.fix_gradients(old_gradient)
         self.saved = True
         
 if __name__ == '__main__':

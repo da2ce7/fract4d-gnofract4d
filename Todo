@@ -10,6 +10,7 @@ fixed in 2.8:
 * B	parse periodicity in formulas and .fct file
 * W	make gradient() function work. 
 * BB	@_gradient differs from f.gradient
+* BB	save gradient twice
 
 todo:
 
@@ -31,7 +32,6 @@ bugs (the more B's, the worse the bug):
 * BB	fractint doesn't reset vars between calls
 * BB	crash with multiple threads on x86-64 (Paul Wayper)
 * BB	gradient doesn't use in/out density/transfer/offset
-* BB	save gradient twice
 * B	is a cmap loaded from a .map file correct? Think index math is squiffy 
 * B     var called 'loat' would clash with C reserved word
 * B	weird behavior when using explorer mode & oversized image
