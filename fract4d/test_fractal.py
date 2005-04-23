@@ -165,9 +165,10 @@ class Test(unittest.TestCase):
         self.assertEqual(f.cfunc_files, ["gf4d.cfrm"]*2)
         
         self.assertEqual(f.maxiter, 259)
-        self.failUnless(len(f.gradient.segments)> 1)
-        self.assertEqual(f.gradient.segments[0].left,0.0)
-        self.assertEqual(f.gradient.segments[-1].right,1.0)
+        g = f.get_gradient()
+        self.failUnless(len(g.segments)> 1)
+        self.assertEqual(g.segments[0].left,0.0)
+        self.assertEqual(g.segments[-1].right,1.0)
         self.assertEqual(f.solids[0],(0,0,0,255))
         self.assertEqual(f.yflip,False)
         
@@ -374,7 +375,7 @@ colorlist=[
             '__SIZE__' : 8
             })
         params = f.all_params()
-        self.assertEqual(params,[f.gradient, 4.0,1.0, 0.0, 1.0e20, 2.0, 1.0, 0.0])
+        self.assertEqual(params,[f.get_gradient(), 4.0,1.0, 0.0, 1.0e20, 2.0, 1.0, 0.0])
 
         # check for appropriate snippets in the code
         cg.output_decls(f.formula)
@@ -490,7 +491,7 @@ blue=0.3
         self.assertFuncsEqual(f1, f1.cfuncs[1],f2, f2.cfuncs[1])
         self.assertEqual(f1.yflip,f2.yflip)
 
-        self.assertEqual(f1.gradient, f2.gradient)
+        self.assertEqual(f1.get_gradient(), f2.get_gradient())
         
     def testSave(self):
         # load some settings
@@ -605,7 +606,7 @@ blue=0.3
         self.assertEqual(f.params[f.YZANGLE],0.0)
         self.assertEqual(f.params[f.YWANGLE],0.0)
         self.assertEqual(f.params[f.ZWANGLE],0.0)
-        self.assertEqual(f.initparams, [f.gradient, 4.0])
+        self.assertEqual(f.initparams, [f.get_gradient(), 4.0])
 
         f.compile()
         (w,h) = (40,30)
@@ -656,7 +657,7 @@ blue=0.3
         self.assertEqual(f.params[f.XYANGLE],0.001)
         self.assertEqual(f.params[f.XZANGLE],0.789)
         self.assertEqual(f.title,"Hello World")
-        self.assertEqual(f.initparams,[f.gradient, 8.0,7.0,1.0])
+        self.assertEqual(f.initparams,[f.get_gradient(), 8.0,7.0,1.0])
         self.assertEqual(f.periodicity, 0)
         
         self.assertEqual(
@@ -694,7 +695,7 @@ The image may not display correctly. Please upgrade to version 3.4.''')
         f.set_outer("gf4d.cfrm","continuous_potential")
         f.compile()
         f.reset()
-        self.assertEqual(f.initparams,[f.gradient, 4.0])
+        self.assertEqual(f.initparams,[f.get_gradient(), 4.0])
         (w,h) = (40,30)
         im = fract4dc.image_create(w,h)
         f.draw(im)
@@ -732,7 +733,7 @@ The image may not display correctly. Please upgrade to version 3.4.''')
         f.set_outer("gf4d.cfrm","default")
         f.compile()
         f.reset()
-        self.assertEqual(f.initparams,[f.gradient, 0.0])
+        self.assertEqual(f.initparams,[f.get_gradient(), 0.0])
         self.assertEqual(f.antialias,1)
         (w,h) = (30,30)
         im = fract4dc.image_create(w,h)
@@ -757,7 +758,7 @@ The image may not display correctly. Please upgrade to version 3.4.''')
         f.set_outer("gf4d.cfrm","default")
         f.compile()
         f.reset()
-        self.assertEqual(f.initparams,[f.gradient, 0.0])
+        self.assertEqual(f.initparams,[f.get_gradient(), 0.0])
         self.assertEqual(f.antialias,1)
         (w,h) = (30,30)
         im = fract4dc.image_create(w,h)
@@ -800,7 +801,7 @@ The image may not display correctly. Please upgrade to version 3.4.''')
         self.check_diagonal_image(f2, ingrey, outgrey)
         
     def check_diagonal_image(self,f,ingrey,outgrey):
-        f.gradient.load_list([(0.0,0,0,0,255),(1.0,255,255,255,255)])
+        f.get_gradient().load_list([(0.0,0,0,0,255),(1.0,255,255,255,255)])
         f.compile()
         (w,h) = (30,30)
         im = fract4dc.image_create(w,h)
@@ -856,7 +857,7 @@ blue=0.5543108971162746
         f.warn = wc.warn
         f.loadFctFile(StringIO.StringIO(file))
 
-        self.assertEqual(f.initparams,[f.gradient, 0.34,-0.28,4.0])
+        self.assertEqual(f.initparams,[f.get_gradient(), 0.34,-0.28,4.0])
                          
     def failBuf(self,buf):
         self.failUnless(False)
@@ -929,15 +930,17 @@ blue=0.5543108971162746
         self.assertNotEqual(formName,f.funcName)
 
         # test colors
-        colors = c.gradient.segments
-        c0 = colors[0].left_color
-        for i in xrange(len(colors)):
-            self.assertEqual(colors[i].left_color,
-                             f.gradient.segments[i].left_color)
+        new_colors = c.get_gradient().segments
+        old_colors = f.get_gradient().segments
 
-        f.gradient.segments[0].left_color = [0.7,0.3,0.6,0.5]
-        self.assertEqual(c0,c.gradient.segments[0].left_color)
-        self.assertNotEqual(c0,f.gradient.segments[0].left_color)
+        c0 = new_colors[0].left_color
+        for i in xrange(len(new_colors)):
+            self.assertEqual(new_colors[i].left_color,
+                             old_colors[i].left_color)
+
+        old_colors[0].left_color = [0.7,0.3,0.6,0.5]
+        self.assertEqual(c0,c.get_gradient().segments[0].left_color)
+        self.assertNotEqual(c0,f.get_gradient().segments[0].left_color)
 
     def testCopy2(self):
         '''There was a bug where copy() would reset func values.

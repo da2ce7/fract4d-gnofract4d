@@ -833,14 +833,20 @@ func fn1
         src = '''t_grad {
         init:
         color r = gradient(0.0)
+        color y = gradient(0.5)
         color g = gradient(1.0)
         }'''
 
+        # y should really be 0.5, but has rounding errors
         self.assertCSays(
             src,
             "init",
-            self.inspect_color("r"),
-            "r = (1,0,0,1)")
+            self.inspect_color("r") +
+            self.inspect_color("y") +
+            self.inspect_color("g"),
+            "r = (1,0,0,1)\n"+
+            "y = (0.498039,0.498039,0,1)\n"+
+            "g = (0,1,0,1)")
         
     def testCHyper(self):
         'test arithmetic in hypercomplex numbers'

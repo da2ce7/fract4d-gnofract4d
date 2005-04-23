@@ -84,13 +84,13 @@ class Test(unittest.TestCase):
     def testApply(self):
         c = colors.ColorDialog(None,self.f)
         c.grad.segments[0].left_color = new_color = [0.4, 0.7, 0.3, 1.0]
-        self.assertNotEqual(self.f.gradient.segments[0].left_color, new_color)
+        self.assertNotEqual(self.f.get_gradient().segments[0].left_color, new_color)
 
         c.onApply()
         self.assertFractalSegmentsEqualEditorSegments(c)
         
     def assertFractalSegmentsEqualEditorSegments(self, editor):
-        for (seg1,seg2) in zip(self.f.gradient.segments, editor.grad.segments):
+        for (seg1,seg2) in zip(self.f.get_gradient().segments, editor.grad.segments):
 	    k1 = seg1.__dict__.keys()
 	    k1.sort()
 	    k2 = seg2.__dict__.keys()

@@ -73,7 +73,7 @@ class Segment:
             self.left, self.left_color[:],
             self.right, self.right_color[:], self.mid,
             self.blend_mode, self.color_mode)
-
+    
     def __eq__(self,other):
         return self.cmode == other.cmode and \
                self.bmode == other.bmode and \

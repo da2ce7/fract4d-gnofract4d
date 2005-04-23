@@ -9,7 +9,7 @@ import math
 import gtk
 
 sys.path.append("..")
-from fract4d import fractal,fc,fract4dc, gradient
+from fract4d import fractal,fc,fract4dc
 
 import gtkfractal, model, preferences, autozoom, settings, toolbar
 import colors, undo, browser, fourway, angle, utils, hig, painter
