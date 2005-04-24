@@ -176,6 +176,15 @@ class Test(unittest.TestCase):
         image = fract4dc.image_create(40,30)
         f.draw(image)
 
+    def testLoadGradientFunc(self):
+        f = fractal.T(self.compiler)
+        f.loadFctFile(open("../testdata/gradient_func.fct"))
+
+        f.compile()
+        (w,h) = (40,30)
+        image = fract4dc.image_create(w,h)
+        f.draw(image)
+
     def testRefresh(self):
         try:
             formula = '''

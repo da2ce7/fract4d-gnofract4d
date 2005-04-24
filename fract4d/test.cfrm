@@ -1,3 +1,14 @@
+dca2 {
+final: 
+float ed = @bailout/(|z| + 1.0e-9) 
+float index = (#numiter + ed) / 256.0
+#color = gradient(index)
+default:
+float param bailout
+	default = 4.0
+endparam
+}
+
 flat {
 final:
  #index = real(@myfunc(@val)) + |@val2|*0.0

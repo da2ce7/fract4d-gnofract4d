@@ -64,6 +64,20 @@ module1 = Extension(
     
     )
 
+module_cmap = Extension(
+    'fract4d.fract4d_cmap',
+    sources = [
+    'fract4d/c/cmap.cpp'
+    ],
+    include_dirs = [
+    'fract4d/c'
+    ],
+    libraries = [
+    'stdc++'
+    ],
+    define_macros = [ ('_REENTRANT', 1)]
+    )
+
 # GUI extension needs to link against gtk+. We use pkg-config
 # to find the appropriate set of includes and libs
 
@@ -123,7 +137,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
        keywords = "fractal Mandelbrot Julia fractint",
        url = 'http://gnofract4d.sourceforge.net/',
        packages = ['fract4d', 'fract4dgui'],
-       ext_modules = [module1, module2],
+       ext_modules = [module1, module_cmap, module2],
        scripts = ['gnofract4d'],
        license = 'BSD',
        data_files = [
@@ -163,7 +177,9 @@ so_extension = distutils.sysconfig.get_config_var("SO")
 
 lib_targets = {
     "fract4dguic" + so_extension : "fract4dgui",
-    "fract4dc" + so_extension : "fract4d"}
+    "fract4dc" + so_extension : "fract4d",
+    "fract4d_cmap" + so_extension : "fract4d"
+    }
 
 def copy_libs(dummy,dirpath,namelist):
      for name in namelist:

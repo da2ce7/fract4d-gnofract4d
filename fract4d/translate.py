@@ -794,6 +794,7 @@ class T(TBase):
 class ColorFunc(TBase):
     def __init__(self,f,name,dump=None):
         TBase.__init__(self,name,dump)
+
         try:
             self.main(f)
             if self.dumpPreCanon:
@@ -804,24 +805,40 @@ class ColorFunc(TBase):
 
         self.post_init()
 
+    def index_calc(self, var):
+        # @transfer(var) * @density + @offset
+        return \
+            Binop('+', 
+                  Binop('*', 
+                        ID("@_density",-1),
+                        Funcall("@_transfer",[var],-1), -1),
+                  ID("@_offset",-1),-1)
+
+    def funcall(self, node):
+        # special handling for gradient function to insert density,
+        # offset and transfer
+        if node.leaf == "gradient":
+            children = [ self.exp(self.index_calc(node.children[0]))]
+            op = self.findOp(node.leaf, node.pos, children)
+            children = self.coerceList(op.args,children)
+            return ir.Call(node.leaf, children, node, op.ret)
+        else:
+            return TBase.funcall(self,node)
+
     def final(self,f):
-        TBase.final(self,f)
         # append [#index = @transfer(#index) * @density + @offset]
         density = Var(Float, 0.0, -1)
         density.default = ir.Const(1.0,-1,fracttypes.Float)
         
         self.symbols["@_offset"] = Var(Float, 0.0, -1)
         self.symbols["@_density"] = density
-        
+
         transfer = Stmlist(
-            "", [ Assign(
-            ID("#index",-1),
-            Binop('+', 
-                Binop('*', 
-                   ID("@_density",-1),
-                   Funcall("@_transfer",[ID("#index",-1)],-1), -1),
-                ID("@_offset",-1),-1),
-            -1)], -1)
+            "",
+            [ Assign(ID("#index",-1), self.index_calc(ID("#index",-1)), -1)],
+            -1)
+        
+        TBase.final(self,f)
         TBase.final(self,transfer)
         
     def main(self,f):
