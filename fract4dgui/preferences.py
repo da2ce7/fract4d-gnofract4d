@@ -20,7 +20,7 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
         _defaults = {
             "compiler" : {
               "name" : "gcc",
-              "options" : "-fPIC -DPIC -D_REENTRANT -O3 -shared -ffast-math"
+              "options" : "-fPIC -DPIC -D_REENTRANT -O2 -shared -ffast-math"
             },
             "display" : {
               "width" : "640",
