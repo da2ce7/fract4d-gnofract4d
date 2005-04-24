@@ -12,11 +12,10 @@ fixed in 2.8:
 * BB	@_gradient differs from f.gradient
 * BB	save gradient twice
 * BB	gradient doesn't use in/out density/transfer/offset
-Gradient() should use _offset, _transfer
+* BB	opening browser should select current fractfile and formula
+* B	$undef support
 
 todo:
-
-user-supplied additional gradient params
 
 DeprecationWarnings:
 main_window:344 (use gtk.UIManager), 545 (use combobox)
@@ -28,7 +27,6 @@ preferences.py: 251
 bugs (the more B's, the worse the bug):
 * BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
 * BB	should save enum params as strings, not indexes
-* BB	opening browser should select current fractfile and formula
 * BB	fractint doesn't reset vars between calls
 * BB	crash with multiple threads on x86-64 (Paul Wayper)
 * B	is a cmap loaded from a .map file correct? Think index math is squiffy 
@@ -60,6 +58,7 @@ bugs (the more B's, the worse the bug):
 * B	Mandrake: desktop icon not added to menu
 
 features (the more W's, the more work involved):
+* W	user-supplied additional gradient params
 * W	don't allocate memory for recoloring buffer when image very large
 * W 	gradients: HSV backend (flare_glow_radial_2)
 * WW	download missing formulas from UF formula database

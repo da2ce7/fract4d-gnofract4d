@@ -8,6 +8,8 @@ else_re = re.compile(r'\s*\$else', re.IGNORECASE)
 
 define_re = re.compile(r'\s*\$define(\s+(?P<var>[a-z][a-z0-9_]*))?',
                        re.IGNORECASE)
+undef_re = re.compile(r'\s*\$undef(\s+(?P<var>[a-z][a-z0-9_]*))?',
+                      re.IGNORECASE)
 
 class Error(Exception):
     def __init__(self,msg):
@@ -73,8 +75,17 @@ class T:
                         var = self.get_var(m,i, "$DEFINE")
                         self.vars[var] = 1
                     else:
-                        # just a line
-                        pass_through = True
+                        m = undef_re.match(line)
+                        if m:
+                            var = self.get_var(m,i,"$UNDEF")
+                            try:
+                                del self.vars[var]
+                            except KeyError, err:
+                                # allow undef of undefined var
+                                pass
+                        else:
+                            # just a line
+                            pass_through = True
                         
             if pass_through:
                 out_lines.append(line)
