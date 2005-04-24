@@ -16,7 +16,7 @@ import fracttypes
 import ir
 import stdlib
 
-class TranslateTest(testbase.TestBase):
+class Test(testbase.TestBase):
     def setUp(self):
         self.parser = fractparser.parser
 
@@ -70,6 +70,25 @@ class TranslateTest(testbase.TestBase):
         #index = log(d+1.0)
         }''')
         self.assertNoErrors(t3)
+
+    def testGradientCastProblem(self):
+        "Test a problem with gradient casting doesn't recur"
+        src = '''t {
+        init:
+        float d = 0.0
+        color current = rgb(0,0,0)
+        
+        current = gradient(d/@threshold)
+        default:
+        param threshold
+            caption = "Threshold"
+            default = 0.25
+            min = 0
+        endparam
+        }'''
+
+        t = self.translatecf(src)
+        self.assertNoErrors(t)
 
     def testLightingOddness(self):
         'Test no problems regress with lighting colorfunc from standard.ucl'
@@ -923,7 +942,7 @@ default:
         self.assertNoErrors(t)
 
 def suite():
-    return unittest.makeSuite(TranslateTest,'test')
+    return unittest.makeSuite(Test,'test')
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

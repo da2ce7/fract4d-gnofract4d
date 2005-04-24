@@ -1711,7 +1711,7 @@ default:
   endparam
 
 $IFDEF DIRECT
-  param threshold
+  float param threshold
     caption = "Threshold"
     default = 0.25
     min = 0

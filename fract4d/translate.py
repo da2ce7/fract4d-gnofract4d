@@ -795,6 +795,13 @@ class ColorFunc(TBase):
     def __init__(self,f,name,dump=None):
         TBase.__init__(self,name,dump)
 
+        # magic vars always included in colorfuncs
+        density = Var(Float, 0.0, -1)
+        density.default = ir.Const(1.0,-1,fracttypes.Float)
+        
+        self.symbols["@_offset"] = Var(Float, 0.0, -1)
+        self.symbols["@_density"] = density
+
         try:
             self.main(f)
             if self.dumpPreCanon:
@@ -827,12 +834,6 @@ class ColorFunc(TBase):
 
     def final(self,f):
         # append [#index = @transfer(#index) * @density + @offset]
-        density = Var(Float, 0.0, -1)
-        density.default = ir.Const(1.0,-1,fracttypes.Float)
-        
-        self.symbols["@_offset"] = Var(Float, 0.0, -1)
-        self.symbols["@_density"] = density
-
         transfer = Stmlist(
             "",
             [ Assign(ID("#index",-1), self.index_calc(ID("#index",-1)), -1)],
