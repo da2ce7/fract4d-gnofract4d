@@ -22,6 +22,38 @@ class Test(unittest.TestCase):
         wobble
         ''')
 
+    def testUndef(self):
+        pp = preprocessor.T('''
+        $DEFINE foo
+        $UNDEF foo
+        $IFDEF foo
+        poo
+        $ENDIF
+        ''')
+        self.assertEqual(pp.out(),'''
+
+
+
+
+
+        ''')
+
+    def testBadUndef(self):
+        pp = preprocessor.T('''
+        $UNDEF foo
+        ''')
+        self.assertEqual(pp.out(),'''
+
+        ''')
+
+        try:
+            pp = preprocessor.T('''
+            $UNDEF
+            ''')
+            self.fail("should've raised an exception")
+        except preprocessor.Error, err:
+            self.assertEqual(str(err), "2: $UNDEF without variable")
+                    
     def testIfWithoutEndif(self):
         try:
             pp = preprocessor.T('''

@@ -811,7 +811,7 @@ class MainWindow:
             browser.show(self.window, self.f, browser.OUTER)
         else:
             browser.show(self.window, self.f, browser.FRACTAL)
-    
+        
     def open(self,action,widget):
         fs = utils.get_file_open_chooser(_("Open Parameter File"), self.window)
         fs.show_all()
@@ -830,6 +830,7 @@ class MainWindow:
         try:
             self.f.loadFctFile(open(file))
             self.set_filename(file)
+            browser.update(self.f.funcFile, self.f.funcName)
             return True
         except Exception, err:
             self.show_error_message(_("Error opening %s") % file,err)

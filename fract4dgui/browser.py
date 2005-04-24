@@ -14,24 +14,36 @@ FRACTAL = 0
 INNER = 1
 OUTER = 2
 
+fname_to_use = None
+formula_to_use = None
+
 def stricmp(a,b):
     return cmp(a.lower(),b.lower())
 
 def show(parent, f,type):
     BrowserDialog.show(parent,f,type)
 
-def update(file=None):
+def update(file=None, formula=None):
+    global fname_to_use
+    global formula_to_use
     b = dialog.get(BrowserDialog)
-    if b:
-        if file:
+    if file:
+        if b:            
             b.current_fname=os.path.basename(file)
-        b.populate_file_list()
-    
+            b.current_formula=formula
+            b.populate_file_list()
+        else:
+            # browser doesn't exist yet, squirrel filename away
+            fname_to_use = os.path.basename(file)
+            formula_to_use = formula
+            
 class BrowserDialog(dialog.T):
     RESPONSE_EDIT = 1
     RESPONSE_REFRESH = 2
     RESPONSE_COMPILE = 3
     def __init__(self,main_window,f):
+        global fname_to_use
+        global formula_to_use
         dialog.T.__init__(
             self,
             _("Formula Browser"),
@@ -54,8 +66,8 @@ class BrowserDialog(dialog.T):
 
         self.f = f
         self.compiler = f.compiler
-        self.current_fname = None
-        self.current_formula = None
+        self.current_fname = fname_to_use
+        self.current_formula = formula_to_use
         self.ir = None
         self.func_type = FRACTAL
         self.tooltips = gtk.Tooltips()
