@@ -646,7 +646,7 @@ class Test(unittest.TestCase):
         self.compileMandel()
         handle = fract4dc.pf_load("./test-pf.so")
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,[4.0])
+        fract4dc.pf_init(pfunc,0.001,[0,4.0])
         image = []
         for y in xrange(-20,20):
             line = []
