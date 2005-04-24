@@ -11,11 +11,11 @@ fixed in 2.8:
 * W	make gradient() function work. 
 * BB	@_gradient differs from f.gradient
 * BB	save gradient twice
+* BB	gradient doesn't use in/out density/transfer/offset
+Gradient() should use _offset, _transfer
 
 todo:
 
-Gradient() should use _offset, _transfer
-Move _offset, _density, _transfer out of compiled code?
 user-supplied additional gradient params
 
 DeprecationWarnings:
@@ -31,7 +31,6 @@ bugs (the more B's, the worse the bug):
 * BB	opening browser should select current fractfile and formula
 * BB	fractint doesn't reset vars between calls
 * BB	crash with multiple threads on x86-64 (Paul Wayper)
-* BB	gradient doesn't use in/out density/transfer/offset
 * B	is a cmap loaded from a .map file correct? Think index math is squiffy 
 * B     var called 'loat' would clash with C reserved word
 * B	weird behavior when using explorer mode & oversized image
