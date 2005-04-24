@@ -203,6 +203,10 @@ int main()
         pf_fake *t__pfo = &t__f;
         double pixel_re = 0.0, pixel_im = 0.0;
         double t__h_zwpixel_re = 0.0, t__h_zwpixel_im = 0.0;
+        double t__h_color_re = 0.0;
+        double t__h_color_i = 0.0;
+        double t__h_color_j = 0.0;
+        double t__h_color_k = 0.0;
         '''
 
         codegen_symbols = self.codegen.output_symbols(self.codegen,{})

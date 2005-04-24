@@ -29,9 +29,14 @@
 #define PyMODINIT_FUNC void
 #endif
 
+#define CMAP_NAME "/fract4d_cmap.so"
+
 /* 
  * pointfuncs
  */
+
+PyObject *pymod=NULL;
+void *cmap_module_handle=NULL;
 
 static void
 pf_unload(void *p)
@@ -42,9 +47,49 @@ pf_unload(void *p)
     dlclose(p);
 }
 
+static int 
+ensure_cmap_loaded()
+{
+    // load the cmap module so fract funcs we compile later
+    // can call its methods
+    if(NULL != cmap_module_handle)
+    {
+	return 1; // already loaded
+    }
+
+    char *filename = PyModule_GetFilename(pymod);
+    char *path_end = strrchr(filename,'/');
+    if(path_end == NULL)
+    {
+	path_end = filename;
+    }
+    int path_len = strlen(filename) - strlen(path_end);
+    int len = path_len + strlen(CMAP_NAME);
+
+    char *new_filename = (char *)malloc(len+1);
+    strncpy(new_filename, filename, path_len);
+    new_filename[path_len] = '\0';
+    strcat(new_filename, CMAP_NAME);
+    //printf("Filename: %s\n", new_filename);
+
+    cmap_module_handle = dlopen(new_filename, RTLD_GLOBAL | RTLD_NOW);
+    if(NULL == cmap_module_handle)
+    {
+	/* an error */
+	PyErr_SetString(PyExc_ValueError, dlerror());
+	return 0;
+    }
+    return 1;
+}
+
 static PyObject *
 pf_load(PyObject *self, PyObject *args)
 {
+    if(!ensure_cmap_loaded())
+    {
+	return NULL;
+    }
+
     char *so_filename;
     if(!PyArg_ParseTuple(args,"s",&so_filename))
     {
@@ -1708,5 +1753,5 @@ static PyMethodDef PfMethods[] = {
 extern "C" PyMODINIT_FUNC
 initfract4dc(void)
 {
-    (void) Py_InitModule("fract4dc", PfMethods);
+    pymod = Py_InitModule("fract4dc", PfMethods);
 }

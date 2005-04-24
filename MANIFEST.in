@@ -21,3 +21,4 @@ include testdata/test_bail.fct
 include testdata/elfglow.fct
 include testdata/julfn.fct
 include testdata/collapsar.fct
+include testdats/gradient_func.fct

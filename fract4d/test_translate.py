@@ -37,6 +37,13 @@ class TranslateTest(testbase.TestBase):
         pt = absyn.Formula("",[],-1)
         t = translate.T(pt)
         self.assertEqual(t.sections,{})
+
+    def testGradientCF(self):
+        t = self.translatecf('''c1 {
+        #color = gradient(cmag(#z))
+        }''')
+
+        self.assertNoErrors(t)
         
     def testCF(self):
         t1 = self.translatecf('''c1 {
