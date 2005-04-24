@@ -10,6 +10,7 @@
 export BUILD_PYTHON_VERSION=2.3
 export BUILD_PYTHON=/usr/bin/python2.3
 
+rm -f MANIFEST
 rm -rf build
 rm -f fract4d/*.so fract4d/*.pyc fract4dgui/*.so fract4dgui/*.pyc
 $BUILD_PYTHON setup.py clean
@@ -22,6 +23,7 @@ mv dist/gnofract4d-2.8-1.i386.rpm dist/gnofract4d-python23-2.8-1.i386.rpm
 export BUILD_PYTHON_VERSION=2.4
 export BUILD_PYTHON=/usr/local/bin/python2.4
 
+rm -f MANIFEST
 rm -rf build
 rm -f fract4d/*.so fract4d/*.pyc fract4dgui/*.so fract4dgui/*.pyc
 $BUILD_PYTHON setup.py clean

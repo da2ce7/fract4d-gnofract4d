@@ -355,3 +355,19 @@ CmapEditor
 * W 	remove debug printfs
 * W	finish cmapeditor
 
+Gnofract4d server:
+Browse formulas, .fct files interactively in web browser, gf4d
+gf4d fetch formulas automatically when missing
+formulas are versioned, .fct file lists revision it used
+local repository with versioning?
+anyone can edit any formula, no-one can delete older revisions
+all edits are attached to a named user. 
+Anyone can create an account without human intervention
+Post new formulas and .fct files easily from within GUI
+Post thumbnail images for browsing
+
+design possibilities:
+use revision control system (subversion, cvs, rcs, arch?)
+pysvn (has further dependencies)
+hosting: cvsdude? sourceforge?
+wiki? (need to remove formatting, though)
