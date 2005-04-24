@@ -322,7 +322,7 @@ class T(FctUtils):
 
         print >>file, "maxiter=%d" % self.maxiter
         print >>file, "yflip=%s" % self.yflip
-        print >>file, "periodicity=%s" % self.periodicity
+        print >>file, "periodicity=%s" % int(self.periodicity)
         print >>file, "[function]"
         print >>file, "formulafile=%s" % self.funcFile
         print >>file, "function=%s" % self.funcName
@@ -385,7 +385,7 @@ class T(FctUtils):
         elif type == fracttypes.Int:
             return "%d" % params[ord]
         elif type == fracttypes.Bool:
-            return "%s" % params[ord]
+            return "%s" % int(params[ord])
         elif type == fracttypes.Gradient:
             return "[\n" + params[ord].serialize() + "]"
         else:
@@ -951,8 +951,14 @@ The image may not display correctly. Please upgrade to version %.1f.'''
             params[ord] = int(val)
         elif t == fracttypes.Bool:
             # don't use bool(val) - that makes "0" = True
-            i = int(val)
-            params[ord] = (i != 0)
+	    try:
+               i = int(val)
+	       i = (i != 0)
+	    except ValueError:
+	       # an old release included a 'True' or 'False' string
+	       if val == "False": i = 0
+	       if val == "True": i = 1
+            params[ord] = i
         elif t == fracttypes.Gradient:
             grad = gradient.Gradient()
             grad.load(StringIO.StringIO(val))
