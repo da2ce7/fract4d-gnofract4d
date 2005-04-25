@@ -74,46 +74,67 @@ Flags:
 -s --save IMAGEFILE\tSave image to IMAGEFILE
 -i --width N\t\tMake image N pixels wide
 -j --height N\t\tMake image N pixels tall
+-P --path P\t\tAdd P to the formula search path
+-f --formula F#func\tUse formula 'func' in file F
 
 To generate an image non-interactively, use:
 gnofract4d -s myimage.png -q myfractal.fct
+
 """ % version
 
 def main():
     mainWindow = main_window.MainWindow()
-    (opts, args) = getopt.getopt(
-        sys.argv[1:],
-        "p:i:j:s:qhP:",
-        [ "params=",
-          "width=",
-          "height=",
-          "save=",
-          "help",
-          "path="
-          "quit"])
 
     width = preferences.userPrefs.getint("display","width")
     height = preferences.userPrefs.getint("display","height")
-    
-    for (name, val) in opts:
-        if name=="-p" or name=="--params":
-            args.insert(0,val)
-        elif name=="-q" or name=="--quit":
-            mainWindow.quit_when_done = True
-        elif name=="-s" or name=="--save":
-            mainWindow.save_filename = val
-        elif name=="-i" or name=="--width":
-            width = int(val)
-        elif name=="-j" or name=="--height":
-            height = int(val)
-        elif name=="-h" or name=="--help":
-            help()
-            return
-        elif name=="-P" or name=="--path":
-            mainWindow.compiler.file_path.append(val)
-        else:
-            print "Unknown argument", name, val
 
+    try:
+        (opts, args) = getopt.getopt(
+            sys.argv[1:],
+            "p:i:j:s:qhP:",
+            [ "params=",
+              "width=",
+              "height=",
+              "save=",
+              "help",
+              "path=",
+              "formula=",
+              "quit"])
+
+        for (name, val) in opts:
+            if name=="-p" or name=="--params":
+                args.insert(0,val)
+            elif name=="-q" or name=="--quit":
+                mainWindow.quit_when_done = True
+            elif name=="-s" or name=="--save":
+                mainWindow.save_filename = val
+            elif name=="-i" or name=="--width":
+                width = int(val)
+            elif name=="-j" or name=="--height":
+                height = int(val)
+            elif name=="-h" or name=="--help":
+                help()
+                return
+            elif name=="-P" or name=="--path":
+                mainWindow.compiler.file_path.append(val)
+            elif name=="--formula":
+                n = val.rfind('#')
+                if n==-1:
+                    help()
+                    print "ERROR: --formula should be file#func"
+                    return 1
+                (file, func) = (val[:n], val[n+1:])
+                path = os.path.dirname(file)
+                basename = os.path.basename(file)
+                if path: 
+                    mainWindow.compiler.file_path.append(path)
+                mainWindow.f.set_formula(basename,func)
+            else:
+                print "Unknown argument", name, val
+    except getopt.GetoptError:
+        help()
+        return 1
+    
     mainWindow.f.set_size(width,height)
 
     mainWindow.f.thaw()

@@ -1,20 +1,3 @@
-fixed in 2.8:
-* B	jock.ufm:neptwona = "complex z = #pixel", ie redeclare z
-* BB	horrible dots during pass 2 for formulas which redeclare z
-* B	coolness.fct - need direct coloring algorithm
-* W	direct coloring algorithms
-* B	old rgb colorizers don't work
-* B	bool params wouldn't load correctly
-* W	color params in GUI
-* W	color func params
-* B	parse periodicity in formulas and .fct file
-* W	make gradient() function work. 
-* BB	@_gradient differs from f.gradient
-* BB	save gradient twice
-* BB	gradient doesn't use in/out density/transfer/offset
-* BB	opening browser should select current fractfile and formula
-* B	$undef support
-
 todo:
 
 DeprecationWarnings:
@@ -132,6 +115,23 @@ params (not all applicable to all types):
 1) how to set color of point
 2) time step
 3) which points to start with
+
+fixed in 2.8:
+* B	jock.ufm:neptwona = "complex z = #pixel", ie redeclare z
+* BB	horrible dots during pass 2 for formulas which redeclare z
+* B	coolness.fct - need direct coloring algorithm
+* W	direct coloring algorithms
+* B	old rgb colorizers don't work
+* B	bool params wouldn't load correctly
+* W	color params in GUI
+* W	color func params
+* B	parse periodicity in formulas and .fct file
+* W	make gradient() function work. 
+* BB	@_gradient differs from f.gradient
+* BB	save gradient twice
+* BB	gradient doesn't use in/out density/transfer/offset
+* BB	opening browser should select current fractfile and formula
+* B	$undef support
 
 Done in 2.7:
 * W	randomize colors tool
