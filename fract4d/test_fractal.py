@@ -288,6 +288,14 @@ colorlist=[
         self.assertRaises(ValueError,f.loadFctFile,
                           (StringIO.StringIO(bad_testfile)))
 
+    def testLoadBoolParamSavedByOlderVersion(self):
+        '''Bug reported by Elaine Normandy: file saved by 2.7 containing
+        boolean param can't be loaded by 2.8'''
+
+        f = fractal.T(self.compiler)
+        f.loadFctFile(open("../testdata/chainsoflight.fct"))
+        self.assertEqual(f.periodicity, True)
+        
     def testSaveFlag(self):
         'Test that we know when we\'re up-to-date on disk'
         f = fractal.T(self.compiler)

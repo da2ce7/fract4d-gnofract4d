@@ -359,7 +359,6 @@ class T(FctUtils):
             if g == 0:
                 g = self.default_gradient
         except Exception, exn:
-            print exn
             g = self.default_gradient
         return g
     
@@ -392,8 +391,12 @@ class T(FctUtils):
             raise ValueError("Unknown type %s for param %s" % (type,name))
 
     def parse_periodicity(self,val,f):
-        self.set_periodicity(int(val))
-        
+        try:
+            self.set_periodicity(int(val))
+        except ValueError:
+            # might be a bool in 'True'/'False' format
+            self.set_periodicity(bool(val))
+            
     def parse__inner_(self,val,f):
         params = ParamBag()
         params.load(f)
@@ -554,11 +557,12 @@ class T(FctUtils):
                 self.set_colorfunc(i,self.cfunc_files[i],self.cfunc_names[i])
 
     def set_initparams_from_formula(self,formula):
+        g = self.get_gradient()
         self.initparams = self.formula.symbols.default_params()
         self.paramtypes = self.formula.symbols.type_of_params()
         for i in xrange(len(self.paramtypes)):
             if self.paramtypes[i] == fracttypes.Gradient:
-                self.initparams[i] = copy.copy(self.default_gradient)
+                self.initparams[i] = copy.copy(g)
         
     def set_formula_defaults(self):
         if self.formula == None:

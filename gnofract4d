@@ -87,7 +87,7 @@ def main():
 
     width = preferences.userPrefs.getint("display","width")
     height = preferences.userPrefs.getint("display","height")
-
+    (basename,func) = (None,None)
     try:
         (opts, args) = getopt.getopt(
             sys.argv[1:],
@@ -128,7 +128,6 @@ def main():
                 basename = os.path.basename(file)
                 if path: 
                     mainWindow.compiler.file_path.append(path)
-                mainWindow.f.set_formula(basename,func)
             else:
                 print "Unknown argument", name, val
     except getopt.GetoptError:
@@ -136,13 +135,16 @@ def main():
         return 1
     
     mainWindow.f.set_size(width,height)
-
-    mainWindow.f.thaw()
+    
     if len(args) > 0:
         mainWindow.load(args[0])
-    else:
+
+    if basename and func:
+        mainWindow.f.set_formula(basename,func)
+
+    if mainWindow.f.thaw():
         mainWindow.on_fractal_change()
-    
+        
     gtk.main()
     
 if __name__ == '__main__':
