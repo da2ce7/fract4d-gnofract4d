@@ -6,12 +6,13 @@ browser.py: 269 (use ComboBox)
 gtkfractal.py: 307
 preferences.py: 251
 
-
 bugs (the more B's, the worse the bug):
 * BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
 * BB	should save enum params as strings, not indexes
 * BB	fractint doesn't reset vars between calls
 * BB	crash with multiple threads on x86-64 (Paul Wayper)
+* BB	ck.ucl: cabs() not callable
+* BB	daz.ucl: Lattice: C compiler error, invalid args to %
 * B	is a cmap loaded from a .map file correct? Think index math is squiffy 
 * B     var called 'loat' would clash with C reserved word
 * B	weird behavior when using explorer mode & oversized image
@@ -72,7 +73,7 @@ features (the more W's, the more work involved):
 * WW	critical values + multiple basins/color schemes
 * WW	import .par files
 * WW	import .upr files
-* W	import ultrafractal gradient files
+* W	import ultrafractal gradient (.ugr) files
 * W	tooltips for custom widgets in toolbar
 * W	last-chance exception handler
 * W	formula browser:manage search path (user prefs)
@@ -115,6 +116,11 @@ params (not all applicable to all types):
 1) how to set color of point
 2) time step
 3) which points to start with
+
+done in 2.9:
+* BB	Couldn't load some .fct files saved by 2.7
+* BB	colormap gets reset when change formula
+* W	added formula cmd-line argument
 
 fixed in 2.8:
 * B	jock.ufm:neptwona = "complex z = #pixel", ie redeclare z

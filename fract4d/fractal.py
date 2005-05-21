@@ -247,6 +247,7 @@ class T(FctUtils):
         # formula support
         self.formula = None
         self.funcName = "Mandelbrot"
+        self.funcFile = None
         self.bailfunc = 0
         self.cfuncs = [None,None]
         self.cfunc_names = [None,None]
@@ -430,6 +431,7 @@ class T(FctUtils):
             pass
 
     def __copy__(self):
+        print "copy"
         # override shallow-copy to do a deeper copy than normal,
         # but still don't try and copy *everything*
 
@@ -469,6 +471,7 @@ class T(FctUtils):
         c.periodicity = self.periodicity
         c.saved = self.saved
         c.clear_image = self.clear_image
+        print "done copy"
         return c
     
     def reset(self):
@@ -479,6 +482,8 @@ class T(FctUtils):
             4.0, # size
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0 # angles
             ]
+
+        g = self.get_gradient()
         self.initparams = []
 
         self.bailout = 0.0
@@ -488,7 +493,7 @@ class T(FctUtils):
         self.yflip = False
         self.auto_tolerance = False
         
-        self.set_formula_defaults()
+        self.set_formula_defaults(g)
 
     def reset_zoom(self):
         mag = self.formula.defaults.get("magn")
@@ -556,19 +561,21 @@ class T(FctUtils):
             if self.compiler.out_of_date(self.cfunc_files[i]):
                 self.set_colorfunc(i,self.cfunc_files[i],self.cfunc_names[i])
 
-    def set_initparams_from_formula(self,formula):
-        g = self.get_gradient()
+    def set_initparams_from_formula(self,formula,g=None):
+        if g == None:
+            g = self.get_gradient()
+
         self.initparams = self.formula.symbols.default_params()
         self.paramtypes = self.formula.symbols.type_of_params()
         for i in xrange(len(self.paramtypes)):
             if self.paramtypes[i] == fracttypes.Gradient:
                 self.initparams[i] = copy.copy(g)
         
-    def set_formula_defaults(self):
+    def set_formula_defaults(self, g=None):
         if self.formula == None:
             return
 
-        self.set_initparams_from_formula(self.formula)
+        self.set_initparams_from_formula(self.formula, g)
         
         for (name,val) in self.formula.defaults.items():
             # FIXME helpfile,helptopic,method,precision,

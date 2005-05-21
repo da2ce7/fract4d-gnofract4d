@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # the main GUI program. Relies on fract4d libs to do the real work
-version = '2.8'
+version = '2.9'
 
 # python stdlib
 import sys
@@ -76,6 +76,7 @@ Flags:
 -j --height N\t\tMake image N pixels tall
 -P --path P\t\tAdd P to the formula search path
 -f --formula F#func\tUse formula 'func' in file F
+-X --explorer\tStart in explorer mode
 
 To generate an image non-interactively, use:
 gnofract4d -s myimage.png -q myfractal.fct
@@ -91,7 +92,7 @@ def main():
     try:
         (opts, args) = getopt.getopt(
             sys.argv[1:],
-            "p:i:j:s:qhP:",
+            "p:i:j:s:qhP:X",
             [ "params=",
               "width=",
               "height=",
@@ -99,7 +100,8 @@ def main():
               "help",
               "path=",
               "formula=",
-              "quit"])
+              "quit",
+              "explorer"])
 
         for (name, val) in opts:
             if name=="-p" or name=="--params":
@@ -117,6 +119,8 @@ def main():
                 return
             elif name=="-P" or name=="--path":
                 mainWindow.compiler.file_path.append(val)
+            elif name=="-X" or name=="--explorer":
+                mainWindow.set_explorer_state(True)
             elif name=="--formula":
                 n = val.rfind('#')
                 if n==-1:

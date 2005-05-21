@@ -14,6 +14,7 @@ from fracttypes import *
     
 class TBase:
     def __init__(self,prefix,dump=None):
+        #print "translating"
         self.symbols = symbol.T(prefix)
         self.canon = canon.T(self.symbols,dump)
         self.errors = []

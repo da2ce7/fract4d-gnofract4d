@@ -17,7 +17,7 @@ $BUILD_PYTHON setup.py clean
 $BUILD_PYTHON setup.py build
 $BUILD_PYTHON setup.py bdist_rpm --binary-only --requires "gtk2 >= 2.0 pygtk2 >= 1.99 python >= 2.3 python < 2.4 gcc >= 2.95"
 
-mv dist/gnofract4d-2.8-1.i386.rpm dist/gnofract4d-python23-2.8-1.i386.rpm 
+mv dist/gnofract4d-2.9-1.i386.rpm dist/gnofract4d-python23-2.9-1.i386.rpm 
 
 # Python 2.4 version
 export BUILD_PYTHON_VERSION=2.4
@@ -30,7 +30,7 @@ $BUILD_PYTHON setup.py clean
 $BUILD_PYTHON setup.py build
 $BUILD_PYTHON setup.py bdist_rpm --binary-only --requires "gtk2 >= 2.0 pygtk2 >= 1.99 python >= 2.4 python < 2.5 gcc >= 2.95"
 
-mv dist/gnofract4d-2.8-1.i386.rpm dist/gnofract4d-python24-2.8-1.i386.rpm 
+mv dist/gnofract4d-2.9-1.i386.rpm dist/gnofract4d-python24-2.9-1.i386.rpm 
 
 unset BUILD_PYTHON_VERSION
 unset BUILD_PYTHON
@@ -47,7 +47,7 @@ rm -f fract4d/*.so fract4d/*.pyc fract4dgui/*.so fract4dgui/*.pyc
 ./setup.py sdist
 ./setup.py bdist_rpm --binary-only
 
-mv dist/gnofract4d-2.8-1.i386.rpm dist/gnofract4d-python22-2.8-1.i386.rpm 
+mv dist/gnofract4d-2.9-1.i386.rpm dist/gnofract4d-python22-2.9-1.i386.rpm 
 
 # make ISO image for testing on different OSes
 pushd dist
