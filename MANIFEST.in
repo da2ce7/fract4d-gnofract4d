@@ -22,3 +22,4 @@ include testdata/elfglow.fct
 include testdata/julfn.fct
 include testdata/collapsar.fct
 include testdata/gradient_func.fct
+include testdata/chainsoflight.fct

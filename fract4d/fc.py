@@ -46,6 +46,7 @@ class FormulaFile:
         self.mtime = mtime
         self.filename = filename
         self.file_backed = True
+        
     def override_buffer(self,buffer,formulas):
         'file has been changed in memory'
         self.contents = buffer
@@ -84,7 +85,8 @@ class Compiler:
         self.compiler_name = "gcc"
         self.flags = "-fPIC -DPIC -g -O3 -shared"
         self.libs = "-lm"
-
+        self.tree_cache = {}
+        
     def formula_files(self):
         return [ (x,y) for (x,y) in self.files.items() 
                  if Compiler.isFRM.search(x)]
@@ -248,7 +250,7 @@ class Compiler:
         # -march=i686 for 10% speed gain
         cmd = "%s %s %s -o %s %s" % \
               (self.compiler_name, cfile, self.flags, outputfile, self.libs)
-        # print "cmd: %s" % cmd
+        print "cmd: %s" % cmd
 
         (status,output) = commands.getstatusoutput(cmd)
         if status != 0:
@@ -262,7 +264,8 @@ class Compiler:
         if ff == None : return None
         return ff.get_formula(formname)
         
-    def get_formula(self, filename, formname): 
+    def get_formula(self, filename, formname):
+        #print "get formula"
         f = self.get_parsetree(filename,formname)
 
         if f != None:

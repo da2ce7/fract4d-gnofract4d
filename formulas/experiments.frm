@@ -1,3 +1,22 @@
+General Burning Ship {
+init:
+	z = #zwpixel
+loop:
+	z = abs(z)
+	z = @fn1(z*z) + #pixel
+bailout: 
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default = cmag
+endfunc
+xycenter = (-0.5,-0.5)
+}
+
+
 Damp {
 init:
 	z = #zwpixel
