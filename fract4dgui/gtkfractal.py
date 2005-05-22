@@ -342,9 +342,7 @@ class T(gobject.GObject):
         label.set_justify(gtk.JUSTIFY_RIGHT)
         table.attach(label,0,1,i,i+1,0,0,2,2)
 
-        widget = gtk.OptionMenu()
-        menu = self.construct_enum_menu(param.enum)
-        widget.set_menu(menu)
+        widget = utils.create_option_menu(param.enum.value)
 
         def set_selected_value(*args):
             try:
@@ -353,10 +351,10 @@ class T(gobject.GObject):
                 print err
                 return
 
-            widget.set_history(index)
+            utils.set_selected(widget, index)
             
         def set_fractal(entry,f,order,param_type):
-            new_value = widget.get_history()
+            new_value = utils.get_selected(widget)
             f.set_initparam(order, new_value,param_type)
             
         set_selected_value(self)
@@ -402,22 +400,8 @@ class T(gobject.GObject):
         funclist = formula.symbols.available_param_functions(
             param.ret,param.args)
         funclist.sort()
-
-        menu = gtk.Menu()
-        for func in funclist:
-            mi = gtk.MenuItem(func)
-            menu.append(mi)
-
-        return (menu,funclist)
-
-    def construct_enum_menu(self,enum):
-        menu = gtk.Menu()
-        for val in enum.value:
-            mi = gtk.MenuItem(val)
-            menu.append(mi)
-
-        return menu
-
+        return funclist
+    
     def set_nthreads(self, n):
         if self.nthreads != n:
             self.nthreads = n
@@ -484,26 +468,22 @@ class T(gobject.GObject):
         label.set_justify(gtk.JUSTIFY_RIGHT)
         table.attach(label,0,1,i,i+1,0,0,2,2)
 
-        widget = gtk.OptionMenu()
-        (menu, funclist) = self.construct_function_menu(param,formula)
-        widget.set_menu(menu)
+        funclist = self.construct_function_menu(param,formula)
+        widget = utils.create_option_menu(funclist)
         
         def set_selected_function():
             try:
-                #print "finding value of %s", name
                 selected_func_name = self.f.get_func_value(name,formula)
-                #print "selected", selected_func_name
-                #print "name %s formula %s" % (name, formula)
                 index = funclist.index(selected_func_name)
             except ValueError, err:
                 # func.cname not in list
                 #print "bad cname"
                 return
             
-            widget.set_history(index)
+            utils.set_selected(widget, index)
             
         def set_fractal_function(om,f,param,formula):
-            index = om.get_history()
+            index = utils.get_selected(om)
             if index != -1:
                 # this shouldn't be necessary but I got weird errors
                 # trying to reuse the old funclist
