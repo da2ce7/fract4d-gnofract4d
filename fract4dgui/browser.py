@@ -9,6 +9,7 @@ import gtk
 
 import preferences
 import dialog
+import utils
 
 FRACTAL = 0
 INNER = 1
@@ -150,13 +151,13 @@ class BrowserDialog(dialog.T):
 
     def set_type_cb(self,optmenu):
         if self.confirm():
-            self.set_type(optmenu.get_history())
+            self.set_type(utils.get_selected(optmenu))
             
     def set_type(self,type):
         if self.func_type == type:
             return
         self.func_type = type
-        self.funcTypeMenu.set_history(type)
+        utils.set_selected(self.funcTypeMenu, type)
         self.populate_file_list()
         
     def disable_apply(self):
@@ -278,16 +279,13 @@ class BrowserDialog(dialog.T):
         
     def create_panes(self):
         # option menu for choosing Inner/Outer/Fractal
-        self.funcTypeMenu = gtk.OptionMenu()
-        menu = gtk.Menu()
-        for item in [
-            _("Fractal Function"),
-            _("Inner Coloring Function"),
-            _("Outer Coloring Function")]:
-            mi = gtk.MenuItem(item)
-            menu.append(mi)
-        self.funcTypeMenu.set_menu(menu)
+        self.funcTypeMenu = utils.create_option_menu(
+            [_("Fractal Function"),
+             _("Inner Coloring Function"),
+             _("Outer Coloring Function")])
 
+        utils.set_selected(self.funcTypeMenu,0)
+        
         self.tooltips.set_tip(
             self.funcTypeMenu,
             _("Which formula of the current fractal to change"))
