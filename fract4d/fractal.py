@@ -431,7 +431,6 @@ class T(FctUtils):
             pass
 
     def __copy__(self):
-        print "copy"
         # override shallow-copy to do a deeper copy than normal,
         # but still don't try and copy *everything*
 
@@ -471,7 +470,6 @@ class T(FctUtils):
         c.periodicity = self.periodicity
         c.saved = self.saved
         c.clear_image = self.clear_image
-        print "done copy"
         return c
     
     def reset(self):

@@ -544,15 +544,10 @@ class MainWindow:
             (320,240), (640,480),
             (800,600), (1024, 768),
             (1280,1024), (1600,1200)]
+
+        res_names= [ "%dx%d" % (w,h) for (w,h) in self.resolutions]
         
-        res_menu= gtk.OptionMenu()
-        menu = gtk.Menu()
-        for (w,h) in self.resolutions:
-            item = "%dx%d" % (w,h)
-            mi = gtk.MenuItem(item)
-            menu.append(mi)
-        res_menu.set_menu(menu)
-        
+        res_menu = utils.create_option_menu(res_names)
 
         def set_selected_resolution(prefs):
             res = (w,h) = (prefs.getint("display","width"),
@@ -564,14 +559,13 @@ class MainWindow:
                 # not found
                 self.resolutions.append(res)
                 item = "%dx%d" % (w,h)
-                mi = gtk.MenuItem(item)
-                res_menu.get_menu().append(mi)
+                utils.add_menu_item(res_menu, item)
                 index = len(self.resolutions)-1
 
-            res_menu.set_history(index)
+            utils.set_selected(res_menu, index)
 
         def set_resolution(*args):
-            index = res_menu.get_history()
+            index = utils.get_selected(res_menu)
             if index != -1:
                 (w,h) = self.resolutions[index]
                 preferences.userPrefs.set_size(w,h)
