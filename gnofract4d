@@ -59,6 +59,23 @@ If you haven't set up Gnofract 4D yet, run './setup.py build'
 Error was: '%s' ''') % err
     sys.exit(1)
 
+# stop PyGTK from complaining about our use of ItemFactory - I want this to
+# carry on working with older PyGTK's, so UIManager is out, and the differences
+# between the 2 are too large to hide
+try:
+    import re
+    import warnings
+    warnings.filterwarnings(
+        "ignore",
+        ".*UIManager.*",
+        DeprecationWarning,
+        ".*",
+        0)
+
+except Exception, exn :
+    print exn
+    pass
+
 # We don't use GDK threads because RedHat seem to compile pygtk
 # without thread support. Grrr.
 #gtk.gdk.threads_init()

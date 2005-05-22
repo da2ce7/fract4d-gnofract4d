@@ -68,11 +68,12 @@ def create_option_menu(items):
         for item in items:
             widget.append_text(item)
         
-    except:
+    except Exception, exn:
+        print exn
         widget = gtk.OptionMenu()
         menu = gtk.Menu()
         for item in items:
-            mi = gtk.MenuItem(val)
+            mi = gtk.MenuItem(item)
             menu.append(mi)
         widget.set_menu(menu)
         
