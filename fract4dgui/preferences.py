@@ -7,6 +7,7 @@ import gtk
 import gobject
 
 import dialog
+import utils
 
 class Preferences(ConfigParser.ConfigParser,gobject.GObject):
     # This class holds the preference data
@@ -268,18 +269,13 @@ class PrefsDialog(dialog.T):
         return widget
 
     def create_antialias_menu(self):
-        optMenu = gtk.OptionMenu()
-        menu = gtk.Menu()
-        for item in ["None", "Fast", "Best"]:
-            mi = gtk.MenuItem(item)
-            menu.append(mi)
-        optMenu.set_menu(menu)
+        optMenu = utils.create_option_menu(["None", "Fast", "Best"])
 
         def set_widget(*args):
-            optMenu.set_history(self.prefs.getint("display","antialias"))
+            utils.set_selected(optMenu, self.prefs.getint("display","antialias"))
 
         def set_prefs(*args):
-            index = optMenu.get_history()
+            index = utils.get_selected(optMenu)
             if index != -1:
                 self.prefs.set("display","antialias",str(index))
 

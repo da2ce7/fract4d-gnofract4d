@@ -2,6 +2,7 @@
 # these are defined at http://developer.gnome.org/projects/gup/hig/2.0/
 
 import gtk
+import xml.sax.saxutils
 
 class Alert(gtk.Dialog):
     def __init__(self, image, primary_text, secondary_text="",
@@ -29,6 +30,7 @@ class Alert(gtk.Dialog):
         
         if secondary_text and len(secondary_text) > 0:
             secondary_text = "\n\n" + secondary_text
+            secondary_text = xml.sax.saxutils.escape(secondary_text)
         else:
             secondary_text = ""
         label_text = '<span weight="bold" size="larger">%s</span>%s' % \

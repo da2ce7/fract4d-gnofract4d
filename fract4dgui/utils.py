@@ -62,7 +62,7 @@ def get_file_open_chooser(title, parent):
     except:
         return gtk.FileSelection(title)
 
-def create_option_menu(items, cb):
+def create_option_menu(items):
     try:
         widget = gtk.combo_box_new_text()
         for item in items:
@@ -78,6 +78,24 @@ def create_option_menu(items, cb):
         
     return widget
 
+def add_menu_item(menu, item):
+    try:
+        menu.append_text(item)
+    except:
+        menu.get_menu().append(gtk.MenuItem(item))
+
+def set_selected(menu, i):
+    try:
+        menu.set_active(i)
+    except:
+        menu.set_history(i)
+        
+def get_selected(menu):
+    try:
+        return menu.get_active()
+    except:
+        return res_menu.get_history()
+        
 def create_color(r,g,b):
     # multiply up to match range expected by gtk
     try:
