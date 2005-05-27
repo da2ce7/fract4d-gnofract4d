@@ -207,16 +207,16 @@ class T:
         # this must be ordered with largest, most efficient templates first
         # thus performing a crude 'maximal munch' instruction generation
         self.templates = self.expand_templates([
-            [ "[Binop]" , T.binop],
-            [ "[Unop]", T.unop],
-            [ "[Call]", T.call],
-            [ "[Var]" , T.var],
-            [ "[Const]", T.const],
-            [ "[Label]", T.label],
-            [ "[Move]", T.move],
-            [ "[Jump]", T.jump],
-            [ "[CJump]", T.cjump],
-            [ "[Cast]", T.cast],
+            [ "Binop" , T.binop],
+            [ "Unop", T.unop],
+            [ "Call", T.call],
+            [ "Var" , T.var],
+            [ "Const", T.const],
+            [ "Label", T.label],
+            [ "Move", T.move],
+            [ "Jump", T.jump],
+            [ "CJump", T.cjump],
+            [ "Cast", T.cast],
             ])
         
         self.output_template = '''
@@ -1039,28 +1039,27 @@ extern pf_obj *pf_new(void);
 
     # implement naive tree matching. We match an ir tree against a nested list of classes
     def match_template(self, tree, template):
-        if tree == None:
-            return template == None
-
-        if template == None:
-            return 0
-
         if isinstance(template,types.ListType):
             object = template[0]
             children = template[1:]
-        else:
-            object = template
-            children = []
+
+            if not isinstance(tree, object):
+                return 0
         
-        if isinstance(tree, object):
-            if children != []:
-                if tree.children == None: return 0 
-                for (child, matchChild) in zip(tree.children,children):
-                    if not self.match_template(child,matchChild):
-                        return 0
+            if children == []:
+                return 1
+            
+            if tree.children == None:
+                return 0
+            
+            for (child, matchChild) in zip(tree.children,children):
+                if not self.match_template(child,matchChild):
+                    return 0
+                
             return 1
         else:
-            return 0
+            return isinstance(tree, template)
+        
 
     def match(self,tree):
         for (template,action) in self.templates:
@@ -1070,5 +1069,3 @@ extern pf_obj *pf_new(void);
         # every possible tree ought to be matched by *something* 
         msg = "Internal Compiler Error:%d:unmatched tree %s" % (tree.node.pos,tree)
         raise fracttypes.TranslationError(msg)
-
-
