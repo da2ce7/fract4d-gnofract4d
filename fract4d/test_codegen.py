@@ -257,7 +257,7 @@ int main()
         self.assertMatchResult(tree, template,1)
         
     def testWhichMatch(self):
-        'check we get the rignt tree match'
+        'check we get the right tree match'
         tree = self.binop([self.const(),self.const()])
         self.assertEqual(self.codegen.match(tree).__name__,"binop")
 
@@ -499,7 +499,7 @@ default:
         cg = codegen.T(t.symbols)
         cg.output_all(t)
         c = cg.output_c(t)
-
+        
     def testDeclareP1andFN1(self):
         'Test that having a param which clashes with built-in names is OK'
 

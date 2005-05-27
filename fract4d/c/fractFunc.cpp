@@ -192,7 +192,11 @@ void fractFunc::draw_all()
 {
     status_changed(GF4D_FRACTAL_CALCULATING);
     
+#if !defined(NO_CALC)
+    // NO_CALC is used to stub out the actual fractal stuff so we can
+    // profile & optimize the rest of the code without it confusing matters
     draw(8,8);
+    
     
     int deepen;
     while((deepen = updateiters()) > 0)
@@ -216,6 +220,8 @@ void fractFunc::draw_all()
         maxiter /= 2;
 	iters_changed(maxiter);
     }
+#endif
+
     progress_changed(0.0);
     status_changed(GF4D_FRACTAL_DONE);
 }

@@ -211,7 +211,7 @@ def t_error(t):
     return t
     
 # Build the lexer
-lexer = lex.lex()
+lexer = lex.lex(optimize=1)
 
 # debugging
 if __name__ == '__main__':
