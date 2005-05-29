@@ -15,8 +15,8 @@ from fract4d import gradient, fractal
 
 _color_model = None
 
-def show_colors(parent,f):
-    ColorDialog.show(parent,f)
+def show_colors(parent, alt_parent, f, dialog_mode):
+    ColorDialog.show(dialog_mode, parent, alt_parent, f)
 
 def _get_model():
     global _color_model
@@ -89,6 +89,8 @@ class ColorDialog(dialog.T):
         hbox = gtk.HBox()
         hbox.pack_start(sw)
         hbox.pack_start(gradbox)
+
+        self.controls = hbox
         self.vbox.add(hbox)
         self.treeview.get_selection().unselect_all()
 
@@ -377,8 +379,8 @@ class ColorDialog(dialog.T):
             
         return False
 
-    def show(parent, f):
-        dialog.T.reveal(ColorDialog, True, parent, None, f)
+    def show(dialog_mode, parent, alt_parent, f):
+        dialog.T.reveal(ColorDialog, dialog_mode, parent, alt_parent, f)
 
     show = staticmethod(show)
 

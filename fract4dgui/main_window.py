@@ -186,9 +186,11 @@ class MainWindow:
         f.connect('progress_changed', self.progress_changed)
         f.connect('status_changed',self.status_changed)
 
-        self.hbox = gtk.HBox()
-        self.hbox.pack_start(window)
-        self.vbox.pack_start(self.hbox)
+        hbox = gtk.HBox()
+        hbox.pack_start(window)
+        self.control_box = gtk.VBox()
+        hbox.pack_start(self.control_box,False,False)
+        self.vbox.pack_start(hbox)
 
     def draw(self):
         aa = preferences.userPrefs.getint("display","antialias")
@@ -731,10 +733,10 @@ class MainWindow:
         fs.destroy()
                 
     def settings(self,action,widget):
-        settings.show_settings(self.window, self.hbox, self.f, False)
+        settings.show_settings(self.window, self.control_box, self.f, False)
         
     def colors(self,action,widget):
-        colors.show_colors(self.window,self.f)
+        colors.show_colors(self.window, self.control_box, self.f, True)
         
     def preferences(self,action,widget):
         preferences.show_preferences(self.window, self.f)
