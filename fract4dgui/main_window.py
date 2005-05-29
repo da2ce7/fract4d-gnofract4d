@@ -5,6 +5,7 @@ import os
 import signal
 import copy
 import math
+import re
 
 import gtk
 
@@ -14,6 +15,9 @@ from fract4d import fractal,fc,fract4dc
 import gtkfractal, model, preferences, autozoom, settings, toolbar
 import colors, undo, browser, fourway, angle, utils, hig, painter
 import icons
+
+re_ends_with_num = re.compile(r'\d+\Z')
+re_cleanup = re.compile(r'[\s\(\)]+')
 
 class MainWindow:
     def __init__(self, extra_paths=[]):
@@ -229,7 +233,26 @@ class MainWindow:
             return _("(Untitled %s)") % self.f.get_func_name()
         else:
             return self.filename
-        
+
+    def default_save_filename(self):
+        global re_ends_with_num, re_cleanup        
+        if self.filename == None:
+            base_name = self.f.get_func_name()
+            base_name = re_cleanup.sub("_", base_name) + ".fct"
+        else:
+            base_name = self.filename
+
+        # need to gather a filename
+        (base,ext) = os.path.splitext(base_name)
+        base = re_ends_with_num.sub("",base)
+        i = 1
+        while True:
+            save_filename = base + ("%03d" % i) + ext
+            if not os.path.exists(save_filename):
+                break
+            i += 1
+        return save_filename
+    
     def set_window_title(self):
         title = self.display_filename()
         if not self.f.get_saved():
@@ -661,8 +684,14 @@ class MainWindow:
         
 
     def saveas(self,action,widget):
-        # need to gather a filename
-        fs = utils.get_file_save_chooser(_("Save Parameters"), self.window)
+        save_filename = self.default_save_filename()
+        
+        fs = utils.get_file_save_chooser(
+            _("Save Parameters"),
+            self.window,
+            save_filename,
+            ["*.fct"])
+        
         fs.show_all()
 
         name = None
@@ -712,7 +741,16 @@ class MainWindow:
         d.destroy()
 
     def save_image(self,action,widget):
-        fs = utils.get_file_save_chooser(_("Save Image"), self.window)
+        if self.filename:
+            (img_base, ext) = os.path.splitext(self.filename)
+            img_savename = img_base + ".png"
+        else:
+            img_savename = None 
+        fs = utils.get_file_save_chooser(
+            _("Save Image"),
+            self.window,
+            img_savename,
+            ["*.png","*.jpg","*.jpeg"])
         fs.show_all()
         
         name = None
@@ -788,7 +826,11 @@ class MainWindow:
         os.system("yelp ghelp://%s%s >/dev/null 2>&1 &" % (abs_file, anchor))
         
     def open_formula(self,action,widget):
-        fs = utils.get_file_open_chooser(_("Open Formula File"), self.window)
+        fs = utils.get_file_open_chooser(
+            _("Open Formula File"),
+            self.window,
+            None,
+            ["*.frm", "*.cfrm", "*.ucl", "*.ufm"])
         fs.show_all()
         filename = ""
         
@@ -809,7 +851,12 @@ class MainWindow:
             browser.show(self.window, self.f, browser.FRACTAL)
         
     def open(self,action,widget):
-        fs = utils.get_file_open_chooser(_("Open Parameter File"), self.window)
+        fs = utils.get_file_open_chooser(
+            _("Open Parameter File"),
+            self.window,
+            None,
+            ["*.fct"])
+        
         fs.show_all()
         
         while True:
