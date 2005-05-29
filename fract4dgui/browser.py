@@ -79,7 +79,7 @@ class BrowserDialog(dialog.T):
         self.create_panes()
 
     def show(parent, f, type):
-        _browser = dialog.T.reveal(BrowserDialog,parent,f)
+        _browser = dialog.T.reveal(BrowserDialog,True, parent, None, f)
         _browser.set_type(type)
         _browser.populate_file_list()
 

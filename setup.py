@@ -58,6 +58,7 @@ module1 = Extension(
     '-Wall',
     ],
     define_macros = [ ('_REENTRANT',1),
+                      #('NO_CALC', 1),
                       #('DEBUG_CREATION',1)
                       ],
     undef_macros = [ 'NDEBUG']

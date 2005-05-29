@@ -6,16 +6,16 @@ import dialog
 import browser
 import utils
 
-def show_settings(parent,f):
-    SettingsDialog.show(parent,f)
+def show_settings(parent,alt_parent, f,dialog_mode):
+    SettingsDialog.show(parent,alt_parent, f,dialog_mode)
 
 class SettingsDialog(dialog.T):
-    def show(parent, f):
-        dialog.T.reveal(SettingsDialog,parent,f)
-
+    def show(parent, alt_parent, f,dialog_mode):
+        dialog.T.reveal(SettingsDialog,dialog_mode, parent, alt_parent, f)
+            
     show = staticmethod(show)
     
-    def __init__(self,main_window,f):
+    def __init__(self, main_window, f):
         dialog.T.__init__(
             self,
             _("Fractal Settings"),
@@ -27,7 +27,9 @@ class SettingsDialog(dialog.T):
         self.f = f
         self.tooltips = gtk.Tooltips()
         self.notebook = gtk.Notebook()
-        self.vbox.add(self.notebook)
+        self.controls = gtk.VBox()
+        self.controls.add(self.notebook)
+        self.vbox.add(self.controls)
         self.tables = [None,None,None]
         
         self.create_formula_parameters_page()

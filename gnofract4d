@@ -156,10 +156,10 @@ def main():
         return 1
     
     mainWindow.f.set_size(width,height)
-    
+
     if len(args) > 0:
         mainWindow.load(args[0])
-
+        
     if basename and func:
         mainWindow.f.set_formula(basename,func)
 
@@ -167,12 +167,16 @@ def main():
         mainWindow.on_fractal_change()
         
     gtk.main()
-    
+
+def main_n(n):
+    for i in xrange(n):
+        main()
+
 if __name__ == '__main__':
     if os.environ.get("DO_GF4D_PROFILE"):
         import hotshot
         prof = hotshot.Profile("gf4d.prof")
-        prof.runcall(main)
+        prof.runcall(main_n, 5)
         prof.close()
     else:
         main()
