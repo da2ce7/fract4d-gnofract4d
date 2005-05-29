@@ -23,6 +23,8 @@ class MainWindow:
     def __init__(self, extra_paths=[]):
         self.quit_when_done =False
         self.save_filename = None
+        self.f = None
+        
         # window widget
 
         self.set_icon()
@@ -45,11 +47,10 @@ class MainWindow:
         # create fractal compiler and load standard formula and
         # coloring algorithm files
         self.compiler = fc.Compiler()
-        self.compiler.file_path.append("formulas")
-        self.compiler.file_path.append(
-            os.path.join(sys.exec_prefix, "share/formulas/gnofract4d"))
+
+        self.update_compiler_prefs(preferences.userPrefs)
         self.compiler.file_path += extra_paths
-        
+                
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
         
@@ -83,7 +84,6 @@ class MainWindow:
 
         self.update_subfract_visibility(False)
 
-        self.update_compiler_prefs(preferences.userPrefs)
         self.update_image_prefs(preferences.userPrefs)
         
         self.statuses = [ _("Done"),
@@ -227,7 +227,10 @@ class MainWindow:
         # update compiler
         self.compiler.compiler_name = prefs.get("compiler","name")
         self.compiler.flags = prefs.get("compiler","options")
-        self.f.update_formula()
+        self.compiler.file_path = prefs.get_list("formula_path")
+
+        if self.f:
+            self.f.update_formula()
 
     def update_image_prefs(self,prefs):
         (w,h) = (prefs.getint("display","width"),

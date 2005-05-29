@@ -2,6 +2,7 @@
 
 import ConfigParser
 import os
+import sys
 
 import gtk
 import gobject
@@ -34,6 +35,10 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             },
             "general" : {
               "threads" : "1"
+            },
+            "formula_path" : {
+            "0" : "formulas",
+            "1" : os.path.join(sys.exec_prefix, "share/formulas/gnofract4d")
             }
         }
 
@@ -72,6 +77,35 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
         ConfigParser.ConfigParser.set(self,"display","width",str(width))
         self.changed()
 
+    def get_list(self, name):
+        i = 0
+        list = []
+        while(True):
+            try:
+                key = "%d" % i
+                val = self.get(name,key)
+                list.append(val)
+                i += 1
+            except ConfigParser.NoOptionError:
+                return list
+
+    def remove_all_in_list_section(self,name):
+        i = 0
+        items_left = True
+        while items_left:            
+            items_left = self.remove_option(name,"%d" % i)
+            i += 1
+        
+    def set_list(self, name, list):
+        self.remove_all_in_list_section(name)
+
+        i = 0        
+        for item in list:
+            ConfigParser.ConfigParser.set(self, name,"%d" % i, item)
+            i += 1
+
+        self.changed()
+        
     def changed(self):
         self.emit('preferences-changed')
 
@@ -96,6 +130,10 @@ class PrefsDialog(dialog.T):
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
+        self.dirchooser = utils.get_directory_chooser(
+            _("Select a Formula Directory"),
+            main_window)
+        
         self.set_default_response(gtk.RESPONSE_CLOSE)
         self.f = f
         self.notebook = gtk.Notebook()
@@ -212,6 +250,56 @@ class PrefsDialog(dialog.T):
         name_label.set_mnemonic_widget(entry)
         table.attach(name_label,0,1,0,1,0,0,2,2)
 
+    def create_directory_list(self, section_name):
+        self.path_list = gtk.ListStore(
+            gobject.TYPE_STRING)
+        
+        path_treeview = gtk.TreeView (self.path_list)
+
+        renderer = gtk.CellRendererText ()
+        column = gtk.TreeViewColumn (_('_Directory'), renderer, text=0)
+        path_treeview.append_column (column)
+        path_treeview.set_headers_visible(False)
+        
+        paths = self.prefs.get_list(section_name)
+        for path in paths:
+            iter = self.path_list.append()
+            self.path_list.set(iter,0,path)
+
+        return path_treeview 
+
+    def update_prefs(self,name, model):
+        list = []
+
+        def append_func(m,path,iter,dummy):
+            list.append(model.get_value(iter,0))
+        
+        model.foreach(append_func,None)
+
+        self.prefs.set_list(name,list)
+        
+    def browse_for_dir(self, widget, name, pathlist):
+        self.dirchooser.show_all()
+        result = self.dirchooser.run()
+        if result == gtk.RESPONSE_OK:
+            path = self.dirchooser.get_filename()
+
+            model = pathlist.get_model() 
+            iter = model.append()
+            
+            model.set(iter,0,path)
+            self.update_prefs(name, model)
+            
+        self.dirchooser.hide()
+
+    def remove_dir(self, widget, name, pathlist):
+        select = pathlist.get_selection()
+        (model, iter) = select.get_selected()
+
+        if iter:
+            model.remove(iter)
+            self.update_prefs(name, model)
+            
     def create_compiler_options_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
         label = gtk.Label(_("Com_piler"))
@@ -236,6 +324,34 @@ class PrefsDialog(dialog.T):
         table.attach(flags_label,0,1,1,2,0,0,2,2)
         flags_label.set_mnemonic_widget(entry)
 
+        sw = gtk.ScrolledWindow ()
+        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
+        sw.set_policy (gtk.POLICY_NEVER,
+                       gtk.POLICY_AUTOMATIC)
+
+        form_path_section = "formula_path"
+
+        pathlist = self.create_directory_list(form_path_section)
+        self.tips.set_tip(pathlist, _("Directories to search for formulas"))
+
+        sw.add(pathlist)
+
+        table.attach(sw,1,2,2,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        pathlist_label = gtk.Label(_("Formula Search _Path :"))
+        pathlist_label.set_use_underline(True)
+        table.attach(pathlist_label,0,1,2,3,0,0,2,2)
+        pathlist_label.set_mnemonic_widget(pathlist)
+
+        add_button = gtk.Button(None,gtk.STOCK_ADD)
+        add_button.connect('clicked', self.browse_for_dir, form_path_section, pathlist)
+        table.attach(add_button,0,1,3,4,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        
+        remove_button = gtk.Button(None, gtk.STOCK_REMOVE)
+        remove_button.connect('clicked', self.remove_dir, form_path_section, pathlist)
+        table.attach(remove_button,0,1,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        
+        
     def create_editor_options_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
         label = gtk.Label(_("_Editor"))

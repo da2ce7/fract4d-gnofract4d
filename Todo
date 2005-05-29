@@ -4,6 +4,7 @@ done in 2.10:
 * B	removed all DeprecationWarnings
 * W	display settings in main window
 * W	load/save dialog improvements
+* W	list of formula directories saved in preferences
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
