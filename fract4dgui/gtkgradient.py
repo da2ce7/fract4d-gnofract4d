@@ -30,7 +30,7 @@ class GradientDialog(dialog.T):
         #self.create_gradient_dialog()
 
     def show(parent,f,grad):
-        dialog.T.reveal(GradientDialog,parent,f,grad)
+        dialog.T.reveal(GradientDialog,False, parent, None, f,grad)
         
     show = staticmethod(show)
     

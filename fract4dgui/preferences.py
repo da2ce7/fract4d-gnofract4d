@@ -109,7 +109,7 @@ class PrefsDialog(dialog.T):
         self.set_size_request(500,-1)
 
     def show(parent, f):
-        dialog.T.reveal(PrefsDialog,parent,f)
+        dialog.T.reveal(PrefsDialog, True, parent, None, f)
 
     show = staticmethod(show)
 

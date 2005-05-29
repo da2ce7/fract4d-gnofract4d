@@ -378,7 +378,7 @@ class ColorDialog(dialog.T):
         return False
 
     def show(parent, f):
-        dialog.T.reveal(ColorDialog,parent,f)
+        dialog.T.reveal(ColorDialog, True, parent, None, f)
 
     show = staticmethod(show)
 

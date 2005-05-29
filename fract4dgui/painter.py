@@ -11,7 +11,7 @@ def show(parent,f):
 
 class PainterDialog(dialog.T):
     def show(parent, f):
-        dialog.T.reveal(PainterDialog,parent,f)
+        dialog.T.reveal(PainterDialog, True, parent, None, f)
 
     show = staticmethod(show)
     
