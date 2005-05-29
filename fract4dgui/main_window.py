@@ -77,6 +77,7 @@ class MainWindow:
         self.create_toolbar()
         self.create_fractal(self.f)
         self.create_status_bar()
+        self.create_filechoosers()
         
         self.window.show_all()
 
@@ -92,7 +93,28 @@ class MainWindow:
                           _("Paused") ]
 
         self.f.set_saved(True)
-        
+
+    def create_filechoosers(self):
+        self.saveas_fs = utils.get_file_save_chooser(
+            _("Save Parameters"),
+            self.window,
+            ["*.fct"])
+
+        self.saveimage_fs = utils.get_file_save_chooser(
+            _("Save Image"),
+            self.window,
+            ["*.png","*.jpg","*.jpeg"])
+
+        self.open_formula_fs = utils.get_file_open_chooser(
+            _("Open Formula File"),
+            self.window,
+            ["*.frm", "*.cfrm", "*.ucl", "*.ufm"])
+
+        self.open_fs = utils.get_file_open_chooser(
+            _("Open Parameter File"),
+            self.window,
+            ["*.fct"])
+
     def set_icon(self):
         try:
             gtk.window_set_default_icon_list([icons.logo.pixbuf])
@@ -234,11 +256,11 @@ class MainWindow:
         else:
             return self.filename
 
-    def default_save_filename(self):
+    def default_save_filename(self,extension=".fct"):
         global re_ends_with_num, re_cleanup        
         if self.filename == None:
             base_name = self.f.get_func_name()
-            base_name = re_cleanup.sub("_", base_name) + ".fct"
+            base_name = re_cleanup.sub("_", base_name) + extension
         else:
             base_name = self.filename
 
@@ -247,7 +269,7 @@ class MainWindow:
         base = re_ends_with_num.sub("",base)
         i = 1
         while True:
-            save_filename = base + ("%03d" % i) + ext
+            save_filename = base + ("%03d" % i) + extension
             if not os.path.exists(save_filename):
                 break
             i += 1
@@ -685,20 +707,15 @@ class MainWindow:
 
     def saveas(self,action,widget):
         save_filename = self.default_save_filename()
-        
-        fs = utils.get_file_save_chooser(
-            _("Save Parameters"),
-            self.window,
-            save_filename,
-            ["*.fct"])
-        
-        fs.show_all()
+
+        utils.set_file_chooser_filename(self.saveas_fs, save_filename)
+        self.saveas_fs.show_all()
 
         name = None
         while True:
-            result = fs.run()
+            result = self.saveas_fs.run()
             if result == gtk.RESPONSE_OK:
-                name = fs.get_filename()
+                name = self.saveas_fs.get_filename()
             else:
                 break
             
@@ -706,7 +723,7 @@ class MainWindow:
                 if self.save_file(name):
                     break
 
-        fs.destroy()
+        self.saveas_fs.hide()
 
     def confirm(self,name):
         'if this file exists, check with user before overwriting it'
@@ -741,23 +758,16 @@ class MainWindow:
         d.destroy()
 
     def save_image(self,action,widget):
-        if self.filename:
-            (img_base, ext) = os.path.splitext(self.filename)
-            img_savename = img_base + ".png"
-        else:
-            img_savename = None 
-        fs = utils.get_file_save_chooser(
-            _("Save Image"),
-            self.window,
-            img_savename,
-            ["*.png","*.jpg","*.jpeg"])
-        fs.show_all()
+        save_filename = self.default_save_filename(".png")
+
+        utils.set_file_chooser_filename(self.saveimage_fs,save_filename)
+        self.saveimage_fs.show_all()
         
         name = None
         while True:
-            result = fs.run()
+            result = self.saveimage_fs.run()
             if result == gtk.RESPONSE_OK:
-                name = fs.get_filename()
+                name = self.saveimage_fs.get_filename()
             else:
                 break
             
@@ -768,7 +778,7 @@ class MainWindow:
                 except Exception, err:
                     self.show_error_message(
                         _("Error saving image %s") % name, err)
-        fs.destroy()
+        self.saveimage_fs.hide()
                 
     def settings(self,action,widget):
         settings.show_settings(self.window, self.control_box, self.f, False)
@@ -825,49 +835,38 @@ class MainWindow:
         
         os.system("yelp ghelp://%s%s >/dev/null 2>&1 &" % (abs_file, anchor))
         
-    def open_formula(self,action,widget):
-        fs = utils.get_file_open_chooser(
-            _("Open Formula File"),
-            self.window,
-            None,
-            ["*.frm", "*.cfrm", "*.ucl", "*.ufm"])
-        fs.show_all()
+    def open_formula(self,action,widget):        
+        self.open_formula_fs.show_all()
         filename = ""
         
         while True:
-            result = fs.run()            
+            result = self.open_formula_fs.run()            
             if result == gtk.RESPONSE_OK:
-                filename = fs.get_filename()
+                filename = self.open_formula_fs.get_filename()
                 if self.load_formula(filename):
                     break
             else:
-                fs.destroy()
+                self.open_formula_fs.hide()
                 return
             
-        fs.destroy()
+        self.open_formula_fs.hide()
         if fc.Compiler.isCFRM.search(filename):
             browser.show(self.window, self.f, browser.OUTER)
         else:
             browser.show(self.window, self.f, browser.FRACTAL)
         
-    def open(self,action,widget):
-        fs = utils.get_file_open_chooser(
-            _("Open Parameter File"),
-            self.window,
-            None,
-            ["*.fct"])
-        
-        fs.show_all()
+    def open(self,action,widget):        
+        self.open_fs.show_all()
         
         while True:
-            result = fs.run()            
+            result = self.open_fs.run()            
             if result == gtk.RESPONSE_OK:
-                if self.load(fs.get_filename()):
+                if self.load(self.open_fs.get_filename()):
                     break
             else:
                 break
             
-        fs.destroy()
+        self.open_fs.hide()
 
     def load(self,file):
         try:
