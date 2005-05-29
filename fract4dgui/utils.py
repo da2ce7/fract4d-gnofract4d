@@ -46,19 +46,37 @@ def get_rgb_colormap():
         c = gtk.gdk.rgb_get_cmap()
     return c
 
-def get_file_save_chooser(title, parent):
+def get_file_save_chooser(title, parent, name=None, patterns=[]):
     try:
-        return gtk.FileChooserDialog(
+        chooser = gtk.FileChooserDialog(
             title, parent, gtk.FILE_CHOOSER_ACTION_SAVE,
             (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+
+        filter = gtk.FileFilter()
+        for pattern in patterns:
+            filter.add_pattern(pattern)
+
+        chooser.set_filter(filter)
+        
+        if name:
+            chooser.set_current_name(name)
+        return chooser
     except:
         return gtk.FileSelection(title)
 
-def get_file_open_chooser(title, parent):
+def get_file_open_chooser(title, parent, dir=None, patterns=[]):
     try:
-        return gtk.FileChooserDialog(
+        chooser = gtk.FileChooserDialog(
             title, parent, gtk.FILE_CHOOSER_ACTION_OPEN,
             (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+
+        filter = gtk.FileFilter()
+        for pattern in patterns:
+            filter.add_pattern(pattern)
+
+        chooser.set_filter(filter)
+
+        return chooser
     except:
         return gtk.FileSelection(title)
 
