@@ -46,6 +46,16 @@ def get_rgb_colormap():
         c = gtk.gdk.rgb_get_cmap()
     return c
 
+def get_directory_chooser(title,parent):
+    try:
+        chooser = gtk.FileChooserDialog(
+            title, parent, gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
+            (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+
+        return chooser
+    except:
+        return gtk.FileSelection(title)
+    
 def get_file_save_chooser(title, parent, patterns=[]):
     try:
         chooser = gtk.FileChooserDialog(
