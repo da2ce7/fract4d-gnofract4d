@@ -36,6 +36,9 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             "general" : {
               "threads" : "1"
             },
+            "user_info" : {
+            "name" : ""
+            },
             "formula_path" : {
             "0" : "formulas",
             "1" : os.path.join(sys.exec_prefix, "share/formulas/gnofract4d")
@@ -249,6 +252,17 @@ class PrefsDialog(dialog.T):
         name_label.set_use_underline(True)
         name_label.set_mnemonic_widget(entry)
         table.attach(name_label,0,1,0,1,0,0,2,2)
+
+        entry = self.create_option_entry("user_info","name")
+        self.tips.set_tip(
+            entry,_("This text is saved in each image and parameter file you create"))
+        
+        table.attach(entry,1,2,1,2,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        name_label = gtk.Label(_("_User Info :"))
+        name_label.set_use_underline(True)
+        name_label.set_mnemonic_widget(entry)
+        table.attach(name_label,0,1,1,2,0,0,2,2)
 
     def create_directory_list(self, section_name):
         self.path_list = gtk.ListStore(
