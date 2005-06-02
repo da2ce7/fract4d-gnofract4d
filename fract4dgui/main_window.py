@@ -37,7 +37,8 @@ class MainWindow:
             gtk.keysyms.Left : self.on_key_left,
             gtk.keysyms.Right : self.on_key_right,
             gtk.keysyms.Up : self.on_key_up,
-            gtk.keysyms.Down : self.on_key_down
+            gtk.keysyms.Down : self.on_key_down,
+            gtk.keysyms.Escape : self.on_key_escape
             }
 
         self.accelgroup = gtk.AccelGroup()
@@ -175,13 +176,13 @@ class MainWindow:
             widget.set_sensitive(is4d)
         
     def create_fractal(self,f):
-        window = gtk.ScrolledWindow()
-        window.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
+        self.swindow = gtk.ScrolledWindow()
+        self.swindow.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
         
         f.connect('parameters-changed', self.on_fractal_change)
         f.connect('formula-changed', self.on_formula_change)
         
-        window.set_size_request(640+8,400+8)
+        self.swindow.set_size_request(640+8,400+8)
 
         self.fixed = gtk.Fixed()
         self.ftable = gtk.Table(4,4,False)
@@ -191,7 +192,7 @@ class MainWindow:
             1,3,1,3,
             gtk.EXPAND | gtk.FILL,
             gtk.EXPAND | gtk.FILL,
-            1,1)
+            0,0) #1,1)
 
         self.attach_subfract(0,0,0)
         self.attach_subfract(1,1,0)
@@ -208,12 +209,14 @@ class MainWindow:
         self.attach_subfract(10,2,3)
         self.attach_subfract(11,3,3)
 
-        window.add_with_viewport(self.fixed)
+        self.swindow.add_with_viewport(self.fixed)
+        self.swindow.get_child().set_shadow_type(gtk.SHADOW_NONE)
+                
         f.connect('progress_changed', self.progress_changed)
         f.connect('status_changed',self.status_changed)
 
         hbox = gtk.HBox()
-        hbox.pack_start(window)
+        hbox.pack_start(self.swindow)
         self.control_box = gtk.VBox()
         hbox.pack_start(self.control_box,False,False)
         self.vbox.pack_start(hbox)
@@ -379,6 +382,11 @@ class MainWindow:
             (_('/Edit/Re_set Zoom'), '<control>Home',
              self.reset_zoom, 0, ''),
 
+            (_('/_View'), None,
+             None, 0, '<Branch>'),
+            (_('/_View/_Full Screen'), 'F11',
+             self.menu_full_screen, 0, ''),
+            
             (_('/_Tools'), None,
              None, 0, '<Branch>'),
             (_('/_Tools/_Autozoom...'), '<control>A',
@@ -417,6 +425,7 @@ class MainWindow:
         # later disappear randomly - some sort of bug in pygtk, python, or gtk
         self.save_factory = item_factory
         self.vbox.pack_start(menubar, gtk.FALSE, gtk.TRUE, 0)
+        self.menubar = menubar
 
     def browser(self,action,menuitem):
         browser.show(self.window,self.f,browser.FRACTAL)
@@ -429,7 +438,35 @@ class MainWindow:
             
     def toggle_explorer(self, action, menuitem):
         self.set_explorer_state(menuitem.get_active())
+
+    def menu_full_screen(self, action, menuitem):
+        self.set_full_screen(True)
+
+    def on_key_escape(self, state):
+        self.set_full_screen(False)
         
+    def set_full_screen(self, is_full):
+        if is_full:
+            self.window.fullscreen()
+            self.window.set_decorated(False)
+            self.menubar.hide()
+            self.toolbar.hide()
+            self.bar.hide()
+            self.swindow.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
+
+            screen = self.window.get_screen()
+            preferences.userPrefs.set_size(
+                screen.get_width(),
+                screen.get_height())
+
+        else:
+            self.window.set_decorated(True)
+            self.swindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+            self.menubar.show()
+            self.toolbar.show()
+            self.bar.show()
+            self.window.unfullscreen()
+            
     def create_status_bar(self):
         self.bar = gtk.ProgressBar()
         self.vbox.pack_end(self.bar, expand=gtk.FALSE)
