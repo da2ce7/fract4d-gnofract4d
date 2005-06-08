@@ -273,11 +273,13 @@ class MainWindow:
         # need to gather a filename
         (base,ext) = os.path.splitext(base_name)
         base = re_ends_with_num.sub("",base)
+
+        save_filename = base + extension
         i = 1
         while True:
-            save_filename = base + ("%03d" % i) + extension
             if not os.path.exists(save_filename):
                 break
+            save_filename = base + ("%03d" % i) + extension
             i += 1
         return save_filename
     
