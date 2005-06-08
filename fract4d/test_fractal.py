@@ -290,7 +290,7 @@ colorlist=[
 
     def testLoadBoolParamSavedByOlderVersion(self):
         '''Bug reported by Elaine Normandy: file saved by 2.7 containing
-        boolean param can't be loaded by 2.8'''
+        boolean param can\'t be loaded by 2.8'''
 
         f = fractal.T(self.compiler)
         f.loadFctFile(open("../testdata/chainsoflight.fct"))
@@ -607,6 +607,7 @@ blue=0.3
         f.nudge(-1,-1,2)
         tparams[f.ZCENTER] = -4.0 * 0.025
         tparams[f.WCENTER] = 4.0 * 0.025
+
         
     def testDefaultFractal(self):
         f = fractal.T(self.compiler)

@@ -499,6 +499,49 @@ default:
         cg = codegen.T(t.symbols)
         cg.output_all(t)
         c = cg.output_c(t)
+
+    def testLattice(self):
+        'Test whether a UF formula which used to be problematic works'
+
+        # from daz.ufm
+        src = '''Lattice(BOTH) {
+init:
+loop:
+  complex dist=@spacing
+  if(real(dist)==0.0)
+    dist=dist+(1.0,0.0)
+  endif
+  if(imag(dist)==0.0)
+    dist=dist+(0.0,1.0)
+  endif
+  complex zp=trunc(#z/dist)
+  complex zc=#z-(zp*dist)
+  if(@mode==1)
+    if(floor(imag(zp))%2==1)
+      zc=(zc+real(dist)/2)
+      if(zc>dist)
+        zc=zc-dist
+      endif
+    endif
+  endif
+final:
+  #index=|zc|/|dist|
+default:
+  title="daz.ucl:Lattice"
+  param mode
+    enum="Square" "Hexagonal"
+    default=1
+    caption="Style"
+    hint="Arrangement of points in the lattice"
+  endparam
+  param spacing
+    default=(1.0,1.0)
+    caption="Spacing"
+    hint="Spacing of points in the lattice"
+  endparam
+}
+'''
+        self.assertCSays(src,"loop","","")
         
     def testDeclareP1andFN1(self):
         'Test that having a param which clashes with built-in names is OK'
@@ -1348,8 +1391,9 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
             return complex(int(z.real+0.5),int(z.imag+0.5))
 
         def mycceil(z):
-            return complex(math.ceil(z.real),math.ceil(z.imag))
-
+            x = complex(math.ceil(z.real),math.ceil(z.imag))
+            return x
+        
         def mycosxx(z):
             cosz = cmath.cos(z)
             return complex(cosz.real, -cosz.imag)
@@ -1397,7 +1441,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
             [ "frnd1 = (round(0.5), round(0.4))", "frnd1", "(1,0)"],
             [ "frnd2 = (round(-0.5), round(-0.4))", "frnd2", "(0,0)"],
             [ "fceil1 = (ceil(0.5), ceil(0.4))", "fceil1", "(1,1)"],
-            [ "fceil2 = (ceil(-0.5), ceil(-0.4))", "fceil2", "(-0,-0)"],
+            [ "fceil2 = (ceil(-0.5), ceil(-0.4))", "fceil2", "(0,0)"],
             [ "ffloor1 = (floor(0.5), floor(0.4))", "ffloor1", "(0,0)"],
             [ "ffloor2 = (floor(-0.5), floor(-0.4))", "ffloor2", "(-1,-1)"],
             [ "fzero = (zero(77),zero(-41.2))", "fzero", "(0,0)"],

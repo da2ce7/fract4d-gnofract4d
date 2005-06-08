@@ -19,7 +19,7 @@ sys.path.append("..")
 from fract4d import fractal,fract4dc,fracttypes
 import fract4dguic
 
-import utils
+import utils, fourway
 
 class T(gobject.GObject):
     __gsignals__ = {
@@ -229,13 +229,8 @@ class T(gobject.GObject):
             return name[5:]
         return name
 
-    def make_numeric_widget(
-        self, table, i, name, part, param, order, formula, param_type):
-    
-        label = gtk.Label(self.param_display_name(name,param)+part)
-        label.set_justify(gtk.JUSTIFY_RIGHT)
-        table.attach(label,0,1,i,i+1,0,0,2,2)
-
+    def make_numeric_entry(
+        self, param, order, formula, param_type):
         if param.type == fracttypes.Int:
             fmt = "%d"
         else:
@@ -268,9 +263,21 @@ class T(gobject.GObject):
         widget.connect('focus-out-event',
                        set_fractal,self,order,param_type)
 
-        label.set_mnemonic_widget(widget)
         return widget
 
+    def make_numeric_widget(
+        self, table, i, name, part, param, order, formula, param_type):
+    
+        label = gtk.Label(self.param_display_name(name,param)+part)
+        label.set_justify(gtk.JUSTIFY_RIGHT)
+        table.attach(label,0,1,i,i+1,0,0,2,2)
+
+        widget = self.make_numeric_entry(
+            param, order, formula, param_type)
+
+        label.set_mnemonic_widget(widget)
+        return widget
+    
     def make_bool_widget(
         self, name, param, order, formula, param_type):
 
@@ -395,7 +402,25 @@ class T(gobject.GObject):
             raise "Unsupported parameter type"
 
         table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL ,0,2,2)
-            
+
+
+    def add_complex_formula_setting(
+        self,table,i,name,param,order,formula,param_type):
+        
+        widget = self.make_numeric_entry(
+                param,order,formula,param_type)
+
+        table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL ,0,2,2)
+
+        widget = self.make_numeric_entry(
+                param,order+1,formula,param_type)
+
+        table.attach(widget,1,2,i+1,i+2,gtk.EXPAND | gtk.FILL ,0,2,2)
+
+        fway = fourway.T(self.param_display_name(name,param))
+
+        table.attach(fway.widget,0,1,i,i+2, 0,0, 2,2)
+        
     def construct_function_menu(self,param,formula):
         funclist = formula.symbols.available_param_functions(
             param.ret,param.args)
@@ -557,11 +582,8 @@ class T(gobject.GObject):
                 self.add_formula_function(table,i,name,param,formula)
             else:
                 if param.type == fracttypes.Complex:
-                    self.add_formula_setting(
-                        table,i,name," (re)",param,op[name],formula,param_type)
-                    self.add_formula_setting(
-                        table,i+1,name, " (im)",param,op[name]+1,
-                        formula, param_type)
+                    self.add_complex_formula_setting(
+                        table,i,name,param,op[name],formula,param_type)
                     i+= 1
                 elif param.type == fracttypes.Hyper:
                     suffixes = [" (re)", " (i)", " (j)", " (k)"]
