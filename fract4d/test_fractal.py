@@ -407,9 +407,12 @@ colorlist=[
         # check that each element is within epsilon of expected value
         epsilon = 1.0e-12
         for (ra,rb) in zip(a,b):
-            d = abs(ra-rb)
-            self.failUnless(d < epsilon,"%f != %f (by %f)" % (ra,rb,d))
-
+            if isinstance(ra, types.FloatType):
+                d = abs(ra-rb)
+                self.failUnless(d < epsilon,"%f != %f (by %f)" % (ra,rb,d))
+            else:
+                self.assertEqual(ra,rb)
+                
     def testLoadRGBColorizer(self):
         'load an rgb colorizer (not supported)'
         file='''gnofract4d parameter file
@@ -589,7 +592,8 @@ blue=0.3
 
     def testNudges(self):
         f = fractal.T(self.compiler)
-        
+
+        f.set_formula("gf4d.frm","Nova")
         f.compile()
 
         f.nudge(-1,0)
@@ -607,7 +611,17 @@ blue=0.3
         f.nudge(-1,-1,2)
         tparams[f.ZCENTER] = -4.0 * 0.025
         tparams[f.WCENTER] = 4.0 * 0.025
+        
+        op = f.formula.symbols.order_of_params()
+        k_a = op["t__a_a"]
 
+        oldparams = copy.copy(f.initparams)
+        f.nudge_param(k_a, 0, 1, 2 )
+
+        oldparams[k_a] += 1.0 * 0.025
+        oldparams[k_a + 1] += 2.0 * 0.025
+
+        self.assertNearlyEqual(f.initparams, oldparams)
         
     def testDefaultFractal(self):
         f = fractal.T(self.compiler)

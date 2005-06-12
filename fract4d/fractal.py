@@ -804,6 +804,20 @@ class T(FctUtils):
         # move a little way in x or y
         self.relocate(0.025 * x , 0.025 * y, 1.0,axis)
 
+    def nudge_param(self, i, param_type, x, y):        
+        # nudge params[i] by (x,y)
+        if x == 0 and y == 0:
+            return
+
+        if param_type == 0:
+            params = self.initparams
+        else:
+            params = self.cfunc_params[param_type-1]
+        
+        params[i] += (0.025 * x)
+        params[i+1] += (0.025 * y)
+        self.changed()
+        
     def relocate(self,dx,dy,zoom,axis=0):
         if dx == 0 and dy == 0 and zoom == 1.0:
             return
