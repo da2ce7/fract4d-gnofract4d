@@ -7,14 +7,17 @@ done in 2.10:
 * W	list of formula directories saved in preferences
 * W	fullscreen mode
 * BB	daz.ucl: Lattice: C compiler error, invalid args to %
+* W	fourways in fract parameters
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
+* BBB   "failed to read() from server connection" - huh?
 * BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
 * BB	should save enum params as strings, not indexes
 * BB	fractint doesn't reset vars between calls
 * BB	crash with multiple threads on x86-64 (Paul Wayper)
 * BB	ck.ucl: cabs() not callable
+* BB	default params not set when formula loaded from command-line
 * B	is a cmap loaded from a .map file correct? Think index math is squiffy 
 * B     var called 'loat' would clash with C reserved word
 * B	weird behavior when using explorer mode & oversized image

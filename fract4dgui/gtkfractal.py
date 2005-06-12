@@ -229,8 +229,7 @@ class T(gobject.GObject):
             return name[5:]
         return name
 
-    def make_numeric_entry(
-        self, param, order, formula, param_type):
+    def make_numeric_entry(self, param, order, formula, param_type):
         if param.type == fracttypes.Int:
             fmt = "%d"
         else:
@@ -419,8 +418,16 @@ class T(gobject.GObject):
 
         fway = fourway.T(self.param_display_name(name,param))
 
-        table.attach(fway.widget,0,1,i,i+2, 0,0, 2,2)
+        fway.connect('value-changed',self.fourway_released, order, param_type)
+        fway.connect(
+            'value-slightly-changed',
+            self.parent.on_drag_param_fourway, order, param_type)
         
+        table.attach(fway.widget,0,1,i,i+2, 0,0, 2,2)
+
+    def fourway_released(self,widget,x,y,param,order):
+        self.f.nudge_param(param, order, x,y)
+
     def construct_function_menu(self,param,formula):
         funclist = formula.symbols.available_param_functions(
             param.ret,param.args)
