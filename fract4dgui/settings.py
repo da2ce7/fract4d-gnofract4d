@@ -210,7 +210,7 @@ class SettingsDialog(dialog.T):
                 parent.remove(self.tables[param_type])
 
             self.tables[param_type] = \
-                self.f.populate_formula_settings(param_type)
+                self.f.populate_formula_settings(param_type,self.tooltips)
             
             self.tables[param_type].show_all()
             parent.pack_start(self.tables[param_type])

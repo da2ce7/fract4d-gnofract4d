@@ -39,6 +39,8 @@ class T(gobject.GObject):
         self.widget.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
                                gtk.gdk.BUTTON1_MOTION_MASK |
                                gtk.gdk.POINTER_MOTION_HINT_MASK |
+                               gtk.gdk.ENTER_NOTIFY_MASK |
+                               gtk.gdk.LEAVE_NOTIFY_MASK |                               
                                gtk.gdk.BUTTON_PRESS_MASK
                                )
 

@@ -162,7 +162,8 @@ def main():
         
     if basename and func:
         mainWindow.f.set_formula(basename,func)
-
+        mainWindow.f.reset()
+        
     if mainWindow.f.thaw():
         mainWindow.on_fractal_change()
         
