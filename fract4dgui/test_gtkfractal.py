@@ -109,7 +109,7 @@ class FctTest(unittest.TestCase):
         self.f.set_formula("test.frm","test_func")
         self.f.set_outer("test.cfrm","flat")
         
-        table = self.f.populate_formula_settings(0)
+        table = self.f.populate_formula_settings(0,gtk.Tooltips())
 
         children = table.get_children()
         list.reverse(children)
@@ -121,7 +121,7 @@ class FctTest(unittest.TestCase):
         self.assertEqual(names[2],"bailout")
         self.assertEqual(names[3],"myfunc")
         
-        table = self.f.populate_formula_settings(1)
+        table = self.f.populate_formula_settings(1,gtk.Tooltips())
 
         children = table.get_children()
         list.reverse(children)
@@ -137,7 +137,7 @@ class FctTest(unittest.TestCase):
     def testIntParamSetting(self):
         self.f.set_formula("test.frm","fn_with_intparam")
 
-        table = self.f.populate_formula_settings(0)
+        table = self.f.populate_formula_settings(0,gtk.Tooltips())
         
     def testButton1(self):
         f = self.f

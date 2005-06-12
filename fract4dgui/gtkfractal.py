@@ -404,7 +404,7 @@ class T(gobject.GObject):
 
 
     def add_complex_formula_setting(
-        self,table,i,name,param,order,formula,param_type):
+        self,table,i,name,param,order,formula,param_type, tips):
         
         widget = self.make_numeric_entry(
                 param,order,formula,param_type)
@@ -416,8 +416,10 @@ class T(gobject.GObject):
 
         table.attach(widget,1,2,i+1,i+2,gtk.EXPAND | gtk.FILL ,0,2,2)
 
-        fway = fourway.T(self.param_display_name(name,param))
-
+        name = self.param_display_name(name,param)
+        fway = fourway.T(name)
+        tips.set_tip(fway.widget, name)
+        
         fway.connect('value-changed',self.fourway_released, order, param_type)
         fway.connect(
             'value-slightly-changed',
@@ -567,7 +569,7 @@ class T(gobject.GObject):
         table.attach(widget,1,2,i,i+1,0,0,2,2)
         return i+1
         
-    def populate_formula_settings(self, param_type):
+    def populate_formula_settings(self, param_type, tips):
         # create widget to fiddle with this fractal's settings
         if param_type == 0:
             formula = self.f.formula
@@ -590,7 +592,7 @@ class T(gobject.GObject):
             else:
                 if param.type == fracttypes.Complex:
                     self.add_complex_formula_setting(
-                        table,i,name,param,op[name],formula,param_type)
+                        table,i,name,param,op[name],formula,param_type,tips)
                     i+= 1
                 elif param.type == fracttypes.Hyper:
                     suffixes = [" (re)", " (i)", " (j)", " (k)"]
