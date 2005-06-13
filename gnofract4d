@@ -166,7 +166,7 @@ def main():
         
     if mainWindow.f.thaw():
         mainWindow.on_fractal_change()
-        
+
     gtk.main()
 
 def main_n(n):

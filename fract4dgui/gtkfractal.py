@@ -736,21 +736,21 @@ class T(gobject.GObject):
     
     def onPaint(self,x,y):
         # obtain index
-        index = fract4dc.image_get_color_index(self.image, x, y)
+        index = fract4dc.image_get_color_index(self.image, int(x), int(y))
         
         # obtain a color
         (r,g,b) = self.get_paint_color()
         
         # update colormap
-        g = self.f.get_gradient()
-        i = g.get_index_at(index)
-        if index > g.segments[i].mid:
-            alpha = g.segments[i].right_color[3]
-            g.segments[i].right_color = [r, g, b, alpha]
+        grad = self.f.get_gradient()
+        i = grad.get_index_at(index)
+        if index > grad.segments[i].mid:
+            alpha = grad.segments[i].right_color[3]
+            grad.segments[i].right_color = [r, g, b, alpha]
         else:
-            alpha = g.segments[i].left_color[3]
-            g.segments[i].left_color = [r, g, b, alpha]
-            
+            alpha = grad.segments[i].left_color[3]
+            grad.segments[i].left_color = [r, g, b, alpha]
+
         self.changed(False)
 
     def filterPaintModeRelease(self,event):
