@@ -21,9 +21,12 @@ class T(gtk.Toolbar):
         try:
             toolitem = gtk.ToolItem()
             toolitem.add(widget)
+            toolitem.set_expand(False)
+            toolitem.set_homogeneous(False)
             toolitem.set_tooltip(gtk.Tooltips(), tip_text, private_text)
             self.insert(toolitem,-1)
-        except:
+        except Exception, exn:
+            print exn
             self.append_element(
                 gtk.TOOLBAR_CHILD_WIDGET,            
                 widget,
