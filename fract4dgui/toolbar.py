@@ -26,7 +26,6 @@ class T(gtk.Toolbar):
             toolitem.set_tooltip(gtk.Tooltips(), tip_text, private_text)
             self.insert(toolitem,-1)
         except Exception, exn:
-            print exn
             self.append_element(
                 gtk.TOOLBAR_CHILD_WIDGET,            
                 widget,

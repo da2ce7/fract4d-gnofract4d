@@ -102,7 +102,6 @@ def create_option_menu(items):
             widget.append_text(item)
         
     except Exception, exn:
-        print exn
         widget = gtk.OptionMenu()
         menu = gtk.Menu()
         for item in items:
@@ -128,7 +127,7 @@ def get_selected(menu):
     try:
         return menu.get_active()
     except:
-        return res_menu.get_history()
+        return menu.get_history()
         
 def create_color(r,g,b):
     # multiply up to match range expected by gtk
