@@ -9,11 +9,13 @@ done in 2.10:
 * BB	daz.ucl: Lattice: C compiler error, invalid args to %
 * W	fourways in fract parameters, incl. tips
 * BB	default params not set when formula loaded from command-line
-* BB	painter fixed (was it working in 2.9?)
+* BB	painter fixed
+* BBB	cursor keys in fract params cause redraw
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
-* BBB   "failed to read() from server connection" - huh?
+* BBB   "failed to read() from server connection" - huh? Gamin/FAM?
+* BB	not all keyboard shortcuts available when menu hidden
 * BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
 * BB	should save enum params as strings, not indexes
 * BB	fractint doesn't reset vars between calls

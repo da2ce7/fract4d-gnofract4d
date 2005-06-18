@@ -75,7 +75,7 @@ def get_file_save_chooser(title, parent, patterns=[]):
 def set_file_chooser_filename(chooser,name):
     try:
         if name:
-            chooser.set_current_name(name)
+            chooser.set_current_name(os.path.basename(name))
     except:
         pass
     

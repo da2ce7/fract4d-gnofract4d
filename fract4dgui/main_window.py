@@ -321,6 +321,10 @@ class MainWindow:
         self.nudge(0, 1,state)
         
     def on_key_release(self, widget, event):
+        current_widget = self.window.get_focus()
+        if isinstance(current_widget, gtk.Entry):
+            # otherwise we steal cursor motion through entry
+            return
         fn = self.keymap.get(event.keyval)
         if fn:
             fn(event.state)

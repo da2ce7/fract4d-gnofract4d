@@ -244,6 +244,7 @@ class T(gobject.GObject):
                 widget.set_text(new_value)
 
         def set_fractal(entry,event,f,order,param_type):
+            'set fractal'
             try:
                 gtk.idle_add(f.set_initparam,order,
                              entry.get_text(),param_type)
