@@ -470,6 +470,11 @@ class MainWindow:
         self.set_full_screen(False)
         
     def set_full_screen(self, is_full):
+        if not hasattr(self.window, "fullscreen"):
+            self.show_warning(
+                _("Sorry, your version of PyGTK does not support full screen display"))
+            return
+        
         if is_full:
             self.window.fullscreen()
             self.window.set_decorated(False)
