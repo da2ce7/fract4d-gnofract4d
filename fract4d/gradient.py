@@ -314,15 +314,22 @@ class Gradient:
 
     def randomize(self, length):
         self.segments = []
-        last_index = 0.0
-        last_color = [random.random(), random.random(), random.random(), 1.0]
-        for i in xrange(length):
+        prev_index = 0.0
+        prev_color = [random.random(), random.random(), random.random(), 1.0]
+        first_color = prev_color
+        for i in xrange(length-1):
             index = float(i+1)/length
-            color = [random.random(), random.random(), random.random(), 1.0]
+            if i % 2 == 1:                
+                color = [random.random(), random.random(), random.random(), 1.0]
+            else:
+                color = [0.0, 0.0, 0.0, 1.0]
             self.segments.append(
-                Segment(last_index, last_color, index, color))
-            last_color = color
-            last_index = index
+                Segment(prev_index, prev_color, index, color))
+            prev_color = color
+            prev_index = index
+        
+        self.segments.append(
+            Segment(prev_index, prev_color, 1.0, first_color)) # make it wrap
 
     def get_color_at(self, pos):
         # returns the color at position x (0 <= x <= 1.0) 
