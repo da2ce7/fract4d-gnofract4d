@@ -51,7 +51,7 @@ module1 = Extension(
     'fract4d/c'
     ],
     libraries = [
-    'stdc++'
+    #'stdc++'
     ],
     extra_compile_args = [
     #'-O0',
@@ -74,7 +74,7 @@ module_cmap = Extension(
     'fract4d/c'
     ],
     libraries = [
-    'stdc++'
+    #'stdc++'
     ],
     define_macros = [ ('_REENTRANT', 1)]
     )
