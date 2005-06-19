@@ -11,12 +11,12 @@ done in 2.10:
 * BB	default params not set when formula loaded from command-line
 * BB	painter fixed
 * BBB	cursor keys in fract params cause redraw
+* BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 * BBB   "failed to read() from server connection" - huh? Gamin/FAM? Connected to file choosers?
 * BB	not all keyboard shortcuts available when menu hidden
-* BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
 * BB	should save enum params as strings, not indexes
 * BB	fractint doesn't reset vars between calls
 * BB	crash with multiple threads on x86-64 (Paul Wayper)

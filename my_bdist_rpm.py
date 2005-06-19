@@ -1,0 +1,60 @@
+#!/usr/bin.env python
+
+# Override the default bdist_rpm distutils command to do what I want
+
+from distutils.command.bdist_rpm import bdist_rpm
+from distutils.core import Command
+
+class my_bdist_rpm (bdist_rpm):
+    user_options = bdist_rpm.user_options
+    def __init__(self, dict):
+        bdist_rpm.__init__(self,dict)
+
+    def insert_after(self,spec, find,add):
+        for i in xrange(len(spec)):
+            if spec[i].startswith(find):
+                spec.insert(i,add)
+                return
+            
+    def add_to_section(self,spec,sect,add):
+        found = False
+        for i in xrange(len(spec)):
+            if spec[i].startswith(sect):
+                found = True
+            elif spec[i].startswith('%'):
+                if found:
+                    spec.insert(i,add)
+                    return
+        if found:
+            # this is the last section
+            spec.insert(i,add)
+        else:
+            raise IndexError("sect %s not found" % sect)
+    
+    def _make_spec_file(self):
+        'override the default to specify AutoReqProv: no'
+        
+        spec = bdist_rpm._make_spec_file(self)
+
+        # reduce the number of explicit pre-requisites
+        self.insert_after(spec, 'Url: http://gnofract4d.sourceforge.net/','AutoReqProv: no')
+
+        # install a .desktop file
+        self.insert_after(spec, '%define', '%define desktop_vendor ey')
+        self.add_to_section(spec, '%install', '''
+%{__install} -d -m0755 %{buildroot}%{_datadir}/applications/
+desktop-file-install \
+--vendor %{desktop_vendor}                 \
+--add-category X-Red-Hat-Base              \
+--dir %{buildroot}%{_datadir}/applications \
+%{buildroot}%{_datadir}/gnome/apps/Graphics/gnofract4d.desktop''')
+
+        self.add_to_section(
+            spec, '%files',
+            '%{_datadir}/applications/%{desktop_vendor}-gnofract4d.desktop')
+        
+        print "SPEC>"
+        print spec
+        print "EOF>"
+        
+        return spec

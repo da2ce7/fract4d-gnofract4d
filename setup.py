@@ -6,6 +6,7 @@ import distutils.sysconfig
 import os
 import commands
 import sys
+import my_bdist_rpm
 
 gnofract4d_version = "2.10"
 
@@ -15,7 +16,7 @@ if float(sys.version[:3]) < 2.2:
     sys.exit(1)
 
 # hack to use a different Python for building if an env var is set
-# I use this to build python-2.3 RPMs.
+# I use this to build python-2.2 and 2.4 RPMs.
 build_version = os.environ.get("BUILD_PYTHON_VERSION")
 build_python = os.environ.get("BUILD_PYTHON")
 
@@ -111,7 +112,7 @@ module2 = Extension(
     'fract4d/c/'
     ],
     libraries = [
-    'stdc++'
+    #'stdc++'
     ],
     extra_compile_args = gtk_flags,
     extra_link_args = gtk_libs,    
@@ -163,10 +164,11 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
            # GNOME .desktop file
            ('share/gnome/apps/Graphics/', ['gnofract4d.desktop']),
 
-           # boring files
+           # doc files
            ('share/doc/gnofract4d-%s/' % gnofract4d_version,
-            ['COPYING', 'README'])
-           ]
+            ['COPYING', 'README']),
+           ],
+       cmdclass={"my_bdist_rpm": my_bdist_rpm.my_bdist_rpm}
        )
 
 # I need to find the file I just built and copy it up out of the build
