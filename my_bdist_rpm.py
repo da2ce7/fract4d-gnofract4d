@@ -37,24 +37,24 @@ class my_bdist_rpm (bdist_rpm):
         spec = bdist_rpm._make_spec_file(self)
 
         # reduce the number of explicit pre-requisites
-        self.insert_after(spec, 'Url: http://gnofract4d.sourceforge.net/','AutoReqProv: no')
+        self.insert_after(spec, 'Url','AutoReqProv: no')
 
         # install a .desktop file
         self.insert_after(spec, '%define', '%define desktop_vendor ey')
         self.add_to_section(spec, '%install', '''
-%{__install} -d -m0755 %{buildroot}%{_datadir}/applications/
+%{__install} -d -m0755 %{buildroot}/usr/share/applications/
 desktop-file-install \
 --vendor %{desktop_vendor}                 \
 --add-category X-Red-Hat-Base              \
---dir %{buildroot}%{_datadir}/applications \
+--dir %{buildroot}/usr/share/applications \
 %{buildroot}%{_datadir}/gnome/apps/Graphics/gnofract4d.desktop''')
 
         self.add_to_section(
             spec, '%files',
             '%{_datadir}/applications/%{desktop_vendor}-gnofract4d.desktop')
         
-        print "SPEC>"
-        print spec
-        print "EOF>"
+        #print "SPEC>"
+        #print spec
+        #print "EOF>"
         
         return spec

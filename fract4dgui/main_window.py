@@ -450,7 +450,8 @@ class MainWindow:
         self.save_factory = item_factory
         self.vbox.pack_start(menubar, gtk.FALSE, gtk.TRUE, 0)
         self.menubar = menubar
-
+        
+        
     def browser(self,action,menuitem):
         browser.show(self.window,self.f,browser.FRACTAL)
 
