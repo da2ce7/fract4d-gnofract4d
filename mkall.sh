@@ -8,7 +8,7 @@
 
 # python 2.2 version
 export BUILD_PYTHON_VERSION=2.2
-export BUILD_PYTHON=/usr/local/bin/python2.2
+export BUILD_PYTHON=/usr/bin/python2.2
 export MIN=2.2
 export MAX=2.3
 
@@ -26,7 +26,7 @@ mv dist/gnofract4d-2.10-1.i386.rpm dist/gnofract4d-python23-2.10-1.i386.rpm
 
 # Python 2.4 version
 export BUILD_PYTHON_VERSION=2.4
-export BUILD_PYTHON=/usr/local/bin/python2.4
+export BUILD_PYTHON=/usr/bin/python2.4
 export MIN=2.4
 export MAX=2.5
 

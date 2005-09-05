@@ -7,6 +7,8 @@ import os
 import commands
 import sys
 import my_bdist_rpm
+import my_build
+import my_build_ext
 
 gnofract4d_version = "2.10"
 
@@ -19,6 +21,11 @@ if float(sys.version[:3]) < 2.2:
 # I use this to build python-2.2 and 2.4 RPMs.
 build_version = os.environ.get("BUILD_PYTHON_VERSION")
 build_python = os.environ.get("BUILD_PYTHON")
+
+# use currently specified compilers, not ones from when Python was compiled
+# this is necessary for cross-compilation
+compiler = os.environ.get("CC","gcc")
+cxxcompiler = os.environ.get("CXX","g++")
 
 if build_version and build_python and sys.version[:3] != build_version:
     args = ["/usr/bin/python"] + sys.argv
@@ -168,7 +175,10 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
            ('share/doc/gnofract4d-%s/' % gnofract4d_version,
             ['COPYING', 'README']),
            ],
-       cmdclass={"my_bdist_rpm": my_bdist_rpm.my_bdist_rpm}
+       cmdclass={
+           "my_bdist_rpm": my_bdist_rpm.my_bdist_rpm,
+           "my_build" : my_build.my_build,
+           "my_build_ext" : my_build_ext.my_build_ext}
        )
 
 # I need to find the file I just built and copy it up out of the build
@@ -191,7 +201,4 @@ def copy_libs(dummy,dirpath,namelist):
              shutil.copy(os.path.join(dirpath, name), target)
             
 os.path.walk("build",copy_libs,None)
-
-
-
 

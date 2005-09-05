@@ -1,3 +1,28 @@
+C6 group{
+x=real(pixel), y=imag(pixel), v=p1
+x1=x2=y1=y2=v1=v2=0:
+    a1 = x1^2+ x2^2+2*y1*v1+2*y2*v2
+    a2 = 2*x1*x2+2*y1*v2+2*y2*v1
+    b1 = 2*x1*y1+2*x2*y2+v1^2+v2^2
+    b2 = 2*x1*y2+2*x2*y1+2*v1*v2
+    c1 = 2*x1*v1+2*x2*v2+y1^2+y2^2
+    c2 = 2*x1*v2+2*x2*v1+2*y1*y2
+    x1=a1+x, x2=a2-x
+    y1=b1+y, y2=b2-y
+    v1=c1+v, v2=c2-v
+    z = (x1-x2)^2 + (y1-y2)^2+ (v1-v2)^2
+z < 1000  }
+
+Triternions{
+c1=real(pixel), c2=imag(pixel), c3=p1
+x=y=v=0:
+    a = x^2+2*y*v
+    b = v^2+2*x*y
+    c = y^2+2*x*v
+    x=a+c1, y=b+c2, v=c+c3
+    z=x^2+y^2+v^2
+z < 1000 }
+
 General Burning Ship {
 init:
 	z = #zwpixel
