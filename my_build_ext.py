@@ -12,32 +12,35 @@ class my_build_ext (build_ext):
         build_ext.__init__(self,dict)
 
     def build_extensions(self):
-        print self.compiler.__dict__
+        # python2.2 doesn't honor these, so we have to sneak them in
+        cxx = os.environ.get("CXX")
+        cc = os.environ.get("CC")
 
-        # python2.2 doesn't honor these, so we have to sneak in
-        cxx = os.environ["CXX"]
-        cc = os.environ["CC"]
-
-        self.compiler.preprocessor[0] = cc
-        self.compiler.compiler_so[0] = cc
-        self.compiler.compiler[0] = cc
-        if hasattr(self.compiler, "compiler_cxx"):
-            self.compiler.compiler_cxx[0] = cxx
-        self.compiler.linker_so[0] = cxx
+        if cc:
+            self.compiler.preprocessor[0] = cc
+            self.compiler.compiler_so[0] = cc
+            self.compiler.compiler[0] = cc
         
-        if self.compiler.compiler[0].find("33") > -1:
-            # gcc 3.3 can't cope with -mtune, ditch that
-            self.compiler.compiler = [
-                opt for opt in self.compiler.compiler \
-                    if opt.find("-mtune") == -1 ]
+            if cc.find("33") > -1:
+                # rpm thinks we should have -mtune, but older gcc doesn't like it
+                cflags = os.environ.get("CFLAGS")
+                if cflags != None:
+                    cflags = cflags.replace("-mtune=pentium4","")
+                    print "cflags", cflags
+                    os.environ["CFLAGS"] = cflags
 
-        if self.compiler.compiler_so[0].find("33") > -1:
-            # gcc 3.3 can't cope with -mtune, ditch that
-            self.compiler.compiler_so = [
-                opt for opt in self.compiler.compiler_so \
-                    if opt.find("-mtune") == -1 ]
-            print self.compiler.compiler_so
+                self.compiler.compiler = [
+                    opt for opt in self.compiler.compiler \
+                        if opt.find("-mtune") == -1 ]
 
-        print self.compiler.__dict__
+                self.compiler.compiler_so = [
+                    opt for opt in self.compiler.compiler_so \
+                        if opt.find("-mtune") == -1 ]
+
+        if cxx:
+            if hasattr(self.compiler, "compiler_cxx"):
+                self.compiler.compiler_cxx[0] = cxx
+            self.compiler.linker_so[0] = cxx
+
         build_ext.build_extensions(self)
 
