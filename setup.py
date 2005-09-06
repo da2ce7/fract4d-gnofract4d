@@ -6,9 +6,6 @@ import distutils.sysconfig
 import os
 import commands
 import sys
-import my_bdist_rpm
-import my_build
-import my_build_ext
 
 gnofract4d_version = "2.10"
 
@@ -22,16 +19,21 @@ if float(sys.version[:3]) < 2.2:
 build_version = os.environ.get("BUILD_PYTHON_VERSION")
 build_python = os.environ.get("BUILD_PYTHON")
 
+if build_version and build_python and sys.version[:3] != build_version:
+    print sys.version[:3], build_version
+    args = ["/usr/bin/python"] + sys.argv
+    print "running other Python version %s with args: %s" % (build_python,args)
+    os.execv(build_python, args)
+
+import my_bdist_rpm
+import my_build
+import my_build_ext
+
 # use currently specified compilers, not ones from when Python was compiled
 # this is necessary for cross-compilation
 compiler = os.environ.get("CC","gcc")
 cxxcompiler = os.environ.get("CXX","g++")
 
-if build_version and build_python and sys.version[:3] != build_version:
-    args = ["/usr/bin/python"] + sys.argv
-    print "running other Python version %s with args: %s" % (build_python,args)
-    os.execv(build_python, args)
-    
 def create_stdlib_docs():
     'Autogenerate docs for standard library'
     try:
@@ -177,7 +179,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
            ],
        cmdclass={
            "my_bdist_rpm": my_bdist_rpm.my_bdist_rpm,
-           "my_build" : my_build.my_build,
+           "build" : my_build.my_build,
            "my_build_ext" : my_build_ext.my_build_ext}
        )
 
