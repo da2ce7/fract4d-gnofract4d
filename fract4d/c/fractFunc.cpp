@@ -19,6 +19,17 @@ rotated_matrix(double *params)
         rotZW<d>(params[ZWANGLE],one,zero);
 }
 
+// The eye vector is the line between the center of the screen and the
+// point where the user's eye is deemed to be. It's effectively the line
+// perpendicular to the screen in the -Z direction, scaled by the "eye distance"
+
+dvec4
+eye_vector(double *params, double dist)
+{
+    dmat4 mat = rotated_matrix(params);
+    return mat[VZ] * -dist;
+}
+ 
 fractFunc::fractFunc(
         d *params_,
 	int eaa_,

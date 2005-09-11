@@ -1626,6 +1626,28 @@ rot_matrix(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+eye_vector(PyObject *self, PyObject *args)
+{
+    double params[N_PARAMS], dist;
+
+    if(!PyArg_ParseTuple(
+	   args,
+	   "(ddddddddddd)d",
+	   &params[0],&params[1],&params[2],&params[3],
+	   &params[4],&params[5],&params[6],&params[7],
+	   &params[8],&params[9],&params[10],&dist))
+    {
+	return NULL;
+    }
+
+    dvec4 eyevec = eye_vector(params, dist);
+
+    return Py_BuildValue(
+	"(dddd)",
+	eyevec[0], eyevec[1], eyevec[2], eyevec[3]);
+}
+
+static PyObject *
 pyrgb_to_hsv(PyObject *self, PyObject *args)
 {
     double r,g,b,a=1.0,h,s,v;
@@ -1752,6 +1774,9 @@ static PyMethodDef PfMethods[] = {
 
     { "rot_matrix", rot_matrix, METH_VARARGS,
       "Return a rotated and scaled identity matrix based on params"},
+
+    { "eye_vector", eye_vector, METH_VARARGS,
+      "Return the line between the user's eye and the center of the screen"},
 
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
