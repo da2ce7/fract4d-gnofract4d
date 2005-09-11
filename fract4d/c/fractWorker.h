@@ -73,6 +73,7 @@ class STFractWorker : public IFractWorker {
 
     // calculate a single pixel
     void pixel(int x, int y, int h, int w);
+
     // calculate a single pixel in aa-mode
     void pixel_aa(int x, int y);
 

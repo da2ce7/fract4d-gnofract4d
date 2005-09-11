@@ -63,6 +63,8 @@ fractFunc::fractFunc(
 
     rot = rotated_matrix(params);
 
+    dvec4 rotvz = rot[VZ];
+
     eye_point = center + rot[VZ] * -10.0; // FIXME add eye distance parameter
 
     rot = rot/im->Xres();
@@ -95,7 +97,7 @@ fractFunc::fractFunc(
 };
 
 fractFunc::~fractFunc()
-{
+{    
 
 }
 
@@ -358,6 +360,15 @@ void fractFunc::draw_threads(int rsize, int drawsize)
     
  done:
     reset_progress(1.0);
+}
+
+dvec4
+fractFunc::vec_for_point(int x, int y)
+{
+    dvec4 point = topleft + x * deltax + y * deltay;
+    dvec4 vec = point - eye_point;
+    vec /= vec.mag();
+    return vec;
 }
 
 void 

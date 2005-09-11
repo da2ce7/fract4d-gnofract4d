@@ -8,6 +8,8 @@ import fc
 import fractal
 import fract4dc
 
+from test_fractalsite import FractalSite
+
 # centralized to speed up tests
 g_comp = fc.Compiler()
 g_comp.file_path.append("../formulas")
@@ -19,36 +21,65 @@ class Test(testbase.TestBase):
     def setUp(self):
         global g_comp
         self.compiler = g_comp
-        
+
+        self.f = fractal.T(self.compiler)
+        self.f.set_formula("test.frm", "test_hypersphere")
+        self.f.compile()
+
     def tearDown(self):
         pass
 
     def testHyperSphereFormula(self):
-        f = fractal.T(self.compiler)
-        f.set_formula("test.frm", "test_hypersphere")
-        f.compile()
 
-        handle = fract4dc.pf_load(f.outputfile)
-        pfunc = fract4dc.pf_create(handle)
-        cmap = fract4dc.cmap_create_gradient(f.get_gradient().segments)
-        (r,g,b,a) = f.solids[0]
-        fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
-        (r,g,b,a) = f.solids[1]
-        fract4dc.cmap_set_solid(cmap,1,r,g,b,a)
+        handle = fract4dc.pf_load(self.f.outputfile)
+        self.pfunc = fract4dc.pf_create(handle)
+        self.cmap = fract4dc.cmap_create_gradient(self.f.get_gradient().segments)
+        (r,g,b,a) = self.f.solids[0]
+        fract4dc.cmap_set_solid(self.cmap,0,r,g,b,a)
+        (r,g,b,a) = self.f.solids[1]
+        fract4dc.cmap_set_solid(self.cmap,1,r,g,b,a)
+
+        initparams = self.f.all_params()
+        fract4dc.pf_init(self.pfunc,1.0E-9,initparams)
+
+        self.image = fract4dc.image_create(40,30)
+        siteobj = FractalSite()
+        self.site = fract4dc.site_create(siteobj)
         
-        initparams = f.all_params()
-        fract4dc.pf_init(pfunc,1.0E-9,initparams)
+        self.fw = fract4dc.fw_create(1,self.pfunc,self.cmap,self.image,self.site)
 
-        (iter,fate,dist,solid) = fract4dc.pf_calc(pfunc, [0.0, 0.0, 0.0, 0.0], 100)
+        self.ff = fract4dc.ff_create(
+            [0.0, 0.0, 0.0, 0.0,
+             4.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            2,
+            100,
+            0,
+            1,
+            self.pfunc,
+            self.cmap,
+            0,
+            1,
+            self.image,
+            self.site,
+            self.fw)
+        
+        (iter,fate,dist,solid) = fract4dc.pf_calc(self.pfunc, [0.0, 0.0, 0.0, 0.0], 100)
         self.assertEqual(fate,1) # should be inside
         
-        (iter,fate,dist,solid) = fract4dc.pf_calc(pfunc, [-2.5, 0.0, 0.0, 0.0], 100)
+        (iter,fate,dist,solid) = fract4dc.pf_calc(self.pfunc, [-2.5, 0.0, 0.0, 0.0], 100)
         self.assertEqual(fate,0) # should be outside
+
+        #print "look_vector", self.ff
+        look = fract4dc.ff_look_vector(self.ff,0,0)
+        big_look = [(-19.5/40) * 4.0, (14.5/30)*3.0, 40.0, 0.0]
+        mag = sum([x*x for x in big_look])
+        exp_look = tuple([x/mag for x in big_look])
+        self.assertEqual(look, exp_look)
         
-        #image = fract4dc.image_create(40,30)
         #f.draw(image)
         #fract4dc.image_save(image,"hs.tga")
-        
+
     def testVector(self):
         pass
         
