@@ -41,12 +41,18 @@ class T(gtk.Dialog):
             _dialogs[type].show_all()
             _dialogs[type].present()
         else:
-            dialog = _dialogs[type]
-            box = dialog.controls
-            title = dialog.get_title()
-            container = make_container(title)
-            box.reparent(container)
-            alt_parent.pack_start(container,False,False,0)
+            if not hasattr(alt_parent, "dialogs"):
+                alt_parent.dialogs = {}
+            container = alt_parent.dialogs.get(type)
+            if not container:                
+                dialog = _dialogs[type]
+                box = dialog.controls
+                title = dialog.get_title()
+                container = make_container(title)
+                box.reparent(container)
+                alt_parent.pack_start(container,False,False,0)
+                alt_parent.dialogs[type] = container
+
             container.show_all()
             _dialogs[type].hide()
         

@@ -13,6 +13,7 @@ done in 2.10:
 * BBB	cursor keys in fract params cause redraw
 * BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
 * BBB   load tumor.fct, set formula=Buffalo = crash (cmap deleted too early)
+* BB	two copies of settings window if you Ctrl+F twice
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
