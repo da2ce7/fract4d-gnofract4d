@@ -33,6 +33,12 @@ typedef enum {
     ZWANGLE,
 } param_t;
 
+typedef enum {
+    TWO_D,
+    LANDSCAPE,
+    THREE_D
+} render_type_t;
+
 // colorFunc indices
 #define OUTER 0
 #define INNER 1

@@ -816,6 +816,7 @@ struct calc_args
     double params[N_PARAMS];
     int eaa, maxiter, nThreads;
     int auto_deepen, yflip, periodicity, dirty;
+    render_type_t render_type;
     pf_obj *pfo;
     ColorMap *cmap;
     IImage *im;
@@ -1138,6 +1139,7 @@ pycalc(PyObject *self, PyObject *args)
     //((PySite *)site)->state = PyEval_SaveThread();
     calc(params,eaa,maxiter,nThreads,pfo,cmap,
 	 (bool)auto_deepen,(bool)yflip, (bool)periodicity, (bool)dirty,
+	 TWO_D,
 	 im,site);
     //PyEval_RestoreThread(((PySite *)site)->state);
 
@@ -1281,6 +1283,7 @@ ff_create(PyObject *self, PyObject *args)
 	auto_deepen,
 	yflip,
 	periodicity,
+	TWO_D,
 	worker,
 	im,
 	site);
@@ -1315,6 +1318,7 @@ calculation_thread(void *vdata)
     calc(args->params,args->eaa,args->maxiter,
 	 args->nThreads,args->pfo,args->cmap,
 	 args->auto_deepen,args->yflip, args->periodicity, args->dirty,
+	 args->render_type,
 	 args->im,args->site);
 
 #ifdef DEBUG_THREADS 
@@ -1348,6 +1352,7 @@ pycalc_async(PyObject *self, PyObject *args)
 	return NULL;
     }
 
+    cargs->render_type = TWO_D;
     cargs->set_cmap(pycmap);
     cargs->set_pfo(pypfo);
     cargs->set_im(pyim);
@@ -1640,7 +1645,7 @@ eye_vector(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    dvec4 eyevec = eye_vector(params, dist);
+    dvec4 eyevec = test_eye_vector(params, dist);
 
     return Py_BuildValue(
 	"(dddd)",

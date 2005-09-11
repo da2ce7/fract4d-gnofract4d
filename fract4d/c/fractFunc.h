@@ -30,6 +30,7 @@ class fractFunc {
 	bool auto_deepen,
 	bool yflip,
 	bool periodicity,
+	render_type_t render_type,
 	IFractWorker *fw,
 	IImage *_im, 
 	IFractalSite *_site);
@@ -81,6 +82,7 @@ class fractFunc {
     dvec4 delta_aa_x, delta_aa_y; // offset between subpixels
     dvec4 topleft; // top left corner of screen
     dvec4 aa_topleft; // topleft - offset to 1st subpixel to draw
+    dvec4 eye_point; // where user's eye is (for 3d mode)
 
     // params from ctor
     int depth;    
@@ -89,6 +91,7 @@ class fractFunc {
     int nThreads;
     bool auto_deepen;
     bool periodicity;
+    render_type_t render_type;
     d *params;
 
     IImage *im;    
@@ -123,14 +126,14 @@ class fractFunc {
     void reset_counts();
     void reset_progress(float progress);
 
-
     // calculate the whole image using worker threads
     void draw_threads(int rsize, int drawsize);
+
 };
 
 // geometry utilities
 dmat4 rotated_matrix(double *params);
-dvec4 eye_vector(double *params, double dist);
+dvec4 test_eye_vector(double *params, double dist);
 
 #ifdef __cplusplus
 extern "C" {
@@ -147,6 +150,7 @@ extern void calc(
     bool yflip,
     bool periodicity,
     bool dirty,
+    render_type_t render_type,
     IImage *im, 
     IFractalSite *site);
 

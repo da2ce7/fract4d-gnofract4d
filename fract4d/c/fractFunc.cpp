@@ -24,7 +24,7 @@ rotated_matrix(double *params)
 // perpendicular to the screen in the -Z direction, scaled by the "eye distance"
 
 dvec4
-eye_vector(double *params, double dist)
+test_eye_vector(double *params, double dist)
 {
     dmat4 mat = rotated_matrix(params);
     return mat[VZ] * -dist;
@@ -38,6 +38,7 @@ fractFunc::fractFunc(
 	bool auto_deepen_,
 	bool yflip,
 	bool periodicity_,
+	render_type_t render_type_,
 	IFractWorker *fw,
 	IImage *im_, 
 	IFractalSite *site_)
@@ -45,6 +46,7 @@ fractFunc::fractFunc(
     site = site_;
     im = im_;
     ok = true;
+    render_type = render_type_;
     worker = fw;
     params = params_;
 
@@ -55,7 +57,14 @@ fractFunc::fractFunc(
     auto_deepen = auto_deepen_;
     periodicity = periodicity_;
 
+    dvec4 center = dvec4(
+	params[XCENTER],params[YCENTER],
+	params[ZCENTER],params[WCENTER]);
+
     rot = rotated_matrix(params);
+
+    eye_point = center + rot[VZ] * -10.0; // FIXME add eye distance parameter
+
     rot = rot/im->Xres();
     // distance to jump for one pixel down or across
     deltax = rot[VX];
@@ -67,8 +76,7 @@ fractFunc::fractFunc(
     delta_aa_y = deltay / 2.0;
 
     // topleft is now top left corner of top left pixel...
-    topleft = vec4<d>(params[XCENTER],params[YCENTER],
-		      params[ZCENTER],params[WCENTER]) -
+    topleft = center -
         deltax * im->Xres() / 2.0 -
         deltay * im->Yres() / 2.0;
 
@@ -364,6 +372,7 @@ calc(
     bool yflip,
     bool periodicity,
     bool dirty,
+    render_type_t render_type,
     IImage *im, 
     IFractalSite *site)
 {
@@ -381,6 +390,7 @@ calc(
 	    auto_deepen,
 	    yflip,
 	    periodicity,
+	    render_type,
 	    worker,
 	    im,
 	    site);
