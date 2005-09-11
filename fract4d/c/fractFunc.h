@@ -128,8 +128,9 @@ class fractFunc {
     void draw_threads(int rsize, int drawsize);
 };
 
-
+// geometry utilities
 dmat4 rotated_matrix(double *params);
+dvec4 eye_vector(double *params, double dist);
 
 #ifdef __cplusplus
 extern "C" {

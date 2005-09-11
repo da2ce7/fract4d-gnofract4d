@@ -7,6 +7,7 @@ import fc
 import os.path
 import struct
 import math
+import types
 
 import fract4dc
 import gradient
@@ -479,19 +480,30 @@ class Test(unittest.TestCase):
                                (0.0, 0.0, 1.0, 0.0),
                                (0.0, 0.0, 0.0, 1.0)))
 
+        vec = fract4dc.eye_vector(params,1.0)
+        self.assertEqual(vec, (-0.0, -0.0, -1.0, -0.0))
+        
         params[6] = math.pi/2.0
         mat = fract4dc.rot_matrix(params)
         self.assertNearlyEqual(mat, ((0.0, 0.0, 1.0, 0.0),
                                      (0.0, 1.0, 0.0, 0.0),
                                      (-1.0, 0.0, 0.0, 0.0),
                                      (0.0, 0.0, 0.0, 1.0)))
+
+        vec = fract4dc.eye_vector(params,10.0)
+        self.assertNearlyEqual(vec, (10.0, -0.0, -0.0, -0.0))
+        
         
     def assertNearlyEqual(self,a,b):
         # check that each element is within epsilon of expected value
         epsilon = 1.0e-12
         for (ra,rb) in zip(a,b):
-            for (ca,cb) in zip(ra,rb):
-                d = abs(ca-cb)
+            if isinstance(ra, types.ListType) or isinstance(ra, types.TupleType):
+                for (ca,cb) in zip(ra,rb):
+                    d = abs(ca-cb)
+                    self.failUnless(d < epsilon)
+            else:
+                d = abs(ra-rb)
                 self.failUnless(d < epsilon)
                 
     def testFDSite(self):
