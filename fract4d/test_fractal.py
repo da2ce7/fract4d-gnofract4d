@@ -1090,6 +1090,16 @@ solids=[
         self.assertEqual(f.funcName,"Mandelbrot")
         f.compile()
 
+    def testTumorCrash(self):
+        f = fractal.T(self.compiler)
+        f.loadFctFile(open("../testdata/tumor.fct"))
+        f.compile()
+        f.set_formula("gf4d.frm", "Buffalo")
+        f.compile()
+        image = fract4dc.image_create(40,30)
+        f.draw(image)
+        
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 

@@ -261,6 +261,9 @@ class T(FctUtils):
         self.compiler = compiler
         self.outputfile = None
 
+        self.initparams = []
+        self.cfunc_params = [ [], [] ]
+        
         # gradient
         
         # default is just white outside
@@ -568,7 +571,7 @@ class T(FctUtils):
         for i in xrange(len(self.paramtypes)):
             if self.paramtypes[i] == fracttypes.Gradient:
                 self.initparams[i] = copy.copy(g)
-        
+
     def set_formula_defaults(self, g=None):
         if self.formula == None:
             return
@@ -622,14 +625,14 @@ class T(FctUtils):
 
         self.formula_changed()
         self.changed()
-
+ 
     def get_func_name(self):
         return self.funcName
 
     def get_saved(self):
         return self.saved
     
-    def set_bailfunc(self):        
+    def set_bailfunc(self):
         bailfuncs = [
             "cmag", "manhattanish","manhattanish2",
             "max2","min2",

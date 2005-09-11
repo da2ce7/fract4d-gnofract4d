@@ -250,6 +250,42 @@ float func bailfunc
 	default = cmag
 endfunc
 }
+ 
+XBuffalo {
+init:
+	z = #zwpixel
+loop:
+	z = (abs(real(z)), imag(z))
+	z = (z - 1.0) * z + #pixel
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default = cmag
+endfunc
+magnitude=6.0
+}     
+
+YBuffalo {
+init:
+	z = #zwpixel
+loop:
+	z = (real(z), abs(imag(z)))
+	z = (z - 1.0) * z + #pixel
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default = cmag
+endfunc
+magnitude=6.0
+}     
 
 Buffalo {
 ; From the web page http://www.theory.org/fracdyn/ 

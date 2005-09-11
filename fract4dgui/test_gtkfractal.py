@@ -37,7 +37,7 @@ class Recurser:
         nv = f.params[f.MAGNITUDE]
         f.set_param(f.MAGNITUDE, nv * 2.0)
         
-class FctTest(unittest.TestCase):
+class Test(unittest.TestCase):
     def setUp(self):
         global g_comp
         self.compiler = g_comp
@@ -314,6 +314,20 @@ class FctTest(unittest.TestCase):
         copy.set_param(copy.MAGNITUDE,176.3)
         self.assertEqual(mag,self.f.get_param(self.f.MAGNITUDE))
         self.assertNotEqual(mag,copy.get_param(copy.MAGNITUDE))
+
+    def disabled_testTumorCrash(self):
+        '''Provokes an issue which used to cause a crash.
+        Disabled because if we don\'t crash wait() hangs'''
+        self.f.loadFctFile(open("../testdata/tumor.fct"))
+        self.f.compile()
+        print "d1"
+        self.f.draw_image(0,1)
+        print "d1 done"
+        self.f.set_formula("gf4d.frm", "Buffalo")
+        print "d2"
+        self.f.draw_image(0,1)
+        print "d2 done"
+        self.wait()
         
     def assertNearlyEqual(self,a,b):
         # check that each element is within epsilon of expected value
@@ -323,7 +337,7 @@ class FctTest(unittest.TestCase):
             self.failUnless(d < epsilon,"%f != %f (by %f)" % (ra,rb,d))
 
 def suite():
-    return unittest.makeSuite(FctTest,'test')
+    return unittest.makeSuite(Test,'test')
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

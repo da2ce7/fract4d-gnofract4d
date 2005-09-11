@@ -13,12 +13,19 @@ rgba_t black = {0,0,0,255};
 
 #define EPSILON 1.0e-10
 
+//#define DEBUG_CREATION
+
 ColorMap::ColorMap()
 {
+    canary = 0xfeeefeee;
     ncolors = 0;
     solids[0] = solids[1] = black;
     transfers[0] = TRANSFER_LINEAR; // outer
     transfers[1] = TRANSFER_LINEAR; // inner
+
+#ifdef DEBUG_CREATION
+    printf("%p : CM : CTOR\n", this);
+#endif
 }
 
 void 
@@ -78,11 +85,17 @@ ColorMap::get_solid(int which) const
 void
 cmap_delete(ColorMap *cmap)
 {
+    assert(cmap->canary == 0xfeeefeee);
     delete cmap;
 }
 
 ColorMap::~ColorMap()
-{ 
+{
+#ifdef DEBUG_CREATION
+    printf("%p : CM : DTOR\n", this);
+#endif 
+
+    canary = 0xbaadf00d;
     // NO OP
 }
 
@@ -252,6 +265,16 @@ GradientColorMap::set(
 
 }
 
+static void
+grad_dump(gradient_item_t *items, int ncolors)
+{
+    printf("gradient dump: %d\n", ncolors);
+    for(int i = 0; i < ncolors; ++i)
+    {
+	printf("%d: %g\n", i, items[i].right);
+    }
+}
+
 int 
 grad_find(double index, gradient_item_t *items, int ncolors)
 {
@@ -263,6 +286,7 @@ grad_find(double index, gradient_item_t *items, int ncolors)
 	} 
     }
     printf("No gradient for %g\n", index);
+    grad_dump(items, ncolors);
     assert(0 && "Didn't find an entry");
     return -1;
 }
@@ -324,6 +348,7 @@ calc_sphere_decreasing_factor (double middle,
 rgba_t 
 GradientColorMap::lookup(double input_index) const
 {
+    assert(canary == 0xfeeefeee);
     double index = input_index == 1.0 ? 1.0 : fmod(input_index,1.0);
     if(index < 0.0 || index > 1.0 || index != index)
     {
@@ -500,6 +525,8 @@ ListColorMap::lookup(double index) const
     int i,j;
     rgba_t mix, left, right;
     double dist, r;
+
+    assert(canary == 0xfeeefeee);
 
     index = index == 1.0 ? 1.0 : fmod(index,1.0);
     i = find(index, items, ncolors); 
@@ -710,6 +737,7 @@ void gradient(void *grad_object, double index, double *r, double *g, double *b)
 {
     ColorMap *pmap = (ColorMap *)grad_object;
 
+    //printf("gradient %p\n", grad_object);
     rgba_t col = pmap->lookup(index);
     *r = ((double)col.r)/255.0;
     *g = ((double)col.g)/255.0;

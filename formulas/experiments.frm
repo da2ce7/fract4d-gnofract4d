@@ -1,3 +1,30 @@
+;FnParts {
+;; A generalization of Burning Ship - apply separate functions to the 
+;; X and Y parts of Z, then another to Z itself
+;init:
+;	z = #zwpixel
+;loop:
+;	z = @fnComplex(@fnReal(real(z)), @fnImag(imag(z))) + #pixel
+;bailout:
+;	@bailfunc(z) < @bailout
+;default:
+;float param bailout
+;	default = 4.0
+;endparam
+;float func bailfunc
+;	default =cmag
+;endfunc
+;float func fnReal(float)
+;	default = ident
+;endfunc
+;float func fnImag(float)
+;	default = ident
+;endfunc
+;func fnComplex
+;	default = sqr
+;endfunc
+;}
+
 C6 group{
 x=real(pixel), y=imag(pixel), v=p1
 x1=x2=y1=y2=v1=v2=0:

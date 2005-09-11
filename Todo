@@ -12,6 +12,7 @@ done in 2.10:
 * BB	painter fixed
 * BBB	cursor keys in fract params cause redraw
 * BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
+* BBB   load tumor.fct, set formula=Buffalo = crash (cmap deleted too early)
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

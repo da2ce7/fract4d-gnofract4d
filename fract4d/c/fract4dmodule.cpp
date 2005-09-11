@@ -378,11 +378,13 @@ pf_init(PyObject *self, PyObject *args)
 	    {
 		params[i].t = FLOAT;
 		params[i].doubleval = PyFloat_AsDouble(pyitem);
+		//printf("%d = float(%g)\n",i,params[i].doubleval);
 	    }
 	    else if(PyInt_Check(pyitem))
 	    {
 		params[i].t = INT;
 		params[i].intval = PyInt_AS_LONG(pyitem);
+		//printf("%d = int(%d)\n",i,params[i].intval);
 	    }
 	    else if(
 		PyObject_HasAttrString(pyitem,"cobject") &&
@@ -404,16 +406,20 @@ pf_init(PyObject *self, PyObject *args)
 		    }
 
 		    pycob = PyCObject_FromVoidPtr(
-			cmap,(void (*)(void *))cmap_delete);
+			cmap, (void (*)(void *))cmap_delete);
 
 		    if(NULL != pycob)
 		    {
 			PyObject_SetAttrString(pyitem,"cobject",pycob);
+			// not quite correct, we are leaking some
+			// cmap objects 
+			Py_XINCREF(pycob);
 		    }
 		}
 		params[i].t = GRADIENT;
 		params[i].gradient = PyCObject_AsVoidPtr(pycob);
-		Py_XDECREF(pycob);
+		//printf("%d = gradient(%p)\n",i,params[i].gradient);
+		Py_DECREF(pycob);
 	    }
 	    else
 	    {
