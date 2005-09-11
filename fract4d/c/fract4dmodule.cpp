@@ -1653,6 +1653,39 @@ eye_vector(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+ff_look_vector(PyObject *self, PyObject *args)
+{
+    PyObject *pyFF;
+    int x, y;
+    if(!PyArg_ParseTuple(
+	   args,
+	   "Oii",
+	   &pyFF, &x, &y))
+    {
+	return NULL;
+    }
+
+    struct ffHandle *ffh = (struct ffHandle *)PyCObject_AsVoidPtr(pyFF);
+    if(ffh == NULL)
+    {
+	return NULL;
+    }
+
+    fractFunc *ff = ffh->ff;
+    if(ff == NULL)
+    {
+	return NULL;
+    }
+
+    dvec4 lookvec = ff->vec_for_point(x,y);
+
+    return Py_BuildValue(
+	"(dddd)",
+	lookvec[0], lookvec[1], lookvec[2], lookvec[3]);
+
+}
+
+static PyObject *
 pyrgb_to_hsv(PyObject *self, PyObject *args)
 {
     double r,g,b,a=1.0,h,s,v;
@@ -1759,10 +1792,13 @@ static PyMethodDef PfMethods[] = {
     { "fdsite_create", pyfdsite_create, METH_VARARGS,
       "Create a new file-descriptor site"},
 
-    { "fw_create", fw_create, METH_VARARGS,
-      "Create a fractWorker." },
     { "ff_create", ff_create, METH_VARARGS,
       "Create a fractFunc." },
+    { "ff_look_vector", ff_look_vector, METH_VARARGS,
+      "Get a vector from the eye to a point on the screen" },
+
+    { "fw_create", fw_create, METH_VARARGS,
+      "Create a fractWorker." },
     { "fw_pixel", fw_pixel, METH_VARARGS,
       "Draw a single pixel." },
     { "fw_pixel_aa", fw_pixel_aa, METH_VARARGS,
