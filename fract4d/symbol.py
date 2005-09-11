@@ -120,17 +120,35 @@ def createDefaultDict():
     def f(name, list, **kwds):
         mkfl(d,name,list,**kwds)
 
-    # standard functions 
+    # standard functions
+    f("bool",
+      [[Bool], Bool],
+      doc="""Construct a boolean. It's not really required (bool x = bool(true) is just the same as bool x = true) but is included for consistency.""")
+
+    f("int",
+      [[Int], Int],
+      doc="""Construct an integer. To convert a float to an int, use floor, ceil, round or trunc instead.""")
+
+    f("float",
+      [[Float], Float],
+      doc="""Construct a floating-point number.""")
+
+    f("color",
+     [[Float, Float, Float, Float], Color],
+     doc="""Constructs a new color from floating point red, green, blue and alpha
+     components. Equivalent to rgba.""")
+    
     f("complex",
       [[Float, Float], Complex],
       doc='''Construct a complex number from two real parts.
       complex(a,b) is equivalent to (a,b).''')
 
     f("hyper",
-      [[Float, Float, Float, Float], Hyper],
-      doc='''Construct a hypercomplex number from a real and 3 imaginary parts.
+      [[[Float, Float, Float, Float], Hyper], [[Complex, Complex], Hyper]],
+      doc='''Construct a hypercomplex number with a real and 3 imaginary parts.
+      Can be passed either 2 complex numbers or 4 floating-point numbers.
       hyper(a,b,c,d) is equivalent to the shorthand (a,b,c,d).''')
-    
+
     f("sqr",
       cfl("[_] , _",  [Int, Float, Complex, Hyper]),
       doc="Square the argument. sqr(x) is equivalent to x*x or x^2.")

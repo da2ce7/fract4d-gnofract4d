@@ -1026,6 +1026,33 @@ func fn1
                          self.inspect_hyper("s"),
                          "s = (-5.9761,-36.897,-36.5636,4.49641)")
 
+    def testCtors(self):
+        src = '''t_ctors {
+        init:
+        bool a = bool(true)
+        int i = int(2)
+        float f = float(2.5)
+        complex c = complex(1.0, 2.0)
+        hyper h = hyper(1.0,2.0,3.0,4.0)
+        hyper h2 = hyper((1.0,2.0),(3.0,4.0))
+        color c2 = color(0.0,1.0,1.0,0.0)
+        }'''
+        self.assertCSays(src,"init",
+                         self.inspect_bool("a") +
+                         self.inspect_int("i") +
+                         self.inspect_float("f") +
+                         self.inspect_complex("c") +
+                         self.inspect_hyper("h")+
+                         self.inspect_hyper("h2")+
+                         self.inspect_color("c2"),
+                         "a = 1\n"+
+                         "i = 2\n"+
+                         "f = 2.5\n"+
+                         "c = (1,2)\n" +
+                         "h = (1,2,3,4)\n" +
+                         "h2 = (1,2,3,4)\n" +
+                         "c2 = (0,1,1,0)")
+        
     def testMultipleDeclare(self):
         'Declare a var in both branches of an if. Check for correct answer'
 

@@ -166,6 +166,18 @@ class ParserTest(unittest.TestCase):
         self.assertIsBadFormula(self.makeMinimalFormula("endif"),
                                 "unexpected endif 'endif'",3)
 
+    def testCtor(self):
+        t1 = self.parse(self.makeMinimalFormula(
+        '''bool a = bool(true)
+        int i = int(2)
+        float f = float(2.5)
+        complex c = complex(1.0, 2.0)
+        hyper h = hyper(1.0,2.0,3.0,4.0)
+        hyper h2 = hyper((1.0,2.0),(3.0,4.0))
+        color c = color(0.0,1.0,1.0,0.0)
+        '''))
+        self.assertIsValidParse(t1)
+        
     def testDecls(self):
         t1 = self.parse(self.makeMinimalFormula(
         '''bool a

@@ -119,6 +119,9 @@ def complex_ff_c(gen,t,srcs):
 def hyper_ffff_h(gen,t,srcs):
     return HyperArg(srcs[0],srcs[1],srcs[2],srcs[3])
 
+def hyper_cc_h(gen,t,srcs):
+    return HyperArg(srcs[0].re, srcs[0].im, srcs[1].re, srcs[1].im)
+
 def add_cc_c(gen,t,srcs):
     # add 2 complex numbers
     dst = ComplexArg(
@@ -448,6 +451,10 @@ def ident_i_i(gen,t,srcs):
     return srcs[0]
 
 ident_f_f = ident_c_c = ident_h_h = ident_b_b = ident_i_i
+
+bool_b_b = ident_b_b
+int_i_i = ident_i_i
+float_f_f = ident_f_f
 
 def recip_f_f(gen,t,srcs):
     # reciprocal
@@ -912,6 +919,8 @@ def lum_C_f(gen,t,srcs):
 
 def rgba_ffff_C(gen,t,srcs):
     return ColorArg(srcs[0], srcs[1], srcs[2], srcs[3])
+
+color_ffff_C = rgba_ffff_C
 
 def blend_CCf_C(gen,t,srcs):
     (a, b, factor) = srcs
