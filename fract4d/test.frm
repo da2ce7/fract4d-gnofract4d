@@ -2,6 +2,13 @@ parse_error {
   ===
 }
 
+test_hypersphere {
+; a hypersphere of radius 2.0
+bailout:
+	hyper h = hyper(#zwpixel, #pixel)
+	|h| < 4.0
+}
+
 test_circle {
 loop:
 z = pixel

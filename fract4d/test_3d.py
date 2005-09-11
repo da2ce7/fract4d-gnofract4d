@@ -13,6 +13,7 @@ g_comp = fc.Compiler()
 g_comp.file_path.append("../formulas")
 g_comp.load_formula_file("gf4d.frm")
 g_comp.load_formula_file("gf4d.cfrm")
+g_comp.load_formula_file("test.frm")
 
 class Test(testbase.TestBase):
     def setUp(self):
@@ -21,6 +22,14 @@ class Test(testbase.TestBase):
         
     def tearDown(self):
         pass
+
+    def testHyperSphereFormula(self):
+        f = fractal.T(self.compiler)
+        f.set_formula("test.frm", "test_hypersphere")
+        f.compile()
+        
+        image = fract4dc.image_create(40,30)
+        f.draw(image)
 
     def testVector(self):
         pass

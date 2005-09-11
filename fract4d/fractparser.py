@@ -272,6 +272,10 @@ def p_exp_complex(t):
 def p_exp_hyper(t):
      'exp : LPAREN exp COMMA exp COMMA exp COMMA exp RPAREN'
      t[0] = absyn.Funcall("hyper", [ t[2], t[4], t[6], t[8] ], t.lineno(1))
+
+def p_exp_ctor(t):
+     'exp : TYPE LPAREN arglist RPAREN'
+     t[0] = absyn.Funcall(t[1], t[3], t.lineno(1))
      
 def p_exp_complex_i(t):
     'exp : COMPLEX'
