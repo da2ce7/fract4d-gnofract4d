@@ -12,6 +12,12 @@
 #include <dlfcn.h>
 #include <stdio.h>
 
+/* only here so it's visible to debugger */
+typedef struct {
+    pf_obj parent;
+    struct s_param p[PF_MAXPARAMS];
+    double period_tolerance;
+} pf_real;
 
 class pf_wrapper : public pointFunc
 {

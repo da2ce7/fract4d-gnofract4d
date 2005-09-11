@@ -64,7 +64,7 @@ module1 = Extension(
     #'stdc++'
     ],
     extra_compile_args = [
-    #'-O0',
+    '-O0',
     '-Wall',
     ],
     define_macros = [ ('_REENTRANT',1),

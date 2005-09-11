@@ -466,6 +466,22 @@ leave this area alone.</emphasis></para>
 
 </sect2>
 
+<sect2 id="hints">
+<title>Hints</title>
+
+<para>If you zoom into a busy part of the fractal the image can look
+"noisy". You can fix this by making the colors change more slowly - go
+to the "Outer" tab and change the transfer function to 'sqrt' or 'log'
+- or change "Density" to a number between 0 and 1 - a density of 0.1
+makes the colors change 10 times more slowlya
+</para>
+
+<para>If you have an Inner coloring method other than zero, you may
+see weird effects unless you disable periodicity checking.
+</para>
+
+</sect2>
+
 </sect1>
 
 <sect1 id="maths">

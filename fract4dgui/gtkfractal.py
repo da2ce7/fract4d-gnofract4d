@@ -156,11 +156,11 @@ class T(gobject.GObject):
             self.f.set_formula(fname, formula)
         
     def draw(self,image,width,height,nthreads):
-        self.cmap = fract4dc.cmap_create_gradient(self.get_gradient().segments)
+        cmap = fract4dc.cmap_create_gradient(self.get_gradient().segments)
         (r,g,b,a) = self.f.solids[0]
-        fract4dc.cmap_set_solid(self.cmap,0,r,g,b,a)
+        fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
         (r,g,b,a) = self.f.solids[1]
-        fract4dc.cmap_set_solid(self.cmap,1,r,g,b,a)
+        fract4dc.cmap_set_solid(cmap,1,r,g,b,a)
 
         t = self.f.tolerance(width,height)
         if self.f.auto_tolerance:
@@ -179,7 +179,7 @@ class T(gobject.GObject):
         try:
             fract4dc.async_calc(self.f.params,self.f.antialias,self.f.maxiter,
                                 self.f.yflip,nthreads,
-                                self.f.pfunc,self.cmap,
+                                self.f.pfunc,cmap,
                                 self.f.auto_deepen, self.f.periodicity,
                                 image,self.site, self.f.clear_image)
         except MemoryError:

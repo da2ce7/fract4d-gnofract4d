@@ -542,6 +542,41 @@ default:
 }
 '''
         self.assertCSays(src,"loop","","")
+
+    def disabled_testFnPartsWorks(self):
+        # doesn't work yet
+        src = '''FnParts {
+; A generalization of Burning Ship - apply separate functions to the 
+; X and Y parts of Z, then another to Z itself
+init:
+	z = #zwpixel
+loop:
+	z = @fnComplex(@fnReal(real(z)), @fnImag(imag(z))) + #pixel
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default =cmag
+endfunc
+float func fnReal
+	default = ident
+endfunc
+float func fnImag
+	default = ident
+endfunc
+func fnComplex
+	default = sqr
+endfunc
+}
+'''
+        t = self.translate(src)
+        print t.pretty()
+        cg = codegen.T(t.symbols)
+        cg.output_all(t)
+        c = cg.output_c(t)
         
     def testDeclareP1andFN1(self):
         'Test that having a param which clashes with built-in names is OK'
