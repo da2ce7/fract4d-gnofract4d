@@ -42,7 +42,7 @@ class fractFunc {
     int updateiters();
 
     // a vector from the eye through the pixel at (x,y)
-    dvec4 vec_for_point(int x, int y);
+    dvec4 vec_for_point(double x, double y);
 
     friend class STFractWorker;
 

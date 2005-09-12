@@ -10,8 +10,16 @@ import ir
 import fracttypes
 
 class TestBase(unittest.TestCase):
-    def assertFoo(self):
-        pass
+    def assertNearlyEqual(self,a,b,epsilon=1.0e-12):
+        # check that each element is within epsilon of expected value
+        for (ra,rb) in zip(a,b):
+            if isinstance(ra, types.ListType) or isinstance(ra, types.TupleType):
+                for (ca,cb) in zip(ra,rb):
+                    d = abs(ca-cb)
+                    self.failUnless(d < epsilon)
+            else:
+                d = abs(ra-rb)
+                self.failUnless(d < epsilon)
 
     def assertError(self,t,str):
         self.assertNotEqual(len(t.errors),0)

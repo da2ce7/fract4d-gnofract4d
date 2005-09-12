@@ -9,6 +9,8 @@ import struct
 import math
 import types
 
+import testbase
+
 import fract4dc
 import gradient
 from test_fractalsite import FractalSite
@@ -45,7 +47,7 @@ class ImageWrapper:
     def get_color_index(self,x,y,sub=0):
         return fract4dc.image_get_color_index(self.img,x,y,sub)
     
-class Test(unittest.TestCase):
+class Test(testbase.TestCase):
 
     def compileMandel(self):
         self.compiler.file_path.append('../formulas')
@@ -467,20 +469,7 @@ class Test(unittest.TestCase):
 
         vec = fract4dc.eye_vector(params,10.0)
         self.assertNearlyEqual(vec, (10.0, -0.0, -0.0, -0.0))
-        
-        
-    def assertNearlyEqual(self,a,b):
-        # check that each element is within epsilon of expected value
-        epsilon = 1.0e-12
-        for (ra,rb) in zip(a,b):
-            if isinstance(ra, types.ListType) or isinstance(ra, types.TupleType):
-                for (ca,cb) in zip(ra,rb):
-                    d = abs(ca-cb)
-                    self.failUnless(d < epsilon)
-            else:
-                d = abs(ra-rb)
-                self.failUnless(d < epsilon)
-                
+                        
     def testFDSite(self):
         xsize = 64
         ysize = int(xsize * 3.0/4.0)

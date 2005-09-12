@@ -363,7 +363,7 @@ void fractFunc::draw_threads(int rsize, int drawsize)
 }
 
 dvec4
-fractFunc::vec_for_point(int x, int y)
+fractFunc::vec_for_point(double x, double y)
 {
     dvec4 point = topleft + x * deltax + y * deltay;
     dvec4 vec = point - eye_point;
