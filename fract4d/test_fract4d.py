@@ -47,8 +47,7 @@ class ImageWrapper:
     def get_color_index(self,x,y,sub=0):
         return fract4dc.image_get_color_index(self.img,x,y,sub)
     
-class Test(testbase.TestCase):
-
+class Test(testbase.TestBase):
     def compileMandel(self):
         self.compiler.file_path.append('../formulas')
         self.compiler.load_formula_file("gf4d.frm")
@@ -205,6 +204,7 @@ class Test(testbase.TestCase):
             cmap,
             0,
             1,
+            0,
             image,
             site,
             fw)

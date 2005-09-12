@@ -57,6 +57,7 @@ class Test(testbase.TestBase):
             self.cmap,
             0,
             1,
+            0,
             self.image,
             self.site,
             self.fw)
