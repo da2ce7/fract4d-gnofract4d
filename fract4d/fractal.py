@@ -890,7 +890,7 @@ class T(FctUtils):
         fract4dc.calc(self.params,self.antialias,self.maxiter,
                       self.yflip,self.periodicity,
                       pfunc,cmap,self.auto_deepen,
-                      1,image,self.site, self.clear_image)
+                      1,0, image,self.site, self.clear_image)
         
     def clean(self):
         self.dirty = False

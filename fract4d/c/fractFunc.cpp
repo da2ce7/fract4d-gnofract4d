@@ -47,6 +47,7 @@ fractFunc::fractFunc(
     im = im_;
     ok = true;
     render_type = render_type_;
+    printf("render type %d\n", render_type);
     worker = fw;
     params = params_;
 
@@ -249,6 +250,7 @@ void fractFunc::draw_all()
 
 void fractFunc::draw(int rsize, int drawsize)
 {
+    printf("drawing: %d\n", render_type);
     reset_counts();
 
     if(nThreads > 1)

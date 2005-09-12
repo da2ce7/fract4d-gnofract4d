@@ -1105,6 +1105,7 @@ pycalc(PyObject *self, PyObject *args)
     int auto_deepen, periodicity;
     int yflip;
     int dirty=1;
+    render_type_t render_type;
     pf_obj *pfo;
     ColorMap *cmap;
     IImage *im;
@@ -1112,7 +1113,7 @@ pycalc(PyObject *self, PyObject *args)
  
     if(!PyArg_ParseTuple(
 	   args,
-	   "(ddddddddddd)iiiiOOiiOO|i",
+	   "(ddddddddddd)iiiiOOiiiOO|i",
 	   &params[0],&params[1],&params[2],&params[3],
 	   &params[4],&params[5],&params[6],&params[7],
 	   &params[8],&params[9],&params[10],
@@ -1120,6 +1121,7 @@ pycalc(PyObject *self, PyObject *args)
 	   &pypfo,&pycmap,
 	   &auto_deepen,
 	   &periodicity,
+	   &render_type,
 	   &pyim, &pysite,
 	   &dirty
 	   ))
@@ -1139,7 +1141,7 @@ pycalc(PyObject *self, PyObject *args)
     //((PySite *)site)->state = PyEval_SaveThread();
     calc(params,eaa,maxiter,nThreads,pfo,cmap,
 	 (bool)auto_deepen,(bool)yflip, (bool)periodicity, (bool)dirty,
-	 TWO_D,
+	 render_type,
 	 im,site);
     //PyEval_RestoreThread(((PySite *)site)->state);
 
@@ -1362,14 +1364,15 @@ pycalc_async(PyObject *self, PyObject *args)
     double *p = cargs->params;
     if(!PyArg_ParseTuple(
 	   args,
-	   "(ddddddddddd)iiiiOOiiOO|i",
+	   "(ddddddddddd)iiiiOOiiiOO|i",
 	   &p[0],&p[1],&p[2],&p[3],
 	   &p[4],&p[5],&p[6],&p[7],
 	   &p[8],&p[9],&p[10],
 	   &cargs->eaa,&cargs->maxiter,&cargs->yflip,&cargs->nThreads,
 	   &pypfo,&pycmap,
 	   &cargs->auto_deepen,
-	   &cargs->periodicity,	   
+	   &cargs->periodicity,
+	   &cargs->render_type,
 	   &pyim, &pysite,
 	   &cargs->dirty
 	   ))
@@ -1377,7 +1380,6 @@ pycalc_async(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    cargs->render_type = TWO_D;
     cargs->set_cmap(pycmap);
     cargs->set_pfo(pypfo);
     cargs->set_im(pyim);
