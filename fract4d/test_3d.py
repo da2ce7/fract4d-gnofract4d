@@ -57,7 +57,7 @@ class Test(testbase.TestBase):
             self.cmap,
             0,
             1,
-            0,
+            2, # 3D
             self.image,
             self.site,
             self.fw)
@@ -74,6 +74,37 @@ class Test(testbase.TestBase):
         (iter,fate,dist,solid) = fract4dc.pf_calc(self.pfunc, [-2.5, 0.0, 0.0, 0.0], 100)
         self.assertEqual(fate,0) # should be outside
 
+    def intersect_sphere(self, eye, look):
+        # closed form for where we should intersect the hypersphere
+        # based on http://stevehollasch.com/thesis/chapter5.html
+
+        # v = sphere.center - ray.origin
+        v = [ a - b for (a,b) in zip([0,0,0,0], eye)]
+
+        bb = sum([a*b for (a,b) in zip(v,look)])
+
+        rad = bb * bb - sum([a * b for (a,b) in zip(v,v)]) + 4.0
+
+        if rad < 0:
+            # no intersection
+            return (False, None)
+
+        rad = math.sqrt(rad)
+        t2 = bb - rad
+        t1 = bb + rad
+
+        # set t1 to smallest non-negative value (nearest point)
+        if t1 < 0 or (t2 > 0 and t2 < t1):
+            t1 = t2
+
+        if t1 < 0:
+            return (False, None) # sphere behind eye
+
+        t1_ray = [t1 * a for a in look]
+        intersection = [a+b for (a,b) in zip(eye,t1_ray)]
+        
+        return (True, intersection)
+    
     def testLookVector(self):
         # check that looking at different points in screen works
 
@@ -92,12 +123,24 @@ class Test(testbase.TestBase):
         self.assertNearlyEqual(look, exp_look)
 
         # root finding experiments
-        root = fract4dc.fw_find_root(self.fw, [0,0,-40.0,0],look)
+
+        # going straight ahead, root should be at -2.0
+        eye = [0,0,-40.0,0]
+        (is_hit,root) = fract4dc.fw_find_root(self.fw, eye ,look)
         lookfor = [0.0, 0.0, -2.0, 0.0]
-        print root
-        self.assertNearlyEqual(
-            root, lookfor, "root %s in wrong place, should be %s" % (root,lookfor))
-        
+        self.assertEqual(is_hit, True)
+        self.assertNearlyEqual(root, lookfor, 1.0e-10)
+
+        # check each pixel against closed-form results
+        for y in xrange(0,30):
+            for x in xrange(0,40):
+                look = fract4dc.ff_look_vector(self.ff,x,y)
+                (is_hit,root) = fract4dc.fw_find_root(self.fw, [0,0,-40.0,0],look)
+                (should_be_hit, real_root) = self.intersect_sphere(eye,look)
+                self.assertEqual(is_hit, should_be_hit)
+                if is_hit:
+                    self.assertNearlyEqual(root, real_root,1e-10)
+
         #f.draw(image)
         #fract4dc.image_save(image,"hs.tga")
 

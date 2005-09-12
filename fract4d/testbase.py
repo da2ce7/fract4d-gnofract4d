@@ -16,10 +16,10 @@ class TestBase(unittest.TestCase):
             if isinstance(ra, types.ListType) or isinstance(ra, types.TupleType):
                 for (ca,cb) in zip(ra,rb):
                     d = abs(ca-cb)
-                    self.failUnless(d < epsilon)
+                    self.failUnless(d < epsilon, "%s - %s = %s, > %s" % (ca,cb,d,epsilon))
             else:
                 d = abs(ra-rb)
-                self.failUnless(d < epsilon)
+                self.failUnless(d < epsilon, "%s - %s = %s, > %s" % (ra,rb,d,epsilon))
 
     def assertError(self,t,str):
         self.assertNotEqual(len(t.errors),0)
