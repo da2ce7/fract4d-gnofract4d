@@ -275,44 +275,78 @@ STFractWorker::pixel(int x, int y,int w, int h)
     {
 	int iter = 0;
 	
-	// calculate coords of this point
-	dvec4 pos = ff->topleft + x * ff->deltax + y * ff->deltay;
+	switch(ff->render_type)
+	{
+	case TWO_D: 
+	{
+	    // calculate coords of this point
+	    dvec4 pos = ff->topleft + x * ff->deltax + y * ff->deltay;
 
-	//printf("(%g,%g,%g,%g)\n",pos[VX],pos[VY],pos[VZ],pos[VW]);
+	    //printf("(%g,%g,%g,%g)\n",pos[VX],pos[VY],pos[VZ],pos[VW]);
 
-	pf->calc(pos.n, ff->maxiter,periodGuess(),x,y,0,
-		 &pixel,&iter,&index,&fate); 
-	
+	    pf->calc(pos.n, ff->maxiter,periodGuess(),x,y,0,
+		     &pixel,&iter,&index,&fate);
+
+	    // test for iteration depth
+	    if(ff->auto_deepen && k++ % ff->AUTO_DEEPEN_FREQUENCY == 0)
+	    {
+		if( iter > ff->maxiter/2)
+		{
+		    /* we would have got this wrong if we used 
+		     * half as many iterations */
+		    nhalfiters++;
+		}
+		else if(iter == -1)
+		{
+		    /* didn't bail out, try again with 2x as many iterations */
+		    pf->calc(pos.n, ff->maxiter*2,periodGuess(),x,y,-1,
+			     &pixel,&iter, &index, &fate);
+		    
+		    if(iter != -1)
+		    {
+			/* we would have got this right if we used
+			 * twice as many iterations */
+			ndoubleiters++;
+		    }
+		}
+	    }
+	}
+	    break;
+	case LANDSCAPE:
+	    assert(0 && "not supported");
+	    break;
+
+	case THREE_D:
+	{
+	    dvec4 look = ff->vec_for_point(x,y);
+	    dvec4 root;
+	    bool found = find_root(ff->eye_point, look, root);
+	    if(found)
+	    {
+		// intersected
+		iter = -1;
+		pixel.r = pixel.g = pixel.b = 0;
+		fate = 1;
+		index = 0.0;
+	    }
+	    else
+	    {
+		// did not intersect
+		iter = 1;
+		pixel.r = pixel.g = pixel.b = 0xff;
+		fate = 0;
+		index = 1.0;
+	    }
+	}
+	    break;
+	}
+
 	periodSet(&iter);
 	im->setIter(x,y,iter);
 	im->setFate(x,y,0,fate);
 	im->setIndex(x,y,0,index);
 
 	rectangle(pixel,x,y,w,h);
-
-	// test for iteration depth
-	if(ff->auto_deepen && k++ % ff->AUTO_DEEPEN_FREQUENCY == 0)
-	{
-	    if( iter > ff->maxiter/2)
-	    {
-		/* we would have got this wrong if we used 
-		 * half as many iterations */
-		nhalfiters++;
-	    }
-	    else if(iter == -1)
-	    {
-		/* didn't bail out, try again with 2x as many iterations */
-		pf->calc(pos.n, ff->maxiter*2,periodGuess(),x,y,-1,
-			 &pixel,&iter, &index, &fate);
-		
-		if(iter != -1)
-		{
-		    /* we would have got this right if we used
-		     * twice as many iterations */
-		    ndoubleiters++;
-		}
-	    }
-	}
     }
     else
     {
@@ -476,7 +510,9 @@ STFractWorker::find_root(const dvec4& eye, const dvec4& look, dvec4& root)
 	if(dist > 1.0e3) // FIXME
 	{
 	    // couldn't find anything
+#ifdef DEBUG_ROOTS
 	    printf("not found after %d\n", steps);
+#endif
 	    return false;
  	}
 
@@ -490,7 +526,9 @@ STFractWorker::find_root(const dvec4& eye, const dvec4& look, dvec4& root)
 	if(fate != 0) // FIXME
 	{
 	    // inside
+#ifdef DEBUG_ROOTS
 	    printf("bracketed after %d\n", steps);
+#endif
 	    break;
 	}
 
@@ -521,7 +559,9 @@ STFractWorker::find_root(const dvec4& eye, const dvec4& look, dvec4& root)
 	}
 	steps += 1;
     }
+#ifdef DEBUG_ROOTS
     printf("polished after %d\n", steps);
+#endif
     root = pos;
     return true;
 }

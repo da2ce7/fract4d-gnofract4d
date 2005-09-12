@@ -352,6 +352,7 @@ class Test(testbase.TestBase):
             cmap,
             0,
             1,
+            0,
             image,
             site)
 
@@ -416,6 +417,7 @@ class Test(testbase.TestBase):
             cmap,
             0,
             1,
+            0,
             image,
             site)
 
@@ -501,6 +503,7 @@ class Test(testbase.TestBase):
                 cmap,
                 0,
                 1,
+                0,
                 image,
                 site)
 
@@ -587,6 +590,7 @@ class Test(testbase.TestBase):
             cmap,
             0,
             1,
+            0,
             image,
             site, is_dirty)
 
@@ -609,6 +613,7 @@ class Test(testbase.TestBase):
             cmap,
             0,
             1,
+            0,
             image,
             site, is_dirty)
 

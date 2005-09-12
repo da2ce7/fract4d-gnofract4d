@@ -141,8 +141,14 @@ class Test(testbase.TestBase):
                 if is_hit:
                     self.assertNearlyEqual(root, real_root,1e-10)
 
-        #f.draw(image)
-        #fract4dc.image_save(image,"hs.tga")
+    def testDraw(self):
+        fract4dc.calc(self.f.params,self.f.antialias,self.f.maxiter,
+                      self.f.yflip,self.f.periodicity,
+                      self.pfunc,self.cmap,self.f.auto_deepen,
+                      1,2, # 3D
+                      self.image,self.site, True)
+
+        fract4dc.image_save(self.image,"hs.tga")
 
     def testVector(self):
         pass
