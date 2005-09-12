@@ -457,7 +457,33 @@ STFractWorker::rectangle_with_iter(
 
 
 dvec4 
-STFractWorker::find_root(dvec4& eye, dvec4& look)
+STFractWorker::find_root(const dvec4& eye, const dvec4& look)
 {
+    d dist = 0.0;
+
+
+    rgba_t pixel;
+    float index;
+    fate_t fate = FATE_UNKNOWN;
+    int iter;
+    int x=-1, y=-1;
+
+    int steps = 0;
+    while(1)
+    {
+	dvec4 pos = eye + dist * look;
+    
+	pf->calc(pos.n, ff->maxiter,periodGuess(),x,y,0,
+		 &pixel,&iter,&index,&fate); 
+    
+	steps += 1;
+	if(fate != 0) // FIXME
+	{
+	    printf("%d\n", steps);
+	    // inside
+	    return pos;
+	}
+	dist += 0.1;
+    }
     return dvec4(0.0,0.0,0.0,0.0);
 }

@@ -76,17 +76,27 @@ class Test(testbase.TestBase):
 
     def testLookVector(self):
         # check that looking at different points in screen works
+
+        # top-left corner
         look = fract4dc.ff_look_vector(self.ff,0,0)
         big_look = [(-19.5/40) * 4.0, (14.5/30)*3.0, 40.0, 0.0]
         mag = math.sqrt(sum([x*x for x in big_look]))
         exp_look = tuple([x/mag for x in big_look])
         self.assertEqual(look, exp_look)
 
+        # center of the screen (betwen pixels)
         look = fract4dc.ff_look_vector(self.ff,19.5,14.5)
         big_look = [0, 0, 40.0, 0.0]
         mag = math.sqrt(sum([x*x for x in big_look]))
         exp_look = tuple([x/mag for x in big_look])
         self.assertNearlyEqual(look, exp_look)
+
+        # root finding experiments
+        root = fract4dc.fw_find_root(self.fw, [0,0,-40.0,0],look)
+        lookfor = [0.0, 0.0, -2.0, 0.0]
+        print root
+        self.assertNearlyEqual(
+            root, lookfor, "root %s in wrong place, should be %s" % (root,lookfor))
         
         #f.draw(image)
         #fract4dc.image_save(image,"hs.tga")
