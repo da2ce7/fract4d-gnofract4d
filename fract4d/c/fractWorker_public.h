@@ -41,7 +41,7 @@ public:
     virtual void stats(int *pnDoubleIters, int *pnHalfIters, int *pk) =0;
 
     // ray-tracing machinery
-    virtual dvec4 find_root(dvec4& eye, dvec4& look);
+    virtual dvec4 find_root(const dvec4& eye, const dvec4& look) = 0;
 
     virtual ~IFractWorker() {};
 
