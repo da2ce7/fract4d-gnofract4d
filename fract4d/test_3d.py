@@ -25,6 +25,7 @@ class Test(testbase.TestBase):
         self.compiler = g_comp
 
         self.f = fractal.T(self.compiler)
+        self.f.render_type = 2
         self.f.set_formula("test.frm", "test_hypersphere")
         self.f.compile()
 
@@ -150,8 +151,12 @@ class Test(testbase.TestBase):
 
         fract4dc.image_save(self.image,"hs.tga")
 
-    def testVector(self):
-        pass
+    def testDrawMBrot(self):
+        self.f.set_formula("gf4d.frm", "Mandelbrot")
+        self.f.compile()
+        image = fract4dc.image_create(80,60)
+        self.f.draw(image)
+        fract4dc.image_save(image, "mb.tga")
         
 def suite():
     return unittest.makeSuite(Test,'test')
