@@ -96,7 +96,7 @@ class STFractWorker : public IFractWorker {
     bool ok() { return m_ok; }
  
     // ray-tracing machinery
-    dvec4 find_root(const dvec4& eye, const dvec4& look);
+    bool find_root(const dvec4& eye, const dvec4& look, dvec4& root);
 
  private:
     fractFunc *ff;
@@ -156,7 +156,7 @@ class MTFractWorker : public IFractWorker
     virtual bool ok();
     int nWorkers;
 
-    dvec4 find_root(const dvec4& eye, const dvec4& look);
+    bool find_root(const dvec4& eye, const dvec4& look, dvec4& root);
 
 private:
 

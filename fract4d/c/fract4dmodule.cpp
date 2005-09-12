@@ -1248,11 +1248,12 @@ fw_find_root(PyObject *self, PyObject *args)
     }
     
     IFractWorker *worker = (IFractWorker *)PyCObject_AsVoidPtr(pyworker);
-    dvec4 root = worker->find_root(eye,look);
+    dvec4 root;
+    int ok = worker->find_root(eye,look,root);
 
     return Py_BuildValue(
-	"(dddd)",
-	root[0], root[1], root[2], root[3]);
+	"i(dddd)",
+	ok,root[0], root[1], root[2], root[3]);
 }
 
 static PyObject *

@@ -456,11 +456,10 @@ STFractWorker::rectangle_with_iter(
 }
 
 
-dvec4 
-STFractWorker::find_root(const dvec4& eye, const dvec4& look)
+bool
+STFractWorker::find_root(const dvec4& eye, const dvec4& look, dvec4& root)
 {
     d dist = 0.0;
-
 
     rgba_t pixel;
     float index;
@@ -469,21 +468,60 @@ STFractWorker::find_root(const dvec4& eye, const dvec4& look)
     int x=-1, y=-1;
 
     int steps = 0;
+    d lastdist = dist;
+    dvec4 pos;
+
     while(1)
     {
-	dvec4 pos = eye + dist * look;
+	if(dist > 1.0e3) // FIXME
+	{
+	    // couldn't find anything
+	    printf("not found after %d\n", steps);
+	    return false;
+ 	}
+
+	pos = eye + dist * look;
     
+	//printf("%g %g %g %g\n", pos[0], pos[1], pos[2], pos[3]);
 	pf->calc(pos.n, ff->maxiter,periodGuess(),x,y,0,
 		 &pixel,&iter,&index,&fate); 
     
 	steps += 1;
 	if(fate != 0) // FIXME
 	{
-	    printf("%d\n", steps);
 	    // inside
-	    return pos;
+	    printf("bracketed after %d\n", steps);
+	    break;
 	}
+
+	lastdist = dist;
 	dist += 0.1;
     }
-    return dvec4(0.0,0.0,0.0,0.0);
+
+    // the root must be between lastdist and dist
+    // bisect a few times to polish the root
+
+    while(fabs(lastdist - dist) > 1.0E-10) // FIXME
+    {
+	d mid = (lastdist + dist)/2.0;
+
+	pos = eye + mid * look;
+	pf->calc(pos.n, ff->maxiter,periodGuess(),x,y,0,
+		 &pixel,&iter,&index,&fate); 
+
+	if( fate != 0) // FIXME
+	{
+	    //inside, root must be further out
+	    dist = mid;
+	}
+	else
+	{
+	    //outside, root must be further in
+	    lastdist = mid;
+	}
+	steps += 1;
+    }
+    printf("polished after %d\n", steps);
+    root = pos;
+    return true;
 }
