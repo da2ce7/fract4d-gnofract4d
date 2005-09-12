@@ -455,3 +455,9 @@ STFractWorker::rectangle_with_iter(
     }
 }
 
+
+dvec4 
+STFractWorker::find_root(dvec4& eye, dvec4& look)
+{
+    return dvec4(0.0,0.0,0.0,0.0);
+}

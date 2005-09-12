@@ -7,12 +7,6 @@
 #include "vectors.h"
 #include "fract_public.h"
 
-typedef double d;
-typedef vec4<d> dvec4;
-typedef mat4<d> dmat4;
-
-
-
 /* this contains stuff which is useful for drawing the fractal,
    but can be recalculated at will, so isn't part of the fractal's
    persistent state. We create a new one each time we start drawing. This one

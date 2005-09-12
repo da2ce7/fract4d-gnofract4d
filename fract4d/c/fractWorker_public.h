@@ -4,6 +4,7 @@
 class fractFunc;
 class IImage;
 
+#include "vectors.h" 
 #include "pf.h"
 #include "cmap.h"
 
@@ -38,6 +39,9 @@ public:
     // auto-deepening record keeping
     virtual void reset_counts() =0;
     virtual void stats(int *pnDoubleIters, int *pnHalfIters, int *pk) =0;
+
+    // ray-tracing machinery
+    virtual dvec4 find_root(dvec4& eye, dvec4& look);
 
     virtual ~IFractWorker() {};
 
