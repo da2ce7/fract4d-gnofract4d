@@ -189,3 +189,9 @@ MTFractWorker::ok()
 { 
     return m_ok;
 }
+
+dvec4 
+MTFractWorker::find_root(dvec4& eye, dvec4& look)
+{
+    return ptf->find_root(eye,look);
+}

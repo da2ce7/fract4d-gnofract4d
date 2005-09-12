@@ -433,4 +433,8 @@ mat4<T> rotZW(const T& theta, T one=1.0, T zero=0.0)
         vec4<T>(zero,zero,   s,   c));
 }
 
+typedef double d;
+typedef vec4<d> dvec4;
+typedef mat4<d> dmat4;
+
 #endif 
