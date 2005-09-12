@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
 import unittest
+import math
 
 import testbase
 
 import fc
 import fractal
 import fract4dc
+
 
 from test_fractalsite import FractalSite
 
@@ -73,7 +75,7 @@ class Test(testbase.TestBase):
         #print "look_vector", self.ff
         look = fract4dc.ff_look_vector(self.ff,0,0)
         big_look = [(-19.5/40) * 4.0, (14.5/30)*3.0, 40.0, 0.0]
-        mag = sum([x*x for x in big_look])
+        mag = math.sqrt(sum([x*x for x in big_look]))
         exp_look = tuple([x/mag for x in big_look])
         self.assertEqual(look, exp_look)
         

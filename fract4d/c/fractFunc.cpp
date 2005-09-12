@@ -367,7 +367,7 @@ fractFunc::vec_for_point(int x, int y)
 {
     dvec4 point = topleft + x * deltax + y * deltay;
     dvec4 vec = point - eye_point;
-    vec /= vec.mag();
+    vec.norm();
     return vec;
 }
 

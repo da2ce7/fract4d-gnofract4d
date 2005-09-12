@@ -81,6 +81,14 @@ public:
 	T mag() {
 	  return n[VX]*n[VX] + n[VY]*n[VY] + n[VZ]*n[VZ] + n[VW]*n[VW];
 	}
+	
+	void norm() {
+	  T norm = sqrt(mag());
+	  n[VX] /= norm;
+	  n[VY] /= norm;
+	  n[VZ] /= norm;
+	  n[VW] /= norm;
+	}
 };
 
 // vec4 friends
