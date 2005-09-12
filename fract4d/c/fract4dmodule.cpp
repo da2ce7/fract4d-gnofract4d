@@ -1241,6 +1241,7 @@ ff_create(PyObject *self, PyObject *args)
     int eaa=-7, maxiter=-8, nThreads=-9;
     int auto_deepen, periodicity;
     int yflip;
+    render_type_t render_type;
     pf_obj *pfo;
     ColorMap *cmap;
     IImage *im;
@@ -1249,7 +1250,7 @@ ff_create(PyObject *self, PyObject *args)
 
     if(!PyArg_ParseTuple(
 	   args,
-	   "(ddddddddddd)iiiiOOiiOOO",
+	   "(ddddddddddd)iiiiOOiiiOOO",
 	   &params[0],&params[1],&params[2],&params[3],
 	   &params[4],&params[5],&params[6],&params[7],
 	   &params[8],&params[9],&params[10],
@@ -1257,6 +1258,7 @@ ff_create(PyObject *self, PyObject *args)
 	   &pypfo,&pycmap,
 	   &auto_deepen,
 	   &periodicity,
+	   &render_type,
 	   &pyim, &pysite,
 	   &pyworker
 	   ))
@@ -1283,7 +1285,7 @@ ff_create(PyObject *self, PyObject *args)
 	auto_deepen,
 	yflip,
 	periodicity,
-	TWO_D,
+	render_type,
 	worker,
 	im,
 	site);
