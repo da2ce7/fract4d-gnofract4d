@@ -181,6 +181,7 @@ class T(gobject.GObject):
                                 self.f.yflip,nthreads,
                                 self.f.pfunc,cmap,
                                 self.f.auto_deepen, self.f.periodicity,
+                                self.f.render_type,
                                 image,self.site, self.f.clear_image)
         except MemoryError:
             pass

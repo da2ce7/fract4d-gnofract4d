@@ -1,19 +1,8 @@
 todo:
 
-done in 2.10:
-* B	removed all DeprecationWarnings
-* W	display settings in main window
-* W	load/save dialog improvements
-* W	list of formula directories saved in preferences
-* W	fullscreen mode
-* BB	daz.ucl: Lattice: C compiler error, invalid args to %
-* W	fourways in fract parameters, incl. tips
-* BB	default params not set when formula loaded from command-line
-* BB	painter fixed
-* BBB	cursor keys in fract params cause redraw
-* BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
-* BBB   load tumor.fct, set formula=Buffalo = crash (cmap deleted too early)
-* BB	two copies of settings window if you Ctrl+F twice
+done in 3.0:
+* W	added named constructors for types, eg hyper(complex, complex)
+* W	added eye_vector function 
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -124,6 +113,21 @@ params (not all applicable to all types):
 1) how to set color of point
 2) time step
 3) which points to start with
+
+done in 2.10:
+* B	removed all DeprecationWarnings
+* W	display settings in main window
+* W	load/save dialog improvements
+* W	list of formula directories saved in preferences
+* W	fullscreen mode
+* BB	daz.ucl: Lattice: C compiler error, invalid args to %
+* W	fourways in fract parameters, incl. tips
+* BB	default params not set when formula loaded from command-line
+* BB	painter fixed
+* BBB	cursor keys in fract params cause redraw
+* BBB 	update spec for RPMs to use desktop-file-install (per DAG spec)
+* BBB   load tumor.fct, set formula=Buffalo = crash (cmap deleted too early)
+* BB	two copies of settings window if you Ctrl+F twice
 
 done in 2.9:
 * BB	Couldn't load some .fct files saved by 2.7
@@ -385,3 +389,20 @@ use revision control system (subversion, cvs, rcs, arch?)
 pysvn (has further dependencies)
 hosting: cvsdude? sourceforge?
 wiki? (need to remove formatting, though)
+
+Distributed computing: 
+
+Scenario: I have 3 computers at home, want to generate fractals more
+quickly. I install gf4d on all 3 of them, then without further
+configuration I can use any of the computers to create images and the
+others will contribute if available.
+
+Requires: discovery protocol, work distribution scheme that can cope
+with missing or misbehaving clients
+
+Scenario: I want to generate a huge animation. I join up to a global
+group of gf4d users who contribute spare cycles (via a screensaver?)
+in return for a look at what I'm generating, (like ElectricSheep).
+
+Requires: above, +able to deal with ad-hoc networks of thousands of peers,
+economic incentive, security, works with NAT
