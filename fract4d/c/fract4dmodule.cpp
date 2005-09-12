@@ -1656,10 +1656,10 @@ static PyObject *
 ff_look_vector(PyObject *self, PyObject *args)
 {
     PyObject *pyFF;
-    int x, y;
+    double x, y;
     if(!PyArg_ParseTuple(
 	   args,
-	   "Oii",
+	   "Odd",
 	   &pyFF, &x, &y))
     {
 	return NULL;
