@@ -118,15 +118,17 @@ class T:
                     # if this is a leaf, make it internal and push its
                     # contents down to be another new child
                     (this_r,this_g,this_b) = pos.rgb
-                    other_child = self.which_child(
+                    this_as_child = self.which_child(
                         min,length,this_r,this_g,this_b)
-                    if other_child == child:
-                        
-                    new_child = Node(this_r,this_g,this_b)
-                    new_child.n_local_pixels = pos.n_local_pixels
-                    new_child.n_tree_pixels = pos.n_local_pixels+1
-                    pos.children[other_child] = new_child 
-                    #print "new child", new_child.rgb
+                    
+                    if this_as_child == child:
+                        pos.children[child].increment()
+                    else:
+                        # create another node for the freshly-inserted pixel
+                        new_child = Node(this_r,this_g,this_b)
+                        new_child.n_local_pixels = pos.n_local_pixels
+                        new_child.n_tree_pixels = pos.n_local_pixels+1
+                        pos.children[child] = new_child 
                     
                     pos.make_interior_node()
                 
@@ -134,6 +136,7 @@ class T:
                 pos.children[child] = Node(r,g,b)
                 break
             else:
+                # a child is there, use it
                 pos = pos.children[child]
         
                 
