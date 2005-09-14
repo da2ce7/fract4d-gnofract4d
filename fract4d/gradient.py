@@ -312,7 +312,55 @@ class Gradient:
             
         self.segments = new_segments
 
+    def complementaries(self, base_color):
+        # return some other colors that "go" with this one
+        hsv = RGBtoHSV(base_color)
+
+        (h,s,v,a) = hsv
+        
+        # take 2 colors which are almost opposite
+        h = hsv[0]
+        h2 = math.fmod(h + 2.5, 6.0)
+        h3 = math.fmod(h + 3.5, 6.0)
+
+        # take darker and lighter versions
+        v = hsv[2]
+        vlight = self.clamp(v * 1.5, 0.0, 1.0)
+        vdark = v * 0.5
+
+        colors = [
+            [h, s, vdark, a],
+            [h, s, v, a],
+            [h, s, vlight, a],
+            [h2, s, vlight, a],
+            [h2, s, v, a],
+            [h2, s, vdark, a],
+            [h3, s, vdark, a],
+            [h3, s, v, a],
+            [h3, s, vlight, a]]
+
+        colors = [ HSVtoRGB(x) for x in colors]
+        return colors
+
     def randomize(self, length):
+        base = [random.random(), random.random(), random.random(), 1.0]
+        colors = self.complementaries(base)
+        self.segments = []
+        prev_index = 0.0
+        prev_color = colors[0]
+        first_color = prev_color
+        for i in xrange(9-1):
+            index = float(i+1)/length
+            color = colors[i]
+            self.segments.append(
+                Segment(prev_index, prev_color, index, color))
+            prev_color = color
+            prev_index = index
+        
+        self.segments.append(
+            Segment(prev_index, prev_color, 1.0, first_color)) # make it wrap
+        
+    def old_randomize(self, length):
         self.segments = []
         prev_index = 0.0
         prev_color = [random.random(), random.random(), random.random(), 1.0]
@@ -526,7 +574,7 @@ class Gradient:
 
 # These two are adapted from the algorithms at
 # http://www.cs.rit.edu/~ncs/color/t_convert.html
-def RGBtoHSV(rgba):
+def RGBtoHSV(rgb):
     hsv = [0,0,0,rgb[3]]
     trgb = rgb[0:3]
     trgb.sort()

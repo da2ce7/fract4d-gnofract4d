@@ -3,6 +3,7 @@ todo:
 done in 3.0:
 * W	added named constructors for types, eg hyper(complex, complex)
 * W	added eye_vector function 
+* W	better randomized gradients
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
