@@ -678,7 +678,8 @@ double rgb_component(double n1, double n2, double hue)
     return n1;
 }
 
-void hsl_to_rgb(
+void 
+hsl_to_rgb(
     double h, double s, double l,
     double *r, double *g, double *b)
 {
@@ -708,6 +709,63 @@ void hsl_to_rgb(
     }
 
     //printf("hsl(%g,%g,%g) -> rgb(%g,%g,%g)\n", h,s,l,*r,*g,*b);
+}
+
+void 
+hsv_to_rgb(
+    double h, double s, double v,
+    double *r, double *g, double *b)
+{
+    if(s == 0)
+    {
+	*r = *g = *b = v;
+	return;
+    }
+
+    h = fmod(h,6.0);
+    if(h < 0)
+    {
+	h += 6.0;
+    }
+
+    int i = int(h);
+    double f = h - i; //Decimal bit of hue
+    double p = v * (1 - s);
+    double q = v * (1 - s * f);
+    double t = v * (1 - s * (1 - f));
+    
+    switch(i)
+    {
+    case 0:
+        *r = v;
+        *g = t;
+        *b = p;
+	break;
+    case 1:
+        *r = q;
+	*g = v;
+	*b = p;
+	break;
+    case 2:
+        *r = p;
+	*g = v;
+	*b = t;
+	break;
+    case 3:
+        *r = p;
+	*g = q;
+	*b = v;
+	break;
+    case 4:
+        *r = t;
+	*g = p;
+	*b = v;
+	break;
+    case 5:
+        *r = v;
+	*g = p;
+	*b = q;
+    }
 }
 
 // accessors for hsl components

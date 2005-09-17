@@ -639,7 +639,11 @@ class TBase:
             self.symbols[node.leaf] = Var(
                 fracttypes.Complex, default_value(Complex), node.pos)
             node.datatype = fracttypes.Complex
-
+        except AttributeError:
+            msg = "%d: '%s' is a function name and cannot be used here. Perhaps you meant to call the function instead?" % \
+                  (node.pos, node.leaf)
+            raise TranslationError(msg)
+        
         return ir.Var(node.leaf, node, node.datatype)
         
     def const(self,node):

@@ -488,6 +488,9 @@ by the 3rd parameter.''')
       [ [Float, Float, Float,Float], Color],
       doc='''Create a color from hue, saturation and lightness components and an alpha channel.''')
 
+    f("hsv",
+      [ [Float, Float, Float], Color],
+      doc='''Creste a color from hue, saturation and value components. HSV is a similar color model to HSL but has a different valid range for brightness.''')
     
     # predefined parameters
     for p in xrange(1,7):

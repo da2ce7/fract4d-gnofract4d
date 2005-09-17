@@ -100,12 +100,28 @@ gnofract4d -s myimage.png -q myfractal.fct
 
 """ % version
 
+def splitarg(val, name,mainWindow):
+    n = val.rfind('#')
+    if n==-1:
+        help()
+        print "ERROR: %s should be file#func" % name
+        sys.exit(1)
+    (file, func) = (val[:n], val[n+1:])
+    path = os.path.dirname(file)
+    if path: 
+        mainWindow.compiler.file_path.append(path)
+
+    basename = os.path.basename(file)
+    return (basename,func)
+
 def main():
     mainWindow = main_window.MainWindow()
 
     width = preferences.userPrefs.getint("display","width")
     height = preferences.userPrefs.getint("display","height")
     (basename,func) = (None,None)
+    (innername,innerfunc) = (None,None)
+    (outername,outerfunc) = (None,None)
     try:
         (opts, args) = getopt.getopt(
             sys.argv[1:],
@@ -117,6 +133,8 @@ def main():
               "help",
               "path=",
               "formula=",
+              "inner=",
+              "outer=",
               "quit",
               "explorer"])
 
@@ -139,18 +157,14 @@ def main():
             elif name=="-X" or name=="--explorer":
                 mainWindow.set_explorer_state(True)
             elif name=="--formula":
-                n = val.rfind('#')
-                if n==-1:
-                    help()
-                    print "ERROR: --formula should be file#func"
-                    return 1
-                (file, func) = (val[:n], val[n+1:])
-                path = os.path.dirname(file)
-                basename = os.path.basename(file)
-                if path: 
-                    mainWindow.compiler.file_path.append(path)
+                (basename,func) = splitarg(val,name,mainWindow)
+            elif name=="--inner":
+                (innername,innerfunc) = splitarg(val,name,mainWindow)
+            elif name=="--outer":
+                (outername,outerfunc) = splitarg(val,name,mainWindow)
             else:
                 print "Unknown argument", name, val
+                
     except getopt.GetoptError:
         help()
         return 1
@@ -162,6 +176,14 @@ def main():
         
     if basename and func:
         mainWindow.f.set_formula(basename,func)
+        mainWindow.f.reset()
+
+    if innername and innerfunc:
+        mainWindow.f.set_inner(innername, innerfunc)
+        mainWindow.f.reset()
+
+    if outername and outerfunc:
+        mainWindow.f.set_outer(outername, outerfunc)
         mainWindow.f.reset()
         
     if mainWindow.f.thaw():
