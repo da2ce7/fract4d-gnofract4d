@@ -320,8 +320,8 @@ class Gradient:
         
         # take 2 colors which are almost opposite
         h = hsv[0]
-        h2 = math.fmod(h + 2.5, 6.0)
-        h3 = math.fmod(h + 3.5, 6.0)
+        h2 = math.fmod(h + 2.6, 6.0)
+        h3 = math.fmod(h + 3.4, 6.0)
 
         # take darker and lighter versions
         v = hsv[2]

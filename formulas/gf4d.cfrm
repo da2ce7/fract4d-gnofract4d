@@ -71,3 +71,28 @@ color param col
 	default = rgb(1.0,0.0,0.0) 
 endparam
 }
+
+rgb_parts {
+; direct coloring algorithm which sets hsl separately
+;
+final:
+	; hue = angle
+	float angle = atan2(z)
+	if angle < 0.0 
+		angle = 2.0 * #pi + angle
+	endif
+	; convert to 0..6	
+	float h = angle * 6.0 / (2.0 * #pi)
+	
+	; saturation =ejection distance
+	float s = @bailout/(|z| + 1.0e-9) 
+
+	; luminosity = #numiter
+	float l = ((#numiter / #maxiter) - 1.0)*2.0 
+
+	#color = hsl(h,s,l)
+default:
+float param bailout
+	default = 4.0
+endparam
+}

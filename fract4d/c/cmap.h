@@ -122,6 +122,10 @@ extern "C" {
 	double h, double s, double l,
 	double *r, double *g, double *);
 
+    void hsv_to_rgb(
+	double h, double s, double v,
+	double *r, double *g, double *b);
+
     double hue(double r, double g, double b);
     double sat(double r, double g, double b);
     double lum(double r, double g, double b);

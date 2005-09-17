@@ -71,6 +71,18 @@ class Test(testbase.TestBase):
         }''')
         self.assertNoErrors(t3)
 
+    def testMultiplyFunc(self):
+        "Make sure we get a sensible error for this typo"
+        t = self.translatecf('''
+        x {
+        float x = @redFunc * 50.0
+        default:
+        float func redFunc
+            default = imag
+        endfunc
+        }''')
+        self.assertError(t,"3: '@redFunc' is a function name")
+        
     def testGradientCastProblem(self):
         "Test a problem with gradient casting doesn't recur"
         src = '''t {
