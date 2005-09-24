@@ -591,3 +591,32 @@ float param bailout
 	default = 4.0
 endparam
 }
+
+FnParts {
+; A generalization of Burning Ship - apply separate functions to the 
+; X and Y parts of Z, then another to Z itself
+init:
+	z = #zwpixel
+loop:
+	z = @fnComplex(@fnReal(real(z)), @fnImag(imag(z))) + #pixel
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default =cmag
+endfunc
+float func fnReal
+	argtype = float
+	default = abs
+endfunc
+float func fnImag
+	argtype = float
+	default = abs
+endfunc
+func fnComplex
+	default = sqr
+endfunc
+}

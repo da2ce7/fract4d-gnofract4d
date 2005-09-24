@@ -988,8 +988,9 @@ extern pf_obj *pf_new(void);
         try:
             dst = op.genFunc(self, t, srcs)
         except TypeError, err:
-            print op.genFunc
-            raise
+            msg = "Internal Compiler Error: missing stdlib function %s" % \
+                  op.genFunc
+            raise fracttypes.TranslationError(msg)
         
         return dst
         

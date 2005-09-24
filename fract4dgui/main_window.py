@@ -6,6 +6,7 @@ import signal
 import copy
 import math
 import re
+import urllib
 
 import gtk
 
@@ -15,6 +16,7 @@ from fract4d import fractal,fc,fract4dc
 import gtkfractal, model, preferences, autozoom, settings, toolbar
 import colors, undo, browser, fourway, angle, utils, hig, painter
 import icons
+import fract4dguic
 
 re_ends_with_num = re.compile(r'\d+\Z')
 re_cleanup = re.compile(r'[\s\(\)]+')
@@ -380,6 +382,8 @@ class MainWindow:
              self.saveas, 0, '<StockItem>', gtk.STOCK_SAVE_AS),
             (_('/File/Save _Image'), '<control>I',
              self.save_image, 0, ''),
+            (_('/File/S_end To...'), '<control>M',
+             self.send_to, 0, ''),
             (_('/File/sep1'), None,
              None, 0, '<Separator>'),
             (_('/File/_Quit'), '<control>Q',
@@ -832,6 +836,23 @@ class MainWindow:
         d.run()
         d.destroy()
 
+    def send_to(self,action,widget):
+        try:
+            mailer = fract4dguic.get_mail_editor()
+        except Exception, err:
+            self.show_error_message(_("Cannot send mail"), err)
+            return
+        
+        image_name = os.path.join(
+            "/tmp",
+            os.path.basename(self.default_save_filename(".png")))
+        self.f.save_image(image_name)
+        subject = os.path.basename(self.display_filename())
+        url= '"mailto:somebody@example.com?subject=%s&attach=%s"' % \
+             (urllib.quote(subject), urllib.quote(image_name))
+        #print url
+        os.system(mailer % url)
+        
     def save_image(self,action,widget):
         save_filename = self.default_save_filename(".png")
 

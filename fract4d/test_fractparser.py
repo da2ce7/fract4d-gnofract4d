@@ -267,6 +267,13 @@ class ParserTest(unittest.TestCase):
         ''')
         self.assertIsValidParse(t1)
 
+    def disabled_testGibberish(self):
+        # parser doesn't like this, but can't think of a good fix right now
+        t = self.parse('''
+        t1 {
+        ''')
+        self.failUnless(absyn.CheckTree(t))
+        
     def testHeading(self):
         t1 = self.parse('''
         t1{

@@ -121,6 +121,10 @@ def Formlist(list, pos):
 def Set(id, s, pos):
     return Node("set", pos, [id,s], None)
 
+def SetType(id,t,pos):
+    type = fracttypes.typeOfStr(t)
+    return Node("set", pos, [id, Empty(pos)], None, type) 
+
 def Number(n,pos):
     if re.search('[.eE]',n):
         t = fracttypes.Float
@@ -199,6 +203,9 @@ def Param(id,settinglist,type,pos):
 
 def Func(id,settinglist,type, pos):
     return Node("func", pos, settinglist, id, fracttypes.typeOfStr(type))
+
+def FuncWithDecls(id, decls, settinglist, type, pos):
+    return Node("func", pos, decls + settinglist, type, pos)
 
 def Heading(settinglist,pos):
     return Node("heading", pos, settinglist)

@@ -98,11 +98,11 @@ final:
 	float s
 	float v
 	if(@inset == true)
-		h = ((atan2(flip(z)) / 256) % 1.0) ; * 6.0
+		h = ((atan2(flip(z))) / (#pi) * 6.0) % 6.0 
 		s = (sin(@satFunc(z) * 50.0)+ 1.0) * 0.5
 		v = (sin(@lumFunc(z) * 50.0) + 1.0) * 0.5
 	else
-		h = ((atan2(flip(z))) / (#pi) * 6.0) % 6.0  ; * 6.0
+		h = ((atan2(flip(z))) / (#pi) * 6.0) % 6.0 
 		s = (sin(@satFunc(z)) + 1) * 0.5
 		v = (sin(@lumFunc(z)) + 1) * 0.5
 	endif
@@ -149,6 +149,36 @@ float func lumFunc
 endfunc
 }
 
+hsl {
+final:
+	float h
+	float s
+	float l
+	h = @hueFunc(z) * 6.0
+	s = (@satFunc2(@satFunc(z))+1)/2.0
+	l = @lumFunc2(@lumFunc(z))
+
+	#color = hsl(h,s,l)
+default:
+float func hueFunc
+	default = real
+endfunc
+float func satFunc
+	default = real
+endfunc
+float func satFunc2
+	argtype = float
+	default = sin
+endfunc
+float func lumFunc
+	default = imag
+endfunc
+float func lumFunc2
+	argtype =float
+	default = cos
+endfunc
+}
+
 hsv2
 
 cos_re_2_cos_im_2_cos_square_
@@ -156,5 +186,6 @@ abs_re_2_abs_im_2_abs_square_
 re_im_re_re_im_im
 abs_im_cim_abs_re_cre_abs_re_cim
 abs_re_im_csqr_abs_re_2_csqr_abs_im_2_csqr_
+
 
 

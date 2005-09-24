@@ -32,7 +32,8 @@ def formatError(t,i):
 def p_file(t):
      'file : formlist'
      t[0] = absyn.Formlist(t[1], t.lineno(1))
-     
+
+
 def p_formlist(t):
      'formlist : formula NEWLINE formlist'
      t[0] = [ t[1] ] + t[3]
@@ -99,6 +100,10 @@ def p_set_exp(t):
      'set : ID ASSIGN exp'     
      t[0] = absyn.Set(absyn.ID(t[1],t.lineno(1)),t[3],t.lineno(2))
 
+def p_set_type(t):
+     'set : ID ASSIGN TYPE'
+     t[0] = absyn.SetType(absyn.ID(t[1],t.lineno(1)), t[3],t.lineno(2))
+     
 def p_set_empty(t):
      'set : empty'
      t[0] = t[1]

@@ -216,6 +216,8 @@ class TBase:
         elif name == "visible":
             # fixme can't deal with visibility calculations yet
             return
+        elif name == "argtype":
+            func.args = [node.datatype]
         else:
             val = self.const_exp(node.children[1])
             setattr(func,name,val)
