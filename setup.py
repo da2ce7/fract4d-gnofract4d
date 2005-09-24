@@ -89,10 +89,10 @@ module_cmap = Extension(
     define_macros = [ ('_REENTRANT', 1)]
     )
 
-# GUI extension needs to link against gtk+. We use pkg-config
+# GUI extension needs to link against gtk+ and gconf. We use pkg-config
 # to find the appropriate set of includes and libs
 
-gtk_pkg = "gtk+-2.0"
+pkgs = "gtk+-2.0 gconf-2.0"
 
 def call_package_config(package,option):
     '''invoke pkg-config, if it exists, to find the appropriate
@@ -102,13 +102,13 @@ def call_package_config(package,option):
     if status != 0:
         print >>sys.stderr, "Can't set up. Error running '%s'." % cmd
         print >>sys.stderr, output
-        print >>sys.stderr, "Possibly you don't have %s installed." % package
+        print >>sys.stderr, "Possibly you don't have one of these installed: '%s'." % package
         sys.exit(1)
 
     return output.split()
 
-gtk_flags = call_package_config(gtk_pkg,"--cflags")
-gtk_libs =  call_package_config(gtk_pkg,"--libs")
+gtk_flags = call_package_config(pkgs,"--cflags")
+gtk_libs =  call_package_config(pkgs,"--libs")
 
 
 module2 = Extension(

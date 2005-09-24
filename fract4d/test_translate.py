@@ -82,6 +82,41 @@ class Test(testbase.TestBase):
         endfunc
         }''')
         self.assertError(t,"3: '@redFunc' is a function name")
+
+    def testHslProblem(self):
+        "Make sure this previously-problematic func works"
+        t = self.translatecf('''
+hsl {
+final:
+	float h
+	float s
+	float l
+	h = @hueFunc(z) * 6.0
+	s = (@satFunc2(@satFunc(z))+1)/2.0
+	l = @lumFunc2(@lumFunc(z))
+
+	#color = hsl(h,s,l)
+default:
+float func hueFunc
+	default = real
+endfunc
+float func satFunc        
+	default = real
+endfunc
+float func satFunc2
+        argtype = float
+	default = sin
+endfunc
+float func lumFunc
+	default = imag
+endfunc
+float func lumFunc2
+	default = cos
+endfunc
+}
+''')
+        #print t.pretty()
+        self.assertNoErrors(t)
         
     def testGradientCastProblem(self):
         "Test a problem with gradient casting doesn't recur"

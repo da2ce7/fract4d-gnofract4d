@@ -9,6 +9,7 @@
 #include <errno.h>
 
 #include "gtk/gtk.h"
+#include "gconf/gconf.h"
 
 #include "image.h"
 
@@ -16,6 +17,45 @@
 #ifndef PyMODINIT_FUNC 
 #define PyMODINIT_FUNC void
 #endif
+
+/* ask gconf what user's preferred mail editor is */
+static PyObject *
+get_mail_editor(PyObject *self, PyObject *args)
+{
+    GConfEngine *confEngine = gconf_engine_get_default();
+    
+    if(NULL==confEngine)
+    {
+	PyErr_SetString(PyExc_EnvironmentError,"Couldn't get gconf engine");
+	return NULL;
+    }
+
+    GError *err = NULL;
+    gchar *mailtoHandler = gconf_engine_get_string(
+	confEngine,
+	"/desktop/gnome/url-handlers/mailto/command",
+	&err);
+
+    if(NULL != err)
+    {
+	PyErr_SetString(PyExc_EnvironmentError,err->message);
+	goto err;
+    }
+
+    if(NULL == mailtoHandler)
+    {
+	PyErr_SetString(PyExc_EnvironmentError,"No mailto handler");
+	goto err;
+    }
+
+    PyObject *pyRet = PyString_FromString(mailtoHandler);
+    gconf_engine_unref(confEngine);
+    return pyRet;
+ err:
+    gconf_engine_unref(confEngine);
+    return NULL;
+}
+
 
 static PyObject *
 image_save(PyObject *self, PyObject *args)
@@ -97,6 +137,9 @@ image_save(PyObject *self, PyObject *args)
 static PyMethodDef Methods[] = {
     {"image_save",  image_save, METH_VARARGS, 
      "Write an image to disk using gtk pixbuf functions"},
+
+    {"get_mail_editor", get_mail_editor, METH_VARARGS, 
+     "Returns user's preferred mail editor, according to gconf"},
  
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };

@@ -55,6 +55,8 @@ class Test(unittest.TestCase):
         except Exception:
             self.fail("Wrong exception type")
 
+    def testMailtoHandler(self):
+        editor = fract4dguic.get_mail_editor()
         
     def testSave(self):
         self.saveAndCheck("test.png","PNG")

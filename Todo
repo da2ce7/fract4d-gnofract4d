@@ -7,6 +7,7 @@ done in 3.0:
 * W	--inner and --outer params
 * W	added xaos.cfrm
 * B     @func * 3 gives weird error message
+* W	added Send To command
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -16,7 +17,6 @@ bugs (the more B's, the worse the bug):
 * BB	fractint doesn't reset vars between calls
 * BB	crash with multiple threads on x86-64 (Paul Wayper)
 * BB	explorer rather slow with complex colorfuncs
-* B	if(boolvar) should not be converted to complex
 * B	you can declare the same parameter twice
 * B	undo/redo loses "flip y axis" setting
 * B	should hide density/transfer.offset for DCA's
