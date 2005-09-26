@@ -56,7 +56,8 @@ class Test(unittest.TestCase):
             self.fail("Wrong exception type")
 
     def testMailtoHandler(self):
-        editor = fract4dguic.get_mail_editor()
+        mail_editor = fract4dguic.get_gconf_setting("/desktop/gnome/url-handlers/mailto/command")
+        browser = fract4dguic.get_gconf_setting("/desktop/gnome/url-handlers/http/command")
         
     def testSave(self):
         self.saveAndCheck("test.png","PNG")

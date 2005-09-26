@@ -12,6 +12,8 @@ def main():
     os.system('./test.py')
     os.chdir('../fract4dgui')
     os.system('./test.py')
+    os.chdir('../utils')
+    os.system('./test.py')
     
 if __name__ == '__main__':
     main()
