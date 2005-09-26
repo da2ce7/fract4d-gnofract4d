@@ -103,15 +103,16 @@ class FlickrUploadDialog(dialog.T):
         
         self.upload_button = gtk.Button(_("_Upload"))
         self.upload_button.connect("clicked", self.onUpload)
-        self.controls.pack_start(self.upload_button)
+        table.attach(self.upload_button, 0,2,3,4,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         self.view_my_button = gtk.Button(_("View _My Fractals"))
         self.view_my_button.connect("clicked", self.onViewMy)
-        self.controls.pack_start(self.view_my_button)
+        table.attach(self.view_my_button, 0,1,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
-        self.view_pool_button = gtk.Button(_("View G_roup Fractals"))
-        self.view_pool_button.connect("clicked", self.onViewPool)
-        self.controls.pack_start(self.view_pool_button)
+        self.view_group_button = gtk.Button(_("View G_roup Fractals"))
+        self.view_group_button.connect("clicked", self.onViewPool)
+        table.attach(self.view_group_button, 1,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
 
     def onResponse(self,widget,id):
         self.hide()
@@ -137,6 +138,8 @@ class FlickrUploadDialog(dialog.T):
             description=self.get_description(),
             tags=self.get_tags())
 
+        #flickr.groups_pools_add(id)
+        
         #print id
 
     def onViewMy(self,widget):

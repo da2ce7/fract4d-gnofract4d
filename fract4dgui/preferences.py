@@ -167,6 +167,8 @@ class PrefsDialog(dialog.T):
         self.create_image_options_page()
         self.create_compiler_options_page()
         self.create_general_page()
+        self.create_helper_options_page()
+        self.create_flickr_page()
         
         self.set_size_request(500,-1)
 
@@ -337,7 +339,7 @@ class PrefsDialog(dialog.T):
             
     def create_compiler_options_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
-        label = gtk.Label(_("Com_piler"))
+        label = gtk.Label(_("_Compiler"))
         label.set_use_underline(True)
         self.notebook.append_page(table,label)
                         
@@ -387,13 +389,13 @@ class PrefsDialog(dialog.T):
         table.attach(remove_button,0,1,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         
         
-    def create_editor_options_page(self):
+    def create_helper_options_page(self):
         table = gtk.Table(5,2,gtk.FALSE)
-        label = gtk.Label(_("_Editor"))
+        label = gtk.Label(_("_Helpers"))
         label.set_use_underline(True)
         self.notebook.append_page(table,label)
                         
-        entry = self.create_option_entry("editor","name")
+        entry = self.create_option_entry("helpers","editor")
         self.tips.set_tip(entry,_("The text editor to use for changing formulas"))
         table.attach(entry,1,2,0,1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
@@ -401,7 +403,55 @@ class PrefsDialog(dialog.T):
         name_label.set_use_underline(True)
         name_label.set_mnemonic_widget(entry)
         table.attach(name_label,0,1,0,1,0,0,2,2)
-                
+
+        entry = self.create_option_entry("helpers","mailer")
+        self.tips.set_tip(entry,_("The command to launch an email editor"))
+        table.attach(entry,1,2,1,2,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        name_label = gtk.Label("E_mail :")
+        name_label.set_use_underline(True)
+        name_label.set_mnemonic_widget(entry)
+        table.attach(name_label,0,1,1,2,0,0,2,2)
+
+        entry = self.create_option_entry("helpers","browser")
+        self.tips.set_tip(entry,_("The command to launch a web browser"))
+        table.attach(entry,1,2,2,3,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        name_label = gtk.Label("_Browser :")
+        name_label.set_use_underline(True)
+        name_label.set_mnemonic_widget(entry)
+        table.attach(name_label,0,1,2,3,0,0,2,2)
+
+    def update_id(self,*args):
+        token = self.prefs.get("user_info","flickr_token")
+        if token=="":
+            # not signed in
+            self.token_label.set_text(_("Not signed in"))
+        else:
+            self.token_label.set_text(_("Signed in"))
+
+        self.signoff.set_sensitive(token != "")
+
+    def do_signoff(self,widget):
+        self.prefs.set("user_info","flickr_token","")
+        
+    def create_flickr_page(self):
+        table = gtk.Table(5,2,gtk.FALSE)
+        label = gtk.Label(_("_Flickr"))
+        label.set_use_underline(True)
+        self.notebook.append_page(table,label)
+
+        self.signoff = gtk.Button(_("_Sign off from Flickr"))
+        self.signoff.connect("clicked",self.do_signoff)
+
+        self.token_label = gtk.Label("")
+        table.attach(self.token_label,0,2,0,1,0,0,2,2)
+
+        table.attach(self.signoff,0,1,1,2,0,0,2,2)
+
+        self.prefs.connect('preferences-changed',self.update_id)
+        self.update_id()
+        
     def create_auto_deepen_widget(self):
         widget = gtk.CheckButton("Auto _Deepen")
         self.tips.set_tip(widget,"Adjust number of iterations automatically")

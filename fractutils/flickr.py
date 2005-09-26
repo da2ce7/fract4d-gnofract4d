@@ -101,6 +101,15 @@ def groups_search(query):
     groups = [ Group(x) for x in resp.getElementsByTagName("group")]
     return groups
 
+def groups_pools_add(photo,group=GF4D_GROUP):
+    resp = makeSignedCall(
+        BASE_URL,
+        api_key=API_KEY,
+        method="flickr.groups.pools.add",
+        photo_id=photo,
+        group_id=group)
+    # no return value
+    
 def people_getPublicGroups(nsid):
     resp = makeCall(BASE_URL,api_key=API_KEY,method="flickr.people.getPublicGroups",user_id=nsid)
     groups = [ Group(x) for x in resp.getElementsByTagName("group")]
