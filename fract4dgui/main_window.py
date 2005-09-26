@@ -12,11 +12,13 @@ import gtk
 
 sys.path.append("..")
 from fract4d import fractal,fc,fract4dc
+from fractutils import flickr
 
 import gtkfractal, model, preferences, autozoom, settings, toolbar
 import colors, undo, browser, fourway, angle, utils, hig, painter
-import icons
+import icons, flickr_assistant
 import fract4dguic
+
 
 re_ends_with_num = re.compile(r'\d+\Z')
 re_cleanup = re.compile(r'[\s\(\)]+')
@@ -340,7 +342,7 @@ class MainWindow:
         
     def on_key_release(self, widget, event):
         current_widget = self.window.get_focus()
-        if isinstance(current_widget, gtk.Entry):
+        if isinstance(current_widget, gtk.Entry) or isinstance(current_widget,gtk.TextView):
             # otherwise we steal cursor motion through entry
             return
         fn = self.keymap.get(event.keyval)
@@ -382,8 +384,6 @@ class MainWindow:
              self.saveas, 0, '<StockItem>', gtk.STOCK_SAVE_AS),
             (_('/File/Save _Image'), '<control>I',
              self.save_image, 0, ''),
-            (_('/File/S_end To...'), '<control>M',
-             self.send_to, 0, ''),
             (_('/File/sep1'), None,
              None, 0, '<Separator>'),
             (_('/File/_Quit'), '<control>Q',
@@ -414,7 +414,14 @@ class MainWindow:
              None, 0, '<Branch>'),
             (_('/_View/_Full Screen'), 'F11',
              self.menu_full_screen, 0, ''),
-            
+
+            (_('/_Share'), None,
+             None, 0, '<Branch>'),
+            (_('/Share/_Mail To...'), '<control>M',
+             self.send_to, 0, ''),
+            (_('/Share/_Upload To Flickr...'), '<control>U',
+             self.upload, 0, ''),
+
             (_('/_Tools'), None,
              None, 0, '<Branch>'),
             (_('/_Tools/_Autozoom...'), '<control>A',
@@ -837,11 +844,7 @@ class MainWindow:
         d.destroy()
 
     def send_to(self,action,widget):
-        try:
-            mailer = fract4dguic.get_mail_editor()
-        except Exception, err:
-            self.show_error_message(_("Cannot send mail"), err)
-            return
+        mailer = preferences.userPrefs.get("helpers","mailer")
         
         image_name = os.path.join(
             "/tmp",
@@ -852,6 +855,9 @@ class MainWindow:
              (urllib.quote(subject), urllib.quote(image_name))
         #print url
         os.system(mailer % url)
+
+    def upload(self,action,widget):
+        flickr_assistant.show_flickr_assistant(self.window,self.control_box, self.f, False)
         
     def save_image(self,action,widget):
         save_filename = self.default_save_filename(".png")

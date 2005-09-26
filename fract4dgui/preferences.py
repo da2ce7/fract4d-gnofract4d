@@ -10,6 +10,24 @@ import gobject
 import dialog
 import utils
 
+import fract4dguic
+
+def _get_default_mailer():
+    try:
+        mailer = fract4dguic.get_gconf_string("/desktop/gnome/url-handlers/mailto/command")
+    except:
+        # oh well, something went wrong
+        mailer = "evolution %s"
+    return mailer
+
+def _get_default_browser():
+    try:
+        browser = fract4dguic.get_gconf_string("/desktop/gnome/url-handlers/http/command")
+    except:
+        # oh well, something went wrong
+        browser = "mozilla %s"
+    return browser
+
 class Preferences(ConfigParser.ConfigParser,gobject.GObject):
     # This class holds the preference data
     __gsignals__ = {
@@ -30,18 +48,21 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
               "antialias" : "1",
               "autodeepen" : "1"
             },
-            "editor" : {
-              "name" : "emacs"
+            "helpers" : {
+              "editor" : "emacs",
+              "mailer" : _get_default_mailer(),
+              "browser" : _get_default_browser()
             },
             "general" : {
               "threads" : "1"
             },
             "user_info" : {
-            "name" : ""
+              "name" : "",
+              "flickr_token" : ""
             },
             "formula_path" : {
-            "0" : "formulas",
-            "1" : os.path.join(sys.exec_prefix, "share/formulas/gnofract4d")
+              "0" : "formulas",
+              "1" : os.path.join(sys.exec_prefix, "share/formulas/gnofract4d")
             }
         }
 

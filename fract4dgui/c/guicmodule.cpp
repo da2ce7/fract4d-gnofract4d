@@ -18,10 +18,17 @@
 #define PyMODINIT_FUNC void
 #endif
 
+
 /* ask gconf what user's preferred mail editor is */
 static PyObject *
-get_mail_editor(PyObject *self, PyObject *args)
+get_gconf_string(PyObject *self, PyObject *args)
 {
+    char *path = NULL;
+    if(!PyArg_ParseTuple(args, "s", &path))
+    {
+	return NULL;
+    }
+
     GConfEngine *confEngine = gconf_engine_get_default();
     
     if(NULL==confEngine)
@@ -31,9 +38,9 @@ get_mail_editor(PyObject *self, PyObject *args)
     }
 
     GError *err = NULL;
-    gchar *mailtoHandler = gconf_engine_get_string(
+    gchar *setting = gconf_engine_get_string(
 	confEngine,
-	"/desktop/gnome/url-handlers/mailto/command",
+	path,
 	&err);
 
     if(NULL != err)
@@ -42,13 +49,13 @@ get_mail_editor(PyObject *self, PyObject *args)
 	goto err;
     }
 
-    if(NULL == mailtoHandler)
+    if(NULL == setting)
     {
-	PyErr_SetString(PyExc_EnvironmentError,"No mailto handler");
+	PyErr_SetString(PyExc_EnvironmentError,"No such setting found");
 	goto err;
     }
 
-    PyObject *pyRet = PyString_FromString(mailtoHandler);
+    PyObject *pyRet = PyString_FromString(setting);
     gconf_engine_unref(confEngine);
     return pyRet;
  err:
@@ -138,8 +145,8 @@ static PyMethodDef Methods[] = {
     {"image_save",  image_save, METH_VARARGS, 
      "Write an image to disk using gtk pixbuf functions"},
 
-    {"get_mail_editor", get_mail_editor, METH_VARARGS, 
-     "Returns user's preferred mail editor, according to gconf"},
+    {"get_gconf_string", get_gconf_string, METH_VARARGS, 
+     "Returns a user setting, according to gconf"},
  
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
