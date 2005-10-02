@@ -20,7 +20,11 @@ class FlickrError(Exception):
         self.code = code
         
 def parseResponse(resp):
-    dom = xml.dom.minidom.parseString(resp)
+    try:
+        dom = xml.dom.minidom.parseString(resp)
+    except xml.parsers.expat.ExpatError:
+        raise FlickrError("Unexpected response:not an xml file")
+    
     if dom.documentElement.nodeName != "rsp":
         raise FlickrError("Unexpected response: %s" % resp)
 
@@ -32,19 +36,24 @@ def parseResponse(resp):
         raise FlickrError("Error returned: %s [%s]" % (msg,code),code)
     return dom
 
-def makeCall(url,**kwds):
+def makeCall(url,is_post,**kwds):
     query = urllib.urlencode(kwds)
     url = "%s?%s" % (url, query)
     req = urllib2.Request(url)
+
+    if is_post:
+        req.add_data("")
+        
+    #req.set_proxy("localhost:8000","http")
     resp = urllib2.urlopen(req).read()
     #print resp
     dom = parseResponse(resp)
     return dom
 
-def makeSignedCall(url,**kwds):
+def makeSignedCall(url,is_post,**kwds):
     sig = createSig(**kwds)
     kwds["api_sig"] = sig
-    return makeCall(url,**kwds)
+    return makeCall(url,is_post,**kwds)
 
 def getSignedUrl(url,**kwds):
     sig = createSig(**kwds)
@@ -67,20 +76,20 @@ def createSig(**kwds):
     return digest
 
 def getFrob():
-    resp = makeSignedCall(BASE_URL,api_key=API_KEY,method="flickr.auth.getFrob")
+    resp = makeSignedCall(BASE_URL,False,api_key=API_KEY,method="flickr.auth.getFrob")
     return resp.getElementsByTagName("frob")[0].firstChild.nodeValue
 
 def getAuthUrl(frob_):
-    return getSignedUrl(AUTH_URL,api_key=API_KEY,perms="write",frob=frob_)
+    return getSignedUrl(AUTH_URL,False,api_key=API_KEY,perms="write",frob=frob_)
 
 def getToken(frob_):
-    resp = makeSignedCall(BASE_URL,method="flickr.auth.getToken",api_key=API_KEY,frob=frob_)
+    resp = makeSignedCall(BASE_URL,False,method="flickr.auth.getToken",api_key=API_KEY,frob=frob_)
     token = Token(resp)
     return token
 
 def checkToken(token):
     # we'll throw an exception if token is invalid
-    resp = makeCall(BASE_URL,method="flickr.auth.checkToken",api_key=API_KEY,auth_token=token)
+    resp = makeCall(BASE_URL,False,method="flickr.auth.checkToken",api_key=API_KEY,auth_token=token)
     return Token(resp)
 
 def upload(photo,token,**kwds):
@@ -97,26 +106,29 @@ def upload(photo,token,**kwds):
     return photoid
 
 def groups_search(query):
-    resp = makeCall(BASE_URL,api_key=API_KEY,method="flickr.groups.search",text=query)
+    resp = makeCall(BASE_URL,False,api_key=API_KEY,method="flickr.groups.search",text=query)
     groups = [ Group(x) for x in resp.getElementsByTagName("group")]
     return groups
 
-def groups_pools_add(photo,group=GF4D_GROUP):
+def groups_pools_add(photo,token,group=GF4D_GROUP):
     resp = makeSignedCall(
         BASE_URL,
+        True,
         api_key=API_KEY,
         method="flickr.groups.pools.add",
+        auth_token=token,
+        data="",
         photo_id=photo,
         group_id=group)
     # no return value
     
 def people_getPublicGroups(nsid):
-    resp = makeCall(BASE_URL,api_key=API_KEY,method="flickr.people.getPublicGroups",user_id=nsid)
+    resp = makeCall(BASE_URL,False,api_key=API_KEY,method="flickr.people.getPublicGroups",user_id=nsid)
     groups = [ Group(x) for x in resp.getElementsByTagName("group")]
     return groups
 
 def urls_getUserPhotos(nsid):
-    resp = makeSignedCall(BASE_URL,api_key=API_KEY,method="flickr.urls.getUserPhotos",user_id=nsid)
+    resp = makeSignedCall(BASE_URL,False,api_key=API_KEY,method="flickr.urls.getUserPhotos",user_id=nsid)
     url = resp.getElementsByTagName("user")[0].getAttribute("url")
     return url
 
@@ -153,6 +165,8 @@ def encode_multipart_formdata(fields, files, BOUNDARY = '-----'+mimetools.choose
         L.append('Content-Disposition: form-data; name="%s"' % key)
         L.append('')
         L.append(value)
+
+    print "req", L
     for (key, filename, value) in files:
         filetype = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
         L.append('--' + BOUNDARY)

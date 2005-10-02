@@ -48,6 +48,7 @@ class ColorModel:
                 
     def populate_file_list(self):
         self.add_directory("maps")
+        self.add_directory("other_maps")
         self.add_directory(
             os.path.join(sys.exec_prefix,"share/maps/gnofract4d"))
 
