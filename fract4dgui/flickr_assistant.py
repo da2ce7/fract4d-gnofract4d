@@ -26,7 +26,7 @@ def is_authorized():
 
     try:
         TOKEN = flickr.checkToken(token)
-    except FlickrError, err:
+    except flickr.FlickrError, err:
         return False
 
     return True
@@ -138,7 +138,7 @@ class FlickrUploadDialog(dialog.T):
             description=self.get_description(),
             tags=self.get_tags())
 
-        #flickr.groups_pools_add(id)
+        flickr.groups_pools_add(id,token)
         
         #print id
 

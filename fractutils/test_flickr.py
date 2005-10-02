@@ -38,6 +38,7 @@ class Test(unittest.TestCase):
     def testEcho(self):
         resp = flickr.makeCall(
             "http://www.flickr.com/services/rest/",
+            False,
             method="flickr.test.echo",
             name="hello",
             api_key=flickr.API_KEY)
@@ -68,6 +69,10 @@ class Test(unittest.TestCase):
                 found = True
         self.failUnless(found)
 
+    def testAddPhotoToGroup(self):
+        photo = '48623980'
+        flickr.groups_pools_add(photo,TOKEN,flickr.GF4D_GROUP)
+        
     def testGroupMembership(self):
         user = flickr.checkToken(TOKEN).user
         nsid = user.nsid
