@@ -83,6 +83,10 @@ def p_sectlist_section(t):
      'sectlist : section'
      t[0] = listify(t[1])
 
+def p_section_parm(t):
+     'section : SECT_PARMS parmlist'
+     t[0] = absyn.Setlist(t[1],t[2],t.lineno(1))
+     
 def p_section_set(t):
      'section : SECT_SET setlist'
      t[0] = absyn.Setlist(t[1],t[2],t.lineno(1))
@@ -95,6 +99,33 @@ def p_setlist_2(t):
      '''setlist : set NEWLINE setlist
         setlist : set COMMA setlist'''
      t[0] = listify(t[1]) + t[3]
+
+def p_parmlist_parm(t):
+     'parmlist : parm'
+     t[0] = listify(t[1])
+
+def p_parmlist_2(t):
+     'parmlist : parm NEWLINE parmlist'
+     t[0] = listify(t[1]) + t[3]
+
+def p_parmlist_3(t):
+     'parmlist : parm parmlist'
+     t[0] = listify(t[1]) + t[2]
+
+def p_parm_empty(t):
+     'parm : empty'
+     t[0] = t[1]
+
+# the extras are allow params which clash with types & reserved words
+def p_parm_exp(t):
+     '''parm : ID ASSIGN exp
+        parm : TYPE ASSIGN exp
+        parm : REPEAT ASSIGN exp'''
+     t[0] = absyn.Set(absyn.ID(t[1],t.lineno(1)),t[3],t.lineno(2))
+
+def p_parm_type(t):
+     'parm : ID ASSIGN TYPE'
+     t[0] = absyn.SetType(absyn.ID(t[1],t.lineno(1)), t[3],t.lineno(2))
 
 def p_set_exp(t):
      'set : ID ASSIGN exp'     

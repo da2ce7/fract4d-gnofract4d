@@ -28,7 +28,23 @@ class LexerTest(unittest.TestCase):
             toklist.append(tok)
 
         return toklist
-    
+
+    def testUGR(self):
+        tokens = self.tokensFromString(
+'''cl1rorangemixed {
+gradient:
+ title="cl1rorangemixed" smooth=no
+ index=0 color=5153516
+ index=2 color=5087212
+ index=399 color=5349352
+}
+        ''')
+        #print tokens
+        self.assertEqual(tokens[0].type, "FORM_ID")
+        self.assertEqual(tokens[2].type, "SECT_PARMS")
+
+        self.assertEqual(tokens[9].type, "CONST")
+        
     def testEmpty(self):
         self.assertEqual(self.tokensFromString(""),[])
 

@@ -52,6 +52,7 @@ tokens = (
    'FORM_ID',
    'FORM_END',
    'SECT_SET',
+   'SECT_PARMS',
    'SECT_STM',
 
    # keywords
@@ -98,7 +99,7 @@ types = ["bool",
          "grad",
          "int"]
 
-consts = ["true", "false"]
+consts = ["true", "false", "yes", "no"]
 
 lookup = {}
 for k in keywords: lookup[k] = string.upper(k)
@@ -166,6 +167,13 @@ def t_SECT_SET(t):
     t.value = re.sub(":$","",t.value)
     return t
 
+# a section containing parameter settings, as found in .ugr and .upr files
+# gradient, fractal, layer, mapping, formula, inside, outside
+def t_SECT_PARMS(t):
+    r'(([Gg][Rr][Aa][Dd][Ii][Ee][Nn][Tt])|([Ff][Rr][Aa][Cc][Tt][Aa][Ll])|([Ll][Aa][Yy][Ee][Rr])|([Mm][Aa][Pp][Pp][Ii][Nn][Gg])|([Ff][Oo][Rr][Mm][Uu][Ll][Aa])|([Ii][Nn][Ss][Ii][Dd][Ee])|([Oo][Uu][Tt][Ss][Ii][Dd][Ee])):'
+    t.value = re.sub(":$","",t.value)
+    return t
+
 # global, transform, init, loop, final, bailout
 def t_SECT_STM(t):
     r'(([Gg][Ll][Oo][Bb][Aa][Ll])|([Tt][Rr][Aa][Nn][Ss][Ff][Oo][Rr][Mm])|([Ii][Nn][Ii][Tt])|([Ll][Oo][Oo][Pp])|([Ff][Ii][Nn][Aa][Ll])|([Bb][Aa][Ii][Ll][Oo][Uu][Tt]))?:'
@@ -178,7 +186,7 @@ def t_ID(t):
     lookfor = string.lower(t.value) # case insensitive lookup
     if lookup.has_key(lookfor): t.type = lookup[lookfor]
     return t
-
+    
 # don't produce tokens for newlines preceded by \
 def t_ESCAPED_NL(t):
     r'\\\r?\s*\n'

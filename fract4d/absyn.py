@@ -141,7 +141,7 @@ def Number(n,pos):
     return Node("const", pos, None, n, t)
 
 def Const(n,pos):
-    return Node("const", pos, None, n=="true", fracttypes.Bool)
+    return Node("const", pos, None, n=="true" or n=="yes", fracttypes.Bool)
 
 def Complex(left,right,pos):
     return Node("complex",pos, [left, right], "", fracttypes.Complex)
