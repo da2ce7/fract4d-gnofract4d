@@ -109,6 +109,550 @@ class ParserTest(unittest.TestCase):
             "a^b^c",
             "a^(b^c)")
 
+    def testGradient(self):
+        t1 = self.parse('''cl1rorangemixed {
+gradient:
+ title="cl1rorangemixed" smooth=no
+ index=0 color=5153516
+ index=2 color=5087212
+ index=399 color=5349352
+}
+        ''')
+        self.assertIsValidParse(t1)
+
+        settings =  t1.children[0].children[0].children
+
+        names = ["title", "smooth",
+                 "index", "color",
+                 "index", "color",  
+                 "index", "color"]
+
+        vals = [ "cl1rorangemixed", False,
+                 0, 5153516,
+                 2, 5087212,
+                 399, 5349352]
+
+        for (name,val,setting) in zip(names,vals,settings):
+            self.assertEqual(setting.children[0].leaf, name)
+            self.assertEqual(setting.children[1].leaf, val)
+
+    def testAklUpr(self):
+        t1 = self.parse('''demo4MedialSmooth {
+; \xc2 Andreas Lober 2000
+; all rights reserved
+; for personal use only
+fractal:
+  title="demo4MedialSmooth" width=640 height=512
+  author="Andreas Lober (AKL)" created="October 31, 2000" numlayers=5
+layer:
+  outsolid=14548992 outalpha=0 method=multipass caption="New Layer 2"
+  opacity=80 visible=yes alpha=no mergemode=softlight
+mapping:
+  center=-0.287881828498840332/0.592228307628631592 magn=1424.6273242601272
+  angle=0
+formula:
+  filename="Standard.ufm" entry="FastJulia" maxiter=250 percheck=off
+  p_Seed=0.55/-0.21875 p_Bailout=4
+inside:
+  transfer=none repeat=yes
+outside:
+  filename="akl-t-math.ucl" entry="akl-MedialSmooth" transfer=log
+  repeat=yes p_calculate="Angel" p_smooth=0 p_watch="Astro23"
+  p_fixit="Minimum" p_disturbFixFactor=0.1 p_disturbMode="Log"
+  p_colorby="Fiximum Distance" p_numIterMode="Normal" p_trapMode="None"
+  p_lowerTrap=1 p_upperTrap=2 p_skipMode="None" p_skipConst=3
+  p_startDistortion="#z" p_minMax=no p_xWaveMode="None" p_yWaveMode="None"
+  p_xWaveFreq=1 p_yWaveFreq=1 p_xWaveWeight=1 p_yWaveWeight=1
+  p_xWaveConst=0 p_yWaveConst=0 p_xWaveOffset=0 p_yWaveOffset=0
+  p_xWaveExp=1 p_yWaveEyp=1 p_wavesLoop=1 p_wavesLoopMode="Static"
+  p_wavesGrowFreq=1 p_rotDegree=0 p_rotCentre=0/0 p_zJouk=0/0
+  p_vectorJouk=0/0 p_curveJouk=0/0 p_coord="Rectangular" p_coordLoop=1
+  p_coordMode="Static" p_lattice="None" p_lattFac1=1/0 p_lattFac2=1/0
+  p_lattOffset=0/0 p_colour_limit=0 p_init_z="Always New" p_globalScale=0
+  p_globalDither=0 p_shape="None" p_radius=0.5 p_inner_scale=3
+  p_inner_amount=0 p_d_randomness=0 p_turnMode=no p_turnScale=1
+  p_turnScaleMode="Round" p_corte1=4 p_corte2=2 p_barnMode="None"
+  p_barnScale=0 p_barnScaleMode="Round" p_barnSeed=0.6/1.1 p_barnShift=1
+  p_disturb_fbm=0 p_disturb_fbm_mode="Sum only" p_disturb_fbm_apply="Pixel"
+  p_disturb_fbm_scale=1 p_disturb_fbm_octaves=9 p_disturb_fbm_lattice=no
+  p_l_randomness=0 p_txtr_verlauf_Line1=0/0 p_txtr_verlauf_Line2=1/1
+  p_txtr_verlauf_exponent=1.5 p_txtr_verlauf_Rot=0
+  p_txtr_verlauf_RotCentre=0/0 p_f_randomness=0 p_f_rand_verlaufMode="None"
+  p_base4txtr="Z" p_reachThrough=no p_txtr_gnarl=0
+  p_f_Gnarl_verlaufMode="None" p_f_Gnarl_verlaufOffset=0
+  p_txtr_gnarl_lattice="Normal" p_txtr_gnarl_type="x" p_txtr_gnarl_scale=1
+  p_txtr_gnarl_size=1 p_txtr_gnarl_octaves=5 p_txtr_gnarl_limit=0
+  p_txtr_PopCorn=0 p_f_PopCorn_verlaufMode="None"
+  p_f_PopCorn_verlaufOffset=0 p_txtr_PopCorn_lattice="Normal"
+  p_txtr_PopCorn_type="x" p_txtr_PopCorn_scale=1 p_txtr_PopCorn_size=1
+  p_txtr_PopCorn_limit=0 p_txtr_PopCorn_octaves=5 p_txtr_SFBM=0
+  p_f_SFBM_verlaufMode="None" p_f_SFBM_verlaufOffset=0
+  p_txtr_SFBM_lattice="Normal" p_txtr_SFBM_mode="Raw... (Sam's)"
+  p_txtr_SFBM_scale=1 p_txtr_SFBM_scaledis="1/scale" p_txtr_SFBM_size=0.1
+  p_txtr_SFBM_magn=1.2 p_txtr_SFBM_limit=0 p_txtr_SFBM_rot=28
+  p_txtr_SFBM_power=1 p_txtr_SFBM_mod="Use sqrt(i)" p_txtr_SFBM_seed=123094
+  p_txtr_SFBM_octaves=5 p_txtr_Primes=0 p_f_Primes_verlaufMode="None"
+  p_f_Primes_verlaufOffset=0 p_txtr_Primes_lattice="Normal"
+  p_txtr_Primes_scale=1 p_txtr_Primes_size=0.5
+  p_txtr_primes_withFinalTrunc=yes p_txtr_primes_where2start=1
+  p_txtr_primes_lengthOfSnip=1 p_txtr_primes_Mode="Angel"
+  p_txtr_primes_limit=0 p_txtr_Gauss=0 p_f_Gauss_verlaufMode="None"
+  p_f_Gauss_verlaufOffset=0 p_txtr_Gauss_lattice="Normal"
+  p_txtr_Gauss_type="d" p_txtr_Gauss_scale=1 p_txtr_Gauss_size=1
+  p_txtr_Gauss_limit=0 p_txtr_Turn=0 p_f_Turn_verlaufMode="None"
+  p_f_Turn_verlaufOffset=0 p_txtr_Turn_lattice="Normal" p_txtr_Turn_scale=1
+  p_txtr_Turn_size=1 p_txtr_Turn_limit=0 p_txtr_Turn_corte1=4
+  p_txtr_Turn_corte2=2 p_txtr_Check=0 p_f_Check_verlaufMode="None"
+  p_f_Check_verlaufOffset=0 p_txtr_Check_scale=1 p_txtr_Checker=2
+  p_txtr_Check_test="Prod" p_txtr_Check_shape="Square"
+  p_txtr_Check_shConst=1 p_txtr_Check_col="Flag" p_txtr_Check_invert=no
+  p_txtr_Check_divide="None" p_txtr_Check_limit=0 p_txtr_Pick153=0
+  p_f_Pick153_verlaufMode="None" p_f_Pick153_verlaufOffset=0
+  p_txtr_Pick153_lattice="Normal" p_txtr_Pick153_scale=1 p_txtr_scale153=1
+  p_txtr_numOfTestsPick153=1 p_txtr_Pick153_col="Sum"
+  p_txtr_Pick153_limit=0 p_txtr_SumDiv=0 p_f_SumDiv_verlaufMode="None"
+  p_f_SumDiv_verlaufOffset=0 p_txtr_SumDiv_lattice="Normal"
+  p_txtr_SumDiv_scale=1 p_txtr_scaleSumDiv=1 p_txtr_SumDiv_col="Sum"
+  p_txtr_SumDiv_mode="Sum" p_txtr_SumDiv_limit=0 p_txtr_MLAB=0
+  p_f_MLAB_verlaufMode="None" p_f_MLAB_verlaufOffset=0
+  p_txtr_MLAB_lattice="Normal" p_txtr_MLAB_scale=1 p_txtr_MLAB_size=1
+  p_txtr_MLAB_limit=0 p_txtr_MLAB_scalo=1 p_txtr_MLAB_divi=4
+  p_txtr_MLAB_edge=0.8 p_txtr_MLAB_pro0=0.25/0.5 p_txtr_MLAB_pro1=0.75/1
+  p_txtr_MLAB_vari=1024 p_txtr_Banana=0 p_txtr_Banana_type="Original"
+  p_f_Banana_verlaufMode="None" p_f_Banana_verlaufOffset=0
+  p_txtr_Banana_lattice="Normal" p_txtr_Banana_scale=1 p_txtr_Banana_size=1
+  p_txtr_Banana_limit=0 p_txtr_Banana_scalo=1 p_txtr_Banana_divi=4
+  p_txtr_Banana_ratio=0.5/0.5 p_txtr_Banana_edge=0.8
+  p_txtr_Banana_itre="Continuous" p_txtr_Banana_otre="Continuous"
+  p_txtr_Banana_pro0=0.25/0.5 p_txtr_Banana_pro1=0.75/1
+  p_txtr_Banana_vari=1024 p_txtr_Banana_seed0=3779 p_txtr_Banana_seed1=9377
+  p_txtr_Ell=0 p_txtr_Ell_type="Magn Diff" p_f_Ell_verlaufMode="None"
+  p_f_Ell_verlaufOffset=0 p_txtr_Ell_lattice="Normal" p_txtr_Ell_scale=5
+  p_txtr_Ell_size=1 p_txtr_Ell_a=-1 p_txtr_Ell_b=-1 p_txtr_Ell_c=1
+  p_txtr_Ell_d=0 p_txtr_Ell_pseudo=yes p_txtr_Ell_pseudoMix=no
+  p_txtr_Ell_mixMode="Normal" p_txtr_Ell_limit=0 p_txtr_MedialCut=0
+  p_f_MedialCut_verlaufMode="None" p_f_MedialCut_verlaufOffset=0
+  p_txtr_MedialCut_lattice="Normal" p_txtr_MedialCut_type="Real"
+  p_txtr_MedialCut_watch="Diff" p_txtr_MedialCut_scale=1
+  p_txtr_MedialCut_size=1 p_txtr_MedialCut_calcScale=1
+  p_txtr_MedialCut_smooth=0.1 p_txtr_MedialCut_limit=0 p_masking="None"
+  p_maskType="Index" p_threshold_l=0.1 p_threshold_u=0.452 f_startFct=ident
+  f_fkt=ident f_barnFct1=flip f_barnFct2=flip
+gradient:
+  smooth=yes position=103 numnodes=3 index=86 color=10927304 index=201
+  color=42 index=360 color=42
+layer:
+  outsolid=14606046 outalpha=0 method=multipass caption="New Layer 3"
+  opacity=35 visible=yes alpha=yes mergemode=hsladd
+mapping:
+  center=-0.287881828498840332/0.592228307628631592 magn=1424.6273242601272
+  angle=0
+formula:
+  filename="Standard.ufm" entry="FastJulia" maxiter=250 percheck=off
+  p_Seed=0.55/-0.21875 p_Bailout=4
+inside:
+  transfer=none repeat=yes
+outside:
+  filename="akl-t-math.ucl" entry="akl-MedialSmooth" transfer=log
+  repeat=yes p_calculate="Angel" p_smooth=0 p_watch="Astro23"
+  p_fixit="Minimum" p_disturbFixFactor=0.1 p_disturbMode="Log"
+  p_colorby="Iterations" p_numIterMode="Normal" p_trapMode="None"
+  p_lowerTrap=1 p_upperTrap=2 p_skipMode="None" p_skipConst=3
+  p_startDistortion="#z" p_minMax=no p_xWaveMode="None" p_yWaveMode="None"
+  p_xWaveFreq=1 p_yWaveFreq=1 p_xWaveWeight=1 p_yWaveWeight=1
+  p_xWaveConst=0 p_yWaveConst=0 p_xWaveOffset=0 p_yWaveOffset=0
+  p_xWaveExp=1 p_yWaveEyp=1 p_wavesLoop=1 p_wavesLoopMode="Static"
+  p_wavesGrowFreq=1 p_rotDegree=0 p_rotCentre=0/0 p_zJouk=0/0
+  p_vectorJouk=0/0 p_curveJouk=0/0 p_coord="Rectangular" p_coordLoop=1
+  p_coordMode="Static" p_lattice="None" p_lattFac1=1/0 p_lattFac2=1/0
+  p_lattOffset=0/0 p_colour_limit=0 p_init_z="Always New" p_globalScale=0
+  p_globalDither=0 p_shape="None" p_radius=0.5 p_inner_scale=3
+  p_inner_amount=0 p_d_randomness=0 p_turnMode=no p_turnScale=1
+  p_turnScaleMode="Round" p_corte1=4 p_corte2=2 p_barnMode="None"
+  p_barnScale=0 p_barnScaleMode="Round" p_barnSeed=0.6/1.1 p_barnShift=1
+  p_disturb_fbm=0 p_disturb_fbm_mode="Sum only" p_disturb_fbm_apply="Pixel"
+  p_disturb_fbm_scale=1 p_disturb_fbm_octaves=9 p_disturb_fbm_lattice=no
+  p_l_randomness=0 p_txtr_verlauf_Line1=0/0 p_txtr_verlauf_Line2=1/1
+  p_txtr_verlauf_exponent=1.5 p_txtr_verlauf_Rot=0
+  p_txtr_verlauf_RotCentre=0/0 p_f_randomness=0 p_f_rand_verlaufMode="None"
+  p_base4txtr="Z" p_reachThrough=no p_txtr_gnarl=0
+  p_f_Gnarl_verlaufMode="None" p_f_Gnarl_verlaufOffset=0
+  p_txtr_gnarl_lattice="Normal" p_txtr_gnarl_type="x" p_txtr_gnarl_scale=1
+  p_txtr_gnarl_size=1 p_txtr_gnarl_octaves=5 p_txtr_gnarl_limit=0
+  p_txtr_PopCorn=0 p_f_PopCorn_verlaufMode="None"
+  p_f_PopCorn_verlaufOffset=0 p_txtr_PopCorn_lattice="Normal"
+  p_txtr_PopCorn_type="x" p_txtr_PopCorn_scale=1 p_txtr_PopCorn_size=1
+  p_txtr_PopCorn_limit=0 p_txtr_PopCorn_octaves=5 p_txtr_SFBM=0
+  p_f_SFBM_verlaufMode="None" p_f_SFBM_verlaufOffset=0
+  p_txtr_SFBM_lattice="Normal" p_txtr_SFBM_mode="Raw... (Sam's)"
+  p_txtr_SFBM_scale=1 p_txtr_SFBM_scaledis="1/scale" p_txtr_SFBM_size=0.1
+  p_txtr_SFBM_magn=1.2 p_txtr_SFBM_limit=0 p_txtr_SFBM_rot=28
+  p_txtr_SFBM_power=1 p_txtr_SFBM_mod="Use sqrt(i)" p_txtr_SFBM_seed=123094
+  p_txtr_SFBM_octaves=5 p_txtr_Primes=0 p_f_Primes_verlaufMode="None"
+  p_f_Primes_verlaufOffset=0 p_txtr_Primes_lattice="Normal"
+  p_txtr_Primes_scale=1 p_txtr_Primes_size=0.5
+  p_txtr_primes_withFinalTrunc=yes p_txtr_primes_where2start=1
+  p_txtr_primes_lengthOfSnip=1 p_txtr_primes_Mode="Angel"
+  p_txtr_primes_limit=0 p_txtr_Gauss=0 p_f_Gauss_verlaufMode="None"
+  p_f_Gauss_verlaufOffset=0 p_txtr_Gauss_lattice="Normal"
+  p_txtr_Gauss_type="d" p_txtr_Gauss_scale=1 p_txtr_Gauss_size=1
+  p_txtr_Gauss_limit=0 p_txtr_Turn=0 p_f_Turn_verlaufMode="None"
+  p_f_Turn_verlaufOffset=0 p_txtr_Turn_lattice="Normal" p_txtr_Turn_scale=1
+  p_txtr_Turn_size=1 p_txtr_Turn_limit=0 p_txtr_Turn_corte1=4
+  p_txtr_Turn_corte2=2 p_txtr_Check=0 p_f_Check_verlaufMode="None"
+  p_f_Check_verlaufOffset=0 p_txtr_Check_scale=1 p_txtr_Checker=2
+  p_txtr_Check_test="Prod" p_txtr_Check_shape="Square"
+  p_txtr_Check_shConst=1 p_txtr_Check_col="Flag" p_txtr_Check_invert=no
+  p_txtr_Check_divide="None" p_txtr_Check_limit=0 p_txtr_Pick153=0
+  p_f_Pick153_verlaufMode="None" p_f_Pick153_verlaufOffset=0
+  p_txtr_Pick153_lattice="Normal" p_txtr_Pick153_scale=1 p_txtr_scale153=1
+  p_txtr_numOfTestsPick153=1 p_txtr_Pick153_col="Sum"
+  p_txtr_Pick153_limit=0 p_txtr_SumDiv=0 p_f_SumDiv_verlaufMode="None"
+  p_f_SumDiv_verlaufOffset=0 p_txtr_SumDiv_lattice="Normal"
+  p_txtr_SumDiv_scale=1 p_txtr_scaleSumDiv=1 p_txtr_SumDiv_col="Sum"
+  p_txtr_SumDiv_mode="Sum" p_txtr_SumDiv_limit=0 p_txtr_MLAB=0
+  p_f_MLAB_verlaufMode="None" p_f_MLAB_verlaufOffset=0
+  p_txtr_MLAB_lattice="Normal" p_txtr_MLAB_scale=1 p_txtr_MLAB_size=1
+  p_txtr_MLAB_limit=0 p_txtr_MLAB_scalo=1 p_txtr_MLAB_divi=4
+  p_txtr_MLAB_edge=0.8 p_txtr_MLAB_pro0=0.25/0.5 p_txtr_MLAB_pro1=0.75/1
+  p_txtr_MLAB_vari=1024 p_txtr_Banana=2 p_txtr_Banana_type="Ori/Polyominos"
+  p_f_Banana_verlaufMode="None" p_f_Banana_verlaufOffset=0
+  p_txtr_Banana_lattice="Normal" p_txtr_Banana_scale=5 p_txtr_Banana_size=1
+  p_txtr_Banana_limit=0 p_txtr_Banana_scalo=1 p_txtr_Banana_divi=4
+  p_txtr_Banana_ratio=0.5/0.5 p_txtr_Banana_edge=0.8
+  p_txtr_Banana_itre="Continuous" p_txtr_Banana_otre="Continuous"
+  p_txtr_Banana_pro0=0.25/0.5 p_txtr_Banana_pro1=0.75/1
+  p_txtr_Banana_vari=1024 p_txtr_Banana_seed0=3779 p_txtr_Banana_seed1=9377
+  p_txtr_Ell=0 p_txtr_Ell_type="Magn Diff" p_f_Ell_verlaufMode="None"
+  p_f_Ell_verlaufOffset=0 p_txtr_Ell_lattice="Normal" p_txtr_Ell_scale=1
+  p_txtr_Ell_size=1 p_txtr_Ell_a=-1 p_txtr_Ell_b=-1 p_txtr_Ell_c=1
+  p_txtr_Ell_d=0 p_txtr_Ell_pseudo=yes p_txtr_Ell_pseudoMix=no
+  p_txtr_Ell_mixMode="Normal" p_txtr_Ell_limit=0 p_txtr_MedialCut=0
+  p_f_MedialCut_verlaufMode="None" p_f_MedialCut_verlaufOffset=0
+  p_txtr_MedialCut_lattice="Normal" p_txtr_MedialCut_type="Real"
+  p_txtr_MedialCut_watch="Diff" p_txtr_MedialCut_scale=1
+  p_txtr_MedialCut_size=1 p_txtr_MedialCut_calcScale=1
+  p_txtr_MedialCut_smooth=0.1 p_txtr_MedialCut_limit=0 p_masking="Lower"
+  p_maskType="Index" p_threshold_l=11 p_threshold_u=1 f_startFct=ident
+  f_fkt=ident f_barnFct1=flip f_barnFct2=flip
+gradient:
+  smooth=no position=47 numnodes=20 index=0 color=269976 index=1 color=0
+  index=2 color=271003 index=43 color=301274 index=63 color=1097709
+  index=82 color=2212852 index=101 color=3516144 index=135 color=6243023
+  index=157 color=7868077 index=174 color=8978573 index=193 color=9769065
+  index=220 color=10310714 index=249 color=9807890 index=267 color=9093637
+  index=284 color=8044800 index=302 color=6660101 index=335 color=4014118
+  index=357 color=2362696 index=376 color=1179755 index=393 color=463500
+layer:
+  method=multipass caption="New Layer 1" opacity=100 visible=yes alpha=no
+  mergemode=color
+mapping:
+  center=-0.287881828498840332/0.592228307628631592 magn=1424.6273242601272
+  angle=0
+formula:
+  filename="Standard.ufm" entry="FastJulia" maxiter=250 percheck=off
+  p_Seed=0.55/-0.21875 p_Bailout=4
+inside:
+  transfer=none repeat=yes
+outside:
+  filename="akl-t-math.ucl" entry="akl-MedialSmooth" transfer=log
+  repeat=yes p_calculate="Angel" p_smooth=0 p_watch="Astro23"
+  p_fixit="Minimum" p_disturbFixFactor=0.1 p_disturbMode="Log"
+  p_colorby="Iterations" p_numIterMode="Normal" p_trapMode="None"
+  p_lowerTrap=1 p_upperTrap=2 p_skipMode="None" p_skipConst=3
+  p_startDistortion="#z" p_minMax=no p_xWaveMode="None" p_yWaveMode="None"
+  p_xWaveFreq=1 p_yWaveFreq=1 p_xWaveWeight=1 p_yWaveWeight=1
+  p_xWaveConst=0 p_yWaveConst=0 p_xWaveOffset=0 p_yWaveOffset=0
+  p_xWaveExp=1 p_yWaveEyp=1 p_wavesLoop=1 p_wavesLoopMode="Static"
+  p_wavesGrowFreq=1 p_rotDegree=0 p_rotCentre=0/0 p_zJouk=0/0
+  p_vectorJouk=0/0 p_curveJouk=0/0 p_coord="Rectangular" p_coordLoop=1
+  p_coordMode="Static" p_lattice="None" p_lattFac1=1/0 p_lattFac2=1/0
+  p_lattOffset=0/0 p_colour_limit=0 p_init_z="Always New" p_globalScale=0
+  p_globalDither=0 p_shape="None" p_radius=0.5 p_inner_scale=3
+  p_inner_amount=0 p_d_randomness=0 p_turnMode=no p_turnScale=1
+  p_turnScaleMode="Round" p_corte1=4 p_corte2=2 p_barnMode="None"
+  p_barnScale=0 p_barnScaleMode="Round" p_barnSeed=0.6/1.1 p_barnShift=1
+  p_disturb_fbm=0 p_disturb_fbm_mode="fBm Pix*Angle"
+  p_disturb_fbm_apply="Pixel" p_disturb_fbm_scale=100
+  p_disturb_fbm_octaves=9 p_disturb_fbm_lattice=no p_l_randomness=0
+  p_txtr_verlauf_Line1=-0.289517924499511719/0.591151650905609131
+  p_txtr_verlauf_Line2=-0.286483230304718018/0.593294408893585205
+  p_txtr_verlauf_exponent=1.5 p_txtr_verlauf_Rot=0
+  p_txtr_verlauf_RotCentre=0/0 p_f_randomness=0 p_f_rand_verlaufMode="None"
+  p_base4txtr="Z" p_reachThrough=no p_txtr_gnarl=0
+  p_f_Gnarl_verlaufMode="None" p_f_Gnarl_verlaufOffset=0
+  p_txtr_gnarl_lattice="Normal" p_txtr_gnarl_type="x" p_txtr_gnarl_scale=1
+  p_txtr_gnarl_size=1 p_txtr_gnarl_octaves=5 p_txtr_gnarl_limit=0
+  p_txtr_PopCorn=0 p_f_PopCorn_verlaufMode="None"
+  p_f_PopCorn_verlaufOffset=0 p_txtr_PopCorn_lattice="Normal"
+  p_txtr_PopCorn_type="x" p_txtr_PopCorn_scale=1 p_txtr_PopCorn_size=1
+  p_txtr_PopCorn_limit=0 p_txtr_PopCorn_octaves=5 p_txtr_SFBM=1
+  p_f_SFBM_verlaufMode="Bottom to Top" p_f_SFBM_verlaufOffset=0
+  p_txtr_SFBM_lattice="None" p_txtr_SFBM_mode="Raw... (Sam's)"
+  p_txtr_SFBM_scale=0.1 p_txtr_SFBM_scaledis="1/scale" p_txtr_SFBM_size=0.1
+  p_txtr_SFBM_magn=1.2 p_txtr_SFBM_limit=0 p_txtr_SFBM_rot=28
+  p_txtr_SFBM_power=1 p_txtr_SFBM_mod="Use sqrt(i)" p_txtr_SFBM_seed=123094
+  p_txtr_SFBM_octaves=5 p_txtr_Primes=0 p_f_Primes_verlaufMode="None"
+  p_f_Primes_verlaufOffset=0 p_txtr_Primes_lattice="Normal"
+  p_txtr_Primes_scale=1 p_txtr_Primes_size=0.5
+  p_txtr_primes_withFinalTrunc=yes p_txtr_primes_where2start=1
+  p_txtr_primes_lengthOfSnip=1 p_txtr_primes_Mode="Angel"
+  p_txtr_primes_limit=0 p_txtr_Gauss=0 p_f_Gauss_verlaufMode="None"
+  p_f_Gauss_verlaufOffset=0 p_txtr_Gauss_lattice="Normal"
+  p_txtr_Gauss_type="d" p_txtr_Gauss_scale=1 p_txtr_Gauss_size=1
+  p_txtr_Gauss_limit=0 p_txtr_Turn=0 p_f_Turn_verlaufMode="None"
+  p_f_Turn_verlaufOffset=0 p_txtr_Turn_lattice="Normal" p_txtr_Turn_scale=1
+  p_txtr_Turn_size=1 p_txtr_Turn_limit=0 p_txtr_Turn_corte1=4
+  p_txtr_Turn_corte2=2 p_txtr_Check=0 p_f_Check_verlaufMode="None"
+  p_f_Check_verlaufOffset=0 p_txtr_Check_scale=1 p_txtr_Checker=2
+  p_txtr_Check_test="Prod" p_txtr_Check_shape="Square"
+  p_txtr_Check_shConst=1 p_txtr_Check_col="Flag" p_txtr_Check_invert=no
+  p_txtr_Check_divide="None" p_txtr_Check_limit=0 p_txtr_Pick153=0
+  p_f_Pick153_verlaufMode="None" p_f_Pick153_verlaufOffset=0
+  p_txtr_Pick153_lattice="Normal" p_txtr_Pick153_scale=1 p_txtr_scale153=1
+  p_txtr_numOfTestsPick153=1 p_txtr_Pick153_col="Sum"
+  p_txtr_Pick153_limit=0 p_txtr_SumDiv=0 p_f_SumDiv_verlaufMode="None"
+  p_f_SumDiv_verlaufOffset=0 p_txtr_SumDiv_lattice="Normal"
+  p_txtr_SumDiv_scale=1 p_txtr_scaleSumDiv=1 p_txtr_SumDiv_col="Sum"
+  p_txtr_SumDiv_mode="Sum" p_txtr_SumDiv_limit=0 p_txtr_MLAB=0
+  p_f_MLAB_verlaufMode="None" p_f_MLAB_verlaufOffset=0
+  p_txtr_MLAB_lattice="Normal" p_txtr_MLAB_scale=1 p_txtr_MLAB_size=1
+  p_txtr_MLAB_limit=0 p_txtr_MLAB_scalo=1 p_txtr_MLAB_divi=4
+  p_txtr_MLAB_edge=0.8 p_txtr_MLAB_pro0=0.25/0.5 p_txtr_MLAB_pro1=0.75/1
+  p_txtr_MLAB_vari=1024 p_txtr_Banana=0 p_txtr_Banana_type="Original"
+  p_f_Banana_verlaufMode="None" p_f_Banana_verlaufOffset=0
+  p_txtr_Banana_lattice="Normal" p_txtr_Banana_scale=1 p_txtr_Banana_size=1
+  p_txtr_Banana_limit=0 p_txtr_Banana_scalo=1 p_txtr_Banana_divi=4
+  p_txtr_Banana_ratio=0.5/0.5 p_txtr_Banana_edge=0.8
+  p_txtr_Banana_itre="Continuous" p_txtr_Banana_otre="Continuous"
+  p_txtr_Banana_pro0=0.25/0.5 p_txtr_Banana_pro1=0.75/1
+  p_txtr_Banana_vari=1024 p_txtr_Banana_seed0=3779 p_txtr_Banana_seed1=9377
+  p_txtr_Ell=0 p_txtr_Ell_type="Magn Diff" p_f_Ell_verlaufMode="None"
+  p_f_Ell_verlaufOffset=0 p_txtr_Ell_lattice="Normal" p_txtr_Ell_scale=1
+  p_txtr_Ell_size=1 p_txtr_Ell_a=-1 p_txtr_Ell_b=-1 p_txtr_Ell_c=1
+  p_txtr_Ell_d=0 p_txtr_Ell_pseudo=yes p_txtr_Ell_pseudoMix=no
+  p_txtr_Ell_mixMode="Normal" p_txtr_Ell_limit=0 p_txtr_MedialCut=0.1
+  p_f_MedialCut_verlaufMode="Top to Bottom" p_f_MedialCut_verlaufOffset=0
+  p_txtr_MedialCut_lattice="Normal" p_txtr_MedialCut_type="Real"
+  p_txtr_MedialCut_watch="Diff" p_txtr_MedialCut_scale=0.1
+  p_txtr_MedialCut_size=1 p_txtr_MedialCut_calcScale=1
+  p_txtr_MedialCut_smooth=0.1 p_txtr_MedialCut_limit=10 p_masking="None"
+  p_maskType="Index" p_threshold_l=0.5 p_threshold_u=1 f_startFct=ident
+  f_fkt=ident f_barnFct1=flip f_barnFct2=flip
+gradient:
+  smooth=no position=-163 numnodes=20 index=0 color=269976 index=1 color=0
+  index=2 color=271003 index=43 color=301274 index=63 color=1097709
+  index=82 color=2212852 index=101 color=3516144 index=135 color=6243023
+  index=157 color=7868077 index=174 color=8978573 index=193 color=9769065
+  index=220 color=10310714 index=249 color=9807890 index=267 color=9093637
+  index=284 color=8044800 index=302 color=6660101 index=335 color=4014118
+  index=357 color=2362696 index=376 color=1179755 index=393 color=463500
+layer:
+  method=multipass caption="Layer 1" opacity=80 visible=yes alpha=no
+  mergemode=hsladd
+mapping:
+  center=-0.287881828498840332/0.592228307628631592 magn=1424.6273242601272
+  angle=0
+formula:
+  filename="Standard.ufm" entry="FastJulia" maxiter=250 percheck=off
+  p_Seed=0.55/-0.21875 p_Bailout=4
+inside:
+  transfer=none repeat=yes
+outside:
+  filename="akl-t-math.ucl" entry="akl-MedialSmooth" transfer=cuberoot
+  repeat=yes p_calculate="Real" p_smooth=0 p_watch="Diff2"
+  p_fixit="Minimum" p_disturbFixFactor=0 p_disturbMode="Log"
+  p_colorby="Fiximum Distance" p_numIterMode="Normal" p_trapMode="None"
+  p_lowerTrap=1 p_upperTrap=2 p_skipMode="None" p_skipConst=3
+  p_startDistortion="#z" p_minMax=no p_xWaveMode="None" p_yWaveMode="None"
+  p_xWaveFreq=1 p_yWaveFreq=1 p_xWaveWeight=1 p_yWaveWeight=1
+  p_xWaveConst=0 p_yWaveConst=0 p_xWaveOffset=0 p_yWaveOffset=0
+  p_xWaveExp=1 p_yWaveEyp=1 p_wavesLoop=1 p_wavesLoopMode="Static"
+  p_wavesGrowFreq=1 p_rotDegree=0 p_rotCentre=0/0 p_zJouk=0/0
+  p_vectorJouk=0/0 p_curveJouk=0/0 p_coord="Rectangular" p_coordLoop=1
+  p_coordMode="Static" p_lattice="None" p_lattFac1=1/0 p_lattFac2=1/0
+  p_lattOffset=0/0 p_colour_limit=0 p_init_z="Always New" p_globalScale=0
+  p_globalDither=0 p_shape="None" p_radius=0.5 p_inner_scale=3
+  p_inner_amount=0 p_d_randomness=0 p_turnMode=no p_turnScale=1
+  p_turnScaleMode="Round" p_corte1=4 p_corte2=2 p_barnMode="None"
+  p_barnScale=0 p_barnScaleMode="Round" p_barnSeed=0.6/1.1 p_barnShift=1
+  p_disturb_fbm=0.1 p_disturb_fbm_mode="fBm Pix*Angle"
+  p_disturb_fbm_apply="Pixel" p_disturb_fbm_scale=100
+  p_disturb_fbm_octaves=9 p_disturb_fbm_lattice=no p_l_randomness=0
+  p_txtr_verlauf_Line1=0/0 p_txtr_verlauf_Line2=1/1
+  p_txtr_verlauf_exponent=1.5 p_txtr_verlauf_Rot=0
+  p_txtr_verlauf_RotCentre=0/0 p_f_randomness=0 p_f_rand_verlaufMode="None"
+  p_base4txtr="Z" p_reachThrough=no p_txtr_gnarl=0
+  p_f_Gnarl_verlaufMode="None" p_f_Gnarl_verlaufOffset=0
+  p_txtr_gnarl_lattice="Normal" p_txtr_gnarl_type="x" p_txtr_gnarl_scale=1
+  p_txtr_gnarl_size=1 p_txtr_gnarl_octaves=5 p_txtr_gnarl_limit=0
+  p_txtr_PopCorn=0 p_f_PopCorn_verlaufMode="None"
+  p_f_PopCorn_verlaufOffset=0 p_txtr_PopCorn_lattice="Normal"
+  p_txtr_PopCorn_type="x" p_txtr_PopCorn_scale=1 p_txtr_PopCorn_size=1
+  p_txtr_PopCorn_limit=0 p_txtr_PopCorn_octaves=5 p_txtr_SFBM=0
+  p_f_SFBM_verlaufMode="None" p_f_SFBM_verlaufOffset=0
+  p_txtr_SFBM_lattice="Normal" p_txtr_SFBM_mode="Raw... (Sam's)"
+  p_txtr_SFBM_scale=1 p_txtr_SFBM_scaledis="1/scale" p_txtr_SFBM_size=0.1
+  p_txtr_SFBM_magn=1.2 p_txtr_SFBM_limit=0 p_txtr_SFBM_rot=28
+  p_txtr_SFBM_power=1 p_txtr_SFBM_mod="Use sqrt(i)" p_txtr_SFBM_seed=123094
+  p_txtr_SFBM_octaves=5 p_txtr_Primes=0 p_f_Primes_verlaufMode="None"
+  p_f_Primes_verlaufOffset=0 p_txtr_Primes_lattice="Normal"
+  p_txtr_Primes_scale=1 p_txtr_Primes_size=0.5
+  p_txtr_primes_withFinalTrunc=yes p_txtr_primes_where2start=1
+  p_txtr_primes_lengthOfSnip=1 p_txtr_primes_Mode="Angel"
+  p_txtr_primes_limit=0 p_txtr_Gauss=0 p_f_Gauss_verlaufMode="None"
+  p_f_Gauss_verlaufOffset=0 p_txtr_Gauss_lattice="Normal"
+  p_txtr_Gauss_type="d" p_txtr_Gauss_scale=1 p_txtr_Gauss_size=1
+  p_txtr_Gauss_limit=0 p_txtr_Turn=0 p_f_Turn_verlaufMode="None"
+  p_f_Turn_verlaufOffset=0 p_txtr_Turn_lattice="Normal" p_txtr_Turn_scale=1
+  p_txtr_Turn_size=1 p_txtr_Turn_limit=0 p_txtr_Turn_corte1=4
+  p_txtr_Turn_corte2=2 p_txtr_Check=0 p_f_Check_verlaufMode="None"
+  p_f_Check_verlaufOffset=0 p_txtr_Check_scale=1 p_txtr_Checker=2
+  p_txtr_Check_test="Prod" p_txtr_Check_shape="Square"
+  p_txtr_Check_shConst=1 p_txtr_Check_col="Flag" p_txtr_Check_invert=no
+  p_txtr_Check_divide="None" p_txtr_Check_limit=0 p_txtr_Pick153=0
+  p_f_Pick153_verlaufMode="None" p_f_Pick153_verlaufOffset=0
+  p_txtr_Pick153_lattice="Normal" p_txtr_Pick153_scale=1 p_txtr_scale153=1
+  p_txtr_numOfTestsPick153=1 p_txtr_Pick153_col="Sum"
+  p_txtr_Pick153_limit=0 p_txtr_SumDiv=0 p_f_SumDiv_verlaufMode="None"
+  p_f_SumDiv_verlaufOffset=0 p_txtr_SumDiv_lattice="Normal"
+  p_txtr_SumDiv_scale=1 p_txtr_scaleSumDiv=1 p_txtr_SumDiv_col="Sum"
+  p_txtr_SumDiv_mode="Sum" p_txtr_SumDiv_limit=0 p_txtr_MLAB=0
+  p_f_MLAB_verlaufMode="None" p_f_MLAB_verlaufOffset=0
+  p_txtr_MLAB_lattice="Normal" p_txtr_MLAB_scale=1 p_txtr_MLAB_size=1
+  p_txtr_MLAB_limit=0 p_txtr_MLAB_scalo=1 p_txtr_MLAB_divi=4
+  p_txtr_MLAB_edge=0.8 p_txtr_MLAB_pro0=0.25/0.5 p_txtr_MLAB_pro1=0.75/1
+  p_txtr_MLAB_vari=1024 p_txtr_Banana=0 p_txtr_Banana_type="Original"
+  p_f_Banana_verlaufMode="None" p_f_Banana_verlaufOffset=0
+  p_txtr_Banana_lattice="Normal" p_txtr_Banana_scale=1 p_txtr_Banana_size=1
+  p_txtr_Banana_limit=0 p_txtr_Banana_scalo=1 p_txtr_Banana_divi=4
+  p_txtr_Banana_ratio=0.5/0.5 p_txtr_Banana_edge=0.8
+  p_txtr_Banana_itre="Continuous" p_txtr_Banana_otre="Continuous"
+  p_txtr_Banana_pro0=0.25/0.5 p_txtr_Banana_pro1=0.75/1
+  p_txtr_Banana_vari=1024 p_txtr_Banana_seed0=3779 p_txtr_Banana_seed1=9377
+  p_txtr_Ell=0 p_txtr_Ell_type="Magn Diff" p_f_Ell_verlaufMode="None"
+  p_f_Ell_verlaufOffset=0 p_txtr_Ell_lattice="Normal" p_txtr_Ell_scale=1
+  p_txtr_Ell_size=1 p_txtr_Ell_a=-1 p_txtr_Ell_b=-1 p_txtr_Ell_c=1
+  p_txtr_Ell_d=0 p_txtr_Ell_pseudo=yes p_txtr_Ell_pseudoMix=no
+  p_txtr_Ell_mixMode="Normal" p_txtr_Ell_limit=0 p_txtr_MedialCut=0
+  p_f_MedialCut_verlaufMode="None" p_f_MedialCut_verlaufOffset=0
+  p_txtr_MedialCut_lattice="Normal" p_txtr_MedialCut_type="Real"
+  p_txtr_MedialCut_watch="Diff" p_txtr_MedialCut_scale=1
+  p_txtr_MedialCut_size=1 p_txtr_MedialCut_calcScale=1
+  p_txtr_MedialCut_smooth=0.1 p_txtr_MedialCut_limit=0 p_masking="None"
+  p_maskType="Index" p_threshold_l=0.5 p_threshold_u=1 f_startFct=ident
+  f_fkt=ident f_barnFct1=flip f_barnFct2=flip
+gradient:
+  smooth=no position=-128 numnodes=20 index=7 color=301274 index=27
+  color=1097709 index=46 color=2212852 index=65 color=3516144 index=99
+  color=6243023 index=121 color=7868077 index=138 color=8978573 index=157
+  color=9769065 index=184 color=10310714 index=213 color=9807890 index=231
+  color=9093637 index=248 color=8044800 index=266 color=6660101 index=299
+  color=4014118 index=321 color=2362696 index=340 color=1179755 index=357
+  color=463500 index=364 color=269976 index=365 color=0 index=366
+  color=271003
+layer:
+  method=multipass caption="New Layer 4" opacity=100 visible=yes alpha=no
+  mergemode=difference
+mapping:
+  center=-0.287881828498840332/0.592228307628631592 magn=1424.6273242601272
+  angle=0
+formula:
+  filename="Standard.ufm" entry="FastJulia" maxiter=250 percheck=off
+  p_Seed=0.55/-0.21875 p_Bailout=4
+inside:
+  transfer=none repeat=yes
+outside:
+  filename="akl-t-math.ucl" entry="akl-MedialSmooth" transfer=log
+  repeat=yes p_calculate="Angel" p_smooth=0 p_watch="Astro23"
+  p_fixit="Minimum" p_disturbFixFactor=0.1 p_disturbMode="Log"
+  p_colorby="Fiximum Distance" p_numIterMode="Normal" p_trapMode="None"
+  p_lowerTrap=1 p_upperTrap=2 p_skipMode="None" p_skipConst=3
+  p_startDistortion="#z" p_minMax=no p_xWaveMode="None" p_yWaveMode="None"
+  p_xWaveFreq=1 p_yWaveFreq=1 p_xWaveWeight=1 p_yWaveWeight=1
+  p_xWaveConst=0 p_yWaveConst=0 p_xWaveOffset=0 p_yWaveOffset=0
+  p_xWaveExp=1 p_yWaveEyp=1 p_wavesLoop=1 p_wavesLoopMode="Static"
+  p_wavesGrowFreq=1 p_rotDegree=0 p_rotCentre=0/0 p_zJouk=0/0
+  p_vectorJouk=0/0 p_curveJouk=0/0 p_coord="Rectangular" p_coordLoop=1
+  p_coordMode="Static" p_lattice="None" p_lattFac1=1/0 p_lattFac2=1/0
+  p_lattOffset=0/0 p_colour_limit=0 p_init_z="Always New" p_globalScale=0
+  p_globalDither=0 p_shape="None" p_radius=0.5 p_inner_scale=3
+  p_inner_amount=0 p_d_randomness=0 p_turnMode=yes p_turnScale=50
+  p_turnScaleMode="Round" p_corte1=4 p_corte2=2 p_barnMode="None"
+  p_barnScale=0 p_barnScaleMode="Round" p_barnSeed=0.6/1.1 p_barnShift=1
+  p_disturb_fbm=0 p_disturb_fbm_mode="Sum only" p_disturb_fbm_apply="Pixel"
+  p_disturb_fbm_scale=1 p_disturb_fbm_octaves=9 p_disturb_fbm_lattice=no
+  p_l_randomness=0 p_txtr_verlauf_Line1=0/0 p_txtr_verlauf_Line2=1/1
+  p_txtr_verlauf_exponent=1.5 p_txtr_verlauf_Rot=0
+  p_txtr_verlauf_RotCentre=0/0 p_f_randomness=0.05
+  p_f_rand_verlaufMode="None" p_base4txtr="Z" p_reachThrough=no
+  p_txtr_gnarl=0 p_f_Gnarl_verlaufMode="None" p_f_Gnarl_verlaufOffset=0
+  p_txtr_gnarl_lattice="Normal" p_txtr_gnarl_type="x" p_txtr_gnarl_scale=1
+  p_txtr_gnarl_size=1 p_txtr_gnarl_octaves=5 p_txtr_gnarl_limit=0
+  p_txtr_PopCorn=0 p_f_PopCorn_verlaufMode="None"
+  p_f_PopCorn_verlaufOffset=0 p_txtr_PopCorn_lattice="Normal"
+  p_txtr_PopCorn_type="x" p_txtr_PopCorn_scale=1 p_txtr_PopCorn_size=1
+  p_txtr_PopCorn_limit=0 p_txtr_PopCorn_octaves=5 p_txtr_SFBM=0
+  p_f_SFBM_verlaufMode="None" p_f_SFBM_verlaufOffset=0
+  p_txtr_SFBM_lattice="Normal" p_txtr_SFBM_mode="Raw... (Sam's)"
+  p_txtr_SFBM_scale=1 p_txtr_SFBM_scaledis="1/scale" p_txtr_SFBM_size=0.1
+  p_txtr_SFBM_magn=1.2 p_txtr_SFBM_limit=0 p_txtr_SFBM_rot=28
+  p_txtr_SFBM_power=1 p_txtr_SFBM_mod="Use sqrt(i)" p_txtr_SFBM_seed=123094
+  p_txtr_SFBM_octaves=5 p_txtr_Primes=0 p_f_Primes_verlaufMode="None"
+  p_f_Primes_verlaufOffset=0 p_txtr_Primes_lattice="Normal"
+  p_txtr_Primes_scale=1 p_txtr_Primes_size=0.5
+  p_txtr_primes_withFinalTrunc=yes p_txtr_primes_where2start=1
+  p_txtr_primes_lengthOfSnip=1 p_txtr_primes_Mode="Angel"
+  p_txtr_primes_limit=0 p_txtr_Gauss=0 p_f_Gauss_verlaufMode="None"
+  p_f_Gauss_verlaufOffset=0 p_txtr_Gauss_lattice="Normal"
+  p_txtr_Gauss_type="d" p_txtr_Gauss_scale=1 p_txtr_Gauss_size=1
+  p_txtr_Gauss_limit=0 p_txtr_Turn=0 p_f_Turn_verlaufMode="None"
+  p_f_Turn_verlaufOffset=0 p_txtr_Turn_lattice="Normal" p_txtr_Turn_scale=1
+  p_txtr_Turn_size=1 p_txtr_Turn_limit=0 p_txtr_Turn_corte1=4
+  p_txtr_Turn_corte2=2 p_txtr_Check=0 p_f_Check_verlaufMode="None"
+  p_f_Check_verlaufOffset=0 p_txtr_Check_scale=1 p_txtr_Checker=2
+  p_txtr_Check_test="Prod" p_txtr_Check_shape="Square"
+  p_txtr_Check_shConst=1 p_txtr_Check_col="Flag" p_txtr_Check_invert=no
+  p_txtr_Check_divide="None" p_txtr_Check_limit=0 p_txtr_Pick153=0
+  p_f_Pick153_verlaufMode="None" p_f_Pick153_verlaufOffset=0
+  p_txtr_Pick153_lattice="Normal" p_txtr_Pick153_scale=1 p_txtr_scale153=1
+  p_txtr_numOfTestsPick153=1 p_txtr_Pick153_col="Sum"
+  p_txtr_Pick153_limit=0 p_txtr_SumDiv=0 p_f_SumDiv_verlaufMode="None"
+  p_f_SumDiv_verlaufOffset=0 p_txtr_SumDiv_lattice="Normal"
+  p_txtr_SumDiv_scale=1 p_txtr_scaleSumDiv=1 p_txtr_SumDiv_col="Sum"
+  p_txtr_SumDiv_mode="Sum" p_txtr_SumDiv_limit=0 p_txtr_MLAB=0
+  p_f_MLAB_verlaufMode="None" p_f_MLAB_verlaufOffset=0
+  p_txtr_MLAB_lattice="Normal" p_txtr_MLAB_scale=1 p_txtr_MLAB_size=1
+  p_txtr_MLAB_limit=0 p_txtr_MLAB_scalo=1 p_txtr_MLAB_divi=4
+  p_txtr_MLAB_edge=0.8 p_txtr_MLAB_pro0=0.25/0.5 p_txtr_MLAB_pro1=0.75/1
+  p_txtr_MLAB_vari=1024 p_txtr_Banana=0 p_txtr_Banana_type="Original"
+  p_f_Banana_verlaufMode="None" p_f_Banana_verlaufOffset=0
+  p_txtr_Banana_lattice="Normal" p_txtr_Banana_scale=1 p_txtr_Banana_size=1
+  p_txtr_Banana_limit=0 p_txtr_Banana_scalo=1 p_txtr_Banana_divi=4
+  p_txtr_Banana_ratio=0.5/0.5 p_txtr_Banana_edge=0.8
+  p_txtr_Banana_itre="Continuous" p_txtr_Banana_otre="Continuous"
+  p_txtr_Banana_pro0=0.25/0.5 p_txtr_Banana_pro1=0.75/1
+  p_txtr_Banana_vari=1024 p_txtr_Banana_seed0=3779 p_txtr_Banana_seed1=9377
+  p_txtr_Ell=0 p_txtr_Ell_type="Magn Diff" p_f_Ell_verlaufMode="None"
+  p_f_Ell_verlaufOffset=0 p_txtr_Ell_lattice="Normal" p_txtr_Ell_scale=5
+  p_txtr_Ell_size=1 p_txtr_Ell_a=-1 p_txtr_Ell_b=-1 p_txtr_Ell_c=1
+  p_txtr_Ell_d=0 p_txtr_Ell_pseudo=yes p_txtr_Ell_pseudoMix=no
+  p_txtr_Ell_mixMode="Normal" p_txtr_Ell_limit=0 p_txtr_MedialCut=0
+  p_f_MedialCut_verlaufMode="None" p_f_MedialCut_verlaufOffset=0
+  p_txtr_MedialCut_lattice="Normal" p_txtr_MedialCut_type="Real"
+  p_txtr_MedialCut_watch="Diff" p_txtr_MedialCut_scale=1
+  p_txtr_MedialCut_size=1 p_txtr_MedialCut_calcScale=1
+  p_txtr_MedialCut_smooth=0.1 p_txtr_MedialCut_limit=0 p_masking="None"
+  p_maskType="Index" p_threshold_l=0.1 p_threshold_u=0.452 f_startFct=ident
+  f_fkt=ident f_barnFct1=flip f_barnFct2=flip
+gradient:
+  smooth=yes position=100 numnodes=3 index=83 color=12372190 index=198
+  color=42 index=357 color=42
+}
+''')
+
+        self.assertIsValidParse(t1)
+                
     def testIfStatement(self):
         t1 = self.parse(self.makeMinimalFormula("if x==1\nx=2\nendif"))
         self.assertIsValidParse(t1)
