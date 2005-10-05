@@ -132,6 +132,38 @@ def urls_getUserPhotos(nsid):
     url = resp.getElementsByTagName("user")[0].getAttribute("url")
     return url
 
+def blogs_getList(token):
+    resp = makeSignedCall(
+        BASE_URL,
+        False,
+        api_key=API_KEY,
+        auth_token=token,
+        method="flickr.blogs.getList")
+
+    blogs = [ Blog(x) for x in resp.getElementsByTagName("blog")]
+    return blogs
+
+def blogs_postPhoto(blog,photo,title_,description_,token):
+    resp = makeSignedCall(
+        BASE_URL,
+        True,
+        api_key=API_KEY,
+        method="flickr.blogs.postPhoto",
+        auth_token=token,
+        blog_id=blog.id,
+        photo_id=photo,
+        title=title_,
+        description=description_)
+
+    return True
+
+class Blog:
+    def __init__(self,element):
+        self.id = element.getAttribute("id")
+        self.name = element.getAttribute("name")
+        self.needspassword = element.getAttribute("needspassword")
+        self.url = element.getAttribute("url")
+        
 class Token:
     def __init__(self,resp):
         self.token = resp.getElementsByTagName("token")[0].firstChild.nodeValue
@@ -166,7 +198,6 @@ def encode_multipart_formdata(fields, files, BOUNDARY = '-----'+mimetools.choose
         L.append('')
         L.append(value)
 
-    print "req", L
     for (key, filename, value) in files:
         filetype = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
         L.append('--' + BOUNDARY)

@@ -1,4 +1,7 @@
+#!/usr/bin/env python
 import re
+import base64
+import zlib
 
 ifdef_re = re.compile(r'\s*\$ifdef(\s+(?P<var>[a-z][a-z0-9_]*))?',
                       re.IGNORECASE)
@@ -10,6 +13,10 @@ define_re = re.compile(r'\s*\$define(\s+(?P<var>[a-z][a-z0-9_]*))?',
                        re.IGNORECASE)
 undef_re = re.compile(r'\s*\$undef(\s+(?P<var>[a-z][a-z0-9_]*))?',
                       re.IGNORECASE)
+
+compressed_re = re.compile(r'^::')
+
+uncompressed_re = re.compile(r'\}')
 
 class Error(Exception):
     def __init__(self,msg):
@@ -39,16 +46,41 @@ class T:
             return True
         else:
             return self.ifdef_stack[-1].isTrue
+
+    def decompress(self,lines):
+        out_lines = []
+        compressed = False
+        data = []
         
+        for line in lines:
+            if compressed_re.match(line):
+                compressed = True
+                line = compressed_re.sub("",line)
+
+            if compressed:
+                if uncompressed_re.match(line):
+                    compressed = False
+                    dc = base64.decodestring("".join(data))
+                    #chars = [ "%x" % ord(ch) for ch in dc]
+                    #out_lines.append("".join(chars))
+                    out_lines.append(dc)
+                    data = []
+                else:
+                    data.append(line.strip())
+            else:
+                out_lines.append(line)
+        return out_lines
+                
     def __init__(self, s):
         self.vars = {}
         lines = s.splitlines(True)
         self.ifdef_stack = []
         out_lines = []
         i = 1
-
+        lines = self.decompress(lines)
+        
         self.currently_true = True
-        for line in lines:
+        for line in lines:                
             pass_through = False
             #print self.ifdef_stack, self.currently_true, line,
             m = ifdef_re.match(line)
@@ -92,7 +124,7 @@ class T:
             else:
                 # cheesy way to get the line numbers to work out
                 out_lines.append("\n")
-                    
+
             i += 1
             
         if self.ifdef_stack != []:
@@ -103,4 +135,10 @@ class T:
         
     def out(self):
         return self._out
-    
+
+if __name__ == '__main__':
+    import sys
+    # Test it out
+    data = open(sys.argv[1],"r").read()
+    pp = T(data)
+    print pp.out()

@@ -18,6 +18,7 @@ bugs (the more B's, the worse the bug):
 * BB	fractint doesn't reset vars between calls
 * BB	crash with multiple threads on x86-64 (Paul Wayper)
 * BB	explorer rather slow with complex colorfuncs
+* B	flickr access should be threaded so UI doesn't hang
 * B	directories appear in colormap list
 * B	open other_maps/__readme.txt = index out of range
 * B	you can declare the same parameter twice
