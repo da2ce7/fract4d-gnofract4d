@@ -34,6 +34,23 @@ endif
 #index = angle / (2.0 * #pi)
 }
 
+biomorph {
+final:
+if |real(z)| < @zlimit || |imag(z)| < @zlimit
+	#solid = true
+else
+	float ed = @bailout/(|z| + 1.0e-9) 
+	#index = (#numiter + ed) / 256.0
+endif
+default:
+float param zlimit
+	default = 2.0
+endparam	
+float param bailout
+	default = 4.0
+endparam
+}
+
 decomposition {
 final:
 float quadrant = 0.0;

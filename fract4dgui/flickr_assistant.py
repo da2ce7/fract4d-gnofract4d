@@ -112,8 +112,13 @@ class FlickrUploadDialog(dialog.T):
         self.view_group_button = gtk.Button(_("View G_roup Fractals"))
         self.view_group_button.connect("clicked", self.onViewPool)
         table.attach(self.view_group_button, 1,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        self.blogs = self.get_blogs()
 
+        self.blog_menu = utils.create_option_menu(
+            [_("<None>")] + [b.name for b in self.blogs])
 
+        table.attach(self.blog_menu, 1,2,5,6,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        
     def onResponse(self,widget,id):
         self.hide()
 
@@ -121,6 +126,10 @@ class FlickrUploadDialog(dialog.T):
         buffer = self.description.get_buffer()
         return buffer.get_text(buffer.get_start_iter(),buffer.get_end_iter())
 
+    def get_blogs(self):
+        token = preferences.userPrefs.get("user_info", "flickr_token")
+        return flickr.blogs_getList(token)
+            
     def get_tags(self):
         formula_tag = FlickrUploadDialog.clean_formula_re.sub('',self.f.funcName)
         return "fractal gnofract4d %s %s" % (formula_tag,self.tags.get_text())
@@ -131,15 +140,23 @@ class FlickrUploadDialog(dialog.T):
 
         token = preferences.userPrefs.get("user_info", "flickr_token")
 
+        title_ = self.title_entry.get_text()
+        description_ = self.get_description()
         id = flickr.upload(
             filename,
             token,
-            title=self.title_entry.get_text(),
-            description=self.get_description(),
+            title=title_,
+            description=description_,
             tags=self.get_tags())
 
         flickr.groups_pools_add(id,token)
-        
+
+        selected_blog = utils.get_selected(self.blog_menu)
+        if selected_blog != 0:
+            blog = self.blogs[selected_blog-1]
+            flickr.blogs_postPhoto(
+                blog, id, title_,description_,token)
+
         #print id
 
     def onViewMy(self,widget):
