@@ -276,6 +276,10 @@ class Gradient:
         # each index is the left-hand end of the segment
         
         # each colorlist entry is mapped to a segment endpoint
+
+        if len(l) == 0:
+            raise Error("No colors found")
+        
         new_segments = []
         last_index = 0.0
         last_color = [0.0,0.0,0.0,1.0]
