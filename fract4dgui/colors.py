@@ -6,6 +6,7 @@ import copy
 
 import gtk
 import gobject
+import pango
 
 import dialog
 import utils
@@ -38,9 +39,10 @@ class ColorModel:
 
         files = os.listdir(dirname)
         for f in files:
-            if not os.path.isfile:
-                continue
             absfile = os.path.join(dirname,f)
+            if not os.path.isfile(absfile):
+                continue
+
             (name,ext) = os.path.splitext(absfile)
             if self.maps.get(f):
                 continue # avoid duplicates
@@ -81,6 +83,7 @@ class ColorDialog(dialog.T):
         self.f = f
         self.fudge_factor = 3
         self.update_gradient()
+        self.warning_message = None
         
         self.model = _get_model()
         sw = self.create_map_file_list()
@@ -377,7 +380,15 @@ class ColorDialog(dialog.T):
             else:
                 self.draw_handle(widget.window, int(s_lpos), bgc, bgc)
                 self.draw_handle(widget.window, int(s_rpos), bgc, bgc)
-            
+
+        # show a warning if there is one
+        if self.warning_message != None:
+            layout = widget.create_pango_layout(self.warning_message)
+            layout.set_width(int(wwidth * pango.SCALE))
+            widget.window.draw_layout(
+                widget.style.white_gc,
+                0,0,layout,
+                widget.style.white,widget.style.black)
         return False
 
     def show(dialog_mode, parent, alt_parent, f):
@@ -395,11 +406,10 @@ class ColorDialog(dialog.T):
         self.set_map_file(self.model.maps[mapfile])
 
     def warn(self, msg):
-        d = hig.ErrorAlert(msg,"",None)
-        d.run()
-        d.destroy()
+        self.warning_message = msg
 
     def set_map_file(self, name):
+        self.warning_message = None
         c = fractal.Colorizer(self)
         file = open(name)
         c.parse_map_file(file, self.fudge_factor)
@@ -414,7 +424,7 @@ class ColorDialog(dialog.T):
         allocation = self.gradarea.allocation
         self.redraw_rect(self.gradarea,
                          0,0,allocation.width, allocation.height)
-        
+
         self.inner_solid_button.set_color(
             utils.floatColorFrom256(self.solids[1]))
         self.outer_solid_button.set_color(

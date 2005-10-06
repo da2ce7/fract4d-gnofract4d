@@ -68,7 +68,7 @@ class Test(testbase.TestBase):
                 "colorlist(%s) = %s but gradient(%s) = %s" % \
                 (fi, cmap_color, fi, grad_color), 1.5)
         return grad
-    
+
     def checkCGradientAndPyGradientEquivalent(self,grad):
         # We have 2 sets of gradient-drawing code, in C and Python
         # check they calculate the same answer
