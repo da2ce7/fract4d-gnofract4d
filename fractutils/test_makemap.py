@@ -56,35 +56,31 @@ class Test(unittest.TestCase):
         mm = makemap.T(open("test000.png","rb"))
 
         mm.insert_pixel(0,0,255) # blue-only pixel
-
-        self.assertEqual(mm.root.n_tree_pixels,1)
+        #print "\nBlue\n", mm.dump_octree(mm.root)
+        
         self.assertEqual(mm.root.n_local_pixels,1)
-
         self.assertEqual(mm.root.rgb,(0,0,255))
         self.assertEqual(mm.root.children, [None] * 8)
 
         mm.insert_pixel(128,7,1) # other color
-        self.assertEqual(mm.root.n_tree_pixels,2)
-
+        #print "\nBlue,Reddish\n", mm.dump_octree(mm.root)
+        
         self.assertEqual(mm.root.children[4].rgb, (128,7,1))
         self.assertEqual(mm.root.children[1].rgb, (0,0,255))
         self.assertEqual(mm.root.rgb, None)        
 
         mm.insert_pixel(0,0,0) # 3rd color
-        self.assertEqual(mm.root.n_tree_pixels,3)
-
+        #print "\nBlue,Reddish,Black\n", mm.dump_octree(mm.root)
+        
         self.assertEqual(mm.root.children[0].rgb, (0,0,0))
         self.assertEqual(mm.root.rgb, None)        
 
-        print "\n", mm.dump_octree(mm.root)
         mm.insert_pixel(0,0,127) # split 0'th child pixel
-        self.assertEqual(mm.root.n_tree_pixels,4)
-
+        #print "\nBlue,Reddish,Black,DarkBlue\n", mm.dump_octree(mm.root)
+        
         child0 = mm.root.children[0]
-        print "\n", mm.dump_octree(mm.root)
         
         self.assertEqual(child0.rgb, None)
-        #self.assertEqual(child0.n_tree_pixels,2)
         self.assertEqual(child0.children[0].rgb,(0,0,0))
         self.assertEqual(child0.children[1].rgb,(0,0,127))
         
@@ -97,17 +93,17 @@ class Test(unittest.TestCase):
         self.assertEqual(mm.root.children[0].n_local_pixels, 50)
         self.assertEqual(mm.root.children[7].n_local_pixels, 50)
 
-    def x_test_larger_tree(self):
+    def test_larger_tree(self):
         mm = makemap.T(open("tattered.jpg","rb"))
         mm.build_octree()
+        #print "\n",mm.dump_octree(mm.root)
+        self.assertEqual(mm.root.n_tree_pixels, 40*30)
         
-    
-
     def test_reduction(self):
         mm = makemap.T(open("test001.png","rb"))
         # contains 50 black, 10 white, 15 d80000, 25 ff0000 pixels
-        
-        pass
+        mm.build_octree()
+        self.assertEqual(mm.root.n_tree_pixels, 100)
     
 def suite():
     return unittest.makeSuite(Test,'test')

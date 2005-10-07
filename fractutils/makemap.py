@@ -19,8 +19,8 @@ class Node:
     def increment_children(self):
         self.n_tree_pixels += 1
 
-    def increment(self):
-        self.n_local_pixels += 1
+    def increment(self,x=1):
+        self.n_local_pixels += x
 
     def is_leaf_node(self):
         return self.rgb != None
@@ -52,6 +52,7 @@ class T:
     def build_octree(self):
         for (r,g,b) in self.getdata():
             self.insert_pixel(r,g,b)
+        self.update_counts(self.root)
         
     def dump_octree(self,node,prefix=""):
         if node == None:
@@ -62,10 +63,24 @@ class T:
         for i in xrange(8):
             child = node.children[i]
             if child != None:
-                val += "%d:" % i + self.dump_octree(child,child_prefix)
+                val += child_prefix + "%d:" % i + self.dump_octree(child,child_prefix)
             
         val += "%s]\n" % prefix
         return val
+
+    def update_counts(self,node):
+        if not node:
+            return 0
+        
+        if node.is_leaf_node():
+            return node.n_local_pixels
+
+        sum = 0
+        for child in node.children:
+            sum += self.update_counts(child)
+
+        node.n_tree_pixels = sum
+        return sum
     
     def adjust_dimension(self, min, length, val, dim):
         mid = min[dim] + length
@@ -89,7 +104,7 @@ class T:
             child += 1
         return child
 
-    def insert_pixel(self,r,g,b):
+    def insert_pixel(self,r,g,b,weight=1):
         '''update the octree to include this pixel,
         inserting nodes as required.'''
         min = [0,0,0]
@@ -98,46 +113,61 @@ class T:
         pos = self.root
         if not pos:
             self.root = Node(r,g,b)
-            self.root.increment_children()
+            #self.root.increment_children()
             return
         
-        x = 0
-        while length > 1:
-            pos.increment_children()
+        while length > 0:
+            #pos.increment_children()
             length //= 2
             if pos.rgb == (r,g,b):
                 # found a node representing this color
-                pos.increment()
+                pos.increment(weight)
                 break
 
             # need to find a child
             child = self.which_child(min,length,r,g,b)
+
             if pos.children[child] == None:
-                # no child exists
-                if pos.is_leaf_node():                    
-                    # if this is a leaf, make it internal and push its
-                    # contents down to be another new child
-                    (this_r,this_g,this_b) = pos.rgb
-                    this_as_child = self.which_child(
-                        min,length,this_r,this_g,this_b)
-                    
-                    if this_as_child == child:
-                        pos.children[child].increment()
-                    else:
-                        # create another node for the freshly-inserted pixel
-                        new_child = Node(this_r,this_g,this_b)
-                        new_child.n_local_pixels = pos.n_local_pixels
-                        new_child.n_tree_pixels = pos.n_local_pixels+1
-                        pos.children[child] = new_child 
-                    
-                    pos.make_interior_node()
-                
-                #add new child...
+                # no child exists, add new child & quit
                 pos.children[child] = Node(r,g,b)
+                pos.children[child].increment(weight-1)
+                self.make_interior_node(pos)
                 break
             else:
-                # a child is there, use it
+                # a child is there, descend 
                 pos = pos.children[child]
+            
+    def make_interior_node(self,node):
+        if not node.is_leaf_node():
+            return
+
+        # it is a leaf, but now has children. Must be made into a leaf
+        (r,g,b) = node.rgb
+        n = node.n_local_pixels
+        node.make_interior_node()        
+        #print "reinsert:",r,g,b,n
+        self.insert_pixel(r,g,b,n)
         
+            #    if pos.is_leaf_node():                    
+            #        # if this is a leaf, make it internal and push its
+            #        # contents down to be another new child
+            #        (this_r,this_g,this_b) = pos.rgb
+            #        this_as_child = self.which_child(
+            #            min,length,this_r,this_g,this_b)
+            #        
+            #        if this_as_child == child:
+            #            pos.children[child].increment()
+            #        else:
+            #            # create another node for the freshly-inserted pixel
+            #            new_child = Node(this_r,this_g,this_b)
+            #            new_child.n_local_pixels = pos.n_local_pixels
+            #            new_child.n_tree_pixels = pos.n_local_pixels+1
+            #            pos.children[child] = new_child 
+            #        
+            #        pos.make_interior_node()
+            #    
+            #    #add new child...
+            #    break
+            
                 
         
