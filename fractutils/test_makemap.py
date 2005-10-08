@@ -85,9 +85,11 @@ class Test(unittest.TestCase):
         self.assertEqual(child0.children[1].rgb,(0,0,127))
         
     def test_build_octree(self):
+        # 50 black and 50 white pixels
         mm = makemap.T(open("test000.png","rb"))
         mm.build_octree()
 
+        #print mm.dump_octree(mm.root)
         self.assertEqual(mm.root.rgb, None)
         self.assertEqual(mm.root.n_tree_pixels, 100)
         self.assertEqual(mm.root.children[0].n_local_pixels, 50)
@@ -98,6 +100,12 @@ class Test(unittest.TestCase):
         mm.build_octree()
         #print "\n",mm.dump_octree(mm.root)
         self.assertEqual(mm.root.n_tree_pixels, 40*30)
+
+    def test_bigass_tree(self):
+        mm = makemap.T(open("tattered2.jpg","rb"))
+        mm.build_octree()
+        #print "\n",mm.dump_octree(mm.root)
+        self.assertEqual(mm.root.n_tree_pixels, 640*480)
         
     def test_reduction(self):
         mm = makemap.T(open("test001.png","rb"))

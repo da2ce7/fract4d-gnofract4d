@@ -28,11 +28,23 @@ class Node:
     def make_interior_node(self):
         self.rgb = None
         self.n_local_pixels=0
-    
+
+def _make_bit_table():
+    # create an array from i -> [bits of i]
+    x = []
+    bits = [ 0x80, 0x40, 0x20, 0x10, 8, 4, 2, 1]
+    for i in xrange(256):
+        bitarray = [(i & bit) and 1 or 0 for bit in bits]
+        #print bitarray
+        x.append(bitarray)
+
+    return x
+
 class T:
     R = 0
     G = 1
     B = 2
+    bit_table = _make_bit_table()
     def __init__(self,file):
         'Load an image from open stream "file"'
         p = ImageFile.Parser()
@@ -50,8 +62,27 @@ class T:
         return self.im.getdata()
     
     def build_octree(self):
-        for (r,g,b) in self.getdata():
-            self.insert_pixel(r,g,b)
+        data = [ x for x in self.getdata()]
+        npixels = len(data)
+        if npixels==0:
+            return
+
+        data.sort()
+        count = 1
+        i = 0
+        for i in xrange(npixels-1):
+            pixel = data[i]
+            next = data[i+1]
+            if pixel == next:
+                count += 1
+            else:
+                self.insert_pixel(pixel[0],pixel[1],pixel[2],count)
+                count=1
+
+        # last pixel
+        (r,g,b) = data[-1]
+        self.insert_pixel(r,g,b,count)
+        
         self.update_counts(self.root)
         
     def dump_octree(self,node,prefix=""):
@@ -107,17 +138,18 @@ class T:
     def insert_pixel(self,r,g,b,weight=1):
         '''update the octree to include this pixel,
         inserting nodes as required.'''
+        #print "insert(%d,%d,%d,%d)" % (r,g,b,weight)
+        
         min = [0,0,0]
         length = 256
 
         pos = self.root
         if not pos:
             self.root = Node(r,g,b)
-            #self.root.increment_children()
+            self.root.increment(weight-1)
             return
         
         while length > 0:
-            #pos.increment_children()
             length //= 2
             if pos.rgb == (r,g,b):
                 # found a node representing this color
@@ -148,26 +180,15 @@ class T:
         #print "reinsert:",r,g,b,n
         self.insert_pixel(r,g,b,n)
         
-            #    if pos.is_leaf_node():                    
-            #        # if this is a leaf, make it internal and push its
-            #        # contents down to be another new child
-            #        (this_r,this_g,this_b) = pos.rgb
-            #        this_as_child = self.which_child(
-            #            min,length,this_r,this_g,this_b)
-            #        
-            #        if this_as_child == child:
-            #            pos.children[child].increment()
-            #        else:
-            #            # create another node for the freshly-inserted pixel
-            #            new_child = Node(this_r,this_g,this_b)
-            #            new_child.n_local_pixels = pos.n_local_pixels
-            #            new_child.n_tree_pixels = pos.n_local_pixels+1
-            #            pos.children[child] = new_child 
-            #        
-            #        pos.make_interior_node()
-            #    
-            #    #add new child...
-            #    break
-            
-                
-        
+def do_prof():
+    mm = T(open("tattered2.jpg","rb"))
+    mm.build_octree()
+
+                   
+if __name__ == '__main__':
+    import hotshot
+    import sys
+    prof = hotshot.Profile("makemap.prof")
+    prof.runcall(do_prof)
+    prof.close()
+
