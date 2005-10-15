@@ -45,16 +45,15 @@ class my_bdist_rpm (bdist_rpm):
 %{__install} -d -m0755 %{buildroot}/usr/share/applications/
 desktop-file-install \
 --vendor %{desktop_vendor}                 \
---add-category X-Red-Hat-Base              \
 --dir %{buildroot}/usr/share/applications \
-%{buildroot}%{_datadir}/gnome/apps/Graphics/gnofract4d.desktop''')
+%{buildroot}%{_datadir}/gnofract4d/gnofract4d.desktop''')
 
         self.add_to_section(
             spec, '%files',
             '%{_datadir}/applications/%{desktop_vendor}-gnofract4d.desktop')
         
-        #print "SPEC>"
-        #print spec
-        #print "EOF>"
+        print "SPEC>"
+        print spec
+        print "EOF>"
         
         return spec
