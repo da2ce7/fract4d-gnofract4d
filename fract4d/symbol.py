@@ -21,7 +21,8 @@ class OverloadList(UserList):
         self.pos = -1
         self._is_operator = kwds.get("operator")
         self.__doc__ = kwds.get("doc")
-
+        self.declared = False
+        
     def __copy__(self):
         copied_data = [ copy.copy(x) for x in self.data]
         c = OverloadList(copied_data)

@@ -117,7 +117,51 @@ endfunc
 ''')
         #print t.pretty()
         self.assertNoErrors(t)
-        
+
+    def testDoubleDeclare(self):
+        "Declare the same param twice: should be an error"
+
+        src = '''t{
+        default:
+        float param foo
+            default = 3
+        endparam
+        float param foo
+            default = 3
+        endparam
+        }
+        '''
+        t = self.translate(src)
+        self.assertError(t, "6: parameter 'foo' has already been declared")
+
+    def testDoubleFuncDeclare(self):
+        "Declare the same func twice: should be an error"
+
+        src = '''t{
+        default:
+        float func foo
+        endfunc
+        complex func foo
+        endfunc
+        }
+        '''
+        t = self.translate(src)
+        self.assertError(t, "5: function 'foo' has already been declared")
+
+    def testDoubleDeclareFuncAndParam(self):
+        "Declare the same func twice: should be an error"
+
+        src = '''t{
+        default:
+        float func foo
+        endfunc
+        float param foo
+        endparam
+        }
+        '''
+        t = self.translate(src)
+        self.assertError(t, "5: function 'foo' has already been declared")
+
     def testGradientCastProblem(self):
         "Test a problem with gradient casting doesn't recur"
         src = '''t {

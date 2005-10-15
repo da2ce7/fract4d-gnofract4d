@@ -168,10 +168,9 @@ def t_SECT_SET(t):
     return t
 
 # a section containing parameter settings, as found in .ugr and .upr files
-# gradient, fractal, layer, mapping, formula, inside, outside, alpha, opacity,
-# transform
+# gradient, fractal, layer, mapping, formula, inside, outside, alpha, opacity
 def t_SECT_PARMS(t):
-    r'(([Gg][Rr][Aa][Dd][Ii][Ee][Nn][Tt])|([Ff][Rr][Aa][Cc][Tt][Aa][Ll])|([Ll][Aa][Yy][Ee][Rr])|([Mm][Aa][Pp][Pp][Ii][Nn][Gg])|([Ff][Oo][Rr][Mm][Uu][Ll][Aa])|([Ii][Nn][Ss][Ii][Dd][Ee])|([Oo][Uu][Tt][Ss][Ii][Dd][Ee])|([Aa][Ll][Pp][Hh][Aa])|([Oo][Pp][Aa][Cc][Ii][Tt][Yy])|([Tt][Rr][Aa][Nn][Ss][Ff][Oo][Rr][Mm])):'
+    r'(([Gg][Rr][Aa][Dd][Ii][Ee][Nn][Tt])|([Ff][Rr][Aa][Cc][Tt][Aa][Ll])|([Ll][Aa][Yy][Ee][Rr])|([Mm][Aa][Pp][Pp][Ii][Nn][Gg])|([Ff][Oo][Rr][Mm][Uu][Ll][Aa])|([Ii][Nn][Ss][Ii][Dd][Ee])|([Oo][Uu][Tt][Ss][Ii][Dd][Ee])|([Aa][Ll][Pp][Hh][Aa])|([Oo][Pp][Aa][Cc][Ii][Tt][Yy])):'
     t.value = re.sub(":$","",t.value)
     return t
 

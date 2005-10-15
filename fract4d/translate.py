@@ -184,12 +184,18 @@ class TBase:
             name = "@" + node.leaf
 
         # create param if not already present
-        v = self.symbols.get(name)
+        v = self.symbols.get(name)    
         set_v = False
         if not v:
             v = Var(datatype, default_value(datatype), node.pos)
             set_v = True
-            
+
+        # check only declared once
+        if v.declared:
+            self.raise_declare_error(v,node)
+        
+        v.declared = True
+        
         # process settings        
         for child in node.children:
             if child.type == "set":
@@ -238,8 +244,11 @@ class TBase:
             f = Func(argtype,node.datatype,stdlib,"ident")
             set_f = True
         else:
+            # check only declared once
+            if fol.declared:
+                self.raise_declare_error(fol,node)
             f = fol[0]
-            
+
         # create func
         for child in node.children:
             if child.type == "set":
@@ -248,8 +257,15 @@ class TBase:
                 self.error("%d: invalid statement in func block" % node.pos)
 
         if set_f:
-            self.symbols[name] = symbol.OverloadList([f])
-        
+            fol = symbol.OverloadList([f])
+            fol.declared = True
+            self.symbols[name] = fol 
+
+    def raise_declare_error(self, obj, node):
+        type = isinstance(obj, fracttypes.Var) and "parameter" or "function"
+        msg = "%d: %s '%s' has already been declared" % (node.pos, type, node.leaf)
+        raise TranslationError(msg)
+
     def setting(self,node):
         if node.type == "param":
             self.param(node)
