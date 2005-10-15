@@ -152,7 +152,7 @@ class FlickrUploadDialog(dialog.T):
         flickr.groups_pools_add(id,token)
 
         selected_blog = utils.get_selected(self.blog_menu)
-        if selected_blog != 0:
+        if selected_blog > 0:
             blog = self.blogs[selected_blog-1]
             flickr.blogs_postPhoto(
                 blog, id, title_,description_,token)
