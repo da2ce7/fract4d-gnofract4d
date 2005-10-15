@@ -16,6 +16,7 @@ done in 3.0:
 * B	undo/redo loses "flip y axis" setting
 * B	painter doesn't understand solid
 * BB	desktop-file-install seems to do the wrong thing
+* WW	register mime info?
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -76,9 +77,7 @@ features (the more W's, the more work involved):
 * W	diff bailout for other types
 * W	signal tpool conds after releasing mutex? (tiny perf change, maybe)
 * W	associate with file type?
-* WW	register mime info?
 * WWW	make it work with GMP
-* W	full-screen mode
 * W 	desktop mode
 * W 	demo mode
 * W	bookmarks

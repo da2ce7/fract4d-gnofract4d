@@ -11,6 +11,7 @@ include doc/gnofract4d-manual/C/*.xml
 include doc/gnofract4d-manual/C/figures/*.png
 include pixmaps/*.png
 include gnofract4d.desktop
+include gnofract4d-mime.xml
 include COPYING
 include gnofract4d
 include test.py
