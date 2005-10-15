@@ -15,6 +15,7 @@ done in 3.0:
 * W	nicer error display in gradient dialog
 * B	undo/redo loses "flip y axis" setting
 * B	painter doesn't understand solid
+* BB	desktop-file-install seems to do the wrong thing
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -24,7 +25,6 @@ bugs (the more B's, the worse the bug):
 * BB	fractint doesn't reset vars between calls
 * BB	crash with multiple threads on x86-64 (Paul Wayper)
 * BB	explorer rather slow with complex colorfuncs
-* BB	desktop-file-install seems to do the wrong thing
 * BB	flickr access should be threaded so UI doesn't hang
 * B	should hide density/transfer/offset for DCA's
 * B	is a cmap loaded from a .map file correct? Think index math is squiffy 

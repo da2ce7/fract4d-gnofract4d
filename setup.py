@@ -171,7 +171,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
            ('share/pixmaps/gnofract4d', get_files('pixmaps','.png')),
             
            # GNOME .desktop file
-           ('share/gnome/apps/Graphics/', ['gnofract4d.desktop']),
+           ('share/gnofract4d', ['gnofract4d.desktop']),
 
            # doc files
            ('share/doc/gnofract4d-%s/' % gnofract4d_version,
