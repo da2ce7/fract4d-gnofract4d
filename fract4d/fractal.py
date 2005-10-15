@@ -1038,7 +1038,7 @@ The image may not display correctly. Please upgrade to version %.1f.'''
             self.changed()
         
     def parse_yflip(self,val,f):
-        self.yflip = val == "1"
+        self.yflip = (val == "1" or val == "True")
         
     def parse_x(self,val,f):
         self.set_param(self.XCENTER,val)

@@ -738,6 +738,10 @@ class T(gobject.GObject):
     
     def onPaint(self,x,y):
         # obtain index
+        fate = fract4dc.image_get_fate(self.image, int(x), int(y))
+        if not fate:
+            return
+
         index = fract4dc.image_get_color_index(self.image, int(x), int(y))
         
         # obtain a color
@@ -745,13 +749,18 @@ class T(gobject.GObject):
         
         # update colormap
         grad = self.f.get_gradient()
-        i = grad.get_index_at(index)
-        if index > grad.segments[i].mid:
-            alpha = grad.segments[i].right_color[3]
-            grad.segments[i].right_color = [r, g, b, alpha]
+
+        (is_solid, color) = fate
+        if is_solid:
+            self.f.solids[color] = (int(r*255.0),int(g*255.0),int(b*255.0),255)
         else:
-            alpha = grad.segments[i].left_color[3]
-            grad.segments[i].left_color = [r, g, b, alpha]
+            i = grad.get_index_at(index)
+            if index > grad.segments[i].mid:
+                alpha = grad.segments[i].right_color[3]
+                grad.segments[i].right_color = [r, g, b, alpha]
+            else:
+                alpha = grad.segments[i].left_color[3]
+                grad.segments[i].left_color = [r, g, b, alpha]
 
         self.changed(False)
 

@@ -1633,6 +1633,45 @@ image_get_color_index(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+image_get_fate(PyObject *self, PyObject *args)
+{
+    PyObject *pyim;
+
+    int x=0,y=0,sub=0;
+    if(!PyArg_ParseTuple(args,"Oii|i",&pyim,&x,&y,&sub))
+    {
+	return NULL;
+    }
+
+    image *i = (image *)PyCObject_AsVoidPtr(pyim);
+    
+    if(NULL == i)
+    {
+	PyErr_SetString(PyExc_ValueError,
+			"Bad image object");
+	return NULL;
+    }
+
+    if(x < 0 || x >= i->Xres() || 
+       y < 0 || y >= i->Yres() || 
+       sub < 0 || sub >= image::N_SUBPIXELS)
+    {
+	PyErr_SetString(PyExc_ValueError,
+			"request for data outside image bounds");
+	return NULL;
+    }
+
+    fate_t fate = i->getFate(x,y,sub);
+    if(fate == FATE_UNKNOWN)
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
+    }
+    int is_solid = fate & FATE_SOLID ? 1 : 0;
+    return Py_BuildValue("(ii)", is_solid, fate & ~FATE_SOLID);
+}
+
+static PyObject *
 rot_matrix(PyObject *self, PyObject *args)
 {
     double params[N_PARAMS];
@@ -1811,6 +1850,10 @@ static PyMethodDef PfMethods[] = {
       "get the fate data from the image"},
     { "image_get_color_index", image_get_color_index, METH_VARARGS,
       "Get the color index data from a point on the image"},
+
+    { "image_get_fate", image_get_fate, METH_VARARGS,
+      "Get the (solid, fate) info for a point on the image"},
+ 
     { "image_clear", image_clear, METH_VARARGS,
       "Clear all iteration and color data from image" },
 

@@ -55,6 +55,24 @@ class Test(unittest.TestCase):
         self.failUnless(self.m)
         self.assertEqual(self.m.f, self.f)
 
+    def testPreserveYFlip(self):
+        f = self.m.f
+
+        self.assertEqual(f.yflip,False)
+        f.set_yflip(True)
+
+        self.assertEqual(f.yflip,True)
+        
+        mag = f.get_param(f.MAGNITUDE)
+        f.set_param(f.MAGNITUDE,9.0)
+
+        self.assertEqual(f.yflip,True)
+        self.m.undo()
+        self.assertEqual(f.yflip,True)
+        self.m.redo()
+        self.assertEqual(f.yflip,True)
+
+        
     def testUndoChangeParameter(self):
         counter = EmitCounter()
         f = self.m.f
