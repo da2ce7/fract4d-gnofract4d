@@ -114,7 +114,7 @@ class Func:
         self.ret = ret
         self.pos = pos
         self.set_func(module,fname)
-
+        
     def __copy__(self):
         c = Func(self.args,self.ret,self.module,self.fname,self.pos)
         return c
@@ -163,7 +163,8 @@ class Var:
         self.cname = None
         self.is_temp = False
         self.__doc__ = kwds.get("doc")
-
+        self.declared = False
+        
     def struct_name(self):
         if self.is_temp:
             return "pfo->" + self.cname
