@@ -39,21 +39,26 @@ class my_bdist_rpm (bdist_rpm):
         # reduce the number of explicit pre-requisites
         self.insert_after(spec, 'Url','AutoReqProv: no')
 
-        # install a .desktop file
+        # install a .desktop file and register .fct files with ourselves
         self.insert_after(spec, '%define', '%define desktop_vendor ey')
         self.add_to_section(spec, '%install', '''
 %{__install} -d -m0755 %{buildroot}/usr/share/applications/
 desktop-file-install \
 --vendor %{desktop_vendor}                 \
 --dir %{buildroot}/usr/share/applications \
-%{buildroot}%{_datadir}/gnofract4d/gnofract4d.desktop''')
+%{buildroot}%{_datadir}/gnofract4d/gnofract4d.desktop
+
+update-mime-database /usr/share/mime || true
+update-desktop-database || true
+
+''')
 
         self.add_to_section(
             spec, '%files',
             '%{_datadir}/applications/%{desktop_vendor}-gnofract4d.desktop')
         
-        print "SPEC>"
-        print spec
-        print "EOF>"
+        #print "SPEC>"
+        #print spec
+        #print "EOF>"
         
         return spec
