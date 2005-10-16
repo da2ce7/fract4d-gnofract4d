@@ -136,7 +136,7 @@ class T:
     def out(self):
         return self._out
 
-if __name__ == '__main__':
+if __name__ == '__main__': #pragma: no cover
     import sys
     # Test it out
     data = open(sys.argv[1],"r").read()

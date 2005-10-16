@@ -17,7 +17,10 @@ import gradient
 rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
 cmplx_re = re.compile(r'\((.*?),(.*?)\)')
 hyper_re = re.compile(r'\((.*?),(.*?),(.*?),(.*?)\)')
-THIS_VERSION=2.8
+
+# the version of the earliest gf4d release which can parse all the files
+# this version can output
+THIS_FORMAT_VERSION=2.8
 
 # generally useful funcs for reading in .fct files
 class FctUtils:
@@ -34,24 +37,23 @@ class FctUtils:
         # try to find a method matching name        
         methname = "parse_" + sect + name.translate(self.tr)
         meth = None
-        try:
-            klass = self.__class__
-            while True:
-                meth = klass.__dict__.get(methname)
-                if meth != None:
-                    break
-                bases = klass.__bases__
-                if len(bases) > 0:                    
-                    klass = bases[0]
-                else:
-                    break
-        except Exception, err:
-            print "ignoring unknown attribute %s" % methname
-            print err
+
+        klass = self.__class__
+        while True:
+            meth = klass.__dict__.get(methname)
+            if meth != None:
+                break
+            bases = klass.__bases__
+            if len(bases) > 0:                    
+                klass = bases[0]
+            else:
+                break
             
         if meth:
             return meth(self,val,f)
-
+        else:
+            self.warn("ignoring unknown attribute %s" % methname)
+            
     def nameval(self,line):
         x = line.rstrip().split("=",1)
         if len(x) == 0: return (None,None)
@@ -909,7 +911,7 @@ class T(FctUtils):
         pass
 
     def parse_version(self,val,f):
-        global THIS_VERSION
+        global THIS_FORMAT_VERSION
         self.format_version=float(val)
         if self.format_version < 2.0:
             # old versions displayed everything upside down
@@ -919,10 +921,10 @@ class T(FctUtils):
             # a version that used auto-tolerance for Nova and Newton
             self.auto_tolerance = True
             
-        if self.format_version > THIS_VERSION:
+        if self.format_version > THIS_FORMAT_VERSION:
             warning = \
 '''This file was created by a newer version of Gnofract 4D.
-The image may not display correctly. Please upgrade to version %.1f.''' 
+The image may not display correctly. Please upgrade to version %.1f or higher.''' 
 
             self.warn(warning % self.format_version)
     def warn(self,msg):

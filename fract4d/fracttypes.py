@@ -102,11 +102,7 @@ def canBeCast(t1,t2):
     ' can t1 be cast to t2?'
     if t1 == None or t2 == None:
         return 0
-    try:
-        return _canBeCast[t1][t2]
-    except Exception, e:
-        #print t1,t2
-        raise
+    return _canBeCast[t1][t2]
     
 class Func:
     def __init__(self,args,ret,module,fname,pos=-1):
@@ -180,7 +176,10 @@ class Var:
 # a convenient place to put this.
 class TranslationError(exceptions.Exception):
     def __init__(self,msg):
+        exceptions.Exception.__init__(self)
         self.msg = msg
-    def __str__(self):
-        return "TranslationError(%s)" % self.msg
+
+class InternalCompilerError(TranslationError):
+    def __init__(self,msg):
+        TranslationError.__init__("Internal Compiler Error:" + msg)
     

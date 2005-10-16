@@ -222,7 +222,7 @@ def t_error(t):
 lexer = lex.lex(optimize=1)
 
 # debugging
-if __name__ == '__main__':
+if __name__ == '__main__': #pragma: no cover
     # Test it out
     data = open(sys.argv[1],"r").read()
 
