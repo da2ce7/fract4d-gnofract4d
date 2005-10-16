@@ -86,7 +86,6 @@ class Test(testbase.TestBase):
     def testReallyBigInt(self):
         t = self.translate('''
         t {
-        int x = 1E30
         int y = 1000000000000000000
         }''')
 

@@ -198,6 +198,12 @@ and most of them are included in the allmaps file.""")
 
         self.assertEqual(
             wc.warnings,['Error reading colormap: No colors found'])
+
+    def testReadMapFile(self):
+        c = fractal.Colorizer()
+        c.parse_map_file(open("../maps/4zebbowx.map"))
+
+        self.assertEqual(len(c.gradient.segments), 255)
         
     def testRefresh(self):
         try:
@@ -263,12 +269,77 @@ colorlist=[
 1.000000=ffffffff
 ]
 '''
+        wc = WarningCatcher()
         f = fractal.T(self.compiler)
+        f.warn = wc.warn
         self.assertRaises(ValueError,f.loadFctFile,
                           (StringIO.StringIO(bad_testfile)))
 
         self.assertEqual(os.path.exists('foo.txt'),False)
-        
+
+    def testLoadBadColorizerType(self):
+        bad_testfile = '''gnofract4d parameter file
+version=2.0
+[function]
+formulafile=test.frm
+function=test_noz
+[endsection]
+[inner]
+formulafile=test.cfrm
+function=flat
+@myfunc=sqrt
+[endsection]
+[outer]
+formulafile=test.cfrm
+function=Triangle
+@power=3.0
+@bailout=1.0e12
+[endsection]
+[colors]
+colorizer=7
+solids=[
+000000ff
+000000ff
+]
+colorlist=[
+0.000000=00000000
+1.000000=ffffffff
+]
+'''
+        f = fractal.T(self.compiler)
+        self.assertRaises(ValueError,f.loadFctFile,
+                          (StringIO.StringIO(bad_testfile)))
+
+    def testLoadColorFile(self):
+        testfile = '''gnofract4d parameter file
+version=2.0
+[function]
+formulafile=test.frm
+function=test_noz
+[endsection]
+[inner]
+formulafile=test.cfrm
+function=flat
+@myfunc=sqrt
+[endsection]
+[outer]
+formulafile=test.cfrm
+function=Triangle
+@power=3.0
+@bailout=1.0e12
+[endsection]
+[colors]
+colorizer=0
+file=../maps/4zebbowx.map
+solids=[
+000000ff
+000000ff
+]
+'''
+        f = fractal.T(self.compiler)
+        f.deserialize(testfile)
+        self.assertEqual(len(f.get_gradient().segments),255)
+
     def testLoadFileWithBadFormula(self):
         bad_testfile = '''gnofract4d parameter file
 version=2.0
@@ -301,6 +372,40 @@ colorlist=[
         f = fractal.T(self.compiler)
         self.assertRaises(ValueError,f.loadFctFile,
                           (StringIO.StringIO(bad_testfile)))
+
+    def testLoadBadColor(self):
+        bad_testfile = '''gnofract4d parameter file
+version=2.0
+[function]
+formulafile=test.frm
+function=test_noz
+[endsection]
+[inner]
+formulafile=test.cfrm
+function=flat
+@myfunc=sqrt
+[endsection]
+[outer]
+formulafile=test.cfrm
+function=Triangle
+@power=3.0
+@bailout=1.0e12
+[endsection]
+[colors]
+colorizer=0
+solids=[
+000000ff
+000000ff
+]
+colorlist=[
+0.000000
+1.000000=ffffffff
+]
+'''
+        f = fractal.T(self.compiler)
+        self.assertRaises(ValueError,f.loadFctFile,
+                          (StringIO.StringIO(bad_testfile)))
+
 
     def testLoadBoolParamSavedByOlderVersion(self):
         '''Bug reported by Elaine Normandy: file saved by 2.7 containing
@@ -550,6 +655,22 @@ blue=0.3
         # check that they are equivalent
         self.assertFractalsEqual(f1,f2)
 
+    def testResetZoom(self):
+        # mandelbrot has no specifier, picks up 4.0
+        f = fractal.T(self.compiler)
+        
+        f.set_param(f.MAGNITUDE, 0.002)
+
+        f.reset_zoom()
+        self.assertEqual(4.0, f.get_param(f.MAGNITUDE))
+
+        # a fractal which sets #magnitude
+        f.set_formula("gf4d.frm", "Buffalo")
+        f.set_param(f.MAGNITUDE, 0.002)
+
+        f.reset_zoom()
+        self.assertEqual(6.0, f.get_param(f.MAGNITUDE))
+        
         
     def testRelocation(self):
         f = fractal.T(self.compiler)
@@ -724,7 +845,7 @@ version=3.4
         self.assertEqual(len(warning_catcher.warnings),1)
         self.assertEqual(warning_catcher.warnings[0],
             '''This file was created by a newer version of Gnofract 4D.
-The image may not display correctly. Please upgrade to version 3.4.''')
+The image may not display correctly. Please upgrade to version 3.4 or higher.''')
 
     def testNoPeriodIfNoZ(self):
         'if z isn\'t used in the fractal, disable periodicity'

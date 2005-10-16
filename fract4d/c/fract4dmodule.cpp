@@ -50,6 +50,7 @@ pf_unload(void *p)
 static int 
 ensure_cmap_loaded()
 {
+    char cwd[PATH_MAX+1];
     // load the cmap module so fract funcs we compile later
     // can call its methods
     if(NULL != cmap_module_handle)
@@ -58,11 +59,14 @@ ensure_cmap_loaded()
     }
 
     char *filename = PyModule_GetFilename(pymod);
+    //printf("base name: %s\n",filename);
     char *path_end = strrchr(filename,'/');
     if(path_end == NULL)
     {
-	path_end = filename;
+	filename = getcwd(cwd,sizeof(cwd));
+	path_end = filename + strlen(filename);
     }
+
     int path_len = strlen(filename) - strlen(path_end);
     int len = path_len + strlen(CMAP_NAME);
 

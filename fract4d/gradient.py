@@ -185,12 +185,6 @@ class Gradient:
         self.segments=[
             Segment(0,[0,0,0,1.0], 1.0, [1.0,1.0,1.0,1.0])]
 
-        # a prettier default
-        # Segment(0, [255, 255,0],  .5,  [255, 0, 0]),
-        # Segment(.5, [255, 0, 0],  .55, [0, 0, 255]),
-        # Segment(.55,[0, 0, 255],  .7,  [0, 128, 0]),
-        # Segment(.7, [0, 128, 0], 1.0,  [255, 255, 0])]
-
         self.name=None
         self.alternate=0
         self.offset=0

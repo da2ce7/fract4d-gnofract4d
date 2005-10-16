@@ -9,7 +9,6 @@ import os
 
 import absyn
 import ir
-#import fsymbol
 import re
 import types
 import fracttypes
@@ -1023,12 +1022,6 @@ extern pf_obj *pf_new(void);
             if not isinstance(tree, object):
                 return 0
         
-            if children == []:
-                return 1
-            
-            if tree.children == None:
-                return 0
-            
             for (child, matchChild) in zip(tree.children,children):
                 if not self.match_template(child,matchChild):
                     return 0
