@@ -13,7 +13,7 @@ import testbase
 
 import absyn
 import ir
-import symbol
+import fsymbol
 from fracttypes import *
 import codegen
 import translate
@@ -27,7 +27,7 @@ g_x = None
 class Test(testbase.TestBase):
     def setUp(self):
         self.fakeNode = absyn.Empty(0)
-        self.codegen = codegen.T(symbol.T())
+        self.codegen = codegen.T(fsymbol.T())
         self.parser = fractparser.parser
         self.main_stub = '''
 
@@ -119,7 +119,7 @@ int main()
         return ir.Label(name,self.fakeNode)
 
     def generate_code(self,t):
-        self.codegen = codegen.T(symbol.T())
+        self.codegen = codegen.T(fsymbol.T())
         self.codegen.generate_code(t)
 
     def translate(self,s,dump=None):

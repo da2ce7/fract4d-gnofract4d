@@ -3,7 +3,7 @@
 # Translate an abstract syntax tree into tree-structured intermediate
 # code, performing type checking as a side effect
 from absyn import *
-import symbol
+import fsymbol
 import fractparser
 import fractlexer
 import ir
@@ -15,7 +15,7 @@ from fracttypes import *
 class TBase:
     def __init__(self,prefix,dump=None):
         #print "translating"
-        self.symbols = symbol.T(prefix)
+        self.symbols = fsymbol.T(prefix)
         self.canon = canon.T(self.symbols,dump)
         self.errors = []
         self.warnings = []
@@ -257,7 +257,7 @@ class TBase:
                 self.error("%d: invalid statement in func block" % node.pos)
 
         if set_f:
-            fol = symbol.OverloadList([f])
+            fol = fsymbol.OverloadList([f])
             fol.declared = True
             self.symbols[name] = fol 
 
@@ -475,7 +475,7 @@ class TBase:
             if func[0] == "@":
                 # an attempt to call an undeclared parameter function,
                 # create it now. Point to ident by default
-                overloadList = self.symbols[func] = symbol.OverloadList([
+                overloadList = self.symbols[func] = fsymbol.OverloadList([
                     Func([Complex],Complex,stdlib,"ident")])
             else:
                 raise

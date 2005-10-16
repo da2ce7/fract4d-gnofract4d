@@ -4,7 +4,7 @@
 
 from xml.sax.saxutils import escape, quoteattr
 
-import symbol
+import fsymbol
 import fracttypes
 import sys
 
@@ -21,7 +21,7 @@ class SymbolPrinter:
     def add_symbol(self,key,val):
         if isinstance(val,fracttypes.Var):
             self.vars[key] = val
-        elif isinstance(val,symbol.OverloadList):
+        elif isinstance(val,fsymbol.OverloadList):
             if val.is_operator():
                 self.operators[key] = val
             else:
@@ -63,7 +63,7 @@ class SymbolPrinter:
     def output_symbol(self,key,val,type):
         self.output_refentry_header(key,val,type)
         
-        if isinstance(val,symbol.OverloadList):
+        if isinstance(val,fsymbol.OverloadList):
             self.output_function(val)            
         else:
             print >>self.f,  '<para>Type: %s</para>' % strOfType(val.type)
@@ -86,7 +86,7 @@ class SymbolPrinter:
         
 def main(outfile):
     out = open(outfile,"w")
-    d = symbol.T()
+    d = fsymbol.T()
     printer = SymbolPrinter(out)
 
     for k in d.default_dict.keys():
