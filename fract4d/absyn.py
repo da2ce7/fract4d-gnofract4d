@@ -27,10 +27,8 @@ class Node:
         if self.children:
             str += "\n"
             for child in self.children:
-                if isinstance(child,Node):
-                    str += child.pretty(depth+1) + "\n"
-                else:
-                    str += " " * (depth+1) + ("<<%s>>\n" % child)
+                assert(isinstance(child,Node))
+                str += child.pretty(depth+1) + "\n"
             str += " " * depth + "]" 
         else:
             str += "]"
@@ -143,9 +141,6 @@ def Number(n,pos):
 def Const(n,pos):
     return Node("const", pos, None, n=="true" or n=="yes", fracttypes.Bool)
 
-def Complex(left,right,pos):
-    return Node("complex",pos, [left, right], "", fracttypes.Complex)
-
 def Binop(op, left, right,pos):
     return Node("binop", pos, [left, right], op)
 
@@ -204,9 +199,6 @@ def Param(id,settinglist,type,pos):
 def Func(id,settinglist,type, pos):
     return Node("func", pos, settinglist, id, fracttypes.typeOfStr(type))
 
-def FuncWithDecls(id, decls, settinglist, type, pos):
-    return Node("func", pos, decls + settinglist, type, pos)
-
 def Heading(settinglist,pos):
     return Node("heading", pos, settinglist)
 
@@ -219,9 +211,6 @@ def While(test, body, pos):
 def If(test, left, right, pos):
     return Node("if", pos,
                 [test, Stmlist("",left,pos), Stmlist("",right,pos)], "")
-
-def InternalError(pos):
-    return Node("parser error", pos, None, "oops")
 
 def Error2(str, pos):
     if str == "$":

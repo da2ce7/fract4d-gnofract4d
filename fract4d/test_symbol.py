@@ -2,7 +2,7 @@
 
 # test symbol table implementation
 
-import symbol
+import fsymbol
 import unittest
 import copy
 import stdlib
@@ -11,7 +11,7 @@ from fracttypes import *
 
 class SymbolTest(unittest.TestCase):
     def setUp(self):
-        self.t = symbol.T()
+        self.t = fsymbol.T()
 
     def tearDown(self):
         pass
@@ -40,7 +40,7 @@ class SymbolTest(unittest.TestCase):
         self.assertEqual(list, ["t__a_fangle", "t__a_cf0val", "t__a_cf1val"])
                          
     def testPrefix(self):
-        t = symbol.T("boo")
+        t = fsymbol.T("boo")
         v = Var(Int,1)
         t["x"] = v
         self.assertEqual(t["x"].cname,"boox")
@@ -70,7 +70,7 @@ class SymbolTest(unittest.TestCase):
         self.failUnless(not self.t.is_user("cmag"))
         
     def test_expand(self):
-        l = symbol.efl("foo", "[_,_] , _", [Int, Float, Complex])
+        l = fsymbol.efl("foo", "[_,_] , _", [Int, Float, Complex])
         self.assertEqual(len(l),3)
         self.assertEqual(l[0].ret, Int)
         self.assertEqual(l[1].args, [Float,Float])
@@ -160,10 +160,10 @@ class SymbolTest(unittest.TestCase):
         if isinstance(val,Var):
             # ok
             pass
-        elif isinstance(val,symbol.Alias):
+        elif isinstance(val,fsymbol.Alias):
             realvar = self.t[val.realName]
             self.assertEqual(isinstance(realvar, Var) or
-                             isinstance(realvar, symbol.OverloadList), True)
+                             isinstance(realvar, fsymbol.OverloadList), True)
         else:
             self.fail("weird variable")
         

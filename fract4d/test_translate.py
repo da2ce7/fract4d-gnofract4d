@@ -83,6 +83,15 @@ class Test(testbase.TestBase):
         }''')
         self.assertError(t,"3: '@redFunc' is a function name")
 
+    def testReallyBigInt(self):
+        t = self.translate('''
+        t {
+        int x = 1E30
+        int y = 1000000000000000000
+        }''')
+
+        self.assertNoErrors(t)
+        
     def testHslProblem(self):
         "Make sure this previously-problematic func works"
         t = self.translatecf('''

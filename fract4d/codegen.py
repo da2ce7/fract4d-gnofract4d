@@ -9,35 +9,11 @@ import os
 
 import absyn
 import ir
-import symbol
+#import fsymbol
 import re
 import types
 import fracttypes
 from fracttypes import Bool, Int, Float, Complex, Hyper, Color
-
-def reals(l):
-    # [[a + ib], [c+id]] => [ a, c]
-    return [x.re for x in l]
-
-def imags(l):
-    return [x.im for x in l]
-
-def filter_nulls(l):
-    return [x for x in l if x != []]
-
-def format_string(t,index,pos):
-    # compute a format string for a binop's child at position pos
-    if isinstance(t,ir.Const):
-        if t.datatype == Int or t.datatype == Bool:
-            return ("%d" % t.value,pos)
-        elif t.datatype == Float:
-            return ("%.17f" % t.value,pos)
-        elif t.datatype == Complex:
-            return ("%.17f" % t.value[index],pos)
-        else:
-            raise KeyError, "Invalid type %s" % t.datatype.__class__.__name__
-    else:
-        return ("%%(s%d)s" % pos,pos+1)
 
 class ComplexArg:
     ' a pair of args'

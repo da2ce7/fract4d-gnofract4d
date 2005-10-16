@@ -5,7 +5,7 @@
 import copy
 
 import ir
-import symbol
+#import fsymbol
 import fracttypes
 
 class T:

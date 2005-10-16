@@ -9,14 +9,14 @@ import testbase
 import canon
 import absyn
 import ir
-import symbol
+import fsymbol
 import copy
 from fracttypes import *
 
 class CanonTest(testbase.TestBase):
     def setUp(self):
         self.fakeNode = absyn.Empty(0)
-        self.canon = canon.T(symbol.T())
+        self.canon = canon.T(fsymbol.T())
     def tearDown(self):
         pass
 
