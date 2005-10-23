@@ -533,7 +533,7 @@ colorlist=[
                 self.assertEqual(ra,rb)
                 
     def testLoadRGBColorizer(self):
-        'load an rgb colorizer (not supported)'
+        'load an rgb colorizer'
         file='''gnofract4d parameter file
 version=1.6
 bailout=4
@@ -983,7 +983,7 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
                     self.assertColor(buf,x,y,w,outgrey)
                 else:
                     self.assertColor(buf,x,y,w,ingrey)
-        
+
     def testCubicRead(self):
         file = '''gnofract4d parameter file
 version=1.7

@@ -12,7 +12,7 @@ def main():
     os.system('./test.py')
     os.chdir('../fract4dgui')
     os.system('./test.py')
-    os.chdir('../utils')
+    os.chdir('../fractutils')
     os.system('./test.py')
     
 if __name__ == '__main__':

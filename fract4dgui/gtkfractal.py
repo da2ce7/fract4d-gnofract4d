@@ -192,6 +192,9 @@ class T(gobject.GObject):
             print "bad message: %s" % list(bytes)
             return True
 
+        if utils.threads_enabled:
+            gtk.gdk.threads_enter()
+            
         (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
         m = self.name_of_msg[t] 
         #print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
@@ -211,7 +214,9 @@ class T(gobject.GObject):
             pass
         else:
             print "Unknown message from fractal thread; %s" % list(bytes)
-            
+
+        if utils.threads_enabled:
+            gtk.gdk.threads_leave()
         return True
     
     def __getattr__(self,name):

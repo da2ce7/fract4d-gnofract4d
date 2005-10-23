@@ -10,6 +10,12 @@ final:
 	#index = log(speed)
 }
 
+final_position {
+final:
+	#index = real(z) * imag(z) + real(z) + imag(z)
+default:
+} 
+
 angular_velocity {
 init:
 complex oldz = 0.0

@@ -14,6 +14,7 @@ import test_fractal
 import test_3d
 import test_gradient
 import test_preprocessor
+#import test_stdlib
 
 def suite():
     return unittest.TestSuite((
@@ -29,7 +30,9 @@ def suite():
     test_fractal.suite(),
     test_3d.suite(),
     test_gradient.suite(),
-    test_preprocessor.suite()))
+    test_preprocessor.suite()
+    #test_stdlib.suite()
+    ))
 
 def main():
     unittest.main(defaultTest='suite')
