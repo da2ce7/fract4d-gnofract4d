@@ -316,10 +316,11 @@ class Gradient:
 
         (h,s,v,a) = hsv
         
-        # take 2 colors which are almost opposite
+        # take 2 colors which are almost triads
         h = hsv[0]
-        h2 = math.fmod(h + 2.6, 6.0)
-        h3 = math.fmod(h + 3.4, 6.0)
+        delta = random.gauss(0.0, 0.8)
+        h2 = math.fmod(h + 2.5 + delta, 6.0)
+        h3 = math.fmod(h + 3.5 - delta, 6.0)
 
         # take darker and lighter versions
         v = hsv[2]
@@ -341,6 +342,12 @@ class Gradient:
         return colors
 
     def randomize(self, length):
+        if random.random() < 0.5:
+            self.randomize_complementary(length)
+        else:
+            self.randomize_spheres((int(random.random() * 4)+3)*2)
+            
+    def randomize_complementary(self,length):
         base = [random.random(), random.random(), random.random(), 1.0]
         colors = self.complementaries(base)
         self.segments = []
@@ -357,20 +364,29 @@ class Gradient:
         
         self.segments.append(
             Segment(prev_index, prev_color, 1.0, first_color)) # make it wrap
-        
-    def old_randomize(self, length):
+
+    def random_bright_color(self):
+        return HSVtoRGB(
+            [ random.random() * 360.0,
+              random.random(),
+              random.random() * 0.6 + 0.4,
+              1.0])
+    
+    def randomize_spheres(self, length):
         self.segments = []
         prev_index = 0.0
-        prev_color = [random.random(), random.random(), random.random(), 1.0]
+        prev_color = self.random_bright_color()
         first_color = prev_color
         for i in xrange(length-1):
             index = float(i+1)/length
             if i % 2 == 1:                
-                color = [random.random(), random.random(), random.random(), 1.0]
+                color = self.random_bright_color()
+                blend = Blend.SPHERE_INCREASING
             else:
                 color = [0.0, 0.0, 0.0, 1.0]
+                blend = Blend.SPHERE_DECREASING
             self.segments.append(
-                Segment(prev_index, prev_color, index, color))
+                Segment(prev_index, prev_color, index, color, None, blend))
             prev_color = color
             prev_index = index
         

@@ -543,7 +543,7 @@ default:
 '''
         self.assertCSays(src,"loop","","")
 
-    def disabled_testFnPartsWorks(self):
+    def testFnPartsWorks(self):
         # doesn't work yet
         src = '''FnParts {
 ; A generalization of Burning Ship - apply separate functions to the 
@@ -562,9 +562,11 @@ float func bailfunc
 	default =cmag
 endfunc
 float func fnReal
+        argtype = float
 	default = ident
 endfunc
 float func fnImag
+        argtype = float
 	default = ident
 endfunc
 func fnComplex
@@ -573,7 +575,6 @@ endfunc
 }
 '''
         t = self.translate(src)
-        print t.pretty()
         cg = codegen.T(t.symbols)
         cg.output_all(t)
         c = cg.output_c(t)

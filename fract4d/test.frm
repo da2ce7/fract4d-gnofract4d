@@ -9,6 +9,12 @@ bailout:
 	|h| < 4.0
 }
 
+test_bad_default {
+default:
+float func foo
+endfunc
+}
+
 test_circle {
 loop:
 z = pixel

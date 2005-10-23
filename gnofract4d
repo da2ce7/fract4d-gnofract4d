@@ -76,10 +76,15 @@ except Exception, exn :
     print exn
     pass
 
-# We don't use GDK threads because RedHat seem to compile pygtk
+# Threads are optional because RedHat seem to compile pygtk
 # without thread support. Grrr.
-#gtk.gdk.threads_init()
-
+try:
+    #gtk.gdk.threads_init()
+    #fract4dgui.threads_enabled = True
+    pass
+except:
+    pass
+    
 def help():
     print """Gnofract 4D %s
 Usage: gnofract4d [flags] [paramfile]

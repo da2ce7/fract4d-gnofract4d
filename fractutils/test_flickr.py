@@ -69,9 +69,10 @@ class Test(unittest.TestCase):
                 found = True
         self.failUnless(found)
 
-    def testAddPhotoToGroup(self):
+    def disabled_testAddPhotoToGroup(self):
         photo = '48623980'
         flickr.groups_pools_add(photo,TOKEN,flickr.GF4D_GROUP)
+            
         
     def testGroupMembership(self):
         user = flickr.checkToken(TOKEN).user

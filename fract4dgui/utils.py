@@ -4,6 +4,8 @@ import inspect
 
 import gtk
 
+threads_enabled = False
+
 def find_resource(name, local_dir, installed_dir):
     'try and find a file either locally or installed'
     local_name = os.path.join(local_dir,name)
