@@ -477,7 +477,11 @@ class T(FctUtils):
         c.saved = self.saved
         c.clear_image = self.clear_image
         return c
-    
+
+    def reset_angles(self):
+        for i in xrange(self.XYANGLE,self.ZWANGLE+1):
+            self.set_param(i,0.0)
+        
     def reset(self):
         # set global default values, then override from formula
         # set up defaults
