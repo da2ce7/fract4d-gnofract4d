@@ -830,6 +830,17 @@ blue=0.3
         self.assertEqual(
             f.cfunc_params[1],
             self.default_flat_params)
+
+    def testResetAngles(self):
+        f = fractal.T(self.compiler)
+        f.params[f.XYANGLE]=0.1
+        f.params[f.XZANGLE]=0.2
+        f.params[f.XWANGLE]=0.3
+        f.params[f.YZANGLE]=0.4
+        f.params[f.YWANGLE]=0.5
+        f.params[f.ZWANGLE]=0.6
+        f.reset_angles()
+        self.assertEqual(f.params[f.XYANGLE:f.ZWANGLE+1],[0.0]*6)
         
     def testFutureWarning(self):
         'load a file from the future and check we complain'

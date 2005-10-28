@@ -814,6 +814,17 @@ class T(gobject.GObject):
         if self.thaw():
             self.changed()
 
+    def set_plane(self,angle1,angle2):
+        self.freeze()
+        self.reset_angles()
+        if angle1 != None:
+            self.set_param(angle1,math.pi/2)
+        if angle2 != None:
+            self.f.set_param(angle2,math.pi/2)
+            
+        if self.thaw():
+            self.changed()
+
     def float_coords(self,x,y):
         return ((x - self.width/2.0)/self.width,
                 (y - self.height/2.0)/self.width)

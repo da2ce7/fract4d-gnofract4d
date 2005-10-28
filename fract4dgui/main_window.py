@@ -414,7 +414,22 @@ class MainWindow:
              None, 0, '<Branch>'),
             (_('/_View/_Full Screen'), 'F11',
              self.menu_full_screen, 0, ''),
+            (_('/_View/_Planes'), None,
+             None, 0, '<Branch>'),
 
+            (_('/_View/_Planes/_XY (Mandelbrot)'), '<control>1',
+             self.set_xy_plane, 0, ''),
+            (_('/_View/_Planes/_ZW (Julia)'), '<control>2',
+             self.set_zw_plane, 0, ''),
+            (_('/_View/_Planes/_XZ (Oblate)'), '<control>3',
+             self.set_xz_plane, 0, ''),
+            (_('/_View/_Planes/_XW (Parabolic)'), '<control>4',
+             self.set_xw_plane, 0, ''),
+            (_('/_View/_Planes/_YZ (Elliptic)'), '<control>5',
+             self.set_yz_plane, 0, ''),
+            (_('/_View/_Planes/_YW (Rectangular)'), '<control>6',
+             self.set_yw_plane, 0, ''),
+            
             (_('/_Share'), None,
              None, 0, '<Branch>'),
             (_('/Share/_Mail To...'), '<control>M',
@@ -903,7 +918,31 @@ class MainWindow:
 
     def reset_zoom(self,action,widget):
         self.f.reset_zoom()
+
+    def set_xy_plane(self,action,widget):
+        # left = +x, down = +y
+        self.f.set_plane(None,None)
+
+    def set_xz_plane(self,action,widget):
+        # left = +x, down = +z
+        self.f.set_plane(None, self.f.YZANGLE)
+
+    def set_xw_plane(self,action,widget):
+        # left =+x, down = +w
+        self.f.set_plane(None,self.f.YWANGLE)
+
+    def set_zw_plane(self,action,widget):
+        # left = +z, down = +w
+        self.f.set_plane(self.f.XZANGLE, self.f.YWANGLE)
         
+    def set_yz_plane(self,action,widget):
+        # left = +z, down = +y
+        self.f.set_plane(self.f.XZANGLE, None)
+	    
+    def set_yw_plane(self,action,widget):
+        # left =+w, down = +y
+        self.f.set_plane(self.f.XWANGLE, None)
+	
     def autozoom(self,action,widget):
         autozoom.show_autozoom(self.window, self.f)
         

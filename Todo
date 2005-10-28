@@ -16,7 +16,8 @@ done in 3.0:
 * B	undo/redo loses "flip y axis" setting
 * B	painter doesn't understand solid
 * BB	desktop-file-install seems to do the wrong thing
-* WW	register mime info?
+* WW	register mime info
+* W	View/Planes
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
