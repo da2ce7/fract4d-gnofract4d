@@ -52,6 +52,7 @@ class T(gobject.GObject):
     def set_value(self,val):
         val = math.fmod(val + math.pi, 2.0 * math.pi) - math.pi
         self.adjustment.set_value(val)
+        self.widget.queue_draw()
         
     def update_from_mouse(self,x,y):
         (w,h) = (self.widget.allocation.width, self.widget.allocation.height)
@@ -112,6 +113,9 @@ class T(gobject.GObject):
         
     def onExpose(self,widget,exposeEvent):
         r = exposeEvent.area
+        self.redraw_rect(widget,r)
+        
+    def redraw_rect(self,widget,r):
         style = widget.get_style()
         (w,h) = (widget.allocation.width, widget.allocation.height)
         
