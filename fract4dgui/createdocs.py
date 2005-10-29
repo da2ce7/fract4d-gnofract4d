@@ -121,6 +121,7 @@ def main(outfile):
 
     printer.add_mouse("Middle-click", "Flip to Julia set (or back to Mandelbrot).")
     printer.add_mouse("Right-click", "Zoom out.")
+    printer.add_mouse("Control-Right-click", "Zoom out more quickly.")
     
     printer.output_all()
     

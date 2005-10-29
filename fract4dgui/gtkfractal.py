@@ -807,8 +807,11 @@ class T(gobject.GObject):
                 self.flip_to_julia()
             
         else:
+            if hasattr(event,"state") and event.state & gtk.gdk.CONTROL_MASK:
+                zoom = 20.0
+            else:
+                zoom = 2.0
             (x,y) = (event.x, event.y)
-            zoom = 2.0
             self.recenter(x,y,zoom)
 
         if self.thaw():

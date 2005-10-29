@@ -35,10 +35,14 @@ compiler = os.environ.get("CC","gcc")
 cxxcompiler = os.environ.get("CXX","g++")
 
 def create_stdlib_docs():
-    'Autogenerate docs for standard library'
+    'Autogenerate docs'
     try:
-        from fract4d import createdocs
-        createdocs.main("doc/gnofract4d-manual/C/stdlib.xml")
+        import fract4d.createdocs
+        fract4d.createdocs.main("doc/gnofract4d-manual/C/stdlib.xml")
+
+        import fract4dgui.createdocs
+        fract4dgui.createdocs.main("doc/gnofract4d-manual/C/commands.xml")
+        
     except Exception, err:
         print >>sys.stderr,\
               "Problem creating docs. Online help will be incomplete."

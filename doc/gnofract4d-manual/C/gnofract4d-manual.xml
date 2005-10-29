@@ -1,6 +1,7 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY stdlib SYSTEM "stdlib.xml">
+<!ENTITY commands SYSTEM "commands.xml">
 <!ENTITY gf4d "<application>Gnofract 4D</application>">
 <!ENTITY fractint "<application>Fractint</application>">
 <!ENTITY ultrafractal "<application>UltraFractal</application>">
@@ -187,7 +188,7 @@ Formula File
 A formula file is a collection of formulas, each of which is a
 description of the algorithm used to draw a particular kind of
 fractal, expressed in a simple programming language (see <xref
-linkend="reference"></xref> for language details). Both &gf4d; and &fractint;
+linkend="formref"></xref> for language details). Both &gf4d; and &fractint;
 use <filename class="extension">.frm</filename> as the extension, and
 &ultrafractal; uses <filename class="extension">.ufm</filename>. In
 general, any formula which works in &fractint; should work in &gf4d;
@@ -395,7 +396,7 @@ Settings</emphasis> and <emphasis>Gradients</emphasis> are saved in the
 fractal's .fct file - they are properties of the fractal itself. By
 contrast, <emphasis> Preferences</emphasis> are your preferences for
 &gf4d;'s general behavior and are saved in &gf4d;'s config file
-(~/.gnome/gnofract4d), so they will still be active next time you
+(~/.gnofract4d), so they will still be active next time you
 start &gf4d; </para>
 
 <sect3 id="settingsdialog">
@@ -445,6 +446,8 @@ first.
 <sect3 id="prefsdialog">
 <title>Preferences</title> 
 
+<sect4 id="prefs_image">
+<title>Image</title>
 <para> <emphasis>Width</emphasis> and <emphasis>Height</emphasis> set
 the size of the image in pixels. If <emphasis>Maintain Aspect
 Ratio</emphasis> is checked when you change either the width or
@@ -453,14 +456,53 @@ shape. If <emphasis>Auto Deepen</emphasis> is enabled, &gf4d; will try
 to automatically guess how many iterations are required to display the
 image correctly. <emphasis>Antialiasing</emphasis> makes the image
 look smoother but takes extra time to do.  </para>
+</sect4>
 
+<sect4 id="prefs_compiler">
+<title>Compiler</title>
 <para>
 &gf4d; needs a C++ compiler to be available at runtime in order to
 work (it dynamically creates the code to compute a particular formula
-when you select it). The <emphasis>Compiler</emphasis>
-page allows you to specify a location for the compiler and options
-to pass to it. <emphasis>If &gf4d; is working fine, I suggest you
-leave this area alone.</emphasis></para> 
+when you select it). The <emphasis>Compiler</emphasis> page allows you
+to specify a location for the compiler and options to pass to
+it. <emphasis>If &gf4d; is working fine, I suggest you leave those
+settings alone.</emphasis> The <emphasis>Formula Search
+Path</emphasis> lists the directories where &gf4d; will look for
+formulas when a parameter file is loaded.
+</para> 
+</sect4>
+
+<sect4 id="prefs_general">
+<title>General</title>
+<para>
+
+<emphasis>Number of threads</emphasis> sets how many calculation
+threads to use. Generally, leave this at 1 unless you have a
+hyper-threaded or multi-processor computer, in which case set it to 1
+greater than the number of CPUs you have.
+</para> 
+</sect4>
+
+<sect4 id="prefs_helpers">
+<title>Helpers</title>
+<para>
+
+&gf4d; sometimes need to invoke a helper program. It'll try to use
+your preferences from GConf if possible, and these fields are set to
+be those defaults. However if that default is wrong somehow, you can
+explicitly set it here.
+</para> 
+</sect4>
+
+<sect4 id="prefs_flickr">
+<title>Flickr</title>
+<para>
+
+&gf4d; can upload your images to the online image-sharing service
+Flickr. This pages handles your online identity.
+
+</para> 
+</sect4>
 
 </sect3>
 
@@ -469,19 +511,32 @@ leave this area alone.</emphasis></para>
 <sect2 id="hints">
 <title>Hints</title>
 
+<itemizedlist>
+
+<listitem>
 <para>If you zoom into a busy part of the fractal the image can look
 "noisy". You can fix this by making the colors change more slowly - go
 to the "Outer" tab and change the transfer function to 'sqrt' or 'log'
 - or change "Density" to a number between 0 and 1 - a density of 0.1
 makes the colors change 10 times more slowly.
 </para>
+</listitem>
 
+<listitem>
 <para>If you have an Inner coloring method other than zero, you may
 see weird effects unless you disable periodicity checking.
 </para>
+</listitem>
+
+</itemizedlist>
 
 </sect2>
+</sect1>
 
+<sect1 id="cmdref">
+<title>Command Reference</title>
+<!-- pull in auto-generated list of keyboard and mouse commands -->
+&commands;
 </sect1>
 
 <sect1 id="maths">
@@ -496,7 +551,7 @@ insultingly oversimplified or just plain wrong.
 
 <sect2 id="mset" >
 <title>The Mandelbrot Set</title> <para> The Mandelbrot may be
-calculated as the set of all complex numbers which, when you
+defined as the set of all complex numbers which, when you
 repeatedly square them and add them again, never become infinite. (The
 official definition of the set is somewhat different: it is the set of
 points in the complex plane whose corresponding Julia sets are
@@ -504,25 +559,45 @@ connected. These end up being the same thing.)
 
 We can tell that a number will eventually reach infinity if it ever
 gets outside a circle of radius 2 around the origin. Unfortunately, we
-can't tell in general that a point will never become infinite, so we
-have to estimate by trying a large number of times before giving up.
+can't tell in general that a point will <emphasis>never</emphasis>
+become infinite, so we have to estimate by trying a large number of
+times before giving up.
 </para>
+
 <para>
-In pseudocode, the procedure is:
+In &gf4d;, the formula is:
 </para>
+
 <programlisting>
-z = 0
-while( magnitude(z) &lt; 2.0 )
-     z = z^2 + c
+Mandelbrot1 {
+init:
+    z = 0
+loop:
+    z = z^2 + c
+bailout:
+    |z| &lt; 4.0
+}
 </programlisting>
 
 <para>
-Here, <emphasis>c</emphasis> is determined by the position on screen. This
-gives rise to the familiar Mandelbrot set:
+(|z| means the square of the magnitude of z). We calculate the loop
+function repeatedly until the bailout condition is false or we've
+performed the maximum number of iterations. At that point, if we
+"bailed out", we know we're outside the set: otherwise we're
+(probably) inside.
+</para>
 
+<para>
+We do this repeatedly for each position on the screen, setting
+<emphasis>c</emphasis> to a different value for each point. This gives
+rise to the familiar Mandelbrot set:
+</para>
+
+<para>
 <graphic align="center" format="PNG"
 fileref="figures/mandelbrot_standard.png"> </graphic>
-
+</para>
+<para>
 All the points inside the set are (as is traditional) coloured
 black. The points outside the set are different colours depending on
 how long it takes them to escape from the set. These colours aren't
@@ -542,7 +617,8 @@ Well, you get a rather odd-looking, deformed M-set.  This initial
 value, which we'll call <emphasis>z0</emphasis>, is called the intial
 perturbation, and sets which have a non-zero <emphasis>z0</emphasis>
 are known as <emphasis>perturbed</emphasis> sets: 
-
+</para>
+<para>
 <graphic align="center" format="PNG"
 fileref="figures/mandelbrot_perturbed.png"> </graphic>
 
@@ -558,7 +634,8 @@ Mandelbrot set. But instead of changing the value of
 constant and change <emphasis>z0</emphasis>. There is a different
 Julia set for each value of <emphasis>c</emphasis>; here's the one for
 <emphasis>c</emphasis>=0.
-
+</para>
+<para>
 <graphic align="center" format="PNG"
 fileref="figures/julia_standard.png"> </graphic>
 
@@ -572,7 +649,8 @@ member of the set). All other values will grow forever, and so we've
 just discovered a rather inefficient way of drawing perfect circles.
 If we use a different value of <emphasis>c</emphasis> we get something more
 interesting: 
-
+</para>
+<para>
 <graphic align="center" format="PNG"
 fileref="figures/julia_perturbed.png"> </graphic>
 
@@ -587,12 +665,14 @@ Here we come to the heart of the matter. I said above that both the
 Julia and Mandelbrot sets are drawn with the <emphasis>same
 function</emphasis>. 
 <programlisting>
-julibrot(z0,c)
-z = z0
-iterations = 0
-while( magnitude(z) &lt; 4.0 and iterations &lt; max_iterations )
-     z = z^2 + c
-     iterations = iterations + 1
+julibrot(z0,c) {
+init:
+    z = z0
+loop:
+    z = z^2 + c
+bailout:
+    |z| &lt; 4.0
+}
 </programlisting>
 
 The Julibrot function has two complex parameters, or four real
@@ -609,7 +689,8 @@ orthogonal "slices" through the same four-dimensional object. In
 plane, and the Julia set is the <emphasis>zw</emphasis> plane. We can
 also look at other planes: here's an image of the
 <emphasis>xw</emphasis> plane:
-
+</para>
+<para>
 <graphic align="center" format="PNG"
 fileref="figures/xw_plane.png"> </graphic>
 
@@ -644,10 +725,12 @@ degrees in the xz and yw directions, our screen vectors become
 [0,0,1,0] and [0,0,0,1]: in other words, the Julia set. If we rotate
 only part of the way, we get a "hybrid" between the two sets, which
 looks decidedly odd:
-
+</para>
+<para>
 <graphic align="center" format="PNG" fileref="figures/hybrid.png">
 </graphic>
-
+</para>
+<para>
 In fact, we can rotate to any angle in each of the planes,
 creating a whole world of bizarre pictures.
 </para>
@@ -661,10 +744,10 @@ creating a whole world of bizarre pictures.
 as "four-dimensional" - hypercomplex and quaternion-based
 fractals. Hypercomplex numbers have four components (one real and
 three imaginary) where complex numbers have two. Since the
-hypercomplex mandelbrot has two hypercomplex parameters, in Gnofract
-4D terms it's actually an eight-dimensional object. &gf4d; allows you
-to set four of these as part of the view - the other four have to be
-set via parameters. </para>
+hypercomplex mandelbrot has two hypercomplex parameters, in &gf4d;
+terms it's actually an eight-dimensional object. &gf4d; allows you to
+set four of these as part of the view - the other four have to be set
+via parameters. &gf4d; doesn't support quaternions at present.</para>
 
 </sect2>
 </sect1>
@@ -705,7 +788,7 @@ releases. </para></listitem>
 </itemizedlist>
 </para>
 
-<sect2 id="tutorial">
+<sect2 id="frm_tutorial">
 <title>Writing Your First Formula</title>
 
 <para>
@@ -732,7 +815,7 @@ For now, I suggest copying one of the formulas which come with
 
 </sect1>
 
-<sect1 id="reference">
+<sect1 id="formref">
 <title>Formula Language Reference</title>
 &stdlib;
 </sect1>
