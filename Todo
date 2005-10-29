@@ -20,6 +20,7 @@ done in 3.0:
 * W	View/Planes
 * B	angle widgets don't always work when changing planes
 * B	plane menu is available even if not is4D()
+* W	documentation improvements
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

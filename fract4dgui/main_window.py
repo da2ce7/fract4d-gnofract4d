@@ -456,6 +456,10 @@ class MainWindow:
              None, 0, '<Branch>'),
             (_('/_Help/_Contents'), 'F1',
              self.contents, 0, ''),
+            (_('/_Help/Command _Reference'), '',
+             self.command_reference, 0, ''),
+            (_('/_Help/_Formula Reference'), '',
+             self.formula_reference, 0, ''),
             (_('/Help/_About'), None,
              self.about, 0, ''),
             )
@@ -979,6 +983,12 @@ class MainWindow:
         """Show help file contents page."""
         self.display_help()
 
+    def command_reference(self,action,widget):
+        self.display_help("cmdref")
+
+    def formula_reference(self,action,widget):
+        self.display_help("formref")
+        
     def display_help(self,section=None):
         base_help_file = "gnofract4d-manual.xml"
         loc = "C" # FIXME
