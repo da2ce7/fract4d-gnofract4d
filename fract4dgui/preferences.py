@@ -445,7 +445,7 @@ class PrefsDialog(dialog.T):
         label.set_use_underline(True)
         self.notebook.append_page(table,label)
 
-        self.signoff = gtk.Button(_("_Sign off from Flickr"))
+        self.signoff = gtk.Button(_("_Sign out from Flickr"))
         self.signoff.connect("clicked",self.do_signoff)
 
         self.token_label = gtk.Label("")
