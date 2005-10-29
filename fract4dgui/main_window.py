@@ -371,8 +371,8 @@ class MainWindow:
                 self.quit(None,None)
             
         self.bar.set_text(text)
-        
-    def create_menu(self):
+
+    def get_menu_items(self):
         menu_items = (
             (_('/_File'), None, None, 0, '<Branch>' ),
             (_('/File/_Open Parameter File...'), '<control>O',
@@ -459,7 +459,11 @@ class MainWindow:
             (_('/Help/_About'), None,
              self.about, 0, ''),
             )
+        return menu_items
     
+    def create_menu(self):
+        menu_items = self.get_menu_items()
+        
         item_factory = gtk.ItemFactory(gtk.MenuBar, '<main>', self.accelgroup)
         item_factory.create_items(menu_items)
 
@@ -483,18 +487,22 @@ class MainWindow:
         
         
     def browser(self,action,menuitem):
+        """Display formula browser."""
         browser.show(self.window,self.f,browser.FRACTAL)
 
     def randomize_colors(self,action,menuitem):
+        """Create a new random color scheme."""
         self.f.make_random_colors(8)
 
     def painter(self,action,menuitem):
         painter.show(self.window,self.f)
             
     def toggle_explorer(self, action, menuitem):
+        """Enter (or leave) Explorer mode."""
         self.set_explorer_state(menuitem.get_active())
 
     def menu_full_screen(self, action, menuitem):
+        """Show main window full-screen."""
         self.set_full_screen(True)
 
     def on_key_escape(self, state):
@@ -801,6 +809,7 @@ class MainWindow:
             return False
 
     def save(self,action,widget):
+        """Save the current parameters."""
         if self.filename == None:
             self.saveas(action,widget)
         else:
@@ -808,6 +817,7 @@ class MainWindow:
         
 
     def saveas(self,action,widget):
+        """Save the current parameters into a new file."""
         fs = self.get_save_as_fs()
         save_filename = self.default_save_filename()
 
@@ -861,6 +871,7 @@ class MainWindow:
         d.destroy()
 
     def send_to(self,action,widget):
+        """Launch an email editor with current image attached."""
         mailer = preferences.userPrefs.get("helpers","mailer")
         
         image_name = os.path.join(
@@ -874,9 +885,11 @@ class MainWindow:
         os.system(mailer % url)
 
     def upload(self,action,widget):
+        """Upload the current image to Flickr.com."""
         flickr_assistant.show_flickr_assistant(self.window,self.control_box, self.f, False)
         
     def save_image(self,action,widget):
+        """Save the current image to a file."""
         save_filename = self.default_save_filename(".png")
 
         fs = self.get_save_image_as_fs()
@@ -901,54 +914,69 @@ class MainWindow:
         fs.hide()
                 
     def settings(self,action,widget):
+        """Show fractal settings controls."""
         settings.show_settings(self.window, self.control_box, self.f, False)
         
     def colors(self,action,widget):
+        """Show gradient editor."""
         colors.show_colors(self.window, self.control_box, self.f, True)
         
     def preferences(self,action,widget):
+        """Change current preferences."""
         preferences.show_preferences(self.window, self.f)
         
     def undo(self,*args):
+        """Undo the last operation."""
         self.model.undo()
         
     def redo(self,*args):
+        """Redo an operation after undoing it."""
         self.model.redo()
         
     def reset(self,action,widget):
+        """Reset all numeric parameters to their defaults."""
         self.f.reset()
 
     def reset_zoom(self,action,widget):
+        """Reset zoom to default level."""
         self.f.reset_zoom()
 
     def set_xy_plane(self,action,widget):
+        """Reset rotation to show the XY (Mandelbrot) plane."""
         # left = +x, down = +y
         self.f.set_plane(None,None)
 
     def set_xz_plane(self,action,widget):
+        """Reset rotation to show the XZ (Oblate) plane."""
         # left = +x, down = +z
         self.f.set_plane(None, self.f.YZANGLE)
 
     def set_xw_plane(self,action,widget):
+        """Reset rotation to show the XW (Parabolic) plane."""
         # left =+x, down = +w
         self.f.set_plane(None,self.f.YWANGLE)
 
     def set_zw_plane(self,action,widget):
+        """Reset rotation to show the ZW (Julia) plane."""
         # left = +z, down = +w
         self.f.set_plane(self.f.XZANGLE, self.f.YWANGLE)
         
     def set_yz_plane(self,action,widget):
+        """Reset rotation to show the YZ (Elliptic) plane."""
         # left = +z, down = +y
         self.f.set_plane(self.f.XZANGLE, None)
 	    
     def set_yw_plane(self,action,widget):
+        """Reset rotation to show the YW (Rectangular) plane."""
         # left =+w, down = +y
         self.f.set_plane(self.f.XWANGLE, None)
 	
     def autozoom(self,action,widget):
+        """Display AutoZoom dialog."""
         autozoom.show_autozoom(self.window, self.f)
         
     def contents(self,action,widget):
+        """Show help file contents page."""
         self.display_help()
 
     def display_help(self,section=None):
@@ -980,6 +1008,7 @@ class MainWindow:
         os.system("yelp ghelp://%s%s >/dev/null 2>&1 &" % (abs_file, anchor))
         
     def open_formula(self,action,widget):
+        """Open a formula (.frm) or coloring algorithm (.cfrm) file."""
         fs =self.get_open_formula_fs()
         fs.show_all()
         filename = ""
@@ -1001,6 +1030,7 @@ class MainWindow:
             browser.show(self.window, self.f, browser.FRACTAL)
         
     def open(self,action,widget):
+        """Open a parameter (.fct) file."""
         fs = self.get_open_fs()
         fs.show_all()
         
@@ -1053,6 +1083,7 @@ class MainWindow:
         self.display_help("about")
 
     def quit(self,action,widget=None):
+        """Quit Gnofract 4D."""
         self.f.interrupt()
         for f in self.subfracts:
             f.interrupt()
