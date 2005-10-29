@@ -123,6 +123,7 @@ class Test(unittest.TestCase):
         self.mw.contents(None,None)
         self.mw.browser(None,None)
         self.mw.painter(None,None)
+        self.mw.upload(None,None)
         
     def testExplorer(self):
         result = self.mw.load("../testdata/nexus.fct")
@@ -139,6 +140,9 @@ class Test(unittest.TestCase):
         self.mw.set_explorer_state(False)
             
 
+    def testPlanes(self):
+        self.mw.set_xz_plane(None,None)
+        
     def testRandomize(self):
         self.mw.randomize_colors(8,None)
         

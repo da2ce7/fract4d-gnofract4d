@@ -76,6 +76,9 @@ class T(gobject.GObject):
         
     def onExpose(self,widget,exposeEvent):
         r = exposeEvent.area
+        self.redraw_rect(widget, r)
+
+    def redraw_rect(self,widget,r):
         style = widget.get_style()
         (w,h) = (widget.allocation.width, widget.allocation.height)
         
