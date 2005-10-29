@@ -28,7 +28,8 @@ class MainWindow:
         self.quit_when_done =False
         self.save_filename = None
         self.f = None
-        
+
+        self.four_d_sensitives = []
         # window widget
 
         self.set_icon()
@@ -470,6 +471,9 @@ class MainWindow:
         self.model.seq.make_redo_sensitive(redo)
 
         self.explore_menu = item_factory.get_item(_("/Tools/Explorer"))
+
+        self.plane_menu = item_factory.get_item(_("/View/Planes"))
+        self.four_d_sensitives.append(self.plane_menu)
         
         # need to reference the item factory or the menus
         # later disappear randomly - some sort of bug in pygtk, python, or gtk
@@ -548,8 +552,6 @@ class MainWindow:
     def create_toolbar(self):
         self.toolbar = toolbar.T()
         self.vbox.pack_start(self.toolbar,expand=gtk.FALSE)
-
-        self.four_d_sensitives = []
         
         # preview
         self.toolbar.add_space()
