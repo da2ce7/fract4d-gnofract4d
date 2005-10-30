@@ -17,7 +17,7 @@ GF4D_GROUP="46555832@N00"
 class FlickrError(Exception):
     def __init__(self, msg,code=0):
         Exception.__init__(self, msg)
-        self.code = code
+        self.code = int(code)
         
 def parseResponse(resp):
     try:
@@ -38,18 +38,30 @@ def parseResponse(resp):
 
 def makeCall(url,is_post,**kwds):
     query = urllib.urlencode(kwds)
-    url = "%s?%s" % (url, query)
-    req = urllib2.Request(url)
-
     if is_post:
-        req.add_data("")
-        
-    #req.set_proxy("localhost:8000","http")
-    resp = urllib2.urlopen(req).read()
-    #print resp
+        cmd = './get.py -P application/x-binary "%s?%s"' % (url,query)
+    else:
+        cmd = './get.py "%s?%s"' % (url,query)
+
+    print cmd
+    
+    (p_in,p_out) = os.popen2(cmd, mode="b")    
+    p_in.close();
+    resp = p_out.read()
+    
     dom = parseResponse(resp)
     return dom
 
+def makePostCall(url, content_type, body, **kwds):
+    (p_in, p_out) = os.popen2('./get.py -P "%s" "%s"' % (content_type, url), mode="b")
+    
+    p_in.write(body);
+    p_in.close()
+        
+    resp = p_out.read()
+    dom = parseResponse(resp)
+    return dom
+    
 def makeSignedCall(url,is_post,**kwds):
     sig = createSig(**kwds)
     kwds["api_sig"] = sig
@@ -80,7 +92,7 @@ def getFrob():
     return resp.getElementsByTagName("frob")[0].firstChild.nodeValue
 
 def getAuthUrl(frob_):
-    return getSignedUrl(AUTH_URL,False,api_key=API_KEY,perms="write",frob=frob_)
+    return getSignedUrl(AUTH_URL,api_key=API_KEY,perms="write",frob=frob_)
 
 def getToken(frob_):
     resp = makeSignedCall(BASE_URL,False,method="flickr.auth.getToken",api_key=API_KEY,frob=frob_)
@@ -98,10 +110,10 @@ def upload(photo,token,**kwds):
     sig = createSig(**kwds)
     kwds["api_sig"] = sig
     files = [("photo",os.path.basename(photo),open(photo).read())]
-    req = build_request(UPLOAD_URL,kwds,files)
 
-    resp = urllib2.urlopen(req).read()
-    xml = parseResponse(resp)
+    content_type, body = encode_multipart_formdata(kwds, files)
+    xml = makePostCall(UPLOAD_URL,content_type,body)
+
     photoid = xml.getElementsByTagName("photoid")[0].firstChild.nodeValue
     return photoid
 
