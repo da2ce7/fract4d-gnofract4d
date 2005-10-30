@@ -6,6 +6,24 @@ import gtk
 
 threads_enabled = False
 
+def threads_enter():
+    if threads_enabled:
+        gtk.gdk.threads_enter()
+
+def threads_leave():
+    if threads_enabled:
+        gtk.gdk.threads_leave()
+
+def idle_wrapper(callable, *args):
+    threads_enter()
+    callable(*args)
+    threads_leave()
+
+def idle_add(callable, *args):
+    """A wrapper around gtk.idle_add which wraps the callback in
+    threads_enter/threads_leave if required"""
+    gtk.idle_add(idle_wrapper, callable, *args)
+    
 def find_resource(name, local_dir, installed_dir):
     'try and find a file either locally or installed'
     local_name = os.path.join(local_dir,name)

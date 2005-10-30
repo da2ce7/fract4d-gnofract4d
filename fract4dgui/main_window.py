@@ -268,7 +268,7 @@ class MainWindow:
         self.f.set_nthreads(prefs.getint("general","threads"))
                             
     def deferred_prefs_changed(self,prefs):
-        gtk.idle_add(self.on_prefs_changed, prefs)
+        utils.idle_add(self.on_prefs_changed, prefs)
 
     def on_prefs_changed(self,prefs):
         self.f.freeze()

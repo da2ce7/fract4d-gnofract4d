@@ -192,11 +192,12 @@ class T(gobject.GObject):
             print "bad message: %s" % list(bytes)
             return True
 
-        if utils.threads_enabled:
-            gtk.gdk.threads_enter()
-            
         (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
-        m = self.name_of_msg[t] 
+        m = self.name_of_msg[t]
+
+        if utils.threads_enabled:
+            gtk.gdk.threads_enter()    
+
         #print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
         if t == 0:
             if not self.skip_updates: self.iters_changed(p1)
@@ -252,13 +253,13 @@ class T(gobject.GObject):
         def set_fractal(entry,event,f,order,param_type):
             'set fractal'
             try:
-                gtk.idle_add(f.set_initparam,order,
-                             entry.get_text(),param_type)
+                utils.idle_add(f.set_initparam,order,
+                               entry.get_text(),param_type)
             except Exception, err:
                 # FIXME: produces too many errors
                 msg = "Invalid value '%s': must be a number" % \
                       entry.get_text()
-                #gtk.idle_add(f.warn,msg)
+                #utils.idle_add(f.warn,msg)
             return False
 
         set_entry(self)
@@ -297,12 +298,12 @@ class T(gobject.GObject):
 
         def set_fractal(entry,f,order,param_type):
             try:
-                gtk.idle_add(f.set_initparam,order,
+                utils.idle_add(f.set_initparam,order,
                              entry.get_active(),param_type)
             except Exception, err:
                 msg = "error setting bool param: %s" % str(err)
                 print msg
-                gtk.idle_add(f.warn,msg)
+                utils.idle_add(f.warn,msg)
 
             return False
 
@@ -562,7 +563,7 @@ class T(gobject.GObject):
             except ValueError, err:
                 msg = "Invalid value '%s': must be a number" % \
                       widget.get_text()
-                gtk.idle_add(self.warn, msg)
+                utils.idle_add(self.warn, msg)
                 
             return False
 
@@ -629,7 +630,7 @@ class T(gobject.GObject):
         if self.f.maxiter != new_iter:
             self.f.maxiter = new_iter
             self.changed()
-        
+
     def set_size(self, new_width, new_height):
         self.interrupt()
         if self.width == new_width and self.height == new_height :
@@ -642,10 +643,10 @@ class T(gobject.GObject):
             fract4dc.image_resize(self.image, new_width, new_height)
 
             self.widget.set_size_request(new_width,new_height)
-
-            gtk.idle_add(self.changed)
+            
+            utils.idle_add(self.changed)
         except MemoryError, err:
-            gtk.idle_add(self.warn,str(err))
+            utils.idle_add(self.warn,str(err))
             
 
         
@@ -676,9 +677,9 @@ class T(gobject.GObject):
             self.f.compile()
         except fracttypes.TranslationError, err:
             advice = _("\nCheck that your compiler settings and formula file are correct.")
-            gtk.idle_add(self.error,
-                         _("Error compiling fractal:"),
-                         err.msg + advice)
+            utils.idle_add(self.error,
+                           _("Error compiling fractal:"),
+                           err.msg + advice)
             return
         
         self.f.antialias = aa

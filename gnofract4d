@@ -50,7 +50,7 @@ try:
     # we install our libs privately instead of to site-packages
     sys.path.append(os.path.join(libdir, 'gnofract4d-%s' % version))
     # gui modules
-    from fract4dgui import main_window, preferences
+    from fract4dgui import main_window, preferences, utils
     
 except ImportError, err:
     print _('''
@@ -63,7 +63,6 @@ Error was: '%s' ''') % err
 # carry on working with older PyGTK's, so UIManager is out, and the differences
 # between the 2 are too large to hide
 try:
-    import re
     import warnings
     warnings.filterwarnings(
         "ignore",
@@ -80,7 +79,7 @@ except Exception, exn :
 # without thread support. Grrr.
 try:
     gtk.gdk.threads_init()
-    fract4dgui.threads_enabled = True
+    utils.threads_enabled = True
     pass
 except:
     pass
@@ -98,6 +97,8 @@ Flags:
 -j --height N\t\tMake image N pixels tall
 -P --path P\t\tAdd P to the formula search path
 -f --formula F#func\tUse formula 'func' in file F
+   --inner F#func\tUse coloring algorithm 'func' in file F
+   --outer F#func\tUse coloring algorithm 'func' in file F
 -X --explorer\tStart in explorer mode
 
 To generate an image non-interactively, use:
