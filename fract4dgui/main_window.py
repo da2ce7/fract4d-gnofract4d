@@ -883,8 +883,10 @@ class MainWindow:
             os.path.basename(self.default_save_filename(".png")))
         self.f.save_image(image_name)
         subject = os.path.basename(self.display_filename())
-        url= '"mailto:somebody@example.com?subject=%s&attach=%s"' % \
-             (urllib.quote(subject), urllib.quote(image_name))
+        url= '"mailto:somebody@example.com?subject=%s&attach=%s&body=%s"' % \
+             (urllib.quote(subject),
+              urllib.quote(image_name),
+              urllib.quote(self.f.serialize()))
         #print url
         os.system(mailer % url)
 

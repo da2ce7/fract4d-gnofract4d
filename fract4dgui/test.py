@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+# suppress annoying message during tests we get otherwise
+import warnings
+warnings.filterwarnings(
+    "ignore",
+    ".*UIManager.*",
+    DeprecationWarning,
+    ".*",
+    0)
+
 import unittest
 import test_gtkfractal
 import test_undo
