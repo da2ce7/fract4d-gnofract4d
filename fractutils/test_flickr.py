@@ -26,6 +26,7 @@ Click on the URL below and follow the instructions, then close the browser windo
     sys.stdin.readline()
     token = flickr.getToken(frob)
     print "token",token
+    TOKEN=token.token
     open("token.txt","w").write(token.token)    
 
 class Test(unittest.TestCase):
@@ -71,8 +72,11 @@ class Test(unittest.TestCase):
 
     def disabled_testAddPhotoToGroup(self):
         photo = '48623980'
-        flickr.groups_pools_add(photo,TOKEN,flickr.GF4D_GROUP)
-            
+        try:
+            flickr.groups_pools_add(photo,TOKEN,flickr.GF4D_GROUP)
+            self.fail("Should have thrown an exception")
+        except flickr.FlickrError, err:
+            self.assertEqual(err.code,3)
         
     def testGroupMembership(self):
         user = flickr.checkToken(TOKEN).user
