@@ -17,6 +17,8 @@ import select
 import errno
 import time
 
+import gtk
+
 try:
     import subprocess
 except ImportError:
@@ -32,15 +34,18 @@ def makeNonBlocking(fd):
         fcntl.fcntl(fd, FCNTL.F_SETFL, fl | FCNTL.FNDELAY)
         
 class Slave(object):
-    def __init__(self, cmd, args=[]):
+    def __init__(self, cmd, *args):
         self.cmd = cmd
-        self.args = args
+        self.args = list(args)
         self.process = None
         self.input = ""
         self.in_pos = 0
         self.stdin = None
         self.stdout = None
         self.output = ""
+        self.dead = False
+        self.write_id = None
+        self.read_id = None
         
     def run(self, input):
         self.input = input
@@ -52,13 +57,34 @@ class Slave(object):
         makeNonBlocking(self.process.stdout.fileno())
         self.stdin = self.process.stdin
         self.stdout = self.process.stdout
-    
+
+    def register(self, on_writable, on_readable):
+        self.write_id = gtk.input_add(self.stdin, gtk.gdk.INPUT_WRITE, on_writable)
+        self.read_id = gtk.input_add(self.stdout, gtk.gdk.INPUT_READ, on_readable)
+
+    def unregister_write(self):
+        if self.write_id:
+            #print "unreg write"
+            gtk.input_remove(self.write_id)
+            self.write_id = None
+            
+    def unregister_read(self):
+        if self.read_id:
+            #print "unreg read"
+            gtk.input_remove(self.read_id)
+            self.read_id = None
+            
     def write(self):
+        if self.dead:
+            self.unregister_write()
+            return False
+        
         bytes_to_write = min(len(self.input) - self.in_pos,1000)
         if bytes_to_write < 1:
             self.stdin.close()
+            self.unregister_write()
             return False
-        
+
         try:            
             self.stdin.write(
                 self.input[self.in_pos:self.in_pos+bytes_to_write])
@@ -73,6 +99,9 @@ class Slave(object):
         return True
 
     def read(self):
+        if self.dead:
+            self.unregister_read()
+            return False
         try:
             data = self.stdout.read(-1)
             #print "read", len(data)
@@ -82,16 +111,19 @@ class Slave(object):
                 if self.process.poll() == None:
                     #process has quit
                     #print "done"
+                    self.unregister_read()
                     return False
                 if self.process.returncode != None:
                     #print "returned"
+                    self.unregister_read()
                     return False
                 if self.stdout.closed:
-                    print "closed"
+                    #print "closed"
+                    self.unregister_read()
                     return False
         except IOError, err:
             if err.errno == errno.EAGAIN:
-                print "again!"
+                #print "again!"
                 return True
             raise
         self.output += data
@@ -99,12 +131,45 @@ class Slave(object):
     
     def terminate(self):
         try:
+            self.dead = True
             os.kill(self.process.pid,signal.SIGKILL)
         except OSError, err:
             if err.errno == errno.ESRCH:
                 # already dead
                 return
             raise
+
+class SlaveOwner(object):
+    def __init__(self, s):
+        self.s = s
+        
+    def on_readable(self, source, condition):
+        progress = 1.0 * self.s.in_pos / (len(self.s.input)+1)
+        self.bar.set_text("Reading")
+        self.bar.pulse()
+        
+        #print "readable:", source, condition
+        if not self.s.read():
+            gtk.main_quit()
+        return True
+
+    def on_writable(self, source, condition):
+        progress = 1.0 * self.s.in_pos / (len(self.s.input)+1)
+        self.bar.set_text("Writing %.2f" % progress)
+        self.bar.set_fraction(progress)
+        #print "writable:",source,condition
+        self.s.write()
+        return True
+    
+    def run(self,input):
+        self.s.run(input)
+        self.s.register(self.on_writable, self.on_readable)
+
+        window = gtk.Window()
+        self.bar = gtk.ProgressBar()
+        window.add(self.bar)
+        window.show_all()
+        gtk.main()
         
 class Test(unittest.TestCase):
     def setUp(self):
@@ -113,17 +178,14 @@ class Test(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def runProcess(self,wait_time):
-        nchunks = 100
-        bytes_per_chunk = 1000
-        nbytes = bytes_per_chunk * nchunks
-
-        input = "x" * nbytes
-        s = Slave("./stub_subprocess.py")
+    def runProcess(self,input,wait_time):
+        s = Slave("./stub_subprocess.py", str(wait_time))
 
         s.run(input)
-        
-        while 1:
+        return s
+    
+    def sendInput(self,s,n=sys.maxint):
+        while n > 0:
             (r,w,e) = select.select([],[s.stdin],[],0.01)
             if len(w) == 0:
                 continue
@@ -131,8 +193,10 @@ class Test(unittest.TestCase):
             if not s.write():
                 break
 
+            n -= 1
         #print "done with input"
 
+    def readOutput(self,s):
         bytes_read = 0
         while 1:
             (r,w,e) = select.select([s.stdout],[],[],0.01)
@@ -142,13 +206,36 @@ class Test(unittest.TestCase):
             if not s.read():
                 break
 
-        self.assertEqual(input, s.output)
-        
+    def testTerminate(self):
+        s = self.runProcess("y" * 200, 2.0)
+        self.sendInput(s,1)
         s.terminate()
+        self.assertEqual(False, s.write())
+        self.assertEqual(False, s.read())
         
     def testRun(self):
-        self.runProcess(0.001)
-    
+        input = "x" * (100 * 1000)
+        s = self.runProcess(input, 0.001)
+        self.sendInput(s)
+        self.readOutput(s)
+        self.assertEqual(input, s.output)
+
+    def testRegister(self):
+        s = Slave("./stub_subprocess.py", str(0.01))
+        so = SlaveOwner(s)
+
+        input = "x" * (100 * 1000)
+        so.run(input)
+        #self.assertEqual(input, s.output)
+        #print "register done"
+        
+    def testGet(self):
+        s = Slave("./get.py", "GET", "http://www.google.com/index.html" )
+        so = SlaveOwner(s)
+        so.run("")
+        self.failUnless(s.output.count("oogle") > 0)
+        #print "get done"
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 

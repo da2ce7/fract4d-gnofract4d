@@ -3,7 +3,7 @@
 # a minimal script to fetch a web page. We execute this in a separate process
 # so we can cancel flickr requests if they take too long or go wrong
 
-# usage: get.py [-P content-type ] url
+# usage: get.py input_length method url [content-type ] 
 # if -P, this is a POST, read postdata from stdin
 # url should already be encoded
 
@@ -11,17 +11,11 @@
 import sys
 import urllib2
 
-if len(sys.argv)<2:
-    print "bad args"
-    sys.exit(-1)
-
-if sys.argv[1]=="-P":
-    is_post = True
-    content_type = sys.argv[2]
-    url = sys.argv[3]
-else:
-    is_post = False
-    url = sys.argv[1]
+input_length = sys.argv[1]
+is_post = sys.argv[2] == "POST"
+url = sys.argv[3]
+if is_post:
+    content_type = sys.argv[4]
 
 txheaders = {}
 data = None
