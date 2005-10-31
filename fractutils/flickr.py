@@ -4,6 +4,11 @@ import os
 import urllib, urllib2, urlparse, mimetools, mimetypes
 import xml.dom.minidom
 import md5
+try:
+    import subprocess
+except ImportError:
+    # this python too old - use our backported copy of stdlib file
+    import gf4d_subprocess as subprocess
 
 API_KEY="f29c6d8fa5d950131c4ae13adc55700d"
 SECRET="037ec6eec0e91cab"
@@ -39,13 +44,14 @@ def parseResponse(resp):
 def makeCall(url,is_post,**kwds):
     query = urllib.urlencode(kwds)
     if is_post:
-        cmd = './get.py -P application/x-binary "%s?%s"' % (url,query)
+        cmd = ["./get.py", "-P", "application/x-binary", "%s?%s" % (url,query)]
     else:
-        cmd = './get.py "%s?%s"' % (url,query)
+        cmd = ['./get.py', "%s?%s" % (url,query)]
 
     print cmd
-    
-    (p_in,p_out) = os.popen2(cmd, mode="b")    
+
+    p = subprocess.Popen(cmd,stdin=subprocess.PIPE,stdout=subprocess.PIPE,close_fds=True)
+    (p_in,p_out) = (p.stdin, p.stdout)
     p_in.close();
     resp = p_out.read()
     
@@ -53,7 +59,11 @@ def makeCall(url,is_post,**kwds):
     return dom
 
 def makePostCall(url, content_type, body, **kwds):
-    (p_in, p_out) = os.popen2('./get.py -P "%s" "%s"' % (content_type, url), mode="b")
+    p = subprocess.Popen(
+        ["./get.py", "-P", content_type, url],
+        stdin=subprocess.PIPE,stdout=subprocess.PIPE,close_fds=True)
+    
+    (p_in, p_out) = p.stdin, p.stdout
     
     p_in.write(body);
     p_in.close()
