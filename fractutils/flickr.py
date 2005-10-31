@@ -23,7 +23,7 @@ class FlickrError(Exception):
     def __init__(self, msg,code=0):
         Exception.__init__(self, msg)
         self.code = int(code)
-        
+
 def parseResponse(resp):
     try:
         dom = xml.dom.minidom.parseString(resp)
