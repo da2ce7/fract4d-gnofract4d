@@ -108,9 +108,20 @@ class Slave(object):
             raise
 
 import gtk
+import gobject
 
-class GTKSlave(Slave):
-    def __init__(self, cmd, *args):        
+class GTKSlave(gobject.GObject,Slave):
+    __gsignals__ = {
+        'operation-complete' : (
+        (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
+        gobject.TYPE_NONE, ()),
+        'progress-changed' : (
+        (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
+        gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_FLOAT))
+        }
+
+    def __init__(self, cmd, *args):
+        gobject.GObject.__init__(self)
         Slave.__init__(self,cmd,*args)
         self.write_id = None
         self.read_id = None
@@ -120,15 +131,18 @@ class GTKSlave(Slave):
             #print "unreg write"
             gtk.input_remove(self.write_id)
             self.write_id = None
-
+            
     def on_readable(self, source, condition):        
         #print "readable:", source, condition
         self.read()
+        self.emit('progress-changed', "read", -1.0)
         return True
 
     def on_writable(self, source, condition):
         #print "writable:",source,condition
         self.write()
+        self.emit('progress-changed', "write",
+                  (self.in_pos+1.0)/(len(self.input)+1))
         return True
 
     def on_complete(self):
@@ -136,10 +150,12 @@ class GTKSlave(Slave):
             #print "unreg read"
             gtk.input_remove(self.read_id)
             self.read_id = None
-        
+            self.emit('operation-complete')
+            
     def run(self,input):
         Slave.run(self,input)
 
         self.write_id = gtk.input_add(self.stdin, gtk.gdk.INPUT_WRITE, self.on_writable)
         self.read_id = gtk.input_add(self.stdout, gtk.gdk.INPUT_READ, self.on_readable)
 
+gobject.type_register(GTKSlave)
