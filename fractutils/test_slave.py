@@ -10,41 +10,37 @@ import gtk
 
 import slave
 
-class GTKTestSlave(slave.GTKSlave):
-    def __init__(self, cmd, *args):        
-        slave.GTKSlave.__init__(self,cmd,*args)
+class GTKTestSlave(object):
+    def __init__(self, cmd, *args):
+        self.s = slave.GTKSlave(cmd,*args)
         self.complete = False
-
-    def on_complete(self):
-        slave.GTKSlave.on_complete(self)
-
-        self.complete = True
-        gtk.main_quit()
-
-    def on_writable(self,source,condition):
-        slave.GTKSlave.on_writable(self,source,condition)
-        
-        progress = 1.0 * self.in_pos / (len(self.input)+1)
-        self.bar.set_text("Writing %.2f" % progress)
-        self.bar.set_fraction(progress)
-        return True
-
-    def on_readable(self,source,condition):
-        slave.GTKSlave.on_readable(self,source,condition)
-        
-        self.bar.set_text("Reading")
-        self.bar.pulse()
-        return True
-    
-    def run(self,input):
-        slave.GTKSlave.run(self,input)
 
         window = gtk.Window()
         self.bar = gtk.ProgressBar()
         window.add(self.bar)
         window.show_all()
+
+        self.s.connect('progress-changed',self.on_progress)
+        self.s.connect('operation-complete', self.on_complete)
+
+    def on_complete(self,slave):
+        self.complete = True
+        gtk.main_quit()
+
+    def on_progress(self,slave,type,position):
+        if position == -1.0:
+            self.bar.pulse()
+        else:
+            self.bar.set_fraction(position)
+        self.bar.set_text(type)
+        return True
+
+    def run(self,input):
+        self.s.run(input)
+
         gtk.main()
-        
+
+    
 class Test(unittest.TestCase):
     def setUp(self):
         pass
@@ -99,13 +95,13 @@ class Test(unittest.TestCase):
 
         input = "x" * (100 * 1000)
         s.run(input)
-        self.assertEqual(input, s.output)
+        self.assertEqual(input, s.s.output)
         self.failUnless(s.complete, "operation didn't complete")
         
     def testGet(self):
         s = GTKTestSlave("./get.py", "GET", "http://www.google.com/index.html" )
         s.run("")
-        self.failUnless(s.output.count("oogle") > 0)
+        self.failUnless(s.s.output.count("oogle") > 0)
         
 def suite():
     return unittest.makeSuite(Test,'test')
