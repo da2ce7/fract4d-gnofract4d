@@ -892,7 +892,7 @@ class MainWindow:
 
     def upload(self,action,widget):
         """Upload the current image to Flickr.com."""
-        flickr_assistant.show_flickr_assistant(self.window,self.control_box, self.f, False)
+        flickr_assistant.show_flickr_assistant(self.window,self.control_box, self.f, True)
         
     def save_image(self,action,widget):
         """Save the current image to a file."""

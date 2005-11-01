@@ -25,22 +25,17 @@ class FlickrGTKSlave(slave.GTKSlave):
             
 def is_authorized():
     global TOKEN
-    token = preferences.userPrefs.get("user_info", "flickr_token")
-    if token == "":
-        return False
-
-    try:
-        TOKEN = flickr.checkToken(token)
-    except flickr.FlickrError, err:
+    TOKEN = preferences.userPrefs.get("user_info", "flickr_token")
+    if TOKEN == "":
         return False
 
     return True
 
 def show_flickr_assistant(parent,alt_parent, f,dialog_mode):
-    #if is_authorized():
-    #    FlickrUploadDialog.show(parent,alt_parent,f,dialog_mode)
-    #else:
-    FlickrAssistantDialog.show(parent,alt_parent, f,True)
+    if is_authorized():
+        FlickrUploadDialog.show(parent,alt_parent,f,dialog_mode)
+    else:
+        FlickrAssistantDialog.show(parent,alt_parent, f,True)
 
 def launch_browser(url, window):
     browser = preferences.userPrefs.get("helpers","browser")
@@ -112,56 +107,98 @@ class FlickrUploadDialog(dialog.T):
 
         self.view_my_button = gtk.Button(_("View _My Fractals"))
         self.view_my_button.connect("clicked", self.onViewMy)
-        table.attach(self.view_my_button, 0,1,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        table.attach(
+            self.view_my_button,
+            0,1,4,5,
+            gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         self.view_group_button = gtk.Button(_("View G_roup Fractals"))
         self.view_group_button.connect("clicked", self.onViewPool)
-        table.attach(self.view_group_button, 1,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
-        self.blogs = self.get_blogs()
+        table.attach(
+            self.view_group_button,
+            1,2,4,5,
+            gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
-        self.blog_menu = utils.create_option_menu(
-            [_("<None>")] + [b.name for b in self.blogs])
+        self.blog_menu = utils.create_option_menu([_("<None>")]) 
 
-        table.attach(self.blog_menu, 1,2,5,6,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        #self.blogs = self.get_blogs()
         
+        table.attach(self.blog_menu, 1,2,5,6,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        self.bar = gtk.ProgressBar()
+        self.vbox.pack_end(self.bar,False,False)
+        
+    def runRequest(self,req,on_done):
+        self.slave = FlickrGTKSlave(req.cmd,*req.args)
+        self.slave.connect('progress-changed',self.onProgress)
+        self.slave.connect('operation-complete', on_done)
+        self.slave.run(req.input)
+        
+    def onProgress(self,slave,type,position):
+        print "progress", type
+        if position == -1.0:
+            self.bar.pulse()
+        else:
+            self.bar.set_fraction(position)
+        self.bar.set_text(type)
+        return True
+
+
     def onResponse(self,widget,id):
         self.hide()
 
     def get_description(self):
         buffer = self.description.get_buffer()
-        return buffer.get_text(buffer.get_start_iter(),buffer.get_end_iter())
+        return buffer.get_text(
+            buffer.get_start_iter(),buffer.get_end_iter())
 
     def get_blogs(self):
-        token = preferences.userPrefs.get("user_info", "flickr_token")
-        return flickr.blogs_getList(token)
-            
+        global TOKEN
+        req = flickr.requestBlogsGetList(token)
+        self.runRequest(req,onBlogsFetched)
+
+    def onBlogsFetched(self,slave):
+        blogs = flickr.parseBlogsList(slave.response())
+        print blogs
+        
     def get_tags(self):
         formula_tag = FlickrUploadDialog.clean_formula_re.sub('',self.f.funcName)
         return "fractal gnofract4d %s %s" % (formula_tag,self.tags.get_text())
         
     def onUpload(self,widget):
+        global TOKEN
         filename = "/tmp/%d.png" % int(random.uniform(0,1000000))
         self.f.save_image(filename)
 
-        token = preferences.userPrefs.get("user_info", "flickr_token")
-
         title_ = self.title_entry.get_text()
         description_ = self.get_description()
-        id = flickr.upload(
+        req = flickr.requestUpload(
             filename,
-            token,
+            TOKEN,
             title=title_,
             description=description_,
             tags=self.get_tags())
 
-        flickr.groups_pools_add(id,token)
+        self.runRequest(req,self.onUploaded)
 
-        selected_blog = utils.get_selected(self.blog_menu)
-        if selected_blog > 0:
-            blog = self.blogs[selected_blog-1]
-            flickr.blogs_postPhoto(
-                blog, id, title_,description_,token)
+    def onUploaded(self,slave):
+        global TOKEN
+        id = flickr.parseUpload(slave.response())
+        
+        req = flickr.requestGroupsPoolsAdd(id,TOKEN)
 
+        self.runRequest(req,self.onPoolAdded)
+
+    def onPoolAdded(self,slave):
+        dummy = slave.response() # just to detect errors
+
+        
+	#selected_blog = utils.get_selected(self.blog_menu)
+	#if selected_blog > 0:
+	#    blog = self.blogs[selected_blog-1]
+	#    flickr.blogs_postPhoto(
+	#        blog, id, title_,description_,token)
+	#
         #print id
 
     def onViewMy(self,widget):
