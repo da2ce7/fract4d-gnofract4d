@@ -106,12 +106,15 @@ class Test(unittest.TestCase):
         self.assertNotEqual(user.nsid,"")
 
     def disabled_testUpload(self):
-        id = flickr.upload(
+        req = flickr.requestUpload(
             "../pixmaps/gnofract4d-logo.png",
             TOKEN,
             title="Burning Bush",
             description="test image of exceptional ugliness")
 
+        resp = get_resp(req)
+        id = flickr.parseUpload(resp)
+        
     def testGetGnofract4DGroup(self):
         groups_req = flickr.requestGroupsSearch("gnofract 4d")
 

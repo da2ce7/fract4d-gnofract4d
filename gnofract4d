@@ -78,8 +78,8 @@ except Exception, exn :
 # Threads are optional because RedHat seem to compile pygtk
 # without thread support. Grrr.
 try:
-    gtk.gdk.threads_init()
-    utils.threads_enabled = True
+    #gtk.gdk.threads_init()
+    #utils.threads_enabled = True
     pass
 except:
     pass

@@ -1,6 +1,5 @@
-# a series of boxes for negotiating flickr's authorization process
-
-# doesn't actually use the gnome 'druid' framework, we do it ourselves to keep dependencies simpler
+# a series of dialogs for negotiating flickr's authorization process
+# and uploading images
 
 import os
 import re
@@ -14,10 +13,16 @@ import preferences
 import hig
 import random
 
-from fractutils import flickr
+from fractutils import flickr, slave
 
 TOKEN = None
 
+class FlickrGTKSlave(slave.GTKSlave):
+    def __init__(self,cmd,*args):
+        slave.GTKSlave.__init__(self,cmd,*args)
+    def response(self):
+        return flickr.parseResponse(self.output)
+            
 def is_authorized():
     global TOKEN
     token = preferences.userPrefs.get("user_info", "flickr_token")
@@ -32,10 +37,10 @@ def is_authorized():
     return True
 
 def show_flickr_assistant(parent,alt_parent, f,dialog_mode):
-    if is_authorized():
-        FlickrUploadDialog.show(parent,alt_parent,f,dialog_mode)
-    else:
-        FlickrAssistantDialog.show(parent,alt_parent, f,True)
+    #if is_authorized():
+    #    FlickrUploadDialog.show(parent,alt_parent,f,dialog_mode)
+    #else:
+    FlickrAssistantDialog.show(parent,alt_parent, f,True)
 
 def launch_browser(url, window):
     browser = preferences.userPrefs.get("helpers","browser")
@@ -175,13 +180,22 @@ class FlickrAssistantDialog(dialog.T):
 
     intro_text=_("""Flickr is an online image-sharing service. If you like, Gnofract 4D can post your fractal images to the service so others can see them.
 
-In order to post images to Flickr, you first need to have a Flickr account, and then authorize Gnofract 4D to post images for you.
+In order to post images to Flickr, you first need to have a Flickr account, and then authorize Gnofract 4D to post images for you. You only need to do this once.
 
-To set that up, please click on the following link and follow the instructions on-screen. When done, close the browser window and click OK.
+To set that up, please click on the following link and follow the instructions on-screen. When done, close the browser window and click Next.
 
 """)
 
+    success_text=_("""Congratulations, you've successfully authorized Gnofract 4D to access Flickr. Your user details are:
+
+   Username : %s
+   Full Name : %s
+
+Click Finish to save your credentials and proceed.""")
     
+
+    NEXT=1
+    FINISH=2
     def __init__(self, main_window, f):
         dialog.T.__init__(
             self,
@@ -189,28 +203,56 @@ To set that up, please click on the following link and follow the instructions o
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (gtk.STOCK_CANCEL, gtk.RESPONSE_CLOSE,
-             gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+             _("_Next"), FlickrAssistantDialog.NEXT))
 
         self.main_window = main_window
 
         self.textview = gtk.TextView()
         self.textview.set_wrap_mode(gtk.WRAP_WORD)
         self.textbuffer = self.textview.get_buffer()
+        self.textview.connect("button_release_event",self.onClick)
+        self.vbox.pack_start(self.textview)
 
-        self.frob = flickr.getFrob()
+        self.bar = gtk.ProgressBar()
+        self.vbox.pack_end(self.bar,False,False)
+
+        req = flickr.requestFrob()
+        self.runRequest(req,self.onFrobReceived)
+
+        self.set_size_request(500,400)
+
+    def runRequest(self,req,on_done):
+        self.slave = FlickrGTKSlave(req.cmd,*req.args)
+        self.slave.connect('progress-changed',self.onProgress)
+        self.slave.connect('operation-complete', on_done)
+        self.slave.run(req.input)
+        
+    def onProgress(self,slave,type,position):
+        print "progress", type
+        if position == -1.0:
+            self.bar.pulse()
+        else:
+            self.bar.set_fraction(position)
+        self.bar.set_text(type)
+        return True
+
+    def onFrobReceived(self,slave):
+        print "frob received"
+        self.frob = flickr.parseFrob(self.slave.response())
+
+        # now display auth screen
         self.auth_url = flickr.getAuthUrl(self.frob)
 
         self.href_tag = self.textbuffer.create_tag(
             "href",foreground="blue",underline=pango.UNDERLINE_SINGLE)
         
         self.textbuffer.set_text(FlickrAssistantDialog.intro_text,-1)
-        self.textbuffer.insert_with_tags(self.textbuffer.get_end_iter(),self.auth_url,self.href_tag)
+        self.textbuffer.insert_with_tags(
+            self.textbuffer.get_end_iter(),
+            self.auth_url,self.href_tag)
 
-        self.textview.connect("button_release_event",self.onClick)
-        self.vbox.pack_start(self.textview)
-
-        self.set_size_request(500,400)
-
+        self.vbox.show_all()
+        
     def onClick(self, widget, event):
         if event.button!=1:
             return
@@ -234,12 +276,20 @@ To set that up, please click on the following link and follow the instructions o
             self.hide()
         elif id == gtk.RESPONSE_ACCEPT:
             self.onAccept()
+        elif id == FlickrAssistantDialog.NEXT:
+            self.onCheck()
+        elif id == FlickrAssistantDialog.FINISH:
+            self.onAccept()
 
-    def onAccept(self):
+    def onCheck(self):
+        req = flickr.requestToken(self.frob)
+        self.runRequest(req,self.onTokenReceived)
+
+    def onTokenReceived(self,slave):
         try:
-            token = flickr.getToken(self.frob)
+            self.token = flickr.parseToken(slave.response())
         except flickr.FlickrError, err:
-            msg = hint = _("Make sure you followed the link and authorized access.\n") + str(err) 
+            msg = _("Make sure you followed the link and authorized access.\n") + str(err) 
             d = hig.ErrorAlert(
                 _("Flickr returned an error."),
                 msg,
@@ -249,5 +299,16 @@ To set that up, please click on the following link and follow the instructions o
             d.destroy()
             return
 
-        preferences.userPrefs.set("user_info", "flickr_token",token.token) 
+        # update window with results
+        username, fullname = self.token.user.username, self.token.user.fullname
+        success_text = FlickrAssistantDialog.success_text % (username, fullname)
+        self.textbuffer.set_text(success_text,-1)
+
+        # hide Next, show Finish
+        self.set_response_sensitive(FlickrAssistantDialog.NEXT, False)
+        self.add_button(_("_Finish"), FlickrAssistantDialog.FINISH)
+        
+        
+    def onAccept(self):
+        preferences.userPrefs.set("user_info", "flickr_token",self.token.token) 
         self.hide()
