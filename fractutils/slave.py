@@ -134,14 +134,14 @@ class GTKSlave(gobject.GObject,Slave):
             
     def on_readable(self, source, condition):        
         #print "readable:", source, condition
+        self.emit('progress-changed', "Reading", -1.0)
         self.read()
-        self.emit('progress-changed', "read", -1.0)
         return True
 
     def on_writable(self, source, condition):
         #print "writable:",source,condition
         self.write()
-        self.emit('progress-changed', "write",
+        self.emit('progress-changed', "Writing",
                   (self.in_pos+1.0)/(len(self.input)+1))
         return True
 
@@ -150,12 +150,15 @@ class GTKSlave(gobject.GObject,Slave):
             #print "unreg read"
             gtk.input_remove(self.read_id)
             self.read_id = None
-            self.emit('operation-complete')
+        self.emit('progress-changed', "Done",0.0)
+        self.emit('operation-complete')
             
     def run(self,input):
         Slave.run(self,input)
 
-        self.write_id = gtk.input_add(self.stdin, gtk.gdk.INPUT_WRITE, self.on_writable)
-        self.read_id = gtk.input_add(self.stdout, gtk.gdk.INPUT_READ, self.on_readable)
+        self.write_id = gtk.input_add(
+            self.stdin, gtk.gdk.INPUT_WRITE, self.on_writable)
+        self.read_id = gtk.input_add(
+            self.stdout, gtk.gdk.INPUT_READ, self.on_readable)
 
 gobject.type_register(GTKSlave)

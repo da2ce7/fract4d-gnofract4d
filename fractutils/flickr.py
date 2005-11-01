@@ -14,6 +14,8 @@ UPLOAD_URL="http://www.flickr.com/services/upload/"
 
 GF4D_GROUP="46555832@N00"
 
+GET_CMD=os.path.join(os.path.dirname(__file__),"get.py")
+
 class FlickrError(Exception):
     def __init__(self, msg,code=0):
         Exception.__init__(self, msg)
@@ -25,16 +27,19 @@ class Request(object):
         self.args = args
         self.input = input
 
-def makeRequest(base_url, is_post, is_signed=False,input="", **kwds):
+def makeRequest(base_url,is_post,
+                is_signed=False, input="",
+                content_type="application/x-binary",
+                **kwds):
     if is_signed:
         kwds["api_sig"]=createSig(**kwds)
     query = urllib.urlencode(kwds)
     url = "%s?%s" % (base_url,query)
-    cmd = "./get.py"
+    cmd = GET_CMD
     method = is_post and "POST" or "GET"
     args = [ method , url]
     if is_post:
-        args.append("application/x-binary") 
+        args.append(content_type) 
 
     return Request(cmd,args,input)
     
@@ -113,7 +118,7 @@ def parseCheckToken(resp):
     # we'll throw an exception if token is invalid
     return Token(resp)
 
-def upload(photo,token,**kwds):
+def requestUpload(photo,token,**kwds):
     kwds["api_key"]=API_KEY
     kwds["auth_token"]=token
     sig = createSig(**kwds)
@@ -121,9 +126,16 @@ def upload(photo,token,**kwds):
     files = [("photo",os.path.basename(photo),open(photo).read())]
 
     content_type, body = encode_multipart_formdata(kwds, files)
-    xml = makePostCall(UPLOAD_URL,content_type,body)
 
-    photoid = xml.getElementsByTagName("photoid")[0].firstChild.nodeValue
+    return makeRequest(
+        UPLOAD_URL,
+        True,
+        True,
+        body,
+        content_type)
+
+def parseUpload(resp):
+    photoid = resp.getElementsByTagName("photoid")[0].firstChild.nodeValue
     return photoid
 
 def requestGroupsSearch(query):
@@ -164,25 +176,36 @@ def parsePeopleGetPublicGroups(resp):
     groups = [ Group(x) for x in resp.getElementsByTagName("group")]
     return groups
 
-def urls_getUserPhotos(nsid):
-    resp = makeSignedCall(BASE_URL,False,api_key=API_KEY,method="flickr.urls.getUserPhotos",user_id=nsid)
+def requestUrlsGetUserPhotos(nsid):
+    req = makeRequest(
+        BASE_URL,
+        False,
+        True,
+        api_key=API_KEY,
+        method="flickr.urls.getUserPhotos",
+        user_id=nsid)
+
+def parseUrlsGetUserPhotos(resp):
     url = resp.getElementsByTagName("user")[0].getAttribute("url")
     return url
 
-def blogs_getList(token):
-    resp = makeSignedCall(
+def requestBlogsGetList(token):
+    resp = makeRequest(
         BASE_URL,
         False,
+        True,
         api_key=API_KEY,
         auth_token=token,
         method="flickr.blogs.getList")
 
+def parseBlogsGetList(resp):
     blogs = [ Blog(x) for x in resp.getElementsByTagName("blog")]
     return blogs
 
-def blogs_postPhoto(blog,photo,title_,description_,token):
-    resp = makeSignedCall(
+def requestBlogsPostPhoto(blog,photo,title_,description_,token):
+    resp = makeRequest(
         BASE_URL,
+        True,
         True,
         api_key=API_KEY,
         method="flickr.blogs.postPhoto",
@@ -192,7 +215,7 @@ def blogs_postPhoto(blog,photo,title_,description_,token):
         title=title_,
         description=description_)
 
-    return True
+# no parse method, there's no response
 
 class Blog:
     def __init__(self,element):

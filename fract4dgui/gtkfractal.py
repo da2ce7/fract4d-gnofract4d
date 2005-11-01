@@ -45,7 +45,7 @@ class T(gobject.GObject):
         }
 
     def __init__(self,comp,parent=None,width=640,height=480):
-        gobject.GObject.__init__(self) # MUST be called before threaded.init
+        gobject.GObject.__init__(self)
 
         (self.readfd,self.writefd) = os.pipe()
         self.nthreads = 1        
