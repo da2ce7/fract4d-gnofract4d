@@ -4,11 +4,6 @@ import os
 import urllib, urllib2, urlparse, mimetools, mimetypes
 import xml.dom.minidom
 import md5
-try:
-    import subprocess
-except ImportError:
-    # this python too old - use our backported copy of stdlib file
-    import gf4d_subprocess as subprocess
 
 API_KEY="f29c6d8fa5d950131c4ae13adc55700d"
 SECRET="037ec6eec0e91cab"
@@ -24,6 +19,25 @@ class FlickrError(Exception):
         Exception.__init__(self, msg)
         self.code = int(code)
 
+class Request(object):
+    def __init__(self, cmd, args, input):
+        self.cmd = cmd
+        self.args = args
+        self.input = input
+
+def makeRequest(base_url, is_post, is_signed=False,input="", **kwds):
+    if is_signed:
+        kwds["api_sig"]=createSig(**kwds)
+    query = urllib.urlencode(kwds)
+    url = "%s?%s" % (base_url,query)
+    cmd = "./get.py"
+    method = is_post and "POST" or "GET"
+    args = [ method , url]
+    if is_post:
+        args.append("application/x-binary") 
+
+    return Request(cmd,args,input)
+    
 def parseResponse(resp):
     try:
         dom = xml.dom.minidom.parseString(resp)
@@ -41,49 +55,6 @@ def parseResponse(resp):
         raise FlickrError("Error returned: %s [%s]" % (msg,code),code)
     return dom
 
-def makeCall(url,is_post,**kwds):
-    query = urllib.urlencode(kwds)
-    if is_post:
-        cmd = ["./get.py", "-P", "application/x-binary", "%s?%s" % (url,query)]
-    else:
-        cmd = ['./get.py', "%s?%s" % (url,query)]
-
-    print cmd
-
-    p = subprocess.Popen(cmd,stdin=subprocess.PIPE,stdout=subprocess.PIPE,close_fds=True)
-    (p_in,p_out) = (p.stdin, p.stdout)
-    p_in.close();
-    resp = p_out.read()
-    
-    dom = parseResponse(resp)
-    return dom
-
-def makePostCall(url, content_type, body, **kwds):
-    p = subprocess.Popen(
-        ["./get.py", "-P", content_type, url],
-        stdin=subprocess.PIPE,stdout=subprocess.PIPE,close_fds=True)
-    
-    (p_in, p_out) = p.stdin, p.stdout
-    
-    p_in.write(body);
-    p_in.close()
-        
-    resp = p_out.read()
-    dom = parseResponse(resp)
-    return dom
-    
-def makeSignedCall(url,is_post,**kwds):
-    sig = createSig(**kwds)
-    kwds["api_sig"] = sig
-    return makeCall(url,is_post,**kwds)
-
-def getSignedUrl(url,**kwds):
-    sig = createSig(**kwds)
-    kwds["api_sig"] = sig
-    query = urllib.urlencode(kwds)
-    url = "%s?%s" % (url, query)
-    return url
-
 def createSig(**kwds):
     keys = kwds.keys()
     keys.sort()
@@ -97,21 +68,49 @@ def createSig(**kwds):
     digest = hash.hexdigest()
     return digest
 
-def getFrob():
-    resp = makeSignedCall(BASE_URL,False,api_key=API_KEY,method="flickr.auth.getFrob")
-    return resp.getElementsByTagName("frob")[0].firstChild.nodeValue
+def getSignedUrl(url,**kwds):
+    sig = createSig(**kwds)
+    kwds["api_sig"] = sig
+    query = urllib.urlencode(kwds)
+    url = "%s?%s" % (url, query)
+    return url
 
 def getAuthUrl(frob_):
     return getSignedUrl(AUTH_URL,api_key=API_KEY,perms="write",frob=frob_)
 
-def getToken(frob_):
-    resp = makeSignedCall(BASE_URL,False,method="flickr.auth.getToken",api_key=API_KEY,frob=frob_)
-    token = Token(resp)
-    return token
+def requestFrob():
+    return makeRequest(
+        BASE_URL,
+        False,
+        True,
+        api_key=API_KEY,
+        method="flickr.auth.getFrob")
 
-def checkToken(token):
+def parseFrob(resp):
+    return resp.getElementsByTagName("frob")[0].firstChild.nodeValue
+
+def requestToken(frob_):
+    return makeRequest(
+        BASE_URL,
+        False,
+        True,
+        api_key=API_KEY,
+        method="flickr.auth.getToken",
+        frob=frob_)
+
+def parseToken(resp):
+    return Token(resp)
+
+def requestCheckToken(token):
+    return makeRequest(
+        BASE_URL,
+        False,
+        True,
+        method="flickr.auth.checkToken",
+        api_key=API_KEY,auth_token=token)
+
+def parseCheckToken(resp):
     # we'll throw an exception if token is invalid
-    resp = makeCall(BASE_URL,False,method="flickr.auth.checkToken",api_key=API_KEY,auth_token=token)
     return Token(resp)
 
 def upload(photo,token,**kwds):
@@ -127,14 +126,22 @@ def upload(photo,token,**kwds):
     photoid = xml.getElementsByTagName("photoid")[0].firstChild.nodeValue
     return photoid
 
-def groups_search(query):
-    resp = makeCall(BASE_URL,False,api_key=API_KEY,method="flickr.groups.search",text=query)
+def requestGroupsSearch(query):
+    return makeRequest(
+        BASE_URL,
+        False,
+        api_key=API_KEY,
+        method="flickr.groups.search",
+        text=query)
+
+def parseGroupsSearch(resp):
     groups = [ Group(x) for x in resp.getElementsByTagName("group")]
     return groups
 
-def groups_pools_add(photo,token,group=GF4D_GROUP):
-    resp = makeSignedCall(
+def requestGroupsPoolsAdd(photo,token,group=GF4D_GROUP):
+    return makeRequest(
         BASE_URL,
+        True,
         True,
         api_key=API_KEY,
         method="flickr.groups.pools.add",
@@ -142,10 +149,18 @@ def groups_pools_add(photo,token,group=GF4D_GROUP):
         data="",
         photo_id=photo,
         group_id=group)
-    # no return value
+
+# no return value so no parse method
     
-def people_getPublicGroups(nsid):
-    resp = makeCall(BASE_URL,False,api_key=API_KEY,method="flickr.people.getPublicGroups",user_id=nsid)
+def requestPeopleGetPublicGroups(nsid):
+    return makeRequest(
+        BASE_URL,
+        False,
+        api_key=API_KEY,
+        method="flickr.people.getPublicGroups",
+        user_id=nsid)
+
+def parsePeopleGetPublicGroups(resp):
     groups = [ Group(x) for x in resp.getElementsByTagName("group")]
     return groups
 
