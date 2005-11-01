@@ -21,8 +21,8 @@ class FlickrGTKSlave(slave.GTKSlave):
     def __init__(self,cmd,*args):
         slave.GTKSlave.__init__(self,cmd,*args)
     def response(self):
-        return flickr.parseResponse(self.output)
-            
+        return flickr.parseResponse(self.output)            
+        
 def is_authorized():
     global TOKEN
     TOKEN = preferences.userPrefs.get("user_info", "flickr_token")
@@ -37,6 +37,14 @@ def show_flickr_assistant(parent,alt_parent, f,dialog_mode):
     else:
         FlickrAssistantDialog.show(parent,alt_parent, f,True)
 
+def display_flickr_error(err):
+    d = hig.ErrorAlert(
+        _("Flickr Error"),
+        str(err),
+        None)
+    d.run()
+    d.destroy()
+    
 def launch_browser(url, window):
     browser = preferences.userPrefs.get("helpers","browser")
     cmd = browser % ('"' + url + '"')
@@ -69,7 +77,8 @@ class FlickrUploadDialog(dialog.T):
         self.main_window = main_window
         self.controls = gtk.VBox()
         self.vbox.pack_start(self.controls)
-
+        self.slave = None
+        
         table = gtk.Table(5,2,False)
         self.controls.pack_start(table)
 
@@ -105,19 +114,24 @@ class FlickrUploadDialog(dialog.T):
         self.upload_button.connect("clicked", self.onUpload)
         table.attach(self.upload_button, 0,2,3,4,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
-        self.view_my_button = gtk.Button(_("View _My Fractals"))
-        self.view_my_button.connect("clicked", self.onViewMy)
-        table.attach(
-            self.view_my_button,
-            0,1,4,5,
-            gtk.EXPAND | gtk.FILL, 0, 2, 2)
-
-        self.view_group_button = gtk.Button(_("View G_roup Fractals"))
-        self.view_group_button.connect("clicked", self.onViewPool)
-        table.attach(
-            self.view_group_button,
-            1,2,4,5,
-            gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        self.cancel_button = gtk.Button(_("_Cancel Upload"))
+        self.cancel_button.connect("clicked", self.onCancelUpload)
+        table.attach(self.cancel_button, 0,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        self.cancel_button.set_sensitive(False)
+        
+        #self.view_my_button = gtk.Button(_("View _My Fractals"))
+        #self.view_my_button.connect("clicked", self.onViewMy)
+        #table.attach(
+        #    self.view_my_button,
+        #    0,1,4,5,
+        #    gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        #
+        #self.view_group_button = gtk.Button(_("View G_roup Fractals"))
+        #self.view_group_button.connect("clicked", self.onViewPool)
+        #table.attach(
+        #    self.view_group_button,
+        #    1,2,4,5,
+        #    gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         self.blog_menu = utils.create_option_menu([_("<None>")]) 
 
@@ -143,6 +157,9 @@ class FlickrUploadDialog(dialog.T):
         self.bar.set_text(type)
         return True
 
+    def onCancelUpload(self,button):
+        if self.slave:
+            self.slave.terminate()
 
     def onResponse(self,widget,id):
         self.hide()
@@ -180,7 +197,8 @@ class FlickrUploadDialog(dialog.T):
             tags=self.get_tags())
 
         self.runRequest(req,self.onUploaded)
-
+        self.cancel_button.set_sensitive(True)
+        
     def onUploaded(self,slave):
         global TOKEN
         id = flickr.parseUpload(slave.response())
@@ -200,7 +218,8 @@ class FlickrUploadDialog(dialog.T):
 	#        blog, id, title_,description_,token)
 	#
         #print id
-
+        self.cancel_button.set_sensitive(False)
+        
     def onViewMy(self,widget):
         global TOKEN
         url = flickr.urls_getUserPhotos(TOKEN.user.nsid)
