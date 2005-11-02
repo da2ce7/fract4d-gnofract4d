@@ -7,7 +7,7 @@ import os
 import commands
 import sys
 
-gnofract4d_version = "2.10"
+gnofract4d_version = "2.11"
 
 if float(sys.version[:3]) < 2.2:
     print "Sorry, you need python 2.2 or higher to run Gnofract 4D."
@@ -33,22 +33,6 @@ import my_build_ext
 # this is necessary for cross-compilation
 compiler = os.environ.get("CC","gcc")
 cxxcompiler = os.environ.get("CXX","g++")
-
-def create_stdlib_docs():
-    'Autogenerate docs'
-    try:
-        import fract4d.createdocs
-        fract4d.createdocs.main("doc/gnofract4d-manual/C/stdlib.xml")
-
-        import fract4dgui.createdocs
-        fract4dgui.createdocs.main("doc/gnofract4d-manual/C/commands.xml")
-        
-    except Exception, err:
-        print >>sys.stderr,\
-              "Problem creating docs. Online help will be incomplete."
-        print >>sys.stderr, err
-
-create_stdlib_docs()
 
 module1 = Extension(
     'fract4d.fract4dc',

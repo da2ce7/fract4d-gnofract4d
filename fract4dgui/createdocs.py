@@ -14,7 +14,6 @@ os.environ.setdefault('LANG', 'en')
 gettext.install('gnofract4d')
 sys.path.append("..")
 
-import gtk
 import main_window
 
 sort_re = re.compile(r'(?P<mod1><.*?>)?(?P<mod2><.*?>)?(?P<key>[^<>]*)')

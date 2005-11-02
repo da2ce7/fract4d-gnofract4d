@@ -17,6 +17,7 @@ include test.py
 include my_bdist_rpm.py
 include my_build.py
 include my_build_ext.py
+include createdocs.py
 include fract4d/test.frm
 include fract4d/test_bad_pp.frm
 include fract4d/test.cfrm

@@ -1073,7 +1073,7 @@ one). Inner colormaps are ignored. </para> </listitem>
 <title>About &gf4d;</title>
 <para>
 
-This is &gf4d; version 2.10. You can find the most recent version of
+This is &gf4d; version 2.11. You can find the most recent version of
 &gf4d; from <ulink url="http://gnofract4d.sourceforge.net">
 http://gnofract4d.sourceforge.net/</ulink>. 
 </para>
@@ -1105,7 +1105,10 @@ originally distributed with <ulink
 url="http://www.ultrafractal.com/">&ultrafractal;</ulink>, by kind
 permission of Frederik Slijkerman, Damien Jones, and Kerry Mitchell.
 </para>
-
+<para>
+<filename>subprocess.py</filename> is taken unchanged from the Python 2.4 standard library (I didn't want to rely altogether on 2.4) and distributed under the
+same terms as Python.
+</para>
 <para>
 &gf4d; is Copyright 1999-2005 Edwin Young, and is distributed under
 the <emphasis>BSD license</emphasis>.  See the file "COPYING" for
