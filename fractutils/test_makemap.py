@@ -141,9 +141,9 @@ class Test(unittest.TestCase):
         self.assertEqual(targets[1][1], child)
         self.assertEqual(targets[2][1], mm.root)
         
-        print mm.dump_octree(mm.root)
+        #print mm.dump_octree(mm.root)
         mm.reduce(3)
-        print mm.dump_octree(mm.root)
+        #print mm.dump_octree(mm.root)
         self.assertEqual(3, mm.count_leaves(mm.root))
                 
     def assertRootGrey(self,mm):

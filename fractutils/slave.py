@@ -144,12 +144,12 @@ class GTKSlave(gobject.GObject,Slave):
 
     def unregister(self):
         if self.write_id:
-            print "unreg write", self.write_id
+            #print "unreg write", self.write_id
             gtk.input_remove(self.write_id)
             self.write_id = None
 
         if self.read_id:
-            print "unreg read", self.read_id
+            #print "unreg read", self.read_id
             gtk.input_remove(self.read_id)
             self.read_id = None
 
@@ -158,8 +158,8 @@ class GTKSlave(gobject.GObject,Slave):
             self.stdin, gtk.gdk.INPUT_WRITE, self.on_writable)
         self.read_id = gtk.input_add(
             self.stdout, gtk.gdk.INPUT_READ, self.on_readable)
-        print "reg write %s" % self.write_id
-        print "reg read %s" % self.read_id
+        #print "reg write %s" % self.write_id
+        #print "reg read %s" % self.read_id
         
     def on_complete(self):
         self.unregister()
