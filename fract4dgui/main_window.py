@@ -437,7 +437,11 @@ class MainWindow:
              self.send_to, 0, ''),
             (_('/Share/_Upload To Flickr...'), '<control>U',
              self.upload, 0, ''),
-
+            (_('/Share/_View My Online Fractals'), '',
+             self.view_my_fractals, 0, ''),
+            (_('/Share/_View Group Fractals'), '',
+             self.view_group_fractals),
+            
             (_('/_Tools'), None,
              None, 0, '<Branch>'),
             (_('/_Tools/_Autozoom...'), '<control>A',
@@ -460,6 +464,8 @@ class MainWindow:
              self.command_reference, 0, ''),
             (_('/_Help/_Formula Reference'), '',
              self.formula_reference, 0, ''),
+            (_('/_Help/_Report Bug'), '',
+             self.report_bug, 0, ''),
             (_('/Help/_About'), None,
              self.about, 0, ''),
             )
@@ -883,7 +889,7 @@ class MainWindow:
             os.path.basename(self.default_save_filename(".png")))
         self.f.save_image(image_name)
         subject = os.path.basename(self.display_filename())
-        url= '"mailto:somebody@example.com?subject=%s&attach=%s&body=%s"' % \
+        url= '"mailto:gnofract4d-users@lists.sourceforge.net?subject=%s&attach=%s&body=%s"' % \
              (urllib.quote(subject),
               urllib.quote(image_name),
               urllib.quote(self.f.serialize()))
@@ -893,7 +899,18 @@ class MainWindow:
     def upload(self,action,widget):
         """Upload the current image to Flickr.com."""
         flickr_assistant.show_flickr_assistant(self.window,self.control_box, self.f, True)
-        
+
+    def view_my_fractals(self,action, widget):
+        nsid = flickr_assistant.get_user(self.window, self.f)
+        if nsid != "":
+            url = "http://flickr.com/photos/%s/" % nsid
+            utils.launch_browser(preferences.userPrefs, url, self.window)
+
+    def view_group_fractals(self,action, widget):
+        utils.launch_browser(preferences.userPrefs,
+                       "http://flickr.com/groups/gnofract4d/pool/",
+                       self.window)
+
     def save_image(self,action,widget):
         """Save the current image to a file."""
         save_filename = self.default_save_filename(".png")
@@ -990,6 +1007,9 @@ class MainWindow:
 
     def formula_reference(self,action,widget):
         self.display_help("formref")
+
+    def report_bug(self,action,widget):
+        utils.launch_browser(prefs.userPrefs,"http://sourceforge.net/tracker/?func=add&amp;group_id=785&amp;atid=100785", self.window)
         
     def display_help(self,section=None):
         base_help_file = "gnofract4d-manual.xml"

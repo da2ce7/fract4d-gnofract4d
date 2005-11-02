@@ -31,6 +31,12 @@ def is_authorized():
 
     return True
 
+def get_user(window, f):
+    if not is_authorized():
+        d = FlickrAssistantDialog(window, f)
+        d.run()
+    return preferences.userPrefs.get("user_info", "nsid")
+
 def show_flickr_assistant(parent,alt_parent, f,dialog_mode):
     if is_authorized():
         FlickrUploadDialog.show(parent,alt_parent,f,dialog_mode)
@@ -45,19 +51,6 @@ def display_flickr_error(err):
     d.run()
     d.destroy()
     
-def launch_browser(url, window):
-    browser = preferences.userPrefs.get("helpers","browser")
-    cmd = browser % ('"' + url + '"')
-    try:
-        os.system(cmd)
-    except Exception, err:
-        d = hig.ErrorAlert(
-            _("Error launching browser"),
-            _("Try modifying your preferences or copy the URL manually to a browser window.\n") + \
-            str(err),window) 
-        d.run()
-        d.destroy()
-
 class FlickrUploadDialog(dialog.T):
     clean_formula_re = re.compile(r'[^a-z0-9]', re.IGNORECASE)
     def show(parent, alt_parent, f,dialog_mode):
@@ -109,14 +102,18 @@ class FlickrUploadDialog(dialog.T):
         desc_label.set_mnemonic_widget(self.description)
         desc_label.set_use_underline(True)
         table.attach(desc_label,0,1,2,3,gtk.EXPAND | gtk.FILL, 0, 2, 2)
-        
+
+        self.include_params = gtk.CheckButton(
+            _("_Include parameters in description"))
+        table.attach(self.include_params,0,2,3,4,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+                     
         self.upload_button = gtk.Button(_("_Upload"))
         self.upload_button.connect("clicked", self.onUpload)
-        table.attach(self.upload_button, 0,2,3,4,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        table.attach(self.upload_button, 0,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         self.cancel_button = gtk.Button(_("_Cancel Upload"))
         self.cancel_button.connect("clicked", self.onCancelUpload)
-        table.attach(self.cancel_button, 0,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        table.attach(self.cancel_button, 0,2,5,6,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         self.cancel_button.set_sensitive(False)
         
         #self.view_my_button = gtk.Button(_("View _My Fractals"))
@@ -137,11 +134,14 @@ class FlickrUploadDialog(dialog.T):
 
         #self.blogs = self.get_blogs()
         
-        table.attach(self.blog_menu, 1,2,5,6,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        table.attach(self.blog_menu, 1,2,6,7,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         self.bar = gtk.ProgressBar()
         self.vbox.pack_end(self.bar,False,False)
-        
+
+    def init_title(self):
+        pass
+    
     def runRequest(self,req,on_done):
         self.slave = FlickrGTKSlave(req.cmd,*req.args)
         self.slave.connect('progress-changed',self.onProgress)
@@ -160,15 +160,22 @@ class FlickrUploadDialog(dialog.T):
     def onCancelUpload(self,button):
         if self.slave:
             self.slave.terminate()
-
+        button.set_sensitive(False)
+        
     def onResponse(self,widget,id):
         self.hide()
 
     def get_description(self):
         buffer = self.description.get_buffer()
-        return buffer.get_text(
+        description =  buffer.get_text(
             buffer.get_start_iter(),buffer.get_end_iter())
 
+        if self.include_params.get_active():
+            description += "\n-----------------------------------\n"
+            description += self.f.serialize()
+
+        return description
+    
     def get_blogs(self):
         global TOKEN
         req = flickr.requestBlogsGetList(token)
@@ -219,15 +226,7 @@ class FlickrUploadDialog(dialog.T):
 	#
         #print id
         self.cancel_button.set_sensitive(False)
-        
-    def onViewMy(self,widget):
-        global TOKEN
-        url = flickr.urls_getUserPhotos(TOKEN.user.nsid)
-        launch_browser(url,self.main_window)
-
-    def onViewPool(self,widget):
-        launch_browser("http://flickr.com/groups/gnofract4d/pool/",self.main_window)
-    
+            
 class FlickrAssistantDialog(dialog.T):
     def show(parent, alt_parent, f,dialog_mode):
         dialog.T.reveal(FlickrAssistantDialog,dialog_mode, parent, alt_parent, f)
@@ -323,7 +322,8 @@ Click Finish to save your credentials and proceed.""")
             return
 
         # user clicked on URL, launch browser
-        launch_browser(self.auth_url, self.main_window)
+        utils.launch_browser(
+            preferences.userPrefs, self.auth_url, self.main_window)
 
     def onResponse(self,widget,id):
         if id == gtk.RESPONSE_CLOSE or \
@@ -366,5 +366,6 @@ Click Finish to save your credentials and proceed.""")
         
         
     def onAccept(self):
-        preferences.userPrefs.set("user_info", "flickr_token",self.token.token) 
+        preferences.userPrefs.set("user_info", "flickr_token",self.token.token)
+        preferences.userPrefs.set("user_info", "nsid", self.token.user.nsid)
         self.hide()

@@ -58,7 +58,8 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             },
             "user_info" : {
               "name" : "",
-              "flickr_token" : ""
+              "flickr_token" : "",
+              "nsid" : ""
             },
             "formula_path" : {
               "0" : "formulas",
@@ -438,6 +439,7 @@ class PrefsDialog(dialog.T):
 
     def do_signoff(self,widget):
         self.prefs.set("user_info","flickr_token","")
+        self.prefs.set("user_info","nsid","")
         
     def create_flickr_page(self):
         table = gtk.Table(5,2,gtk.FALSE)

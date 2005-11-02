@@ -163,6 +163,19 @@ def floatColorFrom256(rgba):
 def updateColor256FromFloat(r,g,b,color):
     return (int(r*255), int(g*255), int(b*255), color[3])
 
+def launch_browser(prefs, url, window):
+    browser = prefs.get("helpers","browser")
+    cmd = browser % ('"' + url + '"')
+    try:
+        os.system(cmd)
+    except Exception, err:
+        d = hig.ErrorAlert(
+            _("Error launching browser"),
+            _("Try modifying your preferences or copy the URL manually to a browser window.\n") + \
+            str(err),window) 
+        d.run()
+        d.destroy()
+
 class ColorButton:
     def __init__(self,rgb, changed_cb, is_left):
         self.area = None
