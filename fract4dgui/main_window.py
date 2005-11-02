@@ -1009,7 +1009,11 @@ class MainWindow:
         self.display_help("formref")
 
     def report_bug(self,action,widget):
-        utils.launch_browser(prefs.userPrefs,"http://sourceforge.net/tracker/?func=add&amp;group_id=785&amp;atid=100785", self.window)
+        url="http://sourceforge.net/tracker/?func=add&group_id=785&atid=100785"
+        utils.launch_browser(
+            preferences.userPrefs,
+            url,
+            self.window)
         
     def display_help(self,section=None):
         base_help_file = "gnofract4d-manual.xml"

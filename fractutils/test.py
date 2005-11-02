@@ -3,7 +3,7 @@
 import unittest
 
 import test_makemap
-import test_flickr
+#import test_flickr
 import test_slave
 
 def suite():

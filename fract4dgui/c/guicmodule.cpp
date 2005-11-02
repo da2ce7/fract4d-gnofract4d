@@ -30,7 +30,8 @@ get_gconf_string(PyObject *self, PyObject *args)
     }
 
     GConfEngine *confEngine = gconf_engine_get_default();
-    
+    PyObject *pyRet = NULL;
+
     if(NULL==confEngine)
     {
 	PyErr_SetString(PyExc_EnvironmentError,"Couldn't get gconf engine");
@@ -55,7 +56,7 @@ get_gconf_string(PyObject *self, PyObject *args)
 	goto err;
     }
 
-    PyObject *pyRet = PyString_FromString(setting);
+    pyRet = PyString_FromString(setting);
     gconf_engine_unref(confEngine);
     return pyRet;
  err:
