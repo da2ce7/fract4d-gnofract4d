@@ -32,3 +32,6 @@ try:
 except urllib2.HTTPError, err:
     print >>sys.stderr, str(err)
     sys.exit(1)
+except urllib2.URLError, err:
+    print >>sys.stderr, str(err)
+    sys.exit(1)
