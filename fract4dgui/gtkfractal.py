@@ -584,7 +584,7 @@ class T(gobject.GObject):
         else:
             formula = self.f.cfuncs[param_type-1]
         
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = gtk.Table(5,2,False)
         i = 0
         if param_type == 0:
             i = self.create_maxiter_widget(table,i)
@@ -685,7 +685,7 @@ class T(gobject.GObject):
         self.f.antialias = aa
         self.f.auto_deepen = auto_deepen
         self.draw(self.image,self.width,self.height,self.nthreads)
-        return gtk.FALSE
+        return False
 
     def progress_changed(self,progress):
         self.emit('progress-changed',progress)
@@ -718,7 +718,7 @@ class T(gobject.GObject):
 
         widget.window.draw_rectangle(
             self.widget.get_style().white_gc,
-            gtk.FALSE,
+            False,
             int(min(self.x,self.newx)),
             int(min(self.y,self.newy)),
             int(abs(self.newx-self.x)),

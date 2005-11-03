@@ -19,6 +19,12 @@ g_comp.load_formula_file("gf4d.frm")
 g_comp.load_formula_file("gf4d.cfrm")
 g_comp.load_formula_file("test.frm")
 
+def sum(l):
+    x = 0
+    for a in l:
+        x += a
+    return x
+
 class Test(testbase.TestBase):
     def setUp(self):
         global g_comp
@@ -105,7 +111,7 @@ class Test(testbase.TestBase):
         intersection = [a+b for (a,b) in zip(eye,t1_ray)]
         
         return (True, intersection)
-    
+
     def testLookVector(self):
         # check that looking at different points in screen works
 
@@ -142,7 +148,7 @@ class Test(testbase.TestBase):
                 if is_hit:
                     self.assertNearlyEqual(root, real_root,1e-10)
 
-    def testDraw(self):
+    def disabled_testDraw(self):
         fract4dc.calc(self.f.params,self.f.antialias,self.f.maxiter,
                       self.f.yflip,self.f.periodicity,
                       self.pfunc,self.cmap,self.f.auto_deepen,
@@ -151,7 +157,7 @@ class Test(testbase.TestBase):
 
         fract4dc.image_save(self.image,"hs.tga")
 
-    def testDrawMBrot(self):
+    def disabled_testDrawMBrot(self):
         self.f.set_formula("gf4d.frm", "Mandelbrot")
         self.f.compile()
         image = fract4dc.image_create(80,60)

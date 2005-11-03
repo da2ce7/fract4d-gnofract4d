@@ -48,8 +48,13 @@ desktop-file-install \
 --dir %{buildroot}/usr/share/applications \
 %{buildroot}%{_datadir}/gnofract4d/gnofract4d.desktop
 
-update-mime-database /usr/share/mime || true
-update-desktop-database || true
+%post
+update-mime-database %{_datadir}/mime &> /dev/null || :
+update-desktop-database &> /dev/null || :
+
+%postun
+update-mime-database %{_datadir}/mime &> /dev/null || :
+update-desktop-database &> /dev/null || :
 
 ''')
 
@@ -57,8 +62,8 @@ update-desktop-database || true
             spec, '%files',
             '%{_datadir}/applications/%{desktop_vendor}-gnofract4d.desktop')
         
-        #print "SPEC>"
-        #print spec
-        #print "EOF>"
+        print "SPEC>"
+        print "\n".join(spec)
+        print "EOF>"
         
         return spec

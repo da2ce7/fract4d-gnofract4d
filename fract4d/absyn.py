@@ -128,9 +128,14 @@ def Number(n,pos):
         t = fracttypes.Float
         n = string.atof(n)
     else:
-        t = fracttypes.Int
-        n = string.atoi(n)
-            
+        try: 	 
+            t = fracttypes.Int
+            n = string.atoi(n)
+        except ValueError: 	 
+            # too large for an int	 
+            t = fracttypes.Float 	 
+            n = string.atof(n)
+
     return Node("const", pos, None, n, t)
 
 def Const(n,pos):

@@ -61,7 +61,7 @@ class FlickrUploadDialog(dialog.T):
     def __init__(self, main_window, f):        
         dialog.T.__init__(
             self,
-            _("Flickr"),
+            _("Upload to Flickr"),
             main_window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
             (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
@@ -130,11 +130,11 @@ class FlickrUploadDialog(dialog.T):
         #    1,2,4,5,
         #    gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
-        self.blog_menu = utils.create_option_menu([_("<None>")]) 
+        #self.blog_menu = utils.create_option_menu([_("<None>")]) 
 
         #self.blogs = self.get_blogs()
         
-        table.attach(self.blog_menu, 1,2,6,7,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        #table.attach(self.blog_menu, 1,2,6,7,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         self.bar = gtk.ProgressBar()
         self.vbox.pack_end(self.bar,False,False)
@@ -149,7 +149,6 @@ class FlickrUploadDialog(dialog.T):
         self.slave.run(req.input)
         
     def onProgress(self,slave,type,position):
-        print "progress", type
         if position == -1.0:
             self.bar.pulse()
         else:
@@ -183,7 +182,6 @@ class FlickrUploadDialog(dialog.T):
 
     def onBlogsFetched(self,slave):
         blogs = flickr.parseBlogsList(slave.response())
-        print blogs
         
     def get_tags(self):
         formula_tag = FlickrUploadDialog.clean_formula_re.sub('',self.f.funcName)
@@ -283,7 +281,6 @@ Click Finish to save your credentials and proceed.""")
         self.slave.run(req.input)
         
     def onProgress(self,slave,type,position):
-        print "progress", type
         if position == -1.0:
             self.bar.pulse()
         else:
@@ -292,7 +289,6 @@ Click Finish to save your credentials and proceed.""")
         return True
 
     def onFrobReceived(self,slave):
-        print "frob received"
         self.frob = flickr.parseFrob(self.slave.response())
 
         # now display auth screen
