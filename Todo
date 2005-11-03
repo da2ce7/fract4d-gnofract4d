@@ -1,13 +1,18 @@
 todo:
 
 done in 2.11:
+* WW	added Flickr sharing
+* WW	register mime info
+* W	documentation improvements
+* W	View/Planes
+* W	bug report
+* W	added Send To command
+
 * W	added named constructors for types, eg hyper(complex, complex)
 * W	added eye_vector function 
 * W	better randomized gradients
 * W	--inner and --outer params
 * B     @func * 3 gives weird error message
-* W	added Send To command
-* WW	added Flickr sharing
 * B	directories appear in colormap list
 * B	open other_maps/__readme.txt = index out of range
 * B	you can declare the same parameter twice
@@ -15,22 +20,12 @@ done in 2.11:
 * B	undo/redo loses "flip y axis" setting
 * B	painter doesn't understand solid
 * BB	desktop-file-install seems to do the wrong thing
-* WW	register mime info
-* W	View/Planes
-* W	bug report
 * B	angle widgets don't always work when changing planes
 * B	plane menu is available even if not is4D()
-* W	documentation improvements
 * BB	flickr access should be threaded so UI doesn't hang
 * W	added argtype, FnParts, XBuffalo, YBuffalo
 
-
 bugs (the more B's, the worse the bug):
-
-FC4 issues:
-gtk.input_add deprecated
-gtk.timeout_add should be gobject.timeout_add
-
 * BBB	too slow!
 * BBB   "failed to read() from server connection" - huh? Gamin/FAM? Connected to file choosers?
 * BB	not all keyboard shortcuts available when menu hidden
@@ -41,6 +36,7 @@ gtk.timeout_add should be gobject.timeout_add
 * BB	squares left behind when changing from a smooth colormap to a jagged one
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
+* B	FC4: gtk.input_add deprecated, gtk.timeout_add should be gobject.timeout_add
 * B	browser doesn't jump to current func when opened
 * B	float func without a default gives an error looking for ident_c_f (can't repro)
 * B	should hide density/transfer/offset for DCA's

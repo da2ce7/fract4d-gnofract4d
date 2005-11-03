@@ -21,6 +21,9 @@ class FlickrGTKSlave(slave.GTKSlave):
     def __init__(self,cmd,*args):
         slave.GTKSlave.__init__(self,cmd,*args)
     def response(self):
+        if self.process.returncode:
+            # an error occurred
+            raise Exception("An error occurred:\n%s" % self.err_output)
         return flickr.parseResponse(self.output)            
         
 def is_authorized():
@@ -114,7 +117,7 @@ class FlickrUploadDialog(dialog.T):
         self.cancel_button = gtk.Button(_("_Cancel Upload"))
         self.cancel_button.connect("clicked", self.onCancelUpload)
         table.attach(self.cancel_button, 0,2,5,6,gtk.EXPAND | gtk.FILL, 0, 2, 2)
-        self.cancel_button.set_sensitive(False)
+        self.set_upload_mode(True)
         
         #self.view_my_button = gtk.Button(_("View _My Fractals"))
         #self.view_my_button.connect("clicked", self.onViewMy)
@@ -186,6 +189,10 @@ class FlickrUploadDialog(dialog.T):
     def get_tags(self):
         formula_tag = FlickrUploadDialog.clean_formula_re.sub('',self.f.funcName)
         return "fractal gnofract4d %s %s" % (formula_tag,self.tags.get_text())
+
+    def set_upload_mode(self,is_upload):
+        self.cancel_button.set_sensitive(not is_upload)
+        self.upload_button.set_sensitive(is_upload)
         
     def onUpload(self,widget):
         global TOKEN
@@ -202,19 +209,26 @@ class FlickrUploadDialog(dialog.T):
             tags=self.get_tags())
 
         self.runRequest(req,self.onUploaded)
-        self.cancel_button.set_sensitive(True)
+        self.set_upload_mode(False)
         
     def onUploaded(self,slave):
         global TOKEN
-        id = flickr.parseUpload(slave.response())
+        try:
+            id = flickr.parseUpload(slave.response())
+        except Exception,err:
+            display_flickr_error(err)
+            self.set_upload_mode(True)
+            return
         
         req = flickr.requestGroupsPoolsAdd(id,TOKEN)
 
         self.runRequest(req,self.onPoolAdded)
 
     def onPoolAdded(self,slave):
-        dummy = slave.response() # just to detect errors
-
+        try:
+            dummy = slave.response() # just to detect errors
+        except Exception,err:
+            display_flickr_error(err)
         
 	#selected_blog = utils.get_selected(self.blog_menu)
 	#if selected_blog > 0:
@@ -223,8 +237,8 @@ class FlickrUploadDialog(dialog.T):
 	#        blog, id, title_,description_,token)
 	#
         #print id
-        self.cancel_button.set_sensitive(False)
-            
+        self.set_upload_mode(True)
+        
 class FlickrAssistantDialog(dialog.T):
     def show(parent, alt_parent, f,dialog_mode):
         dialog.T.reveal(FlickrAssistantDialog,dialog_mode, parent, alt_parent, f)
@@ -289,7 +303,11 @@ Click Finish to save your credentials and proceed.""")
         return True
 
     def onFrobReceived(self,slave):
-        self.frob = flickr.parseFrob(self.slave.response())
+        try:
+            self.frob = flickr.parseFrob(self.slave.response())
+        except Exception,err:
+            display_flickr_error(err)
+            return
 
         # now display auth screen
         self.auth_url = flickr.getAuthUrl(self.frob)
@@ -325,6 +343,7 @@ Click Finish to save your credentials and proceed.""")
         if id == gtk.RESPONSE_CLOSE or \
                id == gtk.RESPONSE_NONE or \
                id == gtk.RESPONSE_DELETE_EVENT:
+            self.slave.terminate()
             self.hide()
         elif id == gtk.RESPONSE_ACCEPT:
             self.onAccept()
@@ -349,6 +368,9 @@ Click Finish to save your credentials and proceed.""")
             
             d.run()
             d.destroy()
+            return
+        except Exception,err:
+            display_flickr_error(err)
             return
 
         # update window with results
