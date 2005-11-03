@@ -90,6 +90,11 @@ class Test(unittest.TestCase):
         self.readOutput(s)
         self.assertEqual(input, s.output)
 
+    def testNoSuchProcess(self):
+        s = GTKTestSlave("./xxx.py", str(0.01))
+        input = "x" * 100
+        self.assertRaises(OSError, s.run, input)
+        
     def testRegister(self):
         s = GTKTestSlave("./stub_subprocess.py", str(0.01))
 
@@ -102,7 +107,21 @@ class Test(unittest.TestCase):
         s = GTKTestSlave("./get.py", "GET", "http://www.google.com/index.html" )
         s.run("")
         self.failUnless(s.s.output.count("oogle") > 0)
-        
+
+    def testGetBadSite(self):
+        s = GTKTestSlave(
+            "./get.py", "GET", "http://www.sdgsdvsdvsdvsdbbbs.com/index.html" )
+        s.run("")
+        self.assertNotEqual(s.s.process.returncode,0)
+        self.failUnless(s.s.err_output.count('Name or service not known') > 0)
+
+    def testGetBadPage(self):
+        s = GTKTestSlave(
+            "./get.py", "GET", "http://www.google.com/blahblahblah.html" )
+        s.run("")
+        self.assertEqual(s.s.process.returncode,1)
+        self.failUnless(s.s.err_output.count('404: Not Found') > 0)
+
 def suite():
     return unittest.makeSuite(Test,'test')
 
