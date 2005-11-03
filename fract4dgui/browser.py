@@ -298,14 +298,14 @@ class BrowserDialog(dialog.T):
         label.set_use_underline(True)
         label.set_mnemonic_widget(self.funcTypeMenu)
         
-        hbox.pack_start(label, gtk.FALSE, gtk.FALSE)
+        hbox.pack_start(label, False, False)
                 
-        hbox.pack_start(self.funcTypeMenu,gtk.TRUE, gtk.TRUE)
-        self.vbox.pack_start(hbox,gtk.FALSE, gtk.FALSE)
+        hbox.pack_start(self.funcTypeMenu,True, True)
+        self.vbox.pack_start(hbox,False, False)
         
         # 3 panes: files, formulas, formula contents
         panes1 = gtk.HPaned()
-        self.vbox.pack_start(panes1, gtk.TRUE, gtk.TRUE)
+        self.vbox.pack_start(panes1, True, True)
         panes1.set_border_width(5)
 
         file_list = self.create_file_list()
@@ -431,7 +431,7 @@ class BrowserDialog(dialog.T):
         #update location of source buffer
         sourcebuffer = self.sourcetext.get_buffer()
         iter = sourcebuffer.get_iter_at_line(formula.pos-1)
-        self.sourcetext.scroll_to_iter(iter,0.0,gtk.TRUE,0.0,0.0)
+        self.sourcetext.scroll_to_iter(iter,0.0,True,0.0,0.0)
 
         # update IR tree
         self.ir = self.compiler.get_formula(file,form_name)

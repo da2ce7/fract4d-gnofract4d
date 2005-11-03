@@ -267,7 +267,7 @@ class PrefsDialog(dialog.T):
         return entry
 
     def create_general_page(self):
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = gtk.Table(5,2,False)
         label = gtk.Label(_("_General"))
         label.set_use_underline(True)
         self.notebook.append_page(table,label)
@@ -343,7 +343,7 @@ class PrefsDialog(dialog.T):
             self.update_prefs(name, model)
             
     def create_compiler_options_page(self):
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = gtk.Table(5,2,False)
         label = gtk.Label(_("_Compiler"))
         label.set_use_underline(True)
         self.notebook.append_page(table,label)
@@ -395,7 +395,7 @@ class PrefsDialog(dialog.T):
         
         
     def create_helper_options_page(self):
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = gtk.Table(5,2,False)
         label = gtk.Label(_("_Helpers"))
         label.set_use_underline(True)
         self.notebook.append_page(table,label)
@@ -442,7 +442,7 @@ class PrefsDialog(dialog.T):
         self.prefs.set("user_info","nsid","")
         
     def create_flickr_page(self):
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = gtk.Table(5,2,False)
         label = gtk.Label(_("_Flickr"))
         label.set_use_underline(True)
         self.notebook.append_page(table,label)
@@ -492,7 +492,7 @@ class PrefsDialog(dialog.T):
         return optMenu
     
     def create_image_options_page(self):
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = gtk.Table(5,2,False)
         label = gtk.Label("_Image")
         label.set_use_underline(True)
         self.notebook.append_page(table,label)

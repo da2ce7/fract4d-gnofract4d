@@ -46,7 +46,7 @@ class SettingsDialog(dialog.T):
         self.notebook.append_page(table,label)
         
     def create_location_table(self):
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = gtk.Table(5,2,False)
         self.create_param_entry(table,0,_("_X :"), self.f.XCENTER)
         self.create_param_entry(table,1,_("_Y :"), self.f.YCENTER)
         self.create_param_entry(table,2,_("_Z :"), self.f.ZCENTER)
@@ -55,7 +55,7 @@ class SettingsDialog(dialog.T):
         return table
     
     def create_general_page(self):
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = gtk.Table(5,2,False)
         label = gtk.Label(_("_General"))
         label.set_use_underline(True)
         self.notebook.append_page(table,label)
@@ -67,7 +67,7 @@ class SettingsDialog(dialog.T):
                      gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
     def create_angle_page(self):
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = gtk.Table(5,2,False)
         label = gtk.Label("_Angles")
         label.set_use_underline(True)
         self.notebook.append_page(table,label)
@@ -118,7 +118,7 @@ class SettingsDialog(dialog.T):
 
     def create_outer_page(self):
         vbox = gtk.VBox()
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = gtk.Table(5,2,False)
         vbox.pack_start(table)
 
         self.create_formula_widget_table(vbox,1)
@@ -147,7 +147,7 @@ class SettingsDialog(dialog.T):
         
     def create_inner_page(self):
         vbox = gtk.VBox()
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = gtk.Table(5,2,False)
         vbox.pack_start(table)
 
         self.create_formula_widget_table(vbox,2)
@@ -175,7 +175,7 @@ class SettingsDialog(dialog.T):
 
     def create_formula_parameters_page(self):
         vbox = gtk.VBox()
-        table = gtk.Table(5,2,gtk.FALSE)
+        table = gtk.Table(5,2,False)
         vbox.pack_start(table)
 
         self.create_formula_widget_table(vbox,0)

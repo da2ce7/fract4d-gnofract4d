@@ -2,15 +2,15 @@
 
 import unittest
 
-import test_makemap
+#import test_makemap
 #import test_flickr
 import test_slave
 
 def suite():
     tests = (
-        test_makemap.suite(),
+        #test_makemap.suite(),
         #test_flickr.suite(), #not yet universally-runnable 
-        test_slave.suite()
+        test_slave.suite(),
         )
     return unittest.TestSuite(tests)
 

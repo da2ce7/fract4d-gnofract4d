@@ -1,3 +1,11 @@
+C4G {; p1 is (plus or minus) 1 or i 
+x=real(pixel), y=imag(pixel)*p1
+a=b=0:
+a1 = a^2-p1^2*b^2
+b1 = 2*a*b
+a=a1+x, b=b1+y
+z = sqrt(a^2 + b^2)
+z < 4 }
 
 C6 group{
 x=real(pixel), y=imag(pixel), v=p1

@@ -492,7 +492,7 @@ class MainWindow:
         # need to reference the item factory or the menus
         # later disappear randomly - some sort of bug in pygtk, python, or gtk
         self.save_factory = item_factory
-        self.vbox.pack_start(menubar, gtk.FALSE, gtk.TRUE, 0)
+        self.vbox.pack_start(menubar, False, True, 0)
         self.menubar = menubar
         
         
@@ -547,7 +547,7 @@ class MainWindow:
             
     def create_status_bar(self):
         self.bar = gtk.ProgressBar()
-        self.vbox.pack_end(self.bar, expand=gtk.FALSE)
+        self.vbox.pack_end(self.bar, expand=False)
 
     def update_preview(self,f,flip2julia=False):
         self.preview.set_fractal(f.copy_f())
@@ -569,7 +569,7 @@ class MainWindow:
     
     def create_toolbar(self):
         self.toolbar = toolbar.T()
-        self.vbox.pack_start(self.toolbar,expand=gtk.FALSE)
+        self.vbox.pack_start(self.toolbar,expand=False)
         
         # preview
         self.toolbar.add_space()
@@ -883,17 +883,20 @@ class MainWindow:
     def send_to(self,action,widget):
         """Launch an email editor with current image attached."""
         mailer = preferences.userPrefs.get("helpers","mailer")
-        
-        image_name = os.path.join(
-            "/tmp",
-            os.path.basename(self.default_save_filename(".png")))
-        self.f.save_image(image_name)
+
+        if False:
+            # to save an image and attach it
+            # add &attach=%s to url
+            image_name = os.path.join(
+                "/tmp",
+                os.path.basename(self.default_save_filename(".png")))
+            self.f.save_image(image_name)
+            
         subject = os.path.basename(self.display_filename())
-        url= '"mailto:gnofract4d-users@lists.sourceforge.net?subject=%s&attach=%s&body=%s"' % \
+        url= '"mailto:gnofract4d-users@lists.sourceforge.net?subject=%s&body=%s"' % \
              (urllib.quote(subject),
-              urllib.quote(image_name),
               urllib.quote(self.f.serialize()))
-        #print url
+
         os.system(mailer % url)
 
     def upload(self,action,widget):

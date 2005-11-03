@@ -4,6 +4,7 @@ import shutil
 from distutils.core import setup, Extension
 import distutils.sysconfig
 import os
+import stat
 import commands
 import sys
 
@@ -29,6 +30,27 @@ import my_bdist_rpm
 import my_build
 import my_build_ext
 
+
+# I need to be able to install an executable script to a data directory
+# so scripts= is no use. Pretend it's data then fix up the permissions
+# with chmod afterwards
+
+from distutils.command.install_lib import install_lib
+class my_install_lib(install_lib):
+    def install(self):
+        #need to change self.install_dir to the library dir
+        outfiles = install_lib.install(self)
+        for f in outfiles:
+            if f.endswith("get.py"):
+                if os.name == 'posix':
+                    # Set the executable bits (owner, group, and world) on
+                    # the script we just installed.
+                    mode = ((os.stat(f)[stat.ST_MODE]) | 0555) & 07777
+                    print "changing mode of %s to %o" % (f, mode)
+                    os.chmod(f, mode)
+
+        return outfiles
+    
 # use currently specified compilers, not ones from when Python was compiled
 # this is necessary for cross-compilation
 compiler = os.environ.get("CC","gcc")
@@ -49,7 +71,7 @@ module1 = Extension(
     'fract4d/c'
     ],
     libraries = [
-    #'stdc++'
+    'stdc++'
     ],
     extra_compile_args = [
     '-O0',
@@ -72,7 +94,7 @@ module_cmap = Extension(
     'fract4d/c'
     ],
     libraries = [
-    #'stdc++'
+    'stdc++'
     ],
     define_macros = [ ('_REENTRANT', 1)]
     )
@@ -133,7 +155,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
        author_email = 'edwin@bathysphere.org',
        maintainer = 'Edwin Young',
        maintainer_email = 'edwin@bathysphere.org',
-       keywords = "fractal Mandelbrot Julia fractint",
+       keywords = "fractal Mandelbrot Julia fractint chaos",
        url = 'http://gnofract4d.sourceforge.net/',
        packages = ['fract4d', 'fract4dgui', 'fractutils'],
        ext_modules = [module1, module_cmap, module2],
@@ -151,13 +173,20 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
            # documentation
            ('share/gnome/help/gnofract4d/C',
             ['doc/gnofract4d-manual/C/gnofract4d-manual.xml',
-             'doc/gnofract4d-manual/C/stdlib.xml']),
+             'doc/gnofract4d-manual/C/stdlib.xml',
+             'doc/gnofract4d-manual/C/commands.xml' ]),
            ('share/gnome/help/gnofract4d/C/figures',
             get_files("doc/gnofract4d-manual/C/figures",".png")),
 
-           #icons
-           ('share/pixmaps/gnofract4d', get_files('pixmaps','.png')),
-            
+           #internal pixmaps
+           ('share/pixmaps/gnofract4d',
+            ['pixmaps/deepen_now.png',
+             'pixmaps/explorer_mode.png']),
+
+           # icon
+           ('share/pixmaps',
+            ['pixmaps/gnofract4d-logo.png']),
+           
            # .desktop file
            ('share/gnofract4d', ['gnofract4d.desktop']),
 
@@ -171,7 +200,8 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
        cmdclass={
            "my_bdist_rpm": my_bdist_rpm.my_bdist_rpm,
            "build" : my_build.my_build,
-           "my_build_ext" : my_build_ext.my_build_ext}
+           "my_build_ext" : my_build_ext.my_build_ext,
+           "install_lib" : my_install_lib }
        )
 
 # I need to find the file I just built and copy it up out of the build
