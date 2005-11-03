@@ -33,18 +33,24 @@ class Slave(object):
         self.stdin = None
         self.stdout = None
         self.output = ""
+        self.err_output = ""
         self.dead = False
         
     def run(self, input):
         self.input = input
         self.process = subprocess.Popen(
             [self.cmd, str(len(input))] + self.args,
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE,close_fds=True)
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            close_fds=True)
 
         makeNonBlocking(self.process.stdin.fileno())
         makeNonBlocking(self.process.stdout.fileno())
+        makeNonBlocking(self.process.stderr.fileno())
         self.stdin = self.process.stdin
         self.stdout = self.process.stdout
+        self.stderr = self.process.stderr
 
     def write(self):
         if self.dead:
@@ -81,7 +87,6 @@ class Slave(object):
                 # checking all these ways to see if child has died
                 # since they don't seem to be reliable
                 if self.process.poll() == None or self.process.returncode != None:
-                    self.on_complete()
                     return False
         except IOError, err:
             if err.errno == errno.EAGAIN:
@@ -91,6 +96,27 @@ class Slave(object):
         self.output += data
         return True
 
+    def read_stderr(self):
+        if self.dead:
+            self.on_complete()
+            return False
+        try:
+            data = self.stderr.read(-1)
+            #print "read", len(data)
+            if data == "":
+                # checking all these ways to see if child has died
+                # since they don't seem to be reliable
+                if self.process.poll() == None or self.process.returncode != None:
+                    self.on_complete()
+                    return False
+        except IOError, err:
+            if err.errno == errno.EAGAIN:
+                #print "again!"
+                return True
+            raise
+        self.err_output += data
+        return True
+        
     def on_complete(self):
         pass
 
@@ -129,6 +155,11 @@ class GTKSlave(gobject.GObject,Slave):
     def on_finish_writing(self):
         pass
     
+
+    def on_error_readable(self, source, condition):
+        self.read_stderr()
+        return True
+    
     def on_readable(self, source, condition):        
         #print "readable:", source, condition
         self.emit('progress-changed', "Reading", -1.0)
@@ -144,22 +175,24 @@ class GTKSlave(gobject.GObject,Slave):
 
     def unregister(self):
         if self.write_id:
-            #print "unreg write", self.write_id
             gtk.input_remove(self.write_id)
             self.write_id = None
 
         if self.read_id:
-            #print "unreg read", self.read_id
             gtk.input_remove(self.read_id)
             self.read_id = None
 
+        if self.err_id:
+            gtk.input_remove(self.err_id)
+            self.err_id = None
+            
     def register(self):
         self.write_id = gtk.input_add(
             self.stdin, gtk.gdk.INPUT_WRITE, self.on_writable)
         self.read_id = gtk.input_add(
             self.stdout, gtk.gdk.INPUT_READ, self.on_readable)
-        #print "reg write %s" % self.write_id
-        #print "reg read %s" % self.read_id
+        self.err_id = gtk.input_add(
+            self.stderr, gtk.gdk.INPUT_READ, self.on_error_readable)
         
     def on_complete(self):
         self.unregister()

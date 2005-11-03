@@ -25,6 +25,10 @@ if is_post:
     txheaders['Content-type'] = content_type
     txheaders['Content-length'] = str(len(data))
 
-req = urllib2.Request(url,data,txheaders)
-resp = urllib2.urlopen(req).read()
-print resp
+try:
+    req = urllib2.Request(url,data,txheaders)
+    resp = urllib2.urlopen(req).read()
+    print resp
+except urllib2.HTTPError, err:
+    print >>sys.stderr, str(err)
+    sys.exit(1)
