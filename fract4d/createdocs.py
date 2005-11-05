@@ -19,6 +19,9 @@ class SymbolPrinter:
         self.vars = {}
 
     def add_symbol(self,key,val):
+        if key.startswith("@_"):
+            # skip internal symbols
+            return
         if isinstance(val,fracttypes.Var):
             self.vars[key] = val
         elif isinstance(val,fsymbol.OverloadList):
@@ -27,61 +30,84 @@ class SymbolPrinter:
             else:
                 self.funcs[key] = val
 
-    def output_refentry_header(self,key,val,type):
-        print >>self.f, '<sect3 id=%s>' % quoteattr(key)
-        print >>self.f, '<title>%s %s</title>' % (escape(key), type)
+    def output_entry(self,nrows=1):
+        print >>self.f, \
+           '<entry valign="top" align="left" morerows="%d">' % (nrows-1)
         
+    def output_refentry_header(self,key,val,type,nrows=1):
+        print >>self.f, '<row>'
+        self.output_entry(nrows)
+        print >>self.f, '%s</entry>' % escape(key)
+
+    def output_overload(self,func):
+        self.output_entry()
+        print >>self.f,  ", ".join(map(strOfType,func.args))
+        print >>self.f,  '</entry>'
+        self.output_entry()
+        print >>self.f,  '%s</entry>' % strOfType(func.ret)
+
     def output_function(self,val):
-        print >>self.f, '<para><informaltable>'
-        print >>self.f, '<tgroup cols="2">'
-        print >>self.f,  '''<thead><row>
-                    <entry>Input Type</entry>
-                    <entry>Output Type</entry>
-                 </row></thead>'''
-        print >>self.f,  '<tbody>'
-        for func in val:
-             print >>self.f,  '<row>'
-             print >>self.f,  '<entry>'
-             print >>self.f,  ", ".join(map(strOfType,func.args))
-             print >>self.f,  '</entry>'
-             print >>self.f,  '<entry>%s</entry>' % strOfType(func.ret)
+        nrows = len(val)
+
+        self.output_overload(val[0])
+        
+        for func in val[1:]:
              print >>self.f,  '</row>'
-        print >>self.f,  '</tbody>'
-        print >>self.f,  '</tgroup>'
-        print >>self.f,  '</informaltable>'
-        print >>self.f,  '</para>'
-
+             print >>self.f,  '<row>'
+             self.output_overload(func)
+        
     def output_refentry_footer(self):
-        print >>self.f,  '</sect3>'
+        print >>self.f, '<row><entry>&nbsp;</entry></row>'
+        print >>self.f,  '</row>'
 
-    def output_refentry_body(self,val):
-        print >>self.f,  '<para>'
+    def output_refentry_body(self,val,nrows=1):
+        self.output_entry(nrows)
         text = val.__doc__ or "No documentation yet."
         print >>self.f,  escape(text)
-        print >>self.f,  '</para>'
+        print >>self.f,  '</entry>'
         
     def output_symbol(self,key,val,type):
-        self.output_refentry_header(key,val,type)
-        
         if isinstance(val,fsymbol.OverloadList):
+            nrows = len(val)
+            self.output_refentry_header(key,val,type,nrows)
+            self.output_refentry_body(val,nrows)
             self.output_function(val)            
         else:
-            print >>self.f,  '<para>Type: %s</para>' % strOfType(val.type)
-        self.output_refentry_body(val)
+            self.output_refentry_header(key,val,type)
+            self.output_refentry_body(val)
+            print >>self.f,  '<entry>%s</entry>' % strOfType(val.type)
+
         self.output_refentry_footer()
 
     def output_all(self):
+        self.output_table(self.operators, "Operators", "operator")
         self.output_table(self.funcs,"Functions", "function")
         self.output_table(self.vars, "Symbols", "(symbol)")
-        self.output_table(self.operators, "Operators", "operator")
+
         
     def output_table(self,table,name,type):
         print >>self.f,  '<sect2 id="%s">' % name
         print >>self.f,  '<title>%s</title>' % name
+        print >>self.f,  '<para><informaltable frame="all">'
+        print >>self.f, '<tgroup cols="4">'
+        print >>self.f,  '''
+<thead>
+<row>
+                    <entry>Name</entry>
+                    <entry>Description</entry>
+                    <entry>Argument Types</entry>
+                    <entry>Return Type</entry>
+</row>
+</thead>'''
+        print >>self.f,  '<tbody>'
+
         keys = table.keys()
         keys.sort()
         for k in keys:
             self.output_symbol(k,table[k],type)
+        print >>self.f,  '</tbody>'
+        print >>self.f,  '</tgroup>'
+        print >>self.f,  '</informaltable></para>'
         print >>self.f,  '</sect2>'
         
 def main(outfile):
@@ -95,5 +121,5 @@ def main(outfile):
     printer.output_all()
     
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1])
     
