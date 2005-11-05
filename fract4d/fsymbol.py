@@ -76,25 +76,24 @@ class Alias:
     
 def createDefaultDict():
     d = {
-        # fixme - issue a warning for complex compares
-        ">":  efl("gt",    "[_,_] , Bool", [Int, Float, Complex]),
-        ">=": efl("gte",   "[_,_] , Bool", [Int, Float, Complex]),
-        "<":  efl("lt",    "[_,_] , Bool", [Int, Float, Complex]),
-        "<=": efl("lte",   "[_,_] , Bool", [Int, Float, Complex]),
-
-        # arithmetic
-        "%":  efl("mod",   "[_,_] , _", [Int, Float],operator=True),
-
         "^": OverloadList([ Func([Float, Float], Float, stdlib, "pow"),
-                Func([Complex, Float], Complex, stdlib, "pow"),
-                Func([Complex, Complex], Complex, stdlib, "pow")]),
+                            Func([Complex, Float], Complex, stdlib, "pow"),
+                            Func([Complex, Complex], Complex, stdlib, "pow")],
+                          operator=True,
+                          doc='''Exponentiation operator. Computes x to the power y.'''),
         
         "t__neg": efl("neg", "[_], _", [Int, Float, Complex, Hyper]),
 
         # logical ops
-        "&&": OverloadList([ Func([Bool, Bool], Bool, stdlib, None) ]),
-        "||": OverloadList([ Func([Bool, Bool], Bool, stdlib, None) ]),
-        "!" : OverloadList([ Func([Bool],Bool, stdlib, None) ]),
+        "&&": OverloadList(
+            [ Func([Bool, Bool], Bool, stdlib, None) ],
+            doc="Logical AND.", operator=True),
+        "||": OverloadList(
+            [ Func([Bool, Bool], Bool, stdlib, None) ],
+            doc="Logical OR.", operator=True),
+        "!" : OverloadList(
+            [ Func([Bool],Bool, stdlib, None) ],
+            doc="Logical NOT.", operator=True),
 
         # predefined magic variables
         "t__h_pi" : Alias("pi"),
@@ -422,6 +421,25 @@ by the 3rd parameter.''')
       [ [Color, Color], Color],
       doc='''Multiplies colors together. Result is always darker than either input.''')
 
+    f("rgb",
+      [ [Float, Float, Float], Color],
+      doc='''Create a color from three color components. The alpha channel is set to to 1.0 (=100%).''')
+
+    f("rgba",
+      [ [Float, Float, Float, Float], Color],
+      doc='Create a color from three color components and an alpha channel.')
+
+    f("hsl",
+      [ [Float, Float, Float], Color],
+      doc='''Create a color from hue, saturation and lightness components. The alpha channel is set to to 1.0 (=100%).''')
+
+    f("hsla",
+      [ [Float, Float, Float,Float], Color],
+      doc='''Create a color from hue, saturation and lightness components and an alpha channel.''')
+
+    f("hsv",
+      [ [Float, Float, Float], Color],
+      doc='''Creste a color from hue, saturation and value components. HSV is a similar color model to HSL but has a different valid range for brightness.''')
     
       
     # operators
@@ -473,25 +491,40 @@ by the 3rd parameter.''')
       doc='''Equality operator. Compare two values and return true if they are
       the same.''')
 
-    f("rgb",
-      [ [Float, Float, Float], Color],
-      doc='''Create a color from three color components. The alpha channel is set to to 1.0 (=100%).''')
+    # fixme - issue a warning for complex compares
+    f(">",
+      cfl("[_,_], Bool", [Int, Float, Complex]),
+      fname="gt",
+      operator=True,
+      precedence=3,
+      doc='''Greater-than operator. Compare two values and return true if the first is greater than the second.''')
 
-    f("rgba",
-      [ [Float, Float, Float, Float], Color],
-      doc='Create a color from three color components and an alpha channel.')
+    f(">=",
+      cfl("[_,_], Bool", [Int, Float, Complex]),
+      fname="gte",
+      operator=True,
+      precedence=3,
+      doc='''Greater-than-or-equal operator. Compare two values and return true if the first is greater than or equal to the second.''')
 
-    f("hsl",
-      [ [Float, Float, Float], Color],
-      doc='''Create a color from hue, saturation and lightness components. The alpha channel is set to to 1.0 (=100%).''')
+    f("<",
+      cfl("[_,_], Bool", [Int, Float, Complex]),
+      fname="lt",
+      operator=True,
+      precedence=3,
+      doc='''Less-than operator. Compare two values and return true if the first is less than the second.''')
 
-    f("hsla",
-      [ [Float, Float, Float,Float], Color],
-      doc='''Create a color from hue, saturation and lightness components and an alpha channel.''')
+    f("<=",
+      cfl("[_,_], Bool", [Int, Float, Complex]),
+      fname="lte",
+      operator=True,
+      precedence=3,
+      doc='''Less-than-or-equal operator. Compare two values and return true if the first is less than or equal to the second.''')
 
-    f("hsv",
-      [ [Float, Float, Float], Color],
-      doc='''Creste a color from hue, saturation and value components. HSV is a similar color model to HSL but has a different valid range for brightness.''')
+    f("%",
+      cfl("[_,_] , _", [Int, Float]),
+      fname="mod",
+      operator=True,
+      doc='''Modulus operator. Computes the remainder when x is divided by y. Not to be confused with the complex modulus.'''),
     
     # predefined parameters
     for p in xrange(1,7):
