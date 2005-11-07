@@ -103,14 +103,14 @@ def createDefaultDict():
         "pi": Var(Float),
         "t__h_z" : Alias("z"),
         "z"  : Var(Complex),
-        "t__h_index": Var(Float),
-        "t__h_numiter": Var(Int),
+        "t__h_index": Var(Float,doc="The point in the gradient to use for the color of this point."),
+        "t__h_numiter": Var(Int,doc="The number of iterations performed."),
         "t__h_maxiter": Alias("maxiter"),
         "t__h_maxit" : Alias("maxiter"),
         "maxit" : Alias("maxiter"),
-        "maxiter" : Var(Int),
+        "maxiter" : Var(Int, "The maximum number of iterations set by the user."),
         "pi" : Var(Float,math.pi, doc="The constant pi, 3.14159..."),
-        "t__h_tolerance" : Var(Float),
+        "t__h_tolerance" : Var(Float, doc="10% of the distance between adjacent pixels."),
         "t__h_zwpixel" : Var(Complex,doc="The (Z,W) coordinates of the current point. (See #pixel for the other two coordinates.) When viewing the Mandelbrot set, this remains constant for each pixel on the screen; when viewing the Julia set, it's different for each pixel. Initialize z to some function of this to take advantage of 4D drawing."),
         "t__h_solid" : Var(Bool,doc="Set this to true in a coloring function to use the solid color rather than the color map."),
         "t__h_color" : Var(Color,doc="Set this from a coloring function to directly set the color instead of using a gradient")
@@ -530,14 +530,15 @@ by the 3rd parameter.''')
     for p in xrange(1,7):
         name = "p%d" % p
         d[name] = Alias("t__a_" + name)
-        d["t__a_" + name]  = Var(Complex)
+        d["t__a_" + name]  = Var(Complex,doc="Predefined parameter used by Fractint formulas")
         
     # predefined functions
     for p in xrange(1,5):
         name = "fn%d" % p
         d[name] = Alias("t__a_" + name)
         d["t__a_" + name ] = OverloadList(
-            [Func([Complex],Complex, stdlib, "ident") ])
+            [Func([Complex],Complex, stdlib, "ident") ],
+            doc="Predefined function parameter used by Fractint formulas")
 
     d["t__a__transfer"] = OverloadList([Func([Float],Float, stdlib, "ident") ])
     d["t__a__gradient"] = Var(Gradient)

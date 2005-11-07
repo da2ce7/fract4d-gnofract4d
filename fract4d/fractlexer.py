@@ -9,6 +9,11 @@ import sys
 import re
 import string
 
+# set to True to pass through all tokens. This breaks the parser but
+# is useful for pretty-printing
+
+keep_all = False
+
 # List of token names.   This is always required
 tokens = (
    'NUMBER',
@@ -146,7 +151,8 @@ def t_COMMENT_FORMULA(t):
 def t_FORM_ID(t):
     r'[^\r\n;"\{]+{'
     # remove trailing whitespace and {
-    t.value = re.sub("\s*{$", "", t.value)    
+    if not keep_all:
+        t.value = re.sub("\s*{$", "", t.value)    
     return t
 
 def t_NUMBER(t):
@@ -164,20 +170,23 @@ def t_NUMBER(t):
 # default, switch, builtin
 def t_SECT_SET(t):
     r'(([Dd][Ee][Ff][Aa][Uu][Ll][Tt])|([Ss][Ww][Ii][Tt][Cc][Hh])|([Bb][Uu][Ii][Ll][Tt][Ii][Nn])):'
-    t.value = re.sub(":$","",t.value)
+    if not keep_all:
+        t.value = re.sub(":$","",t.value)
     return t
 
 # a section containing parameter settings, as found in .ugr and .upr files
 # gradient, fractal, layer, mapping, formula, inside, outside, alpha, opacity
 def t_SECT_PARMS(t):
     r'(([Gg][Rr][Aa][Dd][Ii][Ee][Nn][Tt])|([Ff][Rr][Aa][Cc][Tt][Aa][Ll])|([Ll][Aa][Yy][Ee][Rr])|([Mm][Aa][Pp][Pp][Ii][Nn][Gg])|([Ff][Oo][Rr][Mm][Uu][Ll][Aa])|([Ii][Nn][Ss][Ii][Dd][Ee])|([Oo][Uu][Tt][Ss][Ii][Dd][Ee])|([Aa][Ll][Pp][Hh][Aa])|([Oo][Pp][Aa][Cc][Ii][Tt][Yy])):'
-    t.value = re.sub(":$","",t.value)
+    if not keep_all:
+        t.value = re.sub(":$","",t.value)
     return t
 
 # global, transform, init, loop, final, bailout
 def t_SECT_STM(t):
     r'(([Gg][Ll][Oo][Bb][Aa][Ll])|([Tt][Rr][Aa][Nn][Ss][Ff][Oo][Rr][Mm])|([Ii][Nn][Ii][Tt])|([Ll][Oo][Oo][Pp])|([Ff][Ii][Nn][Aa][Ll])|([Bb][Aa][Ii][Ll][Oo][Uu][Tt]))?:'
-    t.value = re.sub(":$","",t.value)
+    if not keep_all:
+        t.value = re.sub(":$","",t.value)
     return t
 
 def t_ID(t):
@@ -194,6 +203,8 @@ def t_ESCAPED_NL(t):
 
 def t_COMMENT(t):
     r';[^\n]*'
+    if keep_all:
+        return t
     
 def t_NEWLINE(t):
     r'\r*\n'
@@ -202,10 +213,11 @@ def t_NEWLINE(t):
 
 def t_STRING(t):
     r'"[^"]*"' # embedded quotes not supported in UF?
-    t.value = re.sub(r'(^")|("$)',"",t.value) # remove trailing and leading "
-    newlines = re.findall(r'\n',t.value)
-    t.lineno += len(newlines)
-    t.value = re.sub(r'\\\r?\n[ \t\v]*',"",t.value) # hide \-split lines
+    if not keep_all:
+        t.value = re.sub(r'(^")|("$)',"",t.value) # remove trailing and leading "
+        newlines = re.findall(r'\n',t.value)
+        t.lineno += len(newlines)
+        t.value = re.sub(r'\\\r?\n[ \t\v]*',"",t.value) # hide \-split lines
     return t
     
 # A string containing ignored characters (spaces and tabs)
@@ -220,6 +232,11 @@ def t_error(t):
     
 # Build the lexer
 lexer = lex.lex(optimize=1)
+
+def get_lexer():
+    global lexer
+    lexer = lex.lex(optimize=1)
+    return lexer
 
 # debugging
 if __name__ == '__main__': #pragma: no cover
