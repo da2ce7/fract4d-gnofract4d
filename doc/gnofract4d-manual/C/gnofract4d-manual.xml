@@ -1,7 +1,12 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+
 <!ENTITY stdlib SYSTEM "stdlib.xml">
 <!ENTITY commands SYSTEM "commands.xml">
+<!ENTITY tutorial001 SYSTEM "tutorial001.xml">
+<!ENTITY tutorial002 SYSTEM "tutorial002.xml">
+<!ENTITY tutorial003 SYSTEM "tutorial003.xml">
+
 <!ENTITY gf4d "<application>Gnofract 4D</application>">
 <!ENTITY fractint "<application>Fractint</application>">
 <!ENTITY ultrafractal "<application>UltraFractal</application>">
@@ -792,31 +797,104 @@ releases. </para></listitem>
 <title>Writing Your First Formula</title>
 
 <para>
-This section steps you through the creation of a new fractal formula.
-<orderedlist numeration="arabic">
+This section steps you through the creation of a new fractal
+formula. By the way, the formulas for each of these steps can also be
+found in the file <filename>formulas/tutorial.frm</filename>.
+
+<orderedlist numeration="arabic"> 
 
 <listitem>
 <para>
-
 Create a new file called '<filename>example.frm</filename>' (the
 extension is important - &gf4d; uses this to decide whether the file
 is a formula or a coloring function).
 </para>
 </listitem>
 
+<listitem>
+<para>
+Enter the following in <filename>example.frm</filename>.
+&tutorial001;
+</para>
+</listitem>
 
-</orderedlist>
-
-For now, I suggest copying one of the formulas which come with
-&gf4d; into a new file, and modifying it using trial and error.
+<listitem>
+<para>
+Start &gf4d;, choose <guimenuitem>File | Open Formula
+File</guimenuitem>, and open example.frm. You should see MyFormula in
+the list of formulas to choose from. Select it and click Apply. You
+should see an image like this:
+</para>
+<para>
+<graphic format="PNG"
+fileref="figures/tutorial001.png"> </graphic>
 </para>
 
+<para>
+A few things to note about the formula. It's divided into named
+sections, marked with a colon: "init", "loop". and "bailout". The
+compiler uses these to supply some of the standard scaffolding for a
+fractal function so you don't have to. The "loop" statement is the
+heart of the formula - this is the statement which is run repeatedly
+and which defines the shape of your fractal.
+</para>
+</listitem>
+
+<listitem>
+<para>
+
+At this point, the widgets for rotating the image in 4D will be
+disabled, because your formula doesn't use any of the 4D
+options. Let's turn those on. Edit your formula so it reads:
+&tutorial002;
+</para>
+
+<para>
+Then hit <guibutton>Refresh</guibutton> on the Formula Browser window. You 
+should now find that all the options are enabled. This is because the image now depends on all 4 components of the 4D space, via #pixel and #zwpixel.
+</para>
+</listitem>
+
+<listitem>
+<para>
+Next let's add some parameters to our function:
+&tutorial003;
+</para>
+
+<para>
+Hit <guibutton>Refresh</guibutton> again, then <guimenuitem>Edit |
+Fractal Settings</guimenuitem> to show the formula settings. You
+should two extra parameters in addition to the standard "Max
+Iterations" option: <emphasis>myfunc</emphasis>, with a drop-down list
+of functions, and <emphasis>fac</emphasis> (or Factor) with a
+draggable 4-way widget and 2 edit boxes. If you set myfunc to
+<emphasis>sqr</emphasis> and set factor to (-1,0.5) you should see:
+</para>
+
+<para>
+<graphic format="PNG"
+fileref="figures/tutorial002.png"> </graphic>
+</para>
+
+<para> 
+Parameters like this are a quick way to add more options to your
+fractal. Listing them in the "default" section is optional but
+provides a way to pre-populate your formula with values that work
+well. If you leave the default out &gf4d; will use "ident" for
+functions and 0 for numeric ones.
+</para>
+
+</listitem>
+
+</orderedlist> 
+</para>
 </sect2>
 
 </sect1>
 
 <sect1 id="formref">
 <title>Formula Language Reference</title>
+
 &stdlib;
 </sect1>
 

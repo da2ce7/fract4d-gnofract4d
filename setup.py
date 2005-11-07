@@ -131,7 +131,7 @@ module2 = Extension(
     'fract4d/c/'
     ],
     libraries = [
-    #'stdc++'
+    'stdc++'
     ],
     extra_compile_args = gtk_flags,
     extra_link_args = gtk_libs,    

@@ -26,6 +26,7 @@ done in 2.11:
 * W	added argtype, FnParts, XBuffalo, YBuffalo
 
 bugs (the more B's, the worse the bug):
+* BBB	slave completely broken on python2.2
 * BBB	too slow!
 * BBB   "failed to read() from server connection" - huh? Gamin/FAM? Connected to file choosers?
 * BB	not all keyboard shortcuts available when menu hidden
