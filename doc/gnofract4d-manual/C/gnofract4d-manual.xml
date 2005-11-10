@@ -1112,7 +1112,8 @@ will happen. </para> </warning>
 <para>
 <emphasis>Please</emphasis> report any bugs you encounter, either by
 mailing <ulink
-url="mailto:edwin@bathysphere.org">edwin@bathysphere.org</ulink> or by
+url="mailto:edwin@users.sourceforge.net">
+edwin@users.sourceforge.net</ulink> or by
 using the <ulink
 url="http://sourceforge.net/tracker/?func=add&amp;group_id=785&amp;atid=100785">
 bug form</ulink> at SourceForge. I'll do my best to fix them.  </para>
