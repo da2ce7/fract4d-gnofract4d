@@ -113,3 +113,61 @@ float param bailout
 	default = 4.0
 endparam
 }
+
+Angles {
+; delta total, total, min, delta min, max, delta max, avg, delta avg
+; iter @ min, iter @ max, iter @ delta min, iter @ delta max
+init:
+float angle = 0.0
+complex lastz = (0,0)
+float temp_angle
+int itermin = 0
+int itermax = 0
+if @angle_type == "delta min" || @angle_type == "min" || @angle_type == "iter @ min"
+    angle = #pi
+endif
+loop:
+if @angle_type == "delta total"
+    angle = angle + abs(atan2(z-lastz))
+elseif @angle_type == "delta max" 
+    temp_angle = abs(atan2(z-lastz))
+    if temp_angle > angle
+	angle = temp_angle
+    endif
+elseif @angle_type == "delta min"
+    temp_angle = abs(atan2(z-lastz))
+    if temp_angle < angle
+	angle = temp_angle
+    endif
+elseif @angle_type == "min" || @angle_type == "iter @ min"
+    temp_angle = abs(atan2(z))
+    if temp_angle < angle
+	angle = temp_angle
+	itermin = #numiter
+    endif
+elseif @angle_type == "max" || @angle_type == "iter @ max"
+    temp_angle = abs(atan2(z))
+    if temp_angle > angle
+	angle = temp_angle
+	itermax = #numiter
+    endif
+elseif @angle_type == "total"
+    angle = angle + abs(atan2(z))
+endif
+lastz = z
+final: 
+if @angle_type == "iter @ min" 
+    #index = itermin/256.0
+elseif @angle_type == "iter @ max"
+    #index = itermax/256.0
+else 
+    #index = angle/#pi
+endif
+default:
+param angle_type
+	default = 0
+	enum = "delta total" "delta max" "delta min" "min" "max" "total" "iter @ min" "iter @ max"
+endparam
+}  
+
+

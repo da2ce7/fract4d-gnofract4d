@@ -6,6 +6,7 @@ include formulas/fractint-g4.frm
 include formulas/fractint-builtin.frm
 include formulas/fractint.cfrm
 include formulas/standard.ucl
+include formulas/tutorial.frm
 include doc/gnofract4d-manual/C/*.xml
 include doc/gnofract4d-manual/C/figures/*.png
 include pixmaps/*.png

@@ -1,3 +1,80 @@
+Direct Decomposition {
+; 4-way decomposition using a direct coloring algorithm
+; tends to get a bit blurry as you zoom further in
+init:
+int cq1
+int cq2
+int cq3
+int cq4
+loop:
+int q = 0
+if(real(z) < 0.0) 
+	q = 1
+endif
+if(imag(z) < 0.0) 
+	q = q + 2
+endif
+if q == 0
+   cq1 = cq1 + 1
+elseif q == 1
+   cq2 = cq2 + 1
+elseif q == 2
+   cq3 = cq3 + 1
+else
+   cq4 = cq4 + 1
+endif
+final:
+#color = @c1 * (cq1/#numiter) + @c2 * (cq2/#numiter) + @c3 * (cq3/#numiter) + @c4 * (cq4/#numiter)
+default:
+color param c1
+	default = rgb(1.0,0.0,0.0)
+endparam
+color param c2
+	default = rgb(0.0,1.0,0.0)
+endparam
+color param c3
+	default = rgb(0.0,0.0,1.0)
+endparam
+color param c4
+	default = rgb(0.0,0.0,0.0)
+endparam
+}
+
+Hot And Cold {
+; 2 colors - on each orbit, the closer we are to 0, the more hot,
+; the closer we are to bailout, the more cold. Compute an average over
+; all iterations 
+
+init:
+float dist=0.0
+int closecalls=0
+int farcalls=0
+loop:
+dist = |z|
+if dist < @closedist
+   closecalls = closecalls + 1
+elseif @bailout - dist < @fardist
+   farcalls = farcalls + 1
+endif
+final:
+#color = @hotcolor * (closecalls/#numiter) + @coldcolor * (farcalls/#numiter)
+default:
+float param fardist
+	default = 1.0
+endparam
+float param closedist
+	default = 0.2
+endparam
+float param bailout
+	default = 4.0
+endparam
+color param hotcolor
+	default = rgb(0.97, 0.43, 0.01)
+endparam
+color param coldcolor
+	default = rgb(0.49, 0.79, 0.96)
+endparam
+}
 
 velocity {
 init:
