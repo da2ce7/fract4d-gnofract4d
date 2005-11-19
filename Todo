@@ -24,6 +24,7 @@ done in 2.11:
 * B	plane menu is available even if not is4D()
 * BB	flickr access should be threaded so UI doesn't hang
 * W	added argtype, FnParts, XBuffalo, YBuffalo
+* BB	crash with multiple threads on x86-64 (Paul Wayper)
 
 bugs (the more B's, the worse the bug):
 * BBB	slave completely broken on python2.2
@@ -32,7 +33,6 @@ bugs (the more B's, the worse the bug):
 * BB	not all keyboard shortcuts available when menu hidden
 * BB	should save enum params as strings, not indexes
 * BB	fractint doesn't reset vars between calls
-* BB	crash with multiple threads on x86-64 (Paul Wayper)
 * BB	explorer rather slow with complex colorfuncs
 * BB	squares left behind when changing from a smooth colormap to a jagged one
 * BB	sometimes copying subfract to main fract loses some data
