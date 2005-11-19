@@ -14,6 +14,7 @@ MTFractWorker::MTFractWorker(
     IImage *im,
     IFractalSite *site)
 {
+  m_ok = true;
     /* 0'th ftf is in this thread for calculations we don't want to offload */
     nWorkers = n > 1 ? n + 1 : 1;
 

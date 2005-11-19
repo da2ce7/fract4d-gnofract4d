@@ -108,17 +108,10 @@ class tpool {
 
     static void threadFunc(tpool_threadInfo<threadInfo> *pinfo)
         {
-            try
-                {
-                    tpool<work_t,threadInfo> *p = 
-                        (tpool<work_t,threadInfo> *) pinfo->pool;
+	  tpool<work_t,threadInfo> *p = 
+	    (tpool<work_t,threadInfo> *) pinfo->pool;
 
-                    p->work(pinfo->info);
-                }
-            catch(...)
-                {
-                    // do nothing - let this thread die peacefully
-                }
+	  p->work(pinfo->info);
         }
 
     int add_work(void (*routine)(work_t&, threadInfo *), const work_t& arg)
@@ -138,8 +131,8 @@ class tpool {
             }
             
             /* fill in work structure */
-            tpool_work<work_t,threadInfo> *workp = &queue[queue_head];           
-            
+            tpool_work<work_t,threadInfo> *workp = &queue[queue_head];
+
             workp->routine = routine;
             workp->arg = arg;
 
@@ -166,7 +159,6 @@ class tpool {
         {
             pthread_mutex_lock(&queue_lock);
             total_work_done++;
-
             while( cur_queue_size == 0 && !(shutdown))
             {
                 if(total_work_done == target_work_done)
