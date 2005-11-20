@@ -25,11 +25,14 @@ done in 2.11:
 * BB	flickr access should be threaded so UI doesn't hang
 * W	added argtype, FnParts, XBuffalo, YBuffalo
 * BB	crash with multiple threads on x86-64 (Paul Wayper)
+* BBB	tutorial.frm,createdocs.py not checked in
+* BBB   python2.3 gives: AssertionError: unexpected number of RPM files found: ['build/bdist.linux-x86_64/rpm/RPMS/x86_64/gnofract4d-debuginfo-2.11-1.x86_64.rpm', 'build/bdist.linux-x86_64/rpm/RPMS/x86_64/gnofract4d-2.11-1.x86_64.rpm']
+* B	app frozen on FC4 while browser/mailer running
+* B	FC4: gtk.input_add deprecated, gtk.timeout_add should be gobject.timeout_add
 
 bugs (the more B's, the worse the bug):
 * BBB	slave completely broken on python2.2
 * BBB	too slow!
-* BBB   "failed to read() from server connection" - huh? Gamin/FAM? Connected to file choosers?
 * BB	not all keyboard shortcuts available when menu hidden
 * BB	should save enum params as strings, not indexes
 * BB	fractint doesn't reset vars between calls
@@ -37,7 +40,7 @@ bugs (the more B's, the worse the bug):
 * BB	squares left behind when changing from a smooth colormap to a jagged one
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
-* B	FC4: gtk.input_add deprecated, gtk.timeout_add should be gobject.timeout_add
+* B	painter click on inner sometimes gives "IndexError: list assignment out of range" @ self.f.solids[color] = (int(r*255.0),int(g*255.0),int(b*255.0),255)
 * B	browser doesn't jump to current func when opened
 * B	float func without a default gives an error looking for ident_c_f (can't repro)
 * B	should hide density/transfer/offset for DCA's
