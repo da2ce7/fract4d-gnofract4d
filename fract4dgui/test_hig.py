@@ -80,8 +80,10 @@ class Test(unittest.TestCase):
             return False
 
         # increase timeout to see what dialogs look like
-        gtk.timeout_add(10,dismiss)
-        
+        try:
+            gobject.timeout_add(10,dismiss)
+        except AttributeError:
+            gtk.timeout_add(10,dismiss)
         r = d.run()
         d.destroy()
         

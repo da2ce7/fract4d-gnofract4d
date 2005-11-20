@@ -92,8 +92,8 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         finally:
             os.remove("fttest.frm")
             
-    def testLoad(self):
-        'Check we can compile a fractal and load the resulting .so'
+    def testCompile(self):
+        'Check we can compile a fractal and the resulting .so looks ok'
         ff = self.compiler.files["gf4d.frm"]
         self.assertNotEqual(string.index(ff.contents,"Modified for Gf4D"),-1)
         self.assertNotEqual(ff.get_formula("T03-01-G4"),None)
@@ -113,9 +113,10 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         self.assertEqual(string.count(output,"pf_kill"),1)
 
         # load it and mess around
-        so = dl.open('./test-out.so', dl.RTLD_NOW)
-        self.assertNotEqual(so.sym('pf_new'),0)
-        self.assertNotEqual(so.call('pf_new'),0)
+        # DL module doesn't work on x86_64, so disabling this part
+        #so = dl.open('./test-out.so', dl.RTLD_NOW)
+        #self.assertNotEqual(so.sym('pf_new'),0)
+        #self.assertNotEqual(so.call('pf_new'),0)
 
     def testErrors(self):
         'Check we raise appropriate exns when formulas are busted'
