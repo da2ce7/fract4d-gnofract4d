@@ -3,6 +3,7 @@ import sys
 import inspect
 
 import gtk
+import gobject
 
 threads_enabled = False
 
@@ -22,7 +23,10 @@ def idle_wrapper(callable, *args):
 def idle_add(callable, *args):
     """A wrapper around gtk.idle_add which wraps the callback in
     threads_enter/threads_leave if required"""
-    gtk.idle_add(idle_wrapper, callable, *args)
+    try:
+        gobject.idle_add(idle_wrapper, callable, *args)
+    except AttributeError:
+        gtk.idle_add(idle_wrapper, callable, *args)
     
 def find_resource(name, local_dir, installed_dir):
     'try and find a file either locally or installed'

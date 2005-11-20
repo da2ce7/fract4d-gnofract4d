@@ -73,8 +73,8 @@ class T(gobject.GObject):
         self.site = fract4dc.fdsite_create(self.writefd)
         self.f = None
         self.try_init_fractal()
-            
-        gtk.input_add(self.readfd, gtk.gdk.INPUT_READ, self.onData)
+
+        self.input_add(self.readfd, self.onData)
         
         self.width = width
         self.height = height
@@ -100,6 +100,13 @@ class T(gobject.GObject):
         drawing_area.set_size_request(self.width,self.height)
 
         self.widget = drawing_area
+
+    def input_add(self,fd,cb):
+        try:
+            return gobject.io_add_watch(
+                fd, gobject.IO_IN | gobject.IO_HUP, cb)
+        except AttributeError, err:
+            return gtk.input_add(fd, gtk.gdk.INPUT_READ, cb)
 
     def try_init_fractal(self):
         try:

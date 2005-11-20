@@ -173,26 +173,44 @@ class GTKSlave(gobject.GObject,Slave):
                   (self.in_pos+1.0)/(len(self.input)+1))
         return True
 
+    def remove(self,fd):
+        try:
+            gobject.source_remove(fd)
+        except AttributeError, err:
+            gtk.input_remove(fd)
+        
     def unregister(self):
         if self.write_id:
-            gtk.input_remove(self.write_id)
+            self.remove(self.write_id)
             self.write_id = None
 
         if self.read_id:
-            gtk.input_remove(self.read_id)
+            self.remove(self.read_id)
             self.read_id = None
 
         if self.err_id:
-            gtk.input_remove(self.err_id)
+            self.remove(self.err_id)
             self.err_id = None
-            
+
+    def add_read(self,fd,cb):
+        "Hide differences between PyGTK versions"
+        try:
+            return gobject.io_add_watch(
+                fd, gobject.IO_IN | gobject.IO_HUP, cb)
+        except AttributeError, err:
+            return gtk.input_add(fd, gtk.gdk.INPUT_READ, cb)
+
+    def add_write(self,fd,cb):
+        try:
+            return gobject.io_add_watch(
+                fd, gobject.IO_OUT | gobject.IO_HUP, cb)
+        except AttributeError, err:
+            return gtk.input_add(fd, gtk.gdk.INPUT_WRITE, cb)
+        
     def register(self):
-        self.write_id = gtk.input_add(
-            self.stdin, gtk.gdk.INPUT_WRITE, self.on_writable)
-        self.read_id = gtk.input_add(
-            self.stdout, gtk.gdk.INPUT_READ, self.on_readable)
-        self.err_id = gtk.input_add(
-            self.stderr, gtk.gdk.INPUT_READ, self.on_error_readable)
+        self.write_id = self.add_write(self.stdin, self.on_writable)
+        self.read_id = self.add_read(self.stdout, self.on_readable)
+        self.err_id = self.add_read(self.stderr, self.on_error_readable)
         
     def on_complete(self):
         self.unregister()
