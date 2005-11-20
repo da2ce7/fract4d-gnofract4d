@@ -29,9 +29,9 @@ done in 2.11:
 * BBB   python2.3 gives: AssertionError: unexpected number of RPM files found: ['build/bdist.linux-x86_64/rpm/RPMS/x86_64/gnofract4d-debuginfo-2.11-1.x86_64.rpm', 'build/bdist.linux-x86_64/rpm/RPMS/x86_64/gnofract4d-2.11-1.x86_64.rpm']
 * B	app frozen on FC4 while browser/mailer running
 * B	FC4: gtk.input_add deprecated, gtk.timeout_add should be gobject.timeout_add
+* BBB	slave completely broken on python2.2
 
 bugs (the more B's, the worse the bug):
-* BBB	slave completely broken on python2.2
 * BBB	too slow!
 * BB	not all keyboard shortcuts available when menu hidden
 * BB	should save enum params as strings, not indexes
