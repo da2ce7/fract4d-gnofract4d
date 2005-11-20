@@ -897,7 +897,7 @@ class MainWindow:
              (urllib.quote(subject),
               urllib.quote(self.f.serialize()))
 
-        os.system(mailer % url)
+        os.system("%s &" % (mailer % url))
 
     def upload(self,action,widget):
         """Upload the current image to Flickr.com."""

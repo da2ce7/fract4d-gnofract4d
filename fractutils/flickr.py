@@ -267,7 +267,13 @@ def encode_multipart_formdata(fields, files, BOUNDARY = '-----'+mimetools.choose
         L.append(value)
     L.append('--' + BOUNDARY + '--')
     L.append('')
-    body = CRLF.join(L)
+    try:
+        body = CRLF.join(L)
+    except UnicodeDecodeError:
+        print "unicode error"
+        for x in L:
+            print x[:100]
+            
     content_type = 'multipart/form-data; boundary=%s' % BOUNDARY        # XXX what if no files are encoded
     return content_type, body
 

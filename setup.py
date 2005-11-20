@@ -160,7 +160,6 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
        packages = ['fract4d', 'fract4dgui', 'fractutils'],
        ext_modules = [module1, module_cmap, module2],
        scripts = ['gnofract4d'],
-       license = 'BSD',
        data_files = [
            # color maps
            ('share/maps/gnofract4d',

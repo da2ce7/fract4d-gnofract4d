@@ -169,7 +169,7 @@ def updateColor256FromFloat(r,g,b,color):
 
 def launch_browser(prefs, url, window):
     browser = prefs.get("helpers","browser")
-    cmd = browser % ('"' + url + '"')
+    cmd = browser % ('"' + url + '" &')
     try:
         os.system(cmd)
     except Exception, err:

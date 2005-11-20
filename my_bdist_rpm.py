@@ -2,8 +2,15 @@
 
 # Override the default bdist_rpm distutils command to do what I want
 
+import re
+import glob
+import os
+import sys
+
 from distutils.command.bdist_rpm import bdist_rpm
 from distutils.core import Command
+
+topdir_re = re.compile(r'.*topdir (.*)')
 
 class my_bdist_rpm (bdist_rpm):
     user_options = bdist_rpm.user_options
@@ -30,9 +37,31 @@ class my_bdist_rpm (bdist_rpm):
             spec.insert(i,add)
         else:
             raise IndexError("sect %s not found" % sect)
-    
+
+    def spawn(self,cmd):
+        '''HACK: On FC4 rpmbuild creates 2 RPMS, the normal one and a
+        debuginfo one. This horrifies the Python 2.3 bdist_rpm,
+        which only expects 1 RPM. This works around that by deleting
+        the extraneous debuginfo RPM. Overriding this method rather than
+        run() because there's less code. '''
+        bdist_rpm.spawn(self,cmd)
+        if sys.version[:3] == "2.3" and cmd[0] == "rpmbuild":
+            for arg in cmd:
+                m = topdir_re.match(arg)
+                if m:
+                    dir = m.group(1)                    
+                    debuginfo_glob = os.path.join(
+                        dir,"RPMS", "*", "*debuginfo*")
+                    rpms = glob.glob(debuginfo_glob)
+                    for rpm in rpms:
+                        os.remove(rpm)
+
+        
     def _make_spec_file(self):
-        'override the default to specify AutoReqProv: no'
+        '''HACK: override the default PRIVATE function to specify:
+           AutoReqProv: no
+           add some commands to install desktop files & mime types
+           '''
         
         spec = bdist_rpm._make_spec_file(self)
 

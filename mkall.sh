@@ -8,6 +8,7 @@
 # use an pre-g++-3.4 compiler to build binary distributions - 3.4 changes the 
 # ABI again (groan) and hardly any of the distributions targeted have it
 
+export ARCH=`uname -i`
 export CC=/usr/local/bin/gcc33
 export CXX=/usr/local/bin/g++33
 
@@ -18,7 +19,7 @@ export MIN=2.2
 export MAX=2.3
  
 ./mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-2.11-1.i386.rpm dist/gnofract4d-python22-2.11-1.i386.rpm 
+mv dist/gnofract4d-2.11-1.$ARCH.rpm dist/gnofract4d-python22-2.11-1.$ARCH.rpm 
 
 # Python 2.3 version
 export BUILD_PYTHON_VERSION=2.3
@@ -27,9 +28,9 @@ export MIN=2.3
 export MAX=2.4
 
 ./mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-2.11-1.i386.rpm dist/gnofract4d-python23-2.11-1.i386.rpm 
+mv dist/gnofract4d-2.11-1.$ARCH.rpm dist/gnofract4d-python23-2.11-1.$ARCH.rpm 
 
-# use 3.4 again for Python 2.4, since the only distribution I know 
+# use 3.4 again for Python 2.4, since the only distribution I know (so far)
 # which uses it is FC4, which also only has g++3.4 installed
 export CC=/usr/bin/gcc
 export CXX=/usr/bin/g++
@@ -41,7 +42,7 @@ export MIN=2.4
 export MAX=2.5
 
 ./mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-2.11-1.i386.rpm dist/gnofract4d-python24-2.11-1.i386.rpm 
+mv dist/gnofract4d-2.11-1.$ARCH.rpm dist/gnofract4d-python24-2.11-1.$ARCH.rpm 
 
 unset BUILD_PYTHON_VERSION
 unset BUILD_PYTHON
