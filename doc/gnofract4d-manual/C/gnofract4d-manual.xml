@@ -1026,7 +1026,7 @@ compiler refuses to do this to floating point numbers.</para>
 
 <para>
 Overall structure: The <ulink
-url="http://systems.cs.uchicago.edu/ply/ply.html">PLY</ulink> package
+url="http://www.dabeaz.com/ply/ply.html">PLY</ulink> package
 is used to do lexing and SLR parsing - it's in
 <filename>lex.py</filename> and
 <filename>yacc.py</filename>. <filename>fractlexer.py</filename> and
@@ -1158,6 +1158,14 @@ http://gnofract4d.sourceforge.net/</ulink>.
 </para>
 <sect2 id="credits">
 <title>Credits and copyright</title>
+
+<para>
+&gf4d; is Copyright 1999-2005 Edwin Young <ulink
+url="mailto:edwin@users.sourceforge.net">(edwin@users.sourceforge.net)
+</ulink>, and is distributed under the <emphasis>BSD
+license</emphasis>.  See the file "COPYING" for details. 
+</para>
+
 <para>
 &gf4d; was originally based on Gnofract, written by Aurelien Alleaume
 <ulink url="mailto:manchot@club-internet.fr">(manchot@club-internet.fr)
@@ -1170,12 +1178,7 @@ work.
 </para>
 
 <para>
-&gf4d; is by Edwin Young <ulink
-url="mailto:edwin@users.sourceforge.net">(edwin@users.sourceforge.net)
-</ulink>. Chris Le Sueur provided parts of the gradient editing feature.
-</para>
-
-<para>
+Chris Le Sueur provided parts of the gradient editing feature.
 The &gf4d; distribution contains palette (.map) files by a number of
 authors which were originally distributed with <ulink
 url="http://spanky.triumf.ca/">&fractint;</ulink> under somewhat murky
@@ -1184,14 +1187,16 @@ originally distributed with <ulink
 url="http://www.ultrafractal.com/">&ultrafractal;</ulink>, by kind
 permission of Frederik Slijkerman, Damien Jones, and Kerry Mitchell.
 </para>
+
 <para>
-<filename>subprocess.py</filename> is taken unchanged from the Python 2.4 standard library (I didn't want to rely altogether on 2.4) and distributed under the
-same terms as Python.
-</para>
+<filename>subprocess.py</filename> is taken unchanged from the Python
+2.4 standard library (I didn't want to rely altogether on 2.4) and
+distributed under the same terms as Python.  </para>
+
 <para>
-&gf4d; is Copyright 1999-2005 Edwin Young, and is distributed under
-the <emphasis>BSD license</emphasis>.  See the file "COPYING" for
-details.  </para>
+<filename>lex.py</filename> and <filename>yacc.py</filename> come from
+the PLY package, and are distributed under the LGPL license. </para>
+
 </sect2>
 
 </sect1>
