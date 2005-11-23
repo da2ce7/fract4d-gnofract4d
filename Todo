@@ -1,42 +1,11 @@
 todo:
 
-done in 2.11:
-* WW	added Flickr sharing
-* WW	register mime info
-* W	documentation improvements
-* W	View/Planes
-* W	bug report
-* W	added Send To command
-
-* W	added named constructors for types, eg hyper(complex, complex)
-* W	added eye_vector function 
-* W	better randomized gradients
-* W	--inner and --outer params
-* B     @func * 3 gives weird error message
-* B	directories appear in colormap list
-* B	open other_maps/__readme.txt = index out of range
-* B	you can declare the same parameter twice
-* W	nicer error display in gradient dialog
-* B	undo/redo loses "flip y axis" setting
-* B	painter doesn't understand solid
-* BB	desktop-file-install seems to do the wrong thing
-* B	angle widgets don't always work when changing planes
-* B	plane menu is available even if not is4D()
-* BB	flickr access should be threaded so UI doesn't hang
-* W	added argtype, FnParts, XBuffalo, YBuffalo
-* BB	crash with multiple threads on x86-64 (Paul Wayper)
-* BBB	tutorial.frm,createdocs.py not checked in
-* BBB   python2.3 gives: AssertionError: unexpected number of RPM files found: ['build/bdist.linux-x86_64/rpm/RPMS/x86_64/gnofract4d-debuginfo-2.11-1.x86_64.rpm', 'build/bdist.linux-x86_64/rpm/RPMS/x86_64/gnofract4d-2.11-1.x86_64.rpm']
-* B	app frozen on FC4 while browser/mailer running
-* B	FC4: gtk.input_add deprecated, gtk.timeout_add should be gobject.timeout_add
-* BBB	slave completely broken on python2.2
-
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 * BB	not all keyboard shortcuts available when menu hidden
 * BB	should save enum params as strings, not indexes
 * BB	fractint doesn't reset vars between calls
-* BB	explorer rather slow with complex colorfuncs
+* BB	explorer rather slow with complex colorfuncs (recompile too much)
 * BB	squares left behind when changing from a smooth colormap to a jagged one
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
@@ -69,6 +38,7 @@ bugs (the more B's, the worse the bug):
 * B	Mandrake: desktop icon not added to menu
 
 features (the more W's, the more work involved):
+* W	antialiasing progress should be smoother and in 1 pass
 * W	name of image and creator in .fct and .png files
 * W	user-supplied additional gradient params
 * W	don't allocate memory for recoloring buffer when image very large 
@@ -143,6 +113,37 @@ params (not all applicable to all types):
 1) how to set color of point
 2) time step
 3) which points to start with
+
+done in 2.11:
+* WW	added Flickr sharing
+* WW	register mime info
+* W	documentation improvements
+* W	View/Planes
+* W	bug report
+* W	added Send To command
+
+* W	added named constructors for types, eg hyper(complex, complex)
+* W	added eye_vector function 
+* W	better randomized gradients
+* W	--inner and --outer params
+* B     @func * 3 gives weird error message
+* B	directories appear in colormap list
+* B	open other_maps/__readme.txt = index out of range
+* B	you can declare the same parameter twice
+* W	nicer error display in gradient dialog
+* B	undo/redo loses "flip y axis" setting
+* B	painter doesn't understand solid
+* BB	desktop-file-install seems to do the wrong thing
+* B	angle widgets don't always work when changing planes
+* B	plane menu is available even if not is4D()
+* BB	flickr access should be threaded so UI doesn't hang
+* W	added argtype, FnParts, XBuffalo, YBuffalo
+* BB	crash with multiple threads on x86-64 (Paul Wayper)
+* BBB	tutorial.frm,createdocs.py not checked in
+* BBB   python2.3 gives: AssertionError: unexpected number of RPM files found: ['build/bdist.linux-x86_64/rpm/RPMS/x86_64/gnofract4d-debuginfo-2.11-1.x86_64.rpm', 'build/bdist.linux-x86_64/rpm/RPMS/x86_64/gnofract4d-2.11-1.x86_64.rpm']
+* B	app frozen on FC4 while browser/mailer running
+* B	FC4: gtk.input_add deprecated, gtk.timeout_add should be gobject.timeout_add
+* BBB	slave completely broken on python2.2
 
 done in 2.10:
 * B	removed all DeprecationWarnings

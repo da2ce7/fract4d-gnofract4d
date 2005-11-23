@@ -66,7 +66,7 @@ class STFractWorker : public IFractWorker {
     inline bool isTheSame(bool bFlat, int targetIter, int targetCol, int x, int y);
 
     // make an int corresponding to an RGB triple
-    inline int RGB2INT(int y, int x);
+    inline int RGB2INT(int x, int y);
 
     // calculate a row of boxes
     void box_row(int w, int y, int rsize);
