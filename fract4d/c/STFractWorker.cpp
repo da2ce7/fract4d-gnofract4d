@@ -146,7 +146,7 @@ STFractWorker::stats(int *pnDoubleIters, int *pnHalfIters, int *pk)
 }
 
 inline int 
-STFractWorker::RGB2INT(int y, int x)
+STFractWorker::RGB2INT(int x, int y)
 {
     rgba_t pixel = im->get(x,y);
     int ret = (pixel.r << 16) | (pixel.g << 8) | pixel.b;
@@ -161,7 +161,7 @@ inline bool STFractWorker::isTheSame(
         // does this point have the target # of iterations?
         if(im->getIter(x,y) != targetIter) return false;
         // does it have the same colour too?
-        if(RGB2INT(y,x) != targetCol) return false;
+        if(RGB2INT(x,y) != targetCol) return false;
     }
     return bFlat;
 }
@@ -390,7 +390,7 @@ STFractWorker::pixel_aa(int x, int y)
     {
         // check to see if this point is surrounded by others of the same colour
         // if so, don't bother recalculating
-        int pcol = RGB2INT(y,x);
+        int pcol = RGB2INT(x,y);
         bool bFlat = true;
 
         // this could go a lot faster if we cached some of this info
@@ -421,7 +421,7 @@ STFractWorker::box(int x, int y, int rsize)
     // don't calculate the interior points
     bool bFlat = true;
     int iter = im->getIter(x,y);
-    int pcol = RGB2INT(y,x);
+    int pcol = RGB2INT(x,y);
     
     // calculate top and bottom of box & check for flatness
     for(int x2 = x; x2 < x + rsize; ++x2)
@@ -450,12 +450,24 @@ STFractWorker::box(int x, int y, int rsize)
     }
     else
     {
-        // we do need to calculate the interior 
-        // points individually
-        for(int y2 = y + 1 ; y2 < y + rsize -1; ++y2)
-        {
-            row(x+1,y2,rsize-2);
-        }
+	if(rsize > 4)
+	{	    
+	    // divide into 4 sub-boxes and check those for flatness
+	    int half_size = rsize/2;
+	    box(x,y,half_size);
+	    box(x+half_size,y,half_size);
+	    box(x,y+half_size, half_size);
+	    box(x+half_size,y+half_size, half_size);
+	}
+	else
+	{
+	    // we do need to calculate the interior 
+	    // points individually
+	    for(int y2 = y + 1 ; y2 < y + rsize -1; ++y2)
+	    {
+		row(x+1,y2,rsize-2);
+	    }
+	}
     }		
 }
 

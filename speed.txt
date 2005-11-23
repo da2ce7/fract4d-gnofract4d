@@ -199,3 +199,15 @@ some periodicity:
 29.5918 testdata/trigcentric.fct
 8.2473 testdata/zpower.fct
 48.3259401321
+
+2.11 with new computer:
+0.5120 testdata/std.fct
+2.4599 testdata/param.fct
+2.3300 testdata/valley_test.fct
+8.0739 testdata/trigcentric.fct
+4.4159 testdata/zpower.fct
+17.7915279865
+
+v.sh @ 1600x1200 with Floyd's algorithm
+53.83user 0.39system 0:29.65elapsed 182%CPU (0text+0data 0max)k
+53.93user 0.37system 0:29.50elapsed 184%CPU (0text+0data 0max)k
