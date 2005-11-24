@@ -374,6 +374,8 @@ class TBase:
             r = self.assign(node)
         elif node.type == "if":
             r = self.if_(node)
+        elif node.type == "while":
+            r = self.while_(node)
         else:
             r = self.exp(node)
         return r
@@ -400,7 +402,41 @@ class TBase:
             # insert a "fake" comparison to zero
             node = Binop('!=', node, Const(0,node.pos), node.pos)
         return node
-    
+
+    def while_(self, node):
+        '''the result of a while loop is:
+        seq(
+        label(start)
+        cjump(test, end, body)
+        seq(label(body), bodyCode, jump start)
+        label(end)
+        )'''
+        start = self.newLabel(node)
+        body = self.newLabel(node)
+        end = self.newLabel(node)
+
+        node.children[0] = self.makeCompare(node.children[0])
+
+        # convert boolean operation
+        children = map(lambda n : self.exp(n) , node.children[0].children)
+        children = self.expand_enums(node, children)
+        op = self.findOp(node.children[0].leaf, node.children[0].pos,children)
+        convertedChildren = self.coerceList(op.args,children)
+
+        # convert main block of code inside while loop
+        bodyCode = self.stmlist_with_label(node.children[1],body)
+        bodyCode.children.append(ir.Jump(start.name, node))
+        
+        # construct actual if operation
+        test = ir.CJump(node.children[0].leaf,
+                        convertedChildren[0],
+                        convertedChildren[1],
+                        body.name, end.name, node)
+
+        # overall code
+        whilestm = ir.Seq([start,test,bodyCode,end],node)
+        return whilestm
+        
     def if_(self,node):
         '''the result of an if is:
         seq(

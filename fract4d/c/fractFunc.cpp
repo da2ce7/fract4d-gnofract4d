@@ -159,10 +159,11 @@ void fractFunc::draw_aa()
     // pixels the other thread will look at - that wouldn't be 
     // an error per se but would make drawing nondeterministic,
     // which I'm trying to avoid
-    for(int i = 0; i < nThreads; ++i)
+    // We do this by drawing every even line, then every odd one.
+    for(int i = 0; i < 2 ; ++i)
     {
         last_update_y = 0;
-        for(int y = i; y < h ; y+= nThreads) {
+        for(int y = i; y < h ; y+= 2) {
 	    worker->row_aa(0,y,w);
 	    if(update_image(y))
 	    {

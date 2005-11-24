@@ -281,6 +281,31 @@ default:
 
         self.assertNoErrors(t)
 
+    def testWhile(self):
+        t = self.translate('''
+        t {
+        loop:
+        int i = 10
+        int j = 0
+        while i > 0
+           i = i - 1
+           j = j + 1
+        endwhile
+        }''')
+
+        self.assertNoErrors(t)
+
+        self.assertJumpsMatchLabs(t.sections["loop"])
+        
+        expectedLabs = [
+            'L:flabel0',
+            'CJ:flabel1,flabel2',
+            'L:flabel1',
+            'J:flabel0',
+            'L:flabel2']
+
+        self.assertJumpsAndLabs(t, expectedLabs)
+
     def testEnums(self):
         t = self.translate('''
         t1 {
