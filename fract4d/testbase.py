@@ -110,7 +110,7 @@ class TestBase(unittest.TestCase):
 
     def assertJumpsAndLabs(self,t,expected):
         jumps_and_labs = []
-        for n in t.sections["loop"].children[0]:
+        for n in t.sections["loop"]:
             if isinstance(n,ir.Jump):
                 jumps_and_labs.append("J:%s" % n.dest)
             elif isinstance(n,ir.CJump):
