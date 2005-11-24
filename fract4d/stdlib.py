@@ -962,3 +962,8 @@ def gradient_Gf_C(gen,t,srcs):
 def gradient_f_C(gen,t,srcs):
     grad = gen.get_var("@_gradient")
     return gradient_Gf_C(gen,t,[grad,srcs[0]])
+
+def rand__c(gen,t,srcs):
+    [d1,d2] = gen.emit_func0_2("fract_rand", srcs, Float)
+    return ComplexArg(d1,d2)
+

@@ -586,6 +586,15 @@ extern pf_obj *pf_new(void);
         assem = op + "(%(s0)s,%(s1)s, &%(d0)s, &%(d1)s, &%(d2)s);"
         self.out.append(Oper(assem,srcs, dst))
         return dst
+
+    def emit_func0_2(self,op,srcs,type):
+        # take 0 objects and return 2, as in random()
+        dst = [
+            TempArg(self.symbols.newTemp(type)),
+            TempArg(self.symbols.newTemp(type))]
+        assem = op + "(&%(d0)s, &%(d1)s);"
+        self.out.append(Oper(assem,srcs, dst))
+        return dst
         
     def emit_move(self, src, dst):
         self.out.append(Move([src],[dst]))
