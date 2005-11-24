@@ -97,6 +97,12 @@ def createDefaultDict():
 
         # predefined magic variables
         "t__h_pi" : Alias("pi"),
+        "t__h_rand" : Alias("rand"),
+        "t__h_random" : Alias("rand"),
+        "rand" : OverloadList(
+          [ Func([], Complex, stdlib, "rand") ],
+          doc="Each time this is accessed, it returns a new peudo-random complex number. This is primarily for backwards compatibility with Fractint formulas - use the random() function in new formulas."),
+        
         "t__h_pixel": Alias("pixel"),
         "t__h_xypixel": Alias("pixel"),
         "pixel" : Var(Complex,doc="The (X,Y) coordinates of the current point. When viewing the Mandelbrot set, this has a different value for each pixel. When viewing the Julia set, it remains constant for each pixel."),

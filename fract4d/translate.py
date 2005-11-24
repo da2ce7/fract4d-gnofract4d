@@ -694,8 +694,17 @@ class TBase:
                 fracttypes.Complex, default_value(Complex), node.pos)
             node.datatype = fracttypes.Complex
         except AttributeError:
+            # if this is a function, it's an error unless it has an overload
+            # which takes no arguments
+            try:
+                op = self.findOp(node.leaf, node.pos, [])
+                return ir.Call(node.leaf, [], node, op.ret)
+            except TranslationError:
+                # couldn't find one, treat this as an accidental function use
+                pass
+            
             msg = "%d: '%s' is a function name and cannot be used here. Perhaps you meant to call the function instead?" % \
-                  (node.pos, node.leaf)
+                      (node.pos, node.leaf)
             raise TranslationError(msg)
         
         return ir.Var(node.leaf, node, node.datatype)

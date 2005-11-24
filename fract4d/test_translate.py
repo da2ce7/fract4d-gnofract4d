@@ -306,6 +306,18 @@ default:
 
         self.assertJumpsAndLabs(t, expectedLabs)
 
+    def testRandom(self):
+        t = self.translate('''
+        t {
+        init:
+        x1 = rand
+        x2 = #random
+        x3 = #rand        
+        }
+        ''')
+
+        self.assertNoErrors(t)
+        
     def testEnums(self):
         t = self.translate('''
         t1 {
@@ -1014,7 +1026,7 @@ default:
         }
         ''')
         self.assertNoErrors(t1)
-        
+
     def testBadDecls(self):
         t1 = self.translate("t7 {\nglobal:int z\n}")
         self.assertError(t1,"symbol 'z' is predefined as complex")

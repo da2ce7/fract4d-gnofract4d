@@ -578,7 +578,7 @@ endfunc
         cg = codegen.T(t.symbols)
         cg.output_all(t)
         c = cg.output_c(t)
-        
+
     def testDeclareP1andFN1(self):
         'Test that having a param which clashes with built-in names is OK'
 
@@ -810,6 +810,31 @@ func fn1
                          self.inspect_color("yellow3"),
                          exp)
 
+    def testRandom(self):
+        src = '''t {
+        init:
+        x = rand
+        y = #rand
+        }'''
+
+        asm = self.sourceToAsm(src,"init")
+        check = self.inspect_complex("x") + self.inspect_complex("y")
+
+        postamble = "t__end_f%s:\n%s\n" % ("init",check)
+        c_code = self.makeC("", postamble)        
+        output = self.compileAndRun(c_code)
+        find_re = re.compile(r'\((.*?),(.*?)\)')
+        found = find_re.findall(output)
+        self.assertEqual(len(found),2)
+
+        numbers = {}
+        for f in found:
+            for part in list(f):
+                if numbers.get(part):
+                    # we generated the same number twice. Highly suspicious
+                    self.fail("All numbers should differ in %s" % output)
+                numbers[part] = 1
+        
     def testColorParts(self):
         # access to parts
         src = '''t_color3 {
@@ -1754,6 +1779,7 @@ Newton4(XYAXIS) {; Mark Peterson
         postamble = "t__end_f%s:\n%s\n" % (section,check)
         c_code = self.makeC("", postamble)        
         output = self.compileAndRun(c_code)
+        
         if isinstance(result,types.ListType):
             outputs = string.split(output,"\n")
             for (exp,res) in zip(result,outputs):
