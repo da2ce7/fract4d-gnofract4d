@@ -54,7 +54,7 @@ gt_ii_b = gte_ii_b = lt_ii_b = lte_ii_b = eq_ii_b = noteq_ii_b = add_ff_f
 gt_ff_b = gte_ff_b = lt_ff_b = lte_ff_b = eq_ff_b = noteq_ff_b = add_ff_f
 
 def mod_ii_i(gen,t,srcs):
-    return gen.emit_binop('%%', srcs, t.datatype)
+    return gen.emit_binop('%', srcs, t.datatype)
 
 def mod_ff_f(gen,t,srcs):
     return gen.emit_func2('fmod', srcs, Float)

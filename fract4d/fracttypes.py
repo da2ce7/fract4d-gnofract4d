@@ -148,8 +148,8 @@ class Func:
 
 class Var:
     def __init__(self,type_,value=None,pos=-1,**kwds):
-        assert(type_ != None)
-        assert(isinstance(pos,types.IntType))
+        #assert(type_ != None)
+        #assert(isinstance(pos,types.IntType))
         self.type = type_
         if value == None:
             self.value = default_value(type_)
@@ -173,6 +173,15 @@ class Var:
     def __str__(self):
         return "%s %s (%d)" % (strOfType(self.type), self.value, self.pos)
 
+class Temp(Var):
+    def __init__(self,type_,name):
+        self.type = type_
+        self.cname = name
+        self.is_temp = True
+        self.declared = False
+        self.pos = -1
+        self.value = default_value(type_)
+    
 # a convenient place to put this.
 class TranslationError(exceptions.Exception):
     def __init__(self,msg):

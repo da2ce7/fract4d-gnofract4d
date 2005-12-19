@@ -29,7 +29,7 @@
 #define PyMODINIT_FUNC void
 #endif
 
-#define CMAP_NAME "/fract4d_cmap.so"
+#define CMAP_NAME "/fract4d_stdlib.so"
 
 /* 
  * pointfuncs

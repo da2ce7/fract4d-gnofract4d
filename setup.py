@@ -86,7 +86,7 @@ module1 = Extension(
     )
 
 module_cmap = Extension(
-    'fract4d.fract4d_cmap',
+    'fract4d.fract4d_stdlib',
     sources = [
     'fract4d/c/cmap.cpp'
     ],
@@ -211,7 +211,7 @@ so_extension = distutils.sysconfig.get_config_var("SO")
 lib_targets = {
     "fract4dguic" + so_extension : "fract4dgui",
     "fract4dc" + so_extension : "fract4d",
-    "fract4d_cmap" + so_extension : "fract4d"
+    "fract4d_stdlib" + so_extension : "fract4d"
     }
 
 def copy_libs(dummy,dirpath,namelist):
