@@ -572,7 +572,8 @@ class T(UserDict):
         self.nextlabel = 0
         self.nextTemp = 0
         self.prefix = prefix
-
+        self.temp_prefix = "t__%s" % prefix
+        
     def __copy__(self):
         c = T(self.prefix)
         c.nextlabel = self.nextlabel
@@ -841,12 +842,11 @@ class T(UserDict):
         return label
 
     def newTemp(self,type):
-        name = "t__%stemp%d" % (self.prefix, self.nextTemp)
+        name = self.temp_prefix + str(self.nextTemp) #"%s%d" % (self.temp_prefix, self.nextTemp)
         self.nextTemp += 1
+
         # bypass normal setitem because that checks for t__
-        v = Var(type)
-        v.cname = name
-        v.is_temp = True
-        self.data[name] = v
+        self.data[name] = Temp(type,name)
+        
         
         return name

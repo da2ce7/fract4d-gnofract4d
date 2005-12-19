@@ -92,22 +92,22 @@ class Insn:
     'An instruction to be written to output stream'
     def __init__(self,assem):
         self.assem = assem # string format of instruction
-    def format(self,lookup = None):
+    def format(self):
         try:
-            if lookup == None:
-                lookup = {}
+            lookup = {}
+            i = 0
+            if self.src != None:
+                for src in self.src:
+                    sname = "s%d" % i
+                    lookup[sname] = src.format()
+                    i = i+1
                 i = 0
-                if self.src != None:
-                    for src in self.src:
-                        sname = "s%d" % i
-                        lookup[sname] = src.format()
-                        i = i+1
-                    i = 0
-                if self.dst != None:
-                    for dst in self.dst:
-                        dname = "d%d" % i
-                        lookup[dname] = dst.format()
-                        i = i+1
+                
+            if self.dst != None:
+                for dst in self.dst:
+                    dname = "d%d" % i
+                    lookup[dname] = dst.format()
+                    i = i+1
             return self.assem % lookup
         except Exception, exn:
             msg = "%s with %s" % (self, lookup)
@@ -128,13 +128,27 @@ class Oper(Insn):
                 string.join([x.__str__() for x in self.src]," "),
                 string.join([x.__str__() for x in self.dst]," "),
                 self.jumps)
-    
+
+class Binop(Oper):
+    'A binary infix operation, like addition'
+    def __init__(self, op, src, dst):
+        Insn.__init__(self,"")
+        self.op = op
+        self.src = src
+        self.dst = dst
+    def format(self):
+        return "%s = %s %s %s;" % (
+            self.dst[0].format(),
+            self.src[0].format(),
+            self.op,
+            self.src[1].format())
+        
 class Label(Insn):
     'A label which can be jumped to'
     def __init__(self, label):
         Insn.__init__(self,"%s: ;\n" % label)
         self.label = label
-    def format(self, lookup=None):
+    def format(self):
         return "%s ;\n" % self
     def __str__(self):
         return "%s:" % self.label
@@ -145,6 +159,9 @@ class Move(Insn):
         Insn.__init__(self,"%(d0)s = %(s0)s;")
         self.src = src
         self.dst = dst
+    def format(self):
+        return "%s = %s;" % (self.dst[0].format(), self.src[0].format())
+    
     def __str__(self):
         return "MOVE(%s,%s,%s)" % (self.assem, self.src, self.dst)
 
@@ -541,8 +558,7 @@ extern pf_obj *pf_new(void);
         if dst == None:
             dst = TempArg(self.symbols.newTemp(type))
 
-        assem = "%(d0)s = %(s0)s " + op + " %(s1)s;"
-        self.out.append(Oper(assem, srcs ,[ dst ]))
+        self.out.append(Binop(op, srcs ,[ dst ]))
         return dst
 
     def emit_func(self,op,srcs,type):
@@ -627,7 +643,7 @@ extern pf_obj *pf_new(void);
 
     def is_direct(self):
         return self.symbols.has_user_key("#color")
-    
+
     def output_symbol(self,key,sym,op,out,overrides):
         if isinstance(sym,fracttypes.Var):
             t = fracttypes.ctype(sym.type)
@@ -732,6 +748,7 @@ extern pf_obj *pf_new(void);
             overrides[k] = v
             
         out = []
+
         for (key,sym) in ir.symbols.items():
             self.output_decl(key,sym,out,overrides)
 
@@ -762,6 +779,7 @@ extern pf_obj *pf_new(void);
 
         if hasattr(ir,"output_sections"):
             ir.output_sections["var_inits"] = out
+                
         return out
 
     def output_section(self,t,section):
@@ -799,6 +817,7 @@ extern pf_obj *pf_new(void);
             t__p_pColors[2] = t__h_color_j;
             t__p_pColors[3] = t__h_color_k;
             '''
+
         # can only do periodicity if formula uses z
         if self.symbols.data.has_key("z"):
             inserts["decl_period"] = '''

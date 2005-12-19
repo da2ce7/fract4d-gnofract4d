@@ -102,10 +102,10 @@ class CanonTest(testbase.TestBase):
         tree = self.binop([self.const(),tree])
 
         # what we ought to produce
-        exptree = self.eseq([self.move(self.var("t__temp0"), self.var()),
+        exptree = self.eseq([self.move(self.var("t__0"), self.var()),
                              self.move(self.var("b"),self.const())],
                             self.binop([self.const(),
-                                        self.binop([self.var("t__temp0"),
+                                        self.binop([self.var("t__0"),
                                                     self.var("b")])]))
         ltree = self.canon.linearize(tree)
         self.assertESeqsNotNested(ltree,1)

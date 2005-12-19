@@ -284,13 +284,13 @@ int main()
         tree = self.binop([self.const(),self.var()])
         x = self.codegen.generate_code(tree)
         self.assertEqual(isinstance(x,codegen.TempArg),1,x)
-        self.assertEqual(x.value,"t__temp0")
-        self.assertEqual(x.format(),"t__temp0")
+        self.assertEqual(x.value,"t__0")
+        self.assertEqual(x.format(),"t__0")
 
         self.assertEqual(len(self.codegen.out),1)
         op = self.codegen.out[0]
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
-        self.assertEqual(op.format(),"t__temp0 = 0 + a;",op.format())
+        self.assertEqual(op.format(),"t__0 = 0 + a;",op.format())
 
     def testHyperGen(self):
         'generate hypercomplex code'
@@ -311,8 +311,8 @@ int main()
 
         self.assertEqual(len(self.codegen.out),2)
 
-        expAdd = "t__temp0 = 1.00000000000000000 + a_re;\n" + \
-                 "t__temp1 = 3.00000000000000000 + a_im;"
+        expAdd = "t__0 = 1.00000000000000000 + a_re;\n" + \
+                 "t__1 = 3.00000000000000000 + a_im;"
         self.assertOutputMatch(expAdd)
 
         # a + (1,3) 
@@ -321,8 +321,8 @@ int main()
         self.assertEqual(len(self.codegen.out),2)
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
 
-        expAdd = "t__temp0 = a_re + 1.00000000000000000;\n" + \
-                 "t__temp1 = a_im + 3.00000000000000000;"
+        expAdd = "t__0 = a_re + 1.00000000000000000;\n" + \
+                 "t__1 = a_im + 3.00000000000000000;"
 
         self.assertOutputMatch(expAdd)
 
@@ -336,10 +336,10 @@ int main()
         self.assertEqual(len(self.codegen.out),4)
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
 
-        expAdd = "t__temp0 = a_re + b_re;\n" + \
-                 "t__temp1 = a_im + b_im;\n" + \
-                 "t__temp2 = t__temp0 + c_re;\n" +\
-                 "t__temp3 = t__temp1 + c_im;"
+        expAdd = "t__0 = a_re + b_re;\n" + \
+                 "t__1 = a_im + b_im;\n" + \
+                 "t__2 = t__0 + c_re;\n" +\
+                 "t__3 = t__1 + c_im;"
 
         self.assertOutputMatch(expAdd)
 
@@ -347,12 +347,12 @@ int main()
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"*",Complex)
         self.generate_code(tree)
         self.assertEqual(len(self.codegen.out),6)
-        exp = '''t__temp0 = 1.00000000000000000 * a_re;
-t__temp1 = 3.00000000000000000 * a_im;
-t__temp2 = 3.00000000000000000 * a_re;
-t__temp3 = 1.00000000000000000 * a_im;
-t__temp4 = t__temp0 - t__temp1;
-t__temp5 = t__temp2 + t__temp3;'''
+        exp = '''t__0 = 1.00000000000000000 * a_re;
+t__1 = 3.00000000000000000 * a_im;
+t__2 = 3.00000000000000000 * a_re;
+t__3 = 1.00000000000000000 * a_im;
+t__4 = t__0 - t__1;
+t__5 = t__2 + t__3;'''
         
         self.assertOutputMatch(exp)
 
@@ -364,41 +364,41 @@ t__temp5 = t__temp2 + t__temp3;'''
             self.var("c", Complex)],"*",Complex)
         self.generate_code(tree)
 
-        expAdd = '''t__temp0 = a_re * b_re;
-t__temp1 = a_im * b_im;
-t__temp2 = a_im * b_re;
-t__temp3 = a_re * b_im;
-t__temp4 = t__temp0 - t__temp1;
-t__temp5 = t__temp2 + t__temp3;
-t__temp6 = t__temp4 * c_re;
-t__temp7 = t__temp5 * c_im;
-t__temp8 = t__temp5 * c_re;
-t__temp9 = t__temp4 * c_im;
-t__temp10 = t__temp6 - t__temp7;
-t__temp11 = t__temp8 + t__temp9;'''
+        expAdd = '''t__0 = a_re * b_re;
+t__1 = a_im * b_im;
+t__2 = a_im * b_re;
+t__3 = a_re * b_im;
+t__4 = t__0 - t__1;
+t__5 = t__2 + t__3;
+t__6 = t__4 * c_re;
+t__7 = t__5 * c_im;
+t__8 = t__5 * c_re;
+t__9 = t__4 * c_im;
+t__10 = t__6 - t__7;
+t__11 = t__8 + t__9;'''
         self.assertOutputMatch(expAdd)
 
     def testCompare(self):
         'test comparisons produce correct code'
         tree = self.binop([self.const(3,Int),self.var("a",Int)],">",Bool)
         self.generate_code(tree)
-        self.assertOutputMatch("t__temp0 = 3 > a;")
+        self.assertOutputMatch("t__0 = 3 > a;")
 
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],">",Complex)
         self.generate_code(tree)
-        self.assertOutputMatch("t__temp0 = 1.00000000000000000 > a_re;")
+        self.assertOutputMatch("t__0 = 1.00000000000000000 > a_re;")
 
         tree.op = "=="
         self.generate_code(tree)
-        self.assertOutputMatch('''t__temp0 = 1.00000000000000000 == a_re;
-t__temp1 = 3.00000000000000000 == a_im;
-t__temp2 = t__temp0 && t__temp1;''')
+        self.assertOutputMatch('''t__0 = 1.00000000000000000 == a_re;
+t__1 = 3.00000000000000000 == a_im;
+t__2 = t__0 && t__1;''')
 
         tree.op = "!="
         self.generate_code(tree)
-        self.assertOutputMatch('''t__temp0 = 1.00000000000000000 != a_re;
-t__temp1 = 3.00000000000000000 != a_im;
-t__temp2 = t__temp0 || t__temp1;''')
+        self.assertOutputMatch('''t__0 = 1.00000000000000000 != a_re;
+t__1 = 3.00000000000000000 != a_im;
+t__2 = t__0 || t__1;''')
 
     def testS2A(self):
         'test C code produced by simple code snippets'
@@ -410,22 +410,22 @@ z = z + a
 }''', "loop")
         self.assertOutputMatch('''t__start_floop: ;
 
-t__ftemp0 = ((double)fa);
-t__ftemp1 = 0.0;
-t__ftemp2 = z_re + t__ftemp0;
-t__ftemp3 = z_im + t__ftemp1;
-z_re = t__ftemp2;
-z_im = t__ftemp3;
+t__f0 = ((double)fa);
+t__f1 = 0.0;
+t__f2 = z_re + t__f0;
+t__f3 = z_im + t__f1;
+z_re = t__f2;
+z_im = t__f3;
 goto t__end_floop;''')
 
         asm = self.sourceToAsm('t_s2a_2{\ninit: a = -1.5\n}',"init")
         self.assertOutputMatch('''t__start_finit: ;
 
-t__ftemp0 = -(1.50000000000000000);
-t__ftemp1 = t__ftemp0;
-t__ftemp2 = 0.0;
-fa_re = t__ftemp1;
-fa_im = t__ftemp2;
+t__f0 = -(1.50000000000000000);
+t__f1 = t__f0;
+t__f2 = 0.0;
+fa_re = t__f1;
+fa_im = t__f2;
 goto t__end_finit;''')
     
     def testSymbols(self):
@@ -812,7 +812,7 @@ func fn1
 
     def testRandom(self):
         src = '''t {
-        init:
+        init:        
         x = rand
         y = #rand
         }'''
@@ -821,9 +821,11 @@ func fn1
         check = self.inspect_complex("x") + self.inspect_complex("y")
 
         postamble = "t__end_f%s:\n%s\n" % ("init",check)
-        c_code = self.makeC("", postamble)        
-        output = self.compileAndRun(c_code)
+        c_code = self.makeC("", postamble)
         find_re = re.compile(r'\((.*?),(.*?)\)')
+
+        # run once, gather output
+        output = self.compileAndRun(c_code)
         found = find_re.findall(output)
         self.assertEqual(len(found),2)
 
@@ -1801,7 +1803,7 @@ Newton4(XYAXIS) {; Mark Peterson
 def suite():
     return unittest.makeSuite(Test,'test')
 
-if __name__ == '__main__':
+def main():
     # special cases for manual experiments.
     # ./test_codegen.py --x "(1,2)" --exp "1+2+x" compiles and runs 1+2+x
     # and prints the result
@@ -1823,3 +1825,6 @@ if __name__ == '__main__':
     
     unittest.main(defaultTest='suite')
 
+if __name__ == '__main__':
+    main()
+    

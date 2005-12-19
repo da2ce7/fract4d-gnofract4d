@@ -156,10 +156,13 @@ def get_selected(menu):
 def create_color(r,g,b):
     # multiply up to match range expected by gtk
     try:
-        return gtk.gdk.color(r*65535,g*65535,b*65535)
-    except:
+        return gtk.gdk.Color(int(r*65535),int(g*65535),int(b*65535))
+    except Exception, exn:
+        print exn
+        print "%s,%s,%s" % (r,g,b)
         # old gtk doesn't have direct color constructor
-        return gtk.gdk.color_parse("#%04X%04X%04X" % (r*65535,g*65535,b*65535))
+        return gtk.gdk.color_parse(
+            "#%04X%04X%04X" % (int(r*65535),int(g*65535),int(b*65535)))
 
 def floatColorFrom256(rgba):
     return [ rgba[0]/255.0, rgba[1]/255.0, rgba[2]/255.0, rgba[3]/255.0]

@@ -1,7 +1,9 @@
 #include "fractFunc.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <cassert>
+
 
 dmat4
 rotated_matrix(double *params)
@@ -253,6 +255,11 @@ void fractFunc::draw(int rsize, int drawsize)
 {
     //printf("drawing: %d\n", render_type);
     reset_counts();
+
+    // init RNG based on time before generating image
+    time_t now;
+    time(&now);
+    srand((unsigned int)now);
 
     if(nThreads > 1)
     {
