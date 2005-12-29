@@ -12,6 +12,8 @@ import testbase
 import gradient
 import fract4dc
 import fractal
+import translate
+import fractparser
 
 from gradient import Blend, ColorMode
 
@@ -99,6 +101,25 @@ class Test(testbase.TestBase):
 
         self.checkColorMapAndGradientEquivalent(colorlist)
 
+    def testFromUgr(self):
+        pt = fractparser.parser.parse('''blatte10 {
+gradient:
+  title="blatte10" smooth=no index=0 color=3085069 index=25 color=3216141
+  index=56 color=10761236 index=83 color=1408165 index=92 color=4050153
+  index=110 color=18018 index=134 color=0 index=213 color=5183243 index=284
+  color=11494485 index=358 color=0 index=384 color=144
+opacity:
+  smooth=no index=0 opacity=255
+}
+''')
+        t = translate.GradientFunc(pt.children[0])
+        g = gradient.Gradient()
+        g.load_ugr(t)
+
+        self.assertWellFormedGradient(g)
+        self.assertEqual(len(g.segments),12)
+        print g.serialize()
+            
     def testFromColormap2(self):
         # create a longer one
         colorlist = [

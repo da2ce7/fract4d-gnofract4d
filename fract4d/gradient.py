@@ -189,7 +189,7 @@ class Gradient:
         self.alternate=0
         self.offset=0
         self.cobject=None
-        
+
     def __copy__(self):
         c = Gradient()
         c.name = self.name
@@ -220,6 +220,46 @@ class Gradient:
         for seg in self.segments:
             seg.save(f)
 
+    def load_ugr(self, f):
+        "Load an ir tree parsed by the translator"
+        prev_index = 0.0
+        index = 0.0
+        segments = []
+        prev_color = [0.0,0.0,0.0,0.0]
+        for s in f.sections["gradient"].children:
+            (name,val) = (s.children[0].name, s.children[1].value)
+            if name == "index":
+                index = float(val)/400.0
+            elif name == "color":
+                icolor = val
+                color = [
+                    float((icolor >> 16) & 0xFF) / 256.0,
+                    float((icolor >> 8) & 0xFF) / 256.0,
+                    float(icolor & 0xFF) / 256.0,
+                    1.0]
+                seg = Segment(
+                    prev_index, prev_color,
+                    index, color,
+                    (prev_index + index)/2.0,
+                    Blend.LINEAR, ColorMode.RGB)
+                segments.append(seg)
+                prev_index = index
+                prev_color = color
+            elif name == "smooth":
+                pass #self.smooth = val
+            elif name == "title":
+                self.name = val
+
+        # append a last chunk from the final value to 1.0
+        seg = Segment(
+            prev_index, prev_color,
+            1.0, prev_color,
+            (prev_index + 1.0)/2.0,
+            Blend.LINEAR, ColorMode.RGB)
+        segments.append(seg)
+        
+        self.segments = segments
+        
     def load(self,f):
         new_segments = []
         name = None
@@ -401,13 +441,13 @@ class Gradient:
     def get_segment_at(self, pos):
         #Returns the segment in which pos resides.
         if pos < 0.0:
-            raise IndexError("Must be between 0 and 1")
+            raise IndexError("Must be between 0 and 1, is %s" % pos)
         for seg in self.segments:
             if pos <= seg.right:
                 return seg
         
         # not found - must be > 1.0
-        raise IndexError("Must be between 0 and 1")
+        raise IndexError("Must be between 0 and 1, is %s" % pos)
 
     def get_index_at(self, pos):
         # returns the index of the segment in which pos resides

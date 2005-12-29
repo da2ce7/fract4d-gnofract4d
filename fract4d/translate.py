@@ -268,14 +268,14 @@ class TBase:
 
     def setting(self,node):
         if node.type == "param":
-            self.param(node)
+            return self.param(node)
         elif node.type == "func":
-            self.func(node)
+            return self.func(node)
         elif node.type == "heading":
             #print "heading"
             pass
         elif node.type == "set":
-            self.set(node)
+            return self.set(node)
         else:
             self.error("%d: invalid statement in default section" % node.pos)
 
@@ -859,7 +859,43 @@ class T(TBase):
         if self.dumpCanon:
             print f.pretty()
 
+class GradientFunc(TBase):
+    "For translating UltraFractal .ugr files"
+    def __init__(self,f,dump=None):
+        TBase.__init__(self,"g",dump)
+
+        self.grad = []
+        self.main(f)
+        
+    def main(self, f):
+        if len(f.children) == 0:
+            return
+        
+        if f.children[0].type == "error":
+            self.error(f.children[0].leaf)
+            return
+
+        # lookup sections in order
+        s = f.childByName("gradient")
+        if s: self.gradient(s)
+        s = f.childByName("opacity")
+        if s: self.opacity(s)
+
+    def gradient(self, node):
+        self.add_to_section("gradient", self.setlist(node))
+        
+    def opacity(self, node):
+        self.add_to_section("opacity",self.setlist(node))
+
+    def set(self,node):
+        name = node.children[0].leaf
+        val = self.const_exp(node.children[1])
+        return ir.Move(
+            ir.Var(name, node, val.datatype),
+            val, node, val.datatype)
+        
 class ColorFunc(TBase):
+    "For translating .ucl files"
     def __init__(self,f,name,dump=None):
         TBase.__init__(self,name,dump)
 
