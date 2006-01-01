@@ -173,7 +173,7 @@ def Stmlist(id, list,pos):
     return Node("stmlist", pos,list, string.lower(id))
 
 def Setlist(id, list,pos):
-    return Node("setlist", pos, list, id)
+    return Node("setlist", pos, list, string.lower(id))
 
 def Empty(pos):
     return Node("empty", pos, None, "")

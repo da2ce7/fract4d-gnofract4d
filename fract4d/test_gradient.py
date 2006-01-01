@@ -118,7 +118,6 @@ opacity:
 
         self.assertWellFormedGradient(g)
         self.assertEqual(len(g.segments),12)
-        print g.serialize()
             
     def testFromColormap2(self):
         # create a longer one

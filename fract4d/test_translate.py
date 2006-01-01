@@ -70,6 +70,55 @@ opacity:
         title = grad_settings[0]
         self.assertEqual(title.children[0].name,"title")
         self.assertEqual(title.children[1].value, "blatte10")
+
+    def testBarney3(self):
+        "A function which used to be problematic"
+        t = self.translate('''
+Barney-3 {
+Init:
+ if @mode=="Julia"
+ z = 1
+ else
+ z = 0
+ endif
+ 
+Bailout:
+
+ |z|<=@bailout
+
+Default:
+
+ title="Barney-3"
+ center=(0.0,0.0)
+ angle=90
+ magn=0.8
+ maxiter=250
+ method=multipass
+ periodicity=0 
+ 
+heading
+ caption="Mandelbrot Mode"
+ visible=(@mode==0)
+endheading
+heading
+ caption="Julia Mode"
+ visible=(@mode==1)
+endheading
+param mode
+ caption="Current Mode"
+ enum="Mandelbrot""Julia"
+ default=0
+ visible=false
+endparam
+param SwitchMode
+ caption="Select Switch"
+ enum="Mandelbrot""Julia"
+ default=1
+ visible=false
+endparam
+}
+''')
+        self.assertNoErrors(t)
         
     def testCF(self):
         t1 = self.translatecf('''c1 {
