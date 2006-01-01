@@ -116,9 +116,30 @@ param SwitchMode
  default=1
  visible=false
 endparam
+Func fn2
+ caption="Function 1"
+ default=cabs()
+endfunc
 }
 ''')
         self.assertNoErrors(t)
+
+        fn2 = t.symbols["fn2"].first()
+
+        self.assertEqual(
+            fracttypes.Float, fn2.ret,
+            "fn2 should automatically be a func which returns a float")
+
+    def testBadDefault(self):
+        t = self.translate('''t {
+        default:
+        func foo
+           default = bar()
+        endfunc
+        }
+        ''')
+
+        self.assertError(t, "4: unknown default function 'bar'")
         
     def testCF(self):
         t1 = self.translatecf('''c1 {
