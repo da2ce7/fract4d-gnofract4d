@@ -218,7 +218,27 @@ class TBase:
     def funcsetting(self,node,func):
         name = node.children[0].leaf
         if name == "default":
-            func.set_func(stdlib,node.children[1].leaf)
+            fname = node.children[1].leaf
+            fol = self.symbols.get(fname)
+            if fol == None:
+                msg = "%d: unknown default function '%s'" % (node.pos,fname)
+                raise TranslationError(msg)
+                
+            # is there an overload which matches our args?
+            typelist = func.args
+            found = False
+            for ol in fol:
+                if ol.matchesArgs(typelist) and ol.ret == func.ret:
+                    found = True
+                    break
+
+            if not found:
+                # no suitable overload discovered, modify our type
+                f = fol[0]
+                func.ret = f.ret
+                func.args = f.args
+            
+            func.set_func(stdlib,fname)
         elif name == "visible":
             # fixme can't deal with visibility calculations yet
             return

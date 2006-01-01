@@ -3,6 +3,8 @@ todo:
 fixed in 2.12:
 * B	exception printed when updating color widgets on later pygtks
 * W	minor speedups in codegen and symbol table
+* B	didn't parse settings sections with uppercase chars (eg as.ufm)
+* B	func param types not correctly inferred from default()
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

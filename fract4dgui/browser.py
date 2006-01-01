@@ -14,6 +14,7 @@ import utils
 FRACTAL = 0
 INNER = 1
 OUTER = 2
+GRADIENT = 3
 
 fname_to_use = None
 formula_to_use = None
