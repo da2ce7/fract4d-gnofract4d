@@ -582,7 +582,7 @@ class T(UserDict):
             c.data[k] = copy.copy(self.data[k])
 
         return c
-    
+
     def merge(self,other):
         # self = union(self,other)
         # any clashes are won by self
@@ -806,7 +806,6 @@ class T(UserDict):
             else:
                 raise ValueError("Unknown param type %s for %s" % (t, k))
         return tp
-
 
     def default_params(self):
         op = self.order_of_params()

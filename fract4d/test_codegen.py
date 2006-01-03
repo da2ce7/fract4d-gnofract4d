@@ -20,6 +20,7 @@ import translate
 import fractparser
 import fractlexer
 import stdlib
+import optimize
 
 g_exp = None
 g_x = None
@@ -255,6 +256,20 @@ int main()
 
         template = "[Binop, Exp, Exp]"
         self.assertMatchResult(tree, template,1)
+
+    def testOutput(self):
+        tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"*",Complex)
+        self.codegen.generate_code(tree)
+        out = "\n".join([str(x) for x in self.codegen.out])
+        self.assertEqual(
+            out,
+            """BINOP(*,[Float(1.00000000000000000),Temp(a_re)],[Temp(t__0)])
+BINOP(*,[Float(3.00000000000000000),Temp(a_im)],[Temp(t__1)])
+BINOP(*,[Float(3.00000000000000000),Temp(a_re)],[Temp(t__2)])
+BINOP(*,[Float(1.00000000000000000),Temp(a_im)],[Temp(t__3)])
+BINOP(-,[Temp(t__0),Temp(t__1)],[Temp(t__4)])
+BINOP(+,[Temp(t__2),Temp(t__3)],[Temp(t__5)])""")
+         
         
     def testWhichMatch(self):
         'check we get the right tree match'
@@ -292,6 +307,12 @@ int main()
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
         self.assertEqual(op.format(),"t__0 = 0 + a;",op.format())
 
+    def testOptimize(self):
+        tree = self.binop(
+            [self.const([1,3],Complex),self.var("a",Complex)],"*",Complex)
+        self.codegen.generate_code(tree)
+        self.codegen.optimize(optimize.ConstantPropagation)
+        
     def testHyperGen(self):
         'generate hypercomplex code'
         tree = self.var("h",Hyper)

@@ -11,168 +11,12 @@ import absyn
 import ir
 import re
 import types
+
+import optimize
 import fracttypes
+
 from fracttypes import Bool, Int, Float, Complex, Hyper, Color
-
-class ComplexArg:
-    ' a pair of args'
-    def __init__(self,re,im):
-        self.re = re
-        self.im = im
-    def format(self):
-        [self.re.format(), self.im.format()]
-    def __str__(self):
-        return "Complex(%s,%s)" % (self.re, self.im)
-
-class HyperArg:
-    'four args'
-    def __init__(self,re,im1,im2,im3):
-        self.parts = [re, im1, im2, im3]
-    def format(self):
-        return [x.format() for x in self.parts]
-    def __str__(self):
-        return "Hyper(%s,%s,%s,%s)" % tuple(self.parts)
-
-class ColorArg:
-    'four args'
-    def __init__(self,re,im1,im2,im3):
-        self.parts = [re, im1, im2, im3]
-    def format(self):
-        return [x.format() for x in self.parts]
-    def __str__(self):
-        return "Color(%s,%s,%s,%s)" % tuple(self.parts)
-
-class ConstFloatArg:
-    def __init__(self,value):
-        self.value = value
-    def format(self):
-        return "%.17f" % self.value
-    def __str__(self):
-        return "Float(%s)" % self.format()
-    
-class ConstIntArg:
-    def __init__(self,value):
-        self.value = value
-    def format(self):
-        return "%d" % self.value
-    def __str__(self):
-        return "Int(%s)" % self.format()
-    
-class TempArg:
-    def __init__(self,value):
-        self.value = value
-    def format(self):
-        return self.value
-    def __str__(self):
-        return "Temp(%s)" % self.format()
-    
-def create_arg_from_val(type,val):
-    if type == Int or type == Bool:
-        return ConstIntArg(val)
-    elif type == Float:
-        return ConstFloatArg(val)
-    elif type == Complex:
-        return ComplexArg(ConstFloatArg(val[0]),ConstFloatArg(val[1]))
-    elif type == Hyper:
-        return HyperArg(
-            ConstFloatArg(val[0]),ConstFloatArg(val[1]),
-            ConstFloatArg(val[2]),ConstFloatArg(val[3]))
-    elif type == Color:
-        return ColorArg(
-            ConstFloatArg(val[0]),ConstFloatArg(val[1]),
-            ConstFloatArg(val[2]),ConstFloatArg(val[3]))
-    else:
-        raise fracttypes.TranslationError(
-            "Internal Compiler Error: Unknown constant type %s" % type)
-    
-def create_arg(t):
-    return create_arg_from_val(t.datatype,t.value)
-    
-class Insn:
-    'An instruction to be written to output stream'
-    def __init__(self,assem):
-        self.assem = assem # string format of instruction
-    def format(self):
-        try:
-            lookup = {}
-            i = 0
-            if self.src != None:
-                for src in self.src:
-                    sname = "s%d" % i
-                    lookup[sname] = src.format()
-                    i = i+1
-                i = 0
-                
-            if self.dst != None:
-                for dst in self.dst:
-                    dname = "d%d" % i
-                    lookup[dname] = dst.format()
-                    i = i+1
-            return self.assem % lookup
-        except Exception, exn:
-            msg = "%s with %s" % (self, lookup)
-            raise fracttypes.TranslationError(
-                "Internal Compiler Error: can't format " + msg)
-
-
-class Oper(Insn):
-    ' An operation'
-    def __init__(self,assem, src, dst, jumps=[]):
-        Insn.__init__(self,assem)
-        self.src = src
-        self.dst = dst
-        self.jumps = jumps
-    def __str__(self):
-        return "OPER(%s,%s,%s,%s)" % \
-               (self.assem,
-                string.join([x.__str__() for x in self.src]," "),
-                string.join([x.__str__() for x in self.dst]," "),
-                self.jumps)
-
-class Binop(Oper):
-    'A binary infix operation, like addition'
-    def __init__(self, op, src, dst):
-        Insn.__init__(self,"")
-        self.op = op
-        self.src = src
-        self.dst = dst
-    def format(self):
-        return "%s = %s %s %s;" % (
-            self.dst[0].format(),
-            self.src[0].format(),
-            self.op,
-            self.src[1].format())
-        
-class Label(Insn):
-    'A label which can be jumped to'
-    def __init__(self, label):
-        Insn.__init__(self,"%s: ;\n" % label)
-        self.label = label
-    def format(self):
-        return "%s ;\n" % self
-    def __str__(self):
-        return "%s:" % self.label
-    
-class Move(Insn):
-    ' A move instruction'
-    def __init__(self,src,dst):
-        Insn.__init__(self,"%(d0)s = %(s0)s;")
-        self.src = src
-        self.dst = dst
-    def format(self):
-        return "%s = %s;" % (self.dst[0].format(), self.src[0].format())
-    
-    def __str__(self):
-        return "MOVE(%s,%s,%s)" % (self.assem, self.src, self.dst)
-
-class Decl(Insn):
-    ' a variable declaration'
-    def __init__(self,assem):
-        Insn.__init__(self,assem)
-        self.src = None
-        self.dst = None
-    def __str__(self):
-        return "DECL(%s,%s)" % (self.src, self.dst)
+from instructions import *
     
 class Formatter:
     ' fed to print to fill the output template'
@@ -554,9 +398,8 @@ extern pf_obj *pf_new(void);
 #endif /* PF_H_ */
 '''
 
-    def emit_binop(self,op,srcs,type,dst=None):
-        if dst == None:
-            dst = TempArg(self.symbols.newTemp(type))
+    def emit_binop(self,op,srcs,type):
+        dst = TempArg(self.symbols.newTemp(type))
 
         self.out.append(Binop(op, srcs ,[ dst ]))
         return dst
@@ -689,7 +532,7 @@ extern pf_obj *pf_new(void);
                 elif sym.type == fracttypes.Gradient:
                     ord = op.get(key)
                     if ord == None:
-                        raise TranslationError(
+                        raise fracttypes.TranslationError(
                             "Internal Compiler Error: gradient not as a param")
                     else:
                         out.append(Decl("%s %s = t__pfo->p[%d].gradient;" % \
@@ -875,7 +718,7 @@ extern pf_obj *pf_new(void);
         for ol in overloadList:
             if ol.matchesArgs(typelist):
                 return ol
-        raise TranslationError(
+        raise fracttypes.TranslationError(
             "Internal Compiler Error: Invalid argument types %s for %s" % \
             (typelist, opnode.leaf))
 
@@ -1041,7 +884,8 @@ extern pf_obj *pf_new(void);
     def expand(self, template):
         return eval(re.sub(r'(\w+)',r'ir.\1',template))
 
-    # implement naive tree matching. We match an ir tree against a nested list of classes
+    # implement naive tree matching. We match an ir tree against a
+    # nested list of classes
     def match_template(self, tree, template):
         if isinstance(template,types.ListType):
             object = template[0]
@@ -1059,6 +903,10 @@ extern pf_obj *pf_new(void);
             return isinstance(tree, template)
         
 
+    def optimize(self, flags):
+        optimizer = optimize.T()
+        self.out = optimizer.optimize(flags, self.out)
+    
     def match(self,tree):
         for (template,action) in self.templates:
             if self.match_template(tree,template):
@@ -1067,3 +915,5 @@ extern pf_obj *pf_new(void);
         # every possible tree ought to be matched by *something* 
         msg = "Internal Compiler Error:%d:unmatched tree %s" % (tree.node.pos,tree)
         raise fracttypes.TranslationError(msg)
+
+        

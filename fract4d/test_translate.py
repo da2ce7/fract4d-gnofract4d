@@ -880,12 +880,15 @@ default:
         color func mycolorfunc
             default = mergenormal()
         endfunc
+        color func mycolorfunc2
+        endfunc
         }
         ''')
         self.assertNoErrors(t)
 
         self.assertEqual(t.symbols["@myfunc"][0].genFunc,stdlib.sqr_c_c)
         self.assertEqual(t.symbols["@myotherfunc"][0].genFunc,stdlib.sqr_c_c)
+        self.assertEqual(t.symbols["@mycolorfunc2"][0].genFunc, stdlib.mergenormal_CC_C)
         
     def testBadFunc(self):
         t = self.translate('t_badfunc {\nx= badfunc(0):\n}')
