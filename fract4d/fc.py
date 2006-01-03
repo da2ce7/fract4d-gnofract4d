@@ -86,6 +86,7 @@ class Compiler:
         self.flags = "-fPIC -DPIC -g -O3 -shared"
         self.libs = "-lm"
         self.tree_cache = {}
+        self.leave_dirty = False
         
     def formula_files(self):
         return [ (x,y) for (x,y) in self.files.items() 
@@ -129,6 +130,15 @@ class Compiler:
         raise IOError("Can't find formula file %s in formula search path" % \
                       filename)
 
+    def compile_one(self,formula):
+        self.compile(formula)
+
+        t = translate.T(absyn.Formula("",[],-1))
+        cg = self.compile(t)
+        t.merge(formula,"")
+        outputfile = os.path.abspath(self.generate_code(t, cg))        
+        return outputfile
+        
     def compile_all(self,formula,cf0,cf1):        
         self.compile(formula)
         self.compile(cf0)
@@ -287,7 +297,8 @@ class Compiler:
             os.remove(os.path.join(self.cache_dir,f))
 
     def __del__(self):
-        self.clear_cache()
+        if not self.leave_dirty:
+            self.clear_cache()
         
 def usage():
     print "FC : a compiler from Fractint .frm files to C code"
@@ -309,4 +320,17 @@ def generate(fc,formulafile, formula, outputfile, cfile):
 
     cg = fc.compile(ir)
     fc.generate_code(ir, cg, outputfile,cfile)
+
+def main(args):
+    fc = Compiler()
+    fc.leave_dirty = True
+    for arg in args:
+        ff = fc.load_formula_file(arg)
+        for name in ff.get_formula_names():
+            print name
+            form = fc.get_formula(arg,name)
+            cg = fc.compile(form)
+            
+if __name__ == '__main__':
+    main(sys.argv[1:])
 

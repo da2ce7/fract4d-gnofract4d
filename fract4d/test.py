@@ -14,6 +14,8 @@ import test_fractal
 import test_3d
 import test_gradient
 import test_preprocessor
+import test_graph
+import test_optimize
 #import test_stdlib
 
 def suite():
@@ -30,7 +32,9 @@ def suite():
     test_fractal.suite(),
     test_3d.suite(),
     test_gradient.suite(),
-    test_preprocessor.suite()
+    test_preprocessor.suite(),
+    test_graph.suite(),
+    test_optimize.suite()
     #test_stdlib.suite()
     ))
 

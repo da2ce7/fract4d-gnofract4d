@@ -11,10 +11,11 @@ def d(depth,s=""):
     return " " * depth + s
 
 class T:
-    def __init__(self, node, datatype):
+    def __init__(self, node, datatype, children=None):
         self.datatype = datatype
         self.node = node # the absyn node we were constructed from
         self.children = []
+        
     def pretty_children(self,depth):
         r = []
         for child in self.children:

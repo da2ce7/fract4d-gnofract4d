@@ -2,6 +2,8 @@
 
 # Translate an abstract syntax tree into tree-structured intermediate
 # code, performing type checking as a side effect
+import sys
+    
 from absyn import *
 import fsymbol
 import fractparser
@@ -257,11 +259,13 @@ class TBase:
         if not fol:
             # FIXME make more general
             argtype = [Complex]
+            fname = "ident"
             if node.datatype == Hyper:
                 argtype = [Hyper]
             elif node.datatype == Color:
                 argtype = [Color, Color]
-            f = Func(argtype,node.datatype,stdlib,"ident")
+                fname = "mergenormal"
+            f = Func(argtype,node.datatype,stdlib,fname)
             set_f = True
         else:
             # check only declared once
@@ -999,17 +1003,20 @@ class ColorFunc(TBase):
             print f.pretty()
 
 parser = fractparser.parser
-     
-# debugging
-if __name__ == '__main__':
-    import sys
-    
-    for arg in sys.argv[1:]:
+
+def main(args):
+    for arg in args:
         s = open(arg,"r").read() # read in a whole file
         result = parser.parse(s)
         for formula in result.children:
+            print formula.leaf
             t = T(formula)
             if t.errors != []:
                 print "Errors translating %s:" % formula.leaf
                 for e in t.errors:
                     print "\t",e
+
+# debugging
+if __name__ == '__main__':
+    main(sys.argv[1:])
+    
