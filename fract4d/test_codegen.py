@@ -565,7 +565,6 @@ default:
         self.assertCSays(src,"loop","","")
 
     def testFnPartsWorks(self):
-        # doesn't work yet
         src = '''FnParts {
 ; A generalization of Burning Ship - apply separate functions to the 
 ; X and Y parts of Z, then another to Z itself
