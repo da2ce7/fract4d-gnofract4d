@@ -68,6 +68,8 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             "map_path" : {
             "0" : "maps",
             "1" : os.path.join(sys.exec_prefix, "share/maps/gnofract4d")
+            },
+            "recent_files" : {
             }
         }
 
@@ -134,7 +136,16 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             i += 1
 
         self.changed()
-        
+
+    def update_list(self,name,new_entry,maxsize):
+        list = self.get_list(name)
+        if list.count(new_entry) == 0:
+            list.insert(0,new_entry)
+            list = list[:maxsize]
+            self.set_list(name,list)
+
+        return list
+    
     def changed(self):
         self.emit('preferences-changed')
 

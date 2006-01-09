@@ -35,7 +35,7 @@ class MainWindow:
         self.set_icon()
         
         self.window = gtk.Window()
-        self.window.connect('destroy', self.quit)
+        self.window.connect('delete-event', self.quit)
 
         # keyboard handling
         self.keymap = {
@@ -56,7 +56,9 @@ class MainWindow:
 
         self.update_compiler_prefs(preferences.userPrefs)
         self.compiler.file_path += extra_paths
-                
+
+        self.recent_files = preferences.userPrefs.get_list("recent_files")
+        
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
         
@@ -94,7 +96,8 @@ class MainWindow:
         self.window.show_all()
 
         self.update_subfract_visibility(False)
-
+        self.update_recent_file_menu()
+        
         self.update_image_prefs(preferences.userPrefs)
         
         self.statuses = [ _("Done"),
@@ -387,6 +390,16 @@ class MainWindow:
              self.save_image, 0, ''),
             (_('/File/sep1'), None,
              None, 0, '<Separator>'),
+            (_('/File/_1'), None,
+             self.load_recent_file, 1, ''),
+            (_('/File/_2'), None,
+             self.load_recent_file, 2, ''),
+            (_('/File/_3'), None,
+             self.load_recent_file, 3, ''),
+            (_('/File/_4'), None,
+             self.load_recent_file, 4, ''),
+            (_('/File/sep2'), None,
+             None, 0, '<Separator>'),            
             (_('/File/_Quit'), '<control>Q',
              self.quit, 0, '<StockItem>', gtk.STOCK_QUIT),   
 
@@ -488,14 +501,19 @@ class MainWindow:
 
         self.plane_menu = item_factory.get_item(_("/View/Planes"))
         self.four_d_sensitives.append(self.plane_menu)
+
+        self.recent_menuitems = [
+            item_factory.get_item(_("/File/1")),
+            item_factory.get_item(_("/File/2")),
+            item_factory.get_item(_("/File/3")),
+            item_factory.get_item(_("/File/4"))]
         
         # need to reference the item factory or the menus
         # later disappear randomly - some sort of bug in pygtk, python, or gtk
         self.save_factory = item_factory
         self.vbox.pack_start(menubar, False, True, 0)
         self.menubar = menubar
-        
-        
+            
     def browser(self,action,menuitem):
         """Display formula browser."""
         browser.show(self.window,self.f,browser.FRACTAL)
@@ -807,11 +825,31 @@ class MainWindow:
 
         if is4dsensitive:
             self.four_d_sensitives.append(my_fourway.widget)
+
+    def update_recent_files(self, file):
+        self.recent_files = preferences.userPrefs.update_list("recent_files",file,4)
+        self.update_recent_file_menu()
+        
+    def update_recent_file_menu(self):
+        i = 1
+        for menuitem in self.recent_menuitems:
+            if i > len(self.recent_files):
+                menuitem.hide()
+            else:
+                filename = self.recent_files[i-1]
+                display_name = os.path.basename(filename).replace("_","__")
+                menuitem.get_child().set_label("_%d %s" % (i, display_name))
+                menuitem.show()
+            i += 1
+
+    def load_recent_file(self, file_num, menuitem):
+        self.load(self.recent_files[file_num-1])
         
     def save_file(self,file):
         try:
             self.f.save(open(file,'w'))
             self.set_filename(file)
+            self.update_recent_files(file)
             return True
         except Exception, err:
             self.show_error_message(
@@ -1086,6 +1124,7 @@ class MainWindow:
     def load(self,file):
         try:
             self.f.loadFctFile(open(file))
+            self.update_recent_files(file)
             self.set_filename(file)
             browser.update(self.f.funcFile, self.f.funcName)
             return True
@@ -1128,7 +1167,7 @@ class MainWindow:
             f.interrupt()
         if not self.check_save_fractal():
             # user doesn't want to quit after all
-            return
+            return True
         
         try:
             preferences.userPrefs.save()

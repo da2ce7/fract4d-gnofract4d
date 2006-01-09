@@ -143,9 +143,9 @@ def add_menu_item(menu, item):
 
 def set_selected(menu, i):
     try:
-        menu.set_active(i)
+        menu.set_active(int(i))
     except:
-        menu.set_history(i)
+        menu.set_history(int(i))
         
 def get_selected(menu):
     try:
