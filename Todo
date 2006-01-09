@@ -6,6 +6,7 @@ fixed in 2.12:
 * B	didn't parse settings sections with uppercase chars (eg as.ufm)
 * B	func param types not correctly inferred from default()
 * B	color funcs without a default() don't work
+* B	change transfer func, zoom, undo = displayed transfer changes back to ident (Edward Coffey)
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -18,7 +19,6 @@ bugs (the more B's, the worse the bug):
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * BB	what if you have a Flickr account but are not a group member?
-* B	change transfer func, zoom, undo = displayed transfer changes back to ident
 * B	as.ufm:SpiralJazz: very long if/elsif sequence can cause stack overflow
 * B	no scrolling if too many parameters to fit on screen (eg barney3)
 * B	painter click on inner sometimes gives "IndexError: list assignment out of range" @ self.f.solids[color] = (int(r*255.0),int(g*255.0),int(b*255.0),255)
