@@ -5,9 +5,11 @@ fixed in 2.12:
 * W	minor speedups in codegen and symbol table
 * B	didn't parse settings sections with uppercase chars (eg as.ufm)
 * B	func param types not correctly inferred from default()
+* B	color funcs without a default() don't work
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
+* BB	when destroy decoration chosen, UI destroyed before save prompt
 * BB	not all keyboard shortcuts available when menu hidden
 * BB	should save enum params as strings, not indexes
 * BB	fractint doesn't reset vars between calls
@@ -16,9 +18,11 @@ bugs (the more B's, the worse the bug):
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * BB	what if you have a Flickr account but are not a group member?
+* B	change transfer func, zoom, undo = displayed transfer changes back to ident
+* B	as.ufm:SpiralJazz: very long if/elsif sequence can cause stack overflow
+* B	no scrolling if too many parameters to fit on screen (eg barney3)
 * B	painter click on inner sometimes gives "IndexError: list assignment out of range" @ self.f.solids[color] = (int(r*255.0),int(g*255.0),int(b*255.0),255)
 * B	browser doesn't jump to current func when opened
-* B	float func without a default gives an error looking for ident_c_f (can't repro)
 * B	should hide density/transfer/offset for DCA's
 * B	is a cmap loaded from a .map file correct? Think index math is squiffy 
 * B     var called 'loat' would clash with C reserved word
@@ -37,7 +41,7 @@ bugs (the more B's, the worse the bug):
 * B	giger.fct - results of extangle are different vs 1.9
 * B	fractint builtin fns with () in the name 
 * B	each fractal gets compiled twice, 2nd time with extra vars:
-* B	does everything have to be .17f ?
+* B	does everything have to be .17f ? (attach a float to controls)
 * B	default chebyshev gives blank screen
 * B	deeper.fct, hive.fct, image.fct doesn't load properly - old format
 * B	compile whenever resolution changes - pointless
@@ -45,7 +49,9 @@ bugs (the more B's, the worse the bug):
 * B	Mandrake: desktop icon not added to menu
 
 features (the more W's, the more work involved):
+* WWW	high dynamic range color, OpenEXR 
 * W	antialiasing progress should be smoother and in 1 pass
+* W	center-select mode.
 * W	all progress should be in one pass
 * W	name of image and creator in .fct and .png files
 * W	user-supplied additional gradient params
