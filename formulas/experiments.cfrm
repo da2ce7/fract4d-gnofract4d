@@ -93,6 +93,38 @@ final:
 default:
 } 
 
+
+Signs {
+; based on when sign changes occur for x or y parts of z
+init:
+complex lastz = (-1,-1)
+
+int min_iter_x = 0
+int max_iter_x = 0
+int min_iter_y = 0
+int max_iter_y = 0
+
+loop:
+if real(z) * real(lastz) < 0 
+   max_iter_x = #numiter
+endif
+if imag(z) * imag(lastz) < 0 
+   max_iter_y = #numiter
+endif
+lastz = z
+final: 
+if @sign_type == "x iter" 
+    #index = max_iter_x/256.0
+elseif @sign_type == "y iter"
+    #index = max_iter_y/256.0
+endif 
+default:
+param sign_type
+	default = 0
+	enum = "x iter" "y iter"
+endparam
+}
+
 angular_velocity {
 init:
 complex oldz = 0.0
