@@ -257,7 +257,10 @@ class SettingsDialog(dialog.T):
                 entry.set_text("%.17f" % f.get_param(param))
 
         def set_fractal(*args):
-            self.f.set_param(param,entry.get_text())
+            try:
+                self.f.set_param(param,entry.get_text())
+            except Exception, exn:
+                print exn
             return False
         
         set_entry(self.f)

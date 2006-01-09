@@ -565,13 +565,15 @@ class T(gobject.GObject):
 
         def set_fractal(*args):
             try:
-                i = int(widget.get_text())
-                self.set_maxiter(i)
-            except ValueError, err:
-                msg = "Invalid value '%s': must be a number" % \
-                      widget.get_text()
-                utils.idle_add(self.warn, msg)
-                
+                try:
+                    i = int(widget.get_text())
+                    self.set_maxiter(i)
+                except ValueError, err:
+                    msg = "Invalid value '%s': must be a number" % \
+                          widget.get_text()
+                    utils.idle_add(self.warn, msg)
+            except Exception, exn:
+                print exn
             return False
 
         set_entry(self)
