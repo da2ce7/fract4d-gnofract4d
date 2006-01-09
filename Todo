@@ -7,14 +7,15 @@ fixed in 2.12:
 * B	func param types not correctly inferred from default()
 * B	color funcs without a default() don't work
 * B	change transfer func, zoom, undo = displayed transfer changes back to ident (Edward Coffey)
+* BB	when destroy decoration chosen, UI destroyed before save prompt
+* W	recent files menu
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
-* BB	when destroy decoration chosen, UI destroyed before save prompt
-* BB	not all keyboard shortcuts available when menu hidden
-* BB	should save enum params as strings, not indexes
 * BB	fractint doesn't reset vars between calls
 * BB	explorer rather slow with complex colorfuncs (recompile too much)
+* BB	not all keyboard shortcuts available when menu hidden
+* BB	should save enum params as strings, not indexes
 * BB	squares left behind when changing from a smooth colormap to a jagged one
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
@@ -90,7 +91,6 @@ features (the more W's, the more work involved):
 * W	formula browser:manage search path (user prefs)
 * W	formula browser:save changes to .frm files
 * W	review human interface guidelines
-* W	recently-used files
 * W	angles in degrees?
 * W	connect identically-named params in different parts of formula
 * W	autosave
@@ -135,7 +135,6 @@ done in 2.11:
 * W	View/Planes
 * W	bug report
 * W	added Send To command
-
 * W	added named constructors for types, eg hyper(complex, complex)
 * W	added eye_vector function 
 * W	better randomized gradients

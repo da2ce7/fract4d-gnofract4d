@@ -119,20 +119,6 @@ class FlickrUploadDialog(dialog.T):
         table.attach(self.cancel_button, 0,2,5,6,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         self.set_upload_mode(True)
         
-        #self.view_my_button = gtk.Button(_("View _My Fractals"))
-        #self.view_my_button.connect("clicked", self.onViewMy)
-        #table.attach(
-        #    self.view_my_button,
-        #    0,1,4,5,
-        #    gtk.EXPAND | gtk.FILL, 0, 2, 2)
-        #
-        #self.view_group_button = gtk.Button(_("View G_roup Fractals"))
-        #self.view_group_button.connect("clicked", self.onViewPool)
-        #table.attach(
-        #    self.view_group_button,
-        #    1,2,4,5,
-        #    gtk.EXPAND | gtk.FILL, 0, 2, 2)
-
         #self.blog_menu = utils.create_option_menu([_("<None>")]) 
 
         #self.blogs = self.get_blogs()
