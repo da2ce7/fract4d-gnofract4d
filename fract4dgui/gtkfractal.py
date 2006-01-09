@@ -545,7 +545,7 @@ class T(gobject.GObject):
                 
         set_selected_function()
 
-        widget.update = set_selected_function
+        widget.set_data("update_function", set_selected_function)
 
         widget.connect('changed',set_fractal_function,self,param,formula)
         
