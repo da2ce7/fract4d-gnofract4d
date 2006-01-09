@@ -198,20 +198,23 @@ class PrefsDialog(dialog.T):
             entry.set_text(self.prefs.get("display","width"))
 
         def set_prefs(*args):
-            height = self.f.height
             try:
-                width = int(entry.get_text())
-            except ValueError:
-                gtk.idle_add(
-                    self.show_error,
-                    "Invalid value for width: '%s'. Must be an integer" % \
-                    entry.get_text())
-                return False
-            
-            if self.fix_ratio.get_active():
-                height = int(width * float(height)/self.f.width)
+                height = self.f.height
+                try:
+                    width = int(entry.get_text())
+                except ValueError:
+                    gtk.idle_add(
+                        self.show_error,
+                        "Invalid value for width: '%s'. Must be an integer" % \
+                        entry.get_text())
+                    return False
 
-            gtk.idle_add(self.prefs.set_size,width, height)
+                if self.fix_ratio.get_active():
+                    height = int(width * float(height)/self.f.width)
+
+                utils.idle_add(self.prefs.set_size,width, height)
+            except Exception, exn:
+                print exn
             return False
     
         set_entry()
@@ -229,18 +232,21 @@ class PrefsDialog(dialog.T):
 
         def set_prefs(*args):
             try:
-                height = int(entry.get_text())
-            except ValueError:
-                gtk.idle_add(
-                    self.show_error,
-                    "Invalid value for height: '%s'. Must be an integer" % \
-                    entry.get_text())
-                return False
-                
-            width = self.f.width
-            if self.fix_ratio.get_active():
-                width = int(height * float(self.f.width)/self.f.height)
-            self.prefs.set_size(width, height)
+                try:
+                    height = int(entry.get_text())
+                except ValueError:
+                    utils.idle_add(
+                        self.show_error,
+                        "Invalid value for height: '%s'. Must be an integer" % \
+                        entry.get_text())
+                    return False
+
+                width = self.f.width
+                if self.fix_ratio.get_active():
+                    width = int(height * float(self.f.width)/self.f.height)
+                self.prefs.set_size(width, height)
+            except Exception, exn:
+                print exn
             return False
         
         set_entry()
@@ -259,8 +265,12 @@ class PrefsDialog(dialog.T):
             entry.set_text(self.prefs.get(section,propname))
 
         def set_prefs(*args):
-            self.prefs.set(section,propname,entry.get_text())
-
+            try:
+                self.prefs.set(section,propname,entry.get_text())
+            except Exception, err:
+                print err
+            return False
+        
         set_entry()
         self.prefs.connect('preferences-changed',set_entry)
         entry.connect('focus-out-event', set_prefs)
