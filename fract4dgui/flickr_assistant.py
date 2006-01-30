@@ -12,6 +12,7 @@ import utils
 import preferences
 import hig
 import random
+import ignore_info
 
 from fractutils import flickr, slave
 
@@ -41,16 +42,17 @@ def get_user(window, f):
     return preferences.userPrefs.get("user_info", "nsid")
 
 def show_flickr_assistant(parent,alt_parent, f,dialog_mode):
-    if is_authorized():
-        FlickrUploadDialog.show(parent,alt_parent,f,dialog_mode)
-    else:
+    if not is_authorized():
         FlickrAssistantDialog.show(parent,alt_parent, f,True)
+
+    if is_authorized():
+        FlickrUploadDialog.show(parent,alt_parent,f,dialog_mode)            
 
 def display_flickr_error(err):
     d = hig.ErrorAlert(
-        _("Flickr Error"),
-        str(err),
-        None)
+        primary=_("Upload Error"),
+        secondary=str(err))
+
     d.run()
     d.destroy()
     
@@ -214,7 +216,18 @@ class FlickrUploadDialog(dialog.T):
         try:
             dummy = slave.response() # just to detect errors
         except Exception,err:
-            display_flickr_error(err)
+            if err.code == 2:
+                # user isn't a member of this group
+                d = hig.InformationAlert(
+                    primary=_("Can't Post to Group"),
+                    secondary=_("Your image has been uploaded to Flickr, but you aren't a member of the Gnofract 4D group, so your image hasn't been added to the group pool. You can join the group at http://www.flickr.com/groups_join.gne?id=46555832@N00 ."),
+                    parent = self,
+                    ignore=ignore_info.T("cannot_post", True, gtk.RESPONSE_ACCEPT))
+
+                d.run()
+                d.destroy()
+            else:
+                display_flickr_error(err)
         
 	#selected_blog = utils.get_selected(self.blog_menu)
 	#if selected_blog > 0:
@@ -348,9 +361,9 @@ Click Finish to save your credentials and proceed.""")
         except flickr.FlickrError, err:
             msg = _("Make sure you followed the link and authorized access.\n") + str(err) 
             d = hig.ErrorAlert(
-                _("Flickr returned an error."),
-                msg,
-                self.main_window)
+                primary=_("Flickr returned an error."),
+                secondary=msg,
+                parent=self.main_window)
             
             d.run()
             d.destroy()

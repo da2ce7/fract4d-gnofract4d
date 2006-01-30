@@ -70,6 +70,8 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             "1" : os.path.join(sys.exec_prefix, "share/maps/gnofract4d")
             },
             "recent_files" : {
+            },
+            "ignored" : {
             }
         }
 

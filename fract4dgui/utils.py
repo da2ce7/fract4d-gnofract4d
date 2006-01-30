@@ -177,9 +177,10 @@ def launch_browser(prefs, url, window):
         os.system(cmd)
     except Exception, err:
         d = hig.ErrorAlert(
-            _("Error launching browser"),
-            _("Try modifying your preferences or copy the URL manually to a browser window.\n") + \
-            str(err),window) 
+            primary=_("Error launching browser"),
+            secondary=_("Try modifying your preferences or copy the URL manually to a browser window.\n") + \
+            str(err),
+            parent=window) 
         d.run()
         d.destroy()
 

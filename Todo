@@ -11,6 +11,7 @@ fixed in 2.12:
 * BB	when destroy decoration chosen, UI destroyed before save prompt
 * W	recent files menu
 * BB	saving causes image to redraw because of recent files menu
+* BB	what if you have a Flickr account but are not a group member?
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -21,7 +22,6 @@ bugs (the more B's, the worse the bug):
 * BB	squares left behind when changing from a smooth colormap to a jagged one
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
-* BB	what if you have a Flickr account but are not a group member?
 * BB	infinite loops are possible in while loops
 * B	as.ufm:SpiralJazz: very long if/elsif sequence can cause stack overflow
 * B	no scrolling if too many parameters to fit on screen (eg barney3)

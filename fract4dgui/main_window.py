@@ -15,7 +15,7 @@ from fract4d import fractal,fc,fract4dc
 from fractutils import flickr
 
 import gtkfractal, model, preferences, autozoom, settings, toolbar
-import colors, undo, browser, fourway, angle, utils, hig, painter
+import colors, undo, browser, fourway, angle, utils, hig, ignore_info, painter
 import icons, flickr_assistant
 import fract4dguic
 
@@ -887,7 +887,10 @@ class MainWindow:
         'if this file exists, check with user before overwriting it'
         if os.path.exists(name):
             msg = _("File %s already exists. Overwrite?") % name
-            d = hig.ConfirmationAlert(msg,None,self.window,_("Overwrite"))
+            d = hig.ConfirmationAlert(
+                primary=msg,
+                parent=self.window,
+                proceed_button=_("Overwrite"))
 
             response = d.run()                
             d.destroy()
@@ -911,7 +914,10 @@ class MainWindow:
             else:
                 secondary_message = str(exception)
 
-        d = hig.ErrorAlert(message, secondary_message,self.window)
+        d = hig.ErrorAlert(
+            primary=message,
+            secondary=secondary_message,
+            parent=self.window)
         d.run()
         d.destroy()
 
@@ -1139,10 +1145,11 @@ class MainWindow:
             return False
 
     def check_save_fractal(self):
-        "Prompt user to save if necessary. Return whether to quit"
+        "Prompt user to save if necessary. Return whether to quit"        
         while not self.f.is_saved():
             d = hig.SaveConfirmationAlert(
-                self.display_filename(),-1,self.window)
+                document_name=self.display_filename(),
+                parent=self.window)
             
             response = d.run()                
             d.destroy()
