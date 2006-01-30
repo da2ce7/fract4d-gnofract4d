@@ -111,21 +111,26 @@ class FlickrUploadDialog(dialog.T):
         self.include_params = gtk.CheckButton(
             _("_Include parameters in description"))
         table.attach(self.include_params,0,2,3,4,gtk.EXPAND | gtk.FILL, 0, 2, 2)
-                     
+
+        self.blog_menu = utils.create_option_menu([_("<None>")])
+        table.attach(self.blog_menu, 1,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        
+        self.get_blogs()
+    
+        blog_label = gtk.Label(_("_Blog To:"))
+        blog_label.set_mnemonic_widget(self.blog_menu)
+        blog_label.set_use_underline(True)
+        table.attach(blog_label,0,1,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
         self.upload_button = gtk.Button(_("_Upload"))
         self.upload_button.connect("clicked", self.onUpload)
-        table.attach(self.upload_button, 0,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        table.attach(self.upload_button, 0,2,5,6,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         self.cancel_button = gtk.Button(_("_Cancel Upload"))
         self.cancel_button.connect("clicked", self.onCancelUpload)
-        table.attach(self.cancel_button, 0,2,5,6,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        table.attach(self.cancel_button, 0,2,6,7,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         self.set_upload_mode(True)
-        
-        #self.blog_menu = utils.create_option_menu([_("<None>")]) 
 
-        #self.blogs = self.get_blogs()
-        
-        #table.attach(self.blog_menu, 1,2,6,7,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         self.bar = gtk.ProgressBar()
         self.vbox.pack_end(self.bar,False,False)
@@ -133,10 +138,10 @@ class FlickrUploadDialog(dialog.T):
     def init_title(self):
         pass
     
-    def runRequest(self,req,on_done):
+    def runRequest(self,req,on_done, *args):
         self.slave = FlickrGTKSlave(req.cmd,*req.args)
         self.slave.connect('progress-changed',self.onProgress)
-        self.slave.connect('operation-complete', on_done)
+        self.slave.connect('operation-complete', on_done, *args)
         self.slave.run(req.input)
         
     def onProgress(self,slave,type,position):
@@ -167,12 +172,16 @@ class FlickrUploadDialog(dialog.T):
         return description
     
     def get_blogs(self):
+        self.blogs = []
         global TOKEN
-        req = flickr.requestBlogsGetList(token)
-        self.runRequest(req,onBlogsFetched)
+        req = flickr.requestBlogsGetList(TOKEN)
+        self.runRequest(req,self.onBlogsFetched)
 
     def onBlogsFetched(self,slave):
-        blogs = flickr.parseBlogsList(slave.response())
+        blogs = flickr.parseBlogsGetList(slave.response())
+        for blog in blogs:
+            utils.add_menu_item(self.blog_menu,blog.name)
+            self.blogs.append(blog)
         
     def get_tags(self):
         formula_tag = FlickrUploadDialog.clean_formula_re.sub('',self.f.funcName)
@@ -196,23 +205,21 @@ class FlickrUploadDialog(dialog.T):
             description=description_,
             tags=self.get_tags())
 
-        self.runRequest(req,self.onUploaded)
-        self.set_upload_mode(False)
-        
-    def onUploaded(self,slave):
-        global TOKEN
+        self.runRequest(req,self.onUploaded,title_,description_)
+        self.set_upload_mode(False)        
+
+    def onUploaded(self, slave,title,description):
         try:
             id = flickr.parseUpload(slave.response())
         except Exception,err:
             display_flickr_error(err)
-            self.set_upload_mode(True)
+            self.onUploadComplete()
             return
-        
+
         req = flickr.requestGroupsPoolsAdd(id,TOKEN)
+        self.runRequest(req,self.onPoolAdded,title,description,id)
 
-        self.runRequest(req,self.onPoolAdded)
-
-    def onPoolAdded(self,slave):
+    def onPoolAdded(self, slave,title,description,id):
         try:
             dummy = slave.response() # just to detect errors
         except Exception,err:
@@ -228,14 +235,26 @@ class FlickrUploadDialog(dialog.T):
                 d.destroy()
             else:
                 display_flickr_error(err)
+
+        # post to a blog if selected
+        selected_blog = utils.get_selected(self.blog_menu)
+        if selected_blog > 0:                    
+            # 0 is "<None>"
+            blog = self.blogs[selected_blog-1]
+            req = flickr.requestBlogsPostPhoto(blog,id,title,description,TOKEN)
+
+            self.runRequest(req, self.onBlogPostComplete)
+        else:
+            self.onUploadComplete()
+
+    def onBlogPostComplete(self,slave):
+        try:
+            resp = slave.response()
+        except Exception, err:
+            display_flickr_error(err)
+        self.onUploadComplete()
         
-	#selected_blog = utils.get_selected(self.blog_menu)
-	#if selected_blog > 0:
-	#    blog = self.blogs[selected_blog-1]
-	#    flickr.blogs_postPhoto(
-	#        blog, id, title_,description_,token)
-	#
-        #print id
+    def onUploadComplete(self):
         self.set_upload_mode(True)
         
 class FlickrAssistantDialog(dialog.T):
@@ -246,7 +265,7 @@ class FlickrAssistantDialog(dialog.T):
 
     intro_text=_("""Flickr is an online image-sharing service. If you like, Gnofract 4D can post your fractal images to the service so others can see them.
 
-In order to post images to Flickr, you first need to have a Flickr account, and then authorize Gnofract 4D to post images for you. You only need to do this once.
+In order to post images to Flickr, you first need to have a Flickr or Yahoo account, and then authorize Gnofract 4D to post images for you. You only need to do this once.
 
 To set that up, please click on the following link and follow the instructions on-screen. When done, close the browser window and click Next.
 
@@ -287,7 +306,7 @@ Click Finish to save your credentials and proceed.""")
 
         self.set_size_request(500,400)
 
-    def runRequest(self,req,on_done):
+    def runRequest(self,req,on_done,*args):
         self.slave = FlickrGTKSlave(req.cmd,*req.args)
         self.slave.connect('progress-changed',self.onProgress)
         self.slave.connect('operation-complete', on_done)

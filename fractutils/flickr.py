@@ -190,20 +190,20 @@ def parseUrlsGetUserPhotos(resp):
     return url
 
 def requestBlogsGetList(token):
-    resp = makeRequest(
+    return makeRequest(
         BASE_URL,
         False,
         True,
         api_key=API_KEY,
         auth_token=token,
         method="flickr.blogs.getList")
-
+    
 def parseBlogsGetList(resp):
     blogs = [ Blog(x) for x in resp.getElementsByTagName("blog")]
     return blogs
 
 def requestBlogsPostPhoto(blog,photo,title_,description_,token):
-    resp = makeRequest(
+    return makeRequest(
         BASE_URL,
         True,
         True,

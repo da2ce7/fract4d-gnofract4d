@@ -61,13 +61,17 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
               "flickr_token" : "",
               "nsid" : ""
             },
+            "blogs" : {
+            },
             "formula_path" : {
               "0" : "formulas",
-              "1" : os.path.join(sys.exec_prefix, "share/formulas/gnofract4d")
+              "1" : os.path.join(sys.exec_prefix, "share/formulas/gnofract4d"),
+              "2" : os.path.expandvars("${HOME}/formulas")
             },
             "map_path" : {
-            "0" : "maps",
-            "1" : os.path.join(sys.exec_prefix, "share/maps/gnofract4d")
+              "0" : "maps",
+              "1" : os.path.join(sys.exec_prefix, "share/maps/gnofract4d"),
+              "2" : os.path.expandvars("${HOME}/maps")
             },
             "recent_files" : {
             },
