@@ -12,6 +12,7 @@ fixed in 2.12:
 * W	recent files menu
 * BB	saving causes image to redraw because of recent files menu
 * BB	what if you have a Flickr account but are not a group member?
+* W	post to blogs via Flickr
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
