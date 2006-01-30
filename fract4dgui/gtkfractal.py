@@ -124,7 +124,8 @@ class T(gobject.GObject):
         
     def freeze(self):
         self.frozen = True
-
+        self.f.clean()
+        
     def thaw(self):
         if self.f == None:
             return False
