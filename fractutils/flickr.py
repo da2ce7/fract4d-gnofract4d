@@ -269,12 +269,12 @@ def encode_multipart_formdata(fields, files, BOUNDARY = '-----'+mimetools.choose
     L.append('')
     try:
         body = CRLF.join(L)
-    except UnicodeDecodeError:
-        print "unicode error"
+    except UnicodeDecodeError, err:
+        print "unicode error", str(err)
         for x in L:
             print x[:100]
-            
-    content_type = 'multipart/form-data; boundary=%s' % BOUNDARY        # XXX what if no files are encoded
+        raise 
+    content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
     return content_type, body
 
 def build_request(theurl, fields, files, txheaders=None):
