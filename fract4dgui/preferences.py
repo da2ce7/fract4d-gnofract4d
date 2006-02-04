@@ -33,7 +33,11 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
     __gsignals__ = {
         'preferences-changed' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
-        gobject.TYPE_NONE, ())
+        gobject.TYPE_NONE, ()),
+        'image-preferences-changed' : (
+        (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
+        gobject.TYPE_NONE, ()),
+        
         }
 
     def __init__(self, file='~/.gnofract4d'):
@@ -79,6 +83,11 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             }
         }
 
+        self.image_changed_sections = {
+            "display" : True,
+            "compiler" : True
+            }
+        
         gobject.GObject.__init__(self) # MUST be called before threaded.init
 
         ConfigParser.ConfigParser.__init__(self)
@@ -103,7 +112,7 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             return
 
         ConfigParser.ConfigParser.set(self,section,key,val)
-        self.changed()
+        self.changed(section)
 
     def set_size(self,width,height):
         if self.getint("display","height") == height and \
@@ -112,7 +121,7 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
         
         ConfigParser.ConfigParser.set(self,"display","height",str(height))
         ConfigParser.ConfigParser.set(self,"display","width",str(width))
-        self.changed()
+        self.changed("display")
 
     def get_list(self, name):
         i = 0
@@ -141,7 +150,7 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             ConfigParser.ConfigParser.set(self, name,"%d" % i, item)
             i += 1
 
-        self.changed()
+        self.changed("name")
 
     def update_list(self,name,new_entry,maxsize):
         list = self.get_list(name)
@@ -152,9 +161,11 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
 
         return list
     
-    def changed(self):
+    def changed(self, section):
         self.emit('preferences-changed')
-
+        if self.image_changed_sections.get(section, False):
+            self.emit('image-preferences-changed')
+            
     def save(self):
         self.write(open(self.file,"w"))
     

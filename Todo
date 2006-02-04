@@ -1,19 +1,5 @@
 todo:
 
-fixed in 2.12:
-* B	exception printed when updating color widgets on later pygtks
-* W	minor speedups in codegen and symbol table
-* W	while loop in formulas
-* B	didn't parse settings sections with uppercase chars (eg as.ufm)
-* B	func param types not correctly inferred from default()
-* B	color funcs without a default() don't work
-* B	change transfer func, zoom, undo = displayed transfer changes back to ident (Edward Coffey)
-* BB	when destroy decoration chosen, UI destroyed before save prompt
-* W	recent files menu
-* BB	saving causes image to redraw because of recent files menu
-* BB	what if you have a Flickr account but are not a group member?
-* W	post to blogs via Flickr
-
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 * BB	fractint doesn't reset vars between calls
@@ -131,6 +117,20 @@ params (not all applicable to all types):
 1) how to set color of point
 2) time step
 3) which points to start with
+
+fixed in 2.12:
+* B	exception printed when updating color widgets on later pygtks
+* W	minor speedups in codegen and symbol table
+* W	while loop in formulas
+* B	didn't parse settings sections with uppercase chars (eg as.ufm)
+* B	func param types not correctly inferred from default()
+* B	color funcs without a default() don't work
+* B	change transfer func, zoom, undo = displayed transfer changes back to ident (Edward Coffey)
+* BB	when destroy decoration chosen, UI destroyed before save prompt
+* W	recent files menu
+* BB	saving causes image to redraw because of recent files menu
+* BB	what if you have a Flickr account but are not a group member?
+* W	post to blogs via Flickr
 
 done in 2.11:
 * WW	added Flickr sharing
