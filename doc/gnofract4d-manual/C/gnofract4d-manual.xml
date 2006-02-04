@@ -1152,7 +1152,7 @@ one). Inner colormaps are ignored. </para> </listitem>
 <title>About &gf4d;</title>
 <para>
 
-This is &gf4d; version 2.11. You can find the most recent version of
+This is &gf4d; version 2.12. You can find the most recent version of
 &gf4d; from <ulink url="http://gnofract4d.sourceforge.net">
 http://gnofract4d.sourceforge.net/</ulink>. 
 </para>
@@ -1160,7 +1160,7 @@ http://gnofract4d.sourceforge.net/</ulink>.
 <title>Credits and copyright</title>
 
 <para>
-&gf4d; is Copyright 1999-2005 Edwin Young <ulink
+&gf4d; is Copyright 1999-2006 Edwin Young <ulink
 url="mailto:edwin@users.sourceforge.net">(edwin@users.sourceforge.net)
 </ulink>, and is distributed under the <emphasis>BSD
 license</emphasis>.  See the file "COPYING" for details. 
