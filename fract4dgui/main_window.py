@@ -79,7 +79,7 @@ class MainWindow:
             
         self.model = model.Model(self.f)
 
-        preferences.userPrefs.connect('preferences-changed',
+        preferences.userPrefs.connect('image-preferences-changed',
                                       self.on_prefs_changed)
 
         self.create_menu()
