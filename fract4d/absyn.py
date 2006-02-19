@@ -153,6 +153,9 @@ def Mag(exp,pos):
 def Negate(exp,pos):
     return Node("unop", pos, [exp], "t__neg")
 
+def Not(exp, pos):
+    return Node("unop", pos, [exp], "t__not")
+
 def String(s,list,pos):
     return Node("string", pos, list, s, fracttypes.String)
 

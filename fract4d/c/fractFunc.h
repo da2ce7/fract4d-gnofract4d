@@ -25,6 +25,7 @@ class fractFunc {
 	bool yflip,
 	bool periodicity,
 	render_type_t render_type,
+	draw_type_t draw_type,
 	IFractWorker *fw,
 	IImage *_im, 
 	IFractalSite *_site);
@@ -89,6 +90,7 @@ class fractFunc {
     bool auto_deepen;
     bool periodicity;
     render_type_t render_type;
+    draw_type_t draw_type;
     d *params;
 
     IImage *im;    
@@ -148,6 +150,7 @@ extern void calc(
     bool periodicity,
     bool dirty,
     render_type_t render_type,
+    draw_type_t draw_type,
     IImage *im, 
     IFractalSite *site);
 

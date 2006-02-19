@@ -12,6 +12,7 @@ enum {
     GF4D_FRACTAL_PAUSED
 };
 
+// kind of antialiasing to do
 typedef enum {
     AA_NONE = 0,
     AA_FAST,
@@ -19,6 +20,7 @@ typedef enum {
     AA_DEFAULT /* used only for effective_aa - means use aa from fractal */
 } e_antialias;
 
+// basic parameters defining position and rotation in R4
 typedef enum {
     XCENTER,
     YCENTER,
@@ -33,17 +35,25 @@ typedef enum {
     ZWANGLE,
 } param_t;
 
+// number of elements in enum above
+#define N_PARAMS 11
+
+// kind of image to draw
 typedef enum {
-    TWO_D,
-    LANDSCAPE,
-    THREE_D
+    TWO_D, // standard mandelbrot view
+    LANDSCAPE, // heightfield
+    THREE_D // ray-traced 3D object
 } render_type_t;
+
+// how to draw the image
+typedef enum {
+    DRAW_GUESSING, // several passes, starting with large boxes 
+    DRAW_TO_DISK   // complete all passes on one box_row before continuing
+} draw_type_t;
 
 // colorFunc indices
 #define OUTER 0
 #define INNER 1
-
-#define N_PARAMS 11
 
 //class colorizer;
 class IImage;

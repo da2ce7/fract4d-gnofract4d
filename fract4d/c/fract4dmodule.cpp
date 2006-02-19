@@ -821,6 +821,7 @@ struct calc_args
     int eaa, maxiter, nThreads;
     int auto_deepen, yflip, periodicity, dirty;
     render_type_t render_type;
+    draw_type_t draw_type;
     pf_obj *pfo;
     ColorMap *cmap;
     IImage *im;
@@ -1110,6 +1111,7 @@ pycalc(PyObject *self, PyObject *args)
     int yflip;
     int dirty=1;
     render_type_t render_type;
+    draw_type_t draw_type = DRAW_GUESSING;
     pf_obj *pfo;
     ColorMap *cmap;
     IImage *im;
@@ -1145,7 +1147,7 @@ pycalc(PyObject *self, PyObject *args)
     //((PySite *)site)->state = PyEval_SaveThread();
     calc(params,eaa,maxiter,nThreads,pfo,cmap,
 	 (bool)auto_deepen,(bool)yflip, (bool)periodicity, (bool)dirty,
-	 render_type,
+	 render_type, draw_type,
 	 im,site);
     //PyEval_RestoreThread(((PySite *)site)->state);
 
@@ -1271,6 +1273,7 @@ ff_create(PyObject *self, PyObject *args)
     int auto_deepen, periodicity;
     int yflip;
     render_type_t render_type;
+    draw_type_t draw_type;
     pf_obj *pfo;
     ColorMap *cmap;
     IImage *im;
@@ -1315,6 +1318,7 @@ ff_create(PyObject *self, PyObject *args)
 	yflip,
 	periodicity,
 	render_type,
+	draw_type,
 	worker,
 	im,
 	site);
@@ -1349,7 +1353,7 @@ calculation_thread(void *vdata)
     calc(args->params,args->eaa,args->maxiter,
 	 args->nThreads,args->pfo,args->cmap,
 	 args->auto_deepen,args->yflip, args->periodicity, args->dirty,
-	 args->render_type,
+	 args->render_type, args->draw_type,
 	 args->im,args->site);
 
 #ifdef DEBUG_THREADS 
@@ -1384,6 +1388,7 @@ pycalc_async(PyObject *self, PyObject *args)
 	return NULL;
     }
 
+    cargs->draw_type = DRAW_GUESSING;
     cargs->set_cmap(pycmap);
     cargs->set_pfo(pypfo);
     cargs->set_im(pyim);

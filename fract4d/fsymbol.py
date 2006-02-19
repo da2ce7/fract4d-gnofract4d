@@ -82,7 +82,7 @@ def createDefaultDict():
                           operator=True,
                           doc='''Exponentiation operator. Computes x to the power y.'''),
         
-        "t__neg": efl("neg", "[_], _", [Bool, Int, Float, Complex, Hyper]),
+        "t__neg": efl("neg", "[_], _", [Int, Float, Complex, Hyper]),
 
         # logical ops
         "&&": OverloadList(
@@ -92,7 +92,7 @@ def createDefaultDict():
             [ Func([Bool, Bool], Bool, stdlib, None) ],
             doc="Logical OR.", operator=True),
         "!" : OverloadList(
-            [ Func([Bool],Bool, stdlib, None) ],
+            [ Func([Bool],Bool, stdlib, "not") ],
             doc="Logical NOT.", operator=True),
 
         # predefined magic variables

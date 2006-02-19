@@ -23,10 +23,10 @@ def imags(l):
 def parts(n,l):
     return [x.parts[n] for x in l]
 
-# unary negation
-def neg_b_b(gen,t,srcs):
+def not_b_b(gen,t,srcs):
     return gen.emit_func('!', srcs, Int)
 
+# unary negation
 def neg_i_i(gen,t,srcs):
     return gen.emit_func('-', srcs, Int)
 
