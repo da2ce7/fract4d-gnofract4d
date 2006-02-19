@@ -130,6 +130,54 @@ endfunc
             fracttypes.Float, fn2.ret,
             "fn2 should automatically be a func which returns a float")
 
+    def testPoly3(self):
+        "A function which used to be problematic"
+        t = self.translate('''
+        Poly3_J {
+; iteration of f(z) := alpha*z^3 - 3*alpha*z + beta;
+; Z-plane (J-set) fractal
+; parameters: alpha, beta
+
+global:
+   
+init:
+  z=#pixel
+  
+loop:
+  z = z * @aa * (z^2 - 3) + @bb;
+  
+bailout:
+; -- this isn't the bailout but the continuing condition
+;    false = bail; true = continue
+  |z| < @bailout
+  
+default:
+  title = "Polynomial of degree 3"
+  periodicity = 0
+  
+  complex param aa
+    caption="alpha"
+    default=exp( (0,2) * #pi / 3 )
+  endparam
+  complex param bb
+    caption="beta"
+    default=0
+  endparam
+  float param bailout
+    caption="Bailout"
+    default=1e10
+    min=1
+  endparam
+  
+switch:
+  type = "Poly3_Ma"
+  bb = bb
+;  aa = aa
+  bailout = bailout
+}  
+''')
+        self.assertError(t, "26: only constants can be used in default sections")
+
     def testBadDefault(self):
         t = self.translate('''t {
         default:

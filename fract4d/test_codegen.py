@@ -658,7 +658,6 @@ func fn1
         cg.output_all(t)
         c = cg.output_c(t)
 
-
     def testCF(self):
         'generate code for a coloring function'
         tcf0 = self.translatecf('''

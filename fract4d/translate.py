@@ -205,7 +205,7 @@ class TBase:
             else:
                 self.error("%d: invalid statement in parameter block" % node.pos)
 
-        if hasattr(v,"default"):
+        if hasattr(v,"default") and v.default != None:
             if node.datatype == None:
                 v.type = v.default.datatype
                 v.value = default_value(v.type)
