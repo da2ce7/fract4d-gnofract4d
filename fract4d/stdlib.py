@@ -24,6 +24,9 @@ def parts(n,l):
     return [x.parts[n] for x in l]
 
 # unary negation
+def neg_b_b(gen,t,srcs):
+    return gen.emit_func('!', srcs, Int)
+
 def neg_i_i(gen,t,srcs):
     return gen.emit_func('-', srcs, Int)
 

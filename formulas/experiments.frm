@@ -50,6 +50,48 @@ endfunc
 xycenter = (-0.5,-0.5)
 }
 
+Gravitybrot1 {
+init:
+	z = #zwpixel
+loop:
+	z = z*z + #pixel
+	dz = @g / sqr(|z|)
+	z = z - dz
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param g
+	default = 1.0e-6
+endparam
+float func bailfunc
+	default = cmag
+endfunc
+float param bailout
+	default = 4.0
+endparam
+}
+
+Gravitybrot2 {
+init:
+	z = #zwpixel
+loop:
+	z = z*z + #pixel
+	dz = (z/|z| * @g) / sqr(|z|)
+	z = z - dz
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param g
+	default = 1.0e-6
+endparam
+float func bailfunc
+	default = cmag
+endfunc
+float param bailout
+	default = 4.0
+endparam
+}
+
 
 Damp {
 init:

@@ -1,5 +1,10 @@
 todo:
 
+fixed in 2.13:
+* B	error compiling aho.ufm#Poly3_J: 'NoneType' object has no attribute 'datatype'
+* B	standard.cfrm:triangle = all black
+* BB	boolean negation (! operator) doesn't actually work
+
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 * BB	fractint doesn't reset vars between calls
@@ -19,7 +24,6 @@ bugs (the more B's, the worse the bug):
 * B     var called 'loat' would clash with C reserved word
 * B	weird behavior when using explorer mode & oversized image
 * B	untitled_5 displays weirdly - so do some combinations of bailout+colorfunc
-* B	standard.cfrm:triangle = all black
 * B	should start drawing straight away when image returns to normal size
 * B	recoloring during deepening can make things shallower
 * B	parse continuation lines correctly mid-token
