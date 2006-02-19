@@ -41,6 +41,7 @@ fractFunc::fractFunc(
 	bool yflip,
 	bool periodicity_,
 	render_type_t render_type_,
+	draw_type_t draw_type_,
 	IFractWorker *fw,
 	IImage *im_, 
 	IFractalSite *site_)
@@ -49,6 +50,7 @@ fractFunc::fractFunc(
     im = im_;
     ok = true;
     render_type = render_type_;
+    draw_type = draw_type_;
     //printf("render type %d\n", render_type);
     worker = fw;
     params = params_;
@@ -394,6 +396,7 @@ calc(
     bool periodicity,
     bool dirty,
     render_type_t render_type,
+    draw_type_t draw_type,
     IImage *im, 
     IFractalSite *site)
 {
@@ -412,6 +415,7 @@ calc(
 	    yflip,
 	    periodicity,
 	    render_type,
+	    draw_type,
 	    worker,
 	    im,
 	    site);
