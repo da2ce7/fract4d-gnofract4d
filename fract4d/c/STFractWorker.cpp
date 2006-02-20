@@ -277,7 +277,7 @@ STFractWorker::pixel(int x, int y,int w, int h)
 	
 	switch(ff->render_type)
 	{
-	case TWO_D: 
+	case RENDER_TWO_D: 
 	{
 	    // calculate coords of this point
 	    dvec4 pos = ff->topleft + x * ff->deltax + y * ff->deltay;
@@ -312,11 +312,11 @@ STFractWorker::pixel(int x, int y,int w, int h)
 	    }
 	}
 	    break;
-	case LANDSCAPE:
+	case RENDER_LANDSCAPE:
 	    assert(0 && "not supported");
 	    break;
 
-	case THREE_D:
+	case RENDER_THREE_D:
 	{
 	    dvec4 look = ff->vec_for_point(x,y);
 	    dvec4 root;

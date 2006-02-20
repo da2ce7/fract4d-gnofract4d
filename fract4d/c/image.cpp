@@ -21,6 +21,7 @@ image::image()
     iter_buf = NULL;
     fate_buf = NULL;
     index_buf = NULL;
+    m_totalXres = m_totalYres = m_xoffset = m_yoffset = 0;
 }
 
 image::image(const image& im)
@@ -113,6 +114,20 @@ image::get(int x, int y) const
     return pixel;
 }
 
+void
+image::set_total_resolution(int x, int y)
+{
+    m_totalXres = x; 
+    m_totalYres = y;
+}
+
+void
+image::set_offset(int x, int y)
+{
+    m_xoffset = x;
+    m_yoffset = y;
+}
+
 bool 
 image::set_resolution(int x, int y)
 {
@@ -128,11 +143,7 @@ image::set_resolution(int x, int y)
     }
 
     rgba_t pixel = { 
-#ifndef NDEBUG
-	200, 178, 98, 255 // distracting mustard-yellow color
-#else
 	0,0,0,255 // soothing black
-#endif
     };
 
     for(int i = 0; i < y; ++i)

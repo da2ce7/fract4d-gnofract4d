@@ -19,6 +19,14 @@
    fate_t: what happened to this point. 
    index : the value of #index after calculating this point.
 
+
+   For "render to disk", we conceptually have two images: a full-size image 
+   (say 16000 * 12000 pixels) which is never all in memory at the same time,
+   and a window into that image which is a smaller size (say 1600 * 1200) and 
+   has an offset into the main image. 
+
+   In this case, "total resolution" is the big image, "resolution" the small one
+
 */
    
 #include "color.h"
@@ -28,8 +36,14 @@ class IImage
 {
 public:
     virtual ~IImage() {};
-    // return true if this resulted in a change of size
+    // return true if this resulted in a change of size    
     virtual bool set_resolution(int x, int y) = 0;
+
+    // set the virtual resolution for render-to-disk scenarios
+    virtual void set_total_resolution(int x, int y) = 0;
+    // set the virtual offset for render-to-disk 
+    virtual void set_offset(int x, int y) = 0;
+
     virtual bool ok() = 0;
 
     // return xres()/yres()

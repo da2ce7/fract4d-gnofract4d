@@ -894,10 +894,20 @@ class T(FctUtils):
         initparams = self.all_params()
         fract4dc.pf_init(pfunc,1.0E-9,initparams)
 
-        fract4dc.calc(self.params,self.antialias,self.maxiter,
-                      self.yflip,self.periodicity,
-                      pfunc,cmap,self.auto_deepen,
-                      1,self.render_type, image,self.site, self.clear_image)
+        fract4dc.calc(
+            params=self.params,
+            antialias=self.antialias,
+            maxiter=self.maxiter,
+            yflip=self.yflip,
+            periodicity=self.periodicity,
+            pfo=pfunc,
+            cmap=cmap,
+            auto_deepen=self.auto_deepen,
+            nthreads=1,
+            render_type=self.render_type,
+            image=image,
+            site=self.site,
+            dirty=self.clear_image)
         
     def clean(self):
         self.dirty = False
