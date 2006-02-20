@@ -35,7 +35,7 @@ bugs (the more B's, the worse the bug):
 * B	horrible_drawing_bug.fct - zoom out & it looks very different
 * B	giger.fct - results of extangle are different vs 1.9
 * B	fractint builtin fns with () in the name 
-* B	each fractal gets compiled twice, 2nd time with extra vars:
+* B	each fractal gets compiled twice, 2nd time with extra vars
 * B	does everything have to be .17f ? (attach a float to controls)
 * B	default chebyshev gives blank screen
 * B	deeper.fct, hive.fct, image.fct doesn't load properly - old format
