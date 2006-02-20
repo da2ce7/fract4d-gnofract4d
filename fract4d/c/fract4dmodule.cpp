@@ -820,6 +820,7 @@ struct calc_args
     double params[N_PARAMS];
     int eaa, maxiter, nThreads;
     int auto_deepen, yflip, periodicity, dirty;
+    int async;
     render_type_t render_type;
     draw_type_t draw_type;
     pf_obj *pfo;
@@ -833,7 +834,13 @@ struct calc_args
 #ifdef DEBUG_CREATION
 	    printf("%p : CA : CTOR\n",this);
 #endif
+	    pycmap = NULL;
+	    pypfo = NULL;
+	    pyim = NULL;
+	    pysite = NULL;
 	    dirty = 1;
+	    draw_type = DRAW_GUESSING;
+	    async = false;
 	}
 
     void set_cmap(PyObject *pycmap_)
@@ -1310,32 +1317,67 @@ calculation_thread(void *vdata)
 }
 
 static calc_args *
-parse_calc_args(PyObject *args)
+parse_calc_args(PyObject *args, PyObject *kwds)
 {
-    PyObject *pypfo, *pycmap, *pyim, *pysite;
+    PyObject *pyparams, *pypfo, *pycmap, *pyim, *pysite;
     calc_args *cargs = new calc_args();
  
-    double *p = cargs->params;
-    if(!PyArg_ParseTuple(
+    static char *kwlist[] = {
+	"params",
+	"eaa",
+	"maxiter",
+	"yflip",
+	"nthreads",
+	"pfo",
+	"cmap",
+	"auto_deepen",
+	"periodicity",
+	"render_type",
+	"image",
+	"site",
+	"dirty", 
+	"draw_type", 
+	"async",
+	NULL};
+
+    if(!PyArg_ParseTupleAndKeywords(
 	   args,
-	   "(ddddddddddd)iiiiOOiiiOO|i",
-	   &p[0],&p[1],&p[2],&p[3],
-	   &p[4],&p[5],&p[6],&p[7],
-	   &p[8],&p[9],&p[10],
+	   kwds,
+	   "OiiiiOOiiiOO|iii",
+	   kwlist,
+	   &pyparams,
 	   &cargs->eaa,&cargs->maxiter,&cargs->yflip,&cargs->nThreads,
 	   &pypfo,&pycmap,
 	   &cargs->auto_deepen,
 	   &cargs->periodicity,
 	   &cargs->render_type,
 	   &pyim, &pysite,
-	   &cargs->dirty
+	   &cargs->dirty,
+	   &cargs->draw_type,
+	   &cargs->async
 	   ))
+    {
+	goto error;
+    }
+
+    double *p = cargs->params;
+    if(!PyList_Check(pyparams) || PyList_Size(pyparams) != N_PARAMS)
     {
 	delete cargs;
 	return NULL;
     }
 
-    cargs->draw_type = DRAW_GUESSING;
+    for(int i = 0; i < N_PARAMS; ++i)
+    {
+	PyObject *elt = PyList_GetItem(pyparams, i);
+	if(!PyFloat_Check(elt))
+	{
+	    goto error;
+	}
+
+	p[i] = PyFloat_AsDouble(elt);
+    }
+
     cargs->set_cmap(pycmap);
     cargs->set_pfo(pypfo);
     cargs->set_im(pyim);
@@ -1344,24 +1386,26 @@ parse_calc_args(PyObject *args)
        !cargs->im   || !cargs->site)
     {
 	PyErr_SetString(PyExc_ValueError, "bad argument passed to calc");
-	delete cargs;
-	return NULL;
+	goto error;
     }
 
     if(!cargs->im->ok())
     {
 	PyErr_SetString(PyExc_MemoryError, "image not allocated"); 
-	delete cargs;
-	return NULL;
+	goto error;
     }
 
     return cargs;
+
+error:
+    delete cargs;
+    return NULL;
 }
 
 static PyObject *
-pycalc(PyObject *self, PyObject *args)
+pycalc(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    calc_args *cargs = parse_calc_args(args);
+    calc_args *cargs = parse_calc_args(args, kwds);
     if(NULL == cargs)
     {
 	return NULL;
@@ -1388,10 +1432,10 @@ pycalc(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-pycalc_async(PyObject *self, PyObject *args)
+pycalc_async(PyObject *self, PyObject *args, PyObject *kwds)
 {
     
-    calc_args *cargs = parse_calc_args(args);
+    calc_args *cargs = parse_calc_args(args, kwds);
     if(NULL == cargs)
     {
 	return NULL;
@@ -1876,10 +1920,10 @@ static PyMethodDef PfMethods[] = {
     { "fw_find_root", fw_find_root, METH_VARARGS,
       "Find closest root considering fractal function along a vector"},
     
-    { "calc", pycalc, METH_VARARGS,
+    { "calc", (PyCFunction) pycalc, METH_VARARGS | METH_KEYWORDS,
       "Calculate a fractal image"},
 
-    { "async_calc", pycalc_async, METH_VARARGS,
+    { "async_calc", (PyCFunction)pycalc_async, METH_VARARGS | METH_KEYWORDS,
       "Calculate a fractal image in another thread"},
 
     { "interrupt", pystop_calc, METH_VARARGS,
