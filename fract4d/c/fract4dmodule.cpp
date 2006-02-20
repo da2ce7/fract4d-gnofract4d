@@ -1102,60 +1102,6 @@ pystop_calc(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-pycalc(PyObject *self, PyObject *args)
-{
-    PyObject *pypfo, *pycmap, *pyim, *pysite;
-    double params[N_PARAMS];
-    int eaa=-7, maxiter=-8, nThreads=-9;
-    int auto_deepen, periodicity;
-    int yflip;
-    int dirty=1;
-    render_type_t render_type;
-    draw_type_t draw_type = DRAW_GUESSING;
-    pf_obj *pfo;
-    ColorMap *cmap;
-    IImage *im;
-    IFractalSite *site;
- 
-    if(!PyArg_ParseTuple(
-	   args,
-	   "(ddddddddddd)iiiiOOiiiOO|i",
-	   &params[0],&params[1],&params[2],&params[3],
-	   &params[4],&params[5],&params[6],&params[7],
-	   &params[8],&params[9],&params[10],
-	   &eaa,&maxiter,&yflip,&nThreads,
-	   &pypfo,&pycmap,
-	   &auto_deepen,
-	   &periodicity,
-	   &render_type,
-	   &pyim, &pysite,
-	   &dirty
-	   ))
-    {
-	return NULL;
-    }
-
-    cmap = (ColorMap *)PyCObject_AsVoidPtr(pycmap);
-    pfo = ((pfHandle *)PyCObject_AsVoidPtr(pypfo))->pfo;
-    im = (IImage *)PyCObject_AsVoidPtr(pyim);
-    site = (IFractalSite *)PyCObject_AsVoidPtr(pysite);
-    if(!cmap || !pfo || !im || !im->ok() || !site)
-    {
-	return NULL;
-    }
-
-    //((PySite *)site)->state = PyEval_SaveThread();
-    calc(params,eaa,maxiter,nThreads,pfo,cmap,
-	 (bool)auto_deepen,(bool)yflip, (bool)periodicity, (bool)dirty,
-	 render_type, draw_type,
-	 im,site);
-    //PyEval_RestoreThread(((PySite *)site)->state);
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-static PyObject *
 fw_create(PyObject *self, PyObject *args)
 {
     int nThreads;
@@ -1363,8 +1309,8 @@ calculation_thread(void *vdata)
     return NULL;
 }
 
-static PyObject *
-pycalc_async(PyObject *self, PyObject *args)
+static calc_args *
+parse_calc_args(PyObject *args)
 {
     PyObject *pypfo, *pycmap, *pyim, *pysite;
     calc_args *cargs = new calc_args();
@@ -1385,6 +1331,7 @@ pycalc_async(PyObject *self, PyObject *args)
 	   &cargs->dirty
 	   ))
     {
+	delete cargs;
 	return NULL;
     }
 
@@ -1397,12 +1344,56 @@ pycalc_async(PyObject *self, PyObject *args)
        !cargs->im   || !cargs->site)
     {
 	PyErr_SetString(PyExc_ValueError, "bad argument passed to calc");
+	delete cargs;
 	return NULL;
     }
 
     if(!cargs->im->ok())
     {
 	PyErr_SetString(PyExc_MemoryError, "image not allocated"); 
+	delete cargs;
+	return NULL;
+    }
+
+    return cargs;
+}
+
+static PyObject *
+pycalc(PyObject *self, PyObject *args)
+{
+    calc_args *cargs = parse_calc_args(args);
+    if(NULL == cargs)
+    {
+	return NULL;
+    }
+
+    calc(cargs->params,
+	 cargs->eaa,
+	 cargs->maxiter,
+	 cargs->nThreads,
+	 cargs->pfo,
+	 cargs->cmap,
+	 cargs->auto_deepen,
+	 cargs->yflip, 
+	 cargs->periodicity, 
+	 cargs->dirty,
+	 cargs->render_type, 
+	 cargs->draw_type,
+	 cargs->im,
+	 cargs->site);
+
+    delete cargs;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+pycalc_async(PyObject *self, PyObject *args)
+{
+    
+    calc_args *cargs = parse_calc_args(args);
+    if(NULL == cargs)
+    {
 	return NULL;
     }
 
