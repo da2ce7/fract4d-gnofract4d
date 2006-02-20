@@ -30,3 +30,4 @@ include testdata/collapsar.fct
 include testdata/gradient_func.fct
 include testdata/chainsoflight.fct
 include testdata/tumor.fct
+include buildtools/*.py

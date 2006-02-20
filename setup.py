@@ -26,10 +26,7 @@ if build_version and build_python and sys.version[:3] != build_version:
     print "running other Python version %s with args: %s" % (build_python,args)
     os.execv(build_python, args)
 
-import my_bdist_rpm
-import my_build
-import my_build_ext
-
+from buildtools import my_bdist_rpm, my_build, my_build_ext
 
 # I need to be able to install an executable script to a data directory
 # so scripts= is no use. Pretend it's data then fix up the permissions
