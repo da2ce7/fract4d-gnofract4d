@@ -160,9 +160,9 @@ class Test(testbase.TestBase):
         self.assertEqual(len(fate_buf),80*60*4)
         
         bytes = list(buf)
-        self.assertEqual(ord(bytes[0]),200)
-        self.assertEqual(ord(bytes[1]),178)
-        self.assertEqual(ord(bytes[2]),98)
+        self.assertEqual(ord(bytes[0]),0)
+        self.assertEqual(ord(bytes[1]),0)
+        self.assertEqual(ord(bytes[2]),0)
 
         fate_bytes = list(fate_buf)
         for fb in fate_bytes:
@@ -390,6 +390,42 @@ class Test(testbase.TestBase):
                 self.assertEqual("%g" % d,"1e+30")
             i+= 1
 
+    def testConstants(self):
+        self.assertEqual(fract4dc.CALC_DONE, 0)
+        self.assertEqual(fract4dc.CALC_DEEPENING, 2)
+        self.assertEqual(fract4dc.AA_FAST, 1)
+        
+    def testRenderToDisk(self):
+        xsize = 64
+        ysize = int(xsize * 3.0/4.0)
+        image = fract4dc.image_create(20,11, xsize,ysize)
+        siteobj = FractalSite()
+        site = fract4dc.site_create(siteobj)
+
+        file = self.compileColorMandel()
+        handle = fract4dc.pf_load(file)
+        pfunc = fract4dc.pf_create(handle)
+        fract4dc.pf_init(pfunc,0.001,self.color_mandel_params)
+        cmap = fract4dc.cmap_create(
+            [(0.0,0,0,0,255),
+             (1/256.0,255,255,255,255),
+             (1.0, 255, 255, 255, 255)])
+        fract4dc.calc(
+            params=[0.0, 0.0, 0.0, 0.0,
+             4.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            antialias=fract4dc.AA_NONE,
+            maxiter=100,
+            yflip=0,
+            nthreads=1,
+            pfo=pfunc,
+            cmap=cmap,
+            auto_deepen=0,
+            periodicity=1,
+            draw_type=fract4dc.DRAW_TO_DISK,
+            image=image,
+            site=site)
+        
     def testAACalc(self):
         xsize = 64
         ysize = int(xsize * 3.0/4.0)

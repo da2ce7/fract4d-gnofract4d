@@ -12,6 +12,12 @@ class image : public IImage
     int m_Xres;
     int m_Yres;
 
+    int m_totalXres;
+    int m_totalYres;
+
+    int m_xoffset;
+    int m_yoffset;
+
     /* the RGB colours of the image */
     char *buffer;
 
@@ -105,6 +111,9 @@ public:
     void fill_subpixels(int x, int y);
 
     bool set_resolution(int x, int y);
+
+    void set_total_resolution(int x, int y);
+    void set_offset(int x, int y);
 
     double ratio() const;
     void clear();

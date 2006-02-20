@@ -839,7 +839,14 @@ struct calc_args
 	    pyim = NULL;
 	    pysite = NULL;
 	    dirty = 1;
+	    periodicity = true;
+	    yflip = false;
+	    auto_deepen = false;
+	    eaa = AA_NONE;
+	    maxiter = 1024;
+	    nThreads = 1;
 	    draw_type = DRAW_GUESSING;
+	    render_type = RENDER_TWO_D;
 	    async = false;
 	}
 
@@ -1323,18 +1330,18 @@ parse_calc_args(PyObject *args, PyObject *kwds)
     calc_args *cargs = new calc_args();
  
     static char *kwlist[] = {
+	"image",
+	"site",
+	"pfo",
+	"cmap",
 	"params",
 	"antialias",
 	"maxiter",
 	"yflip",
 	"nthreads",
-	"pfo",
-	"cmap",
 	"auto_deepen",
 	"periodicity",
 	"render_type",
-	"image",
-	"site",
 	"dirty", 
 	"draw_type", 
 	"async",
@@ -1343,19 +1350,19 @@ parse_calc_args(PyObject *args, PyObject *kwds)
     if(!PyArg_ParseTupleAndKeywords(
 	   args,
 	   kwds,
-	   "OiiiiOOiiiOO|iii",
+	   "OOOOO|iiiiiiiiii",
 	   kwlist,
 
+	   &pyim, &pysite,
+	   &pypfo,&pycmap,
 	   &pyparams,
 	   &cargs->eaa,
 	   &cargs->maxiter,
 	   &cargs->yflip,
 	   &cargs->nThreads,
-	   &pypfo,&pycmap,
 	   &cargs->auto_deepen,
 	   &cargs->periodicity,
 	   &cargs->render_type,
-	   &pyim, &pysite,
 	   &cargs->dirty,
 	   &cargs->draw_type,
 	   &cargs->async
@@ -1475,8 +1482,9 @@ static PyObject *
 image_create(PyObject *self, PyObject *args)
 {
     int x, y;
+    int bigx = 0, bigy = 0;
 
-    if(!PyArg_ParseTuple(args,"ii",&x,&y))
+    if(!PyArg_ParseTuple(args,"ii|ii",&x,&y,&bigx,&bigy))
     { 
 	return NULL;
     }
@@ -1485,6 +1493,12 @@ image_create(PyObject *self, PyObject *args)
 #ifdef DEBUG_CREATION
     printf("%p : IM : CTOR\n",i);
 #endif
+    if(bigx != 0 && bigy != 0)
+    {
+	i->set_total_resolution(bigx, bigy);
+	i->set_offset(0,0);
+    }
+
     i->set_resolution(x,y);
 
     if(! i->ok())
@@ -1936,4 +1950,23 @@ extern "C" PyMODINIT_FUNC
 initfract4dc(void)
 {
     pymod = Py_InitModule("fract4dc", PfMethods);
+
+    /* expose some constants */
+    PyModule_AddIntConstant(pymod, "CALC_DONE", GF4D_FRACTAL_DONE);
+    PyModule_AddIntConstant(pymod, "CALC_CALCULATING", GF4D_FRACTAL_CALCULATING);
+    PyModule_AddIntConstant(pymod, "CALC_DEEPENING", GF4D_FRACTAL_DEEPENING);
+    PyModule_AddIntConstant(pymod, "CALC_ANTIALIASING", GF4D_FRACTAL_ANTIALIASING);
+    PyModule_AddIntConstant(pymod, "CALC_PAUSED", GF4D_FRACTAL_PAUSED);
+
+    PyModule_AddIntConstant(pymod, "AA_NONE", AA_NONE);
+    PyModule_AddIntConstant(pymod, "AA_FAST", AA_FAST);
+    PyModule_AddIntConstant(pymod, "AA_BEST", AA_BEST);
+
+    PyModule_AddIntConstant(pymod, "RENDER_TWO_D", RENDER_TWO_D);
+    PyModule_AddIntConstant(pymod, "RENDER_LANDSCAPE", RENDER_LANDSCAPE);
+    PyModule_AddIntConstant(pymod, "RENDER_THREE_D", RENDER_THREE_D);
+
+    PyModule_AddIntConstant(pymod, "DRAW_GUESSING", DRAW_GUESSING);
+    PyModule_AddIntConstant(pymod, "DRAW_TO_DISK", DRAW_TO_DISK);
+
 }

@@ -4,13 +4,13 @@
 #include <pthread.h>
 
 // current state of calculation
-enum {
+typedef enum {
     GF4D_FRACTAL_DONE,
     GF4D_FRACTAL_CALCULATING,
     GF4D_FRACTAL_DEEPENING,
     GF4D_FRACTAL_ANTIALIASING,
     GF4D_FRACTAL_PAUSED
-};
+} calc_state_t;
 
 // kind of antialiasing to do
 typedef enum {
@@ -40,9 +40,9 @@ typedef enum {
 
 // kind of image to draw
 typedef enum {
-    TWO_D, // standard mandelbrot view
-    LANDSCAPE, // heightfield
-    THREE_D // ray-traced 3D object
+    RENDER_TWO_D, // standard mandelbrot view
+    RENDER_LANDSCAPE, // heightfield
+    RENDER_THREE_D // ray-traced 3D object
 } render_type_t;
 
 // how to draw the image
