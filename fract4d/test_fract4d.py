@@ -341,20 +341,20 @@ class Test(testbase.TestBase):
              (1/256.0,255,255,255,255),
              (1.0, 255, 255, 255, 255)])
         fract4dc.calc(
-            [0.0, 0.0, 0.0, 0.0,
+            params=[0.0, 0.0, 0.0, 0.0,
              4.0,
              0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            0,
-            100,
-            0,
-            1,
-            pfunc,
-            cmap,
-            0,
-            1,
-            0,
-            image,
-            site)
+            antialias=0,
+            maxiter=100,
+            yflip=0,
+            nthreads=1,
+            pfo=pfunc,
+            cmap=cmap,
+            auto_deepen=0,
+            periodicity=1,
+            render_type=0,
+            image=image,
+            site=site)
 
         self.failUnless(siteobj.progress_list[-1]== 0.0 and \
                          siteobj.progress_list[-2]== 1.0)
@@ -406,20 +406,20 @@ class Test(testbase.TestBase):
              (1/256.0,255,255,255,255),
              (1.0, 255, 255, 255, 255)])
         fract4dc.calc(
-            [0.0, 0.0, 0.0, 0.0,
+            params=[0.0, 0.0, 0.0, 0.0,
              4.0,
              0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            1,
-            100,
-            0,
-            1,
-            pfunc,
-            cmap,
-            0,
-            1,
-            0,
-            image,
-            site)
+            antialias=1,
+            maxiter=100,
+            yflip=0,
+            nthreads=1,
+            pfo=pfunc,
+            cmap=cmap,
+            auto_deepen=0,
+            periodicity=1,
+            render_type=0,
+            image=image,
+            site=site)
 
         # fate of all pixels should be known
         fate_buf = fract4dc.image_fate_buffer(image)
@@ -492,20 +492,20 @@ class Test(testbase.TestBase):
 
             #print x
             fract4dc.calc(
-                [0.0, 0.0, 0.0, 0.0,
+                params=[0.0, 0.0, 0.0, 0.0,
                  4.0,
                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                0,
-                100,
-                0,
-                1,
-                pfunc,
-                cmap,
-                0,
-                1,
-                0,
-                image,
-                site,
+                antialias=0,
+                maxiter=100,
+                yflip=0,
+                nthreads=1,
+                pfo=pfunc,
+                cmap=cmap,
+                auto_deepen=0,
+                periodicity=1,
+                render_type=0,
+                image=image,
+                site=site,
                 async=True)
 
             nrecved = 0
@@ -580,20 +580,21 @@ class Test(testbase.TestBase):
             [(1.0, 255, 255, 255, 255)])
         
         fract4dc.calc(
-            [0.0, 0.0, 0.0, 0.0,
+            params=[0.0, 0.0, 0.0, 0.0,
              4.0,
              0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            0,
-            100,
-            0,
-            1,
-            pfunc,
-            cmap,
-            0,
-            1,
-            0,
-            image,
-            site, is_dirty)
+            antialias=0,
+            maxiter=100,
+            yflip=0,
+            nthreads=1,
+            pfo=pfunc,
+            cmap=cmap,
+            auto_deepen=0,
+            periodicity=1,
+            render_type=0,
+            image=image,
+            site=site,
+            dirty=is_dirty)
 
         #print "1st pass %s" % is_dirty
         #fract4dc.image_save(image, "pass1%d.tga" % is_dirty)
@@ -603,20 +604,21 @@ class Test(testbase.TestBase):
             [(1.0, 76, 49, 189, 255)])
 
         fract4dc.calc(
-            [0.0, 0.0, 0.0, 0.0,
+            params=[0.0, 0.0, 0.0, 0.0,
              4.0,
              0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            0,
-            100,
-            0,
-            1,
-            pfunc,
-            cmap,
-            0,
-            1,
-            0,
-            image,
-            site, is_dirty)
+            antialias=0,
+            maxiter=100,
+            yflip=0,
+            nthreads=1,
+            pfo=pfunc,
+            cmap=cmap,
+            auto_deepen=0,
+            periodicity=1,
+            render_type=0,
+            image=image,
+            site=site,
+            dirty=is_dirty)
 
         #print "2nd pass %s" % is_dirty
         #self.print_fates(image,xsize,ysize)

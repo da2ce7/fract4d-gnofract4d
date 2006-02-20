@@ -1324,7 +1324,7 @@ parse_calc_args(PyObject *args, PyObject *kwds)
  
     static char *kwlist[] = {
 	"params",
-	"eaa",
+	"antialias",
 	"maxiter",
 	"yflip",
 	"nthreads",
@@ -1345,8 +1345,12 @@ parse_calc_args(PyObject *args, PyObject *kwds)
 	   kwds,
 	   "OiiiiOOiiiOO|iii",
 	   kwlist,
+
 	   &pyparams,
-	   &cargs->eaa,&cargs->maxiter,&cargs->yflip,&cargs->nThreads,
+	   &cargs->eaa,
+	   &cargs->maxiter,
+	   &cargs->yflip,
+	   &cargs->nThreads,
 	   &pypfo,&pycmap,
 	   &cargs->auto_deepen,
 	   &cargs->periodicity,
