@@ -8,6 +8,8 @@
 # also the other python versions don't have gtk as a module,
 # so were reporting errors.
 
+import sys
+
 def create_stdlib_docs():
     'Autogenerate docs'
     try:
