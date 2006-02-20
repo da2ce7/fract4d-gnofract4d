@@ -14,8 +14,8 @@ def create_stdlib_docs():
     'Autogenerate docs'
     try:
         # create list of stdlib functions
-        import fract4d.createdocs
-        fract4d.createdocs.main("doc/gnofract4d-manual/C/stdlib.xml")
+        from fract4d import createdocs as cd1
+        cd1.main("doc/gnofract4d-manual/C/stdlib.xml")
 
         # create list of mouse and GUI commands
         import fract4dgui.createdocs

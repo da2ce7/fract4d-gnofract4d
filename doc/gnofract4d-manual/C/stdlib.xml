@@ -13,19 +13,6 @@
 </thead>
 <tbody>
 <row>
-<entry valign="top" align="left" morerows="0">
-!</entry>
-<entry valign="top" align="left" morerows="0">
-Logical NOT.
-</entry>
-<entry valign="top" align="left" morerows="0">
-Bool
-</entry>
-<entry valign="top" align="left" morerows="0">
-Bool</entry>
-<row><entry>&nbsp;</entry></row>
-</row>
-<row>
 <entry valign="top" align="left" morerows="3">
 !=</entry>
 <entry valign="top" align="left" morerows="3">
@@ -436,6 +423,19 @@ Complex</entry>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
+not</entry>
+<entry valign="top" align="left" morerows="0">
+Logical NOT.
+</entry>
+<entry valign="top" align="left" morerows="0">
+Bool
+</entry>
+<entry valign="top" align="left" morerows="0">
+Bool</entry>
+<row><entry>&nbsp;</entry></row>
+</row>
+<row>
+<entry valign="top" align="left" morerows="0">
 ||</entry>
 <entry valign="top" align="left" morerows="0">
 Logical OR.
@@ -465,6 +465,32 @@ Bool</entry>
 </row>
 </thead>
 <tbody>
+<row>
+<entry valign="top" align="left" morerows="0">
+#rand</entry>
+<entry valign="top" align="left" morerows="0">
+Each time this is accessed, it returns a new peudo-random complex number. This is primarily for backwards compatibility with Fractint formulas - use the random() function in new formulas.
+</entry>
+<entry valign="top" align="left" morerows="0">
+
+</entry>
+<entry valign="top" align="left" morerows="0">
+Complex</entry>
+<row><entry>&nbsp;</entry></row>
+</row>
+<row>
+<entry valign="top" align="left" morerows="0">
+#random</entry>
+<entry valign="top" align="left" morerows="0">
+Each time this is accessed, it returns a new peudo-random complex number. This is primarily for backwards compatibility with Fractint formulas - use the random() function in new formulas.
+</entry>
+<entry valign="top" align="left" morerows="0">
+
+</entry>
+<entry valign="top" align="left" morerows="0">
+Complex</entry>
+<row><entry>&nbsp;</entry></row>
+</row>
 <row>
 <entry valign="top" align="left" morerows="0">
 @fn1</entry>
@@ -1570,6 +1596,19 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
+<row><entry>&nbsp;</entry></row>
+</row>
+<row>
+<entry valign="top" align="left" morerows="0">
+rand</entry>
+<entry valign="top" align="left" morerows="0">
+Each time this is accessed, it returns a new peudo-random complex number. This is primarily for backwards compatibility with Fractint formulas - use the random() function in new formulas.
+</entry>
+<entry valign="top" align="left" morerows="0">
+
+</entry>
+<entry valign="top" align="left" morerows="0">
+Complex</entry>
 <row><entry>&nbsp;</entry></row>
 </row>
 <row>

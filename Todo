@@ -15,6 +15,7 @@ bugs (the more B's, the worse the bug):
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * BB	infinite loops are possible in while loops
+* B	-, ! missing from docs
 * B	as.ufm:SpiralJazz: very long if/elsif sequence can cause stack overflow
 * B	no scrolling if too many parameters to fit on screen (eg barney3)
 * B	painter click on inner sometimes gives "IndexError: list assignment out of range" @ self.f.solids[color] = (int(r*255.0),int(g*255.0),int(b*255.0),255)
