@@ -1411,55 +1411,48 @@ pycalc(PyObject *self, PyObject *args, PyObject *kwds)
 	return NULL;
     }
 
-    calc(cargs->params,
-	 cargs->eaa,
-	 cargs->maxiter,
-	 cargs->nThreads,
-	 cargs->pfo,
-	 cargs->cmap,
-	 cargs->auto_deepen,
-	 cargs->yflip, 
-	 cargs->periodicity, 
-	 cargs->dirty,
-	 cargs->render_type, 
-	 cargs->draw_type,
-	 cargs->im,
-	 cargs->site);
-
-    delete cargs;
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-static PyObject *
-pycalc_async(PyObject *self, PyObject *args, PyObject *kwds)
-{
-    
-    calc_args *cargs = parse_calc_args(args, kwds);
-    if(NULL == cargs)
+    if(cargs->async)
     {
-	return NULL;
+	cargs->site->interrupt();
+	cargs->site->wait();
+
+	cargs->site->start(cargs);
+
+	pthread_t tid;
+
+	/* create low-priority attribute block */
+	pthread_attr_t lowprio_attr;
+	struct sched_param lowprio_param;
+	pthread_attr_init(&lowprio_attr);
+	lowprio_param.sched_priority = sched_get_priority_min(SCHED_OTHER);
+	pthread_attr_setschedparam(&lowprio_attr, &lowprio_param);
+
+	/* start the calculation thread */
+	pthread_create(&tid,&lowprio_attr,calculation_thread,(void *)cargs);
+	assert(tid != 0);
+
+	cargs->site->set_tid(tid);
     }
+    else
+    {
+	// synchronous
+	calc(cargs->params,
+	     cargs->eaa,
+	     cargs->maxiter,
+	     cargs->nThreads,
+	     cargs->pfo,
+	     cargs->cmap,
+	     cargs->auto_deepen,
+	     cargs->yflip, 
+	     cargs->periodicity, 
+	     cargs->dirty,
+	     cargs->render_type, 
+	     cargs->draw_type,
+	     cargs->im,
+	     cargs->site);
 
-    cargs->site->interrupt();
-    cargs->site->wait();
-
-    cargs->site->start(cargs);
-
-    pthread_t tid;
-
-    /* create low-priority attribute block */
-    pthread_attr_t lowprio_attr;
-    struct sched_param lowprio_param;
-    pthread_attr_init(&lowprio_attr);
-    lowprio_param.sched_priority = sched_get_priority_min(SCHED_OTHER);
-    pthread_attr_setschedparam(&lowprio_attr, &lowprio_param);
-
-    /* start the calculation thread */
-    pthread_create(&tid,&lowprio_attr,calculation_thread,(void *)cargs);
-    assert(tid != 0);
-
-    cargs->site->set_tid(tid);
+	delete cargs;
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -1922,9 +1915,6 @@ static PyMethodDef PfMethods[] = {
     
     { "calc", (PyCFunction) pycalc, METH_VARARGS | METH_KEYWORDS,
       "Calculate a fractal image"},
-
-    { "async_calc", (PyCFunction)pycalc_async, METH_VARARGS | METH_KEYWORDS,
-      "Calculate a fractal image in another thread"},
 
     { "interrupt", pystop_calc, METH_VARARGS,
       "Stop an async calculation" },

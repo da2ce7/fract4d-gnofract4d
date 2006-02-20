@@ -491,7 +491,7 @@ class Test(testbase.TestBase):
                  (1.0, 255, 255, 255, 255)])
 
             #print x
-            fract4dc.async_calc(
+            fract4dc.calc(
                 [0.0, 0.0, 0.0, 0.0,
                  4.0,
                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -505,7 +505,8 @@ class Test(testbase.TestBase):
                 1,
                 0,
                 image,
-                site)
+                site,
+                async=True)
 
             nrecved = 0
             while True:

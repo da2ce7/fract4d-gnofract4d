@@ -184,12 +184,12 @@ class T(gobject.GObject):
 
         self.running = True
         try:
-            fract4dc.async_calc(self.f.params,self.f.antialias,self.f.maxiter,
-                                self.f.yflip,nthreads,
-                                self.f.pfunc,cmap,
-                                self.f.auto_deepen, self.f.periodicity,
-                                self.f.render_type,
-                                image,self.site, self.f.clear_image)
+            fract4dc.calc(self.f.params,self.f.antialias,self.f.maxiter,
+                          self.f.yflip,nthreads,
+                          self.f.pfunc,cmap,
+                          self.f.auto_deepen, self.f.periodicity,
+                          self.f.render_type,
+                          image,self.site, self.f.clear_image, async=True)
         except MemoryError:
             pass
         
