@@ -91,7 +91,7 @@ def createDefaultDict():
         "||": OverloadList(
             [ Func([Bool, Bool], Bool, stdlib, None) ],
             doc="Logical OR.", operator=True),
-        "!" : OverloadList(
+        "t__not" : OverloadList(
             [ Func([Bool],Bool, stdlib, "not") ],
             doc="Logical NOT.", operator=True),
 
