@@ -17,18 +17,22 @@ image::N_SUBPIXELS = 4;
 image::image()
 {
     m_Xres = m_Yres = 0;
+    m_totalXres = m_totalYres = 0;
+    m_xoffset = m_yoffset = 0;
     buffer = NULL;
     iter_buf = NULL;
     fate_buf = NULL;
     index_buf = NULL;
-    m_totalXres = m_totalYres = m_xoffset = m_yoffset = 0;
 }
 
 image::image(const image& im)
 {
     m_Xres = im.m_Xres;
     m_Yres = im.m_Yres;
-
+    m_totalXres = im.m_totalXres;
+    m_totalYres = im.m_totalYres;
+    m_xoffset = im.m_xoffset;
+    m_yoffset = im.m_yoffset;
     alloc_buffers();
 }
 
@@ -114,23 +118,12 @@ image::get(int x, int y) const
     return pixel;
 }
 
-void
-image::set_total_resolution(int x, int y)
-{
-    m_totalXres = x; 
-    m_totalYres = y;
-}
-
-void
-image::set_offset(int x, int y)
-{
-    m_xoffset = x;
-    m_yoffset = y;
-}
-
 bool 
-image::set_resolution(int x, int y)
+image::set_resolution(int x, int y, int totalx, int totaly)
 {
+    m_totalXres = totalx == -1 ? x : totalx;
+    m_totalYres = totaly == -1 ? y : totaly;
+
     if(buffer && m_Xres == x && m_Yres == y) return false;
     m_Xres = x;
     m_Yres = y;
@@ -155,6 +148,12 @@ image::set_resolution(int x, int y)
     }
 
     return true;
+}
+
+void
+image::set_offset(int x, int y)
+{
+    m_xoffset = x; m_yoffset = y;
 }
 
 double 

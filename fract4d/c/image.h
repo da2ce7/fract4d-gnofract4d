@@ -12,11 +12,8 @@ class image : public IImage
     int m_Xres;
     int m_Yres;
 
-    int m_totalXres;
-    int m_totalYres;
-
-    int m_xoffset;
-    int m_yoffset;
+    int m_totalXres, m_totalYres;
+    int m_xoffset, m_yoffset;
 
     /* the RGB colours of the image */
     char *buffer;
@@ -59,6 +56,13 @@ public:
 	}
     inline int Xres() const { return m_Xres; };
     inline int Yres() const { return m_Yres; };
+
+    inline int totalXres() const { return m_totalXres; };
+    inline int totalYres() const { return m_totalYres; };
+
+    inline int Xoffset() const  { return m_xoffset; };
+    inline int Yoffset() const  { return m_yoffset; };
+
     inline char *getBuffer() {
 	assert(buffer != NULL);
 	return buffer; 
@@ -110,9 +114,7 @@ public:
 
     void fill_subpixels(int x, int y);
 
-    bool set_resolution(int x, int y);
-
-    void set_total_resolution(int x, int y);
+    bool set_resolution(int x, int y, int totalx, int totaly);
     void set_offset(int x, int y);
 
     double ratio() const;

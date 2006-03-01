@@ -211,6 +211,118 @@ class Test(testbase.TestBase):
 
         return (fw,ff,site,handle,pfunc)
 
+    def testVectors(self):
+        siteobj = FractalSite()
+        site = fract4dc.site_create(siteobj)
+
+        file = self.compileColorDiagonal()
+        handle = fract4dc.pf_load(file)
+        pfunc = fract4dc.pf_create(handle)
+        fract4dc.pf_init(pfunc,0.001,self.color_diagonal_params)
+
+        (w,h,tw,th) = (40,20,40,20)
+        image = fract4dc.image_create(w,h)
+        
+        cmap = fract4dc.cmap_create([(1.0, 255, 255, 255, 255)])
+
+        fw = fract4dc.fw_create(1,pfunc,cmap,image,site)
+        
+        ff = fract4dc.ff_create(
+            [0.0, 0.0, 0.0, 0.0,
+             4.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            2,
+            100,
+            0,
+            1,
+            pfunc,
+            cmap,
+            0,
+            1,
+            0,
+            image,
+            site,
+            fw)
+
+        # check dx, dy and topleft
+        dx = fract4dc.ff_get_vector(ff, fract4dc.DELTA_X)
+        self.assertNearlyEqual(dx, [4.0/tw,0.0,0.0,0.0])
+
+        dy = fract4dc.ff_get_vector(ff, fract4dc.DELTA_Y);
+        self.assertNearlyEqual(dy, [0.0,-2.0/th,0.0,0.0])
+
+        topleft = fract4dc.ff_get_vector(ff, fract4dc.TOPLEFT);
+        self.assertNearlyEqual(topleft, [-2.0 + 4.0/(tw*2),1.0 - 2.0/(th*2),0.0,0.0])
+
+        # check they are updated if image is bigger
+        (w,h,tw,th) = (40,20,400,200)
+        image = fract4dc.image_create(w,h,tw,th)
+        
+        fw = fract4dc.fw_create(1,pfunc,cmap,image,site)
+        
+        ff = fract4dc.ff_create(
+            [0.0, 0.0, 0.0, 0.0,
+             4.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            2,
+            100,
+            0,
+            1,
+            pfunc,
+            cmap,
+            0,
+            1,
+            0,
+            image,
+            site,
+            fw)
+
+        # check dx, dy and topleft
+        dx = fract4dc.ff_get_vector(ff, fract4dc.DELTA_X)
+        self.assertNearlyEqual(dx, [4.0/tw,0.0,0.0,0.0])
+
+        dy = fract4dc.ff_get_vector(ff, fract4dc.DELTA_Y);
+        self.assertNearlyEqual(dy, [0.0,-2.0/th,0.0,0.0])
+
+        topleft = fract4dc.ff_get_vector(ff, fract4dc.TOPLEFT);
+        self.assertNearlyEqual(topleft, [-2.0 + 4.0/(tw*2),1.0 - 2.0/(th*2),0.0,0.0])
+
+        offx = 40
+        offy = 10
+        fract4dc.image_set_offset(image, offx,offy)
+
+        fw = fract4dc.fw_create(1,pfunc,cmap,image,site)
+        
+        ff = fract4dc.ff_create(
+            [0.0, 0.0, 0.0, 0.0,
+             4.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            2,
+            100,
+            0,
+            1,
+            pfunc,
+            cmap,
+            0,
+            1,
+            0,
+            image,
+            site,
+            fw)
+
+        # check dx, dy and topleft
+        dx = fract4dc.ff_get_vector(ff, fract4dc.DELTA_X)
+        self.assertNearlyEqual(dx, [4.0/tw,0.0,0.0,0.0])
+
+        dy = fract4dc.ff_get_vector(ff, fract4dc.DELTA_Y);
+        self.assertNearlyEqual(dy, [0.0,-2.0/th,0.0,0.0])
+
+        topleft = fract4dc.ff_get_vector(ff, fract4dc.TOPLEFT);
+        self.assertNearlyEqual(topleft, [
+            -2.0 + dx[0] * (offx + 0.5),
+             1.0 + dy[1] * (offy + 0.5),
+            0.0,0.0])        
+        
     def assertPixelIs(self,img,x,y,fates,outcolor=None,incolor=None,efate=None):
         self.assertEqual(img.get_all_fates(x,y), fates)
         (r,g,b) = (0,0,0)
@@ -395,37 +507,6 @@ class Test(testbase.TestBase):
         self.assertEqual(fract4dc.CALC_DEEPENING, 2)
         self.assertEqual(fract4dc.AA_FAST, 1)
         
-    def testRenderToDisk(self):
-        xsize = 64
-        ysize = int(xsize * 3.0/4.0)
-        image = fract4dc.image_create(20,11, xsize,ysize)
-        siteobj = FractalSite()
-        site = fract4dc.site_create(siteobj)
-
-        file = self.compileColorMandel()
-        handle = fract4dc.pf_load(file)
-        pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,self.color_mandel_params)
-        cmap = fract4dc.cmap_create(
-            [(0.0,0,0,0,255),
-             (1/256.0,255,255,255,255),
-             (1.0, 255, 255, 255, 255)])
-        fract4dc.calc(
-            params=[0.0, 0.0, 0.0, 0.0,
-             4.0,
-             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            antialias=fract4dc.AA_NONE,
-            maxiter=100,
-            yflip=0,
-            nthreads=1,
-            pfo=pfunc,
-            cmap=cmap,
-            auto_deepen=0,
-            periodicity=1,
-            draw_type=fract4dc.DRAW_TO_DISK,
-            image=image,
-            site=site)
-        
     def testAACalc(self):
         xsize = 64
         ysize = int(xsize * 3.0/4.0)
@@ -585,10 +666,7 @@ class Test(testbase.TestBase):
             i += 1
 
     def testLargeImageDirtyFlagFullRender(self):
-        '''Test we can draw and redraw a large image.
-
-        Over 1024*768, we don\'t allocate the recolor buffer to save memory.
-        Things should still work, just more slowly'''
+        '''Test we can draw and redraw a large image.'''
 
         buf1 = self.drawTwice(True,1025)
         buf2 = self.drawTwice(False,1025)
@@ -751,6 +829,7 @@ class Test(testbase.TestBase):
         cmap = fract4dc.cmap_create(colors)
         for i in xrange(256):
             self.assertEqual(fract4dc.cmap_lookup(cmap,i/255.0),colors[i][1:],i)
+            
     def testTransfers(self):
         # test fates
         cmap = fract4dc.cmap_create(
