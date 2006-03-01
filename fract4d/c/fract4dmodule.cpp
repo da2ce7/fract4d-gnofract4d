@@ -38,6 +38,13 @@
 PyObject *pymod=NULL;
 void *cmap_module_handle=NULL;
 
+typedef enum {
+    DELTA_X,
+    DELTA_Y,
+    TOPLEFT
+} vec_type_t;
+
+
 static void
 pf_unload(void *p)
 {
@@ -822,7 +829,6 @@ struct calc_args
     int auto_deepen, yflip, periodicity, dirty;
     int async;
     render_type_t render_type;
-    draw_type_t draw_type;
     pf_obj *pfo;
     ColorMap *cmap;
     IImage *im;
@@ -845,7 +851,6 @@ struct calc_args
 	    eaa = AA_NONE;
 	    maxiter = 1024;
 	    nThreads = 1;
-	    draw_type = DRAW_GUESSING;
 	    render_type = RENDER_TWO_D;
 	    async = false;
 	}
@@ -1233,7 +1238,6 @@ ff_create(PyObject *self, PyObject *args)
     int auto_deepen, periodicity;
     int yflip;
     render_type_t render_type;
-    draw_type_t draw_type;
     pf_obj *pfo;
     ColorMap *cmap;
     IImage *im;
@@ -1278,7 +1282,6 @@ ff_create(PyObject *self, PyObject *args)
 	yflip,
 	periodicity,
 	render_type,
-	draw_type,
 	worker,
 	im,
 	site);
@@ -1313,7 +1316,7 @@ calculation_thread(void *vdata)
     calc(args->params,args->eaa,args->maxiter,
 	 args->nThreads,args->pfo,args->cmap,
 	 args->auto_deepen,args->yflip, args->periodicity, args->dirty,
-	 args->render_type, args->draw_type,
+	 args->render_type,
 	 args->im,args->site);
 
 #ifdef DEBUG_THREADS 
@@ -1343,14 +1346,13 @@ parse_calc_args(PyObject *args, PyObject *kwds)
 	"periodicity",
 	"render_type",
 	"dirty", 
-	"draw_type", 
 	"async",
 	NULL};
 
     if(!PyArg_ParseTupleAndKeywords(
 	   args,
 	   kwds,
-	   "OOOOO|iiiiiiiiii",
+	   "OOOOO|iiiiiiiii",
 	   kwlist,
 
 	   &pyim, &pysite,
@@ -1364,7 +1366,6 @@ parse_calc_args(PyObject *args, PyObject *kwds)
 	   &cargs->periodicity,
 	   &cargs->render_type,
 	   &cargs->dirty,
-	   &cargs->draw_type,
 	   &cargs->async
 	   ))
     {
@@ -1457,8 +1458,7 @@ pycalc(PyObject *self, PyObject *args, PyObject *kwds)
 	     cargs->yflip, 
 	     cargs->periodicity, 
 	     cargs->dirty,
-	     cargs->render_type, 
-	     cargs->draw_type,
+	     cargs->render_type,
 	     cargs->im,
 	     cargs->site);
 
@@ -1482,9 +1482,8 @@ static PyObject *
 image_create(PyObject *self, PyObject *args)
 {
     int x, y;
-    int bigx = 0, bigy = 0;
-
-    if(!PyArg_ParseTuple(args,"ii|ii",&x,&y,&bigx,&bigy))
+    int totalx = -1, totaly = -1;
+    if(!PyArg_ParseTuple(args,"ii|ii",&x,&y,&totalx, &totaly))
     { 
 	return NULL;
     }
@@ -1493,13 +1492,7 @@ image_create(PyObject *self, PyObject *args)
 #ifdef DEBUG_CREATION
     printf("%p : IM : CTOR\n",i);
 #endif
-    if(bigx != 0 && bigy != 0)
-    {
-	i->set_total_resolution(bigx, bigy);
-	i->set_offset(0,0);
-    }
-
-    i->set_resolution(x,y);
+    i->set_resolution(x,y,totalx, totaly);
 
     if(! i->ok())
     {
@@ -1517,6 +1510,36 @@ static PyObject *
 image_resize(PyObject *self, PyObject *args)
 {
     int x, y;
+    int totalx=-1, totaly=-1;
+    PyObject *pyim;
+
+    if(!PyArg_ParseTuple(args,"Oii|ii",&pyim,&x,&y,&totalx,&totaly))
+    { 
+	return NULL;
+    }
+
+    IImage *i = (IImage *)PyCObject_AsVoidPtr(pyim);
+    if(NULL == i)
+    {
+	return NULL;
+    }
+
+    i->set_resolution(x,y,totalx,totaly);
+
+    if(! i->ok())
+    {
+	PyErr_SetString(PyExc_MemoryError, "Image too large");
+	return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+image_set_offset(PyObject *self, PyObject *args)
+{
+    int x, y;
     PyObject *pyim;
 
     if(!PyArg_ParseTuple(args,"Oii",&pyim,&x,&y))
@@ -1530,7 +1553,7 @@ image_resize(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    i->set_resolution(x,y);
+    i->set_offset(x,y);
 
     if(! i->ok())
     {
@@ -1774,6 +1797,56 @@ eye_vector(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+ff_get_vector(PyObject *self, PyObject *args)
+{
+    int vec_type;
+    PyObject *pyFF;
+
+    if(!PyArg_ParseTuple(
+	   args,
+	   "Oi",
+	   &pyFF, &vec_type))
+    {
+	return NULL;
+    }
+
+    struct ffHandle *ffh = (struct ffHandle *)PyCObject_AsVoidPtr(pyFF);
+    if(ffh == NULL)
+    {
+	return NULL;
+    }
+
+    fractFunc *ff = ffh->ff;
+    if(ff == NULL)
+    {
+	return NULL;
+    }
+
+    dvec4 vec;
+    switch(vec_type)
+    {
+    case DELTA_X:
+	vec = ff->deltax;
+	break;
+    case DELTA_Y:
+	vec = ff->deltay;
+	break;
+    case TOPLEFT:
+	vec = ff->topleft;
+	break;
+    default:
+	PyErr_SetString(PyExc_ValueError, "Unknown vector requested");
+	return NULL;
+    }
+
+    return Py_BuildValue(
+	"(dddd)",
+	vec[0], vec[1], vec[2], vec[3]);
+    
+    return NULL;
+}
+
+static PyObject *
 ff_look_vector(PyObject *self, PyObject *args)
 {
     PyObject *pyFF;
@@ -1905,6 +1978,8 @@ static PyMethodDef PfMethods[] = {
       "get the fate data from the image"},
     { "image_get_color_index", image_get_color_index, METH_VARARGS,
       "Get the color index data from a point on the image"},
+    { "image_set_offset", image_set_offset, METH_VARARGS,
+      "set the image tile's offset" },
 
     { "image_get_fate", image_get_fate, METH_VARARGS,
       "Get the (solid, fate) info for a point on the image"},
@@ -1921,6 +1996,8 @@ static PyMethodDef PfMethods[] = {
       "Create a fractFunc." },
     { "ff_look_vector", ff_look_vector, METH_VARARGS,
       "Get a vector from the eye to a point on the screen" },
+    { "ff_get_vector", ff_get_vector, METH_VARARGS,
+      "Get a vector inside the ff" },
 
     { "fw_create", fw_create, METH_VARARGS,
       "Create a fractWorker." },
@@ -1969,4 +2046,7 @@ initfract4dc(void)
     PyModule_AddIntConstant(pymod, "DRAW_GUESSING", DRAW_GUESSING);
     PyModule_AddIntConstant(pymod, "DRAW_TO_DISK", DRAW_TO_DISK);
 
+    PyModule_AddIntConstant(pymod, "DELTA_X", DELTA_X);
+    PyModule_AddIntConstant(pymod, "DELTA_Y", DELTA_Y);
+    PyModule_AddIntConstant(pymod, "TOPLEFT", TOPLEFT);
 }

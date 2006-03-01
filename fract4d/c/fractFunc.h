@@ -25,7 +25,6 @@ class fractFunc {
 	bool yflip,
 	bool periodicity,
 	render_type_t render_type,
-	draw_type_t draw_type,
 	IFractWorker *fw,
 	IImage *_im, 
 	IFractalSite *_site);
@@ -63,6 +62,14 @@ class fractFunc {
 	    return site->is_interrupted();
 	}
 
+    // used for calculating (x,y,z,w) pixel coords
+    dmat4 rot; // scaled rotation matrix
+    dvec4 deltax, deltay; // step from 1 pixel to the next in x,y directions
+    dvec4 delta_aa_x, delta_aa_y; // offset between subpixels
+    dvec4 topleft; // top left corner of screen
+    dvec4 aa_topleft; // topleft - offset to 1st subpixel to draw
+    dvec4 eye_point; // where user's eye is (for 3d mode)
+
  private:
     // MEMBER VARS
 
@@ -74,14 +81,6 @@ class fractFunc {
     // see if we need to auto-deepen
     enum { AUTO_DEEPEN_FREQUENCY = 30 };
 
-    // used for calculating (x,y,z,w) pixel coords
-    dmat4 rot; // scaled rotation matrix
-    dvec4 deltax, deltay; // step from 1 pixel to the next in x,y directions
-    dvec4 delta_aa_x, delta_aa_y; // offset between subpixels
-    dvec4 topleft; // top left corner of screen
-    dvec4 aa_topleft; // topleft - offset to 1st subpixel to draw
-    dvec4 eye_point; // where user's eye is (for 3d mode)
-
     // params from ctor
     int depth;    
     int eaa;
@@ -90,7 +89,6 @@ class fractFunc {
     bool auto_deepen;
     bool periodicity;
     render_type_t render_type;
-    draw_type_t draw_type;
     d *params;
 
     IImage *im;    
@@ -150,7 +148,6 @@ extern void calc(
     bool periodicity,
     bool dirty,
     render_type_t render_type,
-    draw_type_t draw_type,
     IImage *im, 
     IFractalSite *site);
 

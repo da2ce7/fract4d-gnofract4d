@@ -41,7 +41,6 @@ fractFunc::fractFunc(
 	bool yflip,
 	bool periodicity_,
 	render_type_t render_type_,
-	draw_type_t draw_type_,
 	IFractWorker *fw,
 	IImage *im_, 
 	IFractalSite *site_)
@@ -50,7 +49,6 @@ fractFunc::fractFunc(
     im = im_;
     ok = true;
     render_type = render_type_;
-    draw_type = draw_type_;
     //printf("render type %d\n", render_type);
     worker = fw;
     params = params_;
@@ -62,17 +60,20 @@ fractFunc::fractFunc(
     auto_deepen = auto_deepen_;
     periodicity = periodicity_;
 
+    /*
+    printf("(%d,%d,%d,%d,%d,%d)\n", 
+	   im->Xres(), im->Yres(), im->totalXres(), im->totalYres(),
+	   im->Xoffset(), im->Yoffset());
+    */
     dvec4 center = dvec4(
 	params[XCENTER],params[YCENTER],
 	params[ZCENTER],params[WCENTER]);
 
     rot = rotated_matrix(params);
 
-    dvec4 rotvz = rot[VZ];
-
     eye_point = center + rot[VZ] * -10.0; // FIXME add eye distance parameter
 
-    rot = rot/im->Xres();
+    rot = rot/im->totalXres();
     // distance to jump for one pixel down or across
     deltax = rot[VX];
     // if yflip, draw Y axis down, otherwise up
@@ -84,9 +85,12 @@ fractFunc::fractFunc(
 
     // topleft is now top left corner of top left pixel...
     topleft = center -
-        deltax * im->Xres() / 2.0 -
-        deltay * im->Yres() / 2.0;
+        deltax * im->totalXres() / 2.0 -
+        deltay * im->totalYres() / 2.0;
 
+    // offset to account for tiling, if any
+    topleft += im->Xoffset() * deltax;
+    topleft += im->Yoffset() * deltay;
 
     // .. then offset to center of pixel
     topleft += delta_aa_x + delta_aa_y;
@@ -396,7 +400,6 @@ calc(
     bool periodicity,
     bool dirty,
     render_type_t render_type,
-    draw_type_t draw_type,
     IImage *im, 
     IFractalSite *site)
 {
@@ -415,7 +418,6 @@ calc(
 	    yflip,
 	    periodicity,
 	    render_type,
-	    draw_type,
 	    worker,
 	    im,
 	    site);

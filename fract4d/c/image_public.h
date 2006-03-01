@@ -19,13 +19,10 @@
    fate_t: what happened to this point. 
    index : the value of #index after calculating this point.
 
-
-   For "render to disk", we conceptually have two images: a full-size image 
-   (say 16000 * 12000 pixels) which is never all in memory at the same time,
-   and a window into that image which is a smaller size (say 1600 * 1200) and 
-   has an offset into the main image. 
-
-   In this case, "total resolution" is the big image, "resolution" the small one
+   When rendering to disk, the image is actually a "tile" inside a 
+   larger "virtual" image. In this case totalXres() and totalYres()
+   represent the size of the virtual image, and offset the point within
+   that image where we start drawing.
 
 */
    
@@ -36,12 +33,8 @@ class IImage
 {
 public:
     virtual ~IImage() {};
-    // return true if this resulted in a change of size    
-    virtual bool set_resolution(int x, int y) = 0;
-
-    // set the virtual resolution for render-to-disk scenarios
-    virtual void set_total_resolution(int x, int y) = 0;
-    // set the virtual offset for render-to-disk 
+    // return true if this resulted in a change of size
+    virtual bool set_resolution(int x, int y, int totalx, int totaly) = 0;
     virtual void set_offset(int x, int y) = 0;
 
     virtual bool ok() = 0;
@@ -55,7 +48,13 @@ public:
     virtual int Xres() const = 0;
     // number of pixels wide
     virtual int Yres() const = 0;
-    
+
+    virtual int totalXres() const = 0;
+    virtual int totalYres() const = 0;
+
+    virtual int Xoffset() const = 0;
+    virtual int Yoffset() const = 0;
+
     // accessors for color data
     virtual void put(int x, int y, rgba_t pixel) = 0;
     virtual rgba_t get(int x, int y) const = 0;
@@ -63,7 +62,6 @@ public:
     // accessors for iteration data
     virtual int getIter(int x, int y) const = 0;
     virtual void setIter(int x, int y, int iter) = 0;
-
     
     // accessors for fate data
     virtual bool hasFate() const = 0;
