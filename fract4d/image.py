@@ -11,20 +11,66 @@ class T:
     UNKNOWN=255
     BLACK=[0,0,0]
     WHITE=[255,255,255]
-    def __init__(self,xsize,ysize):
-        self.xsize = xsize
-        self.ysize = ysize
-        self._img = fract4dc.image_create(xsize,ysize)
+    def __init__(self,xsize,ysize,txsize=-1,tysize=-1):
+        self._img = fract4dc.image_create(xsize,ysize,txsize, tysize)
         self.update_bufs()
 
+    def get_xsize(self):
+        return self.get_dim(fract4dc.IMAGE_WIDTH)
+
+    def get_ysize(self):
+        return self.get_dim(fract4dc.IMAGE_HEIGHT)
+
+    def get_total_xsize(self):
+        return self.get_dim(fract4dc.IMAGE_TOTAL_WIDTH)
+
+    def get_total_ysize(self):
+        return self.get_dim(fract4dc.IMAGE_TOTAL_HEIGHT)
+
+    def get_xoffset(self):
+        return self.get_dim(fract4dc.IMAGE_XOFFSET)
+
+    def get_yoffset(self):
+        return self.get_dim(fract4dc.IMAGE_YOFFSET)
+    
+    def get_dim(self,dim):
+        return fract4dc.image_dims(self._img)[dim]
+
+    xsize = property(get_xsize)
+    ysize = property(get_ysize)
+    total_xsize = property(get_total_xsize)
+    total_ysize = property(get_total_ysize)
+    xoffset = property(get_xoffset)
+    yoffset = property(get_yoffset)
+
+    def save(self,name):
+        fract4dc.image_save(self._img, name)
+        
+    def get_tile_list(self):
+        x = 0
+        y = 0
+        base_xres = self.xsize
+        base_yres = self.ysize
+        tiles = []
+        while y < self.total_ysize:
+            while x < self.total_xsize:
+                w = min(base_xres, self.total_xsize - x)
+                h = min(base_yres, self.total_ysize - y)
+                tiles.append((x,y,w,h))
+                x += base_xres
+            y += base_yres
+            x = 0
+        return tiles
+    
+    def set_offset(self,x,y):
+        fract4dc.image_set_offset(self._img,x,y)
+        
     def update_bufs(self):
         self.fate_buf = fract4dc.image_fate_buffer(self._img,0,0)
         self.image_buf = fract4dc.image_buffer(self._img,0,0)
 
-    def resize(self,x,y):
+    def resize(self,x,y,txsize=-1,tysize=-1):
         fract4dc.image_resize(self._img, x, y)
-        self.xsize = x
-        self.ysize = y
         self.update_bufs()
         
     def clear(self):

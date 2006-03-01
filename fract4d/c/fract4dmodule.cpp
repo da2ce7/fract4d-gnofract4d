@@ -1537,6 +1537,36 @@ image_resize(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+image_dims(PyObject *self, PyObject *args)
+{
+    PyObject *pyim;
+
+    if(!PyArg_ParseTuple(args,"O",&pyim))
+    { 
+	return NULL;
+    }
+
+    IImage *i = (IImage *)PyCObject_AsVoidPtr(pyim);
+    if(NULL == i)
+    {
+	return NULL;
+    }
+
+    int xsize, ysize, xoffset, yoffset, xtotalsize, ytotalsize;
+    xsize = i->Xres();
+    ysize = i->Yres();
+    xoffset = i->Xoffset();
+    yoffset = i->Yoffset();
+    xtotalsize = i->totalXres();
+    ytotalsize = i->totalYres();
+
+    PyObject *pyret = Py_BuildValue(
+	"(iiiiii)", xsize,ysize,xtotalsize, ytotalsize, xoffset, yoffset);
+
+    return pyret;
+}
+
+static PyObject *
 image_set_offset(PyObject *self, PyObject *args)
 {
     int x, y;
@@ -1553,11 +1583,10 @@ image_set_offset(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    i->set_offset(x,y);
-
-    if(! i->ok())
+    bool ok = i->set_offset(x,y);
+    if(!ok)
     {
-	PyErr_SetString(PyExc_MemoryError, "Image too large");
+	PyErr_SetString(PyExc_ValueError, "Offset out of bounds");
 	return NULL;
     }
 
@@ -1980,10 +2009,10 @@ static PyMethodDef PfMethods[] = {
       "Get the color index data from a point on the image"},
     { "image_set_offset", image_set_offset, METH_VARARGS,
       "set the image tile's offset" },
-
+    { "image_dims", image_dims, METH_VARARGS,
+      "get a tuple containing image's dimensions"},
     { "image_get_fate", image_get_fate, METH_VARARGS,
       "Get the (solid, fate) info for a point on the image"},
- 
     { "image_clear", image_clear, METH_VARARGS,
       "Clear all iteration and color data from image" },
 
@@ -2049,4 +2078,12 @@ initfract4dc(void)
     PyModule_AddIntConstant(pymod, "DELTA_X", DELTA_X);
     PyModule_AddIntConstant(pymod, "DELTA_Y", DELTA_Y);
     PyModule_AddIntConstant(pymod, "TOPLEFT", TOPLEFT);
+
+    /* cf image_dims */
+    PyModule_AddIntConstant(pymod, "IMAGE_WIDTH", 0);
+    PyModule_AddIntConstant(pymod, "IMAGE_HEIGHT", 1);
+    PyModule_AddIntConstant(pymod, "IMAGE_TOTAL_WIDTH", 2);
+    PyModule_AddIntConstant(pymod, "IMAGE_TOTAL_HEIGHT", 3);
+    PyModule_AddIntConstant(pymod, "IMAGE_XOFFSET", 4);
+    PyModule_AddIntConstant(pymod, "IMAGE_YOFFSET", 5);
 }

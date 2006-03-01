@@ -26,13 +26,77 @@ class Test(testbase.TestBase):
             im.resize(400000,300000)
             self.fail("Should have raised an exception")
         except MemoryError, err:
-            self.assertEqual(40, im.xsize)
-            self.assertEqual(30, im.ysize)
+            # retains large size even if allocation fails
+            self.assertEqual(400000, im.xsize)
+            self.assertEqual(300000, im.ysize)
             pass
 
     def assertImageInvariants(self, im):
         self.assertEqual(im.xsize*im.ysize*im.FATE_SIZE, len(im.fate_buffer()))
         self.assertEqual(im.xsize*im.ysize*im.COL_SIZE, len(im.image_buffer()))
+
+    def testInvalidImages(self):
+        self.assertRaises(ValueError, image.T, 0, 100)
+        self.assertRaises(ValueError, image.T, 100, 0)
+        self.assertRaises(ValueError, image.T, 0, 0)
+        
+    def testTiledImage(self):
+        # check defaults work OK
+        im = image.T(40,30)
+        self.assertEqual(40, im.total_xsize)
+        self.assertEqual(30, im.total_ysize)
+        self.assertEqual(0, im.xoffset)
+        self.assertEqual(0, im.yoffset)
+        
+        # check a different total size is honored
+        im = image.T(40,30,400,300)
+        self.assertEqual(400, im.total_xsize)
+        self.assertEqual(300, im.total_ysize)
+        self.assertEqual(0, im.xoffset)
+        self.assertEqual(0, im.yoffset)
+
+        # check offset has an effect
+        im.set_offset(40,30)
+        self.assertEqual(40, im.xoffset)
+        self.assertEqual(30, im.yoffset)
+
+        # check offset bounds-checking
+        self.assertRaises(ValueError, im.set_offset, 400,0)
+        self.assertRaises(ValueError, im.set_offset, 361,0)
+        self.assertRaises(ValueError, im.set_offset, 0,300)
+        self.assertRaises(ValueError, im.set_offset, 0,271)
+        self.assertRaises(ValueError, im.set_offset, -1,0)
+        self.assertRaises(ValueError, im.set_offset, 0,-1)
+
+        # check offset wasn't changed
+        self.assertEqual(40, im.xoffset)
+        self.assertEqual(30, im.yoffset)
+
+    def testTileList(self):
+        # a single tile
+        im = image.T(100,50)
+        self.assertEqual(
+            [(0,0,100,50)],
+            im.get_tile_list())
+
+        # 2 wide, 1 high
+        im = image.T(100,50,200,50)
+        self.assertEqual(
+            [ (0,0, 100,50) ,(100,0,100,50)],
+            im.get_tile_list())
+
+        # 2 high, 1 wide
+        im = image.T(100,50,100,100)
+        self.assertEqual(
+            [ (0,0, 100,50) ,(0,50,100,50)],
+            im.get_tile_list())
+
+        # not evenly divisble, odd-shaped chunks at edges
+        im = image.T(100,50,101,51)
+        self.assertEqual(
+            [ (0,0,100,50), (100,0,1,50),
+              (0,50,100,1,), (100,50,1,1)],
+            im.get_tile_list())
         
     def testResize(self):
         im = image.T(10,20)
