@@ -145,11 +145,11 @@ class Test(testbase.TestBase):
         fract4dc.pf_init(pfunc,0.001,self.color_diagonal_params)
 
         (w,h,tw,th) = (40,20,40,20)
-        image = fract4dc.image_create(w,h)
+        im = image.T(w,h)
         
         cmap = fract4dc.cmap_create([(1.0, 255, 255, 255, 255)])
 
-        fw = fract4dc.fw_create(1,pfunc,cmap,image,site)
+        fw = fract4dc.fw_create(1,pfunc,cmap,im._img,site)
         
         ff = fract4dc.ff_create(
             [0.0, 0.0, 0.0, 0.0,
@@ -164,7 +164,7 @@ class Test(testbase.TestBase):
             0,
             1,
             0,
-            image,
+            im._img,
             site,
             fw)
 
@@ -180,9 +180,9 @@ class Test(testbase.TestBase):
 
         # check they are updated if image is bigger
         (w,h,tw,th) = (40,20,400,200)
-        image = fract4dc.image_create(w,h,tw,th)
+        im = fract4dc.image_create(w,h,tw,th)
         
-        fw = fract4dc.fw_create(1,pfunc,cmap,image,site)
+        fw = fract4dc.fw_create(1,pfunc,cmap,im,site)
         
         ff = fract4dc.ff_create(
             [0.0, 0.0, 0.0, 0.0,
@@ -197,7 +197,7 @@ class Test(testbase.TestBase):
             0,
             1,
             0,
-            image,
+            im,
             site,
             fw)
 
@@ -213,9 +213,9 @@ class Test(testbase.TestBase):
 
         offx = 40
         offy = 10
-        fract4dc.image_set_offset(image, offx,offy)
+        fract4dc.image_set_offset(im, offx,offy)
 
-        fw = fract4dc.fw_create(1,pfunc,cmap,image,site)
+        fw = fract4dc.fw_create(1,pfunc,cmap,im,site)
         
         ff = fract4dc.ff_create(
             [0.0, 0.0, 0.0, 0.0,
@@ -230,7 +230,7 @@ class Test(testbase.TestBase):
             0,
             1,
             0,
-            image,
+            im,
             site,
             fw)
 
@@ -247,81 +247,63 @@ class Test(testbase.TestBase):
              1.0 + dy[1] * (offy + 0.5),
             0.0,0.0])        
                 
-    def printStuff(self):
-        print
-        for y in xrange(xsize):
-            lower = ""
-            upper = ""
-            for x in xrange(ysize):
-                fract4dc.fw_pixel(fw,x,y,1,1)
-                fract4dc.fw_pixel_aa(fw,x,y)
-                fates = iw.get_all_fates(x,y)
-                upper += "%2x%2x " % (fates[0],fates[1])
-                lower += "%2x%2x " % (fates[2],fates[3])
-            print upper
-            print lower
-        print
-
     def testFractWorker(self):
         xsize = 8
         ysize = 8
-        img = fract4dc.image_create(xsize,ysize)
-        iw = image.T(xsize,ysize,img)
+        im = image.T(xsize,ysize)
         
         cmap = fract4dc.cmap_create([(1.0, 255, 255, 255, 255)])
 
         fract4dc.cmap_set_solid(cmap,0,0,0,0,255)
         fract4dc.cmap_set_solid(cmap,1,0,0,0,255)
         
-        (fw,ff,site,handle,pfunc) = self.makeWorkerAndFunc(img,cmap)
+        (fw,ff,site,handle,pfunc) = self.makeWorkerAndFunc(im._img,cmap)
 
-        # check clear() works
-        fract4dc.image_clear(img)
-        fate_buf = fract4dc.image_fate_buffer(img)
-        buf = fract4dc.image_buffer(img)
-        self.assertEqual(list(fate_buf), [chr(255)] * 4 * xsize * ysize)
+        im.clear()
+        fate_buf = im.fate_buffer()
+        buf = im.image_buffer() 
         
         # draw 1 pixel, check it's set properly
         fract4dc.fw_pixel(fw,0,0,1,1)
-        self.assertPixelIs(iw,0,0,[iw.OUT]+[iw.UNKNOWN]*3)
+        self.assertPixelIs(im,0,0,[im.OUT]+[im.UNKNOWN]*3)
 
         fract4dc.fw_pixel(fw,0,4,1,1)
-        self.assertPixelIs(iw,0,4,[iw.IN]+[iw.UNKNOWN]*3)
+        self.assertPixelIs(im,0,4,[im.IN]+[im.UNKNOWN]*3)
         
         # draw it again, check no change.
         fract4dc.fw_pixel(fw,0,0,1,1)
-        self.assertPixelIs(iw,0,0,[iw.OUT]+[iw.UNKNOWN]*3)
+        self.assertPixelIs(im,0,0,[im.OUT]+[im.UNKNOWN]*3)
 
         # draw & antialias another pixel
         fract4dc.fw_pixel(fw,2,2,1,1)
         fract4dc.fw_pixel_aa(fw,2,2)
-        self.assertPixelIs(iw,2,2,[iw.OUT, iw.OUT, iw.IN, iw.OUT])
+        self.assertPixelIs(im,2,2,[im.OUT, im.OUT, im.IN, im.OUT])
 
         # change cmap, draw same pixel again, check color changes
         cmap = fract4dc.cmap_create(
             [(1.0, 79, 88, 41, 255)])
         fract4dc.cmap_set_solid(cmap,1,100,101,102,255)
         
-        (fw,ff,site,handle,pfunc) = self.makeWorkerAndFunc(img,cmap)
+        (fw,ff,site,handle,pfunc) = self.makeWorkerAndFunc(im._img,cmap)
 
         fract4dc.fw_pixel(fw,0,0,1,1)
-        self.assertPixelIs(iw,0,0,[iw.OUT]+[iw.UNKNOWN]*3, [79,88,41])
+        self.assertPixelIs(im,0,0,[im.OUT]+[im.UNKNOWN]*3, [79,88,41])
 
         # redraw antialiased pixel
         fract4dc.fw_pixel_aa(fw,2,2)
         self.assertPixelIs(
-            iw,2,2, [iw.OUT, iw.OUT, iw.IN, iw.OUT],
+            im,2,2, [im.OUT, im.OUT, im.IN, im.OUT],
             [79,88,41], [100,101,102])
 
         # draw large block overlapping existing pixels
         fract4dc.fw_pixel(fw,0,0,4,4)
         self.assertPixelIs(
-            iw,0,0, [iw.OUT, iw.UNKNOWN, iw.UNKNOWN, iw.UNKNOWN],
+            im,0,0, [im.OUT, im.UNKNOWN, im.UNKNOWN, im.UNKNOWN],
             [79,88,41], [100,101,102])
 
         self.assertPixelIs(
-            iw,3,1, [iw.UNKNOWN]*4,
-            [79,88,41], [100,101,102], iw.OUT)        
+            im,3,1, [im.UNKNOWN]*4,
+            [79,88,41], [100,101,102], im.OUT)        
         
     def testCalc(self):
         xsize = 64
@@ -368,7 +350,6 @@ class Test(testbase.TestBase):
         os.remove('test.tga')
 
         # fate of all non-aa pixels should be known, aa-pixels unknown
-        #self.print_fates(image,xsize,ysize)
         fate_buf = fract4dc.image_fate_buffer(image)
         i = 0
         for byte in fate_buf:
@@ -439,18 +420,6 @@ class Test(testbase.TestBase):
                                 "pixel %d is %d" % (i,ord(byte)))
             i+= 1
 
-    def print_fates(self,image,x,y):
-        buf = fract4dc.image_fate_buffer(image)
-        for i in xrange(len(buf)):
-            v = ord(buf[i])
-            if v == 255:
-                print "U",
-            else:
-                print v,
-                
-            if i % (x*4) == 4*x-1:
-                print ""
-            
     def testRotMatrix(self):
         params = [0.0, 0.0, 0.0, 0.0,
                  1.0,
