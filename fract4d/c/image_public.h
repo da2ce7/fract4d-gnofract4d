@@ -35,7 +35,8 @@ public:
     virtual ~IImage() {};
     // return true if this resulted in a change of size
     virtual bool set_resolution(int x, int y, int totalx, int totaly) = 0;
-    virtual void set_offset(int x, int y) = 0;
+    // return true if this succeeded
+    virtual bool set_offset(int x, int y) = 0;
 
     virtual bool ok() = 0;
 

@@ -115,7 +115,7 @@ public:
     void fill_subpixels(int x, int y);
 
     bool set_resolution(int x, int y, int totalx, int totaly);
-    void set_offset(int x, int y);
+    bool set_offset(int x, int y);
 
     double ratio() const;
     void clear();

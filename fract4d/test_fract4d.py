@@ -180,9 +180,9 @@ class Test(testbase.TestBase):
 
         # check they are updated if image is bigger
         (w,h,tw,th) = (40,20,400,200)
-        im = fract4dc.image_create(w,h,tw,th)
+        im = image.T(w,h,tw,th)
         
-        fw = fract4dc.fw_create(1,pfunc,cmap,im,site)
+        fw = fract4dc.fw_create(1,pfunc,cmap,im._img,site)
         
         ff = fract4dc.ff_create(
             [0.0, 0.0, 0.0, 0.0,
@@ -197,7 +197,7 @@ class Test(testbase.TestBase):
             0,
             1,
             0,
-            im,
+            im._img,
             site,
             fw)
 
@@ -213,9 +213,9 @@ class Test(testbase.TestBase):
 
         offx = 40
         offy = 10
-        fract4dc.image_set_offset(im, offx,offy)
+        im.set_offset(offx, offy)
 
-        fw = fract4dc.fw_create(1,pfunc,cmap,im,site)
+        fw = fract4dc.fw_create(1,pfunc,cmap,im._img,site)
         
         ff = fract4dc.ff_create(
             [0.0, 0.0, 0.0, 0.0,
@@ -230,7 +230,7 @@ class Test(testbase.TestBase):
             0,
             1,
             0,
-            im,
+            im._img,
             site,
             fw)
 
@@ -308,7 +308,7 @@ class Test(testbase.TestBase):
     def testCalc(self):
         xsize = 64
         ysize = int(xsize * 3.0/4.0)
-        image = fract4dc.image_create(xsize,ysize)
+        im = image.T(xsize,ysize)
         siteobj = FractalSite()
         site = fract4dc.site_create(siteobj)
 
@@ -333,7 +333,7 @@ class Test(testbase.TestBase):
             auto_deepen=0,
             periodicity=1,
             render_type=0,
-            image=image,
+            image=im._img,
             site=site)
 
         self.failUnless(siteobj.progress_list[-1]== 0.0 and \
@@ -345,19 +345,18 @@ class Test(testbase.TestBase):
                          siteobj.status_list[-1]== 0)
 
         self.failUnless(not os.path.exists("test.tga"))
-        fract4dc.image_save(image,"test.tga")
+        im.save("test.tga")
         self.failUnless(os.path.exists("test.tga"))
         os.remove('test.tga')
 
         # fate of all non-aa pixels should be known, aa-pixels unknown
-        fate_buf = fract4dc.image_fate_buffer(image)
+        fate_buf = im.fate_buffer()
         i = 0
         for byte in fate_buf:
-            d = fract4dc.image_get_color_index(
-                    image,
-                    (i % (4 * xsize)) / 4,
-                    i / (4 * xsize),
-                    i % 4)
+            d = im.get_color_index(
+                    (i % (im.FATE_SIZE * xsize)) / im.FATE_SIZE,
+                    i / (im.FATE_SIZE * xsize),
+                    i % im.FATE_SIZE)
             
             if i % 4 == 0:
                 # no-aa

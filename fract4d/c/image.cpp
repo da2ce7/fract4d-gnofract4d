@@ -121,12 +121,21 @@ image::get(int x, int y) const
 bool 
 image::set_resolution(int x, int y, int totalx, int totaly)
 {
-    m_totalXres = totalx == -1 ? x : totalx;
-    m_totalYres = totaly == -1 ? y : totaly;
+    totalx = totalx == -1 ? x : totalx;
+    totaly = totaly == -1 ? y : totaly;
 
-    if(buffer && m_Xres == x && m_Yres == y) return false;
+    if(buffer && 
+       m_Xres == x && m_Yres == y && 
+       m_totalXres == totalx && m_totalYres == totaly) 
+    {
+	// nothing to do
+	return false;
+    }
+
     m_Xres = x;
     m_Yres = y;
+    m_totalXres = totalx;
+    m_totalYres = totaly;
 
     delete_buffers();
 
@@ -150,10 +159,15 @@ image::set_resolution(int x, int y, int totalx, int totaly)
     return true;
 }
 
-void
+bool
 image::set_offset(int x, int y)
 {
+    if(x < 0 || x + m_Xres > m_totalXres || y < 0 || y + m_Yres > m_totalYres)
+    {
+	return false;
+    }
     m_xoffset = x; m_yoffset = y;
+    return true;
 }
 
 double 
