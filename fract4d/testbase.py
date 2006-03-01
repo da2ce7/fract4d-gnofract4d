@@ -56,6 +56,44 @@ class TestBase(unittest.TestCase):
             elif isinstance(stm, ir.CJump):
                 expecting = stm.falseDest
 
+    def assertPixelIs(self,img,x,y,fates,outcolor=None,incolor=None,efate=None):
+        self.assertEqual(img.get_all_fates(x,y), fates)
+        (r,g,b) = (0,0,0)
+        nsubpixels = 0
+        for i in xrange(img.FATE_SIZE):
+            fate = fates[i]
+            if fate==img.UNKNOWN and efate != None:
+                fate = efate
+            if fate == img.OUT:
+                if outcolor == None:
+                    color = img.WHITE
+                else:
+                    color = outcolor
+            else:
+                if incolor == None:
+                    color = img.BLACK
+                else:
+                    color = incolor
+
+            if fate == img.IN:
+                index = 0.0
+            elif fate == img.OUT:
+                index = 0.0
+            else:
+                continue
+            
+            r += color[0]; g += color[1]; b += color[2]
+            nsubpixels += 1
+            if fate != img.UNKNOWN and efate==None:
+                findex = img.get_color_index(x,y,i)
+                self.assertEqual(
+                    findex,index,
+                    "unexpected index %.17f for subpixel %d with fate %d" % (findex,i,fate))
+
+        color = [r//nsubpixels, g//nsubpixels, b//nsubpixels]
+        
+        self.assertEqual(img.get_color(x,y),color)
+
     def assertNoProbs(self, t):
         self.assertEqual(len(t.warnings),0,
                          "Unexpected warnings %s" % t.warnings)
