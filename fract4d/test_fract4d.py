@@ -13,40 +13,10 @@ import testbase
 
 import fract4dc
 import gradient
+import image
+
 from test_fractalsite import FractalSite
 
-class ImageWrapper:
-    FATE_SIZE = 4
-    COL_SIZE = 3
-    OUT=0
-    IN=1 | 128 # in pixels have solid bit set
-    UNKNOWN=255
-    BLACK=[0,0,0]
-    WHITE=[255,255,255]
-    def __init__(self,xsize,ysize,img):
-        self.xsize = xsize
-        self.ysize = ysize
-        self.fate_buf = fract4dc.image_fate_buffer(img,0,0)
-        self.image_buf = fract4dc.image_buffer(img,0,0)
-        self.img = img
-
-    def pos(self,x,y,size):
-        return size * (y * self.xsize + x)
-    
-    def get_fate(self,x,y):
-        return ord(self.fate_buf[self.pos(x,y,ImageWrapper.FATE_SIZE)])
-
-    def get_all_fates(self,x,y):
-        pos = self.pos(x,y,ImageWrapper.FATE_SIZE)
-        return map(ord,list(self.fate_buf[pos:pos+ImageWrapper.FATE_SIZE]))
-
-    def get_color(self,x,y):
-        pos = self.pos(x,y,ImageWrapper.COL_SIZE)
-        return map(ord,list(self.image_buf[pos:pos+ImageWrapper.COL_SIZE]))
-
-    def get_color_index(self,x,y,sub=0):
-        return fract4dc.image_get_color_index(self.img,x,y,sub)
-    
 class Test(testbase.TestBase):
     def compileMandel(self):
         self.compiler.file_path.append('../formulas')
@@ -135,52 +105,6 @@ class Test(testbase.TestBase):
         
         pfunc = None
         handle = None
-
-    def testColossalImage(self):
-        try:
-            image = fract4dc.image_create(400000,300000)
-            self.fail("Should have raised an exception")
-        except MemoryError, err:
-            pass
-
-        image = fract4dc.image_create(40,30)
-        try:
-            fract4dc.image_resize(image, 400000,300000)
-            self.fail("Should have raised an exception")
-        except MemoryError, err:
-            pass
-
-    def testImage(self):
-        image = fract4dc.image_create(40,30)
-        fract4dc.image_resize(image,80,60)
-        buf = fract4dc.image_buffer(image)
-        self.assertEqual(len(buf),80*60*3)
-
-        fate_buf = fract4dc.image_fate_buffer(image)
-        self.assertEqual(len(fate_buf),80*60*4)
-        
-        bytes = list(buf)
-        self.assertEqual(ord(bytes[0]),0)
-        self.assertEqual(ord(bytes[1]),0)
-        self.assertEqual(ord(bytes[2]),0)
-
-        fate_bytes = list(fate_buf)
-        for fb in fate_bytes:
-            self.assertEqual(ord(fb), 255)
-            
-        self.assertRaises(ValueError,fract4dc.image_buffer, image, -1, 0)
-        self.assertRaises(ValueError,fract4dc.image_buffer, image, 80, 0)
-        self.assertRaises(ValueError,fract4dc.image_buffer, image, 41, 67)
-
-        self.assertRaises(ValueError,fract4dc.image_fate_buffer, image, -1, 0)
-        self.assertRaises(ValueError,fract4dc.image_fate_buffer, image, 80, 0)
-        self.assertRaises(ValueError,fract4dc.image_fate_buffer, image, 41, 67)
-
-        buf = fract4dc.image_buffer(image,5,10)
-        self.assertEqual(len(buf),80*60*3 - (10*80+5)*3)
-        
-        buf = fract4dc.image_fate_buffer(image,5,10)
-        self.assertEqual(len(buf),80*60*4 - (10*80+5)*4)
 
     def makeWorkerAndFunc(self, image, cmap):
         siteobj = FractalSite()
@@ -322,45 +246,7 @@ class Test(testbase.TestBase):
             -2.0 + dx[0] * (offx + 0.5),
              1.0 + dy[1] * (offy + 0.5),
             0.0,0.0])        
-        
-    def assertPixelIs(self,img,x,y,fates,outcolor=None,incolor=None,efate=None):
-        self.assertEqual(img.get_all_fates(x,y), fates)
-        (r,g,b) = (0,0,0)
-        nsubpixels = 0
-        for i in xrange(img.FATE_SIZE):
-            fate = fates[i]
-            if fate==img.UNKNOWN and efate != None:
-                fate = efate
-            if fate == img.OUT:
-                if outcolor == None:
-                    color = img.WHITE
-                else:
-                    color = outcolor
-            else:
-                if incolor == None:
-                    color = img.BLACK
-                else:
-                    color = incolor
-
-            if fate == img.IN:
-                index = 0.0
-            elif fate == img.OUT:
-                index = 0.0
-            else:
-                continue
-            
-            r += color[0]; g += color[1]; b += color[2]
-            nsubpixels += 1
-            if fate != img.UNKNOWN and efate==None:
-                findex = img.get_color_index(x,y,i)
-                self.assertEqual(
-                    findex,index,
-                    "unexpected index %.17f for subpixel %d with fate %d" % (findex,i,fate))
-
-        color = [r//nsubpixels, g//nsubpixels, b//nsubpixels]
-        
-        self.assertEqual(img.get_color(x,y),color)
-        
+                
     def printStuff(self):
         print
         for y in xrange(xsize):
@@ -379,20 +265,20 @@ class Test(testbase.TestBase):
     def testFractWorker(self):
         xsize = 8
         ysize = 8
-        image = fract4dc.image_create(xsize,ysize)
-        iw = ImageWrapper(xsize,ysize,image)
+        img = fract4dc.image_create(xsize,ysize)
+        iw = image.T(xsize,ysize,img)
         
         cmap = fract4dc.cmap_create([(1.0, 255, 255, 255, 255)])
 
         fract4dc.cmap_set_solid(cmap,0,0,0,0,255)
         fract4dc.cmap_set_solid(cmap,1,0,0,0,255)
         
-        (fw,ff,site,handle,pfunc) = self.makeWorkerAndFunc(image,cmap)
+        (fw,ff,site,handle,pfunc) = self.makeWorkerAndFunc(img,cmap)
 
         # check clear() works
-        fract4dc.image_clear(image)
-        fate_buf = fract4dc.image_fate_buffer(image)
-        buf = fract4dc.image_buffer(image)
+        fract4dc.image_clear(img)
+        fate_buf = fract4dc.image_fate_buffer(img)
+        buf = fract4dc.image_buffer(img)
         self.assertEqual(list(fate_buf), [chr(255)] * 4 * xsize * ysize)
         
         # draw 1 pixel, check it's set properly
@@ -416,7 +302,7 @@ class Test(testbase.TestBase):
             [(1.0, 79, 88, 41, 255)])
         fract4dc.cmap_set_solid(cmap,1,100,101,102,255)
         
-        (fw,ff,site,handle,pfunc) = self.makeWorkerAndFunc(image,cmap)
+        (fw,ff,site,handle,pfunc) = self.makeWorkerAndFunc(img,cmap)
 
         fract4dc.fw_pixel(fw,0,0,1,1)
         self.assertPixelIs(iw,0,0,[iw.OUT]+[iw.UNKNOWN]*3, [79,88,41])

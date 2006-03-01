@@ -16,6 +16,7 @@ import test_gradient
 import test_preprocessor
 import test_graph
 import test_optimize
+import test_image
 #import test_stdlib
 
 def suite():
@@ -34,7 +35,8 @@ def suite():
     test_gradient.suite(),
     test_preprocessor.suite(),
     test_graph.suite(),
-    test_optimize.suite()
+    test_optimize.suite(),
+    test_image.suite()
     #test_stdlib.suite()
     ))
 
