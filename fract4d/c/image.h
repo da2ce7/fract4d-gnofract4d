@@ -120,7 +120,7 @@ public:
     double ratio() const;
     void clear();
 
-    bool save(const char *filename);
+    bool save(FILE *fp);
 };
 
 #endif /* _IMAGE_H_ */

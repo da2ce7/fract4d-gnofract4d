@@ -12,8 +12,8 @@ import types
 
 import fc
 import fractal
-import fract4dc
 import fracttypes
+import image
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
@@ -173,8 +173,8 @@ class Test(unittest.TestCase):
         self.assertEqual(f.yflip,False)
         
         sofile = f.compile()
-        image = fract4dc.image_create(40,30)
-        f.draw(image)
+        im = image.T(40,30)
+        f.draw(im)
 
     def testLoadGradientFunc(self):
         f = fractal.T(self.compiler)
@@ -182,8 +182,8 @@ class Test(unittest.TestCase):
 
         f.compile()
         (w,h) = (40,30)
-        image = fract4dc.image_create(w,h)
-        f.draw(image)
+        im = image.T(w,h)
+        f.draw(im)
 
     def testReadBadStuff(self):
         wc = WarningCatcher()
@@ -777,12 +777,12 @@ blue=0.3
 
         f.compile()
         (w,h) = (40,30)
-        image = fract4dc.image_create(w,h)
-        f.draw(image)
+        im = image.T(w,h)
+        f.draw(im)
 
-        buf = fract4dc.image_buffer(image,0,0)
+        buf = im.image_buffer(0,0)
 
-        fract4dc.image_save(image,"def.tga")
+        im.save("def.tga")
         
         # corners must be white
         self.assertWhite(buf,0,0,w)
@@ -875,12 +875,12 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         f.reset()
         self.assertEqual(f.initparams,[f.get_gradient(), 4.0])
         (w,h) = (40,30)
-        im = fract4dc.image_create(w,h)
+        im = image.T(w,h)
         f.draw(im)
 
-        fract4dc.image_save(im,"foo.tga")
+        im.save("foo.tga")
         # check that result is horizontally symmetrical
-        buf = fract4dc.image_buffer(im,0,0)
+        buf = im.image_buffer(0,0)
         for y in xrange(h):
             line = map(ord,list(buf[y*w*3:(y*w+w)*3]))
             line.reverse()
@@ -891,7 +891,7 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
                 b = revline[x*3:(x+1)*3]
 
                 if a != b:
-                    fate_buf = fract4dc.image_fate_buffer(im,0,y)
+                    fate_buf = im.fate_buffer(0,y)
                     print map(ord,list(fate_buf[0:w]))
                     self.assertEqual(a,b,"%s != %s, %d != %d" % (a,b,x,w-x))
 
@@ -914,10 +914,10 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         self.assertEqual(f.initparams,[f.get_gradient(), 0.0])
         self.assertEqual(f.antialias,1)
         (w,h) = (30,30)
-        im = fract4dc.image_create(w,h)
+        im = image.T(w,h)
         f.draw(im)
 
-        buf = fract4dc.image_buffer(im,0,0)
+        buf = im.image_buffer(0,0)
         for y in xrange(h):
             for x in xrange(w):
                 if x > y:
@@ -939,10 +939,10 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         self.assertEqual(f.initparams,[f.get_gradient(), 0.0])
         self.assertEqual(f.antialias,1)
         (w,h) = (30,30)
-        im = fract4dc.image_create(w,h)
+        im = image.T(w,h)
         f.draw(im)
 
-        buf = fract4dc.image_buffer(im,0,0)
+        buf = im.image_buffer(0,0)
         for y in xrange(h):
             for x in xrange(w):
                 if x > y:
@@ -982,11 +982,11 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         f.get_gradient().load_list([(0.0,0,0,0,255),(1.0,255,255,255,255)])
         f.compile()
         (w,h) = (30,30)
-        im = fract4dc.image_create(w,h)
+        im = image.T(w,h)
         f.antialias = False
         f.draw(im)
 
-        buf = fract4dc.image_buffer(im,0,0)
+        buf = im.image_buffer(0,0)
         
         for y in xrange(h):
             for x in xrange(w):
@@ -1127,17 +1127,16 @@ solids=[
         self.assertEqual(f.cfunc_names, ["default", "zero"])
         
         f.compile()
-        image = fract4dc.image_create(4,3)
-        f.draw(image)
+        im = image.T(4,3)
+        f.draw(im)
 
     def testFct(self):
         file = open("../testdata/test.fct")
         f = fractal.T(self.compiler);
         f.loadFctFile(file)
         f.compile()
-        image = fract4dc.image_create(64,48)
-        f.draw(image)
-        #fract4dc.image_save(image,"mandel3.tga")
+        im = image.T(64,48)
+        f.draw(im)
 
     def testCopy(self):
         f = fractal.T(self.compiler)
@@ -1242,8 +1241,8 @@ solids=[
         f.compile()
         f.set_formula("gf4d.frm", "Buffalo")
         f.compile()
-        image = fract4dc.image_create(40,30)
-        f.draw(image)
+        im = image.T(40,30)
+        f.draw(im)
         
         
 def suite():

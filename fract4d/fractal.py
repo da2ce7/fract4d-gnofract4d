@@ -905,7 +905,7 @@ class T(FctUtils):
             auto_deepen=self.auto_deepen,
             nthreads=1,
             render_type=self.render_type,
-            image=image,
+            image=image._img,
             site=self.site,
             dirty=self.clear_image)
         
@@ -1165,7 +1165,7 @@ if __name__ == '__main__':
         file = open(arg)
         f.loadFctFile(file)
         f.compile()
-        image = fract4dc.image_create(64,48)
+        image = image.T(64,48)
         f.draw(image)
-        fract4dc.image_save(image,os.path.basename(arg) + ".tga")
+        image.save(image,os.path.basename(arg) + ".tga")
         
