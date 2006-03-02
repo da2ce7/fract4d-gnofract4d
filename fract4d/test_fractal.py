@@ -9,6 +9,7 @@ import copy
 import os
 import time
 import types
+import filecmp
 
 import fc
 import fractal
@@ -759,49 +760,61 @@ blue=0.3
         self.assertNearlyEqual(f.initparams, oldparams)
         
     def testDefaultFractal(self):
-        f = fractal.T(self.compiler)
-        
-        # check defaults
-        self.assertEqual(f.params[f.XCENTER],0.0)
-        self.assertEqual(f.params[f.YCENTER],0.0)
-        self.assertEqual(f.params[f.ZCENTER],0.0)
-        self.assertEqual(f.params[f.WCENTER],0.0)
-        self.assertEqual(f.params[f.MAGNITUDE],4.0)
-        self.assertEqual(f.params[f.XYANGLE],0.0)
-        self.assertEqual(f.params[f.XZANGLE],0.0)
-        self.assertEqual(f.params[f.XWANGLE],0.0)
-        self.assertEqual(f.params[f.YZANGLE],0.0)
-        self.assertEqual(f.params[f.YWANGLE],0.0)
-        self.assertEqual(f.params[f.ZWANGLE],0.0)
-        self.assertEqual(f.initparams, [f.get_gradient(), 4.0])
+        try:
+            f = fractal.T(self.compiler)
 
-        f.compile()
-        (w,h) = (40,30)
-        im = image.T(w,h)
-        f.draw(im)
+            # check defaults
+            self.assertEqual(f.params[f.XCENTER],0.0)
+            self.assertEqual(f.params[f.YCENTER],0.0)
+            self.assertEqual(f.params[f.ZCENTER],0.0)
+            self.assertEqual(f.params[f.WCENTER],0.0)
+            self.assertEqual(f.params[f.MAGNITUDE],4.0)
+            self.assertEqual(f.params[f.XYANGLE],0.0)
+            self.assertEqual(f.params[f.XZANGLE],0.0)
+            self.assertEqual(f.params[f.XWANGLE],0.0)
+            self.assertEqual(f.params[f.YZANGLE],0.0)
+            self.assertEqual(f.params[f.YWANGLE],0.0)
+            self.assertEqual(f.params[f.ZWANGLE],0.0)
+            self.assertEqual(f.initparams, [f.get_gradient(), 4.0])
 
-        buf = im.image_buffer(0,0)
+            f.compile()
+            (w,h) = (40,30)
+            im = image.T(w,h)
+            f.auto_deepen = False
+            f.draw(im)
+            im.save("def.tga")
 
-        im.save("def.tga")
-        
-        # corners must be white
-        self.assertWhite(buf,0,0,w)
-        self.assertWhite(buf,w-1,0,w)
-        self.assertWhite(buf,0,h-1,w)
-        self.assertWhite(buf,w-1,h-1,w)
+            buf = im.image_buffer(0,0)
 
-        # center is black
-        self.assertBlack(buf,w/2,h/2,w)        
+            # corners must be white
+            self.assertWhite(buf,0,0,w)
+            self.assertWhite(buf,w-1,0,w)
+            self.assertWhite(buf,0,h-1,w)
+            self.assertWhite(buf,w-1,h-1,w)
 
-        # and vertically symmetrical
-        for x in xrange(w):
-            for y in xrange(h/2):
-                apos = (y*w+x)*3
-                bpos = ((h-y-1)*w+x)*3
-                a = buf[apos:apos+3]
-                b = buf[bpos:bpos+3]
-                self.assertEqual(a,b)
+            # center is black
+            self.assertBlack(buf,w/2,h/2,w)        
 
+            # and vertically symmetrical
+            for x in xrange(w):
+                for y in xrange(h/2):
+                    apos = (y*w+x)*3
+                    bpos = ((h-y-1)*w+x)*3
+                    a = buf[apos:apos+3]
+                    b = buf[bpos:bpos+3]
+                    self.assertEqual(a,b)
+
+            # draw it again in fragments and check result is identical
+            im = image.T(40,4,40,30)
+            im.start_save("def2.tga")
+            f.draw(im)
+            im.finish_save()
+
+            self.assertEqual(True, filecmp.cmp("def.tga","def2.tga",False))
+        finally:
+            if os.path.exists("def.tga"): os.remove("def.tga")
+            if os.path.exists("def2.tga"): os.remove("def2.tga")
+            
     def testReset(self):
         # test that formula's defaults are applied
         f = fractal.T(self.compiler)

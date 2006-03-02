@@ -121,6 +121,9 @@ public:
     void clear();
 
     bool save(FILE *fp);
+    bool save_header(FILE *fp);
+    bool save_tile(FILE *fp);
+    bool save_footer(FILE *fp);
 };
 
 #endif /* _IMAGE_H_ */

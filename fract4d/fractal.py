@@ -894,20 +894,26 @@ class T(FctUtils):
         initparams = self.all_params()
         fract4dc.pf_init(pfunc,1.0E-9,initparams)
 
-        fract4dc.calc(
-            params=self.params,
-            antialias=self.antialias,
-            maxiter=self.maxiter,
-            yflip=self.yflip,
-            periodicity=self.periodicity,
-            pfo=pfunc,
-            cmap=cmap,
-            auto_deepen=self.auto_deepen,
-            nthreads=1,
-            render_type=self.render_type,
-            image=image._img,
-            site=self.site,
-            dirty=self.clear_image)
+        for (xoff,yoff,xres,yres) in image.get_tile_list():
+            image.resize(xres,yres)
+            image.set_offset(xoff,yoff)
+            
+            fract4dc.calc(
+                params=self.params,
+                antialias=self.antialias,
+                maxiter=self.maxiter,
+                yflip=self.yflip,
+                periodicity=self.periodicity,
+                pfo=pfunc,
+                cmap=cmap,
+                auto_deepen=self.auto_deepen,
+                nthreads=1,
+                render_type=self.render_type,
+                image=image._img,
+                site=self.site,
+                dirty=self.clear_image)
+
+            image.save_tile()
         
     def clean(self):
         self.dirty = False

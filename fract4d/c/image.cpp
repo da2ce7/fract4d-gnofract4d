@@ -166,7 +166,14 @@ image::set_offset(int x, int y)
     {
 	return false;
     }
+    if(x == m_xoffset && y == m_yoffset)
+    {
+	// nothing to do, succeed already
+	return true;
+    }
+
     m_xoffset = x; m_yoffset = y;
+    clear();
     return true;
 }
 
@@ -250,10 +257,13 @@ image::clear()
     }
 }
 
-	       
-bool image::save(FILE *fp)
+bool image::save_header(FILE *fp)
 {
-    if(!fp) return false;
+    if(!fp) 
+    {
+	return false;
+    }
+
     unsigned char tga_header[] = {
 	0, // 0: imageid len
 	0, // 1: cmap type
@@ -268,16 +278,16 @@ bool image::save(FILE *fp)
     tga_header[14] = m_totalYres & 0xFF;
     tga_header[15] = m_totalYres >> 8;
 
-    unsigned char tga_footer[] = {
-	0, 0, //extoffs
-	0, 0, //?
-	'T', 'R', 'U', 'E', 'V', 'I', 'S', 'I', 'O','N',
-	'-', 'X', 'F', 'I', 'L', 'E', '.'
-    };
-
     int written = fwrite(tga_header, 1, sizeof(tga_header), fp);
-    if(written != sizeof(tga_header)) goto error;
+    if(written != sizeof(tga_header)) 
+    {
+	return false;
+    }	
+    return true;
+}
 
+bool image::save_tile(FILE *fp)
+{
     for (int y = 0; y < m_Yres; y++)
     {
         for (int x = 0; x < m_Xres; x++)
@@ -288,11 +298,41 @@ bool image::save(FILE *fp)
 	    fputc(pixel.r,fp);
 	}
     }
+    return true;
+}
+	
+bool image::save_footer(FILE *fp)
+{
+    static unsigned char tga_footer[] = {
+	0, 0, //extoffs
+	0, 0, //?
+	'T', 'R', 'U', 'E', 'V', 'I', 'S', 'I', 'O','N',
+	'-', 'X', 'F', 'I', 'L', 'E', '.'
+    };
 
-    written = fwrite(tga_footer, 1, sizeof(tga_footer), fp);
-    if(written != sizeof(tga_footer)) goto error;
+    int written = fwrite(tga_footer, 1, sizeof(tga_footer), fp);
+    if(written != sizeof(tga_footer))
+    {
+	return false;
+    }
+    return true;
+}
+       
+bool image::save(FILE *fp)
+{
+    if(!save_header(fp))
+    {
+	return false;
+    }
+    if(!save_tile(fp))
+    {
+	return false;
+    }
+
+    if(!save_footer(fp))
+    {
+	return false;
+    }
 
     return true;
- error:
-    return false;
 }

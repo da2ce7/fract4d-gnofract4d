@@ -8,6 +8,7 @@ import os.path
 import struct
 import math
 import types
+import filecmp
 
 import testbase
 
@@ -91,13 +92,38 @@ class Test(testbase.TestBase):
             [ (0,0, 100,50) ,(0,50,100,50)],
             im.get_tile_list())
 
-        # not evenly divisble, odd-shaped chunks at edges
+        # not evenly divisible, odd-shaped chunks at edges
         im = image.T(100,50,101,51)
         self.assertEqual(
             [ (0,0,100,50), (100,0,1,50),
               (0,50,100,1,), (100,50,1,1)],
             im.get_tile_list())
-        
+
+    def testSave(self):
+        try:
+            im = image.T(640,400)
+            im.save("save1.tga")
+            self.failUnless(os.path.exists("save1.tga"))
+
+            im = image.T(64,40,640,400)
+            im.start_save("save2.tga")
+            for (xoff,yoff,w,h) in im.get_tile_list():
+                im.resize(w,h)
+                im.set_offset(xoff,yoff)
+                im.save_tile()
+            im.finish_save()
+            self.failUnless(os.path.exists("save2.tga"))
+            file_len = os.stat("save2.tga").st_size
+            self.assertEqual(640*400*3 + 18 + 21, file_len)
+
+            self.assertEqual(True, filecmp.cmp("save1.tga","save2.tga",False))
+            
+        finally:
+            if os.path.exists("save1.tga"):
+                os.remove("save1.tga")
+            if os.path.exists("save2.tga"):
+                os.remove("save2.tga")
+            
     def testResize(self):
         im = image.T(10,20)
         self.assertEqual(10,im.xsize)
