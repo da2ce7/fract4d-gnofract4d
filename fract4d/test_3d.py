@@ -8,7 +8,7 @@ import testbase
 import fc
 import fractal
 import fract4dc
-
+import image
 
 from test_fractalsite import FractalSite
 
@@ -46,11 +46,11 @@ class Test(testbase.TestBase):
         initparams = self.f.all_params()
         fract4dc.pf_init(self.pfunc,1.0E-9,initparams)
 
-        self.image = fract4dc.image_create(40,30)
+        self.image = image.T(40,30)
         siteobj = FractalSite()
         self.site = fract4dc.site_create(siteobj)
         
-        self.fw = fract4dc.fw_create(1,self.pfunc,self.cmap,self.image,self.site)
+        self.fw = fract4dc.fw_create(1,self.pfunc,self.cmap,self.image._img,self.site)
 
         self.ff = fract4dc.ff_create(
             [0.0, 0.0, 0.0, 0.0,
@@ -65,7 +65,7 @@ class Test(testbase.TestBase):
             0,
             1,
             2, # 3D
-            self.image,
+            self.image._img,
             self.site,
             self.fw)
 
@@ -153,16 +153,16 @@ class Test(testbase.TestBase):
                       self.f.yflip,self.f.periodicity,
                       self.pfunc,self.cmap,self.f.auto_deepen,
                       1,2, # 3D
-                      self.image,self.site, True)
+                      self.image._img,self.site, True)
 
-        fract4dc.image_save(self.image,"hs.tga")
+        self.image.save("hs.tga")
 
     def disabled_testDrawMBrot(self):
         self.f.set_formula("gf4d.frm", "Mandelbrot")
         self.f.compile()
-        image = fract4dc.image_create(80,60)
+        image = image.T(80,60)
         self.f.draw(image)
-        fract4dc.image_save(image, "mb.tga")
+        image.save("mb.tga")
         
 def suite():
     return unittest.makeSuite(Test,'test')

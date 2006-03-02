@@ -44,7 +44,9 @@ class T:
     yoffset = property(get_yoffset)
 
     def save(self,name):
-        fract4dc.image_save(self._img, name)
+        file = open(name,"wb")
+        fract4dc.image_save(self._img, file)
+        file.close()
         
     def get_tile_list(self):
         x = 0

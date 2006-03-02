@@ -1620,14 +1620,28 @@ static PyObject *
 image_save(PyObject *self,PyObject *args)
 {
     PyObject *pyim;
-    char *fname;
-    if(!PyArg_ParseTuple(args,"Os",&pyim,&fname))
+    PyObject *pyFP;
+    if(!PyArg_ParseTuple(args,"OO",&pyim,&pyFP))
     {
 	return NULL;
     }
-    image *i = (image *)PyCObject_AsVoidPtr(pyim);
-    i->save(fname);
 
+    if(!PyFile_Check(pyFP))
+    {
+	return NULL;
+    }
+
+    image *i = (image *)PyCObject_AsVoidPtr(pyim);
+
+    //printf("saving to %s\n",filename);
+    FILE *fp = PyFile_AsFile(pyFP);
+
+    if(!fp || !i || !i->save(fp))
+    {
+	PyErr_SetString(PyExc_IOError, "Couldn't save file");
+	return NULL;
+    }
+    
     Py_INCREF(Py_None);
     return Py_None;
 }

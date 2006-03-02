@@ -251,10 +251,8 @@ image::clear()
 }
 
 	       
-bool image::save(const char *filename)
+bool image::save(FILE *fp)
 {
-    //printf("saving to %s\n",filename);
-    FILE *fp = fopen(filename,"wb");
     if(!fp) return false;
     unsigned char tga_header[] = {
 	0, // 0: imageid len
@@ -265,10 +263,10 @@ bool image::save(const char *filename)
 	0,0,0,0, // 12: filled in with width, height
 	24, 32 // 16: ?
     };
-    tga_header[12] = m_Xres & 0xFF;
-    tga_header[13] = m_Xres >> 8;
-    tga_header[14] = m_Yres & 0xFF;
-    tga_header[15] = m_Yres >> 8;
+    tga_header[12] = m_totalXres & 0xFF;
+    tga_header[13] = m_totalXres >> 8;
+    tga_header[14] = m_totalYres & 0xFF;
+    tga_header[15] = m_totalYres >> 8;
 
     unsigned char tga_footer[] = {
 	0, 0, //extoffs
@@ -294,9 +292,7 @@ bool image::save(const char *filename)
     written = fwrite(tga_footer, 1, sizeof(tga_footer), fp);
     if(written != sizeof(tga_footer)) goto error;
 
-    fclose(fp);
     return true;
  error:
-    fclose(fp);
     return false;
 }
