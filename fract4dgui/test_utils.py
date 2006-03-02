@@ -38,12 +38,7 @@ class Test(unittest.TestCase):
             "Foo",None,["*.py"], extra)
 
         self.assertEqual(utils.get_file_chooser_extra_widget(chooser), extra)
-
-        utils.hide_extra_widgets(chooser)
-        
         self.runAndDismiss(chooser)
-
-
         
     def wait(self):
         gtk.main()

@@ -11,7 +11,7 @@ import urllib
 import gtk
 
 sys.path.append("..")
-from fract4d import fractal,fc,fract4dc
+from fract4d import fractal,fc,fract4dc,image
 from fractutils import flickr
 
 import gtkfractal, model, preferences, autozoom, settings, toolbar
@@ -90,6 +90,7 @@ class MainWindow:
         # create these properly later to avoid 'end from FAM server connection' messages
         self.saveas_fs = None
         self.saveimage_fs = None
+        self.hires_image_fs = None
         self.open_formula_fs = None
         self.open_fs = None        
         
@@ -150,14 +151,22 @@ class MainWindow:
     
     def get_save_image_as_fs(self):
         if self.saveimage_fs == None:
-            rtd_widgets = self.create_rtd_widgets()
             self.saveimage_fs = utils.get_file_save_chooser(
                 _("Save Image"),
                 self.window,
-                ["*.png","*.jpg","*.jpeg","*.tga"],
-                rtd_widgets)
+                image.file_matches())
         return self.saveimage_fs
 
+    def get_save_hires_image_as_fs(self):
+        if self.hires_image_fs == None:
+            rtd_widgets = self.create_rtd_widgets()
+            self.saveimage_fs = utils.get_file_save_chooser(
+                _("Save High Resolution Image"),
+                self.window,
+                image.file_matches(),
+                rtd_widgets)
+        return self.saveimage_fs
+        
     def get_open_formula_fs(self):
         if self.open_formula_fs == None:
             self.open_formula_fs = utils.get_file_open_chooser(
@@ -416,7 +425,7 @@ class MainWindow:
         """Add the current fractal to the render queue."""
         save_filename = self.default_save_filename(".png")
 
-        fs = self.get_save_image_as_fs()
+        fs = self.get_save_hires_image_as_fs()
         utils.set_file_chooser_filename(fs,save_filename)
         fs.show_all()
         
@@ -1030,7 +1039,6 @@ class MainWindow:
         fs = self.get_save_image_as_fs()
         utils.set_file_chooser_filename(fs,save_filename)
         fs.show_all()
-        utils.hide_extra_widgets(fs)
         
         name = None
         while True:
