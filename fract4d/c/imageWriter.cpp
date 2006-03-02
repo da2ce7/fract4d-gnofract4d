@@ -158,7 +158,6 @@ png_writer::save_tile()
 	png_bytep row = (png_bytep)(im->getBuffer() + im->row_length() * y); 
 	png_write_rows(png_ptr, &row, 1);
     }
-    printf("Wrote %d rows\n", im->Yres());
     return true;
 }
 
@@ -167,6 +166,75 @@ png_writer::save_footer()
 {
    png_write_end(png_ptr, info_ptr);
    return true;
+}
+
+#endif
+
+#ifdef JPG_ENABLED
+#include "jpeglib.h"
+
+class jpg_writer : public image_writer 
+{
+public:
+    jpg_writer(FILE *fp, IImage *image) : image_writer(fp,image) {
+	ok = true;
+    };
+    ~jpg_writer() {
+
+    }
+
+    bool save_header();
+    bool save_tile();
+    bool save_footer();
+
+private:
+    bool ok;
+
+    struct jpeg_compress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+
+};
+
+bool
+jpg_writer::save_header()
+{
+    cinfo.err = jpeg_std_error(&jerr);
+    jpeg_create_compress(&cinfo);
+  
+    jpeg_stdio_dest(&cinfo, fp);
+  
+    cinfo.image_width = im->Xres(); 	/* image width and height, in pixels */
+    cinfo.image_height = im->totalYres();
+    cinfo.input_components = 3;		/* # of color components per pixel */
+    cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
+
+    jpeg_set_defaults(&cinfo);
+    //jpeg_set_quality(&cinfo, quality, TRUE);
+  
+    jpeg_start_compress(&cinfo, TRUE);
+  
+    return true;
+}
+
+bool 
+jpg_writer::save_tile()
+{
+    for (int y = 0; y < im->Yres(); y++)
+    {
+	JSAMPROW row = (JSAMPROW)(im->getBuffer() + im->row_length() * y); 
+	jpeg_write_scanlines(&cinfo, &row, 1);
+    }
+
+    return true;
+}
+
+bool
+jpg_writer::save_footer()
+{
+    jpeg_finish_compress(&cinfo);
+    jpeg_destroy_compress(&cinfo);
+  
+    return true;
 }
 
 #endif

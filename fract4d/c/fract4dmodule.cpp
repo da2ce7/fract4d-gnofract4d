@@ -1624,39 +1624,6 @@ image_clear(PyObject *self, PyObject *args)
     return Py_None;
 }
 
-static PyObject *
-image_save(PyObject *self,PyObject *args)
-{
-    PyObject *pyim;
-    PyObject *pyFP;
-    int file_type;
-    if(!PyArg_ParseTuple(args,"OOi",&pyim,&pyFP,&file_type))
-    {
-	return NULL;
-    }
-
-    if(!PyFile_Check(pyFP))
-    {
-	return NULL;
-    }
-
-    image *i = (image *)PyCObject_AsVoidPtr(pyim);
-
-    FILE *fp = PyFile_AsFile(pyFP);
-
-    if(!fp || !i)
-    {
-	PyErr_SetString(PyExc_ValueError, "Bad arguments");
-	return NULL;
-    }
-    
-    ImageWriter *writer = ImageWriter::create((image_file_t)file_type, fp, i);
-    writer->save();
-    delete writer;
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 static void
 image_writer_delete(ImageWriter *im)
 {
@@ -1690,7 +1657,14 @@ image_writer_create(PyObject *self,PyObject *args)
     }
     
     ImageWriter *writer = ImageWriter::create((image_file_t)file_type, fp, i);
-    return PyCObject_FromVoidPtr(writer, (void (*)(void *))image_writer_delete);
+    if(NULL == writer)
+    {
+	PyErr_SetString(PyExc_ValueError, "Unsupported file type");
+	return NULL;
+    }
+
+    return PyCObject_FromVoidPtr(
+	writer, (void (*)(void *))image_writer_delete);
 }
 
 static PyObject *
@@ -2133,8 +2107,6 @@ static PyMethodDef PfMethods[] = {
     { "image_writer_create", image_writer_create, METH_VARARGS,
       "create an object used to write image to disk" },
 
-    { "image_save", image_save, METH_VARARGS,
-      "save an image to an open file object"},
     { "image_save_header", image_save_header, METH_VARARGS,
       "save an image header - useful for render-to-disk"},
     { "image_save_tile", image_save_tile, METH_VARARGS,

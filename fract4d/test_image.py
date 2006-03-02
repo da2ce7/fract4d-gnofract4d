@@ -9,6 +9,7 @@ import struct
 import math
 import types
 import filecmp
+import commands
 
 import testbase
 
@@ -100,19 +101,42 @@ class Test(testbase.TestBase):
             im.get_tile_list())
 
     def testSaveTGA(self):
-        self.doTestSave("tga")
+        self.doTestSave("tga","TGA")
+        self.doTestSave("TGA","TGA")
 
     def testSavePNG(self):
-        self.doTestSave("png")
+        self.doTestSave("png","PNG")
+        self.doTestSave("PNG","PNG")
+
+    def testSaveJPEG(self):
+        self.doTestSave("jpg","JPEG")
+        self.doTestSave("JPG","JPEG")
+        self.doTestSave("jpeg","JPEG")
+        self.doTestSave("JPEG","JPEG")
+
+    def testFileExtensionLookup(self):
+        im = image.T(40,30)
+        self.assertRaises(ValueError, im.file_type, "hello.gif")
+        self.assertRaises(ValueError, im.file_type, "hello")
         
-    def doTestSave(self,ext):
+    def assertImageFileFormat(self, name, format):
+        # run ImageMagick to test file contents
+        (status,output) = commands.getstatusoutput("identify %s" % name)
+        self.assertEqual(status,0)
+        fields = output.split()
+        self.assertEqual(fields[0],name)
+        self.assertEqual(fields[1],format)
+        self.assertEqual(fields[2],"640x400")
+        
+    def doTestSave(self,ext,format):
         f1 = "save1.%s" % ext
         f2 = "save2.%s" % ext
         try:
             im = image.T(640,400)
             im.save(f1)
             self.failUnless(os.path.exists(f1))
-
+            self.assertImageFileFormat(f1,format)
+            
             im = image.T(640,40,640,400)
             im.start_save(f2)
             for (xoff,yoff,w,h) in im.get_tile_list():
@@ -121,15 +145,50 @@ class Test(testbase.TestBase):
                 im.save_tile()
             im.finish_save()
             self.failUnless(os.path.exists(f2))
-            self.assertEqual(True, filecmp.cmp(f1,f2,False))
+            self.assertImageFileFormat(f2,format)
             
+            self.assertEqual(True, filecmp.cmp(f1,f2,False))
+                        
         finally:
-            return
             if os.path.exists(f1):
                 os.remove(f1)
             if os.path.exists(f2):
                 os.remove(f2)
+
+    def saveAndCheck(self,name,format):
+        im = image.T(640,400)
+        im.save(name)
+        self.failUnless(os.path.exists(name))
+        self.assertImageFileFormat(name,format)
             
+    def testBadSaves(self):
+        try:
+            self.saveAndCheck("test.gif","GIF")
+            self.fail("No exception thrown")
+        except ValueError, err:
+            self.assertEqual(
+                str(err),
+                "Unsupported file format '.gif'. Please use one of: .JPEG, .JPG, .PNG, .TGA")
+
+        try:
+            self.saveAndCheck("no_extension","GIF")
+            self.fail("No exception thrown")
+        except ValueError, err:
+            self.assertEqual(
+                str(err),
+                "No file extension in 'no_extension'. " +
+                "Can't determine file format. " +
+                "Please use one of: .JPEG, .JPG, .PNG, .TGA")
+
+        try:
+            self.saveAndCheck("no_such_dir/test.png","PNG")
+            self.fail("No exception thrown")
+        except IOError, err:
+            self.assertEqual(
+                str(err),
+                "Unable to save image to 'no_such_dir/test.png' : " +
+                "No such file or directory")
+
     def testResize(self):
         im = image.T(10,20)
         self.assertEqual(10,im.xsize)
