@@ -14,7 +14,8 @@ class T:
     def __init__(self,xsize,ysize,txsize=-1,tysize=-1):
         self._img = fract4dc.image_create(xsize,ysize,txsize, tysize)
         self.update_bufs()
-
+        self.fp = None
+        
     def get_xsize(self):
         return self.get_dim(fract4dc.IMAGE_WIDTH)
 
@@ -47,6 +48,21 @@ class T:
         file = open(name,"wb")
         fract4dc.image_save(self._img, file)
         file.close()
+
+    def start_save(self,name):
+        self.fp = open(name, "wb")
+        fract4dc.image_save_header(self._img, self.fp)
+        return file
+
+    def save_tile(self):
+        if None == self.fp:
+            return
+        fract4dc.image_save_tile(self._img, self.fp)
+
+    def finish_save(self):
+        fract4dc.image_save_footer(self._img, self.fp)
+        self.fp.close()
+        self.fp = None
         
     def get_tile_list(self):
         x = 0

@@ -1524,6 +1524,14 @@ image_resize(PyObject *self, PyObject *args)
 	return NULL;
     }
 
+    if(totalx == -1)
+    {
+	totalx = i->totalXres();
+    }
+    if(totaly == -1)
+    {
+	totaly = i->totalYres();
+    }
     i->set_resolution(x,y,totalx,totaly);
 
     if(! i->ok())
@@ -1645,7 +1653,94 @@ image_save(PyObject *self,PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
+
+static PyObject *
+image_save_header(PyObject *self,PyObject *args)
+{
+    PyObject *pyim;
+    PyObject *pyFP;
+    if(!PyArg_ParseTuple(args,"OO",&pyim,&pyFP))
+    {
+	return NULL;
+    }
+
+    if(!PyFile_Check(pyFP))
+    {
+	return NULL;
+    }
+
+    image *i = (image *)PyCObject_AsVoidPtr(pyim);
+
+    FILE *fp = PyFile_AsFile(pyFP);
+
+    if(!fp || !i || !i->save_header(fp))
+    {
+	PyErr_SetString(PyExc_IOError, "Couldn't save file header");
+	return NULL;
+    }
     
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+    
+static PyObject *
+image_save_tile(PyObject *self,PyObject *args)
+{
+    PyObject *pyim;
+    PyObject *pyFP;
+    if(!PyArg_ParseTuple(args,"OO",&pyim,&pyFP))
+    {
+	return NULL;
+    }
+
+    if(!PyFile_Check(pyFP))
+    {
+	return NULL;
+    }
+
+    image *i = (image *)PyCObject_AsVoidPtr(pyim);
+
+    FILE *fp = PyFile_AsFile(pyFP);
+
+    if(!fp || !i || !i->save_tile(fp))
+    {
+	PyErr_SetString(PyExc_IOError, "Couldn't save image tile");
+	return NULL;
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+image_save_footer(PyObject *self,PyObject *args)
+{
+    PyObject *pyim;
+    PyObject *pyFP;
+    if(!PyArg_ParseTuple(args,"OO",&pyim,&pyFP))
+    {
+	return NULL;
+    }
+
+    if(!PyFile_Check(pyFP))
+    {
+	return NULL;
+    }
+
+    image *i = (image *)PyCObject_AsVoidPtr(pyim);
+
+    FILE *fp = PyFile_AsFile(pyFP);
+
+    if(!fp || !i || !i->save_footer(fp))
+    {
+	PyErr_SetString(PyExc_IOError, "Couldn't save image footer");
+	return NULL;
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *
 image_buffer(PyObject *self, PyObject *args)
 {
@@ -2013,22 +2108,31 @@ static PyMethodDef PfMethods[] = {
       "Create a new image buffer"},
     { "image_resize", image_resize, METH_VARARGS,
       "Change image dimensions - data is deleted" },
-    { "image_save", image_save, METH_VARARGS,
-      "save an image to .tga format"},
-    { "image_buffer", image_buffer, METH_VARARGS,
-      "get the rgb data from the image"},
-    { "image_fate_buffer", image_fate_buffer, METH_VARARGS,
-      "get the fate data from the image"},
-    { "image_get_color_index", image_get_color_index, METH_VARARGS,
-      "Get the color index data from a point on the image"},
     { "image_set_offset", image_set_offset, METH_VARARGS,
       "set the image tile's offset" },
     { "image_dims", image_dims, METH_VARARGS,
       "get a tuple containing image's dimensions"},
-    { "image_get_fate", image_get_fate, METH_VARARGS,
-      "Get the (solid, fate) info for a point on the image"},
     { "image_clear", image_clear, METH_VARARGS,
       "Clear all iteration and color data from image" },
+
+    { "image_save", image_save, METH_VARARGS,
+      "save an image to an open file object"},
+    { "image_save_header", image_save_header, METH_VARARGS,
+      "save an image header - useful for render-to-disk"},
+    { "image_save_tile", image_save_tile, METH_VARARGS,
+      "save an image fragment ('tile') - useful for render-to-disk"},
+    { "image_save_footer", image_save_footer, METH_VARARGS,
+      "save the final footer info for an image - useful for render-to-disk"},
+
+    { "image_buffer", image_buffer, METH_VARARGS,
+      "get the rgb data from the image"},
+    { "image_fate_buffer", image_fate_buffer, METH_VARARGS,
+      "get the fate data from the image"},
+
+    { "image_get_color_index", image_get_color_index, METH_VARARGS,
+      "Get the color index data from a point on the image"},
+    { "image_get_fate", image_get_fate, METH_VARARGS,
+      "Get the (solid, fate) info for a point on the image"},
 
     { "site_create", pysite_create, METH_VARARGS,
       "Create a new site"},
