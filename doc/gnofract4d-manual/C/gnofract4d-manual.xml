@@ -987,10 +987,8 @@ calculation in a window. </para> </entry>
 <entry><para><filename>fract4dgui/c</filename></para></entry>
 
 <entry> <para>This contains the C code which implements the
-fract4dguic.so extension. This only has one minimal function, to wrap
-the GTK call to save an image, because that's missing in the earlier
-PyGTK versions. An alternative would be to use PIL, but I'm trying to
-keep the dependencies as minimal as possible.</para> </entry> </row>
+fract4dguic.so extension. This only has one minimal function, to
+obtain gconf settings. </para> </entry> </row>
 
 </tbody>
 </tgroup>
@@ -1152,7 +1150,7 @@ one). Inner colormaps are ignored. </para> </listitem>
 <title>About &gf4d;</title>
 <para>
 
-This is &gf4d; version 2.12. You can find the most recent version of
+This is &gf4d; version 2.13. You can find the most recent version of
 &gf4d; from <ulink url="http://gnofract4d.sourceforge.net">
 http://gnofract4d.sourceforge.net/</ulink>. 
 </para>
@@ -1175,6 +1173,13 @@ Gnofract could once be obtained from
 <ulink url="http://www.multimania.com/mason/">
 http://www.multimania.com/mason/</ulink> but this no longer appears to
 work. 
+</para>
+
+<para>
+The formula language which &gf4d; uses originated in &fractint; and
+was substantially enhanced in &ultrafractal;. However the compiler
+implementation does not share any code with those programs.
+
 </para>
 
 <para>

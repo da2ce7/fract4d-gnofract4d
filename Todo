@@ -1,6 +1,7 @@
 todo:
 
 fixed in 2.13:
+* WW	render to disk
 * B	error compiling aho.ufm#Poly3_J: 'NoneType' object has no attribute 'datatype'
 * B	standard.cfrm:triangle = all black
 * BB	boolean negation (! operator) doesn't actually work
@@ -51,8 +52,6 @@ features (the more W's, the more work involved):
 * W	all progress should be in one pass
 * W	name of image and creator in .fct and .png files
 * W	user-supplied additional gradient params
-* W	don't allocate memory for recoloring buffer when image very large 
-	(or max size + render to disk)
 * W 	gradients: HSV backend (flare_glow_radial_2)
 * WW	download missing formulas from UF formula database
 * W	move handles in gradient editor
@@ -402,7 +401,6 @@ xscreensaver version
 * W	draw to root window
 
 Movies-
-* B	deadlock when render movie while image is being drawn
 * B	movies turn off AA
 * W	implement frames/image
 * W	implement curves

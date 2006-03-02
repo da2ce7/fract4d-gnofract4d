@@ -26,7 +26,8 @@ class WrapMainWindow(main_window.MainWindow):
         self.errors.append((message,exception))
         
 class Test(unittest.TestCase):
-    def setUp(self):
+    def __init__(self,*args):
+        unittest.TestCase.__init__(self,*args)
         self.mw = WrapMainWindow()
         self.assertEqual(self.mw.filename, None, "shouldn't have a filename")
         
@@ -151,6 +152,12 @@ class Test(unittest.TestCase):
         self.mw.browser(None,None)
         self.mw.painter(None,None)
         self.mw.upload(None,None)
+
+    def testFileDialogs(self):
+        self.mw.get_save_as_fs()
+        self.mw.get_save_image_as_fs()
+        self.mw.get_open_formula_fs()
+        self.mw.get_open_fs()
         
     def testExplorer(self):
         result = self.mw.load("../testdata/nexus.fct")

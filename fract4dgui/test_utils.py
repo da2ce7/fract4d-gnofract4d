@@ -38,7 +38,31 @@ class Test(unittest.TestCase):
             "Foo",None,["*.py"], extra)
 
         self.assertEqual(utils.get_file_chooser_extra_widget(chooser), extra)
+
+        utils.hide_extra_widgets(chooser)
         
+        self.runAndDismiss(chooser)
+
+
+        
+    def wait(self):
+        gtk.main()
+        
+    def quitloop(self,f,status):
+        if status == 0:
+            gtk.main_quit()
+
+    def runAndDismiss(self,d):
+        def dismiss():
+            d.response(gtk.RESPONSE_ACCEPT)
+            d.hide()
+            return False
+
+        # increase timeout to see what dialogs look like
+        utils.timeout_add(10,dismiss)
+        r = d.run()
+        d.destroy()
+
 class ThrowbackTest(Test):
     """Test all the 'old' versions of the utilities."""
     def setUp(self):
