@@ -8,7 +8,7 @@ import stat
 import commands
 import sys
 
-gnofract4d_version = "2.12"
+gnofract4d_version = "2.13"
 
 if float(sys.version[:3]) < 2.2:
     print "Sorry, you need python 2.2 or higher to run Gnofract 4D."
@@ -48,10 +48,10 @@ class my_install_lib(install_lib):
 
         return outfiles
 
-# Extensions need to link against appropriate libs (for GUI, gtk+ and gconf).
+# Extensions need to link against appropriate libs
 # We use pkg-config to find the appropriate set of includes and libs
 
-pkgs = "gtk+-2.0 gconf-2.0"
+pkgs = "gconf-2.0"
 
 def call_package_config(package,option,optional=False):
     '''invoke pkg-config, if it exists, to find the appropriate
@@ -70,8 +70,8 @@ def call_package_config(package,option,optional=False):
 
     return output.split()
 
-gtk_flags = call_package_config(pkgs,"--cflags")
-gtk_libs =  call_package_config(pkgs,"--libs")
+gconf_flags = call_package_config(pkgs,"--cflags")
+gconf_libs =  call_package_config(pkgs,"--libs")
 
 extra_macros = []
 png_flags = call_package_config("libpng", "--cflags", True)
@@ -148,8 +148,8 @@ module2 = Extension(
     libraries = [
     'stdc++'
     ],
-    extra_compile_args = gtk_flags,
-    extra_link_args = gtk_libs,    
+    extra_compile_args = gconf_flags,
+    extra_link_args = gconf_libs,    
     define_macros = [ ('_REENTRANT',1),
                       #('DEBUG_CREATION',1)
                       ],

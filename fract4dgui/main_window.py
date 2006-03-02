@@ -109,11 +109,11 @@ class MainWindow:
         self.f.set_saved(True)
 
     def create_rtd_widgets(self):
-        hbox = gtk.Table(2,3,False)
+        table = gtk.Table(2,3,False)
         width = gtk.Entry()
         height = gtk.Entry()
-        wlabel = gtk.Entry(_("Width:"))
-        hlabel = gtk.Entry(_("Height:"))
+        wlabel = gtk.Label(_("Width:"))
+        hlabel = gtk.Label(_("Height:"))
         table.attach(
             wlabel,
             0, 1, 0, 1,
@@ -406,8 +406,37 @@ class MainWindow:
             
         self.bar.set_text(text)
 
-    def add_to_queue(self, action, widget):
+    def get_hires_dimensions(self,fs):
+        return (2048, 768*2)
+
+    def add_to_queue(self,name,w,h):
         pass
+    
+    def save_hires_image(self, action, widget):
+        """Add the current fractal to the render queue."""
+        save_filename = self.default_save_filename(".png")
+
+        fs = self.get_save_image_as_fs()
+        utils.set_file_chooser_filename(fs,save_filename)
+        fs.show_all()
+        
+        name = None
+        while True:
+            result = fs.run()
+            if result == gtk.RESPONSE_OK:
+                name = fs.get_filename()
+            else:
+                break
+            
+            if name and self.confirm(name):
+                try:
+                    (w,h) = self.get_hires_dimensions(fs)
+                    self.add_to_queue(name,w,h)
+                    break
+                except Exception, err:
+                    self.show_error_message(
+                        _("Error saving image %s") % name, err)
+        fs.hide()
     
     def get_menu_items(self):
         menu_items = (
@@ -423,7 +452,7 @@ class MainWindow:
             (_('/File/Save Current _Image'), '<control>I',
              self.save_image, 0, ''),
             (_('/File/Save _High-Res Image'), '<control><shift>I',
-             self.add_to_queue, 0, ''),
+             self.save_hires_image, 0, ''),
             
             (_('/File/sep1'), None,
              None, 0, '<Separator>'),
@@ -1001,6 +1030,7 @@ class MainWindow:
         fs = self.get_save_image_as_fs()
         utils.set_file_chooser_filename(fs,save_filename)
         fs.show_all()
+        utils.hide_extra_widgets(fs)
         
         name = None
         while True:

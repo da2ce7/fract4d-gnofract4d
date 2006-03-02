@@ -51,7 +51,14 @@ def idle_add(callable, *args):
         gobject.idle_add(idle_wrapper, callable, *args)
     except AttributeError:
         gtk.idle_add(idle_wrapper, callable, *args)
-    
+
+def timeout_add(time,callable):
+    try:
+        _throwback()
+        gobject.timeout_add(time,callable)
+    except AttributeError:
+        gtk.timeout_add(time,callable)
+
 def find_resource(name, local_dir, installed_dir):
     'try and find a file either locally or installed'
     local_name = os.path.join(local_dir,name)
@@ -133,6 +140,9 @@ def get_file_chooser_extra_widget(chooser):
         return chooser.get_extra_widget()
     except:
         return chooser.action_area.get_children()[0]
+
+def hide_extra_widgets(chooser):
+    get_file_chooser_extra_widget(chooser).hide()
     
 def set_file_chooser_filename(chooser,name):
     try:
