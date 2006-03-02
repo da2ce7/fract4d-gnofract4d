@@ -376,7 +376,7 @@ class Test(testbase.TestBase):
     def testAACalc(self):
         xsize = 64
         ysize = int(xsize * 3.0/4.0)
-        image = fract4dc.image_create(xsize,ysize)
+        im = image.T(xsize,ysize)
         siteobj = FractalSite()
         site = fract4dc.site_create(siteobj)
 
@@ -401,18 +401,17 @@ class Test(testbase.TestBase):
             auto_deepen=0,
             periodicity=1,
             render_type=0,
-            image=image,
+            image=im._img,
             site=site)
 
         # fate of all pixels should be known
-        fate_buf = fract4dc.image_fate_buffer(image)
+        fate_buf = im.fate_buffer()
         i = 0
         for byte in fate_buf:
-            d = fract4dc.image_get_color_index(
-                    image,
-                    (i % (4 * xsize)) / 4,
-                    i / (4 * xsize),
-                    i % 4)
+            d = im.get_color_index(
+                    (i % (im.FATE_SIZE * xsize)) / im.FATE_SIZE,
+                    i / (im.FATE_SIZE * xsize),
+                    i % im.FATE_SIZE)
 
             self.assertNotEqual("%g" % d,"inf", "index %d is %g" % (i,d))
             self.assertNotEqual(ord(byte), 255,
@@ -446,7 +445,7 @@ class Test(testbase.TestBase):
     def testFDSite(self):
         xsize = 64
         ysize = int(xsize * 3.0/4.0)
-        image = fract4dc.image_create(xsize,ysize)
+        im = image.T(xsize,ysize)
         (rfd,wfd) = os.pipe()
         site = fract4dc.fdsite_create(wfd)
 
@@ -475,7 +474,7 @@ class Test(testbase.TestBase):
                 auto_deepen=0,
                 periodicity=1,
                 render_type=0,
-                image=image,
+                image=im._img,
                 site=site,
                 async=True)
 
@@ -535,7 +534,7 @@ class Test(testbase.TestBase):
         
     def drawTwice(self,is_dirty,xsize):
         ysize = int(xsize * 3.0/4.0)
-        image = fract4dc.image_create(xsize,ysize)
+        im = image.T(xsize,ysize)
         siteobj = FractalSite()
         site = fract4dc.site_create(siteobj)
 
@@ -560,7 +559,7 @@ class Test(testbase.TestBase):
             auto_deepen=0,
             periodicity=1,
             render_type=0,
-            image=image,
+            image=im._img,
             site=site,
             dirty=is_dirty)
 
@@ -584,15 +583,15 @@ class Test(testbase.TestBase):
             auto_deepen=0,
             periodicity=1,
             render_type=0,
-            image=image,
+            image=im._img,
             site=site,
             dirty=is_dirty)
 
         #print "2nd pass %s" % is_dirty
         #self.print_fates(image,xsize,ysize)
-        fract4dc.image_save(image, "pass2%d.tga" % is_dirty)
+        im.save("pass2%d.tga" % is_dirty)
         
-        return [] ; fract4dc.image_buffer(image)
+        return [] # fract4dc.image_buffer(image)
         
     def testMiniTextRender(self):
         self.compileMandel()
