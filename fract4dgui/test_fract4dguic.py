@@ -9,8 +9,6 @@ import commands
 
 import gtk
 
-sys.path.append("..") #FIXME
-
 import fract4dguic
 
 class Test(unittest.TestCase):

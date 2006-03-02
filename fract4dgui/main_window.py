@@ -108,6 +108,38 @@ class MainWindow:
 
         self.f.set_saved(True)
 
+    def create_rtd_widgets(self):
+        hbox = gtk.Table(2,3,False)
+        width = gtk.Entry()
+        height = gtk.Entry()
+        wlabel = gtk.Entry(_("Width:"))
+        hlabel = gtk.Entry(_("Height:"))
+        table.attach(
+            wlabel,
+            0, 1, 0, 1,
+            gtk.EXPAND | gtk.FILL,
+            gtk.EXPAND | gtk.FILL,
+            1,1)
+        table.attach(
+            hlabel,
+            0, 1, 1, 2,
+            gtk.EXPAND | gtk.FILL,
+            gtk.EXPAND | gtk.FILL,
+            1,1)
+        table.attach(
+            width,
+            1, 2, 0, 1,
+            gtk.EXPAND | gtk.FILL,
+            gtk.EXPAND | gtk.FILL,
+            1,1)
+        table.attach(
+            height,
+            1, 2, 1, 2,
+            gtk.EXPAND | gtk.FILL,
+            gtk.EXPAND | gtk.FILL,
+            1,1)
+        return table
+
     def get_save_as_fs(self):
         if self.saveas_fs == None:
             self.saveas_fs = utils.get_file_save_chooser(
@@ -115,13 +147,15 @@ class MainWindow:
                 self.window,
                 ["*.fct"])
         return self.saveas_fs
-
+    
     def get_save_image_as_fs(self):
         if self.saveimage_fs == None:
+            rtd_widgets = self.create_rtd_widgets()
             self.saveimage_fs = utils.get_file_save_chooser(
                 _("Save Image"),
                 self.window,
-                ["*.png","*.jpg","*.jpeg"])
+                ["*.png","*.jpg","*.jpeg","*.tga"],
+                rtd_widgets)
         return self.saveimage_fs
 
     def get_open_formula_fs(self):
@@ -372,6 +406,9 @@ class MainWindow:
             
         self.bar.set_text(text)
 
+    def add_to_queue(self, action, widget):
+        pass
+    
     def get_menu_items(self):
         menu_items = (
             (_('/_File'), None, None, 0, '<Branch>' ),
@@ -383,8 +420,11 @@ class MainWindow:
              self.save, 0, '<StockItem>', gtk.STOCK_SAVE),
             (_('/File/Save _As...'), '<control><shift>S',
              self.saveas, 0, '<StockItem>', gtk.STOCK_SAVE_AS),
-            (_('/File/Save _Image'), '<control>I',
+            (_('/File/Save Current _Image'), '<control>I',
              self.save_image, 0, ''),
+            (_('/File/Save _High-Res Image'), '<control><shift>I',
+             self.add_to_queue, 0, ''),
+            
             (_('/File/sep1'), None,
              None, 0, '<Separator>'),
             (_('/File/_1'), None,

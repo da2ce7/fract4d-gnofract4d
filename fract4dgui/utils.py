@@ -1,3 +1,12 @@
+# This file contains utility classes and functions used by the GUI
+# Many of them 'cover up' differences between pygtk versions - these
+# follow the general pattern
+#
+# try:
+#    do new thing
+# except:
+#    fall back to the 'old way'
+
 import os
 import sys
 import inspect
@@ -6,7 +15,21 @@ import gtk
 import gobject
 
 threads_enabled = False
+break_new_things = False
 
+def force_throwback():
+    """Used for unit testing the 'old style' code - make the new stuff break
+    even if it would normally work. Call this to revert to pygtk 2.0 style"""
+    global break_new_things
+    break_new_things = True
+
+def unforce_throwback():
+    global break_new_things
+    break_new_things = False
+    
+def _throwback():
+    if break_new_things: raise AttributeError("Forcing use of old code")
+    
 def threads_enter():
     if threads_enabled:
         gtk.gdk.threads_enter()
@@ -24,6 +47,7 @@ def idle_add(callable, *args):
     """A wrapper around gtk.idle_add which wraps the callback in
     threads_enter/threads_leave if required"""
     try:
+        _throwback()
         gobject.idle_add(idle_wrapper, callable, *args)
     except AttributeError:
         gtk.idle_add(idle_wrapper, callable, *args)
@@ -72,6 +96,7 @@ def get_rgb_colormap():
 
 def get_directory_chooser(title,parent):
     try:
+        _throwback()
         chooser = gtk.FileChooserDialog(
             title, parent, gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
             (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
@@ -82,6 +107,7 @@ def get_directory_chooser(title,parent):
     
 def get_file_save_chooser(title, parent, patterns=[], extra_widget=None):
     try:
+        _throwback()
         chooser = gtk.FileChooserDialog(
             title, parent, gtk.FILE_CHOOSER_ACTION_SAVE,
             (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
@@ -96,10 +122,21 @@ def get_file_save_chooser(title, parent, patterns=[], extra_widget=None):
             chooser.set_extra_widget(extra_widget)
         return chooser
     except:
-        return gtk.FileSelection(title)
+        fs = gtk.FileSelection(title)
+        if extra_widget != None:
+            fs.action_area.pack_start(extra_widget)
+        return fs
 
+def get_file_chooser_extra_widget(chooser):
+    try:
+        _throwback()
+        return chooser.get_extra_widget()
+    except:
+        return chooser.action_area.get_children()[0]
+    
 def set_file_chooser_filename(chooser,name):
     try:
+        _throwback()
         if name:
             chooser.set_current_name(os.path.basename(name))
     except:
@@ -107,6 +144,7 @@ def set_file_chooser_filename(chooser,name):
     
 def get_file_open_chooser(title, parent, patterns=[]):
     try:
+        _throwback()
         chooser = gtk.FileChooserDialog(
             title, parent, gtk.FILE_CHOOSER_ACTION_OPEN,
             (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
@@ -123,6 +161,7 @@ def get_file_open_chooser(title, parent, patterns=[]):
 
 def create_option_menu(items):
     try:
+        _throwback()
         widget = gtk.combo_box_new_text()
         for item in items:
             widget.append_text(item)
@@ -139,18 +178,21 @@ def create_option_menu(items):
 
 def add_menu_item(menu, item):
     try:
+        _throwback()
         menu.append_text(item)
     except:
         menu.get_menu().append(gtk.MenuItem(item))
 
 def set_selected(menu, i):
     try:
+        _throwback()
         menu.set_active(int(i))
     except:
         menu.set_history(int(i))
         
 def get_selected(menu):
     try:
+        _throwback()
         return menu.get_active()
     except:
         return menu.get_history()
@@ -158,10 +200,9 @@ def get_selected(menu):
 def create_color(r,g,b):
     # multiply up to match range expected by gtk
     try:
+        _throwback()
         return gtk.gdk.Color(int(r*65535),int(g*65535),int(b*65535))
     except Exception, exn:
-        print exn
-        print "%s,%s,%s" % (r,g,b)
         # old gtk doesn't have direct color constructor
         return gtk.gdk.color_parse(
             "#%04X%04X%04X" % (int(r*65535),int(g*65535),int(b*65535)))
@@ -193,6 +234,7 @@ class ColorButton:
         self.changed_cb = changed_cb
         self.is_left = is_left
         try:
+            _throwback()
             self.widget = gtk.ColorButton(self.color)
 
             def color_set(widget):
@@ -218,6 +260,7 @@ class ColorButton:
         self.color = create_color(rgb[0], rgb[1], rgb[2])
 	
 	try:
+            _throwback()
             self.widget.set_color(self.color)
 	except:
             #print "sc", self.area, rgb

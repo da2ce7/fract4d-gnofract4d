@@ -23,6 +23,7 @@ import test_settings
 import test_painter
 import test_colors
 import test_fract4dguic
+import test_utils
 
 def suite():
     tests = (
@@ -38,6 +39,7 @@ def suite():
         test_painter.suite(),
         test_colors.suite(),
         test_fract4dguic.suite(),
+        test_utils.suite(),
         test_main_window.suite())
     return unittest.TestSuite(tests)
 
