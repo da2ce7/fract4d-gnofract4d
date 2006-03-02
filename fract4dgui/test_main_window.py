@@ -156,6 +156,7 @@ class Test(unittest.TestCase):
     def testFileDialogs(self):
         self.mw.get_save_as_fs()
         self.mw.get_save_image_as_fs()
+        self.mw.get_save_hires_image_as_fs()
         self.mw.get_open_formula_fs()
         self.mw.get_open_fs()
         

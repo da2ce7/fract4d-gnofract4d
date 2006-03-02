@@ -12,6 +12,9 @@ file_types = {
     ".tga" :fract4dc.FILE_TYPE_TGA
     }
 
+def file_matches():
+    return [ "*" + x for x in file_types.keys()]
+
 class T:
     FATE_SIZE = 4
     COL_SIZE = 3

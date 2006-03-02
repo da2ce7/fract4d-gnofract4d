@@ -118,6 +118,10 @@ class Test(testbase.TestBase):
         im = image.T(40,30)
         self.assertRaises(ValueError, im.file_type, "hello.gif")
         self.assertRaises(ValueError, im.file_type, "hello")
+
+    def testFileMatches(self):
+        matches = image.file_matches()
+        self.failUnless("*.tga" in matches)
         
     def assertImageFileFormat(self, name, format):
         # run ImageMagick to test file contents
