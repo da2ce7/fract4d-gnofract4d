@@ -80,7 +80,7 @@ def get_directory_chooser(title,parent):
     except:
         return gtk.FileSelection(title)
     
-def get_file_save_chooser(title, parent, patterns=[]):
+def get_file_save_chooser(title, parent, patterns=[], extra_widget=None):
     try:
         chooser = gtk.FileChooserDialog(
             title, parent, gtk.FILE_CHOOSER_ACTION_SAVE,
@@ -91,7 +91,9 @@ def get_file_save_chooser(title, parent, patterns=[]):
             filter.add_pattern(pattern)
 
         chooser.set_filter(filter)
-        
+
+        if extra_widget != None:
+            chooser.set_extra_widget(extra_widget)
         return chooser
     except:
         return gtk.FileSelection(title)

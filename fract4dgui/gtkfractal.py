@@ -16,7 +16,7 @@ import gobject
 # FIXME is there a better way?
 sys.path.append("..")
 
-from fract4d import fractal,fract4dc,fracttypes
+from fract4d import fractal,fract4dc,fracttypes, image
 import fract4dguic
 
 import utils, fourway
@@ -78,7 +78,7 @@ class T(gobject.GObject):
         
         self.width = width
         self.height = height
-        self.image = fract4dc.image_create(self.width,self.height)
+        self.image = image.T(self.width,self.height)
         
         drawing_area = gtk.DrawingArea()
         drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
@@ -195,7 +195,7 @@ class T(gobject.GObject):
                 auto_deepen=self.f.auto_deepen,
                 periodicity=self.f.periodicity,
                 render_type=self.f.render_type,
-                image=image,
+                image=image._img,
                 site=self.site,
                 dirty=self.f.clear_image,
                 async=True)
@@ -659,7 +659,7 @@ class T(gobject.GObject):
             self.width = new_width
             self.height = new_height
 
-            fract4dc.image_resize(self.image, new_width, new_height)
+            self.image.resize(new_width, new_height)
 
             self.widget.set_size_request(new_width,new_height)
             
@@ -686,7 +686,7 @@ class T(gobject.GObject):
         return self.f.saved
     
     def save_image(self,filename):
-        fract4dguic.image_save(self.image,filename)
+        fract4dguic.image_save(self.image._img,filename)
         
     def draw_image(self,aa,auto_deepen):
         if self.f == None:
@@ -763,11 +763,11 @@ class T(gobject.GObject):
     
     def onPaint(self,x,y):
         # obtain index
-        fate = fract4dc.image_get_fate(self.image, int(x), int(y))
+        fate = self.image.get_fate(int(x), int(y))
         if not fate:
             return
 
-        index = fract4dc.image_get_color_index(self.image, int(x), int(y))
+        index = self.image.get_color_index(int(x), int(y))
         
         # obtain a color
         (r,g,b) = self.get_paint_color()
@@ -875,7 +875,7 @@ class T(gobject.GObject):
         gc = self.widget.get_style().white_gc
 
         try:
-            buf = fract4dc.image_buffer(self.image,x,y)
+            buf = self.image.image_buffer(x,y)
         except MemoryError, err:
             # suppress these errors
             return
@@ -894,7 +894,7 @@ class T(gobject.GObject):
         # calculate the number of different colors which appear
         # in the subsection of the image bounded by the rectangle
         (xstart,ystart,xend,yend) = rect
-        buf = fract4dc.image_buffer(self.image,0,0)
+        buf = self.image.image_buffer(0,0)
         colors = {}
         for y in xrange(ystart,yend):
             for x in xrange(xstart,xend):

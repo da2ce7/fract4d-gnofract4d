@@ -365,7 +365,7 @@ class MainWindow:
         if status == 0:
             # done
             if self.save_filename:
-                self.f.save_image(self.save_filename)
+                self.save_image_file(self.save_filename)
             if self.quit_when_done:
                 self.f.set_saved(True)
                 self.quit(None,None)
@@ -860,7 +860,6 @@ class MainWindow:
         else:
             self.save_file(self.filename)
         
-
     def saveas(self,action,widget):
         """Save the current parameters into a new file."""
         fs = self.get_save_as_fs()
@@ -931,7 +930,7 @@ class MainWindow:
             image_name = os.path.join(
                 "/tmp",
                 os.path.basename(self.default_save_filename(".png")))
-            self.f.save_image(image_name)
+            self.save_image_file(image_name)
             
         subject = os.path.basename(self.display_filename())
         url= '"mailto:gnofract4d-users@lists.sourceforge.net?subject=%s&body=%s"' % \
@@ -973,13 +972,22 @@ class MainWindow:
             
             if name and self.confirm(name):
                 try:
-                    self.f.save_image(name)
+                    self.save_image_file(name)
                     break
                 except Exception, err:
                     self.show_error_message(
                         _("Error saving image %s") % name, err)
         fs.hide()
-                
+
+    def save_image_file(self,filename):
+        try:
+            self.f.save_image(filename)
+            return True
+        except Exception, err:
+            self.show_error_message(
+                _("Error saving image to file %s") % filename, err)
+            return False
+        
     def settings(self,action,widget):
         """Show fractal settings controls."""
         settings.show_settings(self.window, self.control_box, self.f, False)

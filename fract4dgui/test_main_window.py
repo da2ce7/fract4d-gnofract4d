@@ -86,7 +86,34 @@ class Test(unittest.TestCase):
         self.assertEqual(
             self.mw.errors[0][0],
             "Error saving to file /no_such_dir/mytest.fct")
-        
+
+    def testSaveImage(self):
+        # load good file
+        fn_good = "../testdata/test.fct"
+        result = self.mw.load(fn_good)
+        self.failUnless(result, "load failed")
+
+        # save to a bad place
+        result = self.mw.save_image_file("/no_such_dir/mybad.jpg")
+        self.assertEqual(False, result)
+        self.assertEqual(self.mw.errors[0][0],
+                         "Error saving image to file /no_such_dir/mybad.jpg")
+
+        # save wrong image type
+        result = self.mw.save_image_file("mybad.gif")
+        self.assertEqual(False, result)
+        self.assertEqual(self.mw.errors[1][0],
+                         "Error saving image to file mybad.gif")
+
+        # save successfully
+        try:
+            result = self.mw.save_image_file("mygood.png")
+            self.assertEqual(True, result)
+            self.assertEqual(True, os.path.isfile("mygood.png"))
+        finally:
+            if os.path.exists("mygood.png"):
+                os.remove("mygood.png")
+            
     def testLoadFormula(self):
         # load good formula file
         result = self.mw.load_formula("../formulas/fractint.cfrm")
