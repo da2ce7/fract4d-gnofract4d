@@ -99,30 +99,36 @@ class Test(testbase.TestBase):
               (0,50,100,1,), (100,50,1,1)],
             im.get_tile_list())
 
-    def testSave(self):
+    def testSaveTGA(self):
+        self.doTestSave("tga")
+
+    def testSavePNG(self):
+        self.doTestSave("png")
+        
+    def doTestSave(self,ext):
+        f1 = "save1.%s" % ext
+        f2 = "save2.%s" % ext
         try:
             im = image.T(640,400)
-            im.save("save1.tga")
-            self.failUnless(os.path.exists("save1.tga"))
+            im.save(f1)
+            self.failUnless(os.path.exists(f1))
 
-            im = image.T(64,40,640,400)
-            im.start_save("save2.tga")
+            im = image.T(640,40,640,400)
+            im.start_save(f2)
             for (xoff,yoff,w,h) in im.get_tile_list():
                 im.resize(w,h)
                 im.set_offset(xoff,yoff)
                 im.save_tile()
             im.finish_save()
-            self.failUnless(os.path.exists("save2.tga"))
-            file_len = os.stat("save2.tga").st_size
-            self.assertEqual(640*400*3 + 18 + 21, file_len)
-
-            self.assertEqual(True, filecmp.cmp("save1.tga","save2.tga",False))
+            self.failUnless(os.path.exists(f2))
+            self.assertEqual(True, filecmp.cmp(f1,f2,False))
             
         finally:
-            if os.path.exists("save1.tga"):
-                os.remove("save1.tga")
-            if os.path.exists("save2.tga"):
-                os.remove("save2.tga")
+            return
+            if os.path.exists(f1):
+                os.remove(f1)
+            if os.path.exists(f2):
+                os.remove(f2)
             
     def testResize(self):
         im = image.T(10,20)

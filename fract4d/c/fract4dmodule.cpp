@@ -1629,7 +1629,8 @@ image_save(PyObject *self,PyObject *args)
 {
     PyObject *pyim;
     PyObject *pyFP;
-    if(!PyArg_ParseTuple(args,"OO",&pyim,&pyFP))
+    int file_type;
+    if(!PyArg_ParseTuple(args,"OOi",&pyim,&pyFP,&file_type))
     {
 	return NULL;
     }
@@ -1641,39 +1642,69 @@ image_save(PyObject *self,PyObject *args)
 
     image *i = (image *)PyCObject_AsVoidPtr(pyim);
 
-    //printf("saving to %s\n",filename);
     FILE *fp = PyFile_AsFile(pyFP);
 
-    if(!fp || !i || !i->save(fp))
+    if(!fp || !i)
     {
-	PyErr_SetString(PyExc_IOError, "Couldn't save file");
+	PyErr_SetString(PyExc_ValueError, "Bad arguments");
 	return NULL;
     }
     
+    ImageWriter *writer = ImageWriter::create((image_file_t)file_type, fp, i);
+    writer->save();
+    delete writer;
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+static void
+image_writer_delete(ImageWriter *im)
+{
+    delete im;
+}
+
+static PyObject *
+image_writer_create(PyObject *self,PyObject *args)
+{
+    PyObject *pyim;
+    PyObject *pyFP;
+    int file_type;
+    if(!PyArg_ParseTuple(args,"OOi",&pyim,&pyFP,&file_type))
+    {
+	return NULL;
+    }
+
+    if(!PyFile_Check(pyFP))
+    {
+	return NULL;
+    }
+
+    image *i = (image *)PyCObject_AsVoidPtr(pyim);
+
+    FILE *fp = PyFile_AsFile(pyFP);
+
+    if(!fp || !i)
+    {
+	PyErr_SetString(PyExc_ValueError, "Bad arguments");
+	return NULL;
+    }
+    
+    ImageWriter *writer = ImageWriter::create((image_file_t)file_type, fp, i);
+    return PyCObject_FromVoidPtr(writer, (void (*)(void *))image_writer_delete);
 }
 
 static PyObject *
 image_save_header(PyObject *self,PyObject *args)
 {
-    PyObject *pyim;
-    PyObject *pyFP;
-    if(!PyArg_ParseTuple(args,"OO",&pyim,&pyFP))
+    PyObject *pyimwriter;
+    if(!PyArg_ParseTuple(args,"O",&pyimwriter))
     {
 	return NULL;
     }
 
-    if(!PyFile_Check(pyFP))
-    {
-	return NULL;
-    }
+    ImageWriter *i = (ImageWriter *)PyCObject_AsVoidPtr(pyimwriter);
 
-    image *i = (image *)PyCObject_AsVoidPtr(pyim);
-
-    FILE *fp = PyFile_AsFile(pyFP);
-
-    if(!fp || !i || !i->save_header(fp))
+    if(!i || !i->save_header())
     {
 	PyErr_SetString(PyExc_IOError, "Couldn't save file header");
 	return NULL;
@@ -1686,23 +1717,15 @@ image_save_header(PyObject *self,PyObject *args)
 static PyObject *
 image_save_tile(PyObject *self,PyObject *args)
 {
-    PyObject *pyim;
-    PyObject *pyFP;
-    if(!PyArg_ParseTuple(args,"OO",&pyim,&pyFP))
+    PyObject *pyimwriter;
+    if(!PyArg_ParseTuple(args,"O",&pyimwriter))
     {
 	return NULL;
     }
 
-    if(!PyFile_Check(pyFP))
-    {
-	return NULL;
-    }
+    ImageWriter *i = (ImageWriter *)PyCObject_AsVoidPtr(pyimwriter);
 
-    image *i = (image *)PyCObject_AsVoidPtr(pyim);
-
-    FILE *fp = PyFile_AsFile(pyFP);
-
-    if(!fp || !i || !i->save_tile(fp))
+    if(!i || !i->save_tile())
     {
 	PyErr_SetString(PyExc_IOError, "Couldn't save image tile");
 	return NULL;
@@ -1715,23 +1738,15 @@ image_save_tile(PyObject *self,PyObject *args)
 static PyObject *
 image_save_footer(PyObject *self,PyObject *args)
 {
-    PyObject *pyim;
-    PyObject *pyFP;
-    if(!PyArg_ParseTuple(args,"OO",&pyim,&pyFP))
+    PyObject *pyimwriter;
+    if(!PyArg_ParseTuple(args,"O",&pyimwriter))
     {
 	return NULL;
     }
 
-    if(!PyFile_Check(pyFP))
-    {
-	return NULL;
-    }
+    ImageWriter *i = (ImageWriter *)PyCObject_AsVoidPtr(pyimwriter);
 
-    image *i = (image *)PyCObject_AsVoidPtr(pyim);
-
-    FILE *fp = PyFile_AsFile(pyFP);
-
-    if(!fp || !i || !i->save_footer(fp))
+    if(!i || !i->save_footer())
     {
 	PyErr_SetString(PyExc_IOError, "Couldn't save image footer");
 	return NULL;
@@ -2115,6 +2130,9 @@ static PyMethodDef PfMethods[] = {
     { "image_clear", image_clear, METH_VARARGS,
       "Clear all iteration and color data from image" },
 
+    { "image_writer_create", image_writer_create, METH_VARARGS,
+      "create an object used to write image to disk" },
+
     { "image_save", image_save, METH_VARARGS,
       "save an image to an open file object"},
     { "image_save_header", image_save_header, METH_VARARGS,
@@ -2204,4 +2222,9 @@ initfract4dc(void)
     PyModule_AddIntConstant(pymod, "IMAGE_TOTAL_HEIGHT", 3);
     PyModule_AddIntConstant(pymod, "IMAGE_XOFFSET", 4);
     PyModule_AddIntConstant(pymod, "IMAGE_YOFFSET", 5);
+
+    /* image type consts */
+    PyModule_AddIntConstant(pymod, "FILE_TYPE_TGA", FILE_TYPE_TGA);
+    PyModule_AddIntConstant(pymod, "FILE_TYPE_PNG", FILE_TYPE_PNG);
+    PyModule_AddIntConstant(pymod, "FILE_TYPE_JPG", FILE_TYPE_JPG);
 }
