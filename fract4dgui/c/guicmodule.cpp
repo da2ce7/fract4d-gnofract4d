@@ -8,10 +8,7 @@
 #include <assert.h>
 #include <errno.h>
 
-#include "gtk/gtk.h"
 #include "gconf/gconf.h"
-
-#include "image.h"
 
 /* not sure why this isn't defined already */
 #ifndef PyMODINIT_FUNC 
