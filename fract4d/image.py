@@ -1,7 +1,16 @@
 # A type representing an image - this wraps the underlying C++ image type
 # exposed via fract4dmodule and provides some higher-level options around it
 
+import os
+
 import fract4dc
+
+file_types = {
+    ".jpg" : fract4dc.FILE_TYPE_JPG,
+    ".jpeg" : fract4dc.FILE_TYPE_JPG,
+    ".png" : fract4dc.FILE_TYPE_PNG,
+    ".tga" :fract4dc.FILE_TYPE_TGA
+    }
 
 class T:
     FATE_SIZE = 4
@@ -14,6 +23,7 @@ class T:
     def __init__(self,xsize,ysize,txsize=-1,tysize=-1):
         self._img = fract4dc.image_create(xsize,ysize,txsize, tysize)
         self.update_bufs()
+        self.writer = None
         self.fp = None
         
     def get_xsize(self):
@@ -44,25 +54,35 @@ class T:
     xoffset = property(get_xoffset)
     yoffset = property(get_yoffset)
 
+    def file_type(self,name):
+        ext = os.path.splitext(name)[1]
+        type = file_types.get(ext, None)
+        if type == None:
+            raise ValueError("unknown file type '%s'" % ext)
+        return type
+    
     def save(self,name):
         file = open(name,"wb")
-        fract4dc.image_save(self._img, file)
+        fract4dc.image_save(self._img, file, self.file_type(name))
         file.close()
 
     def start_save(self,name):
         self.fp = open(name, "wb")
-        fract4dc.image_save_header(self._img, self.fp)
+        self.writer = fract4dc.image_writer_create(
+            self._img, self.fp, self.file_type(name))
+        fract4dc.image_save_header(self.writer)
         return file
 
     def save_tile(self):
-        if None == self.fp:
+        if None == self.writer:
             return
-        fract4dc.image_save_tile(self._img, self.fp)
+        fract4dc.image_save_tile(self.writer)
 
     def finish_save(self):
-        fract4dc.image_save_footer(self._img, self.fp)
+        fract4dc.image_save_footer(self.writer)
         self.fp.close()
         self.fp = None
+        self.writer = None
         
     def get_tile_list(self):
         x = 0

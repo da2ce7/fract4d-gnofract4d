@@ -13,6 +13,7 @@ import random
 import fract4dc
 import fracttypes
 import gradient
+import image
 
 rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
 cmplx_re = re.compile(r'\((.*?),(.*?)\)')
@@ -1171,7 +1172,7 @@ if __name__ == '__main__':
         file = open(arg)
         f.loadFctFile(file)
         f.compile()
-        image = image.T(64,48)
-        f.draw(image)
-        image.save(image,os.path.basename(arg) + ".tga")
+        im = image.T(64,48)
+        f.draw(im)
+        im.save(os.path.basename(arg) + ".png")
         

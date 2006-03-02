@@ -63,7 +63,7 @@ public:
     inline int Xoffset() const  { return m_xoffset; };
     inline int Yoffset() const  { return m_yoffset; };
 
-    inline char *getBuffer() {
+    inline char *getBuffer() const {
 	assert(buffer != NULL);
 	return buffer; 
     };
@@ -73,7 +73,6 @@ public:
     };
 
     // utilities
-    inline int row_length() const {return m_Xres * 3; };
 
     int bytes() const;
 
@@ -119,11 +118,6 @@ public:
 
     double ratio() const;
     void clear();
-
-    bool save(FILE *fp);
-    bool save_header(FILE *fp);
-    bool save_tile(FILE *fp);
-    bool save_footer(FILE *fp);
 };
 
 #endif /* _IMAGE_H_ */

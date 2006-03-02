@@ -47,7 +47,37 @@ class my_install_lib(install_lib):
                     os.chmod(f, mode)
 
         return outfiles
-    
+
+# Extensions need to link against appropriate libs (for GUI, gtk+ and gconf).
+# We use pkg-config to find the appropriate set of includes and libs
+
+pkgs = "gtk+-2.0 gconf-2.0"
+
+def call_package_config(package,option,optional=False):
+    '''invoke pkg-config, if it exists, to find the appropriate
+    arguments for a library'''
+    cmd = "pkg-config %s %s" % (package, option)
+    (status,output) = commands.getstatusoutput(cmd)
+    if status != 0:
+        if optional:
+            print >>sys.stderr, "Can't find '%s'" % package
+            return []
+        else:
+            print >>sys.stderr, "Can't set up. Error running '%s'." % cmd
+            print >>sys.stderr, output
+            print >>sys.stderr, "Possibly you don't have one of these installed: '%s'." % package
+            sys.exit(1)
+
+    return output.split()
+
+gtk_flags = call_package_config(pkgs,"--cflags")
+gtk_libs =  call_package_config(pkgs,"--libs")
+
+png_flags = call_package_config("libpng", "--cflags", True)
+if png_flags != []:
+    extra_macros = [ ('PNG_ENABLED', 1) ]
+png_libs = call_package_config("libpng", "--libs", True)
+
 # use currently specified compilers, not ones from when Python was compiled
 # this is necessary for cross-compilation
 compiler = os.environ.get("CC","gcc")
@@ -62,7 +92,8 @@ module1 = Extension(
     'fract4d/c/fractFunc.cpp',
     'fract4d/c/STFractWorker.cpp',
     'fract4d/c/MTFractWorker.cpp',
-    'fract4d/c/image.cpp'
+    'fract4d/c/image.cpp',
+    'fract4d/c/imageWriter.cpp'
     ],
     include_dirs = [
     'fract4d/c'
@@ -73,11 +104,12 @@ module1 = Extension(
     extra_compile_args = [
     '-O0',
     '-Wall',
-    ],
+    ] + png_flags,
+    extra_link_args = png_libs,
     define_macros = [ ('_REENTRANT',1),
                       #('NO_CALC', 1),
                       #('DEBUG_CREATION',1)
-                      ],
+                      ] + extra_macros,
     undef_macros = [ 'NDEBUG']
     
     )
@@ -95,28 +127,6 @@ module_cmap = Extension(
     ],
     define_macros = [ ('_REENTRANT', 1)]
     )
-
-# GUI extension needs to link against gtk+ and gconf. We use pkg-config
-# to find the appropriate set of includes and libs
-
-pkgs = "gtk+-2.0 gconf-2.0"
-
-def call_package_config(package,option):
-    '''invoke pkg-config, if it exists, to find the appropriate
-    arguments for a library'''
-    cmd = "pkg-config %s %s" % (package, option)
-    (status,output) = commands.getstatusoutput(cmd)
-    if status != 0:
-        print >>sys.stderr, "Can't set up. Error running '%s'." % cmd
-        print >>sys.stderr, output
-        print >>sys.stderr, "Possibly you don't have one of these installed: '%s'." % package
-        sys.exit(1)
-
-    return output.split()
-
-gtk_flags = call_package_config(pkgs,"--cflags")
-gtk_libs =  call_package_config(pkgs,"--libs")
-
 
 module2 = Extension(
     'fract4dgui.fract4dguic',

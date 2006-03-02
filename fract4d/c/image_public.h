@@ -29,6 +29,14 @@
 #include "color.h"
 #include "fate.h"
 
+#include <cstdio>
+
+typedef enum {
+    FILE_TYPE_TGA,
+    FILE_TYPE_PNG,
+    FILE_TYPE_JPG,
+} image_file_t;
+
 class IImage
 {
 public:
@@ -60,6 +68,10 @@ public:
     virtual void put(int x, int y, rgba_t pixel) = 0;
     virtual rgba_t get(int x, int y) const = 0;
 
+    // lower-level color data accessors for image_writer
+    virtual inline char *getBuffer() const = 0;
+    inline int row_length() const { return Xres() * 3; };
+
     // accessors for iteration data
     virtual int getIter(int x, int y) const = 0;
     virtual void setIter(int x, int y, int iter) = 0;
@@ -77,6 +89,39 @@ public:
     
     virtual int getNSubPixels() const = 0;
     virtual bool hasUnknownSubpixels(int x, int y) const = 0;
+
+
+};
+
+class ImageWriter
+{
+public:
+    virtual ~ImageWriter() {};
+    static ImageWriter *create(
+	image_file_t type, FILE *fp, IImage *image);
+
+    virtual bool save_header() = 0;
+    virtual bool save_tile() = 0;
+    virtual bool save_footer() = 0;
+
+    bool save() 
+    {
+	if(!save_header())
+	{
+	    return false;
+	}
+	if(!save_tile())
+	{
+	    return false;
+	}
+	
+	if(!save_footer())
+	{
+	    return false;
+	}
+	
+	return true;       	
+    };
 };
 
 #endif /* IMAGE_PUBLIC_H_ */
