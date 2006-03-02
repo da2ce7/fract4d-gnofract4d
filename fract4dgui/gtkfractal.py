@@ -686,7 +686,7 @@ class T(gobject.GObject):
         return self.f.saved
     
     def save_image(self,filename):
-        fract4dguic.image_save(self.image._img,filename)
+        self.image.save(filename)
         
     def draw_image(self,aa,auto_deepen):
         if self.f == None:

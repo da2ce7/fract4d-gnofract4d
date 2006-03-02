@@ -54,20 +54,37 @@ class T:
     xoffset = property(get_xoffset)
     yoffset = property(get_yoffset)
 
+    def get_suggest_string(self):
+        k = file_types.keys()
+        k.sort()
+        available_types = ", ".join(k).upper()
+        suggest_string = "Please use one of: " + available_types
+        return suggest_string
+    
     def file_type(self,name):
         ext = os.path.splitext(name)[1]
-        type = file_types.get(ext, None)
+        if ext == "":
+            raise ValueError(
+                "No file extension in '%s'. Can't determine file format. %s" %\
+                (name, self.get_suggest_string()))
+        
+        type = file_types.get(ext.lower(), None)
         if type == None:
-            raise ValueError("unknown file type '%s'" % ext)
+            raise ValueError(
+                "Unsupported file format '%s'. %s" % \
+                (ext, self.get_suggest_string()))
         return type
     
     def save(self,name):
-        file = open(name,"wb")
-        fract4dc.image_save(self._img, file, self.file_type(name))
-        file.close()
+        self.start_save(name)
+        self.save_tile()
+        self.finish_save()
 
     def start_save(self,name):
-        self.fp = open(name, "wb")
+        try:
+            self.fp = open(name, "wb")
+        except IOError, err:
+            raise IOError("Unable to save image to '%s' : %s" % (name,err.strerror))
         self.writer = fract4dc.image_writer_create(
             self._img, self.fp, self.file_type(name))
         fract4dc.image_save_header(self.writer)

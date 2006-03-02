@@ -73,10 +73,18 @@ def call_package_config(package,option,optional=False):
 gtk_flags = call_package_config(pkgs,"--cflags")
 gtk_libs =  call_package_config(pkgs,"--libs")
 
+extra_macros = []
 png_flags = call_package_config("libpng", "--cflags", True)
 if png_flags != []:
-    extra_macros = [ ('PNG_ENABLED', 1) ]
+    extra_macros.append(('PNG_ENABLED', 1))
 png_libs = call_package_config("libpng", "--libs", True)
+
+jpg_lib = os.path.join(distutils.sysconfig.get_config_var("LIBDIR"), "libjpeg.so")
+if os.path.isfile("/usr/include/jpeglib.h") and os.path.isfile(jpg_lib):
+    extra_macros.append(('JPG_ENABLED', 1))
+    jpg_libs = [ jpg_lib ]
+else:
+    jpg_libs = []
 
 # use currently specified compilers, not ones from when Python was compiled
 # this is necessary for cross-compilation
@@ -105,7 +113,7 @@ module1 = Extension(
     '-O0',
     '-Wall',
     ] + png_flags,
-    extra_link_args = png_libs,
+    extra_link_args = png_libs + jpg_libs,
     define_macros = [ ('_REENTRANT',1),
                       #('NO_CALC', 1),
                       #('DEBUG_CREATION',1)
