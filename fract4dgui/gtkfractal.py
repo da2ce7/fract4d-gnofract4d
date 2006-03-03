@@ -21,7 +21,9 @@ import fract4dguic
 
 import utils, fourway
 
-class T(gobject.GObject):
+class Hidden(gobject.GObject):
+    """This class implements a fractal which calculates asynchronously
+    and is integrated with the GTK main loop"""
     __gsignals__ = {
         'parameters-changed' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
@@ -44,17 +46,14 @@ class T(gobject.GObject):
                             gobject.TYPE_FLOAT, gobject.TYPE_FLOAT))
         }
 
-    def __init__(self,comp,parent=None,width=640,height=480):
+    def __init__(self,comp,width,height,total_width=-1,total_height=-1):
         gobject.GObject.__init__(self)
 
         (self.readfd,self.writefd) = os.pipe()
         self.nthreads = 1        
 
-        self.parent = parent
         self.compiler = comp
 
-        self.paint_mode = False
-        
         self.msgformat = "5i"
         self.msgsize = struct.calcsize(self.msgformat)
 
@@ -78,35 +77,8 @@ class T(gobject.GObject):
         
         self.width = width
         self.height = height
-        self.image = image.T(self.width,self.height)
-        
-        drawing_area = gtk.DrawingArea()
-        drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
-                                gtk.gdk.BUTTON1_MOTION_MASK |
-                                gtk.gdk.POINTER_MOTION_HINT_MASK |
-                                gtk.gdk.BUTTON_PRESS_MASK |
-                                gtk.gdk.KEY_PRESS_MASK |
-                                gtk.gdk.KEY_RELEASE_MASK
-                                )
-        
-        drawing_area.connect('motion_notify_event', self.onMotionNotify)
-        drawing_area.connect('button_release_event', self.onButtonRelease)
-        drawing_area.connect('button_press_event', self.onButtonPress)
-        drawing_area.connect('expose_event',self.onExpose)
-
-        c = utils.get_rgb_colormap()
-        
-        drawing_area.set_colormap(c)        
-        drawing_area.set_size_request(self.width,self.height)
-
-        self.widget = drawing_area
-
-    def input_add(self,fd,cb):
-        try:
-            return gobject.io_add_watch(
-                fd, gobject.IO_IN | gobject.IO_HUP, cb)
-        except AttributeError, err:
-            return gtk.input_add(fd, gtk.gdk.INPUT_READ, cb)
+        self.image = image.T(
+            self.width,self.height,total_width,total_height)
 
     def try_init_fractal(self):
         try:
@@ -118,6 +90,46 @@ class T(gobject.GObject):
             self.error(_("Can't load default fractal"), err)
             return False
             
+    def set_fractal(self,f):
+        if f != self.f:
+            if self.f:
+                self.interrupt()
+            self.f = f
+
+            # take over fractal's changed function
+            f.changed = self.changed
+            f.formula_changed = self.formula_changed
+            f.warn = self.warn
+            self.formula_changed()
+            self.changed()
+
+    def changed(self,clear_image=True):
+        if self.f == None:
+            return
+        self.f.dirty=True
+        self.f.clear_image = clear_image
+        self.set_saved(False)
+        if not self.frozen:
+            self.emit('parameters-changed')
+            
+    def formula_changed(self):
+        self.f.dirtyFormula = True
+        #if not self.frozen:
+        self.emit('formula-changed')
+            
+    def set_saved(self,val):
+        if self.f != None:
+            self.f.saved = val
+        
+    def input_add(self,fd,cb):
+        utils.input_add(fd,cb)
+
+    def error(self,msg,err):
+        print "Error: %s %s" % (msg,err)
+        
+    def warn(self,msg):
+        print "Warning: ", msg
+
     def update_formula(self):
         if self.f != None:
             self.f.dirtyFormula = True
@@ -162,47 +174,6 @@ class T(gobject.GObject):
         if ok:
             self.f.set_formula(fname, formula)
         
-    def draw(self,image,width,height,nthreads):
-        cmap = fract4dc.cmap_create_gradient(self.get_gradient().segments)
-        (r,g,b,a) = self.f.solids[0]
-        fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
-        (r,g,b,a) = self.f.solids[1]
-        fract4dc.cmap_set_solid(cmap,1,r,g,b,a)
-
-        t = self.f.tolerance(width,height)
-        if self.f.auto_tolerance:
-            self.f.set_named_param("@epsilon",t,
-                                   self.f.formula, self.f.initparams)
-
-        initparams = self.all_params()
-
-        try:
-            fract4dc.pf_init(self.f.pfunc,t,initparams)
-        except ValueError:
-            print initparams
-            raise
-
-        self.running = True
-        try:
-            fract4dc.calc(
-                params=self.f.params,
-                antialias=self.f.antialias,
-                maxiter=self.f.maxiter,
-                yflip=self.f.yflip,
-                nthreads=nthreads,
-                pfo=self.f.pfunc,
-                cmap=cmap,
-                auto_deepen=self.f.auto_deepen,
-                periodicity=self.f.periodicity,
-                render_type=self.f.render_type,
-                image=image._img,
-                site=self.site,
-                dirty=self.f.clear_image,
-                async=True)
-            
-        except MemoryError:
-            pass
-        
     def onData(self,fd,condition):
         bytes = os.read(fd,self.msgsize)
         if len(bytes) < self.msgsize:
@@ -246,6 +217,260 @@ class T(gobject.GObject):
     def get_param(self,n):
         return self.f.get_param(n)
     
+    def set_nthreads(self, n):
+        if self.nthreads != n:
+            self.nthreads = n
+            self.changed()
+            
+    def set_auto_deepen(self,deepen):
+        if self.f.auto_deepen != deepen:
+            self.f.auto_deepen = deepen
+            self.changed()
+            
+    def set_antialias(self,aa_type):
+        if self.f.antialias != aa_type:
+            self.f.antialias = aa_type
+            self.changed()
+        
+    def set_func(self,func,fname,formula):
+        self.f.set_func(func,fname,formula)
+        
+    def double_maxiter(self):
+        self.set_maxiter(self.f.maxiter*2)
+        
+    def set_maxiter(self,new_iter):
+        if self.f.maxiter != new_iter:
+            self.f.maxiter = new_iter
+            self.changed()
+
+    def reset(self):
+        self.f.reset()
+        self.changed()
+
+    def loadFctFile(self,file):
+        new_f = fractal.T(self.compiler,self.site)
+        new_f.warn = self.warn
+        new_f.loadFctFile(file)
+        self.set_fractal(new_f)
+        self.set_saved(True)
+
+    def is_saved(self):
+        if self.f == None:
+            return True
+        return self.f.saved
+    
+    def save_image(self,filename):
+        self.image.save(filename)
+        
+    def progress_changed(self,progress):
+        self.emit('progress-changed',progress)
+        
+    def status_changed(self,status):
+        self.emit('status-changed',status)
+        
+    def iters_changed(self,n):
+        self.f.maxiter = n
+        # don't emit a parameters-changed here to avoid deadlock
+        self.emit('iters-changed',n)
+        
+    def image_changed(self,x1,y1,x2,y2):
+        pass 
+
+    def draw(self,image,width,height,nthreads):
+        cmap = fract4dc.cmap_create_gradient(self.get_gradient().segments)
+        (r,g,b,a) = self.f.solids[0]
+        fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
+        (r,g,b,a) = self.f.solids[1]
+        fract4dc.cmap_set_solid(cmap,1,r,g,b,a)
+
+        t = self.f.tolerance(width,height)
+        if self.f.auto_tolerance:
+            self.f.set_named_param("@epsilon",t,
+                                   self.f.formula, self.f.initparams)
+
+        initparams = self.all_params()
+
+        try:
+            fract4dc.pf_init(self.f.pfunc,t,initparams)
+        except ValueError:
+            print initparams
+            raise
+
+        self.running = True
+        try:
+            fract4dc.calc(
+                params=self.f.params,
+                antialias=self.f.antialias,
+                maxiter=self.f.maxiter,
+                yflip=self.f.yflip,
+                nthreads=nthreads,
+                pfo=self.f.pfunc,
+                cmap=cmap,
+                auto_deepen=self.f.auto_deepen,
+                periodicity=self.f.periodicity,
+                render_type=self.f.render_type,
+                image=image._img,
+                site=self.site,
+                dirty=self.f.clear_image,
+                async=True)
+            
+        except MemoryError:
+            pass
+        
+    def draw_image(self,aa,auto_deepen):
+        if self.f == None:
+            return
+        self.interrupt()
+
+        self.f.compile()
+        
+        self.f.antialias = aa
+        self.f.auto_deepen = auto_deepen
+        self.draw(self.image,self.width,self.height,self.nthreads)
+        return False
+
+
+    def set_plane(self,angle1,angle2):
+        self.freeze()
+        self.reset_angles()
+        if angle1 != None:
+            self.set_param(angle1,math.pi/2)
+        if angle2 != None:
+            self.f.set_param(angle2,math.pi/2)
+            
+        if self.thaw():
+            self.changed()
+
+    def float_coords(self,x,y):
+        return ((x - self.width/2.0)/self.width,
+                (y - self.height/2.0)/self.width)
+    
+    def recenter(self,x,y,zoom):
+        dx = (x - self.width/2.0)/self.width
+        dy = (y - self.height/2.0)/self.width                
+        self.relocate(dx,dy,zoom)
+        
+    def count_colors(self,rect):
+        # calculate the number of different colors which appear
+        # in the subsection of the image bounded by the rectangle
+        (xstart,ystart,xend,yend) = rect
+        buf = self.image.image_buffer(0,0)
+        colors = {}
+        for y in xrange(ystart,yend):
+            for x in xrange(xstart,xend):
+                offset = (y*self.width+x)*3
+                col = buf[offset:offset+3]
+                colors[col] = 1 + colors.get(col,0)
+        return len(colors)
+
+    def get_func_name(self):
+        if self.f == None:
+            return _("No fractal loaded")
+        return self.f.get_func_name()
+
+    def get_saved(self):
+        if self.f == None:
+            return True
+        return self.f.get_saved()
+
+    def serialize(self):
+        if self.f == None:
+            return None
+        return self.f.serialize()
+
+    def set_size(self, new_width, new_height):
+        self.interrupt()
+        if self.width == new_width and self.height == new_height :
+            return
+        
+        self.width = new_width
+        self.height = new_height
+
+        self.image.resize(new_width, new_height)
+        utils.idle_add(self.changed)
+
+# explain our existence to GTK's object system
+gobject.type_register(Hidden)
+
+class HighResolution(Hidden):
+    "An invisible GtkFractal which computes in multiple chunks"
+    def __init__(self,comp,width,height):
+        (tile_width, tile_height) = self.compute_tile_size(width,height)
+
+        Hidden.__init__(self,comp,tile_width, tile_height, width,height)
+
+        self.tile_list = self.image.get_tile_list()
+        
+    def compute_tile_size(self,w,h):
+        tile_width = w
+        tile_height = min(h,128)
+        return (tile_width, tile_height)
+
+    def draw_image(self,name):
+        if self.f == None:
+            return
+        self.interrupt()
+
+        self.f.compile()
+        
+        self.f.auto_deepen = False
+        self.image.start_save(name)
+        self.next_tile()
+        return False
+
+    def next_tile(self):
+        # work left to do
+        (xoff,yoff,w,h) = self.tile_list.pop(0)
+        self.image.resize(w,h)
+        self.image.set_offset(xoff,yoff)
+        self.draw(self.image,w,h,self.nthreads)
+        
+    def status_changed(self,status):
+        if status == 0:
+            # done this chunk
+            self.image.save_tile()
+            
+            if len(self.tile_list) > 0:
+                self.next_tile()
+            else:
+                # completely done
+                self.image.finish_save()
+                self.emit('status-changed',status)
+        else:
+            self.emit('status-changed',status)
+
+class T(Hidden):
+    "A visible GtkFractal which responds to user input"
+    def __init__(self,comp,parent=None,width=640,height=480):
+        Hidden.__init__(self,comp,width,height)
+
+        self.parent = parent
+        self.paint_mode = False
+                
+        drawing_area = gtk.DrawingArea()
+        drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
+                                gtk.gdk.BUTTON1_MOTION_MASK |
+                                gtk.gdk.POINTER_MOTION_HINT_MASK |
+                                gtk.gdk.BUTTON_PRESS_MASK |
+                                gtk.gdk.KEY_PRESS_MASK |
+                                gtk.gdk.KEY_RELEASE_MASK
+                                )
+        
+        drawing_area.connect('motion_notify_event', self.onMotionNotify)
+        drawing_area.connect('button_release_event', self.onButtonRelease)
+        drawing_area.connect('button_press_event', self.onButtonPress)
+        drawing_area.connect('expose_event',self.onExpose)
+
+        c = utils.get_rgb_colormap()
+        
+        drawing_area.set_colormap(c)        
+        drawing_area.set_size_request(self.width,self.height)
+
+        self.widget = drawing_area
+
+    def image_changed(self,x1,y1,x2,y2):
+        self.redraw_rect(x1,y1,x2-x1,y2-y1)
+
     def param_display_name(self,name,param):
         if hasattr(param,"title"):
             return param.title.value
@@ -466,19 +691,6 @@ class T(gobject.GObject):
             self.nthreads = n
             self.changed()
     
-    def set_fractal(self,f):
-        if f != self.f:
-            if self.f:
-                self.interrupt()
-            self.f = f
-
-            # take over fractal's changed function
-            f.changed = self.changed
-            f.formula_changed = self.formula_changed
-            f.warn = self.warn
-            self.formula_changed()
-            self.changed()
-
     def error(self,msg,err):
         if self.parent:
             self.parent.show_error_message(msg, err)
@@ -491,37 +703,6 @@ class T(gobject.GObject):
         else:
             print "Warning: ", msg
 
-    def set_saved(self,val):
-        if self.f != None:
-            self.f.saved = val
-        
-    def changed(self,clear_image=True):
-        if self.f == None:
-            return
-        self.f.dirty=True
-        self.f.clear_image = clear_image
-        self.set_saved(False)
-        if not self.frozen:
-            self.emit('parameters-changed')
-            
-    def formula_changed(self):
-        self.f.dirtyFormula = True
-        #if not self.frozen:
-        self.emit('formula-changed')
-            
-    def set_auto_deepen(self,deepen):
-        if self.f.auto_deepen != deepen:
-            self.f.auto_deepen = deepen
-            self.changed()
-            
-    def set_antialias(self,aa_type):
-        if self.f.antialias != aa_type:
-            self.f.antialias = aa_type
-            self.changed()
-        
-    def set_func(self,func,fname,formula):
-        self.f.set_func(func,fname,formula)
-        
     def add_formula_function(self,table,i,name,param,formula):
         label = gtk.Label(self.param_display_name(name,param))
         label.set_justify(gtk.JUSTIFY_RIGHT)
@@ -642,83 +823,22 @@ class T(gobject.GObject):
             i += 1
         return table
 
-    def double_maxiter(self):
-        self.set_maxiter(self.f.maxiter*2)
-        
-    def set_maxiter(self,new_iter):
-        if self.f.maxiter != new_iter:
-            self.f.maxiter = new_iter
-            self.changed()
-
     def set_size(self, new_width, new_height):
-        self.interrupt()
-        if self.width == new_width and self.height == new_height :
-            return
-
         try:
-            self.width = new_width
-            self.height = new_height
-
-            self.image.resize(new_width, new_height)
-
+            Hidden.set_size(self,new_width, new_height)
             self.widget.set_size_request(new_width,new_height)
-            
-            utils.idle_add(self.changed)
         except MemoryError, err:
             utils.idle_add(self.warn,str(err))
-            
-
-        
-    def reset(self):
-        self.f.reset()
-        self.changed()
-
-    def loadFctFile(self,file):
-        new_f = fractal.T(self.compiler,self.site)
-        new_f.warn = self.warn
-        new_f.loadFctFile(file)
-        self.set_fractal(new_f)
-        self.set_saved(True)
-
-    def is_saved(self):
-        if self.f == None:
-            return True
-        return self.f.saved
-    
-    def save_image(self,filename):
-        self.image.save(filename)
-        
+                    
     def draw_image(self,aa,auto_deepen):
-        if self.f == None:
-            return
-        self.interrupt()
         try:
-            self.f.compile()
+            Hidden.draw_image(self,aa,auto_deepen)
         except fracttypes.TranslationError, err:
             advice = _("\nCheck that your compiler settings and formula file are correct.")
             utils.idle_add(self.error,
                            _("Error compiling fractal:"),
                            err.msg + advice)
             return
-        
-        self.f.antialias = aa
-        self.f.auto_deepen = auto_deepen
-        self.draw(self.image,self.width,self.height,self.nthreads)
-        return False
-
-    def progress_changed(self,progress):
-        self.emit('progress-changed',progress)
-        
-    def status_changed(self,status):
-        self.emit('status-changed',status)
-        
-    def iters_changed(self,n):
-        self.f.maxiter = n
-        # don't emit a parameters-changed here to avoid deadlock
-        self.emit('iters-changed',n)
-        
-    def image_changed(self,x1,y1,x2,y2):
-        self.redraw_rect(x1,y1,x2-x1,y2-y1)
 
     def onExpose(self,widget,exposeEvent):
         r = exposeEvent.area
@@ -837,26 +957,6 @@ class T(gobject.GObject):
         if self.thaw():
             self.changed()
 
-    def set_plane(self,angle1,angle2):
-        self.freeze()
-        self.reset_angles()
-        if angle1 != None:
-            self.set_param(angle1,math.pi/2)
-        if angle2 != None:
-            self.f.set_param(angle2,math.pi/2)
-            
-        if self.thaw():
-            self.changed()
-
-    def float_coords(self,x,y):
-        return ((x - self.width/2.0)/self.width,
-                (y - self.height/2.0)/self.width)
-    
-    def recenter(self,x,y,zoom):
-        dx = (x - self.width/2.0)/self.width
-        dy = (y - self.height/2.0)/self.width                
-        self.relocate(dx,dy,zoom)
-        
     def redraw_rect(self,x,y,w,h):
         # check to see if part of the rect is out-of-bounds, and clip if so
         if x < 0:
@@ -890,34 +990,6 @@ class T(gobject.GObject):
                 buf,
                 self.width*3)
 
-    def count_colors(self,rect):
-        # calculate the number of different colors which appear
-        # in the subsection of the image bounded by the rectangle
-        (xstart,ystart,xend,yend) = rect
-        buf = self.image.image_buffer(0,0)
-        colors = {}
-        for y in xrange(ystart,yend):
-            for x in xrange(xstart,xend):
-                offset = (y*self.width+x)*3
-                col = buf[offset:offset+3]
-                colors[col] = 1 + colors.get(col,0)
-        return len(colors)
-
-    def get_func_name(self):
-        if self.f == None:
-            return _("No fractal loaded")
-        return self.f.get_func_name()
-
-    def get_saved(self):
-        if self.f == None:
-            return True
-        return self.f.get_saved()
-
-    def serialize(self):
-        if self.f == None:
-            return None
-        return self.f.serialize()
-
 class SubFract(T):
     def __init__(self,comp,width=640,height=480):
         T.__init__(self,comp,None,width,height)
@@ -929,5 +1001,3 @@ class SubFract(T):
     def onButtonRelease(self,widget,event):
         self.master.set_fractal(self.copy_f())
         
-# explain our existence to GTK's object system
-gobject.type_register(T)

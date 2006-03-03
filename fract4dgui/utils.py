@@ -59,6 +59,15 @@ def timeout_add(time,callable):
     except AttributeError:
         gtk.timeout_add(time,callable)
 
+def input_add(fd,cb):
+    try:
+        _throwback()
+        return gobject.io_add_watch(
+            fd, gobject.IO_IN | gobject.IO_HUP, cb)
+    except AttributeError, err:
+        return gtk.input_add(fd, gtk.gdk.INPUT_READ, cb)
+
+    
 def find_resource(name, local_dir, installed_dir):
     'try and find a file either locally or installed'
     local_name = os.path.join(local_dir,name)
