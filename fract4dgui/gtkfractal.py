@@ -438,7 +438,7 @@ class HighResolution(Hidden):
                 self.emit('status-changed',status)
         else:
             self.emit('status-changed',status)
-
+        
 class T(Hidden):
     "A visible GtkFractal which responds to user input"
     def __init__(self,comp,parent=None,width=640,height=480):
