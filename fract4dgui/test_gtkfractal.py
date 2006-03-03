@@ -36,6 +36,71 @@ class Recurser:
         self.count += 1
         nv = f.params[f.MAGNITUDE]
         f.set_param(f.MAGNITUDE, nv * 2.0)
+
+class TestHidden(unittest.TestCase):
+    def setUp(self):
+        global g_comp
+        self.compiler = g_comp
+
+    def wait(self):
+        gtk.main()
+        
+    def quitloop(self,f,status):
+        if status == 0:
+            gtk.main_quit()
+
+    def testCreate(self):
+        # draw a default fractal
+        f = gtkfractal.Hidden(self.compiler,64,40)
+        f.connect('status-changed', self.quitloop)
+        f.draw_image(0,1)
+        self.wait()
+
+    def testCopy(self):
+        f = gtkfractal.Hidden(self.compiler,64,40)
+        copy = f.copy_f()
+        mag = f.get_param(f.MAGNITUDE)
+        copy.set_param(copy.MAGNITUDE,176.3)
+        self.assertEqual(mag,f.get_param(f.MAGNITUDE))
+        self.assertNotEqual(mag,copy.get_param(copy.MAGNITUDE))
+
+    def testSignals(self):
+        f = gtkfractal.Hidden(self.compiler,64,40)
+        cc = CallCounter()
+        f.connect('parameters-changed', cc.cb)
+        self.assertEqual(cc.count,0)
+        
+        f.set_param(f.MAGNITUDE,0.7)
+        self.assertEqual(cc.count,1)
+
+        # set to the same value, no callback
+        f.set_param(f.MAGNITUDE,0.7)
+        self.assertEqual(cc.count,1)
+
+        # maxiter
+        f.set_maxiter(778)
+        f.set_maxiter(778)
+        self.assertEqual(cc.count,2)
+
+        # size
+        f.set_size(57,211)
+        f.set_size(57,211)
+        while cc.count < 3:
+            gtk.main_iteration()
+
+    def testLoad(self):
+        f = gtkfractal.Hidden(self.compiler,64,40)
+        f.loadFctFile(file("../testdata/test_bail.fct"))
+        self.assertEqual(f.saved, True)        
+        f.connect('status-changed', self.quitloop)
+        f.draw_image(0,1)
+        self.wait()        
+
+    def testBigImage(self):
+        f = gtkfractal.HighResolution(self.compiler,640,400)
+        f.connect('status-changed', self.quitloop)
+        f.draw_image("hires.png")
+        self.wait()
         
 class Test(unittest.TestCase):
     def setUp(self):
@@ -61,41 +126,8 @@ class Test(unittest.TestCase):
         # draw a default fractal
         self.f.connect('status-changed', self.quitloop)
         self.f.draw_image(0,1)
-        self.wait()
-
-    def testSignals(self):
-        cc = CallCounter()
-        self.f.connect('parameters-changed', cc.cb)
-        self.assertEqual(cc.count,0)
-        
-        self.f.set_param(self.f.MAGNITUDE,0.7)
-        self.assertEqual(cc.count,1)
-
-        # set to the same value, no callback
-        self.f.set_param(self.f.MAGNITUDE,0.7)
-        self.assertEqual(cc.count,1)
-
-        # maxiter
-        self.f.set_maxiter(778)
-        self.f.set_maxiter(778)
-        self.assertEqual(cc.count,2)
-
-        # size
-        self.f.set_size(57,211)
-        self.f.set_size(57,211)
-        while cc.count < 3:
-            gtk.main_iteration()
-        
-
-    def testLoad(self):
-        self.f.loadFctFile(file("../testdata/test_bail.fct"))
-        self.assertEqual(self.f.saved, True)
-        
-        self.testSignals()
-        self.f.connect('status-changed', self.quitloop)
-        self.f.draw_image(0,1)
         self.wait()        
-                
+
     def disabled_testSignalsDontRecurse(self):
         # test no recurse, but doesn't work. Maybe I've misunderstood
         # signal recursion semantics?
@@ -308,13 +340,6 @@ class Test(unittest.TestCase):
         
         self.assertNearlyEqual(f.params(),tparams)
         
-    def testCopy(self):
-        copy = self.f.copy_f()
-        mag = self.f.get_param(self.f.MAGNITUDE)
-        copy.set_param(copy.MAGNITUDE,176.3)
-        self.assertEqual(mag,self.f.get_param(self.f.MAGNITUDE))
-        self.assertNotEqual(mag,copy.get_param(copy.MAGNITUDE))
-
     def disabled_testTumorCrash(self):
         '''Provokes an issue which used to cause a crash.
         Disabled because if we don\'t crash wait() hangs'''
@@ -337,7 +362,9 @@ class Test(unittest.TestCase):
             self.failUnless(d < epsilon,"%f != %f (by %f)" % (ra,rb,d))
 
 def suite():
-    return unittest.makeSuite(Test,'test')
+    s = unittest.makeSuite(Test,'test')
+    s.addTest(unittest.makeSuite(TestHidden, 'test'))
+    return s
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

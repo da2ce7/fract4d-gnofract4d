@@ -24,9 +24,11 @@ import test_painter
 import test_colors
 import test_fract4dguic
 import test_utils
+import test_renderqueue
 
 def suite():
     tests = (
+        test_renderqueue.suite(),
         test_gtkfractal.suite(),
         test_undo.suite(),
         test_model.suite(),
