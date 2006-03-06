@@ -5,6 +5,7 @@ fixed in 2.13:
 * B	error compiling aho.ufm#Poly3_J: 'NoneType' object has no attribute 'datatype'
 * B	standard.cfrm:triangle = all black
 * BB	boolean negation (! operator) doesn't actually work
+* BB	total size not updated when exploring, preview wrong
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

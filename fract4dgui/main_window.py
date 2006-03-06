@@ -16,7 +16,7 @@ from fractutils import flickr
 
 import gtkfractal, model, preferences, autozoom, settings, toolbar
 import colors, undo, browser, fourway, angle, utils, hig, ignore_info, painter
-import icons, flickr_assistant
+import icons, flickr_assistant, renderqueue
 import fract4dguic
 
 
@@ -417,9 +417,6 @@ class MainWindow:
 
     def get_hires_dimensions(self,fs):
         return (2048, 768*2)
-
-    def add_to_queue(self,name,w,h):
-        pass
     
     def save_hires_image(self, action, widget):
         """Add the current fractal to the render queue."""
@@ -438,13 +435,9 @@ class MainWindow:
                 break
             
             if name and self.confirm(name):
-                try:
-                    (w,h) = self.get_hires_dimensions(fs)
-                    self.add_to_queue(name,w,h)
-                    break
-                except Exception, err:
-                    self.show_error_message(
-                        _("Error saving image %s") % name, err)
+                (w,h) = self.get_hires_dimensions(fs)
+                self.add_to_queue(name,w,h)
+                break
         fs.hide()
     
     def get_menu_items(self):
@@ -599,7 +592,15 @@ class MainWindow:
 
     def painter(self,action,menuitem):
         painter.show(self.window,self.f)
-            
+
+    def renderqueue(self,action,menuitem):
+        renderqueue.show(self.window,None,self.f)
+        
+    def add_to_queue(self,name,w,h):
+        renderqueue.show(self.window,None,self.f)
+        renderqueue.instance.add(self.f.f,name,w,h)
+        renderqueue.instance.start()
+        
     def toggle_explorer(self, action, menuitem):
         """Enter (or leave) Explorer mode."""
         self.set_explorer_state(menuitem.get_active())

@@ -152,7 +152,8 @@ class Test(unittest.TestCase):
         self.mw.browser(None,None)
         self.mw.painter(None,None)
         self.mw.upload(None,None)
-
+        self.mw.renderqueue(None,None)
+        
     def testFileDialogs(self):
         self.mw.get_save_as_fs()
         self.mw.get_save_image_as_fs()

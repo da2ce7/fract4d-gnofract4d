@@ -896,7 +896,7 @@ class T(FctUtils):
         fract4dc.pf_init(pfunc,1.0E-9,initparams)
 
         for (xoff,yoff,xres,yres) in image.get_tile_list():
-            image.resize(xres,yres)
+            image.resize_tile(xres,yres)
             image.set_offset(xoff,yoff)
             
             fract4dc.calc(

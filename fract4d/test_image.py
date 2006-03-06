@@ -25,7 +25,7 @@ class Test(testbase.TestBase):
 
         im = image.T(40,30)
         try:
-            im.resize(400000,300000)
+            im.resize_full(400000,300000)
             self.fail("Should have raised an exception")
         except MemoryError, err:
             # retains large size even if allocation fails
@@ -144,7 +144,7 @@ class Test(testbase.TestBase):
             im = image.T(640,40,640,400)
             im.start_save(f2)
             for (xoff,yoff,w,h) in im.get_tile_list():
-                im.resize(w,h)
+                im.resize_tile(w,h)
                 im.set_offset(xoff,yoff)
                 im.save_tile()
             im.finish_save()
@@ -199,7 +199,7 @@ class Test(testbase.TestBase):
         self.assertEqual(20,im.ysize)
         self.assertImageInvariants(im)
         
-        im.resize(30,17)
+        im.resize_full(30,17)
         self.assertEqual(30,im.xsize)
         self.assertEqual(17,im.ysize)
         self.assertImageInvariants(im)
@@ -219,7 +219,7 @@ class Test(testbase.TestBase):
 
     def testBufferBounds(self):
         im = image.T(40,30)
-        im.resize(80,60)
+        im.resize_full(80,60)
         buf = im.image_buffer()
         fate_buf = im.fate_buffer()
 

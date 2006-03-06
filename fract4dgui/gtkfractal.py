@@ -386,7 +386,7 @@ class Hidden(gobject.GObject):
         self.width = new_width
         self.height = new_height
 
-        self.image.resize(new_width, new_height)
+        self.image.resize_full(new_width, new_height)
         utils.idle_add(self.changed)
 
 # explain our existence to GTK's object system
@@ -400,6 +400,8 @@ class HighResolution(Hidden):
         Hidden.__init__(self,comp,tile_width, tile_height, width,height)
 
         self.tile_list = self.image.get_tile_list()
+        self.ntiles = len(self.tile_list)
+        self.ncomplete_tiles = 0
         
     def compute_tile_size(self,w,h):
         tile_width = w
@@ -421,15 +423,15 @@ class HighResolution(Hidden):
     def next_tile(self):
         # work left to do
         (xoff,yoff,w,h) = self.tile_list.pop(0)
-        self.image.resize(w,h)
-        self.image.set_offset(xoff,yoff)
+        self.image.resize_tile(w,h)
+        self.image.set_offset(xoff,yoff)        
         self.draw(self.image,w,h,self.nthreads)
         
     def status_changed(self,status):
         if status == 0:
             # done this chunk
             self.image.save_tile()
-            
+            self.ncomplete_tiles += 1
             if len(self.tile_list) > 0:
                 self.next_tile()
             else:
@@ -438,6 +440,10 @@ class HighResolution(Hidden):
                 self.emit('status-changed',status)
         else:
             self.emit('status-changed',status)
+
+    def progress_changed(self,progress):
+        overall_progress = (self.ncomplete_tiles + progress)/self.ntiles
+        self.emit('progress-changed',progress)
         
 class T(Hidden):
     "A visible GtkFractal which responds to user input"
