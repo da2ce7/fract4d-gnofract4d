@@ -1375,6 +1375,7 @@ parse_calc_args(PyObject *args, PyObject *kwds)
     double *p = cargs->params;
     if(!PyList_Check(pyparams) || PyList_Size(pyparams) != N_PARAMS)
     {
+	PyErr_SetString(PyExc_ValueError, "bad parameter list");
 	delete cargs;
 	return NULL;
     }
@@ -1384,6 +1385,7 @@ parse_calc_args(PyObject *args, PyObject *kwds)
 	PyObject *elt = PyList_GetItem(pyparams, i);
 	if(!PyFloat_Check(elt))
 	{
+	    PyErr_SetString(PyExc_ValueError, "a param is not a float");
 	    goto error;
 	}
 
@@ -1513,7 +1515,7 @@ image_resize(PyObject *self, PyObject *args)
     int totalx=-1, totaly=-1;
     PyObject *pyim;
 
-    if(!PyArg_ParseTuple(args,"Oii|ii",&pyim,&x,&y,&totalx,&totaly))
+    if(!PyArg_ParseTuple(args,"Oiiii",&pyim,&x,&y,&totalx,&totaly))
     { 
 	return NULL;
     }
@@ -1524,14 +1526,6 @@ image_resize(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    if(totalx == -1)
-    {
-	totalx = i->totalXres();
-    }
-    if(totaly == -1)
-    {
-	totaly = i->totalYres();
-    }
     i->set_resolution(x,y,totalx,totaly);
 
     if(! i->ok())

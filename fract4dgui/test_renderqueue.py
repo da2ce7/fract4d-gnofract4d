@@ -8,7 +8,9 @@ import os
 import commands
 
 import gtk
-
+import gettext
+os.environ.setdefault('LANG', 'en')
+gettext.install('gnofract4d')
 import renderqueue
 
 sys.path.append("..")
@@ -41,13 +43,13 @@ class Test(unittest.TestCase):
 
         # add a fractal to generate
         f = fractal.T(g_comp)
-        rq.add(f,"rq1.png",2048,1536)
+        rq.add(f,"rq1.png",100,1536)
 
         # check it got added
         self.assertEqual(1, len(rq.queue))
         entry = rq.queue[0]
         self.assertEqual("rq1.png", entry.name)
-        self.assertEqual(2048, entry.w)
+        self.assertEqual(100, entry.w)
         self.assertEqual(1536, entry.h)
 
         # run
@@ -56,6 +58,17 @@ class Test(unittest.TestCase):
         self.wait()
 
         self.assertEqual(0, len(rq.queue))
+
+    def testQueueDialog(self):
+        f = fractal.T(g_comp)
+        renderqueue.show(None,None,f)
+        rq = renderqueue.instance
+        rq.add(f,"foo.png",124,76)
+        rq.add(f,"foo2.png",204,153)
+        rq.add(f,"foo3.png",80,40)
+        rq.q.connect('done', self.quitloop)
+        rq.start()
+        self.wait()
         
 def suite():
     return unittest.makeSuite(Test,'test')
