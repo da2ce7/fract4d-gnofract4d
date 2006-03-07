@@ -111,8 +111,10 @@ class MainWindow:
 
     def create_rtd_widgets(self):
         table = gtk.Table(2,3,False)
-        width = gtk.Entry()
-        height = gtk.Entry()
+        table.width = width = gtk.Entry()
+        table.height = height = gtk.Entry()
+        width.set_text("2048")
+        height.set_text("1536")
         wlabel = gtk.Label(_("Width:"))
         hlabel = gtk.Label(_("Height:"))
         table.attach(
@@ -138,7 +140,7 @@ class MainWindow:
             1, 2, 1, 2,
             gtk.EXPAND | gtk.FILL,
             gtk.EXPAND | gtk.FILL,
-            1,1)
+            1,1)        
         return table
 
     def get_save_as_fs(self):
@@ -416,7 +418,10 @@ class MainWindow:
         self.bar.set_text(text)
 
     def get_hires_dimensions(self,fs):
-        return (2048, 768*2)
+        table = utils.get_file_chooser_extra_widget(fs)
+        width = int(table.width.get_text())
+        height = int(table.height.get_text())
+        return (width, height)
     
     def save_hires_image(self, action, widget):
         """Add the current fractal to the render queue."""
