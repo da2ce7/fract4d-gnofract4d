@@ -6,9 +6,11 @@ fixed in 2.13:
 * B	standard.cfrm:triangle = all black
 * BB	boolean negation (! operator) doesn't actually work
 * BB	total size not updated when exploring, preview wrong
+* W	load .ufm etc files from cmd-line
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
+* BB	gnd.ufm#4D Julia - behaves very oddly
 * BB	fractint doesn't reset vars between calls
 * BB	explorer rather slow with complex colorfuncs (recompile too much)
 * BB	not all keyboard shortcuts available when menu hidden

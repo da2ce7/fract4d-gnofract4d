@@ -443,7 +443,8 @@ this range "wrap" to points inside that range.
 The gradient editor allows you to edit the list of colors used to
 display your fractal. You can choose a canned one from the list on the
 left, then <guibutton>Apply</guibutton> it to the fractal, or edit it
-first. 
+first. For more complex gradient editing, you can also use the GIMP's
+gradient editor.
 
 </para>
 </sect3>
@@ -466,7 +467,7 @@ look smoother but takes extra time to do.  </para>
 <sect4 id="prefs_compiler">
 <title>Compiler</title>
 <para>
-&gf4d; needs a C++ compiler to be available at runtime in order to
+&gf4d; needs a C compiler to be available at runtime in order to
 work (it dynamically creates the code to compute a particular formula
 when you select it). The <emphasis>Compiler</emphasis> page allows you
 to specify a location for the compiler and options to pass to
@@ -504,7 +505,7 @@ explicitly set it here.
 <para>
 
 &gf4d; can upload your images to the online image-sharing service
-Flickr. This pages handles your online identity.
+Flickr. This page handles your online identity.
 
 </para> 
 </sect4>

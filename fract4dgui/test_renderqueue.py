@@ -63,7 +63,7 @@ class Test(unittest.TestCase):
         f = fractal.T(g_comp)
         renderqueue.show(None,None,f)
         rq = renderqueue.instance
-        rq.add(f,"foo.png",124,76)
+        rq.add(f,"foo.png",124,276)
         rq.add(f,"foo2.png",204,153)
         rq.add(f,"foo3.png",80,40)
         rq.q.connect('done', self.quitloop)
