@@ -1191,10 +1191,6 @@ class MainWindow:
                 return
             
         fs.hide()
-        if fc.Compiler.isCFRM.search(filename):
-            browser.show(self.window, self.f, browser.OUTER)
-        else:
-            browser.show(self.window, self.f, browser.FRACTAL)
         
     def open(self,action,widget):
         """Open a parameter (.fct) file."""
@@ -1213,6 +1209,10 @@ class MainWindow:
 
     def load(self,file):
         try:
+            if fc.Compiler.isFRM.search(file) or \
+                   fc.Compiler.isCFRM.search(file):
+                self.load_formula(file)
+                return
             self.f.loadFctFile(open(file))
             self.update_recent_files(file)
             self.set_filename(file)
@@ -1226,6 +1226,11 @@ class MainWindow:
         try:
             self.compiler.load_formula_file(file)
             browser.update(file)
+            if fc.Compiler.isCFRM.search(file):
+                browser.show(self.window, self.f, browser.OUTER)
+            else:
+                browser.show(self.window, self.f, browser.FRACTAL)
+
             return True
         except Exception, err:
             self.show_error_message(_("Error opening %s") % file, err)

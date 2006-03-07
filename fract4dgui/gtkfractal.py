@@ -442,8 +442,8 @@ class HighResolution(Hidden):
             self.emit('status-changed',status)
 
     def progress_changed(self,progress):
-        overall_progress = (self.ncomplete_tiles + progress)/self.ntiles
-        self.emit('progress-changed',progress)
+        overall_progress = (100.0*self.ncomplete_tiles + progress)/self.ntiles
+        self.emit('progress-changed',overall_progress)
         
 class T(Hidden):
     "A visible GtkFractal which responds to user input"

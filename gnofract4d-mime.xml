@@ -4,4 +4,12 @@
     <comment>Fractal image parameter file</comment>
     <glob pattern="*.fct"/>
   </mime-type>
+  <mime-type type="text/x-gnofract4d-fractal-formulas">
+    <comment>Fractal image formula file</comment>
+    <glob pattern="*.frm"/>
+    <glob pattern="*.ufm"/>
+    <glob pattern="*.cfrm"/>
+    <glob pattern="*.ucl"/>
+  </mime-type>
+
 </mime-info>
