@@ -150,9 +150,6 @@ def get_file_chooser_extra_widget(chooser):
     except:
         return chooser.action_area.get_children()[0]
 
-def hide_extra_widgets(chooser):
-    get_file_chooser_extra_widget(chooser).hide()
-    
 def set_file_chooser_filename(chooser,name):
     try:
         _throwback()
