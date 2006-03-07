@@ -31,9 +31,8 @@ class T(gobject.GObject):
         gobject.TYPE_NONE, (gobject.TYPE_FLOAT,))
         }
 
-    def __init__(self,compiler):
+    def __init__(self):
         gobject.GObject.__init__(self)
-        self.compiler = compiler
         self.queue = []
         self.current = None
         
@@ -46,15 +45,18 @@ class T(gobject.GObject):
         if self.current == None:
             self.next()
 
+    def empty(self):
+        return self.queue == []
+    
     def next(self):
-        if self.queue == []:
+        if self.empty():
             self.current = None
             self.emit('done')
             return
 
         entry = self.queue[0]
 
-        self.current = gtkfractal.HighResolution(self.compiler,entry.w,entry.h)
+        self.current = gtkfractal.HighResolution(entry.f.compiler,entry.w,entry.h)
         self.current.set_fractal(entry.f)
         
         self.current.connect('status-changed', self.onImageComplete)
@@ -76,7 +78,7 @@ gobject.type_register(T)
 def show(parent, alt_parent, f):
     QueueDialog.show(parent, alt_parent, f)
 
-instance = None
+instance = T()
 
 class CellRendererProgress(gtk.GenericCellRenderer):
 
@@ -143,8 +145,6 @@ class QueueDialog(dialog.T):
     show = staticmethod(show)
 
     def __init__(self, main_window, f):
-        global instance
-        instance = self
         dialog.T.__init__(
             self,
             _("Render Queue"),
@@ -154,7 +154,7 @@ class QueueDialog(dialog.T):
 
         self.main_window = main_window
 
-        self.q = T(f.compiler)
+        self.q = instance
 
         self.q.connect('changed', self.onQueueChanged)
         self.q.connect('progress-changed', self.onProgressChanged)
@@ -189,10 +189,4 @@ class QueueDialog(dialog.T):
         iter = self.store.get_iter_first()
         if iter:
             self.store.set_value(iter,2,progress)
-    
-    def add(self,f,name,w,h):
-        self.q.add(f,name,w,h)
-
-    def start(self):
-        self.q.start()
     
