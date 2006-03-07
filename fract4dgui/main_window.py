@@ -1242,7 +1242,7 @@ class MainWindow:
             d = hig.SaveConfirmationAlert(
                 document_name=self.display_filename(),
                 parent=self.window)
-            
+
             response = d.run()                
             d.destroy()
             if response == gtk.RESPONSE_ACCEPT:
@@ -1250,6 +1250,21 @@ class MainWindow:
             elif response == gtk.RESPONSE_CANCEL:
                 return False
             elif response == hig.SaveConfirmationAlert.NOSAVE:
+                break
+
+        while not renderqueue.instance.empty():
+            d = hig.ConfirmationAlert(
+                primary=_("Render queue still processing."),
+                secondary=_("If you proceed, queued images will not be saved"),
+                proceed_button=_("Close anyway"))
+                
+            response = d.run()                
+            d.destroy()
+            if response == gtk.RESPONSE_ACCEPT:
+                break
+            elif response == gtk.RESPONSE_CANCEL:
+                return False
+            else:
                 break
         return True
     
