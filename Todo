@@ -8,6 +8,7 @@ fixed in 2.13:
 * W	antialiasing progress should be smoother and in 1 pass
 * W	all progress should be in one pass
 
+* BB	none of the formulas in fractint.ufm seem to work - bad bailout_var calc
 * B	error compiling aho.ufm#Poly3_J: 'NoneType' object has no attribute 'datatype'
 * B	standard.cfrm:triangle = all black
 * BB	boolean negation (! operator) doesn't actually work
@@ -18,11 +19,11 @@ fixed in 2.13:
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
+* BB	painter is broken
 * BB	better image-sizing widgets for render queue
 * B	RQ: progress bar should be more colorful
 * B	half-done images left behind when RQ aborted
 * BB	gnd.ufm#4D Julia - behaves very oddly
-* BB	none of the formulas in fractint.ufm seem to work - bad bailout_var calc
 * BB	fractint doesn't reset vars between points
 * BB	explorer rather slow with complex colorfuncs (recompile too much)
 * BB	not all keyboard shortcuts available when menu hidden

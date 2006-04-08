@@ -640,33 +640,7 @@ extern pf_obj *pf_new(void);
         self.output_var_decls(t,overrides)
 
     def get_bailout_var(self,t):
-        try:
-            bailout_insn = t.output_sections["bailout"][-2]
-            bailout_var = bailout_insn.dst[0].format()
-        except KeyError:
-            # can't find it, bail out immediately
-            bailout_var = "0"
-
-        return bailout_var
-
-        # alternate methods I tried which don't work
-        # find bailout variable
-        #try:            
-        #    # should be [label,...,move,jump]
-        #    target = t.sections["bailout"].children[0].children[-1]
-        #    if isinstance(target, ir.Var):
-        #        varname = target.name
-        #    elif isinstance(target, ir.Cast):
-        #        varname = target.children[0].name
-        #    else:
-        #        raise TranslationError("Cannot find bailout var")
-        #    bailout_var = self.symbols[varname].cname
-        #    print bailout_var
-        #except KeyError:
-        #    # can't find it, bail out immediately
-        #    bailout_var = "0"
-        #    
-        #return bailout_var
+        return t.symbols["__bailout"].cname
     
     def output_c(self,t,inserts={},output_template=None):
         inserts["bailout_var"] = self.get_bailout_var(t)

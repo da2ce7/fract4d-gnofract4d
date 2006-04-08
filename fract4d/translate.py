@@ -776,9 +776,10 @@ class TBase:
         bailList = self.stmlist(node)
         try:
             bail_stm = self.coerce(bailList.children[-1],Bool)
-            if isinstance(bail_stm,ir.Var):
-                # manufacture a Move so not discarded by codegen
-                bail_stm = ir.Move(bail_stm,bail_stm,node,Bool)
+            # manufacture a Move so not discarded by codegen
+            bail_stm = ir.Move(
+                ir.Var("__bailout",node, Bool),
+                bail_stm,node,Bool)
             bailList.children[-1] = bail_stm            
             self.sections["bailout"] = bailList
         except IndexError:
@@ -801,6 +802,10 @@ class TBase:
 class T(TBase):
     def __init__(self,f,dump=None):
         TBase.__init__(self,"f",dump)
+
+        # magic vars always included in funcs
+        self.symbols["__bailout"] = Var(Bool, 0)
+
         try:
             self.main(f)
             if self.dumpPreCanon:
