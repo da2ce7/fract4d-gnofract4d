@@ -2,16 +2,28 @@ todo:
 
 fixed in 2.13:
 * WW	render to disk
+* W	previews in open file dialog
+* W	load .ufm etc files from cmd-line
+* W	-v cmd-line arg
+* W	antialiasing progress should be smoother and in 1 pass
+* W	all progress should be in one pass
+
 * B	error compiling aho.ufm#Poly3_J: 'NoneType' object has no attribute 'datatype'
 * B	standard.cfrm:triangle = all black
 * BB	boolean negation (! operator) doesn't actually work
 * BB	total size not updated when exploring, preview wrong
-* W	load .ufm etc files from cmd-line
+* BB	petri_dish.fct:'local variable i referencenced before assignment'
+* BB	render queue only uses 1 CPU
+* BB	RQ: progress jitters a lot on quick images
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
+* BB	better image-sizing widgets for render queue
+* B	RQ: progress bar should be more colorful
+* B	half-done images left behind when RQ aborted
 * BB	gnd.ufm#4D Julia - behaves very oddly
-* BB	fractint doesn't reset vars between calls
+* BB	none of the formulas in fractint.ufm seem to work - bad bailout_var calc
+* BB	fractint doesn't reset vars between points
 * BB	explorer rather slow with complex colorfuncs (recompile too much)
 * BB	not all keyboard shortcuts available when menu hidden
 * BB	should save enum params as strings, not indexes
@@ -24,7 +36,7 @@ bugs (the more B's, the worse the bug):
 * B	no scrolling if too many parameters to fit on screen (eg barney3)
 * B	painter click on inner sometimes gives "IndexError: list assignment out of range" @ self.f.solids[color] = (int(r*255.0),int(g*255.0),int(b*255.0),255)
 * B	browser doesn't jump to current func when opened
-* B	should hide density/transfer/offset for DCA's
+* B	should hide density/transfer/offset for DCA's (wait - they *do* something)
 * B	is a cmap loaded from a .map file correct? Think index math is squiffy 
 * B     var called 'loat' would clash with C reserved word
 * B	weird behavior when using explorer mode & oversized image
@@ -49,10 +61,11 @@ bugs (the more B's, the worse the bug):
 * B	Mandrake: desktop icon not added to menu
 
 features (the more W's, the more work involved):
+* W	RQ: Should have option to delete an image from the queue
+* W	RQ: add pause/resume
+* WWW	RQ: continue rendering across shutdowns
 * WWW	high dynamic range color, OpenEXR 
-* W	antialiasing progress should be smoother and in 1 pass
 * W	center-select mode.
-* W	all progress should be in one pass
 * W	name of image and creator in .fct and .png files
 * W	user-supplied additional gradient params
 * W 	gradients: HSV backend (flare_glow_radial_2)

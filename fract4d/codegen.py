@@ -638,17 +638,29 @@ extern pf_obj *pf_new(void);
         # must be done after other sections or temps are missing
         self.output_symbols(t,overrides)
         self.output_var_decls(t,overrides)
-    
-    def output_c(self,t,inserts={},output_template=None):
+
+    def get_bailout_var(self,t):
         # find bailout variable
         try:
-            bailout_insn = t.output_sections["bailout"][-2]
-            bailout_var = bailout_insn.dst[0].format()
+            
+            # should be [label,...,move,jump]
+            target = t.sections["bailout"].children[0].children[-1]
+            if isinstance(target, ir.Var):
+                varname = target.name
+            elif isinstance(target, ir.Cast):
+                varname = target.children[0].name
+            else:
+                raise TranslationError("Cannot find bailout var")
+            bailout_var = self.symbols[varname].cname
+            print bailout_var
         except KeyError:
             # can't find it, bail out immediately
             bailout_var = "0"
             
-        inserts["bailout_var"] = bailout_var
+        return bailout_var
+    
+    def output_c(self,t,inserts={},output_template=None):
+        inserts["bailout_var"] = self.get_bailout_var(t)
         inserts["pf"] = self.pf_header
 
         inserts["dca_init"] = "%d" % self.is_direct()

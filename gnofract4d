@@ -85,15 +85,16 @@ Usage: gnofract4d [flags] [paramfile]
 
 Flags:
 -h --help\t\tShow this message
+-v --version\t\tShow version info
 -p --params FILE\tUse FILE as a parameter file
 -q --quit\t\tExit as soon as the image is finished
 -s --save IMAGEFILE\tSave image to IMAGEFILE
 -i --width N\t\tMake image N pixels wide
 -j --height N\t\tMake image N pixels tall
 -P --path P\t\tAdd P to the formula search path
--f --formula F#func\tUse formula 'func' in file F
-   --inner F#func\tUse coloring algorithm 'func' in file F
-   --outer F#func\tUse coloring algorithm 'func' in file F
+-f --formula F#func\tUse formula 'func' from file F
+   --inner F#func\tUse coloring algorithm 'func' from file F
+   --outer F#func\tUse coloring algorithm 'func' from file F
 -X --explorer\tStart in explorer mode
 
 To generate an image non-interactively, use:
@@ -101,6 +102,21 @@ gnofract4d -s myimage.png -q myfractal.fct
 
 """ % version
 
+def print_version():
+    try:
+        gtk_version = "%d.%d.%d" % gtk.gtk_version
+    except:
+        gtk_version = "unknown"
+
+    try:
+        pygtk_version = "%d.%d.%d" % gtk.pygtk_version
+    except:
+        pygtk_version = "unknown"
+        
+    print """Gnofract 4D %s
+GTK %s
+PyGTK %s""" % (version, gtk_version, pygtk_version)
+               
 def splitarg(val, name,mainWindow):
     n = val.rfind('#')
     if n==-1:
@@ -126,7 +142,7 @@ def main():
     try:
         (opts, args) = getopt.getopt(
             sys.argv[1:],
-            "p:i:j:s:qhP:X",
+            "p:i:j:s:qhP:Xv",
             [ "params=",
               "width=",
               "height=",
@@ -137,7 +153,8 @@ def main():
               "inner=",
               "outer=",
               "quit",
-              "explorer"])
+              "explorer",
+              "version"])
 
         for (name, val) in opts:
             if name=="-p" or name=="--params":
@@ -163,6 +180,9 @@ def main():
                 (innername,innerfunc) = splitarg(val,name,mainWindow)
             elif name=="--outer":
                 (outername,outerfunc) = splitarg(val,name,mainWindow)
+            elif name=="--version" or name=="-v":
+                print_version()
+                return
             else:
                 print "Unknown argument", name, val
                 

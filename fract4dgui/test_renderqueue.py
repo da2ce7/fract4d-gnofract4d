@@ -35,7 +35,7 @@ class Test(unittest.TestCase):
         gtk.main_quit()
 
     def testRQ(self):
-        rq = renderqueue.T(g_comp)
+        rq = renderqueue.T()
         self.assertEqual(0, len(rq.queue))
 
         # should be a no-op
@@ -66,7 +66,7 @@ class Test(unittest.TestCase):
         rq.add(f,"foo.png",124,276)
         rq.add(f,"foo2.png",204,153)
         rq.add(f,"foo3.png",80,40)
-        rq.q.connect('done', self.quitloop)
+        rq.connect('done', self.quitloop)
         rq.start()
         self.wait()
         

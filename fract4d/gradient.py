@@ -233,9 +233,9 @@ class Gradient:
             elif name == "color":
                 icolor = val
                 color = [
-                    float((icolor >> 16) & 0xFF) / 256.0,
-                    float((icolor >> 8) & 0xFF) / 256.0,
                     float(icolor & 0xFF) / 256.0,
+                    float((icolor >> 8) & 0xFF) / 256.0,
+                    float((icolor >> 16) & 0xFF) / 256.0,
                     1.0]
                 seg = Segment(
                     prev_index, prev_color,

@@ -669,7 +669,7 @@ default:
         }''')
 
         self.assertError(t, "invalid type none")
-
+        
     def testGradientFunc(self):
         t = self.translate('''t {
         init:

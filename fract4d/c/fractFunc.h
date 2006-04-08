@@ -1,6 +1,8 @@
 #ifndef _FRACTFUNC_H_
 #define _FRACTFUNC_H_
 
+#include <cassert>
+
 #include "image_public.h"
 #include "pointFunc_public.h"
 #include "fractWorker_public.h"
@@ -31,8 +33,8 @@ class fractFunc {
     ~fractFunc();
    
     void draw_all();
-    void draw(int rsize, int drawsize);    
-    void draw_aa();
+    void draw(int rsize, int drawsize, float min_progress, float max_progress);    
+    void draw_aa(float min_progress, float max_progress);
     int updateiters();
 
     // a vector from the eye through the pixel at (x,y)
@@ -51,7 +53,8 @@ class fractFunc {
 	}
     inline void progress_changed(float progress)
 	{
-	    site->progress_changed(progress);
+	    float adjusted_progress = min_progress + progress * delta_progress;
+	    site->progress_changed(adjusted_progress);
 	}
     inline void status_changed(int status_val)
 	{
@@ -109,6 +112,15 @@ class fractFunc {
     // last time we redrew the image to this line
     int last_update_y; 
 
+    float min_progress;
+    float delta_progress;
+
+    void set_progress_range(float min, float max) { 
+	min_progress = min;
+	delta_progress = max-min;
+	assert(delta_progress > 0.0);
+    }
+
     // private drawing methods
     void send_quit();
 
@@ -122,9 +134,6 @@ class fractFunc {
     // clear auto-deepen and last_update
     void reset_counts();
     void reset_progress(float progress);
-
-    // calculate the whole image using worker threads
-    void draw_threads(int rsize, int drawsize);
 
 };
 

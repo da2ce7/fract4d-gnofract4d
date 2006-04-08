@@ -183,6 +183,21 @@ class MainWindow:
                 _("Open Parameter File"),
                 self.window,
                 ["*.fct"])
+            self.open_preview = gtkfractal.SubFract(self.compiler, 120, 90)
+
+            def on_update_preview(chooser, preview):
+                filename = chooser.get_preview_filename()
+                try:
+                    preview.loadFctFile(open(filename))
+                    preview.draw_image(False, False)
+                    active=True
+                except Exception,err:
+                    active=False
+                chooser.set_preview_widget_active(active)
+                
+            utils.file_chooser_set_preview(
+                self.open_fs, self.open_preview, on_update_preview)
+
         return self.open_fs
     
     def set_icon(self):

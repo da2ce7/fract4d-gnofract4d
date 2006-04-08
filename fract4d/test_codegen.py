@@ -462,6 +462,55 @@ goto t__end_finit;''')
         l = [x for x in out if x.assem == "foo"]
         self.failUnless(len(l)==1)
 
+    def testBailoutVars(self):
+        t = self.translate('''t{
+        init:
+        bool x
+        bool y
+        bailout:
+        x
+        }''')
+
+        self.codegen.output_all(t)
+
+        print t.sections["bailout"].pretty()
+        print [x.pretty() for x in t.canon_sections["bailout"]]
+        print [x.format() for x in t.output_sections["bailout"]]
+
+        self.assertEqual('fx', self.codegen.get_bailout_var(t))
+
+    def testBailoutVars2(self):
+        t = self.translate('''t{
+        init:
+        bool x
+        bool y
+        bailout:
+        (x && y) || (y && x)
+        }''')
+
+        self.codegen.output_all(t)
+        print t.sections["bailout"].pretty()
+        print [x.pretty() for x in t.canon_sections["bailout"]]
+        print [x.format() for x in t.output_sections["bailout"]]
+
+        self.assertEqual('t__f2', self.codegen.get_bailout_var(t))
+
+    def testBailoutVars3(self):
+        t = self.translate('''t{
+        init:
+        bool x
+        bool y
+        bailout:
+        x < 2
+        }''')
+
+        self.codegen.output_all(t)
+        print t.sections["bailout"].pretty()
+        print [x.pretty() for x in t.canon_sections["bailout"]]
+        print [x.format() for x in t.output_sections["bailout"]]
+        self.assertEqual('t__f1', self.codegen.get_bailout_var(t))
+
+        
     def testNoZ(self):
         'test a formula which doesn\'t use Z' 
         src = '''t_mandel{

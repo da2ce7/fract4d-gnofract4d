@@ -2,9 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <cassert>
-
-
 dmat4
 rotated_matrix(double *params)
 {
@@ -60,6 +57,7 @@ fractFunc::fractFunc(
     auto_deepen = auto_deepen_;
     periodicity = periodicity_;
 
+    set_progress_range(0.0,1.0);
     /*
     printf("(%d,%d,%d,%d,%d,%d)\n", 
 	   im->Xres(), im->Yres(), im->totalXres(), im->totalYres(),
@@ -154,24 +152,32 @@ fractFunc::updateiters()
     return 0;
 }
 
-void fractFunc::draw_aa()
+void fractFunc::draw_aa(float min_progress, float max_progress)
 {
     int w = im->Xres();
     int h = im->Yres();
 
     reset_counts();
 
-    reset_progress(0.0);
+    float delta = (max_progress - min_progress)/2.0;
 
     // if we have multiple threads,make sure they don't modify
     // pixels the other thread will look at - that wouldn't be 
     // an error per se but would make drawing nondeterministic,
     // which I'm trying to avoid
     // We do this by drawing every even line, then every odd one.
+
     for(int i = 0; i < 2 ; ++i)
     {
+	set_progress_range(
+	    min_progress + delta * i,
+	    min_progress + delta * (i+1));
+
+	reset_progress(0.0);
         last_update_y = 0;
-        for(int y = i; y < h ; y+= 2) {
+
+        for(int y = i; y < h ; y+= 2) 
+	{
 	    worker->row_aa(0,y,w);
 	    if(update_image(y))
 	    {
@@ -180,7 +186,6 @@ void fractFunc::draw_aa()
         }
         reset_progress(1.0);
     }
-
 }
 
 void fractFunc::reset_counts()
@@ -226,22 +231,27 @@ void fractFunc::draw_all()
 #if !defined(NO_CALC)
     // NO_CALC is used to stub out the actual fractal stuff so we can
     // profile & optimize the rest of the code without it confusing matters
-    draw(8,8);
-    
+
+    float minp = 0.0, maxp= (eaa == AA_NONE ? 1.0 : 0.5);
+    draw(8,8,minp,maxp);    
     
     int deepen;
     while((deepen = updateiters()) > 0)
     {
+	float delta = (maxp-minp)/3.0;
+	minp = maxp;
+	maxp = maxp + delta;
+
         maxiter *= 2;
 	iters_changed(maxiter);
         status_changed(GF4D_FRACTAL_DEEPENING);
 	clear_in_fates();
-        draw(8,1);
+        draw(8,1,minp,maxp);
     }
     
     if(eaa > AA_NONE) {
         status_changed(GF4D_FRACTAL_ANTIALIASING);
-        draw_aa();
+        draw_aa(maxp,1.0);
     }
     
     // we do this after antialiasing because otherwise sometimes the
@@ -253,11 +263,12 @@ void fractFunc::draw_all()
     }
 #endif
 
+    set_progress_range(0.0,1.0);
     progress_changed(0.0);
     status_changed(GF4D_FRACTAL_DONE);
 }
 
-void fractFunc::draw(int rsize, int drawsize)
+void fractFunc::draw(int rsize, int drawsize, float min_progress, float max_progress)
 {
     //printf("drawing: %d\n", render_type);
     reset_counts();
@@ -267,19 +278,16 @@ void fractFunc::draw(int rsize, int drawsize)
     time(&now);
     srand((unsigned int)now);
 
-    if(nThreads > 1)
-    {
-        draw_threads(rsize, drawsize);
-        return;
-    }
-
     int x,y;
     int w = im->Xres();
     int h = im->Yres();
 
     /* reset progress indicator & clear screen */
     last_update_y = 0;
-    reset_progress(0.0);
+    reset_progress(min_progress);
+
+    float mid_progress = (max_progress + min_progress)/2.0;
+    set_progress_range(min_progress, mid_progress);
 
     // first pass - big blocks and edges
     for (y = 0 ; y < h - rsize ; y += rsize) 
@@ -312,6 +320,7 @@ void fractFunc::draw(int rsize, int drawsize)
 
     last_update_y = 0;
     reset_progress(0.0);
+    set_progress_range(mid_progress, max_progress);
 
     // fill in gaps in the rsize-blocks
     for ( y = 0; y < h - rsize; y += rsize) {
@@ -329,54 +338,6 @@ void fractFunc::draw(int rsize, int drawsize)
     reset_progress(1.0);
 }
 
-void fractFunc::draw_threads(int rsize, int drawsize)
-{
-    int x,y;
-    int w = im->Xres();
-    int h = im->Yres();
-
-    last_update_y = 0;
-    reset_progress(0.0);
-
-    // first pass - big blocks and edges
-    // do this in current thread - it's fast anyway
-    for (y = 0 ; y < h - rsize ; y += rsize) 
-    {
-        // main large blocks 
-        for ( x = 0 ; x< w - rsize ; x += rsize) 
-        {
-            worker->pixel ( x, y, drawsize, drawsize);
-        }
-        // extra pixels at end of lines
-        for(int y2 = y; y2 < y + rsize; ++y2)
-        {
-            worker->row (x, y2, w-x);
-        }
-        if(update_image(y))
-        {
-            goto done;
-        }
-    }
-
-    // remaining lines
-    for ( y = h > rsize ? h - rsize : 0 ; y < h ; y++)
-    {
-        worker->row(0,y,w);
-        if(update_image(y)) goto done;
-    }
-
-    reset_progress(0.0);
-
-    last_update_y = 0;
-    // fill in gaps in the rsize-blocks
-    for ( y = 0; y < h - rsize; y += rsize) {
-        worker->box_row(w,y,rsize);
-        if(update_image(y)) goto done;
-    }
-    
- done:
-    reset_progress(1.0);
-}
 
 dvec4
 fractFunc::vec_for_point(double x, double y)

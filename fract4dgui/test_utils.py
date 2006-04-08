@@ -11,6 +11,14 @@ import warnings
 import gtk
 
 import utils
+import gtkfractal
+
+from fract4d import fc
+
+# centralized to speed up tests
+g_comp = fc.Compiler()
+g_comp.file_path.append("../fract4d")
+g_comp.file_path.append("../formulas")
 
 
 class Test(unittest.TestCase):
@@ -39,6 +47,25 @@ class Test(unittest.TestCase):
 
         self.assertEqual(utils.get_file_chooser_extra_widget(chooser), extra)
         self.runAndDismiss(chooser)
+
+    def testFileOpenChooser(self):
+        preview = gtkfractal.SubFract(g_comp, 120, 90)
+        chooser = utils.get_file_open_chooser(
+            "Bar", None, ["*.fct"])
+        
+        utils.file_chooser_set_preview(chooser, preview, self.on_update_preview)
+
+        self.runAndDismiss(chooser)
+
+    def on_update_preview(self, chooser, preview):
+        filename = chooser.get_preview_filename()
+        try:
+            preview.loadFctFile(open(filename))
+            preview.draw_image(False, False)
+            active=True
+        except Exception,err:
+            active=False
+        chooser.set_preview_widget_active(active)
         
     def wait(self):
         gtk.main()
@@ -47,14 +74,14 @@ class Test(unittest.TestCase):
         if status == 0:
             gtk.main_quit()
 
-    def runAndDismiss(self,d):
+    def runAndDismiss(self,d, time=1):
         def dismiss():
             d.response(gtk.RESPONSE_ACCEPT)
             d.hide()
             return False
 
         # increase timeout to see what dialogs look like
-        utils.timeout_add(10,dismiss)
+        utils.timeout_add(10 * time,dismiss)
         r = d.run()
         d.destroy()
 
