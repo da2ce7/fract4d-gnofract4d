@@ -659,6 +659,7 @@ default:
         }''')
 
         self.assertWarning(t, "No bailout expression found" )
+        self.assertEqual(True, t.symbols.has_key("__bailout"))
         self.assertNoErrors(t)
 
         # uncastable bailout
@@ -669,6 +670,27 @@ default:
         }''')
 
         self.assertError(t, "invalid type none")
+
+        # a var
+        t = self.translate('''t_bail_3 {        
+        bailout:
+        x
+        }''')
+
+        move = t.sections["bailout"].children[-1]
+        self.failUnless(isinstance(move, ir.Move))
+        self.assertEqual(move.children[0].name, "__bailout")
+
+        # a complex expression
+        t = self.translate('''t_bail_3 {        
+        bailout:
+        (x && y) || (y && x)
+        }''')
+
+        move = t.sections["bailout"].children[-1]
+        self.failUnless(isinstance(move, ir.Move))
+        self.assertEqual(move.children[0].name, "__bailout")
+
         
     def testGradientFunc(self):
         t = self.translate('''t {
