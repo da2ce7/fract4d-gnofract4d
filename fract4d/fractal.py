@@ -1006,8 +1006,8 @@ The image may not display correctly. Please upgrade to version %.1f or higher.''
 	       i = (i != 0)
 	    except ValueError:
 	       # an old release included a 'True' or 'False' string
-	       if val == "False": i = 0
 	       if val == "True": i = 1
+               else: i = 0
             params[ord] = i
         elif t == fracttypes.Gradient:
             grad = gradient.Gradient()

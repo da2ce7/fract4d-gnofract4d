@@ -336,8 +336,8 @@ class Test(testbase.TestBase):
             image=im._img,
             site=site)
 
-        self.failUnless(siteobj.progress_list[-1]== 0.0 and \
-                         siteobj.progress_list[-2]== 1.0)
+        self.assertEqual(siteobj.progress_list[-1], 0.0)
+        self.assertEqual(siteobj.progress_list[-2], 1.0)                        
 
         self.failUnless(siteobj.image_list[-1]==(0,0,xsize,ysize))
 

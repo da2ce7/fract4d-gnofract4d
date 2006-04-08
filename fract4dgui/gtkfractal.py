@@ -65,6 +65,7 @@ class Hidden(gobject.GObject):
             "PIXEL"
             ]
 
+        self.last_progress = 0.0
         self.skip_updates = False
         self.running = False
         self.frozen = False # if true, don't emit signals
@@ -173,7 +174,7 @@ class Hidden(gobject.GObject):
             ok = self.try_init_fractal()
         if ok:
             self.f.set_formula(fname, formula)
-        
+
     def onData(self,fd,condition):
         bytes = os.read(fd,self.msgsize)
         if len(bytes) < self.msgsize:
@@ -192,7 +193,12 @@ class Hidden(gobject.GObject):
         elif t == 1:
             if not self.skip_updates: self.image_changed(p1,p2,p3,p4)
         elif t == 2:
-            if not self.skip_updates: self.progress_changed(float(p1))
+            if not self.skip_updates:
+                progress = float(p1)
+                # filters out 'backwards' progress which can occur due to threading
+                if progress > self.last_progress or progress == 0.0:
+                    self.progress_changed(progress)
+                    self.last_progress = progress
         elif t == 3:
             if p1 == 0: # DONE
                 #print "stop running"
@@ -402,6 +408,7 @@ class HighResolution(Hidden):
         self.tile_list = self.image.get_tile_list()
         self.ntiles = len(self.tile_list)
         self.ncomplete_tiles = 0
+        self.last_overall_progress = 0.0
         
     def compute_tile_size(self,w,h):
         tile_width = w
@@ -443,7 +450,9 @@ class HighResolution(Hidden):
 
     def progress_changed(self,progress):
         overall_progress = (100.0*self.ncomplete_tiles + progress)/self.ntiles
-        self.emit('progress-changed',overall_progress)
+        if overall_progress > self.last_overall_progress:
+            self.emit('progress-changed',overall_progress)
+            self.last_overall_progress = overall_progress
         
 class T(Hidden):
     "A visible GtkFractal which responds to user input"

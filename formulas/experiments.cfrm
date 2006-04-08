@@ -1,3 +1,16 @@
+Direct Gaussian Integer {
+init:
+  int iter = 0
+
+  color accumulator = @startcolor; initialize color accumulator
+  color current = rgb(0,0,0); holds current iteration's color
+
+  bool usesolid = true   ; assume a solid color
+loop:
+  iter = iter + 1        ; iteration counter
+
+}
+
 Direct Decomposition {
 ; 4-way decomposition using a direct coloring algorithm
 ; tends to get a bit blurry as you zoom further in

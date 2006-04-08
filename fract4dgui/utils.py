@@ -175,6 +175,15 @@ def get_file_open_chooser(title, parent, patterns=[]):
     except:
         return gtk.FileSelection(title)
 
+def file_chooser_set_preview(chooser, preview, preview_cb):
+    try:
+        _throwback()
+        chooser.set_preview_widget(preview.widget)
+        chooser.connect('update-preview', preview_cb, preview)
+    except AttributeError, err:
+        # not supported, skip
+        pass
+    
 def create_option_menu(items):
     try:
         _throwback()

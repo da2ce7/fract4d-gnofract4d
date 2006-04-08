@@ -14,7 +14,7 @@ MTFractWorker::MTFractWorker(
     IImage *im,
     IFractalSite *site)
 {
-  m_ok = true;
+    m_ok = true;
     /* 0'th ftf is in this thread for calculations we don't want to offload */
     nWorkers = n > 1 ? n + 1 : 1;
 
@@ -36,7 +36,6 @@ MTFractWorker::MTFractWorker(
     {
         ptp = NULL;
     }
-
 }
 
 MTFractWorker::~MTFractWorker()
@@ -139,7 +138,6 @@ MTFractWorker::stats(int *pnDoubleIters, int *pnHalfIters, int *pk)
 void
 MTFractWorker::send_cmd(job_type_t job, int x, int y, int param)
 {
-    //gf4d_fractal_try_finished_cond(gf);
     job_info_t work;
 
     work.job = job; 
