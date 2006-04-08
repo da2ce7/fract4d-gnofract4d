@@ -473,9 +473,9 @@ goto t__end_finit;''')
 
         self.codegen.output_all(t)
 
-        print t.sections["bailout"].pretty()
-        print [x.pretty() for x in t.canon_sections["bailout"]]
-        print [x.format() for x in t.output_sections["bailout"]]
+        #print t.sections["bailout"].pretty()
+        #print [x.pretty() for x in t.canon_sections["bailout"]]
+        #print [x.format() for x in t.output_sections["bailout"]]
 
         self.assertEqual('fx', self.codegen.get_bailout_var(t))
 
@@ -489,9 +489,9 @@ goto t__end_finit;''')
         }''')
 
         self.codegen.output_all(t)
-        print t.sections["bailout"].pretty()
-        print [x.pretty() for x in t.canon_sections["bailout"]]
-        print [x.format() for x in t.output_sections["bailout"]]
+        #print t.sections["bailout"].pretty()
+        #print [x.pretty() for x in t.canon_sections["bailout"]]
+        #print [x.format() for x in t.output_sections["bailout"]]
 
         self.assertEqual('t__f2', self.codegen.get_bailout_var(t))
 
@@ -505,9 +505,9 @@ goto t__end_finit;''')
         }''')
 
         self.codegen.output_all(t)
-        print t.sections["bailout"].pretty()
-        print [x.pretty() for x in t.canon_sections["bailout"]]
-        print [x.format() for x in t.output_sections["bailout"]]
+        #print t.sections["bailout"].pretty()
+        #print [x.pretty() for x in t.canon_sections["bailout"]]
+        #print [x.format() for x in t.output_sections["bailout"]]
         self.assertEqual('t__f1', self.codegen.get_bailout_var(t))
 
         
