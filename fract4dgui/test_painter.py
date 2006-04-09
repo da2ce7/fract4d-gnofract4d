@@ -18,6 +18,10 @@ from fract4d import fc, fractal
 import painter
 import gtkfractal
 
+class FakeEvent:
+    def __init__(self,**kwds):
+        self.__dict__.update(kwds)
+
 class Test(unittest.TestCase):
     def setUp(self):
         self.compiler = fc.Compiler()
@@ -26,7 +30,7 @@ class Test(unittest.TestCase):
         
         self.f = gtkfractal.T(self.compiler)
         self.settings = painter.PainterDialog(None,self.f)
-        
+
     def tearDown(self):
         pass
         
@@ -37,6 +41,14 @@ class Test(unittest.TestCase):
         if status == 0:
             gtk.main_quit()
 
+    def testPaintOnUnknown(self):
+        self.assertEqual(True, self.f.paint_mode)
+        event = FakeEvent(x=0,y=0,button=1)
+        self.f.onButtonPress(self.f.widget,event)
+        self.f.onButtonRelease(self.f.widget,event)
+
+        
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 
