@@ -16,10 +16,10 @@ fixed in 2.13:
 * BB	petri_dish.fct:'local variable i referencenced before assignment'
 * BB	render queue only uses 1 CPU
 * BB	RQ: progress jitters a lot on quick images
+* BB	painter is broken
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
-* BB	painter is broken
 * BB	better image-sizing widgets for render queue
 * B	RQ: progress bar should be more colorful
 * B	half-done images left behind when RQ aborted

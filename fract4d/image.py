@@ -18,8 +18,9 @@ def file_matches():
 class T:
     FATE_SIZE = 4
     COL_SIZE = 3
+    SOLID = 128
     OUT=0
-    IN=1 | 128 # in pixels have solid bit set
+    IN=1 | SOLID # in pixels have solid bit set
     UNKNOWN=255
     BLACK=[0,0,0]
     WHITE=[255,255,255]
@@ -151,7 +152,15 @@ class T:
         return fract4dc.image_buffer(self._img, x, y)
         
     def get_fate(self,x,y):
-        return ord(self.fate_buf[self.pos(x,y,T.FATE_SIZE)])
+        n = ord(self.fate_buf[self.pos(x,y,T.FATE_SIZE)])
+        if n == T.UNKNOWN:
+            return None
+        elif n & T.SOLID:
+            is_solid = True
+        else:
+            is_solid = False
+        fate = n & ~T.SOLID
+        return (is_solid, fate)
 
     def get_all_fates(self,x,y):
         pos = self.pos(x,y,T.FATE_SIZE)
