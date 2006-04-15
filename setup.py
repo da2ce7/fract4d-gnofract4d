@@ -77,13 +77,17 @@ extra_macros = []
 png_flags = call_package_config("libpng", "--cflags", True)
 if png_flags != []:
     extra_macros.append(('PNG_ENABLED', 1))
+else:
+    print "NO PNG HEADERS FOUND"
+    
 png_libs = call_package_config("libpng", "--libs", True)
 
-jpg_lib = os.path.join(distutils.sysconfig.get_config_var("LIBDIR"), "libjpeg.so")
-if os.path.isfile("/usr/include/jpeglib.h") and os.path.isfile(jpg_lib):
+jpg_lib = "jpeg"
+if os.path.isfile("/usr/include/jpeglib.h"):
     extra_macros.append(('JPG_ENABLED', 1))
     jpg_libs = [ jpg_lib ]
 else:
+    print "NO JPEG HEADERS FOUND"
     jpg_libs = []
 
 # use currently specified compilers, not ones from when Python was compiled
@@ -107,13 +111,13 @@ module1 = Extension(
     'fract4d/c'
     ],
     libraries = [
-    'stdc++'
-    ],
+    'stdc++' 
+    ] + jpg_libs,
     extra_compile_args = [
     '-O0',
     '-Wall',
     ] + png_flags,
-    extra_link_args = png_libs + jpg_libs,
+    extra_link_args = png_libs,
     define_macros = [ ('_REENTRANT',1),
                       #('NO_CALC', 1),
                       #('DEBUG_CREATION',1)
@@ -172,7 +176,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
        maintainer_email = 'edwin@bathysphere.org',
        keywords = "fractal Mandelbrot Julia fractint chaos",
        url = 'http://gnofract4d.sourceforge.net/',
-       packages = ['fract4d', 'fract4dgui', 'fractutils'],
+       packages = ['fract4d', 'fract4dgui', 'fractutils', 'buildtools'],
        ext_modules = [module1, module_cmap, module2],
        scripts = ['gnofract4d'],
        data_files = [

@@ -15,9 +15,6 @@ include gnofract4d-mime.xml
 include COPYING
 include gnofract4d
 include test.py
-include my_bdist_rpm.py
-include my_build.py
-include my_build_ext.py
 include createdocs.py
 include fract4d/test.frm
 include fract4d/test_bad_pp.frm
@@ -30,4 +27,4 @@ include testdata/collapsar.fct
 include testdata/gradient_func.fct
 include testdata/chainsoflight.fct
 include testdata/tumor.fct
-include buildtools/*.py
+

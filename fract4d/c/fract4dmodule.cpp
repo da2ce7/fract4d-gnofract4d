@@ -1331,7 +1331,8 @@ parse_calc_args(PyObject *args, PyObject *kwds)
 {
     PyObject *pyparams, *pypfo, *pycmap, *pyim, *pysite;
     calc_args *cargs = new calc_args();
- 
+    double *p = NULL;
+
     static char *kwlist[] = {
 	"image",
 	"site",
@@ -1372,7 +1373,7 @@ parse_calc_args(PyObject *args, PyObject *kwds)
 	goto error;
     }
 
-    double *p = cargs->params;
+    p = cargs->params;
     if(!PyList_Check(pyparams) || PyList_Size(pyparams) != N_PARAMS)
     {
 	PyErr_SetString(PyExc_ValueError, "bad parameter list");
