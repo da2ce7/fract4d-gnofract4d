@@ -22,6 +22,13 @@ class my_bdist_rpm (bdist_rpm):
             if spec[i].startswith(find):
                 spec.insert(i,add)
                 return
+
+    def replace(self,spec,find, new):
+        for i in xrange(len(spec)):
+            if spec[i].startswith(find):
+                print "replacing %s with %s" % (spec[i], new)
+                spec[i] = new
+                return
             
     def add_to_section(self,spec,sect,add):
         found = False
@@ -40,19 +47,22 @@ class my_bdist_rpm (bdist_rpm):
 
     def spawn(self,cmd):
         '''HACK: On FC4 rpmbuild creates 2 RPMS, the normal one and a
-        debuginfo one. This horrifies the Python 2.3 bdist_rpm,
-        which only expects 1 RPM. This works around that by deleting
-        the extraneous debuginfo RPM. Overriding this method rather than
-        run() because there's less code. '''
+        debuginfo one. This horrifies the bdist_rpm which comes with pythons
+        older than 2.4 - these only expect 1 RPM. This works around
+        that by deleting the extraneous debuginfo RPM. Overriding this
+        method rather than run() because there's less code. '''
         bdist_rpm.spawn(self,cmd)
-        if sys.version[:3] == "2.3" and cmd[0] == "rpmbuild":
+        v = sys.version_info[0] * 10 + sys.version_info[1]
+        if v < 24 and cmd[0] == "rpmbuild":
             for arg in cmd:
                 m = topdir_re.match(arg)
                 if m:
+                    print "doing 2.3-cleanup"
                     dir = m.group(1)                    
                     debuginfo_glob = os.path.join(
                         dir,"RPMS", "*", "*debuginfo*")
                     rpms = glob.glob(debuginfo_glob)
+                    print "found extraneous rpms", rpms
                     for rpm in rpms:
                         os.remove(rpm)
 
@@ -68,6 +78,9 @@ class my_bdist_rpm (bdist_rpm):
         # reduce the number of explicit pre-requisites
         self.insert_after(spec, 'Url','AutoReqProv: no')
 
+        # remove an old tag that newer rpmbuilds dislike        
+        self.replace(spec, 'Copyright', 'License: BSD')
+        
         # install a .desktop file and register .fct files with ourselves
         self.insert_after(spec, '%define', '%define desktop_vendor ey')
         self.add_to_section(spec, '%install', '''

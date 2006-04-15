@@ -5,6 +5,9 @@
 from distutils.command.build_ext import build_ext
 from distutils.core import Command
 import os
+import re
+
+remove_mtune = re.compile(r'-mtune=\w*')
 
 class my_build_ext (build_ext):
     user_options = build_ext.user_options
@@ -16,16 +19,18 @@ class my_build_ext (build_ext):
         cxx = os.environ.get("CXX")
         cc = os.environ.get("CC")
 
+        print "compiling with", cc
         if cc:
             self.compiler.preprocessor[0] = cc
             self.compiler.compiler_so[0] = cc
             self.compiler.compiler[0] = cc
         
             if cc.find("33") > -1:
+                print "cc is old"
                 # rpm thinks we should have -mtune, but older gcc doesn't like it
                 cflags = os.environ.get("CFLAGS")
                 if cflags != None:
-                    cflags = cflags.replace("-mtune=pentium4","")
+                    cflags = remove_mtune.sub("",cflags)
                     print "cflags", cflags
                     os.environ["CFLAGS"] = cflags
 
