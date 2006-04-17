@@ -14,9 +14,14 @@ define_re = re.compile(r'\s*\$define(\s+(?P<var>[a-z][a-z0-9_]*))?',
 undef_re = re.compile(r'\s*\$undef(\s+(?P<var>[a-z][a-z0-9_]*))?',
                       re.IGNORECASE)
 
+# a line continuation
+continue_re = re.compile(r'\\\r?\s*\n')
+
 compressed_re = re.compile(r'^::')
 
 uncompressed_re = re.compile(r'\}')
+
+space_re = re.compile(r'^\s+')
 
 class Error(Exception):
     def __init__(self,msg):
@@ -78,11 +83,17 @@ class T:
         out_lines = []
         i = 1
         lines = self.decompress(lines)
+        last_was_continue = False
+        continuations = 0
         
         self.currently_true = True
         for line in lines:                
             pass_through = False
-            #print self.ifdef_stack, self.currently_true, line,
+
+            if last_was_continue:
+                # remove any leading spaces
+                line = space_re.sub("",line,1)
+                
             m = ifdef_re.match(line)
             if m:
                 var = self.get_var(m,i, "$IFDEF")
@@ -118,7 +129,21 @@ class T:
                         else:
                             # just a line
                             pass_through = True
-                        
+
+            m = continue_re.search(line)
+            if m:
+                # this line is continued on the line below it
+                
+                # remove the continuation
+                line = continue_re.sub("",line)
+                last_was_continue = True
+                continuations += 1
+            else:
+                # fix up the line number counting
+                last_was_continue = False
+                line += "\n" * continuations
+                continuations = 0
+                
             if pass_through:
                 out_lines.append(line)
             else:
