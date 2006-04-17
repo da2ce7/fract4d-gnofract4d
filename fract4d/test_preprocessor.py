@@ -38,6 +38,17 @@ class Test(unittest.TestCase):
 
         ''')
 
+    def testContinuationFix(self):
+        pp = preprocessor.T('''
+        z = 1.0\\
+        5
+        ''')
+        
+        self.assertEqual(pp.out(),'''
+        z = 1.05
+
+        ''')
+
     def testBadUndef(self):
         pp = preprocessor.T('''
         $UNDEF foo

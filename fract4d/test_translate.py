@@ -147,7 +147,7 @@ loop:
   z = z * @aa * (z^2 - 3) + @bb;
   
 bailout:
-; -- this isn't the bailout but the continuing condition
+; -- this isn\'t the bailout but the continuing condition
 ;    false = bail; true = continue
   |z| < @bailout
   
@@ -178,6 +178,16 @@ switch:
 ''')
         self.assertError(t, "26: only constants can be used in default sections")
 
+    def testUnknownHashVar(self):
+        # check that using an unknown var #foo causes the right kind of error
+
+        t = self.translate(''' x {
+        init:
+        z = #foo
+        }''')
+
+        self.assertError(t, "3: symbol '#foo': only predefined symbols can begin with #")
+        
     def testBadDefault(self):
         t = self.translate('''t {
         default:

@@ -972,6 +972,17 @@ default:
 '''
         t = self.parse(src)
         self.assertIsValidParse(t)
+
+    def testTokenSpanningLines(self):
+        # a single token which spans multiple lines
+        src = '''foo {
+        init:
+        z = 1.0\\
+        5\\
+        3
+        }'''
+        t = self.parse(src)
+        self.assertIsValidParse(t)
         
     def assertListTypesMatch(self,nodes,types):
         self.assertEqual(len(nodes),len(types))
@@ -995,8 +1006,7 @@ default:
     def assertIsValidParse(self,t1):
         self.failUnless(absyn.CheckTree(t1))
         errors = self.allNodesOfType(t1,"error")
-        for e in errors: print "%s" % e
-        self.assertEqual(errors,[])
+        self.assertEqual(errors,[], [ str(e) for e in errors])
         
     def assertParsesEqual(self, s1, s2):
         t1 = self.parse(self.makeMinimalFormula(s1))

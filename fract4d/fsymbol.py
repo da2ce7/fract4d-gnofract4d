@@ -680,12 +680,12 @@ class T(UserDict):
                 msg = "is predefined as %s" % strOfType(T.default_dict[k].type)
                 raise KeyError, ("symbol '%s' %s" % (key,msg))
             return
+        elif key[0]=='#':
+            msg = "symbol '%s': only predefined symbols can begin with #" % key
+            raise KeyError, msg                  
         elif string.find(k,"t__",0,3)==0 and not key[0]=='@':
             raise KeyError, \
                   ("symbol '%s': no symbol starting with t__ is allowed" % key)
-        elif key[0]=='#':
-            raise KeyError, \
-                  ("symbol '%s': only predefined symbols can begin with '#'" %key)
         self.data[k] = value
         if hasattr(value,"cname") and value.cname == None:
             value.cname=self.insert_prefix(self.prefix,k)

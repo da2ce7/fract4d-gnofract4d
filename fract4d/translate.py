@@ -714,8 +714,12 @@ class TBase:
             self.warning(
                 "Uninitialized variable %s referenced on line %d" % \
                 (node.leaf, node.pos))
-            self.symbols[node.leaf] = Var(
-                fracttypes.Complex, default_value(Complex), node.pos)
+            try:
+                self.symbols[node.leaf] = Var(
+                    fracttypes.Complex, default_value(Complex), node.pos)
+            except KeyError, e:
+                raise TranslationError("%d: %s" % (node.pos, e.args[0]))
+            
             node.datatype = fracttypes.Complex
         except AttributeError:
             # if this is a function, it's an error unless it has an overload
