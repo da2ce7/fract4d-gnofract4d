@@ -84,7 +84,9 @@ bool tga_writer::save_footer()
 }
 
 #ifdef PNG_ENABLED
+extern "C" {
 #include "png.h"
+}
 
 class png_writer : public image_writer 
 {
@@ -171,7 +173,9 @@ png_writer::save_footer()
 #endif
 
 #ifdef JPG_ENABLED
+extern "C" {
 #include "jpeglib.h"
+}
 
 class jpg_writer : public image_writer 
 {
