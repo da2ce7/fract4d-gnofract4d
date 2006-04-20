@@ -1,28 +1,15 @@
 todo:
 
-fixed in 2.13:
-* WW	render to disk
-* W	previews in open file dialog
-* W	load .ufm etc files from cmd-line
-* W	-v cmd-line arg
-* W	antialiasing progress should be smoother and in 1 pass
-* W	all progress should be in one pass
-
-* BB	none of the formulas in fractint.ufm seem to work - bad bailout_var calc
-* B	error compiling aho.ufm#Poly3_J: 'NoneType' object has no attribute 'datatype'
-* B	standard.cfrm:triangle = all black
-* BB	boolean negation (! operator) doesn't actually work
-* BB	total size not updated when exploring, preview wrong
-* BB	petri_dish.fct:'local variable i referencenced before assignment'
-* BB	render queue only uses 1 CPU
-* BB	RQ: progress jitters a lot on quick images
-* BB	painter is broken
+fixed in next release:
+* B	KeyError: "symbol '#width' : no symbol starting with t__ is allowed
+* B	allow fractint-style mid-token \'s
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 * BB	better image-sizing widgets for render queue
 * B	RQ: progress bar should be more colorful
 * B	half-done images left behind when RQ aborted
+* B	sp.ucl#AllInOne - compiler error, wrong type for abs
 * BB	gnd.ufm#4D Julia - behaves very oddly
 * BB	fractint doesn't reset vars between points
 * BB	explorer rather slow with complex colorfuncs (recompile too much)
@@ -62,6 +49,7 @@ bugs (the more B's, the worse the bug):
 * B	Mandrake: desktop icon not added to menu
 
 features (the more W's, the more work involved):
+* W	progress and interruptability while parsing/compiling
 * W	RQ: Should have option to delete an image from the queue
 * W	RQ: add pause/resume
 * WWW	RQ: continue rendering across shutdowns
@@ -138,6 +126,24 @@ params (not all applicable to all types):
 1) how to set color of point
 2) time step
 3) which points to start with
+
+fixed in 2.13:
+* WW	render to disk
+* W	previews in open file dialog
+* W	load .ufm etc files from cmd-line
+* W	-v cmd-line arg
+* W	antialiasing progress should be smoother and in 1 pass
+* W	all progress should be in one pass
+* BB	none of the formulas in fractint.ufm seem to work - bad bailout_var calc
+* B	error compiling aho.ufm#Poly3_J: 'NoneType' object has no attribute 'datatype'
+* B	standard.cfrm:triangle = all black
+* BB	boolean negation (! operator) doesn't actually work
+* BB	total size not updated when exploring, preview wrong
+* BB	petri_dish.fct:'local variable i referencenced before assignment'
+* BB	render queue only uses 1 CPU
+* BB	RQ: progress jitters a lot on quick images
+* BB	painter is broken
+
 
 fixed in 2.12:
 * B	exception printed when updating color widgets on later pygtks
