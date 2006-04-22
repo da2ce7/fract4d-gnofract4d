@@ -57,14 +57,19 @@ pages = [
     "Thanks for creating Gnofract 4D, I've found it a real pleasure to use so far..."]
         ),
 
+    Bag(name="FAQ",
+        file="faq.html",
+        image="faq.jpg"
+        ),
+
     Bag(name="Links",
         file="links.html",
         image="jm.jpg",
         comments=[
     "Thanks for a cool site and amazing app/creations!",
     "Really a nice tool."        
-    ]
-        )
+    ]),
+        
     ]
 
 def process_all(pages):
@@ -75,7 +80,12 @@ def process_all(pages):
             body=body_text,
             pages=pages,
             page=page)
-        print >>out, str(template)
+        try:
+            print >>out, str(template)
+        except Exception, exn:
+            print "Error processing page %s" % page.file
+            raise
+            
         out.close()
         if hasattr(page,"children"):
             process_all(page.children)
