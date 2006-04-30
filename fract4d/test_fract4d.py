@@ -372,7 +372,7 @@ class Test(testbase.TestBase):
         self.assertEqual(fract4dc.CALC_DONE, 0)
         self.assertEqual(fract4dc.CALC_DEEPENING, 2)
         self.assertEqual(fract4dc.AA_FAST, 1)
-        
+
     def testAACalc(self):
         xsize = 64
         ysize = int(xsize * 3.0/4.0)

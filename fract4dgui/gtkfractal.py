@@ -315,6 +315,7 @@ class Hidden(gobject.GObject):
                 auto_deepen=self.f.auto_deepen,
                 periodicity=self.f.periodicity,
                 render_type=self.f.render_type,
+                warp_param=self.f.warp_param,
                 image=image._img,
                 site=self.site,
                 dirty=self.f.clear_image,
@@ -958,7 +959,7 @@ class T(Hidden):
             (x,y) = (event.x, event.y)
             zoom = 1.0
             self.recenter(x,y,zoom)
-            if self.f.formula.is4D():
+            if self.is4D():
                 self.flip_to_julia()
             
         else:

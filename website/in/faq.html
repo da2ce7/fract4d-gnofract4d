@@ -16,11 +16,14 @@ distributions provide a suitable version by default. Unfortunately
 they all use different names for it: Fedora uses "pygtk2", Mandrake
 uses "pygtk2.0", and SuSE uses "python-gtk". The RPMs I've built use
 the Fedora name, so they don't realize that all the packages they need
-are present on these distributions. The workaround is to run <code>rpm
--i --nodeps &lt;rpmfile&gt;</code>. Alternatively you could download
+are present on these distributions. The workaround is to run:</p>
+<p>
+<code>rpm -i <b>--nodeps</b> &lt;rpmfile&gt;</code>. 
+</p>
+<p>
+Alternatively you could download
 the source package or even volunteer to repackage Gnofract 4D for your
 distribution.
-
 </p>
 
 <p class="q">

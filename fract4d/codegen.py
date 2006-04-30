@@ -94,7 +94,7 @@ static void pf_calc(
     // "object" pointer
     struct s_pf_data *t__p_stub,
     // in params
-    const double *t__params, int maxiter,
+    const double *t__params, int maxiter, int t__warp_param,
     // only used for debugging
     int t__p_x, int t__p_y, int t__p_aa,
     // out params
@@ -118,10 +118,17 @@ double t__h_color_k = 0.0;
 
 *t__p_pDirectColorFlag = %(dca_init)s;
 
+if(t__warp_param != -1)
+{
+    t__pfo->p[t__warp_param].doubleval = t__h_zwpixel_re;
+    t__pfo->p[t__warp_param+1].doubleval = t__h_zwpixel_im;
+}
+
 /* variable declarations */
 %(var_inits)s
 int t__h_numiter = 0;
 %(init)s
+
 t__end_finit:
 %(cf0_init)s
 t__end_cf0init:
@@ -175,7 +182,7 @@ static void pf_calc_period(
     // "object" pointer
     struct s_pf_data *t__p_stub,
     // in params
-    const double *t__params, int maxiter,
+    const double *t__params, int maxiter, int t__warp_param,
     // only used for debugging
     int t__p_x, int t__p_y, int t__p_aa,
     // out params
@@ -198,6 +205,12 @@ double t__h_color_j = 0.0;
 double t__h_color_k = 0.0;
 
 *t__p_pDirectColorFlag = %(dca_init)s;
+
+if(t__warp_param != -1)
+{
+    t__pfo->p[t__warp_param].doubleval = t__h_zwpixel_re;
+    t__pfo->p[t__warp_param+1].doubleval = t__h_zwpixel_im;
+}
 
 /* variable declarations */
 %(var_inits)s
@@ -352,7 +365,7 @@ struct s_pf_vtable {
     void (*calc)(
 	struct s_pf_data *p,
         // in params
-        const double *params, int nIters, 
+        const double *params, int nIters, int warp_param,
 	// only used for debugging
 	int x, int y, int aa,
         // out params
@@ -363,7 +376,7 @@ struct s_pf_vtable {
     void (*calc_period)(
 	struct s_pf_data *p,
         // in params
-        const double *params, int nIters, 
+        const double *params, int nIters, int warp_param,
 	// only used for debugging
 	int x, int y, int aa,
         // out params

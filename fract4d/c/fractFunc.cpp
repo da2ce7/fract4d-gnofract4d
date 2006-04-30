@@ -38,6 +38,7 @@ fractFunc::fractFunc(
 	bool yflip,
 	bool periodicity_,
 	render_type_t render_type_,
+	int warp_param_,
 	IFractWorker *fw,
 	IImage *im_, 
 	IFractalSite *site_)
@@ -56,6 +57,7 @@ fractFunc::fractFunc(
     nThreads = nThreads_;
     auto_deepen = auto_deepen_;
     periodicity = periodicity_;
+    warp_param = warp_param_;
 
     set_progress_range(0.0,1.0);
     /*
@@ -361,6 +363,7 @@ calc(
     bool periodicity,
     bool dirty,
     render_type_t render_type,
+    int warp_param,
     IImage *im, 
     IFractalSite *site)
 {
@@ -379,6 +382,7 @@ calc(
 	    yflip,
 	    periodicity,
 	    render_type,
+	    warp_param,
 	    worker,
 	    im,
 	    site);

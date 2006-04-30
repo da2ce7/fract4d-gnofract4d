@@ -68,7 +68,7 @@ struct s_pf_vtable {
     void (*calc)(
 	struct s_pf_data *p,
         // in params
-        const double *params, int nIters, 
+        const double *params, int nIters, int warp_param,
 	// only used for debugging
 	int x, int y, int aa,
         // out params
@@ -79,7 +79,7 @@ struct s_pf_vtable {
     void (*calc_period)(
 	struct s_pf_data *p,
         // in params
-        const double *params, int nIters, 
+        const double *params, int nIters, int warp_param,
 	// only used for debugging
 	int x, int y, int aa,
         // out params

@@ -482,7 +482,7 @@ pf_calc(PyObject *self, PyObject *args)
     printf("%p : PF : CALC\n",pfh);
 #endif
     pfh->pfo->vtbl->calc(pfh->pfo,params,
-			 nIters, 
+			 nIters, -1,
 			 x,y,aa,
 			 &outIters,&outFate,&outDist,&outSolid,
 			 &fDirectColorFlag, &colors[0]);
@@ -827,7 +827,7 @@ struct calc_args
     double params[N_PARAMS];
     int eaa, maxiter, nThreads;
     int auto_deepen, yflip, periodicity, dirty;
-    int async;
+    int async, warp_param;
     render_type_t render_type;
     pf_obj *pfo;
     ColorMap *cmap;
@@ -853,6 +853,7 @@ struct calc_args
 	    nThreads = 1;
 	    render_type = RENDER_TWO_D;
 	    async = false;
+	    warp_param = -1;
 	}
 
     void set_cmap(PyObject *pycmap_)
@@ -1282,6 +1283,7 @@ ff_create(PyObject *self, PyObject *args)
 	yflip,
 	periodicity,
 	render_type,
+	-1, // warp_param
 	worker,
 	im,
 	site);
@@ -1317,6 +1319,7 @@ calculation_thread(void *vdata)
 	 args->nThreads,args->pfo,args->cmap,
 	 args->auto_deepen,args->yflip, args->periodicity, args->dirty,
 	 args->render_type,
+	 args->warp_param,
 	 args->im,args->site);
 
 #ifdef DEBUG_THREADS 
@@ -1348,12 +1351,13 @@ parse_calc_args(PyObject *args, PyObject *kwds)
 	"render_type",
 	"dirty", 
 	"async",
+	"warp_param",
 	NULL};
 
     if(!PyArg_ParseTupleAndKeywords(
 	   args,
 	   kwds,
-	   "OOOOO|iiiiiiiii",
+	   "OOOOO|iiiiiiiiii",
 	   kwlist,
 
 	   &pyim, &pysite,
@@ -1367,7 +1371,8 @@ parse_calc_args(PyObject *args, PyObject *kwds)
 	   &cargs->periodicity,
 	   &cargs->render_type,
 	   &cargs->dirty,
-	   &cargs->async
+	   &cargs->async,
+	   &cargs->warp_param
 	   ))
     {
 	goto error;
@@ -1462,6 +1467,7 @@ pycalc(PyObject *self, PyObject *args, PyObject *kwds)
 	     cargs->periodicity, 
 	     cargs->dirty,
 	     cargs->render_type,
+	     cargs->warp_param,
 	     cargs->im,
 	     cargs->site);
 

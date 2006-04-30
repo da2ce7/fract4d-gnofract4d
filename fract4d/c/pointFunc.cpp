@@ -41,7 +41,7 @@ public:
 	}
     virtual void calc(
         // in params
-        const double *params, int nIters, bool checkPeriod,
+        const double *params, int nIters, bool checkPeriod, int warp_param,
 	// only used for debugging
 	int x, int y, int aa,
         // out params
@@ -56,7 +56,7 @@ public:
 	    if (checkPeriod)
 	    {
 		m_pfo->vtbl->calc_period(
-		    m_pfo, params, nIters, 
+		    m_pfo, params, nIters, warp_param,
 		    x, y, aa,
 		    pnIters, &fate, &dist, &solid,
 		    &fUseColors, &colors[0]);
@@ -64,7 +64,7 @@ public:
 	    else
 	    {
 		m_pfo->vtbl->calc(
-		    m_pfo, params, nIters, 
+		    m_pfo, params, nIters, warp_param,
 		    x, y, aa,
 		    pnIters, &fate, &dist, &solid,
 		    &fUseColors, &colors[0]);
