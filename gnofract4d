@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 # the main GUI program. Relies on fract4d libs to do the real work
-version = '2.13'
+version = '3.0'
 
 # python stdlib
 import sys
 import os
 import getopt
-import distutils.sysconfig
 
 # gettext
 import gettext
@@ -54,14 +53,28 @@ If you haven't set up Gnofract 4D yet, run './setup.py build'
 Error was: '%s' ''') % err
     sys.exit(1)
 
-# stop PyGTK from complaining about our use of ItemFactory - I want this to
-# carry on working with older PyGTK's, so UIManager is out, and the differences
-# between the 2 are too large to hide
 try:
+    # newer pygtk's are incompatible with older ones. In most cases I 
+    # try the new version and fall back to the older if it's missing. See utils.py.
+    # In these cases I can't, so hiding the DeprecationWarnings so users
+    # don't have to suffer
     import warnings
+
+    # we use ItemFactory because I want this to carry on working with older PyGTK's,
+    # so UIManager is out, and the differences between the 2 are too large to hide
+
     warnings.filterwarnings(
         "ignore",
         ".*UIManager.*",
+        DeprecationWarning,
+        ".*",
+        0)
+
+    # newer pygtk's don't need us to call gobject.type_register, but older ones
+    # most certainly do.
+    warnings.filterwarnings(
+        "ignore",
+        ".*GObject-registered.*",
         DeprecationWarning,
         ".*",
         0)

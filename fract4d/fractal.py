@@ -21,7 +21,7 @@ hyper_re = re.compile(r'\((.*?),(.*?),(.*?),(.*?)\)')
 
 # the version of the earliest gf4d release which can parse all the files
 # this version can output
-THIS_FORMAT_VERSION=2.8
+THIS_FORMAT_VERSION="3.0"
 
 # generally useful funcs for reading in .fct files
 class FctUtils:
@@ -267,7 +267,8 @@ class T(FctUtils):
         
         self.initparams = []
         self.cfunc_params = [ [], [] ]
-        
+
+        self.warp_param = -1
         # gradient
         
         # default is just white outside
@@ -322,7 +323,7 @@ class T(FctUtils):
         
     def save(self,file,update_saved_flag=True):
         print >>file, "gnofract4d parameter file"
-        print >>file, "version=2.8"
+        print >>file, "version=%s" % THIS_FORMAT_VERSION
 
         paramnames = ["x","y","z","w","size","xy","xz","xw","yz","yw","zw"]
         for pair in zip(paramnames,self.params):
@@ -334,7 +335,7 @@ class T(FctUtils):
         print >>file, "[function]"
         print >>file, "formulafile=%s" % self.funcFile
         print >>file, "function=%s" % self.funcName
-        self.save_formula_params(file,self.formula,self.initparams)
+        self.save_formula_params(file,self.formula,self.initparams,self.warp_param)
         print >>file, "[endsection]"
         
         self.save_cfunc_info(1,"inner",file)
@@ -350,7 +351,7 @@ class T(FctUtils):
         if update_saved_flag:
             self.saved = True
 
-    def save_formula_params(self,file,formula,params):
+    def save_formula_params(self,file,formula,params,warp_param=-1):
         names = self.func_names(formula)
         names.sort()
         for name in names:
@@ -359,7 +360,7 @@ class T(FctUtils):
         names.sort()
         for name in names:
             print >>file, "%s=%s" % \
-                  (name, self.initvalue(name, formula.symbols,params))
+                  (name, self.initvalue(name, formula.symbols,params,warp_param))
 
     def get_gradient(self):
         try:
@@ -378,12 +379,15 @@ class T(FctUtils):
             self.initparams[ord] = g
             self.changed(False)
             
-    def initvalue(self,name,symbol_table,params):
+    def initvalue(self,name,symbol_table,params,warp_param=-1):
         ord = self.order_of_name(name,symbol_table)
         type = symbol_table[name].type
         
         if type == fracttypes.Complex:
-            return "(%.17f,%.17f)"%(params[ord],params[ord+1])
+            if warp_param == ord:
+                return "warp"
+            else:
+                return "(%.17f,%.17f)"%(params[ord],params[ord+1])
         elif type == fracttypes.Hyper or type == fracttypes.Color:
             return "(%.17f,%.17f,%.17f,%.17f)"% \
                    (params[ord],params[ord+1],params[ord+2],params[ord+3])
@@ -477,6 +481,7 @@ class T(FctUtils):
         c.periodicity = self.periodicity
         c.saved = self.saved
         c.clear_image = self.clear_image
+        c.warp_param = self.warp_param
         return c
 
     def reset_angles(self):
@@ -520,7 +525,12 @@ class T(FctUtils):
         self.set_gradient(copy.copy(f.get_gradient()))
         self.solids[0:len(f.solids)] = f.solids[:]
         self.changed(False)
-        
+
+    def set_warp_param(self,param):
+        if self.warp_param != param:
+            self.warp_param = param
+            self.changed(True)
+            
     def set_cmap(self,mapfile):
         c = Colorizer(self)
         file = open(mapfile)
@@ -780,7 +790,10 @@ class T(FctUtils):
             elif paramtypes[i] == fracttypes.Bool:
                 if random.random() < weirdness * 0.2:
                     params[i] = not params[i]
-        
+
+    def is4D(self):
+        return self.warp_param != -1 or self.formula.is4D()
+
     def mutate(self,weirdness,color_weirdness,colormaps):
         '''randomly adjust position, colors, angles and parameters.
         weirdness is between 0 and 1 - 0 is no change, 1 is lots'''
@@ -912,6 +925,7 @@ class T(FctUtils):
                 render_type=self.render_type,
                 image=image._img,
                 site=self.site,
+                warp_param=self.warp_param,
                 dirty=self.clear_image)
 
             image.save_tile()
@@ -931,26 +945,34 @@ class T(FctUtils):
     def parse_gnofract4d_parameter_file(self,val,f):
         pass
 
+    def parse_version_string(self,s):
+        try:
+            (major,minor) = tuple([int(a) for a in s.split(".")])
+            return major * 1000.0 + minor
+        except Exception, exn:
+            raise ValueError("Invalid version number %s" % s)
+
     def parse_version(self,val,f):
         global THIS_FORMAT_VERSION
-        self.format_version=float(val)
-        if self.format_version < 2.0:
+        self.format_version = self.parse_version_string(val)
+        this_format_version = self.parse_version_string(THIS_FORMAT_VERSION)
+        if self.format_version < 2000.0:
             # old versions displayed everything upside down
             # switch the rotation so they load OK
             self.yflip = True
-        if 1.7 < self.format_version < 2.0:
+        if 1700.0 < self.format_version < 2000.0:
             # a version that used auto-tolerance for Nova and Newton
             self.auto_tolerance = True
             
-        if self.format_version > THIS_FORMAT_VERSION:
+        if self.format_version > this_format_version:
             warning = \
 '''This file was created by a newer version of Gnofract 4D.
-The image may not display correctly. Please upgrade to version %.1f or higher.''' 
+The image may not display correctly. Please upgrade to version %s or higher.''' 
 
-            self.warn(warning % self.format_version)
+            self.warn(warning % val)
     def warn(self,msg):
         print msg
-        
+
     def parse__function_(self,val,f):
         params = ParamBag()
         params.load(f)
@@ -967,11 +989,10 @@ The image may not display correctly. Please upgrade to version %.1f or higher.''
             else:
                 self.set_named_item(name,val,self.formula,
                                     self.initparams)
-                
+
     def set_named_param(self,name,val,formula,params):
+        ord = self.order_of_name(name,formula.symbols)
         #print "named param %s : %s" % (name, val)
-        op = formula.symbols.order_of_params()
-        ord = op.get(formula.symbols.mangled_name(name))
         if ord == None:
             #print "Ignoring unknown param %s" % name
             return
@@ -987,6 +1008,8 @@ The image may not display correctly. Please upgrade to version %.1f or higher.''
                 if params[ord+1] != im:                
                     params[ord+1] = im
                     self.changed()
+            elif val == "warp":
+                self.warp_param = ord
         elif t == fracttypes.Hyper or t == fracttypes.Color:
             m = hyper_re.match(val)
             if m!= None:

@@ -255,7 +255,7 @@ class MainWindow:
             1,1)
 
     def on_formula_change(self, f):
-        is4d = f.formula.is4D()
+        is4d = f.is4D()
         for widget in self.four_d_sensitives:
             widget.set_sensitive(is4d)
         

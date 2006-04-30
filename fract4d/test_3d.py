@@ -46,11 +46,11 @@ class Test(testbase.TestBase):
         initparams = self.f.all_params()
         fract4dc.pf_init(self.pfunc,1.0E-9,initparams)
 
-        self.image = image.T(40,30)
+        self.im = image.T(40,30)
         siteobj = FractalSite()
         self.site = fract4dc.site_create(siteobj)
         
-        self.fw = fract4dc.fw_create(1,self.pfunc,self.cmap,self.image._img,self.site)
+        self.fw = fract4dc.fw_create(1,self.pfunc,self.cmap,self.im._img,self.site)
 
         self.ff = fract4dc.ff_create(
             [0.0, 0.0, 0.0, 0.0,
@@ -65,7 +65,7 @@ class Test(testbase.TestBase):
             0,
             1,
             2, # 3D
-            self.image._img,
+            self.im._img,
             self.site,
             self.fw)
 
@@ -148,21 +148,29 @@ class Test(testbase.TestBase):
                 if is_hit:
                     self.assertNearlyEqual(root, real_root,1e-10)
 
-    def disabled_testDraw(self):
-        fract4dc.calc(self.f.params,self.f.antialias,self.f.maxiter,
-                      self.f.yflip,self.f.periodicity,
-                      self.pfunc,self.cmap,self.f.auto_deepen,
-                      1,2, # 3D
-                      self.image._img,self.site, True)
+    def testDraw(self):
+        fract4dc.calc(
+            params = self.f.params,
+            antialias = self.f.antialias,
+            maxiter=self.f.maxiter,
+            yflip=self.f.yflip,
+            periodicity=self.f.periodicity,
+            pfo=self.pfunc,
+            cmap=self.cmap,
+            auto_deepen=self.f.auto_deepen,
+            nthreads=1,
+            render_type=2, # 3D
+            image=self.im._img,
+            site=self.site)
 
-        self.image.save("hs.tga")
+        self.im.save("hs.tga")
 
-    def disabled_testDrawMBrot(self):
+    def testDrawMBrot(self):
         self.f.set_formula("gf4d.frm", "Mandelbrot")
         self.f.compile()
-        image = image.T(80,60)
-        self.f.draw(image)
-        image.save("mb.tga")
+        im = image.T(80,60)
+        self.f.draw(im)
+        im.save("mb.tga")
         
 def suite():
     return unittest.makeSuite(Test,'test')

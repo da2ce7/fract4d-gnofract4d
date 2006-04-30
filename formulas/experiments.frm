@@ -1,3 +1,42 @@
+Evil {
+init:
+	z = 0
+loop:
+	z = z
+bailout:
+	|z| < 4.0
+default:
+maxiter = 1000000000
+}
+
+PeterDeJong {
+init:
+	z = 0
+loop:
+	float x = sin(@a * imag(z)) - cos(@b * real(z))
+	float y = sin(@c * real(z)) - cos(@d * imag(z))
+	z = (x,y)
+	; plot(z)
+default:
+	
+float param a
+	default = 1.0
+endparam
+
+float param b
+	default = 0.5
+endparam
+
+float param c
+	default = 0.9
+endparam
+
+float param d
+	default = 0.7
+endparam
+maxiter = 1000000000		
+}
+
 C4G {; p1 is (plus or minus) 1 or i 
 x=real(pixel), y=imag(pixel)*p1
 a=b=0:

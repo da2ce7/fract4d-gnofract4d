@@ -156,7 +156,6 @@ class Test(unittest.TestCase):
         self.assertEqual(f.params[f.YZANGLE],-0.1)
         self.assertEqual(f.params[f.YWANGLE],0.4)
         self.assertEqual(f.params[f.ZWANGLE],0.2)
-
         self.assertEqual(
             f.initparams[f.order_of_name("@bailout", f.formula.symbols)],5.1)
         
@@ -241,7 +240,7 @@ endparam
             os.remove("fracttest.frm")
 
     def testLoadMaliciousFile(self):
-        'Try to inject code into a file'
+        'Try to inject code into a file in a way which worked on 2.0 and 2.1'
         bad_testfile = '''gnofract4d parameter file
 version(2.0,None)+open("foo.txt","w")=2.0
 [function]
@@ -606,6 +605,11 @@ blue=0.3
         self.assertFractalsEqual(f1,f3)
         self.assertEqual(f3.get_func_value("@myfunc",f3.cfuncs[1]),"sqrt")
 
+    def testParseVersionString(self):
+        f = fractal.T(self.compiler)
+        self.assertEqual(2000.0, f.parse_version_string("2.0"))
+        self.failUnless(f.parse_version_string("2.14") > f.parse_version_string("2.9"))
+        
     def assertFuncsEqual(self, f1, form1, f2, form2):
         for name in f1.func_names(form1):
             self.assertEqual(f1.get_func_value(name,form1),
@@ -632,6 +636,7 @@ blue=0.3
         self.assertEqual(f1.yflip,f2.yflip)
 
         self.assertEqual(f1.get_gradient(), f2.get_gradient())
+        self.assertEqual(f1.warp_param, f2.warp_param)
         
     def testSave(self):
         # load some settings
@@ -878,7 +883,31 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         f.set_formula("test.frm","test_noz")
         f.compile()
         
+    def testWarpParameter(self):
+        # test using a specific parameter for warping
+        f = fractal.T(self.compiler)
+        self.assertEqual(f.warp_param, -1)
+        f.set_formula("test.frm","test_warp_param")
+        f.compile()
+        f.reset()
+        
+        im = image.T(40,30)
+        f.draw(im)
+        im.save("no_warp.png") # should be completely white
 
+        # now set the parameter to be warped
+        ord = f.order_of_name("@p1",f.formula.symbols)
+        self.assertEqual(ord,1)
+
+        f.set_warp_param(ord)
+
+        # check we call it warped in the parameter file
+        s = f.serialize()
+        self.assertNotEqual(-1,s.find("@p1=warp"))
+
+        f.draw(im)
+        im.save("yes_warp.png") # should look like a circle
+        
     def testCircle(self):
         f = fractal.T(self.compiler)
 
@@ -1159,6 +1188,7 @@ solids=[
         f.set_named_item("@ep", 2, f.cfuncs[0], f.cfunc_params[0])
         f.set_named_item("@i", 789, f.cfuncs[0], f.cfunc_params[0])
         f.set_named_item("@_transfer","sqrt",f.cfuncs[0],f.cfunc_params[0])
+        f.set_warp_param(2)
         c = copy.copy(f)
 
         self.assertFractalsEqual(f,c)

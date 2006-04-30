@@ -98,6 +98,43 @@ loop:
   |z| < 30  
 }
 
+Cubic Mandelbrot {
+; z <- z^3 + c
+; The cubic set actually has two critical values, but this formula just uses  
+; zero - to be fixed later.
+init:
+	z = 0
+	; nothing to do here
+loop:
+	z = z * z * (z - 3.0 * @a) + #pixel
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default = cmag
+endfunc
+complex param a
+	default = (0.0,0.0)
+endparam
+}
+
+test_warp_param {
+init:
+complex z = #pixel
+loop:
+   z = z*z + @p1 
+bailout:
+   |z| < 4.0
+default:
+
+complex param p1
+	default = 3.0
+endparam
+}
+
 test_func {
 init:
 	z = #zwpixel

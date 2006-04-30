@@ -133,7 +133,7 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
 
     def disabled_testEvil(self):
         # this was too slow so turned it off
-        f = self.compiler.get_formula("test.frm","frm:ny2004-4")
+        f = self.compiler.get_formula("test.frm","ny2004-4")
         self.assertEqual(len(f.errors),0)
         cg = self.compiler.compile(f)
         self.compiler.generate_code(f,cg,"test-evil.so",None)
