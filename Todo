@@ -5,6 +5,7 @@ fixed in next release:
 * B	allow fractint-style mid-token \'s
 * BB	link error when compiled on suse-10.0
 * B	DeprecationError on pygtk 2.8+
+* W	warp_param
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
