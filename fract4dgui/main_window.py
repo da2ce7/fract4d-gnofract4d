@@ -8,10 +8,10 @@ import math
 import re
 import urllib
 
-import gtk
+import gtk, gobject
 
 sys.path.append("..")
-from fract4d import fractal,fc,fract4dc,image
+from fract4d import fractal,fc,fract4dc,image, fracttypes
 from fractutils import flickr
 
 import gtkfractal, model, preferences, autozoom, settings, toolbar
@@ -723,7 +723,9 @@ class MainWindow:
         # fourways
         self.toolbar.add_space()
         
-        self.add_fourway(_("pan"), _("Pan around the image"), 0, False)
+        self.add_fourway(
+            _("pan"),
+            _("Pan around the image"), 0, False)
         self.add_fourway(
             _("wrp"),
             _("Mutate the image by moving along the other 2 axes"), 2, True)
@@ -906,7 +908,37 @@ class MainWindow:
                 
     def on_release_fourway(self,widget,dx,dy):
         self.f.nudge(dx/10.0, dy/10.0, widget.axis)
-    
+
+    def add_warpmenu(self,name,tip,axis, is4dsensitive):
+        my_fourway = fourway.T(name)
+        liststore = gtk.ListStore(gobject.TYPE_STRING)
+        combobox = gtk.ComboBox(liststore)
+        #combobox.pack_start(my_fourway.widget, gtk.TRUE)
+
+        hbox = gtk.HBox()
+        hbox.pack_start(my_fourway.widget)
+        hbox.pack_start(combobox)
+
+        def populate_warpmenu(f, store):
+            params = f.get_params_of_type(f.formula,fracttypes.Complex)
+
+        populate_warpmenu(self.f,liststore)
+
+        self.f.connect('formula-changed', populate_warpmenu, liststore)
+        
+        self.toolbar.add_widget(
+            hbox,
+            tip,
+            None)
+
+        my_fourway.axis = axis
+        
+        my_fourway.connect('value-slightly-changed', self.on_drag_fourway)
+        my_fourway.connect('value-changed', self.on_release_fourway)
+
+        if is4dsensitive:
+            self.four_d_sensitives.append(my_fourway.widget)
+        
     def add_fourway(self, name, tip, axis, is4dsensitive):
         my_fourway = fourway.T(name)
         self.toolbar.add_widget(
