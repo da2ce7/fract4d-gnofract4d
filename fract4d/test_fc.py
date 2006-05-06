@@ -204,8 +204,10 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         for filename in self.compiler.find_formula_files():
             ff = self.compiler.get_file(filename)
             for fname in ff.get_formula_names():
-                f = self.compiler.get_formula(ff.filename, fname)
-                self.assertNoErrors(f, "%s:%s" % (filename, fname))
+                # skip formulas expected to produce an error
+                if fname.count("error") == 0:
+                    f = self.compiler.get_formula(ff.filename, fname)
+                    self.assertNoErrors(f, "%s:%s" % (filename, fname))
                 
 def suite():
     return unittest.makeSuite(FCTest,'test')

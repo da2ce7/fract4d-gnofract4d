@@ -21,7 +21,7 @@ hyper_re = re.compile(r'\((.*?),(.*?),(.*?),(.*?)\)')
 
 # the version of the earliest gf4d release which can parse all the files
 # this version can output
-THIS_FORMAT_VERSION="3.0"
+THIS_FORMAT_VERSION="2.8"
 
 # generally useful funcs for reading in .fct files
 class FctUtils:
@@ -990,6 +990,16 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
                 self.set_named_item(name,val,self.formula,
                                     self.initparams)
 
+    def get_params_of_type(self,formula,type):
+        params = []
+        op = formula.symbols.order_of_params()
+        for name in op.keys():
+            if name != '__SIZE__':
+                if formula.symbols[name].type == type:
+                    print name
+                    params.append(name)
+        return params
+    
     def set_named_param(self,name,val,formula,params):
         ord = self.order_of_name(name,formula.symbols)
         #print "named param %s : %s" % (name, val)
