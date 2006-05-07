@@ -1,12 +1,5 @@
 todo:
 
-fixed in next release:
-* B	KeyError: "symbol '#width' : no symbol starting with t__ is allowed
-* B	allow fractint-style mid-token \'s
-* BB	link error when compiled on suse-10.0
-* B	DeprecationError on pygtk 2.8+
-* W	warp_param
-
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 * BB	Renderqueue should antialias even if main window doesn't
@@ -53,6 +46,7 @@ bugs (the more B's, the worse the bug):
 * B	compile whenever resolution changes - pointless
 * B	O-fractals in fractint-g4.frm broken
 * B	Mandrake: desktop icon not added to menu
+* B	DeprecationError on pygtk 2.8+
 
 features (the more W's, the more work involved):
 * WWW	toolbox: autozoom, clickzoom, UF-style zoom, realtime zoom, painter
@@ -134,6 +128,12 @@ params (not all applicable to all types):
 1) how to set color of point
 2) time step
 3) which points to start with
+
+fixed in 2.14:
+* B	KeyError: "symbol '#width' : no symbol starting with t__ is allowed
+* B	allow fractint-style mid-token \'s
+* BB	link error when compiled on suse-10.0
+* W	warp_param
 
 fixed in 2.13:
 * WW	render to disk
