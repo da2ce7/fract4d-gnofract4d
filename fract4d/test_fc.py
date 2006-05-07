@@ -157,11 +157,11 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         
     def testColorFunc(self):
         'Compile inner + outer colorfuncs and merge'
-        cf1 = self.compiler.get_colorfunc("gf4d.cfrm","default","cf0")
+        cf1 = self.compiler.get_formula("gf4d.cfrm","default","cf0")
         self.assertEqual(len(cf1.errors),0)
         self.compiler.compile(cf1)
         
-        cf2 = self.compiler.get_colorfunc("gf4d.cfrm","zero","cf1")
+        cf2 = self.compiler.get_formula("gf4d.cfrm","zero","cf1")
         self.assertEqual(len(cf2.errors),0)
         self.compiler.compile(cf2)
         

@@ -29,11 +29,11 @@ class Test(testbase.TestBase):
         self.compiler.file_path.append('../formulas')
         self.compiler.load_formula_file("gf4d.frm")
         self.compiler.load_formula_file("gf4d.cfrm")
-        cf1 = self.compiler.get_colorfunc("gf4d.cfrm","default","cf0")
+        cf1 = self.compiler.get_formula("gf4d.cfrm","default","cf0")
         self.assertEqual(len(cf1.errors),0)
         self.compiler.compile(cf1)
         
-        cf2 = self.compiler.get_colorfunc("gf4d.cfrm","zero","cf1")
+        cf2 = self.compiler.get_formula("gf4d.cfrm","zero","cf1")
         self.assertEqual(len(cf2.errors),0)
         self.compiler.compile(cf2)
         
@@ -49,11 +49,11 @@ class Test(testbase.TestBase):
         self.compiler.file_path.append('../formulas')
         self.compiler.load_formula_file("test.frm")
         self.compiler.load_formula_file("gf4d.cfrm")
-        cf1 = self.compiler.get_colorfunc("gf4d.cfrm","default","cf0")
+        cf1 = self.compiler.get_formula("gf4d.cfrm","default","cf0")
         self.assertEqual(len(cf1.errors),0)
 
         
-        cf2 = self.compiler.get_colorfunc("gf4d.cfrm","zero","cf1")
+        cf2 = self.compiler.get_formula("gf4d.cfrm","zero","cf1")
         self.assertEqual(len(cf2.errors),0)
         self.compiler.compile(cf2)
         

@@ -274,24 +274,16 @@ class Compiler:
         if ff == None : return None
         return ff.get_formula(formname)
         
-    def get_formula(self, filename, formname):
-        #print "get formula"
+    def get_formula(self, filename, formname,prefix=None):
         f = self.get_parsetree(filename,formname)
 
         if f != None:
-            f = translate.T(f)
+            if prefix == None:
+                f = translate.T(f)
+            else:
+                f = translate.ColorFunc(f,prefix)    
         return f
         
-    def get_colorfunc(self,filename, formula, name):
-        ff = self.get_file(filename)
-        if ff == None : return None
-        f = ff.get_formula(formula)
-
-        if f != None:
-            f = translate.ColorFunc(f,name)
-
-        return f
-
     def clear_cache(self):
         for f in os.listdir(self.cache_dir):
             os.remove(os.path.join(self.cache_dir,f))
