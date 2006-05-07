@@ -16,6 +16,7 @@ import gradient
 import image
 import fctutils
 import colorizer
+import formsettings
 
 cmplx_re = re.compile(r'\((.*?),(.*?)\)')
 hyper_re = re.compile(r'\((.*?),(.*?),(.*?),(.*?)\)')
@@ -44,10 +45,16 @@ class T(fctutils.T):
         self.format_version = 2.8
         
         # formula support
+        self.form = formsettings.T(compiler)
+        
         self.formula = None
         self.funcName = "Mandelbrot"
         self.funcFile = None
         self.bailfunc = 0
+        self.cforms = [
+            formsettings.T(compiler,"cf0"),
+            formsettings.T(compiler,"cf1")]
+        
         self.cfuncs = [None,None]
         self.cfunc_names = [None,None]
         self.cfunc_files = [None,None]
@@ -62,7 +69,6 @@ class T(fctutils.T):
         self.render_type = 0
         
         self.initparams = []
-        self.cfunc_params = [ [], [] ]
 
         self.warp_param = -1
         # gradient
@@ -114,7 +120,7 @@ class T(fctutils.T):
         print >>file, "formulafile=%s" % self.cfunc_files[index]
         print >>file, "function=%s" % self.cfunc_names[index]
         self.save_formula_params(
-            file,self.cfuncs[index],self.cfunc_params[index])
+            file,self.cforms[index], self.cfuncs[index],self.cfunc_params[index])
         print >>file, "[endsection]"
         
     def save(self,file,update_saved_flag=True):
@@ -131,7 +137,7 @@ class T(fctutils.T):
         print >>file, "[function]"
         print >>file, "formulafile=%s" % self.funcFile
         print >>file, "function=%s" % self.funcName
-        self.save_formula_params(file,self.formula,self.initparams,self.warp_param)
+        self.save_formula_params(file,self.form,self.formula,self.initparams,self.warp_param)
         print >>file, "[endsection]"
         
         self.save_cfunc_info(1,"inner",file)
@@ -147,12 +153,12 @@ class T(fctutils.T):
         if update_saved_flag:
             self.saved = True
 
-    def save_formula_params(self,file,formula,params,warp_param=-1):
-        names = self.func_names(formula)
+    def save_formula_params(self,file,form,formula,params,warp_param=-1):
+        names = form.func_names()
         names.sort()
         for name in names:
-            print >>file, "%s=%s" % (name, self.get_func_value(name,formula))
-        names = formula.symbols.param_names()
+            print >>file, "%s=%s" % (name, form.get_func_value(name))
+        names = form.param_names()
         names.sort()
         for name in names:
             print >>file, "%s=%s" % \
@@ -251,9 +257,9 @@ class T(fctutils.T):
         c.set_formula(self.funcFile,self.funcName)
 
         # copy the function overrides
-        for name in self.func_names(self.formula):
+        for name in self.form.func_names():
             c.set_named_func(name,
-                             self.get_func_value(name,self.formula),
+                             self.form.get_func_value(name),
                              c.formula)
 
         # must be after set_formula
@@ -263,12 +269,10 @@ class T(fctutils.T):
         c.set_inner(self.cfunc_files[1], self.cfunc_names[1])
         
         for i in range(2):
-            frm = self.cfuncs[i]
-            c_frm = c.cfuncs[i]
-            for name in self.func_names(frm):
-                c.set_named_func(name,
-                                 self.get_func_value(name,frm),
-                                 c_frm)
+            frm = self.cforms[i]
+            c_frm = c.cforms[i]
+            for name in frm.func_names():
+                c_frm.set_named_func(name, frm.get_func_value(name))
 
             c.cfunc_params[i] = [copy.copy(x) for x in self.cfunc_params[i]]
                     
@@ -337,30 +341,18 @@ class T(fctutils.T):
 
     def get_initparam(self,n,param_type):
         if param_type == 0:
-            params = self.initparams
+            params = self.form.params
         else:
-            params = self.cfunc_params[param_type-1]
+            params = self.cforms[param_type-1].params
         return params[n]
     
     def set_initparam(self,n,val, param_type):
         if param_type == 0:
-            params = self.initparams
-            t = self.paramtypes[n]
+            changed = self.form.set_param(n,val)
         else:
-            params = self.cfunc_params[param_type-1]
-            t = self.cfunc_paramtypes[param_type-1][n]
+            changed = self.cforms[param_type-1].set_param(n,val)
 
-        if t == fracttypes.Float:
-            val = float(val)
-        elif t == fracttypes.Int:
-            val = int(val)
-        elif t == fracttypes.Bool:
-            val = bool(val)
-        else:
-            raise ValueError("Unknown parameter type %s" % t)
-        
-        if params[n] != val:
-            params[n] = val
+        if changed:
             self.changed()
 
     def set_solids(self, solids):
@@ -376,10 +368,7 @@ class T(fctutils.T):
             if self.compiler.out_of_date(self.cfunc_files[i]):
                 self.set_colorfunc(i,self.cfunc_files[i],self.cfunc_names[i])
 
-    def set_initparams_from_formula(self,formula,g=None):
-        if g == None:
-            g = self.get_gradient()
-
+    def set_initparams_from_formula(self,formula,g):
         self.initparams = self.formula.symbols.default_params()
         self.paramtypes = self.formula.symbols.type_of_params()
         for i in xrange(len(self.paramtypes)):
@@ -389,6 +378,9 @@ class T(fctutils.T):
     def set_formula_defaults(self, g=None):
         if self.formula == None:
             return
+
+        if g == None:
+            g = self.get_gradient()
 
         self.set_initparams_from_formula(self.formula, g)
         
@@ -420,21 +412,32 @@ class T(fctutils.T):
         for i in xrange(2):
             self.cfunc_params[i] = self.cfuncs[i].symbols.default_params()
             self.cfunc_paramtypes[i] = self.cfuncs[i].symbols.type_of_params()
+
+    def set_colorfunc(self,index,formulafile,func):
+        self.cforms[index].set_formula(formulafile,func,self.get_gradient())
+
+        form = self.cforms[index]
         
+        self.cfuncs[index] = form.formula
+        self.cfunc_files[index] = form.funcFile
+        self.cfunc_names[index] = form.funcName
+        self.cfunc_params[index] = form.params
+        self.cfunc_paramtypes[index] = form.paramtypes
+        
+        self.formula_changed()
+        self.changed()
+        
+
     def set_formula(self,formulafile,func):
-        formula = self.compiler.get_formula(formulafile,func)
-        if formula == None:
-            raise ValueError("no such formula: %s:%s" % (formulafile, func))
+        self.form.set_formula(formulafile,func,self.get_gradient())
+        
+        self.formula = self.form.formula
+        self.funcName = self.form.funcName
+        self.funcFile = self.form.funcFile
 
-        if formula.errors != []:
-            raise ValueError("invalid formula '%s':\n%s" % \
-                             (func, "\n".join(formula.errors)))
+        self.initparams = self.form.params
+        self.paramtypes = self.form.paramtypes
 
-        self.formula = formula
-        self.funcName = func
-        self.funcFile = formulafile
-
-        self.set_initparams_from_formula(formula)
         self.set_bailfunc()
 
         self.formula_changed()
@@ -473,12 +476,6 @@ class T(fctutils.T):
         func = formula.symbols.get(fname)
         self.set_func(func[0],val,formula)            
 
-    def get_func_value(self,func_to_get,formula):
-        fname = formula.symbols.demangle(func_to_get)
-        func = formula.symbols[fname]
-        #print "got %s" % func
-        return func[0].cname
-
     def get_named_param_value(self,name):
         op = self.formula.symbols.order_of_params()
         ord = op.get(self.formula.symbols.mangled_name(name))
@@ -506,24 +503,6 @@ class T(fctutils.T):
     def set_inner(self,funcfile,funcname):
         self.set_colorfunc(1,funcfile,funcname)
 
-    def set_colorfunc(self,index,funcfile,funcname):
-        func = self.compiler.get_colorfunc(funcfile,funcname,"cf%d" % index)
-        if func == None:
-            raise ValueError("no such colorfunc: %s:%s" % (funcfile, funcname))
-        if func.errors != []:
-            raise ValueError("Invalid colorfunc '%s':\n%s" % \
-                             (funcname,"\n".join(func.errors)))
-        
-        self.cfuncs[index] = func
-        self.cfunc_files[index] = funcfile
-        self.cfunc_names[index] = funcname
-        self.cfunc_params[index] = func.symbols.default_params()
-        self.cfunc_paramtypes[index] = func.symbols.type_of_params()
-        
-        self.dirtyFormula = True
-        self.formula_changed()
-        self.changed()
-        
     def set_outer(self,funcfile,funcname):
         self.set_colorfunc(0,funcfile,funcname)
         

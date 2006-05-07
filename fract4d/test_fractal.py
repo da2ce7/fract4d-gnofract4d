@@ -568,7 +568,7 @@ blue=0.3
             3.3, # float val
             2.0, 3.7, 6.1, 8.9 # hyper val2
             ])
-        self.assertEqual(f1.get_func_value("@myfunc",f1.cfuncs[1]),"sqrt")
+        self.assertEqual(f1.cforms[1].get_func_value("@myfunc"),"sqrt")
         
         # save again
         file2 = StringIO.StringIO()
@@ -583,17 +583,17 @@ blue=0.3
         f3.loadFctFile(file3)
 
         self.assertFractalsEqual(f1,f3)
-        self.assertEqual(f3.get_func_value("@myfunc",f3.cfuncs[1]),"sqrt")
+        self.assertEqual(f3.cforms[1].get_func_value("@myfunc"),"sqrt")
 
     def testParseVersionString(self):
         f = fractal.T(self.compiler)
         self.assertEqual(2000.0, f.parse_version_string("2.0"))
         self.failUnless(f.parse_version_string("2.14") > f.parse_version_string("2.9"))
         
-    def assertFuncsEqual(self, f1, form1, f2, form2):
-        for name in f1.func_names(form1):
-            self.assertEqual(f1.get_func_value(name,form1),
-                             f2.get_func_value(name,form2))
+    def assertFuncsEqual(self, form1, form2):
+        for name in form1.func_names():
+            self.assertEqual(form1.get_func_value(name),
+                             form2.get_func_value(name))
         
     def assertFractalsEqual(self,f1,f2):
         # check that they are equivalent
@@ -610,9 +610,9 @@ blue=0.3
         self.assertEqual(f1.cfunc_names, f2.cfunc_names)
         self.assertEqual(f1.cfunc_files, f2.cfunc_files)
         
-        self.assertFuncsEqual(f1, f1.formula,f2, f2.formula)
-        self.assertFuncsEqual(f1, f1.cfuncs[0],f2, f2.cfuncs[0])
-        self.assertFuncsEqual(f1, f1.cfuncs[1],f2, f2.cfuncs[1])
+        self.assertFuncsEqual(f1.form, f2.form)
+        self.assertFuncsEqual(f1.cforms[0],f2.cforms[0])
+        self.assertFuncsEqual(f1.cforms[1],f2.cforms[1])
         self.assertEqual(f1.yflip,f2.yflip)
 
         self.assertEqual(f1.get_gradient(), f2.get_gradient())
@@ -1211,11 +1211,11 @@ solids=[
         f.loadFctFile(open("../testdata/julfn.fct"))
         f.set_named_item("@fn1","sinh",f.formula,f.initparams)
 
-        self.assertEqual(f.get_func_value("@fn1",f.formula),"sinh")
+        self.assertEqual(f.form.get_func_value("@fn1"),"sinh")
         
         c = copy.copy(f)
 
-        self.assertEqual(f.get_func_value("@fn1",f.formula),"sinh")
+        self.assertEqual(f.form.get_func_value("@fn1"),"sinh")
         
     def assertDirty(self,f):
         self.assertEqual(f.dirty,True)

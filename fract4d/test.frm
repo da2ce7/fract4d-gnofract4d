@@ -2,6 +2,11 @@ parse_error {
   ===
 }
 
+test_error {
+init:
+int x = (0,0)
+}
+
 test_hypersphere {
 ; a hypersphere of radius 2.0
 bailout:
