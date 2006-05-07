@@ -14,8 +14,9 @@ import fract4dc
 import fracttypes
 import gradient
 import image
+import fctutils
+import colorizer
 
-rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
 cmplx_re = re.compile(r'\((.*?),(.*?)\)')
 hyper_re = re.compile(r'\((.*?),(.*?),(.*?),(.*?)\)')
 
@@ -23,213 +24,8 @@ hyper_re = re.compile(r'\((.*?),(.*?),(.*?),(.*?)\)')
 # this version can output
 THIS_FORMAT_VERSION="2.8"
 
-# generally useful funcs for reading in .fct files
-class FctUtils:
-    def __init__(self,parent=None):
-        self.endsect = "[endsection]"
-        self.tr = string.maketrans("[] ","___")
-        self.parent = parent
-        
-    def warn(self,msg):
-        if self.parent:
-            self.parent.warn(msg)
-            
-    def parseVal(self,name,val,f,sect=""):
-        # try to find a method matching name        
-        methname = "parse_" + sect + name.translate(self.tr)
-        meth = None
 
-        klass = self.__class__
-        while True:
-            meth = klass.__dict__.get(methname)
-            if meth != None:
-                break
-            bases = klass.__bases__
-            if len(bases) > 0:                    
-                klass = bases[0]
-            else:
-                break
-            
-        if meth:
-            return meth(self,val,f)
-        else:
-            self.warn("ignoring unknown attribute %s" % methname)
-            
-    def nameval(self,line):
-        x = line.rstrip().split("=",1)
-        if len(x) == 0: return (None,None)
-        if len(x) < 2:
-            val = None
-        else:
-            val = x[1]
-        return (x[0],val)
-
-class ParamBag(FctUtils):
-    def __init__(self):
-        FctUtils.__init__(self)
-        self.dict = {}
-
-    def parseVal(self,name,val,f,sect=""):
-        self.dict[sect + name] = val
-
-    def load(self,f):
-        line = f.readline()
-        while line != "":
-            (name,val) = self.nameval(line)
-            if name != None:
-                if name == self.endsect:
-                    break
-                
-                if val == "[":
-                    # start of a multi-line parameter
-                    line = f.readline()
-                    vals = []
-                    while line != "" and line.rstrip() != "]":
-                        vals.append(line)
-                        line = f.readline()
-                    val = "".join(vals)
-
-                self.parseVal(name,val,f)
-            line = f.readline()
-
-class Colorizer(FctUtils):
-    '''Parses the various different kinds of color data we have'''
-    def __init__(self,parent=None):
-        FctUtils.__init__(self,parent)
-        self.name = "default"
-        self.gradient = gradient.Gradient()
-        self.solids = [(0,0,0,255)]
-        self.direct = False
-        self.rgb = [0,0,0]
-        self.read_gradient = False
-        
-    def load(self,f):
-        line = f.readline()
-        while line != "":
-            (name,val) = self.nameval(line)
-            if name != None:
-                if name == self.endsect: break
-                self.parseVal(name,val,f)
-            line = f.readline()
-
-    def parse_colorizer(self,val,f):
-        t = int(val)
-        if t == 0:
-            # convert to a direct coloring algorithm
-            self.direct = True
-        elif t == 1:
-            pass
-        else:
-            raise ValueError("Unknown colorizer type %d" % t)
-
-    def parse_red(self,val,f):
-        self.rgb[0] = float(val)
-
-    def parse_green(self,val,f):
-        self.rgb[1] = float(val)
-
-    def parse_blue(self,val,f):
-        self.rgb[2] = float(val)
-
-    def extract_color(self,val,pos,alpha=False):
-        cols = [int(val[pos:pos+2],16),
-                int(val[pos+2:pos+4],16),
-                int(val[pos+4:pos+6],16),
-                255]
-        if alpha:
-            cols[3] = int(val[pos+6:pos+8],16)
-        return cols
-        
-    def parse_colordata(self,val,f):
-        'long list of hex digits: gf4d < 2.0'
-        nc =len(val)//6
-        i = 0
-        colorlist = []
-        while i < nc:
-            pos = i*6
-            cols = self.extract_color(val,pos)
-            if i == 0:
-                # first color is inside solid color
-                self.solids[0] = tuple(cols)
-            else:
-                c = tuple([float(i-1)/(nc-2)] + cols)
-                colorlist.append(c)
-            i+= 1
-        self.gradient.load_list(colorlist)
-        self.read_gradient = True
-        
-    def parse_solids(self,val,f):
-        line = f.readline()
-        self.solids = []
-        while not line.startswith("]"):
-            cols = self.extract_color(line,0,True)            
-            self.solids.append(tuple(cols))
-            line = f.readline()
-        
-    def parse_colorlist(self,val,f):
-        '0.7234 = 0xffaa3765: gf4d < 2.7'
-        line = f.readline()
-        colorlist = []
-        while not line.startswith("]"):
-            entry = line.split("=")
-            
-            if len(entry) != 2:
-                raise ValueError, "invalid color %s in file" % line
-
-            cols = self.extract_color(entry[1],0,True)            
-            index = float(entry[0])
-            
-            colorlist.append(tuple([index] + cols))
-            line = f.readline()
-        self.gradient.load_list(colorlist)
-        self.read_gradient = True
-        
-    def parse_gradient(self,val,f):
-        'Gimp gradient format: gf4d >= 2.7'
-        self.gradient.load(f)
-        self.read_gradient = True
-        
-    def parse_file(self,val,f):
-        mapfile = open(val)
-        self.parse_map_file(mapfile)
-
-    def parse_map_file(self,mapfile, maxdiff=0):
-        x = mapfile.tell()
-        try:
-            self.gradient.load(mapfile)
-        except gradient.HsvError, err1:
-            if self.parent:
-                self.parent.warn("Error reading colormap: %s" % str(err1))
-            
-        except gradient.Error, err1:
-            try:
-                mapfile.seek(x)
-                self.parse_fractint_map_file(mapfile,maxdiff)
-            except Exception, err2:
-                if self.parent:
-                    self.parent.warn("Error reading colormap: %s" % str(err2))
-        
-    def parse_fractint_map_file(self,mapfile,maxdiff=0):
-        'parse a fractint .map file'
-        i = 0
-        colorlist = []
-        for line in mapfile:
-            m = rgb_re.match(line)
-            if m != None:
-                (r,g,b) = (min(255, int(m.group(1))),
-                           min(255, int(m.group(2))),
-                           min(255, int(m.group(3))))
-                
-                if i == 0:
-                    # first color is inside solid color
-                    self.solids[0] = (r,g,b,255)
-                else:
-                    colorlist.append(((i-1)/255.0,r,g,b,255))
-            i += 1
-        self.gradient.load_list(colorlist,maxdiff)
-        self.read_gradient = True
-        
-class T(FctUtils):
+class T(fctutils.T):
     XCENTER = 0
     YCENTER = 1
     ZCENTER = 2
@@ -243,7 +39,7 @@ class T(FctUtils):
     ZWANGLE = 10
     
     def __init__(self,compiler,site=None):
-        FctUtils.__init__(self)
+        fctutils.T.__init__(self)
         
         self.format_version = 2.8
         
@@ -410,13 +206,13 @@ class T(FctUtils):
             self.set_periodicity(bool(val))
             
     def parse__inner_(self,val,f):
-        params = ParamBag()
+        params = fctutils.ParamBag()
         params.load(f)
         self.set_inner(params.dict["formulafile"],params.dict["function"])
         self.set_cfunc_params(params,1)
         
     def parse__outer_(self,val,f):
-        params = ParamBag()
+        params = fctutils.ParamBag()
         params.load(f)
         self.set_outer(params.dict["formulafile"],params.dict["function"])
         self.set_cfunc_params(params,0)
@@ -532,7 +328,7 @@ class T(FctUtils):
             self.changed(True)
             
     def set_cmap(self,mapfile):
-        c = Colorizer(self)
+        c = colorizer.T(self)
         file = open(mapfile)
         c.parse_map_file(file)
         self.set_gradient(c.gradient)
@@ -974,7 +770,7 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
         print msg
 
     def parse__function_(self,val,f):
-        params = ParamBag()
+        params = fctutils.ParamBag()
         params.load(f)
         file = params.dict.get("formulafile",self.funcFile)
         func = params.dict.get("function", self.funcName)
@@ -1068,13 +864,13 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
             self.set_named_item("@col",val, cfunc, params)
 
     def parse__colors_(self,val,f):
-        cf = Colorizer(self)
+        cf = colorizer.T(self)
         cf.load(f)
         self.apply_colorizer(cf)
         
     def parse__colorizer_(self,val,f):
         which_cf = int(val)
-        cf = Colorizer(self)
+        cf = colorizer.T(self)
         cf.load(f)        
         if which_cf == 0:
             self.apply_colorizer(cf)
@@ -1173,7 +969,14 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
             # no bailout value for this function
             return
         params[ord] = float(self.bailout)
-            
+
+    def param_display_name(self,name,param):
+        if hasattr(param,"title"):
+            return param.title.value
+        if name[:5] == "t__a_":
+            return name[5:]
+        return name
+
     def loadFctFile(self,f):
         old_gradient = self.get_gradient()
         line = f.readline()
