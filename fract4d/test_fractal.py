@@ -157,7 +157,7 @@ class Test(unittest.TestCase):
         self.assertEqual(f.params[f.YWANGLE],0.4)
         self.assertEqual(f.params[f.ZWANGLE],0.2)
         self.assertEqual(
-            f.initparams[f.order_of_name("@bailout", f.formula.symbols)],5.1)
+            f.form.params[f.order_of_name("@bailout", f.formula.symbols)],5.1)
         
         self.assertEqual(f.funcName,"Mandelbar")
         self.assertEqual(f.funcFile,"gf4d.frm")
@@ -446,8 +446,8 @@ colorlist=[
         self.assertEqual(tp[1], fracttypes.Int)
         
         f.set_initparam(1, "17", 0)
-        self.assertEqual(f.initparams[1],17)
-        self.failUnless(isinstance(f.initparams[1],types.IntType))
+        self.assertEqual(f.form.params[1],17)
+        self.failUnless(isinstance(f.form.params[1],types.IntType))
             
     def testCFParams(self):
         f = fractal.T(self.compiler)
@@ -600,13 +600,13 @@ blue=0.3
         self.assertEqual(f1.maxiter, f2.maxiter)
         self.assertEqual(f1.params, f2.params)
         
-        self.assertEqual(f1.initparams,f2.initparams)
-        self.assertEqual(f1.paramtypes, f2.paramtypes)        
+        self.assertEqual(f1.form.params,f2.form.params)
+        self.assertEqual(f1.form.paramtypes, f2.form.paramtypes)        
         self.assertEqual(f1.funcName,f2.funcName)
         self.assertEqual(f1.funcFile,f2.funcFile)
 
         self.assertEqual(f1.cfunc_params, f2.cfunc_params)
-        self.assertEqual(f1.cfunc_paramtypes, f2.cfunc_paramtypes)
+        self.assertEqual(f1.cforms[0].paramtypes, f2.cforms[0].paramtypes)
         self.assertEqual(f1.cfunc_names, f2.cfunc_names)
         self.assertEqual(f1.cfunc_files, f2.cfunc_files)
         
@@ -736,13 +736,13 @@ blue=0.3
         op = f.formula.symbols.order_of_params()
         k_a = op["t__a_a"]
 
-        oldparams = copy.copy(f.initparams)
+        oldparams = copy.copy(f.form.params)
         f.nudge_param(k_a, 0, 1, 2 )
 
         oldparams[k_a] += 1.0 * 0.025
         oldparams[k_a + 1] += 2.0 * 0.025
 
-        self.assertNearlyEqual(f.initparams, oldparams)
+        self.assertNearlyEqual(f.form.params, oldparams)
         
     def testDefaultFractal(self):
         try:
@@ -760,7 +760,7 @@ blue=0.3
             self.assertEqual(f.params[f.YZANGLE],0.0)
             self.assertEqual(f.params[f.YWANGLE],0.0)
             self.assertEqual(f.params[f.ZWANGLE],0.0)
-            self.assertEqual(f.initparams, [f.get_gradient(), 4.0])
+            self.assertEqual(f.form.params, [f.get_gradient(), 4.0])
 
             f.compile()
             (w,h) = (40,30)
@@ -822,7 +822,7 @@ blue=0.3
         self.assertEqual(f.params[f.XYANGLE],0.001)
         self.assertEqual(f.params[f.XZANGLE],0.789)
         self.assertEqual(f.title,"Hello World")
-        self.assertEqual(f.initparams,[f.get_gradient(), 8.0,7.0,1.0])
+        self.assertEqual(f.form.params,[f.get_gradient(), 8.0,7.0,1.0])
         self.assertEqual(f.periodicity, 0)
         
         self.assertEqual(
@@ -895,7 +895,7 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         f.set_outer("gf4d.cfrm","continuous_potential")
         f.compile()
         f.reset()
-        self.assertEqual(f.initparams,[f.get_gradient(), 4.0])
+        self.assertEqual(f.form.params,[f.get_gradient(), 4.0])
         (w,h) = (40,30)
         im = image.T(w,h)
         f.draw(im)
@@ -933,7 +933,7 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         f.set_outer("gf4d.cfrm","default")
         f.compile()
         f.reset()
-        self.assertEqual(f.initparams,[f.get_gradient(), 0.0])
+        self.assertEqual(f.form.params,[f.get_gradient(), 0.0])
         self.assertEqual(f.antialias,1)
         (w,h) = (30,30)
         im = image.T(w,h)
@@ -958,7 +958,7 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         f.set_outer("gf4d.cfrm","default")
         f.compile()
         f.reset()
-        self.assertEqual(f.initparams,[f.get_gradient(), 0.0])
+        self.assertEqual(f.form.params,[f.get_gradient(), 0.0])
         self.assertEqual(f.antialias,1)
         (w,h) = (30,30)
         im = image.T(w,h)
@@ -1057,7 +1057,7 @@ blue=0.5543108971162746
         f.warn = wc.warn
         f.loadFctFile(StringIO.StringIO(file))
 
-        self.assertEqual(f.initparams,[f.get_gradient(), 0.34,-0.28,4.0])
+        self.assertEqual(f.form.params,[f.get_gradient(), 0.34,-0.28,4.0])
 
     def testNewGradientRead(self):
         file = '''gnofract4d parameter file
