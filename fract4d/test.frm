@@ -78,6 +78,25 @@ param woggle
 endparam
 }
 
+test_all_types {
+default:
+bool param b
+	default = True
+endparam
+int param i
+	default = 7
+endparam
+float param f
+	default = 99.0
+endparam
+complex param c
+	default = (3.0,4.0)
+endparam
+hyper param h
+	default = (1.0,2.0,3.0,4.0)
+endparam
+}
+
 test_simpleshape {
 default:
 maxiter = 10
