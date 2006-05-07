@@ -48,16 +48,12 @@ class T(fctutils.T):
         self.form = formsettings.T(compiler,self)
         
         self.formula = None
-        self.funcName = "Mandelbrot"
-        self.funcFile = None
         self.bailfunc = 0
         self.cforms = [
             formsettings.T(compiler,self,"cf0"),
             formsettings.T(compiler,self,"cf1")]
         
         self.cfuncs = [None,None]
-        self.cfunc_names = [None,None]
-        self.cfunc_files = [None,None]
         self.cfunc_params = [[], []]
         self.cfunc_paramtypes = [[], []]
         self.yflip = False
@@ -79,8 +75,8 @@ class T(fctutils.T):
         # solid colors are black
         self.solids = [(0,0,0,255),(0,0,0,255)]
 
-        # formula
-        self.set_formula("gf4d.frm",self.funcName)
+        # formula defaults
+        self.set_formula("gf4d.frm","Mandelbrot")
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","continuous_potential")
         self.dirtyFormula = True # formula needs recompiling
@@ -115,8 +111,8 @@ class T(fctutils.T):
         
     def save_cfunc_info(self,index,section,file):
         print >>file, "[%s]" % section
-        print >>file, "formulafile=%s" % self.cfunc_files[index]
-        print >>file, "function=%s" % self.cfunc_names[index]
+        print >>file, "formulafile=%s" % self.cforms[index].funcFile
+        print >>file, "function=%s" % self.cforms[index].funcName
         self.save_formula_params(
             file,self.cforms[index], self.cfuncs[index],self.cforms[index].params)
         print >>file, "[endsection]"
@@ -133,8 +129,8 @@ class T(fctutils.T):
         print >>file, "yflip=%s" % self.yflip
         print >>file, "periodicity=%s" % int(self.periodicity)
         print >>file, "[function]"
-        print >>file, "formulafile=%s" % self.funcFile
-        print >>file, "function=%s" % self.funcName
+        print >>file, "formulafile=%s" % self.form.funcFile
+        print >>file, "function=%s" % self.form.funcName
         self.save_formula_params(file,self.form,self.formula,self.form.params,self.warp_param)
         print >>file, "[endsection]"
         
@@ -244,7 +240,7 @@ class T(fctutils.T):
 
         c.bailfunc = self.bailfunc
 
-        c.set_formula(self.funcFile,self.funcName)
+        c.set_formula(self.form.funcFile,self.form.funcName)
 
         # copy the function overrides
         for name in self.form.func_names():
@@ -256,8 +252,8 @@ class T(fctutils.T):
         # FIXME shouldn't be required
         c.form.params = [copy.copy(x) for x in self.form.params]
 
-        c.set_outer(self.cfunc_files[0], self.cfunc_names[0])
-        c.set_inner(self.cfunc_files[1], self.cfunc_names[1])
+        c.set_outer(self.cforms[0].funcFile, self.cforms[0].funcName)
+        c.set_inner(self.cforms[1].funcFile, self.cforms[1].funcName)
         
         for i in range(2):
             frm = self.cforms[i]
@@ -294,7 +290,7 @@ class T(fctutils.T):
         self.bailout = 0.0
         self.maxiter = 256
         self.rot_by = math.pi/2
-        self.title = self.funcName
+        self.title = self.form.funcName
         self.yflip = False
         self.auto_tolerance = False
         
@@ -351,10 +347,10 @@ class T(fctutils.T):
         
     def refresh(self):
         if self.compiler.out_of_date(self.funcFile):
-            self.set_formula(self.funcFile,self.funcName)
+            self.set_formula(self.funcFile,self.form.funcName)
         for i in xrange(2):
-            if self.compiler.out_of_date(self.cfunc_files[i]):
-                self.set_colorfunc(i,self.cfunc_files[i],self.cfunc_names[i])
+            if self.compiler.out_of_date(self.cforms[i].funcFile):
+                self.set_colorfunc(i,self.cforms[i].funcFile,self.cforms[i].funcName)
 
     def set_formula_defaults(self, g=None):
         if self.formula == None:
@@ -400,8 +396,6 @@ class T(fctutils.T):
         form = self.cforms[index]
         
         self.cfuncs[index] = form.formula
-        self.cfunc_files[index] = form.funcFile
-        self.cfunc_names[index] = form.funcName
         self.cfunc_params[index] = form.params
         self.cfunc_paramtypes[index] = form.paramtypes
         
@@ -413,7 +407,6 @@ class T(fctutils.T):
         self.form.set_formula(formulafile,func,self.get_gradient())
         
         self.formula = self.form.formula
-        self.funcName = self.form.funcName
         self.funcFile = self.form.funcFile
 
         self.set_bailfunc()
@@ -422,7 +415,7 @@ class T(fctutils.T):
         self.changed()
  
     def get_func_name(self):
-        return self.funcName
+        return self.form.funcName
 
     def get_saved(self):
         return self.saved
@@ -704,7 +697,7 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
         params = fctutils.ParamBag()
         params.load(f)
         file = params.dict.get("formulafile",self.funcFile)
-        func = params.dict.get("function", self.funcName)
+        func = params.dict.get("function", self.form.funcName)
         self.set_formula(file,func)
             
         for (name,val) in params.dict.items():

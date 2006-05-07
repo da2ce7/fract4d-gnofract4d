@@ -159,10 +159,12 @@ class Test(unittest.TestCase):
         self.assertEqual(
             f.form.params[f.order_of_name("@bailout", f.formula.symbols)],5.1)
         
-        self.assertEqual(f.funcName,"Mandelbar")
-        self.assertEqual(f.funcFile,"gf4d.frm")
-        self.assertEqual(f.cfunc_names, ["continuous_potential", "zero"])
-        self.assertEqual(f.cfunc_files, ["gf4d.cfrm"]*2)
+        self.assertEqual(f.form.funcName,"Mandelbar")
+        self.assertEqual(f.form.funcFile,"gf4d.frm")
+        self.assertEqual(f.cforms[0].funcName, "continuous_potential")
+        self.assertEqual(f.cforms[1].funcName, "zero")
+        self.assertEqual(f.cforms[0].funcFile, "gf4d.cfrm")
+        self.assertEqual(f.cforms[1].funcFile, "gf4d.cfrm")
         
         self.assertEqual(f.maxiter, 259)
         g = f.get_gradient()
@@ -547,7 +549,7 @@ blue=0.3
         rgb_file = StringIO.StringIO(file)
         
         f.loadFctFile(rgb_file)
-        self.assertEqual(f.cfunc_names[0],"rgb")
+        self.assertEqual(f.cforms[0].funcName,"rgb")
 
     def testSaveWithCFParams(self):
         'load and save a file with a colorfunc which has parameters'
@@ -589,7 +591,7 @@ blue=0.3
         f = fractal.T(self.compiler)
         self.assertEqual(2000.0, f.parse_version_string("2.0"))
         self.failUnless(f.parse_version_string("2.14") > f.parse_version_string("2.9"))
-        
+
     def assertFuncsEqual(self, form1, form2):
         for name in form1.func_names():
             self.assertEqual(form1.get_func_value(name),
@@ -602,13 +604,16 @@ blue=0.3
         
         self.assertEqual(f1.form.params,f2.form.params)
         self.assertEqual(f1.form.paramtypes, f2.form.paramtypes)        
-        self.assertEqual(f1.funcName,f2.funcName)
+        self.assertEqual(f1.form.funcName,f2.form.funcName)
         self.assertEqual(f1.funcFile,f2.funcFile)
 
         self.assertEqual(f1.cfunc_params, f2.cfunc_params)
         self.assertEqual(f1.cforms[0].paramtypes, f2.cforms[0].paramtypes)
-        self.assertEqual(f1.cfunc_names, f2.cfunc_names)
-        self.assertEqual(f1.cfunc_files, f2.cfunc_files)
+        self.assertEqual(f1.cforms[1].paramtypes, f2.cforms[1].paramtypes)
+        self.assertEqual(f1.cforms[0].funcName, f2.cforms[0].funcName)
+        self.assertEqual(f1.cforms[1].funcName, f2.cforms[1].funcName)
+        self.assertEqual(f1.cforms[0].funcFile, f2.cforms[0].funcFile)
+        self.assertEqual(f1.cforms[1].funcFile, f2.cforms[1].funcFile)
         
         self.assertFuncsEqual(f1.form, f2.form)
         self.assertFuncsEqual(f1.cforms[0],f2.cforms[0])
@@ -1145,8 +1150,10 @@ solids=[
         f.set_inner("gf4d.cfrm","zero")
         f.set_outer("gf4d.cfrm","default")
 
-        self.assertEqual(f.cfunc_files, ["gf4d.cfrm"] * 2)
-        self.assertEqual(f.cfunc_names, ["default", "zero"])
+        self.assertEqual(f.cforms[0].funcFile, "gf4d.cfrm")
+        self.assertEqual(f.cforms[1].funcFile, "gf4d.cfrm")
+        self.assertEqual(f.cforms[0].funcName, "default")
+        self.assertEqual(f.cforms[1].funcName, "zero")
         
         f.compile()
         im = image.T(4,3)
@@ -1184,12 +1191,12 @@ solids=[
         self.assertNotEqual(mag,f.get_param(f.MAGNITUDE))
         
         # test formula
-        formName = c.funcName
-        self.assertEqual(formName,f.funcName)
+        formName = c.form.funcName
+        self.assertEqual(formName,f.form.funcName)
 
         f.set_formula("gf4d.frm","Mandelbar")
-        self.assertEqual(formName,c.funcName)
-        self.assertNotEqual(formName,f.funcName)
+        self.assertEqual(formName,c.form.funcName)
+        self.assertNotEqual(formName,f.form.funcName)
 
         # test colors
         new_colors = c.get_gradient().segments
@@ -1255,7 +1262,7 @@ solids=[
         self.assertRaises(ValueError,f.set_outer,"gf4d.cfrm","xzero")
 
         # none of these should have changed the fractal, which should still work
-        self.assertEqual(f.funcName,"Mandelbrot")
+        self.assertEqual(f.form.funcName,"Mandelbrot")
         f.compile()
 
     def testTumorCrash(self):
