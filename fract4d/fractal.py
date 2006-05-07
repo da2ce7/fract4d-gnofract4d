@@ -68,8 +68,6 @@ class T(fctutils.T):
         self.outputfile = None
         self.render_type = 0
         
-        self.initparams = []
-
         self.warp_param = -1
         # gradient
         
@@ -120,7 +118,7 @@ class T(fctutils.T):
         print >>file, "formulafile=%s" % self.cfunc_files[index]
         print >>file, "function=%s" % self.cfunc_names[index]
         self.save_formula_params(
-            file,self.cforms[index], self.cfuncs[index],self.cfunc_params[index])
+            file,self.cforms[index], self.cfuncs[index],self.cforms[index].params)
         print >>file, "[endsection]"
         
     def save(self,file,update_saved_flag=True):
@@ -137,7 +135,7 @@ class T(fctutils.T):
         print >>file, "[function]"
         print >>file, "formulafile=%s" % self.funcFile
         print >>file, "function=%s" % self.funcName
-        self.save_formula_params(file,self.form,self.formula,self.initparams,self.warp_param)
+        self.save_formula_params(file,self.form,self.formula,self.form.params,self.warp_param)
         print >>file, "[endsection]"
         
         self.save_cfunc_info(1,"inner",file)
@@ -178,7 +176,7 @@ class T(fctutils.T):
         if old_g != g:
             op = self.formula.symbols.order_of_params()
             ord = op.get(self.formula.symbols.mangled_name("@_gradient"))
-            self.initparams[ord] = g
+            self.form.params[ord] = g
             self.changed(False)
             
     def initvalue(self,name,symbol_table,params,warp_param=-1):
@@ -255,7 +253,8 @@ class T(fctutils.T):
                              c.formula)
 
         # must be after set_formula
-        c.initparams = [copy.copy(x) for x in self.initparams]
+        # FIXME shouldn't be required
+        c.form.params = [copy.copy(x) for x in self.form.params]
 
         c.set_outer(self.cfunc_files[0], self.cfunc_names[0])
         c.set_inner(self.cfunc_files[1], self.cfunc_names[1])
@@ -290,7 +289,7 @@ class T(fctutils.T):
             ]
 
         g = self.get_gradient()
-        self.initparams = []
+        self.form.params = []
 
         self.bailout = 0.0
         self.maxiter = 256
@@ -357,13 +356,6 @@ class T(fctutils.T):
             if self.compiler.out_of_date(self.cfunc_files[i]):
                 self.set_colorfunc(i,self.cfunc_files[i],self.cfunc_names[i])
 
-    def set_initparams_from_formula(self,formula,g):
-        self.initparams = self.formula.symbols.default_params()
-        self.paramtypes = self.formula.symbols.type_of_params()
-        for i in xrange(len(self.paramtypes)):
-            if self.paramtypes[i] == fracttypes.Gradient:
-                self.initparams[i] = copy.copy(g)
-
     def set_formula_defaults(self, g=None):
         if self.formula == None:
             return
@@ -371,8 +363,8 @@ class T(fctutils.T):
         if g == None:
             g = self.get_gradient()
 
-        self.set_initparams_from_formula(self.formula, g)
-        
+        self.form.set_initparams_from_formula(self.formula, g)
+
         for (name,val) in self.formula.defaults.items():
             # FIXME helpfile,helptopic,method,precision,
             #render,skew,stretch
@@ -423,9 +415,6 @@ class T(fctutils.T):
         self.formula = self.form.formula
         self.funcName = self.form.funcName
         self.funcFile = self.form.funcFile
-
-        self.initparams = self.form.params
-        self.paramtypes = self.form.paramtypes
 
         self.set_bailfunc()
 
@@ -888,26 +877,17 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
         # in older files, we save it in self.bailout then apply to the
         # initparams later
         if self.bailout != 0.0:
-            self.update_bailout_param(self.formula.symbols,self.initparams)
-            self.update_bailout_param(
-                self.cfuncs[0].symbols,self.cfunc_params[0])
-            self.update_bailout_param(
-                self.cfuncs[1].symbols,self.cfunc_params[1])
+            self.form.try_set_named_item("@bailout",self.bailout)
+            self.cforms[0].try_set_named_item("@bailout",self.bailout)
+            self.cforms[1].try_set_named_item("@bailout",self.bailout)
 
     def fix_gradients(self, old_gradient):
         # new gradient is read in after the gradient params have been set,
         # so this is needed to fix any which are using that default
-        for i in xrange(len(self.initparams)):
-            if self.initparams[i] == old_gradient:
-                self.initparams[i] = self.get_gradient()
+        for i in xrange(len(self.form.params)):
+            if self.form.params[i] == old_gradient:
+                self.form.params[i] = self.get_gradient()
         
-    def update_bailout_param(self,symbols,params):
-        ord = self.order_of_name("@bailout",symbols)
-        if ord == None:
-            # no bailout value for this function
-            return
-        params[ord] = float(self.bailout)
-
     def param_display_name(self,name,param):
         if hasattr(param,"title"):
             return param.title.value
