@@ -806,10 +806,10 @@ blue=0.3
 
         f.params[f.XCENTER] = 777.0
         f.set_formula("test.frm","test_defaults")
-        f.set_named_item("@bailout",7.1, f.formula, f.initparams)
+        f.form.set_named_item("@bailout",7.1)
 
         f.set_inner("test.cfrm", "flat")
-        f.set_named_item("@val",0.2, f.cfuncs[1], f.cfunc_params[1])
+        f.cforms[1].set_named_item("@val",0.2)
 
         f.reset()
         self.assertEqual(f.maxiter,200)
@@ -982,11 +982,11 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         f.set_formula("test.frm","test_simpleshape")
         f.set_inner("test.cfrm","flat")
         f.set_outer("test.cfrm","flat")
-        f.set_named_item("@val",0.7, f.cfuncs[0], f.cfunc_params[0])
-        f.set_named_item("@myfunc","sqrt", f.cfuncs[0], f.cfunc_params[0])
+        f.cforms[0].set_named_item("@val",0.7)
+        f.cforms[0].set_named_item("@myfunc","sqrt")
 
-        f.set_named_item("@val",0.2, f.cfuncs[1], f.cfunc_params[1])
-        f.set_named_item("@myfunc","sin", f.cfuncs[1], f.cfunc_params[1])
+        f.cforms[1].set_named_item("@val",0.2)
+        f.cforms[1].set_named_item("@myfunc","sin")
 
         outgrey = int(math.sqrt(0.7) * 255)
         ingrey = int(math.sin(0.2) * 255)
@@ -1163,11 +1163,11 @@ solids=[
     def testCopy(self):
         f = fractal.T(self.compiler)
         f.set_formula("gf4d.frm","Barnsley Type 1")
-        f.set_named_item("@bailfunc","manhattanish",f.formula,f.initparams)
+        f.form.set_named_item("@bailfunc","manhattanish")
         f.set_outer("test.cfrm","flat")
-        f.set_named_item("@ep", 2, f.cfuncs[0], f.cfunc_params[0])
-        f.set_named_item("@i", 789, f.cfuncs[0], f.cfunc_params[0])
-        f.set_named_item("@_transfer","sqrt",f.cfuncs[0],f.cfunc_params[0])
+        f.cforms[0].set_named_item("@ep", 2)
+        f.cforms[0].set_named_item("@i", 789)
+        f.cforms[0].set_named_item("@_transfer","sqrt")
         f.set_warp_param(2)
         c = copy.copy(f)
 
@@ -1209,7 +1209,7 @@ solids=[
         Check for recurrence'''
         f = fractal.T(self.compiler)
         f.loadFctFile(open("../testdata/julfn.fct"))
-        f.set_named_item("@fn1","sinh",f.formula,f.initparams)
+        f.form.set_named_item("@fn1","sinh")
 
         self.assertEqual(f.form.get_func_value("@fn1"),"sinh")
         
@@ -1238,7 +1238,7 @@ solids=[
         self.assertDirty(f)
 
         f.clean()
-        f.set_named_func("@bailfunc","real2",f.formula)
+        f.form.set_named_func("@bailfunc","real2")
         self.assertDirty(f)
 
     def testLoadGivesCorrectParameters(self):

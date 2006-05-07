@@ -45,15 +45,15 @@ class T(fctutils.T):
         self.format_version = 2.8
         
         # formula support
-        self.form = formsettings.T(compiler)
+        self.form = formsettings.T(compiler,self)
         
         self.formula = None
         self.funcName = "Mandelbrot"
         self.funcFile = None
         self.bailfunc = 0
         self.cforms = [
-            formsettings.T(compiler,"cf0"),
-            formsettings.T(compiler,"cf1")]
+            formsettings.T(compiler,self,"cf0"),
+            formsettings.T(compiler,self,"cf1")]
         
         self.cfuncs = [None,None]
         self.cfunc_names = [None,None]
@@ -166,7 +166,7 @@ class T(fctutils.T):
 
     def get_gradient(self):
         try:
-            g = self.get_named_param_value("@_gradient")
+            g = self.form.get_named_param_value("@_gradient")
             if g == 0:
                 g = self.default_gradient
         except Exception, exn:
@@ -228,16 +228,8 @@ class T(fctutils.T):
             if name == "formulafile" or name=="function":
                 pass
             else:
-                self.set_named_item(
-                    name,val,self.cfuncs[index],self.cfunc_params[index])
+                self.cforms[index].set_named_item(name,val)
 
-    def set_named_item(self,name,val,formula,params):
-        sym = formula.symbols[name].first()
-        if isinstance(sym, fracttypes.Func):
-            self.set_named_func(name,val,formula)
-        else:
-            self.set_named_param(name,val,formula,params)
-        
     def __del__(self):
         if self.outputfile:
             #os.remove(self.outputfile)
@@ -348,12 +340,9 @@ class T(fctutils.T):
     
     def set_initparam(self,n,val, param_type):
         if param_type == 0:
-            changed = self.form.set_param(n,val)
+            self.form.set_param(n,val)
         else:
-            changed = self.cforms[param_type-1].set_param(n,val)
-
-        if changed:
-            self.changed()
+            self.cforms[param_type-1].set_param(n,val)
 
     def set_solids(self, solids):
         if self.solids[0] == solids[0] and self.solids[1] == solids[1]:
@@ -476,11 +465,6 @@ class T(fctutils.T):
         func = formula.symbols.get(fname)
         self.set_func(func[0],val,formula)            
 
-    def get_named_param_value(self,name):
-        op = self.formula.symbols.order_of_params()
-        ord = op.get(self.formula.symbols.mangled_name(name))
-        return self.initparams[ord]
-    
     def changed(self,clear_image=True):
         self.dirty = True
         self.saved = False
@@ -555,17 +539,6 @@ class T(fctutils.T):
         
         return weirdness * (random.random() - 0.5) * math.pi/2.0
 
-    def mutate_formula_params(self, weirdness, size, params, paramtypes):
-        for i in xrange(len(params)):
-            if paramtypes[i] == fracttypes.Float:
-                params[i] += self.zw_random(weirdness, size)
-            elif paramtypes[i] == fracttypes.Int:
-                # FIXME: need to be able to look up enum to find min/max
-                pass
-            elif paramtypes[i] == fracttypes.Bool:
-                if random.random() < weirdness * 0.2:
-                    params[i] = not params[i]
-
     def is4D(self):
         return self.warp_param != -1 or self.formula.is4D()
 
@@ -590,12 +563,10 @@ class T(fctutils.T):
         if random.random() < weirdness * 0.75:
             self.params[self.MAGNITUDE] *= 1.0 + (0.5 - random.random())
 
-        self.mutate_formula_params(weirdness, size, self.initparams, self.paramtypes)
-        self.mutate_formula_params(
-            color_weirdness, size, self.cfunc_params[0], self.cfunc_paramtypes[0])
-        self.mutate_formula_params(
-            color_weirdness, size, self.cfunc_params[1], self.cfunc_paramtypes[1])
-        
+        self.form.mutate(weirdness, size)
+        self.cforms[0].mutate(weirdness, size)
+        self.cforms[1].mutate(weirdness, size)
+
         if random.random() < color_weirdness * 0.3:
             self.set_cmap(random.choice(colormaps))
         
@@ -604,19 +575,11 @@ class T(fctutils.T):
         self.relocate(0.025 * x , 0.025 * y, 1.0,axis)
 
     def nudge_param(self, i, param_type, x, y):        
-        # nudge params[i] by (x,y)
-        if x == 0 and y == 0:
-            return
-
         if param_type == 0:
-            params = self.initparams
+            self.form.nudge_param(i,x,y)
         else:
-            params = self.cfunc_params[param_type-1]
-        
-        params[i] += (0.025 * x)
-        params[i+1] += (0.025 * y)
-        self.changed()
-        
+            self.cforms[param_type-1].nudge_param(i,x,y)
+
     def relocate(self,dx,dy,zoom,axis=0):
         if dx == 0 and dy == 0 and zoom == 1.0:
             return
@@ -669,7 +632,7 @@ class T(fctutils.T):
         return self.params[self.MAGNITUDE]/(20.0 * max(w,h))
 
     def all_params(self):
-        return self.initparams + self.cfunc_params[0] + self.cfunc_params[1]
+        return self.form.params + self.cforms[0].params + self.cforms[1].params
 
     def draw(self,image):
         handle = fract4dc.pf_load(self.outputfile)
@@ -759,11 +722,9 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
             if name == "formulafile" or name == "function":
                 pass
             elif name == "a" or name =="b" or name == "c":
-                self.set_named_param("@" + name, val,
-                                     self.formula, self.initparams)
+                self.form.set_named_param("@" + name, val)
             else:
-                self.set_named_item(name,val,self.formula,
-                                    self.initparams)
+                self.form.set_named_item(name,val)
 
     def get_params_of_type(self,formula,type):
         params = []
@@ -836,11 +797,9 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
         if cf.direct:
             # loading a legacy rgb colorizer
             self.set_outer("gf4d.cfrm", "rgb")
-            cfunc = self.cfuncs[0]
-            params = self.cfunc_params[0]
 
             val = "(%f,%f,%f,1.0)" % tuple(cf.rgb) 
-            self.set_named_item("@col",val, cfunc, params)
+            self.cforms[0].set_named_item("@col",val)
 
     def parse__colors_(self,val,f):
         cf = colorizer.T(self)
