@@ -663,7 +663,7 @@ class T(Hidden):
 
 
     def add_complex_formula_setting(
-        self,table,i,form,name,param,order,tips):
+        self,table,i,form,name,param,order,tips,param_type):
         
         widget = self.make_numeric_entry(
                 form,param,order)
@@ -680,11 +680,11 @@ class T(Hidden):
         tips.set_tip(fway.widget, name)
         
         fway.connect('value-changed',self.fourway_released, order, form)
-        # FIXME
-        #if self.parent:
-        #    fway.connect(
-        #        'value-slightly-changed',
-        #        self.parent.on_drag_param_fourway, order, form)
+
+        if self.parent:
+            fway.connect(
+                'value-slightly-changed',
+                self.parent.on_drag_param_fourway, order, param_type)
         
         table.attach(fway.widget,0,1,i,i+2, 0,0, 2,2)
 
@@ -811,7 +811,9 @@ class T(Hidden):
             else:
                 if param.type == fracttypes.Complex:
                     self.add_complex_formula_setting(
-                        table,i,form,name,param,op[name],tips)
+                        table,i,form,name,param,
+                        op[name],tips,
+                        param_type)
                     i+= 1
                 elif param.type == fracttypes.Hyper:
                     suffixes = [" (re)", " (i)", " (j)", " (k)"]
