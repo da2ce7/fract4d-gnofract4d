@@ -18,13 +18,9 @@ import fctutils
 import colorizer
 import formsettings
 
-cmplx_re = re.compile(r'\((.*?),(.*?)\)')
-hyper_re = re.compile(r'\((.*?),(.*?),(.*?),(.*?)\)')
-
 # the version of the earliest gf4d release which can parse all the files
 # this version can output
 THIS_FORMAT_VERSION="2.8"
-
 
 class T(fctutils.T):
     XCENTER = 0
@@ -313,9 +309,6 @@ class T(fctutils.T):
         self.formula_changed()
         self.changed()
         
-    def get_func_name(self):
-        return self.forms[0].funcName
-
     def get_saved(self):
         return self.saved
     
@@ -432,9 +425,8 @@ class T(fctutils.T):
         if random.random() < weirdness * 0.75:
             self.params[self.MAGNITUDE] *= 1.0 + (0.5 - random.random())
 
-        self.forms[0].mutate(weirdness, size)
-        self.forms[1].mutate(weirdness, size)
-        self.forms[2].mutate(weirdness, size)
+        for f in self.forms:
+            f.mutate(weirdness, size)
 
         if random.random() < color_weirdness * 0.3:
             self.set_cmap(random.choice(colormaps))
@@ -700,16 +692,16 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
         # in older files, we save it in self.bailout then apply to the
         # initparams later
         if self.bailout != 0.0:
-            self.forms[0].try_set_named_item("@bailout",self.bailout)
-            self.forms[1].try_set_named_item("@bailout",self.bailout)
-            self.forms[2].try_set_named_item("@bailout",self.bailout)
+            for f in self.forms:
+                f.try_set_named_item("@bailout",self.bailout)
 
     def fix_gradients(self, old_gradient):
         # new gradient is read in after the gradient params have been set,
         # so this is needed to fix any which are using that default
-        for i in xrange(len(self.forms[0].params)):
-            if self.forms[0].params[i] == old_gradient:
-                self.forms[0].params[i] = self.get_gradient()
+        p = self.forms[0].params
+        for i in xrange(len(p)):
+            if p[i] == old_gradient:
+                p[i] = self.get_gradient()
         
     def param_display_name(self,name,param):
         if hasattr(param,"title"):

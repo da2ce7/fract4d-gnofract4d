@@ -105,20 +105,20 @@ class Test(unittest.TestCase):
         f = self.m.f        
         f.connect('parameters-changed',counter.onCallback)
 
-        bailfunc = f.get_func_value("@bailfunc",f.formula)
+        bailfunc = f.forms[0].get_func_value("@bailfunc")
         self.assertEqual(bailfunc,"cmag")
         
-        f.set_named_func("@bailfunc","real2",f.formula)
+        f.forms[0].set_named_func("@bailfunc","real2")
         self.assertEqual(counter.count,1)
         
-        self.assertEqual(f.get_func_value("@bailfunc",f.formula),"real2")
+        self.assertEqual(f.forms[0].get_func_value("@bailfunc"),"real2")
         
         self.m.undo()
         
-        self.assertEqual(f.get_func_value("@bailfunc",f.formula),bailfunc)
+        self.assertEqual(f.forms[0].get_func_value("@bailfunc"),bailfunc)
 
         self.m.redo()
-        self.assertEqual(f.get_func_value("@bailfunc",f.formula),"real2")
+        self.assertEqual(f.forms[0].get_func_value("@bailfunc"),"real2")
         
 def suite():
     return unittest.makeSuite(Test,'test')
