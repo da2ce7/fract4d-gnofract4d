@@ -574,9 +574,9 @@ class T(Hidden):
 
         def set_fractal(r, g, b, is_left):
             self.freeze()
-            self.f.set_param(order, r)
-            self.f.set_param(order+1, g)
-            self.f.set_param(order+2, b)
+            form.set_param(order, r)
+            form.set_param(order+1, g)
+            form.set_param(order+2, b)
             if self.thaw():
                 self.changed()
                 
