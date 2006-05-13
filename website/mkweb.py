@@ -59,7 +59,10 @@ pages = [
 
     Bag(name="FAQ",
         file="faq.html",
-        image="faq.jpg"
+        image="faq.jpg",
+        comments = [
+    "Gnofract4d is one of my all time favorite programs."
+    ]
         ),
 
     Bag(name="Links",

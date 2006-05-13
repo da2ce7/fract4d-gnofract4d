@@ -1,12 +1,17 @@
 todo:
 
+fixed in next version:
+* B	DeprecationError on pygtk 2.8+
+
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 * BB	Renderqueue should antialias even if main window doesn't
 * BB	func with a bailout of 1 will never quit and can't be interrupted
 * BB	better image-sizing widgets for render queue
+* B	default param values: 'true' is case-sensitive, 'True' is false
 * B	apply a new gradient to a DCA-based fractal which uses a gradient - doesn't redraw
 * BB	auto-generated names are wrong (image should == fractal name, don't remove numbers once added)
+* B	bwp.ucl#bwp1: off-by-one on enums? (Square == Circle)
 * B	RQ: progress bar should be more colorful
 * B	half-done images left behind when RQ aborted
 * B	sp.ucl#AllInOne - compiler error, wrong type for abs
@@ -46,7 +51,6 @@ bugs (the more B's, the worse the bug):
 * B	compile whenever resolution changes - pointless
 * B	O-fractals in fractint-g4.frm broken
 * B	Mandrake: desktop icon not added to menu
-* B	DeprecationError on pygtk 2.8+
 
 features (the more W's, the more work involved):
 * WWW	toolbox: autozoom, clickzoom, UF-style zoom, realtime zoom, painter

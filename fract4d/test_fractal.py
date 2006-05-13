@@ -157,14 +157,14 @@ class Test(unittest.TestCase):
         self.assertEqual(f.params[f.YWANGLE],0.4)
         self.assertEqual(f.params[f.ZWANGLE],0.2)
         self.assertEqual(
-            f.form.params[f.order_of_name("@bailout", f.formula.symbols)],5.1)
+            f.forms[0].params[f.forms[0].order_of_name("@bailout")],5.1)
         
-        self.assertEqual(f.form.funcName,"Mandelbar")
-        self.assertEqual(f.form.funcFile,"gf4d.frm")
-        self.assertEqual(f.cforms[0].funcName, "continuous_potential")
-        self.assertEqual(f.cforms[1].funcName, "zero")
-        self.assertEqual(f.cforms[0].funcFile, "gf4d.cfrm")
-        self.assertEqual(f.cforms[1].funcFile, "gf4d.cfrm")
+        self.assertEqual(f.forms[0].funcName,"Mandelbar")
+        self.assertEqual(f.forms[0].funcFile,"gf4d.frm")
+        self.assertEqual(f.forms[1].funcName, "continuous_potential")
+        self.assertEqual(f.forms[1].funcFile, "gf4d.cfrm")
+        self.assertEqual(f.forms[2].funcName, "zero")
+        self.assertEqual(f.forms[2].funcFile, "gf4d.cfrm")
         
         self.assertEqual(f.maxiter, 259)
         g = f.get_gradient()
@@ -434,45 +434,45 @@ colorlist=[
         f = fractal.T(self.compiler)
         f.set_formula("test.frm", "fn_with_intparam")
 
-        p = f.formula.symbols.parameters()
-        op = f.formula.symbols.order_of_params()
+        p = f.forms[0].formula.symbols.parameters()
+        op = f.forms[0].formula.symbols.order_of_params()
         
         self.assertEqual(len(p), 2)
         self.assertEqual(p["t__a_x"].type, fracttypes.Int)
         self.assertEqual(op["t__a_x"], 1)
         self.assertEqual(op["__SIZE__"], 2)
 
-        tp = f.formula.symbols.type_of_params()
+        tp = f.forms[0].formula.symbols.type_of_params()
 
         self.assertEqual(len(tp),2)
         self.assertEqual(tp[1], fracttypes.Int)
         
         f.set_initparam(1, "17", 0)
-        self.assertEqual(f.form.params[1],17)
-        self.failUnless(isinstance(f.form.params[1],types.IntType))
+        self.assertEqual(f.forms[0].params[1],17)
+        self.failUnless(isinstance(f.forms[0].params[1],types.IntType))
             
     def testCFParams(self):
         f = fractal.T(self.compiler)
 
-        self.assertEqual(f.cfunc_params[0],[1.0,0.0,4.0])
+        self.assertEqual(f.forms[1].params,[1.0,0.0,4.0])
         
         f.set_outer("test.cfrm", "Triangle")
 
-        self.assertEqual(f.cfunc_params[0],[ 1.0, 0.0, 1.0e20, 2.0])
+        self.assertEqual(f.forms[1].params,[ 1.0, 0.0, 1.0e20, 2.0])
         
-        cf0p = f.cfuncs[0].symbols.parameters()
+        cf0p = f.forms[1].formula.symbols.parameters()
         self.assertEqual(cf0p["t__a_bailout"].cname, "t__a_cf0bailout")
-        p = f.formula.symbols.parameters()
+        p = f.forms[0].formula.symbols.parameters()
         self.assertEqual(p["t__a_bailout"].cname, "t__a_fbailout")
 
-        cg = self.compiler.compile(f.formula)
-        self.compiler.compile(f.cfuncs[0])
-        self.compiler.compile(f.cfuncs[1])
+        cg = self.compiler.compile(f.forms[0].formula)
+        self.compiler.compile(f.forms[1].formula)
+        self.compiler.compile(f.forms[2].formula)
 
-        f.formula.merge(f.cfuncs[0],"cf0_")        
-        f.formula.merge(f.cfuncs[1],"cf1_")        
+        f.forms[0].formula.merge(f.forms[1].formula,"cf0_")        
+        f.forms[0].formula.merge(f.forms[2].formula,"cf1_")        
 
-        p2 = f.formula.symbols.parameters()
+        p2 = f.forms[0].formula.symbols.parameters()
 
         # 11 = (2 x bailout), bailfunc, size, gradient +
         #      2x (density, offset, transfer)
@@ -480,7 +480,7 @@ colorlist=[
         self.assertEqual(p2["t__a_bailout"].cname, "t__a_fbailout")
         self.assertEqual(p2["t__a_cf0bailout"].cname, "t__a_cf0bailout") 
 
-        op2 = f.formula.symbols.order_of_params()
+        op2 = f.forms[0].formula.symbols.order_of_params()
         self.assertEqual(op2, {
             't__a__gradient' : 0,
             't__a_bailout' : 1,
@@ -496,8 +496,8 @@ colorlist=[
         self.assertEqual(params,[f.get_gradient(), 4.0,1.0, 0.0, 1.0e20, 2.0, 1.0, 0.0])
 
         # check for appropriate snippets in the code
-        cg.output_decls(f.formula)
-        c_code = cg.output_c(f.formula)
+        cg.output_decls(f.forms[0].formula)
+        c_code = cg.output_c(f.forms[0].formula)
 
         self.assertNotEqual( # init
             c_code.find("double t__a_cf0bailout = t__pfo->p[4]"),-1)
@@ -549,7 +549,7 @@ blue=0.3
         rgb_file = StringIO.StringIO(file)
         
         f.loadFctFile(rgb_file)
-        self.assertEqual(f.cforms[0].funcName,"rgb")
+        self.assertEqual(f.forms[1].funcName,"rgb")
 
     def testSaveWithCFParams(self):
         'load and save a file with a colorfunc which has parameters'
@@ -559,8 +559,8 @@ blue=0.3
 
         f1.compile()
         
-        self.assertEqual(f1.cfunc_params[0],[1.0, 0.0, 1.0e12, 3.0])
-        self.assertEqual(f1.cfunc_params[1],[
+        self.assertEqual(f1.forms[1].params,[1.0, 0.0, 1.0e12, 3.0])
+        self.assertEqual(f1.forms[2].params,[
             2.0, #_density
             0.5, #_offset
             0, # bool b
@@ -570,7 +570,7 @@ blue=0.3
             3.3, # float val
             2.0, 3.7, 6.1, 8.9 # hyper val2
             ])
-        self.assertEqual(f1.cforms[1].get_func_value("@myfunc"),"sqrt")
+        self.assertEqual(f1.forms[2].get_func_value("@myfunc"),"sqrt")
         
         # save again
         file2 = StringIO.StringIO()
@@ -585,7 +585,7 @@ blue=0.3
         f3.loadFctFile(file3)
 
         self.assertFractalsEqual(f1,f3)
-        self.assertEqual(f3.cforms[1].get_func_value("@myfunc"),"sqrt")
+        self.assertEqual(f3.forms[2].get_func_value("@myfunc"),"sqrt")
 
     def testParseVersionString(self):
         f = fractal.T(self.compiler)
@@ -596,28 +596,23 @@ blue=0.3
         for name in form1.func_names():
             self.assertEqual(form1.get_func_value(name),
                              form2.get_func_value(name))
+
+    def assertFormSettingsEqual(self,fs1,fs2):
+        self.assertFuncsEqual(fs1, fs2)
+        self.assertEqual(fs1.params, fs2.params)
+        self.assertEqual(fs1.paramtypes, fs2.paramtypes)
+        self.assertEqual(fs1.funcName, fs2.funcName)
+        self.assertEqual(fs1.funcFile, fs2.funcFile)
         
     def assertFractalsEqual(self,f1,f2):
         # check that they are equivalent
         self.assertEqual(f1.maxiter, f2.maxiter)
         self.assertEqual(f1.params, f2.params)
-        
-        self.assertEqual(f1.form.params,f2.form.params)
-        self.assertEqual(f1.form.paramtypes, f2.form.paramtypes)        
-        self.assertEqual(f1.form.funcName,f2.form.funcName)
-        self.assertEqual(f1.funcFile,f2.funcFile)
 
-        self.assertEqual(f1.cfunc_params, f2.cfunc_params)
-        self.assertEqual(f1.cforms[0].paramtypes, f2.cforms[0].paramtypes)
-        self.assertEqual(f1.cforms[1].paramtypes, f2.cforms[1].paramtypes)
-        self.assertEqual(f1.cforms[0].funcName, f2.cforms[0].funcName)
-        self.assertEqual(f1.cforms[1].funcName, f2.cforms[1].funcName)
-        self.assertEqual(f1.cforms[0].funcFile, f2.cforms[0].funcFile)
-        self.assertEqual(f1.cforms[1].funcFile, f2.cforms[1].funcFile)
+        self.assertFormSettingsEqual(f1.forms[0],f2.forms[0])
+        self.assertFormSettingsEqual(f1.forms[1],f2.forms[1])
+        self.assertFormSettingsEqual(f1.forms[2],f2.forms[2])
         
-        self.assertFuncsEqual(f1.form, f2.form)
-        self.assertFuncsEqual(f1.cforms[0],f2.cforms[0])
-        self.assertFuncsEqual(f1.cforms[1],f2.cforms[1])
         self.assertEqual(f1.yflip,f2.yflip)
 
         self.assertEqual(f1.get_gradient(), f2.get_gradient())
@@ -738,16 +733,16 @@ blue=0.3
         tparams[f.ZCENTER] = -4.0 * 0.025
         tparams[f.WCENTER] = 4.0 * 0.025
         
-        op = f.formula.symbols.order_of_params()
+        op = f.forms[0].formula.symbols.order_of_params()
         k_a = op["t__a_a"]
 
-        oldparams = copy.copy(f.form.params)
+        oldparams = copy.copy(f.forms[0].params)
         f.nudge_param(k_a, 0, 1, 2 )
 
         oldparams[k_a] += 1.0 * 0.025
         oldparams[k_a + 1] += 2.0 * 0.025
 
-        self.assertNearlyEqual(f.form.params, oldparams)
+        self.assertNearlyEqual(f.forms[0].params, oldparams)
         
     def testDefaultFractal(self):
         try:
@@ -765,7 +760,7 @@ blue=0.3
             self.assertEqual(f.params[f.YZANGLE],0.0)
             self.assertEqual(f.params[f.YWANGLE],0.0)
             self.assertEqual(f.params[f.ZWANGLE],0.0)
-            self.assertEqual(f.form.params, [f.get_gradient(), 4.0])
+            self.assertEqual(f.forms[0].params, [f.get_gradient(), 4.0])
 
             f.compile()
             (w,h) = (40,30)
@@ -811,10 +806,10 @@ blue=0.3
 
         f.params[f.XCENTER] = 777.0
         f.set_formula("test.frm","test_defaults")
-        f.form.set_named_item("@bailout",7.1)
+        f.forms[0].set_named_item("@bailout",7.1)
 
         f.set_inner("test.cfrm", "flat")
-        f.cforms[1].set_named_item("@val",0.2)
+        f.forms[2].set_named_item("@val",0.2)
 
         f.reset()
         self.assertEqual(f.maxiter,200)
@@ -827,11 +822,11 @@ blue=0.3
         self.assertEqual(f.params[f.XYANGLE],0.001)
         self.assertEqual(f.params[f.XZANGLE],0.789)
         self.assertEqual(f.title,"Hello World")
-        self.assertEqual(f.form.params,[f.get_gradient(), 8.0,7.0,1.0])
+        self.assertEqual(f.forms[0].params,[f.get_gradient(), 8.0,7.0,1.0])
         self.assertEqual(f.periodicity, 0)
         
         self.assertEqual(
-            f.cfunc_params[1],
+            f.forms[2].params,
             self.default_flat_params)
 
     def testResetAngles(self):
@@ -881,7 +876,7 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         im.save("no_warp.png") # should be completely white
 
         # now set the parameter to be warped
-        ord = f.order_of_name("@p1",f.formula.symbols)
+        ord = f.order_of_name("@p1",f.forms[0].formula.symbols)
         self.assertEqual(ord,1)
 
         f.set_warp_param(ord)
@@ -900,7 +895,7 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         f.set_outer("gf4d.cfrm","continuous_potential")
         f.compile()
         f.reset()
-        self.assertEqual(f.form.params,[f.get_gradient(), 4.0])
+        self.assertEqual(f.forms[0].params,[f.get_gradient(), 4.0])
         (w,h) = (40,30)
         im = image.T(w,h)
         f.draw(im)
@@ -938,7 +933,7 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         f.set_outer("gf4d.cfrm","default")
         f.compile()
         f.reset()
-        self.assertEqual(f.form.params,[f.get_gradient(), 0.0])
+        self.assertEqual(f.forms[0].params,[f.get_gradient(), 0.0])
         self.assertEqual(f.antialias,1)
         (w,h) = (30,30)
         im = image.T(w,h)
@@ -963,7 +958,7 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         f.set_outer("gf4d.cfrm","default")
         f.compile()
         f.reset()
-        self.assertEqual(f.form.params,[f.get_gradient(), 0.0])
+        self.assertEqual(f.forms[0].params,[f.get_gradient(), 0.0])
         self.assertEqual(f.antialias,1)
         (w,h) = (30,30)
         im = image.T(w,h)
@@ -987,11 +982,11 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         f.set_formula("test.frm","test_simpleshape")
         f.set_inner("test.cfrm","flat")
         f.set_outer("test.cfrm","flat")
-        f.cforms[0].set_named_item("@val",0.7)
-        f.cforms[0].set_named_item("@myfunc","sqrt")
+        f.forms[1].set_named_item("@val",0.7)
+        f.forms[1].set_named_item("@myfunc","sqrt")
 
-        f.cforms[1].set_named_item("@val",0.2)
-        f.cforms[1].set_named_item("@myfunc","sin")
+        f.forms[2].set_named_item("@val",0.2)
+        f.forms[2].set_named_item("@myfunc","sin")
 
         outgrey = int(math.sqrt(0.7) * 255)
         ingrey = int(math.sin(0.2) * 255)
@@ -1062,7 +1057,7 @@ blue=0.5543108971162746
         f.warn = wc.warn
         f.loadFctFile(StringIO.StringIO(file))
 
-        self.assertEqual(f.form.params,[f.get_gradient(), 0.34,-0.28,4.0])
+        self.assertEqual(f.forms[0].params,[f.get_gradient(), 0.34,-0.28,4.0])
 
     def testNewGradientRead(self):
         file = '''gnofract4d parameter file
@@ -1150,10 +1145,10 @@ solids=[
         f.set_inner("gf4d.cfrm","zero")
         f.set_outer("gf4d.cfrm","default")
 
-        self.assertEqual(f.cforms[0].funcFile, "gf4d.cfrm")
-        self.assertEqual(f.cforms[1].funcFile, "gf4d.cfrm")
-        self.assertEqual(f.cforms[0].funcName, "default")
-        self.assertEqual(f.cforms[1].funcName, "zero")
+        self.assertEqual(f.forms[1].funcFile, "gf4d.cfrm")
+        self.assertEqual(f.forms[2].funcFile, "gf4d.cfrm")
+        self.assertEqual(f.forms[1].funcName, "default")
+        self.assertEqual(f.forms[2].funcName, "zero")
         
         f.compile()
         im = image.T(4,3)
@@ -1170,11 +1165,11 @@ solids=[
     def testCopy(self):
         f = fractal.T(self.compiler)
         f.set_formula("gf4d.frm","Barnsley Type 1")
-        f.form.set_named_item("@bailfunc","manhattanish")
+        f.forms[0].set_named_item("@bailfunc","manhattanish")
         f.set_outer("test.cfrm","flat")
-        f.cforms[0].set_named_item("@ep", 2)
-        f.cforms[0].set_named_item("@i", 789)
-        f.cforms[0].set_named_item("@_transfer","sqrt")
+        f.forms[1].set_named_item("@ep", 2)
+        f.forms[1].set_named_item("@i", 789)
+        f.forms[1].set_named_item("@_transfer","sqrt")
         f.set_warp_param(2)
         c = copy.copy(f)
 
@@ -1191,12 +1186,12 @@ solids=[
         self.assertNotEqual(mag,f.get_param(f.MAGNITUDE))
         
         # test formula
-        formName = c.form.funcName
-        self.assertEqual(formName,f.form.funcName)
+        formName = c.forms[0].funcName
+        self.assertEqual(formName,f.forms[0].funcName)
 
         f.set_formula("gf4d.frm","Mandelbar")
-        self.assertEqual(formName,c.form.funcName)
-        self.assertNotEqual(formName,f.form.funcName)
+        self.assertEqual(formName,c.forms[0].funcName)
+        self.assertNotEqual(formName,f.forms[0].funcName)
 
         # test colors
         new_colors = c.get_gradient().segments
@@ -1216,13 +1211,13 @@ solids=[
         Check for recurrence'''
         f = fractal.T(self.compiler)
         f.loadFctFile(open("../testdata/julfn.fct"))
-        f.form.set_named_item("@fn1","sinh")
+        f.forms[0].set_named_item("@fn1","sinh")
 
-        self.assertEqual(f.form.get_func_value("@fn1"),"sinh")
+        self.assertEqual(f.forms[0].get_func_value("@fn1"),"sinh")
         
         c = copy.copy(f)
 
-        self.assertEqual(f.form.get_func_value("@fn1"),"sinh")
+        self.assertEqual(f.forms[0].get_func_value("@fn1"),"sinh")
         
     def assertDirty(self,f):
         self.assertEqual(f.dirty,True)
@@ -1245,14 +1240,14 @@ solids=[
         self.assertDirty(f)
 
         f.clean()
-        f.form.set_named_func("@bailfunc","real2")
+        f.forms[0].set_named_func("@bailfunc","real2")
         self.assertDirty(f)
 
     def testLoadGivesCorrectParameters(self):
         f = fractal.T(self.compiler)
-        self.assertEqual(len(f.formula.symbols.parameters()),3)
+        self.assertEqual(len(f.forms[0].formula.symbols.parameters()),3)
         f.loadFctFile(open("../testdata/elfglow.fct"))
-        self.assertEqual(len(f.formula.symbols.parameters()),5)
+        self.assertEqual(len(f.forms[0].formula.symbols.parameters()),5)
         
         
     def testFractalBadness(self):
@@ -1262,7 +1257,7 @@ solids=[
         self.assertRaises(ValueError,f.set_outer,"gf4d.cfrm","xzero")
 
         # none of these should have changed the fractal, which should still work
-        self.assertEqual(f.form.funcName,"Mandelbrot")
+        self.assertEqual(f.forms[0].funcName,"Mandelbrot")
         f.compile()
 
     def testTumorCrash(self):
