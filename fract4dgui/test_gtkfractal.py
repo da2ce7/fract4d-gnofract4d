@@ -170,6 +170,11 @@ class Test(unittest.TestCase):
         self.f.set_formula("test.frm","fn_with_intparam")
 
         table = self.f.populate_formula_settings(0,gtk.Tooltips())
+
+    def testAllSettingsTypes(self):
+        self.f.set_formula("test.frm","test_all_types")
+        
+        table = self.f.populate_formula_settings(0,gtk.Tooltips())
         
     def testButton1(self):
         f = self.f
