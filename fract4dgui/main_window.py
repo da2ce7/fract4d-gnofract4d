@@ -730,6 +730,8 @@ class MainWindow:
             _("wrp"),
             _("Mutate the image by moving along the other 2 axes"), 2, True)
 
+        self.add_warpmenu(_("Which parameter is being warped"))
+            
         # deepen/resize
         self.toolbar.add_space()
         
@@ -909,35 +911,25 @@ class MainWindow:
     def on_release_fourway(self,widget,dx,dy):
         self.f.nudge(dx/10.0, dy/10.0, widget.axis)
 
-    def add_warpmenu(self,name,tip,axis, is4dsensitive):
-        my_fourway = fourway.T(name)
-        liststore = gtk.ListStore(gobject.TYPE_STRING)
-        combobox = gtk.ComboBox(liststore)
-        #combobox.pack_start(my_fourway.widget, gtk.TRUE)
+    def add_warpmenu(self,tip):
 
-        hbox = gtk.HBox()
-        hbox.pack_start(my_fourway.widget)
-        hbox.pack_start(combobox)
-
-        def populate_warpmenu(f, store):
+        warpmenu = utils.create_option_menu(["None"])
+        
+        def populate_warpmenu(f, warpmenu):
             params = f.get_params_of_type(f.formula,fracttypes.Complex)
+            
+            print params
+            for p in params:
+                utils.add_menu_item(warpmenu,p)
+                
+        populate_warpmenu(self.f,warpmenu)
 
-        populate_warpmenu(self.f,liststore)
-
-        self.f.connect('formula-changed', populate_warpmenu, liststore)
+        self.f.connect('formula-changed', populate_warpmenu, warpmenu)
         
         self.toolbar.add_widget(
-            hbox,
+            warpmenu,
             tip,
             None)
-
-        my_fourway.axis = axis
-        
-        my_fourway.connect('value-slightly-changed', self.on_drag_fourway)
-        my_fourway.connect('value-changed', self.on_release_fourway)
-
-        if is4dsensitive:
-            self.four_d_sensitives.append(my_fourway.widget)
         
     def add_fourway(self, name, tip, axis, is4dsensitive):
         my_fourway = fourway.T(name)

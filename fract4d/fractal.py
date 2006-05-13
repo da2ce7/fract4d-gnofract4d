@@ -38,24 +38,23 @@ class T(fctutils.T):
     YZANGLE = 8
     YWANGLE = 9
     ZWANGLE = 10
-    
+
+    FORMULA=0
+    OUTER=1
+    INNER=2
     def __init__(self,compiler,site=None):
         fctutils.T.__init__(self)
         
         self.format_version = 2.8
-        
-        # formula support
-        self.form = formsettings.T(compiler,self)
-        
-        self.formula = None
+
         self.bailfunc = 0
-        self.cforms = [
-            formsettings.T(compiler,self,"cf0"),
-            formsettings.T(compiler,self,"cf1")]
+        # formula support
+        self.forms = [
+            formsettings.T(compiler,self), # formula
+            formsettings.T(compiler,self,"cf0"), # outer
+            formsettings.T(compiler,self,"cf1") # inner
+            ]
         
-        self.cfuncs = [None,None]
-        self.cfunc_params = [[], []]
-        self.cfunc_paramtypes = [[], []]
         self.yflip = False
         self.periodicity = True
         self.auto_tolerance = False
@@ -76,7 +75,7 @@ class T(fctutils.T):
         self.solids = [(0,0,0,255),(0,0,0,255)]
 
         # formula defaults
-        self.set_formula("gf4d.frm","Mandelbrot")
+        self.set_formula("gf4d.frm","Mandelbrot",0)
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","continuous_potential")
         self.dirtyFormula = True # formula needs recompiling
@@ -109,14 +108,6 @@ class T(fctutils.T):
         self.loadFctFile(StringIO.StringIO(string))
         self.changed()
         
-    def save_cfunc_info(self,index,section,file):
-        print >>file, "[%s]" % section
-        print >>file, "formulafile=%s" % self.cforms[index].funcFile
-        print >>file, "function=%s" % self.cforms[index].funcName
-        self.save_formula_params(
-            file,self.cforms[index], self.cfuncs[index],self.cforms[index].params)
-        print >>file, "[endsection]"
-        
     def save(self,file,update_saved_flag=True):
         print >>file, "gnofract4d parameter file"
         print >>file, "version=%s" % THIS_FORMAT_VERSION
@@ -128,14 +119,10 @@ class T(fctutils.T):
         print >>file, "maxiter=%d" % self.maxiter
         print >>file, "yflip=%s" % self.yflip
         print >>file, "periodicity=%s" % int(self.periodicity)
-        print >>file, "[function]"
-        print >>file, "formulafile=%s" % self.form.funcFile
-        print >>file, "function=%s" % self.form.funcName
-        self.save_formula_params(file,self.form,self.formula,self.form.params,self.warp_param)
-        print >>file, "[endsection]"
         
-        self.save_cfunc_info(1,"inner",file)
-        self.save_cfunc_info(0,"outer",file)
+        self.forms[0].save_formula_params(file,self.warp_param)
+        self.forms[1].save_formula_params(file)
+        self.forms[2].save_formula_params(file)
         
         print >>file, "[colors]"
         print >>file, "colorizer=1"
@@ -147,20 +134,9 @@ class T(fctutils.T):
         if update_saved_flag:
             self.saved = True
 
-    def save_formula_params(self,file,form,formula,params,warp_param=-1):
-        names = form.func_names()
-        names.sort()
-        for name in names:
-            print >>file, "%s=%s" % (name, form.get_func_value(name))
-        names = form.param_names()
-        names.sort()
-        for name in names:
-            print >>file, "%s=%s" % \
-                  (name, self.initvalue(name, formula.symbols,params,warp_param))
-
     def get_gradient(self):
         try:
-            g = self.form.get_named_param_value("@_gradient")
+            g = self.forms[0].get_named_param_value("@_gradient")
             if g == 0:
                 g = self.default_gradient
         except Exception, exn:
@@ -170,34 +146,9 @@ class T(fctutils.T):
     def set_gradient(self, g):
         old_g = self.get_gradient()
         if old_g != g:
-            op = self.formula.symbols.order_of_params()
-            ord = op.get(self.formula.symbols.mangled_name("@_gradient"))
-            self.form.params[ord] = g
+            self.forms[0].set_gradient(g)
             self.changed(False)
             
-    def initvalue(self,name,symbol_table,params,warp_param=-1):
-        ord = self.order_of_name(name,symbol_table)
-        type = symbol_table[name].type
-        
-        if type == fracttypes.Complex:
-            if warp_param == ord:
-                return "warp"
-            else:
-                return "(%.17f,%.17f)"%(params[ord],params[ord+1])
-        elif type == fracttypes.Hyper or type == fracttypes.Color:
-            return "(%.17f,%.17f,%.17f,%.17f)"% \
-                   (params[ord],params[ord+1],params[ord+2],params[ord+3])
-        elif type == fracttypes.Float:
-            return "%.17f" % params[ord]
-        elif type == fracttypes.Int:
-            return "%d" % params[ord]
-        elif type == fracttypes.Bool:
-            return "%s" % int(params[ord])
-        elif type == fracttypes.Gradient:
-            return "[\n" + params[ord].serialize() + "]"
-        else:
-            raise ValueError("Unknown type %s for param %s" % (type,name))
-
     def parse_periodicity(self,val,f):
         try:
             self.set_periodicity(int(val))
@@ -209,24 +160,17 @@ class T(fctutils.T):
         params = fctutils.ParamBag()
         params.load(f)
         self.set_inner(params.dict["formulafile"],params.dict["function"])
-        self.set_cfunc_params(params,1)
+        self.forms[2].load_param_bag(params)
         
     def parse__outer_(self,val,f):
         params = fctutils.ParamBag()
         params.load(f)
         self.set_outer(params.dict["formulafile"],params.dict["function"])
-        self.set_cfunc_params(params,0)
-
-    def set_cfunc_params(self,params,index):
-        for (name,val) in params.dict.items():
-            if name == "formulafile" or name=="function":
-                pass
-            else:
-                self.cforms[index].set_named_item(name,val)
+        self.forms[1].load_param_bag(params)
 
     def __del__(self):
         if self.outputfile:
-            #os.remove(self.outputfile)
+            os.remove(self.outputfile)
             pass
 
     def __copy__(self):
@@ -240,28 +184,9 @@ class T(fctutils.T):
 
         c.bailfunc = self.bailfunc
 
-        c.set_formula(self.form.funcFile,self.form.funcName)
-
-        # copy the function overrides
-        for name in self.form.func_names():
-            c.set_named_func(name,
-                             self.form.get_func_value(name),
-                             c.formula)
-
-        # must be after set_formula
-        # FIXME shouldn't be required
-        c.form.params = [copy.copy(x) for x in self.form.params]
-
-        c.set_outer(self.cforms[0].funcFile, self.cforms[0].funcName)
-        c.set_inner(self.cforms[1].funcFile, self.cforms[1].funcName)
-        
-        for i in range(2):
-            frm = self.cforms[i]
-            c_frm = c.cforms[i]
-            for name in frm.func_names():
-                c_frm.set_named_func(name, frm.get_func_value(name))
-
-            c.cfunc_params[i] = [copy.copy(x) for x in self.cfunc_params[i]]
+        for i in range(3):
+            c.set_formula(self.forms[i].funcFile,self.forms[i].funcName,i)
+            c.forms[i].copy_from(self.forms[i])
                     
         c.solids = copy.copy(self.solids)
         c.yflip = self.yflip
@@ -284,24 +209,22 @@ class T(fctutils.T):
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0 # angles
             ]
 
-        g = self.get_gradient()
-        self.form.params = []
-
         self.bailout = 0.0
         self.maxiter = 256
         self.rot_by = math.pi/2
-        self.title = self.form.funcName
+        self.title = self.forms[0].funcName
         self.yflip = False
         self.auto_tolerance = False
-        
+
+        g = self.get_gradient()
         self.set_formula_defaults(g)
 
     def reset_zoom(self):
-        mag = self.formula.defaults.get("magn")
+        mag = self.forms[0].formula.defaults.get("magn")
         if mag:
             mag = mag.value
         else:
-            mag = self.formula.defaults.get("magnitude")
+            mag = self.forms[0].formula.defaults.get("magnitude")
             if mag:
                 mag = mag.value
             else:
@@ -327,17 +250,11 @@ class T(fctutils.T):
         self.changed(False)
 
     def get_initparam(self,n,param_type):
-        if param_type == 0:
-            params = self.form.params
-        else:
-            params = self.cforms[param_type-1].params
+        params = self.forms[param_type].params
         return params[n]
     
     def set_initparam(self,n,val, param_type):
-        if param_type == 0:
-            self.form.set_param(n,val)
-        else:
-            self.cforms[param_type-1].set_param(n,val)
+        self.forms[param_type].set_param(n,val)
 
     def set_solids(self, solids):
         if self.solids[0] == solids[0] and self.solids[1] == solids[1]:
@@ -346,22 +263,21 @@ class T(fctutils.T):
         self.changed(False)
         
     def refresh(self):
-        if self.compiler.out_of_date(self.funcFile):
-            self.set_formula(self.funcFile,self.form.funcName)
-        for i in xrange(2):
-            if self.compiler.out_of_date(self.cforms[i].funcFile):
-                self.set_colorfunc(i,self.cforms[i].funcFile,self.cforms[i].funcName)
+        for i in xrange(3):
+            if self.compiler.out_of_date(self.forms[i].funcFile):
+                self.set_formula(
+                    self.forms[i].funcFile,self.forms[i].funcName,i)
 
     def set_formula_defaults(self, g=None):
-        if self.formula == None:
+        if self.forms[0].formula == None:
             return
 
         if g == None:
             g = self.get_gradient()
 
-        self.form.set_initparams_from_formula(self.formula, g)
+        self.forms[0].set_initparams_from_formula(g)
 
-        for (name,val) in self.formula.defaults.items():
+        for (name,val) in self.forms[0].formula.defaults.items():
             # FIXME helpfile,helptopic,method,precision,
             #render,skew,stretch
             if name == "maxiter":
@@ -387,35 +303,18 @@ class T(fctutils.T):
                     print "ignored unknown parameter %s" % name
 
         for i in xrange(2):
-            self.cfunc_params[i] = self.cfuncs[i].symbols.default_params()
-            self.cfunc_paramtypes[i] = self.cfuncs[i].symbols.type_of_params()
+            self.forms[i+1].reset_params()
 
-    def set_colorfunc(self,index,formulafile,func):
-        self.cforms[index].set_formula(formulafile,func,self.get_gradient())
+    def set_formula(self,formulafile,func,index=0):
+        self.forms[index].set_formula(formulafile,func,self.get_gradient())
 
-        form = self.cforms[index]
-        
-        self.cfuncs[index] = form.formula
-        self.cfunc_params[index] = form.params
-        self.cfunc_paramtypes[index] = form.paramtypes
-        
+        if index == 0:
+            self.set_bailfunc()    
         self.formula_changed()
         self.changed()
         
-
-    def set_formula(self,formulafile,func):
-        self.form.set_formula(formulafile,func,self.get_gradient())
-        
-        self.formula = self.form.formula
-        self.funcFile = self.form.funcFile
-
-        self.set_bailfunc()
-
-        self.formula_changed()
-        self.changed()
- 
     def get_func_name(self):
-        return self.form.funcName
+        return self.forms[0].funcName
 
     def get_saved(self):
         return self.saved
@@ -432,20 +331,9 @@ class T(fctutils.T):
             # FIXME deal with diff
             return
 
-        func = self.formula.symbols.get("@bailfunc")
+        func = self.forms[0].formula.symbols.get("@bailfunc")
         if func != None:
-            self.set_func(func[0],funcname,self.formula)            
-
-    def func_names(self,formula):
-        return formula.symbols.func_names()
-
-    def param_names(self,formula):
-        return formula.symbols.param_names()
-    
-    def set_named_func(self,func_to_set,val,formula):
-        fname = formula.symbols.demangle(func_to_set)
-        func = formula.symbols.get(fname)
-        self.set_func(func[0],val,formula)            
+            self.set_func(func[0],funcname,self.forms[0].formula)            
 
     def changed(self,clear_image=True):
         self.dirty = True
@@ -467,21 +355,21 @@ class T(fctutils.T):
             self.changed()
         
     def set_inner(self,funcfile,funcname):
-        self.set_colorfunc(1,funcfile,funcname)
+        self.set_formula(funcfile,funcname,2)
 
     def set_outer(self,funcfile,funcname):
-        self.set_colorfunc(0,funcfile,funcname)
+        self.set_formula(funcfile,funcname,1)
         
     def compile(self):
-        if self.formula == None:
+        if self.forms[0].formula == None:
             raise ValueError("no formula")
         if self.dirtyFormula == False:
             return self.outputfile
 
         outputfile = self.compiler.compile_all(
-            self.formula, 
-            self.cfuncs[0],
-            self.cfuncs[1])
+            self.forms[0].formula, 
+            self.forms[1].formula,
+            self.forms[2].formula)
         
         if outputfile != None:
             if self.outputfile != outputfile:
@@ -522,32 +410,31 @@ class T(fctutils.T):
         return weirdness * (random.random() - 0.5) * math.pi/2.0
 
     def is4D(self):
-        return self.warp_param != -1 or self.formula.is4D()
+        return self.warp_param != -1 or self.forms[0].formula.is4D()
 
     def mutate(self,weirdness,color_weirdness,colormaps):
         '''randomly adjust position, colors, angles and parameters.
         weirdness is between 0 and 1 - 0 is no change, 1 is lots'''
 
-        is4d = self.formula.is4D()
         size = self.params[self.MAGNITUDE]
         self.params[self.XCENTER] += self.xy_random(weirdness, size)
         self.params[self.YCENTER] += self.xy_random(weirdness, size)
-        if is4d:
-            self.params[self.ZCENTER] += self.zw_random(weirdness, size)
-            self.params[self.WCENTER] += self.zw_random(weirdness, size)
 
         self.params[self.XYANGLE] += self.angle_random(weirdness)
         
-        if is4d:
+        if self.is4D():
+            self.params[self.ZCENTER] += self.zw_random(weirdness, size)
+            self.params[self.WCENTER] += self.zw_random(weirdness, size)
+
             for a in xrange(self.XZANGLE,self.ZWANGLE):
                 self.params[a] += self.angle_random(weirdness)
 
         if random.random() < weirdness * 0.75:
             self.params[self.MAGNITUDE] *= 1.0 + (0.5 - random.random())
 
-        self.form.mutate(weirdness, size)
-        self.cforms[0].mutate(weirdness, size)
-        self.cforms[1].mutate(weirdness, size)
+        self.forms[0].mutate(weirdness, size)
+        self.forms[1].mutate(weirdness, size)
+        self.forms[2].mutate(weirdness, size)
 
         if random.random() < color_weirdness * 0.3:
             self.set_cmap(random.choice(colormaps))
@@ -557,10 +444,7 @@ class T(fctutils.T):
         self.relocate(0.025 * x , 0.025 * y, 1.0,axis)
 
     def nudge_param(self, i, param_type, x, y):        
-        if param_type == 0:
-            self.form.nudge_param(i,x,y)
-        else:
-            self.cforms[param_type-1].nudge_param(i,x,y)
+        self.forms[param_type].nudge_param(i,x,y)
 
     def relocate(self,dx,dy,zoom,axis=0):
         if dx == 0 and dy == 0 and zoom == 1.0:
@@ -614,7 +498,11 @@ class T(fctutils.T):
         return self.params[self.MAGNITUDE]/(20.0 * max(w,h))
 
     def all_params(self):
-        return self.form.params + self.cforms[0].params + self.cforms[1].params
+        p = []
+        for form in self.forms:
+            p += form.params
+
+        return p
 
     def draw(self,image):
         handle = fract4dc.pf_load(self.outputfile)
@@ -696,76 +584,18 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
     def parse__function_(self,val,f):
         params = fctutils.ParamBag()
         params.load(f)
-        file = params.dict.get("formulafile",self.funcFile)
-        func = params.dict.get("function", self.form.funcName)
-        self.set_formula(file,func)
+        file = params.dict.get("formulafile",self.forms[0].funcFile)
+        func = params.dict.get("function", self.forms[0].funcName)
+        self.set_formula(file,func,0)
             
         for (name,val) in params.dict.items():
             if name == "formulafile" or name == "function":
                 pass
             elif name == "a" or name =="b" or name == "c":
-                self.form.set_named_param("@" + name, val)
+                # back-compat for older versions
+                self.forms[0].set_named_param("@" + name, val)
             else:
-                self.form.set_named_item(name,val)
-
-    def get_params_of_type(self,formula,type):
-        params = []
-        op = formula.symbols.order_of_params()
-        for name in op.keys():
-            if name != '__SIZE__':
-                if formula.symbols[name].type == type:
-                    print name
-                    params.append(name)
-        return params
-    
-    def set_named_param(self,name,val,formula,params):
-        ord = self.order_of_name(name,formula.symbols)
-        #print "named param %s : %s" % (name, val)
-        if ord == None:
-            #print "Ignoring unknown param %s" % name
-            return
-
-        t = formula.symbols[name].type 
-        if t == fracttypes.Complex:
-            m = cmplx_re.match(val)
-            if m != None:
-                re = float(m.group(1)); im = float(m.group(2))
-                if params[ord] != re:
-                    params[ord] = re
-                    self.changed()
-                if params[ord+1] != im:                
-                    params[ord+1] = im
-                    self.changed()
-            elif val == "warp":
-                self.warp_param = ord
-        elif t == fracttypes.Hyper or t == fracttypes.Color:
-            m = hyper_re.match(val)
-            if m!= None:
-                for i in xrange(4):
-                    val = float(m.group(i+1))
-                    if params[ord+i] != val:
-                        params[ord+i] = val
-                        self.changed()
-        elif t == fracttypes.Float:
-            params[ord] = float(val)
-        elif t == fracttypes.Int:
-            params[ord] = int(val)
-        elif t == fracttypes.Bool:
-            # don't use bool(val) - that makes "0" = True
-	    try:
-               i = int(val)
-	       i = (i != 0)
-	    except ValueError:
-	       # an old release included a 'True' or 'False' string
-	       if val == "True": i = 1
-               else: i = 0
-            params[ord] = i
-        elif t == fracttypes.Gradient:
-            grad = gradient.Gradient()
-            grad.load(StringIO.StringIO(val))
-            params[ord] = grad
-        else:
-            raise ValueError("Unknown param type %s for %s" % (t,name))
+                self.forms[0].set_named_item(name,val)
         
     def parse_bailfunc(self,val,f):
         # can't set function directly because formula hasn't been parsed yet
@@ -781,7 +611,7 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
             self.set_outer("gf4d.cfrm", "rgb")
 
             val = "(%f,%f,%f,1.0)" % tuple(cf.rgb) 
-            self.cforms[0].set_named_item("@col",val)
+            self.forms[1].set_named_item("@col",val)
 
     def parse__colors_(self,val,f):
         cf = colorizer.T(self)
@@ -870,16 +700,16 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
         # in older files, we save it in self.bailout then apply to the
         # initparams later
         if self.bailout != 0.0:
-            self.form.try_set_named_item("@bailout",self.bailout)
-            self.cforms[0].try_set_named_item("@bailout",self.bailout)
-            self.cforms[1].try_set_named_item("@bailout",self.bailout)
+            self.forms[0].try_set_named_item("@bailout",self.bailout)
+            self.forms[1].try_set_named_item("@bailout",self.bailout)
+            self.forms[2].try_set_named_item("@bailout",self.bailout)
 
     def fix_gradients(self, old_gradient):
         # new gradient is read in after the gradient params have been set,
         # so this is needed to fix any which are using that default
-        for i in xrange(len(self.form.params)):
-            if self.form.params[i] == old_gradient:
-                self.form.params[i] = self.get_gradient()
+        for i in xrange(len(self.forms[0].params)):
+            if self.forms[0].params[i] == old_gradient:
+                self.forms[0].params[i] = self.get_gradient()
         
     def param_display_name(self,name,param):
         if hasattr(param,"title"):

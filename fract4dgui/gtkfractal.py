@@ -487,13 +487,6 @@ class T(Hidden):
     def image_changed(self,x1,y1,x2,y2):
         self.redraw_rect(x1,y1,x2-x1,y2-y1)
 
-    def param_display_name(self,name,param):
-        if hasattr(param,"title"):
-            return param.title.value
-        if name[:5] == "t__a_":
-            return name[5:]
-        return name
-
     def make_numeric_entry(self, param, order, formula, param_type):
         if param.type == fracttypes.Int:
             fmt = "%d"

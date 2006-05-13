@@ -81,7 +81,7 @@ endparam
 test_all_types {
 default:
 bool param b
-	default = True
+	default = true
 endparam
 int param i
 	default = 7
