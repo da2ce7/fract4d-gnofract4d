@@ -129,10 +129,10 @@ class SettingsDialog(dialog.T):
 
         cflabel = gtk.Label(_("Colorfunc :"))
         table.attach(cflabel, 0,1,0,1,0,0,2,2)
-        label = gtk.Label(self.f.cfunc_names[0])
+        label = gtk.Label(self.f.forms[1].funcName)
 
         def set_label(*args):
-            label.set_text(self.f.cfunc_names[0])
+            label.set_text(self.f.forms[1].funcName)
             
         self.f.connect('parameters-changed',set_label)
 
@@ -157,10 +157,10 @@ class SettingsDialog(dialog.T):
         self.notebook.append_page(vbox,label)
 
         table.attach(gtk.Label(_("Colorfunc :")), 0,1,0,1,0,0,2,2)
-        label = gtk.Label(self.f.cfunc_names[1])
+        label = gtk.Label(self.f.forms[2].funcName)
 
         def set_label(*args):
-            label.set_text(self.f.cfunc_names[1])
+            label.set_text(self.f.forms[2].funcName)
             
         self.f.connect('parameters-changed',set_label)
 
@@ -186,10 +186,10 @@ class SettingsDialog(dialog.T):
 
         table.attach(gtk.Label(_("Formula :")), 0,1,0,1,0,0,2,2)
         hbox = gtk.HBox(False,1)
-        label = gtk.Label(self.f.funcName)
+        label = gtk.Label(self.f.forms[0].funcName)
 
         def set_label(*args):
-            label.set_text(self.f.funcName)
+            label.set_text(self.f.forms[0].funcName)
             
         self.f.connect('parameters-changed',set_label)
         

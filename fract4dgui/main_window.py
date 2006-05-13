@@ -916,7 +916,7 @@ class MainWindow:
         warpmenu = utils.create_option_menu(["None"])
         
         def populate_warpmenu(f, warpmenu):
-            params = f.get_params_of_type(f.formula,fracttypes.Complex)
+            params = f.forms[0].params_of_type(fracttypes.Complex)
             
             print params
             for p in params:

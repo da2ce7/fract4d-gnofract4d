@@ -373,7 +373,7 @@ class Hidden(gobject.GObject):
     def get_func_name(self):
         if self.f == None:
             return _("No fractal loaded")
-        return self.f.get_func_name()
+        return self.f.forms[0].funcName
 
     def get_saved(self):
         if self.f == None:
@@ -487,7 +487,9 @@ class T(Hidden):
     def image_changed(self,x1,y1,x2,y2):
         self.redraw_rect(x1,y1,x2-x1,y2-y1)
 
-    def make_numeric_entry(self, param, order, formula, param_type):
+    def make_numeric_entry(self, form, param, order):
+        param_type = form.paramtypes[order]
+        
         if param.type == fracttypes.Int:
             fmt = "%d"
         else:
@@ -497,19 +499,19 @@ class T(Hidden):
         widget.set_activates_default(True)
 
         def set_entry(*args):
-            new_value = fmt % self.f.get_initparam(order,param_type)
+            new_value = fmt % form.params[order]
             if widget.get_text() != new_value:
                 widget.set_text(new_value)
 
-        def set_fractal(entry,event,f,order,param_type):
-            'set fractal'
+        def set_fractal(entry,event,form,order):
             try:
-                utils.idle_add(f.set_initparam,order,
-                               entry.get_text(),param_type)
+                utils.idle_add(
+                    form.set_param,order,entry.get_text())
             except Exception, err:
                 # FIXME: produces too many errors
                 msg = "Invalid value '%s': must be a number" % \
                       entry.get_text()
+                print msg
                 #utils.idle_add(f.warn,msg)
             return False
 
@@ -519,38 +521,36 @@ class T(Hidden):
 
         widget.f = self
         widget.connect('focus-out-event',
-                       set_fractal,self,order,param_type)
+                       set_fractal,form,order)
 
         return widget
 
     def make_numeric_widget(
-        self, table, i, name, part, param, order, formula, param_type):
+        self, table, i, form, name, part, param, order):
     
         label = gtk.Label(self.param_display_name(name,param)+part)
         label.set_justify(gtk.JUSTIFY_RIGHT)
         table.attach(label,0,1,i,i+1,0,0,2,2)
 
         widget = self.make_numeric_entry(
-            param, order, formula, param_type)
+            form, param, order)
 
         label.set_mnemonic_widget(widget)
         return widget
     
-    def make_bool_widget(
-        self, name, param, order, formula, param_type):
+    def make_bool_widget(self, form, name, param, order):
 
         widget = gtk.CheckButton(self.param_display_name(name,param))
 
         def set_toggle(*args):
-            is_set = self.f.get_initparam(order,param_type)
+            is_set = form.params[order]
             widget.set_active(is_set)
             if widget.get_active() != is_set:
                 widget.set_active(is_set)
 
-        def set_fractal(entry,f,order,param_type):
+        def set_fractal(entry,form,order):
             try:
-                utils.idle_add(f.set_initparam,order,
-                             entry.get_active(),param_type)
+                utils.idle_add(form.set_param,order,entry.get_active())
             except Exception, err:
                 msg = "error setting bool param: %s" % str(err)
                 print msg
@@ -562,11 +562,11 @@ class T(Hidden):
 
         widget.set_data("update_function", set_toggle)
         widget.f = self
-        widget.connect('toggled', set_fractal, self, order, param_type)
+        widget.connect('toggled', set_fractal, form, order)
         return widget
 
     def make_color_widget(
-        self, table, i, name, param, order, formula, param_type):
+        self, table, i, form, name, param, order):
 
         label = gtk.Label(self.param_display_name(name,param))
         label.set_justify(gtk.JUSTIFY_RIGHT)
@@ -574,16 +574,16 @@ class T(Hidden):
 
         def set_fractal(r, g, b, is_left):
             self.freeze()
-            self.f.set_initparam(order, r, param_type)
-            self.f.set_initparam(order+1, g, param_type)
-            self.f.set_initparam(order+2, b, param_type)
+            self.f.set_param(order, r)
+            self.f.set_param(order+1, g)
+            self.f.set_param(order+2, b)
             if self.thaw():
                 self.changed()
                 
 
         rgba = []
         for j in xrange(4):
-            rgba.append(self.f.get_initparam(order+j,param_type))
+            rgba.append(form.params[order+j])
 
         # do we need to keep this ref?
         color_button = utils.ColorButton(rgba, set_fractal, False)
@@ -591,7 +591,7 @@ class T(Hidden):
         def set_selected_value(*args):
             rgba = []
             for j in xrange(4):
-                rgba.append(self.f.get_initparam(order+j,param_type))
+                rgba.append(form.params[order+j])
             color_button.set_color(rgba)
             
         set_selected_value()
@@ -601,7 +601,7 @@ class T(Hidden):
         return color_button.widget
 
     def make_enumerated_widget(
-        self, table, i, name, part, param, order, formula, param_type):
+        self, table, i, form, name, part, param, order):
 
         label = gtk.Label(self.param_display_name(name,param))
         label.set_justify(gtk.JUSTIFY_RIGHT)
@@ -611,16 +611,16 @@ class T(Hidden):
 
         def set_selected_value(*args):
             try:
-                index = self.f.get_initparam(order,param_type)
+                index = form.params[order]
             except ValueError, err:
                 print err
                 return
 
             utils.set_selected(widget, index)
             
-        def set_fractal(entry,f,order,param_type):
+        def set_fractal(entry,form,order):
             new_value = utils.get_selected(widget)
-            f.set_initparam(order, new_value,param_type)
+            form.set_param(order, new_value)
             
         set_selected_value(self)
 
@@ -628,34 +628,34 @@ class T(Hidden):
 
         widget.f = self
         widget.connect('changed',
-                       set_fractal,self,order,param_type)
+                       set_fractal,form,order)
 
         label.set_mnemonic_widget(widget)
         return widget
 
     def add_formula_setting(
-        self,table,i,name,part,param,order,formula,param_type):
+        self,table,i,form,name,part,param,order):
         
         if param.type == fracttypes.Int:
             if hasattr(param,"enum"):
                 widget = self.make_enumerated_widget(
-                    table, i,name,part,param,order,formula,param_type)
+                    table, i,form,name,part,param,order)
             else:
                 widget = self.make_numeric_widget(
-                    table, i,name,part,param,order,formula,param_type)
+                    table, i,form,name,part,param,order)
                 
         elif param.type == fracttypes.Float or \
              param.type == fracttypes.Complex or \
              param.type == fracttypes.Hyper:
 
             widget = self.make_numeric_widget(
-                table, i,name,part,param,order,formula,param_type)
+                table, i, form, name,part,param,order)
         elif param.type == fracttypes.Bool:
             widget = self.make_bool_widget(
-                name,param,order,formula,param_type)
+                form, name,param,order)
         elif param.type == fracttypes.Color:
             widget = self.make_color_widget(
-                table,i,name,param,order,formula,param_type)
+                table,i,form,name,param,order)
         else:
             raise "Unsupported parameter type"
 
@@ -663,15 +663,15 @@ class T(Hidden):
 
 
     def add_complex_formula_setting(
-        self,table,i,name,param,order,formula,param_type, tips):
+        self,table,i,form,name,param,order,tips):
         
         widget = self.make_numeric_entry(
-                param,order,formula,param_type)
+                form,param,order)
 
         table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL ,0,2,2)
 
         widget = self.make_numeric_entry(
-                param,order+1,formula,param_type)
+                form,param,order+1)
 
         table.attach(widget,1,2,i+1,i+2,gtk.EXPAND | gtk.FILL ,0,2,2)
 
@@ -689,8 +689,8 @@ class T(Hidden):
     def fourway_released(self,widget,x,y,param,order):
         self.f.nudge_param(param, order, x,y)
 
-    def construct_function_menu(self,param,formula):
-        funclist = formula.symbols.available_param_functions(
+    def construct_function_menu(self,param,form):
+        funclist = form.formula.symbols.available_param_functions(
             param.ret,param.args)
         funclist.sort()
         return funclist
@@ -712,17 +712,18 @@ class T(Hidden):
         else:
             print "Warning: ", msg
 
-    def add_formula_function(self,table,i,name,param,formula):
+    def add_formula_function(self,table,i,name,param,form):
         label = gtk.Label(self.param_display_name(name,param))
         label.set_justify(gtk.JUSTIFY_RIGHT)
         table.attach(label,0,1,i,i+1,0,0,2,2)
 
-        funclist = self.construct_function_menu(param,formula)
+        funclist = self.construct_function_menu(param,form)
         widget = utils.create_option_menu(funclist)
-        
+
+        formula = form.formula
         def set_selected_function():
             try:
-                selected_func_name = self.f.get_func_value(name,formula)
+                selected_func_name = form.get_func_value(name)
                 index = funclist.index(selected_func_name)
             except ValueError, err:
                 # func.cname not in list
@@ -788,15 +789,14 @@ class T(Hidden):
         
     def populate_formula_settings(self, param_type, tips):
         # create widget to fiddle with this fractal's settings
-        if param_type == 0:
-            formula = self.f.formula
-        else:
-            formula = self.f.cfuncs[param_type-1]
+        form = self.f.forms[param_type]
+        formula = form.formula
         
         table = gtk.Table(5,2,False)
         i = 0
         if param_type == 0:
             i = self.create_maxiter_widget(table,i)
+            
         params = formula.symbols.parameters()
         op = formula.symbols.order_of_params()
 
@@ -805,30 +805,30 @@ class T(Hidden):
         for name in keys:
             param = params[name]
             if isinstance(param,fracttypes.Func):
-                self.add_formula_function(table,i,name,param,formula)
+                self.add_formula_function(table,i,name,param,form)
             else:
                 if param.type == fracttypes.Complex:
                     self.add_complex_formula_setting(
-                        table,i,name,param,op[name],formula,param_type,tips)
+                        table,i,form,name,param,op[name],tips)
                     i+= 1
                 elif param.type == fracttypes.Hyper:
                     suffixes = [" (re)", " (i)", " (j)", " (k)"]
                     for j in xrange(4):
                         self.add_formula_setting(
-                            table,i+j,name,suffixes[j],
-                            param,op[name]+j,formula,param_type)
+                            table,i+j,form,name,suffixes[j],
+                            param,op[name]+j)
                     i += 3
                 elif param.type == fracttypes.Color:
                     self.add_formula_setting(
-                        table,i,name,"",
-                        param,op[name],formula,param_type)
+                        table,i, form, name,"",
+                        param,op[name])
                     i += 3
                 elif param.type == fracttypes.Gradient:
                     # FIXME
                     pass
                 else:
                     self.add_formula_setting(
-                        table,i,name,"",param,op[name], formula, param_type)
+                        table,i,form,name,"",param,op[name])
             i += 1
         return table
 

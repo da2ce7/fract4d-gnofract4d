@@ -12,7 +12,7 @@ import dialog
 import utils
 import hig
 
-from fract4d import gradient, fractal
+from fract4d import gradient, fractal, colorizer
 
 _color_model = None
 
@@ -410,7 +410,7 @@ class ColorDialog(dialog.T):
 
     def set_map_file(self, name):
         self.warning_message = None
-        c = fractal.Colorizer(self)
+        c = colorizer.T(self)
         file = open(name)
         c.parse_map_file(file, self.fudge_factor)
         self.grad = c.gradient

@@ -76,11 +76,9 @@ class Test(unittest.TestCase):
         widget = self.get_param_entry(_("Location"), _("Size :"))
         self.assertEqual(widget.get_text(),"2000.00000000000000000")
 
-        op = self.f.formula.symbols.order_of_params()
-        ord = op.get(self.f.formula.symbols.mangled_name("@bailout"))
-
-        self.f.set_initparam(ord, 578.0,0)
-        self.assertEqual(self.f.get_initparam(ord,0), 578.0)
+        self.f.forms[0].set_named_param("@bailout", 578.0)
+        self.assertEqual(
+            self.f.forms[0].get_named_param_value("@bailout"), 578.0)
         
         widget = self.get_param_entry(_("Formula"), _("bailout"))
         self.assertEqual(widget.get_text(),"578.00000000000000000")
