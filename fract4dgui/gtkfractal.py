@@ -679,15 +679,17 @@ class T(Hidden):
         fway = fourway.T(name)
         tips.set_tip(fway.widget, name)
         
-        fway.connect('value-changed',self.fourway_released, order, param_type)
-        fway.connect(
-            'value-slightly-changed',
-            self.parent.on_drag_param_fourway, order, param_type)
+        fway.connect('value-changed',self.fourway_released, order, form)
+        # FIXME
+        #if self.parent:
+        #    fway.connect(
+        #        'value-slightly-changed',
+        #        self.parent.on_drag_param_fourway, order, form)
         
         table.attach(fway.widget,0,1,i,i+2, 0,0, 2,2)
 
-    def fourway_released(self,widget,x,y,param,order):
-        self.f.nudge_param(param, order, x,y)
+    def fourway_released(self,widget,x,y,order,form):
+        form.nudge_param(order, x,y)
 
     def construct_function_menu(self,param,form):
         funclist = form.formula.symbols.available_param_functions(
