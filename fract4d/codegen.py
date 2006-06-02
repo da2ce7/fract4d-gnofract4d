@@ -55,6 +55,10 @@ class T:
             [ "Cast", T.cast],
             ])
         
+        self.generate_trace = False
+        if dump != None:
+            self.generate_trace = dump.get("trace",False)
+            
         self.output_template = '''
 #include <stdio.h>
 #include <stdlib.h>
@@ -412,28 +416,28 @@ extern pf_obj *pf_new(void);
 '''
 
     def emit_binop(self,op,srcs,type):
-        dst = TempArg(self.symbols.newTemp(type))
+        dst = self.newTemp(type)
 
         self.out.append(Binop(op, srcs ,[ dst ]))
         return dst
 
     def emit_func(self,op,srcs,type):
         # emit a call to C stdlib function 'op'
-        dst = TempArg(self.symbols.newTemp(type))
+        dst = self.newTemp(type)
         assem = "%(d0)s = " + op + "(%(s0)s);"
         self.out.append(Oper(assem, srcs, [dst]))
         return dst
 
     def emit_func2(self,op,srcs,type):
         # emit a call to C stdlib function 'op'
-        dst = TempArg(self.symbols.newTemp(type))
+        dst = self.newTemp(type)
         assem = "%(d0)s = " + op + "(%(s0)s,%(s1)s);"
         self.out.append(Oper(assem, srcs, [dst]))
         return dst
 
     def emit_func3(self,op,srcs,type):
         # emit a call to a C func which takes 3 args and returns 1
-        dst = TempArg(self.symbols.newTemp(type))
+        dst = self.newTemp(type)
         assem = "%(d0)s = " + op + "(%(s0)s,%(s1)s,%(s2)s);"
         self.out.append(Oper(assem,srcs, [dst]))
         return dst
@@ -442,9 +446,9 @@ extern pf_obj *pf_new(void);
         # emit a call to a C func which takes 3 args and returns 3 out params
         # This rather specialized feature is to call hls2rgb
         dst = [
-            TempArg(self.symbols.newTemp(type)),
-            TempArg(self.symbols.newTemp(type)),
-            TempArg(self.symbols.newTemp(type))]
+            self.newTemp(type),
+            self.newTemp(type),
+            self.newTemp(type)]
         assem = op + "(%(s0)s,%(s1)s,%(s2)s, &%(d0)s, &%(d1)s, &%(d2)s);"
         self.out.append(Oper(assem,srcs, dst))
         return dst
@@ -452,9 +456,9 @@ extern pf_obj *pf_new(void);
     def emit_func2_3(self,op,srcs,type):
         # take 2 objects and return 3, as in gradient func
         dst = [
-            TempArg(self.symbols.newTemp(type)),
-            TempArg(self.symbols.newTemp(type)),
-            TempArg(self.symbols.newTemp(type))]
+            self.newTemp(type),
+            self.newTemp(type),
+            self.newTemp(type)]
         assem = op + "(%(s0)s,%(s1)s, &%(d0)s, &%(d1)s, &%(d2)s);"
         self.out.append(Oper(assem,srcs, dst))
         return dst
@@ -462,14 +466,14 @@ extern pf_obj *pf_new(void);
     def emit_func0_2(self,op,srcs,type):
         # take 0 objects and return 2, as in random()
         dst = [
-            TempArg(self.symbols.newTemp(type)),
-            TempArg(self.symbols.newTemp(type))]
+            self.newTemp(type),
+            self.newTemp(type)]
         assem = op + "(&%(d0)s, &%(d1)s);"
         self.out.append(Oper(assem,srcs, dst))
         return dst
         
     def emit_move(self, src, dst):
-        self.out.append(Move([src],[dst]))
+        self.out.append(Move([src],[dst], self.generate_trace))
 
     def emit_cjump(self, test,dst):
         assem = "if(%(s0)s) goto " + dst + ";"
@@ -730,6 +734,9 @@ extern pf_obj *pf_new(void);
             "Internal Compiler Error: Invalid argument types %s for %s" % \
             (typelist, opnode.leaf))
 
+    def newTemp(self,type):
+        return TempArg(self.symbols.newTemp(type),type)
+    
     # action routines
     def cast(self,t):
         'Generate code to cast child of type child.datatype to t.datatype' 
@@ -738,8 +745,8 @@ extern pf_obj *pf_new(void);
 
         dst = None
         if t.datatype == Complex:
-            dst = ComplexArg(TempArg(self.symbols.newTemp(Float)),
-                             TempArg(self.symbols.newTemp(Float)))
+            dst = ComplexArg(self.newTemp(Float),
+                             self.newTemp(Float))
             if child.datatype == Int or child.datatype == Bool:
                 assem = "%(d0)s = ((double)%(s0)s);"
                 self.out.append(Oper(assem,[src], [dst.re]))
@@ -752,7 +759,7 @@ extern pf_obj *pf_new(void);
                 self.out.append(Oper(assem,[src], [dst.im]))
         elif t.datatype == Float:
             if child.datatype == Int or child.datatype == Bool:
-                dst = TempArg(self.symbols.newTemp(Float))
+                dst = self.newTemp(Float)
                 assem = "%(d0)s = ((double)%(s0)s);" 
                 self.out.append(Oper(assem,[src], [dst]))
         elif t.datatype == Int:
@@ -760,7 +767,7 @@ extern pf_obj *pf_new(void);
                 # needn't do anything
                 dst = src
         elif t.datatype == Bool:
-            dst = TempArg(self.symbols.newTemp(Bool))
+            dst = self.newTemp(Bool)
             if child.datatype == Int or child.datatype == Bool:
                 assem = "%(d0)s = (%(s0)s != 0);"
                 self.out.append(Oper(assem,[src], [dst]))
@@ -773,10 +780,10 @@ extern pf_obj *pf_new(void);
             else:
                 dst = None
         elif t.datatype == Hyper or t.datatype == Color:
-            dst = HyperArg(TempArg(self.symbols.newTemp(Float)),
-                           TempArg(self.symbols.newTemp(Float)),
-                           TempArg(self.symbols.newTemp(Float)),
-                           TempArg(self.symbols.newTemp(Float)))
+            dst = HyperArg(self.newTemp(Float),
+                           self.newTemp(Float),
+                           self.newTemp(Float),
+                           self.newTemp(Float))
             if child.datatype == Int or \
                    child.datatype == Bool or child.datatype == Float:
                 assem = "%(d0)s = ((double)%(s0)s);"
@@ -858,6 +865,7 @@ extern pf_obj *pf_new(void);
         except TypeError, err:
             msg = "Internal Compiler Error: missing stdlib function %s" % \
                   op.genFunc
+            print msg
             raise fracttypes.TranslationError(msg)
         return dst
     
@@ -867,15 +875,17 @@ extern pf_obj *pf_new(void);
     def var(self,t):
         name = self.symbols.realName(t.name)
         if t.datatype == fracttypes.Complex:
-            return ComplexArg(TempArg(name + "_re"),TempArg(name + "_im"))
+            return ComplexArg(
+                TempArg(name + "_re", fracttypes.Float),
+                TempArg(name + "_im", fracttypes.Float))
         elif t.datatype == fracttypes.Hyper or t.datatype == fracttypes.Color:
             return HyperArg(
-                TempArg(name + "_re"),
-                TempArg(name + "_i"),
-                TempArg(name + "_j"),
-                TempArg(name + "_k"))
+                TempArg(name + "_re", fracttypes.Float),
+                TempArg(name + "_i", fracttypes.Float),
+                TempArg(name + "_j", fracttypes.Float),
+                TempArg(name + "_k", fracttypes.Float))
         else:
-            return TempArg(name)
+            return TempArg(name,t.datatype)
     
     # matching machinery
     def generate_all_code(self,treelist):

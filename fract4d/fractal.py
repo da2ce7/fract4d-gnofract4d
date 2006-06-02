@@ -143,7 +143,13 @@ class T(fctutils.T):
         old_g = self.get_gradient()
         if old_g != g:
             self.forms[0].set_gradient(g)
-            self.changed(False)
+            needs_redraw = False
+            if self.forms[1].is_direct() or \
+               self.forms[2].is_direct():
+                print "Needs redraw"
+                needs_redraw = True
+               
+            self.changed(True) #needs_redraw)
             
     def parse_periodicity(self,val,f):
         try:

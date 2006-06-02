@@ -2,7 +2,8 @@
 
 import string
 
-from fracttypes import Bool, Int, Float, Complex, Hyper, Color, TranslationError
+from fracttypes import Bool, Int, Float, Complex, Hyper, Color
+from fracttypes import TranslationError, printfOfType
 
 class ComplexArg:
     ' a pair of args'
@@ -39,6 +40,8 @@ class ConstArg:
 class ConstFloatArg(ConstArg):
     def __init__(self,value):
         ConstArg.__init__(self, value)
+    def cformat(self):
+        return "%.17f"
     def format(self):
         return "%.17f" % self.value
     def __str__(self):
@@ -51,6 +54,8 @@ class ConstFloatArg(ConstArg):
 class ConstIntArg(ConstArg):
     def __init__(self,value):
         ConstArg.__init__(self, value)
+    def cformat(self):
+        return "%d"
     def format(self):
         return "%d" % self.value
     def __str__(self):
@@ -61,10 +66,13 @@ class ConstIntArg(ConstArg):
         return self.value == 0
     
 class TempArg:
-    def __init__(self,value):
+    def __init__(self,value,type):
         self.value = value
+        self.type = type
     def format(self):
         return self.value
+    def cformat(self):
+        return printfOfType(self.type)
     def __str__(self):
         return "Temp(%s)" % self.format()
     
@@ -191,16 +199,23 @@ class Label(Insn):
     
 class Move(Insn):
     ' A move instruction'
-    def __init__(self,src,dst):
+    def __init__(self,src,dst, generate_trace = False):
         Insn.__init__(self,"%(d0)s = %(s0)s;")
         self.src = src
         self.dst = dst
+        self.trace = generate_trace
     def dest(self):
         return [self.dst]
     def source(self):
         return [self.src]
     def format(self):
-        return "%s = %s;" % (self.dst[0].format(), self.src[0].format())
+        result = "%s = %s;" % (self.dst[0].format(), self.src[0].format()) 
+        if self.trace:
+            result += "printf(\"%s = %s\\n\",%s);" % (
+                self.dst[0].format(),
+                self.dst[0].cformat(),
+                self.src[0].format())
+        return result
     
     def __str__(self):
         return "MOVE(%s,%s,%s)" % (self.assem, self.src, self.dst)

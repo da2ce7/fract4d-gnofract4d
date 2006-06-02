@@ -27,6 +27,13 @@ suffixOfType = {
     Gradient : "G"
     }
 
+# the appropriate C printf specifier for this type
+_printfOfType = {
+    Int : "%d",
+    Float: "%g",
+    Bool: "%d"
+    }
+
 _typeOfStr = {
     "int" : Int,
     "float" : Float,
@@ -71,6 +78,9 @@ _cTypeOfType = {
     String : "<Error>",
     Gradient : "void *"
     }
+
+def printfOfType(t):
+    return _printfOfType[t]
 
 def typeOfStr(tname):
     if not tname: return None

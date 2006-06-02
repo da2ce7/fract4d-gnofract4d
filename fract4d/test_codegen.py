@@ -144,6 +144,8 @@ int main()
         
     def sourceToAsm(self,s,section,dump=None):
         t = self.translate(s,dump)
+        if dump != None and dump.get("trace") == 1:
+            self.codegen.generate_trace = True
         self.codegen.generate_all_code(t.canon_sections[section])
         if dump != None and dump.get("dumpAsm") == 1:
             self.printAsm()
@@ -877,6 +879,65 @@ func fn1
                          self.inspect_color("yellow3"),
                          exp)
 
+    def testMandelbrotMix(self):
+        src = '''MandelbrotMix4a {; Jim Muth
+init:
+  float a=-1 ;real(p1)
+  float b=1.5 ;imag(p1)
+  float d=1 ;real(p2)
+  float f=-1.5 ;imag(p2)
+  float g=1/f
+  float h=1/d
+  complex j=1/(f-b),
+  float abgh = -a*b*g*h
+  complex z2= (-a*b*g*h)^j,
+  float k=real(p3)+1
+  float l=imag(p3)+100
+  c=fn1(pixel)
+  complex z3=k*((a*(z2^b))+(d*(z2^f)))+c
+loop:
+  z=k*((a*(z^b))+(d*(z^f)))+c
+bailout:
+  |z| < l 
+default:
+complex param p1
+endparam
+complex param p2
+endparam
+complex param p3
+endparam
+}
+'''
+        exp = "g = -0.666667\nh = 1\nj = (-0.333333,0)\nabgh = -1\nz2 = (0.5,-0.866025)\nz3 = (0,2)"
+        
+        self.assertCSays(
+            src,"init",
+            self.inspect_float("g") +
+            self.inspect_float("h") +
+            self.inspect_complex("j") +
+            self.inspect_float("abgh") +
+            self.inspect_complex("z2")+
+            self.inspect_complex("z3"),
+            exp)
+
+    def testTrace(self):
+        src = '''t {
+        init:
+        x = (1,3)
+        y = x
+        int i = 4
+        }'''
+
+        self.assertCSays(
+            src, "init",
+            "",
+            "fx_re = 1\n"+
+            "fx_im = 3\n"+
+            "fy_re = 1\n"+
+            "fy_im = 3\n"+
+            "fi = 4",
+            {"trace":1})
+        
     def testRandom(self):
         src = '''t {
         init:        
@@ -1578,7 +1639,8 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
             [ "sq = (sqrt(4),sqrt(2))", "sq", self.predict(math.sqrt,4,2)],
             [ "l = (log(1),log(3))", "l", self.predict(math.log,1,3)],
             [ "ex = (exp(1),exp(2))","ex", self.predict(math.exp,1,2)],
-            [ "p = (2^2,9^0.5)","p", "(4,3)"],
+            [ "pow0a = (2^2, 9^0.5)", "pow0a", "(4,3)"],
+            [ "pow0b = ((-1)^0.5,(-1)^2)", "pow0b", "(nan,1)"], 
             [ "pow1 = (1,0)^2","pow1", "(1,0)"],
             [ "pow2 = (-2,-3)^7.5","pow2","(-13320.5,6986.17)"],
             [ "pow3 = (-2,-3)^(1.5,-3.1)","pow3","(0.00507248,-0.00681128)"],
@@ -1667,7 +1729,7 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
         x = g_x or "(1,0)"        
         src = 't_test {\ninit:\nx = %s\nresult = %s\n}' % (x,g_exp)
         asm = self.sourceToAsm(src,"init",{})
-        postamble = "t__end_finit:\nprintf(\"(%g,%g)\\n\",result_re,result_im);"
+        postamble = "t__end_finit:\nprintf(\"(%g,%g)\\n\",fresult_re,fresult_im);"
         c_code = self.makeC("", postamble)
         output = self.compileAndRun(c_code)
         print output
@@ -1806,6 +1868,10 @@ float t = #tolerance
         lines = string.split(output,"\n")
         self.assertEqual(lines[1],"(-77,9,0.001)")
         self.assertEqual(lines[4],"(-77,9,0.001)")
+
+    def testDumpParams(self):
+        cg = codegen.T(fsymbol.T(),{ "trace" : True})
+        self.assertEqual(cg.generate_trace, True)
         
     def testLibrary(self):
         # create a library containing the compiled code
@@ -1848,7 +1914,8 @@ Newton4(XYAXIS) {; Mark Peterson
         postamble = "t__end_f%s:\n%s\n" % (section,check)
         c_code = self.makeC("", postamble)        
         output = self.compileAndRun(c_code)
-        
+
+        #print c_code
         if isinstance(result,types.ListType):
             outputs = string.split(output,"\n")
             for (exp,res) in zip(result,outputs):
@@ -1876,6 +1943,7 @@ def main():
     # and prints the result
 
     try:
+        global g_exp
         index = sys.argv.index("--exp")
         g_exp = sys.argv[index+1]
         sys.argv[index] = "Test.testExpression"
