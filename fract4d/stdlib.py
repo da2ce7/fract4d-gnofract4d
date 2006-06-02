@@ -149,7 +149,7 @@ def clamp_f_f(gen,t,srcs):
     one= ConstFloatArg(1.0)
     zero = ConstFloatArg(0.0)
     src = srcs[0]
-    dst = TempArg(gen.symbols.newTemp(Float))
+    dst = TempArg(gen.symbols.newTemp(Float),Float)
 
     gen.emit_move(src,dst)
     
@@ -308,11 +308,15 @@ def exp_c_c(gen,t,srcs):
 def pow_ff_f(gen,t,srcs):
     return gen.emit_func2('pow', srcs, Float)
 
+def pow_ff_c(gen,t,srcs):
+    arg = ComplexArg(srcs[0], ConstFloatArg(0.0))
+    return pow_cf_c(gen,t,[arg,srcs[1]])
+
 def pow_cf_c(gen,t,srcs):
     nonzero = gen.symbols.newLabel()
     done = gen.symbols.newLabel()
-    dst_re = TempArg(gen.symbols.newTemp(Float))
-    dst_im = TempArg(gen.symbols.newTemp(Float))
+    dst_re = gen.newTemp(Float)
+    dst_im = gen.newTemp(Float)
 
     # FIXME: this shortcut breaks 3damand01, not sure why
     #gen.emit_cjump(srcs[0].im,nonzero)
@@ -343,8 +347,8 @@ def pow_cf_c(gen,t,srcs):
 def pow_cc_c(gen,t,srcs):
     nonzero = gen.symbols.newLabel()
     done = gen.symbols.newLabel()
-    dst_re = TempArg(gen.symbols.newTemp(Float))
-    dst_im = TempArg(gen.symbols.newTemp(Float))
+    dst_re = gen.newTemp(Float)
+    dst_im = gen.newTemp(Float)
 
     gen.emit_cjump(srcs[0].re,nonzero)
     gen.emit_cjump(srcs[0].im,nonzero)
@@ -542,7 +546,7 @@ def min2_c_f(gen,t,srcs):
     i2 = imag2_c_f(gen,t,srcs)
     real_larger = gen.symbols.newLabel()
     done = gen.symbols.newLabel()
-    dst = TempArg(gen.symbols.newTemp(Float))
+    dst = gen.newTemp(Float)
 
     rgt = gen.emit_binop('>=',[r2,i2], Float)
     gen.emit_cjump(rgt,real_larger)
@@ -562,7 +566,7 @@ def max2_c_f(gen,t,srcs):
     i2 = imag2_c_f(gen,t,srcs)
     real_larger = gen.symbols.newLabel()
     done = gen.symbols.newLabel()
-    dst = TempArg(gen.symbols.newTemp(Float))
+    dst = gen.newTemp(Float)
 
     rgt = gen.emit_binop('>=',[r2,i2], Float)
     gen.emit_cjump(rgt,real_larger)
@@ -580,8 +584,8 @@ def max2_c_f(gen,t,srcs):
 def sqrt_c_c(gen,t,srcs):
     xnonzero = gen.symbols.newLabel()
     done = gen.symbols.newLabel()
-    dst_re = TempArg(gen.symbols.newTemp(Float))
-    dst_im = TempArg(gen.symbols.newTemp(Float))
+    dst_re = gen.newTemp(Float)
+    dst_im = gen.newTemp(Float)
 
     gen.emit_cjump(srcs[0].re,xnonzero)
     

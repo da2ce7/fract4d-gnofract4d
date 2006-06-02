@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+
+# A script used to rebuild the website. We use kid for templating,
+# generate all the HTML statically, and upload the new version
+
 import os
 
 import kid
@@ -36,7 +40,6 @@ pages = [
         file="screenshots.html",
         comments=[
     "Thanks for a really cool program...",
-    "Thanks for producing the best piece of fractal software for Linux!",
     "Gnofract4D, c'est &#224; mon avis, le meilleur logiciel de fractales sous Linux." ]
     ),
     
@@ -61,6 +64,7 @@ pages = [
         file="faq.html",
         image="faq.jpg",
         comments = [
+    "Thanks for producing the best piece of fractal software for Linux!",
     "Gnofract4d is one of my all time favorite programs."
     ]
         ),
@@ -74,6 +78,15 @@ pages = [
     ]),
         
     ]
+
+def create_manual():
+    if not os.path.isdir("manual/figures"):
+        os.makedirs("manual/figures")
+    os.system("cp ../doc/gnofract4d-manual/C/*.xml .")
+    os.system("cp ../doc/gnofract4d-manual/C/figures/*.png manual/figures")
+    os.chdir("in/manual")
+    os.system("xsltproc --param use.id.as.filename 1 ../../gnofract4d.xsl ../../gnofract4d-manual.xml")
+    os.chdir("../..")
 
 def process_all(pages):
     for page in pages:
@@ -93,4 +106,5 @@ def process_all(pages):
         if hasattr(page,"children"):
             process_all(page.children)
 
+create_manual()
 process_all(pages)

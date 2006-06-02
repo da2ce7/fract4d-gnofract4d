@@ -184,7 +184,7 @@ class FlickrUploadDialog(dialog.T):
             self.blogs.append(blog)
         
     def get_tags(self):
-        formula_tag = FlickrUploadDialog.clean_formula_re.sub('',self.f.funcName)
+        formula_tag = FlickrUploadDialog.clean_formula_re.sub('',self.f.forms[0].funcName)
         return "fractal gnofract4d %s %s" % (formula_tag,self.tags.get_text())
 
     def set_upload_mode(self,is_upload):

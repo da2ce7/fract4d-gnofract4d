@@ -350,6 +350,19 @@ class Gradient:
             
         self.segments = new_segments
 
+    def load_fractint(self,l):
+        # s is a list of colors from a Fractint .par file
+
+        # convert format to colorlist
+        i = 0
+        colors = []
+        for (r,g,b) in l:
+            colors.append((i/255.0,r,g,b,255))
+            i += 1
+        # load it
+        
+        self.load_list(colors,-1.0)
+        
     def complementaries(self, base_color):
         # return some other colors that "go" with this one
         hsv = RGBtoHSV(base_color)

@@ -57,6 +57,9 @@ class TBase:
         if self.dumpTranslation:
             print self.dumpSections(f,self.canon_sections)
 
+    def is_direct(self):
+        return self.symbols.is_direct()
+    
     def merge(self,other,name):
         for (k,s) in other.output_sections.items():
             self.output_sections[name + k] = s
@@ -372,7 +375,7 @@ class TBase:
 
     def is4D(self):
         return self.symbols.has_user_key("#zwpixel")
-    
+
     def set(self,node):
         name = node.children[0].leaf
         if name == "method":
@@ -892,6 +895,36 @@ class T(TBase):
         if self.dumpCanon:
             print f.pretty()
 
+class ParFile(TBase):
+    "For translating Fractint .par files"
+    def __init__(self,f,dump=None):
+        TBase.__init__(self,"g",dump)
+
+        self.grad = []
+        self.main(f)
+        
+    def main(self, f):
+        if len(f.children) == 0:
+            return
+        
+        if f.children[0].type == "error":
+            self.error(f.children[0].leaf)
+            return
+
+        # lookup sections in order
+        s = f.childByName("nameless")
+        if s: self.params(s)
+
+    def params(self, node):
+        self.add_to_section("gradient", self.setlist(node))
+        
+    def set(self,node):
+        name = node.children[0].leaf
+        val = self.const_exp(node.children[1])
+        return ir.Move(
+            ir.Var(name, node, val.datatype),
+            val, node, val.datatype)
+    
 class GradientFunc(TBase):
     "For translating UltraFractal .ugr files"
     def __init__(self,f,dump=None):

@@ -266,6 +266,9 @@ class T:
         self.dirty = True
         if self.parent:
             self.parent.changed()
+
+    def is_direct(self):
+        return self.formula.is_direct()
     
     def set_formula(self,file,func,gradient):
         formula = self.compiler.get_formula(file,func,self.prefix)

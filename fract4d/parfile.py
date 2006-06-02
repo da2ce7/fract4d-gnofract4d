@@ -2,6 +2,55 @@
 
 # rudimentary read-only support for Fractint PAR files
 import string
+import preprocessor
+
+def parse(file,f):    
+    params = get_params(file)
+    pairs = get_param_pairs(params)
+
+    for (k,v) in pairs.items():
+        if k == "maxiter": parse_maxiter(v,f)
+        elif k == "center-mag" : parse_center_mag(v,f)
+        elif k == "colors" : parse_colors(v,f)
+    
+def get_params(file):
+    return preprocessor.T(file.read()).out().split()
+
+def get_param_pairs(params):
+    pairs = {}
+    for p in params:
+        vals = p.split("=")
+        if len(vals) == 2:
+            pairs[vals[0]] = vals[1]
+    return pairs
+
+def parse_maxiter(val,f):
+    max = int(val)
+    f.maxiter = max
+
+def parse_colors(val,f):
+    colors = colorRange(val)
+    f.get_gradient().load_fractint(colors)
+
+def parse_center_mag(val,f):
+    "x/y/mag(/xmag/rot/skew)" 
+    vals = val.split("/")
+    x = float(vals[0])
+    y = float(vals[1])
+    mag = float(vals[2])
+    f.params[f.XCENTER] = x
+    f.params[f.YCENTER] = y
+    h = 1.0/mag
+    f.params[f.MAGNITUDE] = h * 1.33
+
+    if len(vals) > 3:
+        xmag = float(vals[3])
+    if len(vals) > 4:
+        rot = float(vals[4])
+    if len(vals) > 5:
+        skew = float(vals[5])
+        
+    
 
 def decode_val(c):
     if c >= '0' and c <= '9':
@@ -74,4 +123,21 @@ def colorRange(s):
     return colors
      
 
-        
+if __name__ == "__main__":
+    import sys
+    import fc
+    import fractal
+    
+    g_comp = fc.Compiler()
+    g_comp.file_path.append("../formulas")
+    g_comp.load_formula_file("gf4d.frm")
+    g_comp.load_formula_file("test.frm")
+    g_comp.load_formula_file("gf4d.cfrm")
+
+    f = fractal.T(g_comp)
+    
+    file = open(sys.argv[1])
+
+    parse(file,f)
+
+    f.save(open("parfile.fct","w"))

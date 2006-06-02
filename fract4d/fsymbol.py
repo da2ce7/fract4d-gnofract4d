@@ -76,9 +76,9 @@ class Alias:
     
 def createDefaultDict():
     d = {
-        "^": OverloadList([ Func([Float, Float], Float, stdlib, "pow"),
-                            Func([Complex, Float], Complex, stdlib, "pow"),
-                            Func([Complex, Complex], Complex, stdlib, "pow")],
+        "^": OverloadList([Func([Float, Float], Float, stdlib, "pow"),
+                           Func([Complex, Float], Complex, stdlib, "pow"),
+                           Func([Complex, Complex], Complex, stdlib, "pow")],
                           operator=True,
                           doc='''Exponentiation operator. Computes x to the power y.'''),
         
@@ -721,6 +721,9 @@ class T(UserDict):
             
         return name
 
+    def is_direct(self):
+        return self.has_user_key("#color")
+    
     def param_names(self):
         params = self.parameters()
 

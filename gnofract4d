@@ -108,6 +108,7 @@ Flags:
 -f --formula F#func\tUse formula 'func' from file F
    --inner F#func\tUse coloring algorithm 'func' from file F
    --outer F#func\tUse coloring algorithm 'func' from file F
+-m --maxiter N\t\tUse N as maximum number of iterations
 -X --explorer\tStart in explorer mode
 
 To generate an image non-interactively, use:
@@ -152,11 +153,13 @@ def main():
     (basename,func) = (None,None)
     (innername,innerfunc) = (None,None)
     (outername,outerfunc) = (None,None)
+    maxiter = -1
     try:
         (opts, args) = getopt.getopt(
             sys.argv[1:],
-            "p:i:j:s:qhP:Xv",
+            "p:m:i:j:s:qhP:Xv",
             [ "params=",
+              "maxiter=",
               "width=",
               "height=",
               "save=",
@@ -172,6 +175,8 @@ def main():
         for (name, val) in opts:
             if name=="-p" or name=="--params":
                 args.insert(0,val)
+            if name=="-m" or name=="--maxiter":
+                maxiter=int(val)
             elif name=="-q" or name=="--quit":
                 mainWindow.quit_when_done = True
             elif name=="-s" or name=="--save":
@@ -219,6 +224,9 @@ def main():
     if outername and outerfunc:
         mainWindow.f.set_outer(outername, outerfunc)
         mainWindow.f.reset()
+
+    if maxiter != -1:
+        mainWindow.f.set_maxiter(maxiter)
         
     if mainWindow.f.thaw():
         mainWindow.on_fractal_change()
