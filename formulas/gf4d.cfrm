@@ -169,5 +169,3 @@ param angle_type
 	enum = "delta total" "delta max" "delta min" "min" "max" "total" "iter @ min" "iter @ max"
 endparam
 }  
-
-

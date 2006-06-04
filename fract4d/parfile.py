@@ -1,21 +1,51 @@
 #!/usr/bin/env python
 
 # rudimentary read-only support for Fractint PAR files
+
+# issues discovered while looking at fotd3.par
+# y needs to be negative (?)
+# use gf4d.cfrm#default - continuous potential doesn't work?
+# rotation == -xyangle in degrees, needs convert to radians
+
 import string
 import preprocessor
+import math
 
-def parse(file,f):    
+def parse(file,f):
+    # reset the fractal to have defaults closer to Fractint
+    f.set_outer("gf4d.cfrm","default")
+    f.yflip = True
+
     params = get_params(file)
     pairs = get_param_pairs(params)
 
+    formulaname = pairs.get("formulaname","Mandelbrot")
+    formulafile = pairs.get("formulafile","gf4d.frm")
+
+    f.set_formula(formulafile, formulaname)
     for (k,v) in pairs.items():
         if k == "maxiter": parse_maxiter(v,f)
         elif k == "center-mag" : parse_center_mag(v,f)
         elif k == "colors" : parse_colors(v,f)
-    
+        elif k == "params" : parse_params(v,f)
+        elif k == "logmap" : parse_logmap(v,f)
+        
+def parse_params(val,f):
+    paramlist = val.split("/")
+    l = len(paramlist)/2
+    for i in xrange(l):
+        (re,im) = (paramlist[i*2],paramlist[i*2+1])
+        name = "@p%d" % (i+1)
+        val = "(%s,%s)" % (re,im)
+        f.forms[0].set_named_param(name,val)
+        
 def get_params(file):
     return preprocessor.T(file.read()).out().split()
 
+def parse_logmap(val,f):
+    f.set_outer("gf4d.cfrm","logmap")
+    f.forms[1].set_named_param("@n",val)
+    
 def get_param_pairs(params):
     pairs = {}
     for p in params:
@@ -36,21 +66,66 @@ def parse_center_mag(val,f):
     "x/y/mag(/xmag/rot/skew)" 
     vals = val.split("/")
     x = float(vals[0])
-    y = float(vals[1])
+    y = -float(vals[1])
     mag = float(vals[2])
     f.params[f.XCENTER] = x
     f.params[f.YCENTER] = y
-    h = 1.0/mag
+    h = 2.0/mag
     f.params[f.MAGNITUDE] = h * 1.33
 
     if len(vals) > 3:
         xmag = float(vals[3])
     if len(vals) > 4:
-        rot = float(vals[4])
+        rot = float(vals[4]) * -1 * math.pi / 180.0
+        f.params[f.XYANGLE] = rot
     if len(vals) > 5:
         skew = float(vals[5])
         
-    
+def setup_log_table(log_flag, maxltsize, colors, save_release):
+    # try to match convoluted Fractint log_table logic
+    (lf,mlf) = get_log_table_limits(log_flag, maxltsize, colors, save_release)
+    table = [
+        calc_log_table_entry(x,log_flag,lf,mlf, save_release) \
+        for x in xrange(maxltsize)
+        ]
+    return table
+
+def calc_log_table_entry(n, log_flag, lf,mlf, save_release):
+    if log_flag > 0:
+        if n <= lf:
+            return 1
+        
+        try:
+            if (n-lf) / math.log(n - lf) <= mlf:
+                if save_release < 2002:
+                    if lf:
+                        flag = 1
+                    else:
+                        flag - 0
+                    return n - lf + flag
+                else:
+                    return n - lf
+        except ZeroDivisionError:
+            pass
+
+        return int(mlf * math.log(n - lf)) + 1
+                
+    return 0
+
+def get_log_table_limits(log_flag, maxltsize, colors, save_release):
+    if save_release > 1920:
+        if log_flag > 0:
+            lf = log_flag
+            if log_flag < 1:
+                lf = 0
+        if lf >= maxltsize:
+            lf = maxltsize -1
+        if lf != 0:
+            delta = 2
+        else:
+            delta = 1
+        mlf = (colors - delta ) /math.log(maxltsize - lf)
+    return (lf,mlf)
 
 def decode_val(c):
     if c >= '0' and c <= '9':
@@ -135,7 +210,6 @@ if __name__ == "__main__":
     g_comp.load_formula_file("gf4d.cfrm")
 
     f = fractal.T(g_comp)
-    
     file = open(sys.argv[1])
 
     parse(file,f)

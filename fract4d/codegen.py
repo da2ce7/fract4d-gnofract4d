@@ -418,7 +418,7 @@ extern pf_obj *pf_new(void);
     def emit_binop(self,op,srcs,type):
         dst = self.newTemp(type)
 
-        self.out.append(Binop(op, srcs ,[ dst ]))
+        self.out.append(Binop(op, srcs ,[ dst ], self.generate_trace))
         return dst
 
     def emit_func(self,op,srcs,type):

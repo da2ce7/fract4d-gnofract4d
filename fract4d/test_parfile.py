@@ -2,12 +2,15 @@
 
 # test cases for parfile.py
 
-import parfile
 
 import string
 import unittest
 import StringIO
+import math
 
+import testbase
+
+import parfile
 import fractal
 import fc
 import preprocessor
@@ -40,7 +43,7 @@ zz0zz2zq6ziAz`GzRJxHNvARuLGko0CV4de0Vo0NgVzkHzo6ss\\
 c4`h0Tc0LGzzRdxbHim0VPJob2bm0R60AP0Cg0EzzzzzzzdqxH\\
 dx0RzzLzmJzNHx0G0z00v60uE }"""
 
-class ParTest(unittest.TestCase):
+class ParTest(testbase.TestBase):
     def setUp(self):
         pass
 
@@ -93,9 +96,35 @@ class ParTest(unittest.TestCase):
 
         parfile.parse_center_mag("-0.74999655467724592903865/0.01712692163034049041486/5.51789e+018",f)
         self.assertEqual(f.params[f.XCENTER],-0.74999655467724592903865)
-        self.assertEqual(f.params[f.YCENTER],0.01712692163034049041486)
-        self.assertEqual(f.params[f.MAGNITUDE],1.0/5.51789e+018 * 1.33)
+        self.assertEqual(f.params[f.YCENTER],-0.01712692163034049041486)
+        self.assertEqual(f.params[f.MAGNITUDE],2.0/5.51789e+018 * 1.33)
 
+    def testLogTableLimits(self):
+        (lf,mlf) = parfile.get_log_table_limits(69,750,256,2004)
+        self.assertEqual(69,lf)
+        self.assertNearlyEqual([38.935782028258387], [mlf]) 
+
+        n = parfile.calc_log_table_entry(0,69,lf,mlf, 2004)
+        self.assertEqual(1 ,n)
+
+        n = parfile.calc_log_table_entry(69,69,lf,mlf, 2004)
+        self.assertEqual(1 ,n)
+
+        n = parfile.calc_log_table_entry(70,69,lf,mlf, 2004)
+        self.assertEqual(1 ,n)
+
+        n = parfile.calc_log_table_entry(71,69,lf,mlf, 2004)
+        self.assertEqual(2 ,n)
+
+        n = parfile.calc_log_table_entry(749,69,lf,mlf, 2004)
+        self.assertEqual(0xfd,n)
+        
+    def testSetupLogTable(self):
+        table = parfile.setup_log_table(69, 750, 256, 2004)
+        self.assertEqual(750,len(table))
+
+        self.assertEqual([1] * 70, table[0:70]) # all entries <= logflag should be 1
+        
 def suite():
     return unittest.makeSuite(ParTest,'test')
 
