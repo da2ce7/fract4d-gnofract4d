@@ -871,3 +871,45 @@ $ENDIF
             with the 'solid color' on the coloring tab."
   endparam
 }
+
+
+logmap {
+; fairly close to match Fractint logmap feature
+init:
+int lf = @n
+if lf == 0
+    lf = 1
+endif
+float mlf = 256
+if lf == 0
+    mlf = mlf - 2
+else
+    mlf = mlf -1
+endif
+float maxltsize = #maxiter
+mlf = mlf / log(maxltsize - lf)
+final:
+int cnum
+int citer = #numiter + 1
+if @n > 0
+   if citer <= lf
+	cnum = 1
+   elseif((citer - lf) / log(citer - lf) <= mlf)
+        if @save_release < 2002
+           cnum = citer - lf
+           if lf != 0
+               cnum = cnum + 1
+           endif
+        else
+           cnum = citer - lf
+        endif
+   else
+       cnum = trunc(mlf * log(citer - lf) + 1.0)
+   endif
+endif
+#index = cnum / 255.0
+default:
+int param n
+	default = 1
+endparam
+}

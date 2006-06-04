@@ -139,14 +139,14 @@ class Compiler:
         outputfile = os.path.abspath(self.generate_code(t, cg))        
         return outputfile
         
-    def compile_all(self,formula,cf0,cf1):        
-        self.compile(formula)
-        self.compile(cf0)
-        self.compile(cf1)
+    def compile_all(self,formula,cf0,cf1,dump=None):        
+        self.compile(formula,dump)
+        self.compile(cf0,dump)
+        self.compile(cf1,dump)
 
         # create temp empty formula and merge everything into that
         t = translate.T(absyn.Formula("",[],-1))
-        cg = self.compile(t)
+        cg = self.compile(t,dump)
         t.merge(formula,"")
         t.merge(cf0,"cf0_")        
         t.merge(cf1,"cf1_")
@@ -225,8 +225,8 @@ class Compiler:
             ff = self.files.get(basefile)            
         return ff
     
-    def compile(self,ir):
-        cg = codegen.T(ir.symbols)
+    def compile(self,ir,dump=None):
+        cg = codegen.T(ir.symbols,dump)
         cg.output_all(ir)
         return cg
 

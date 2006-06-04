@@ -357,7 +357,7 @@ class Gradient:
         i = 0
         colors = []
         for (r,g,b) in l:
-            colors.append((i/255.0,r,g,b,255))
+            colors.append((i/255.0,r*4,g*4,b*4,255))
             i += 1
         # load it
         

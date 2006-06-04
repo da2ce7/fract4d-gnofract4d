@@ -75,6 +75,7 @@ try:
     sys.path.append(os.path.join(libdir, 'gnofract4d-%s' % version))
     # gui modules
     from fract4dgui import main_window, preferences, utils
+    from fract4d import fractal
     
 except ImportError, err:
     print _('''
@@ -96,12 +97,18 @@ def help():
     print """Gnofract 4D %s
 Usage: gnofract4d [flags] [paramfile]
 
-Flags:
+To generate an image non-interactively, use:
+gnofract4d -s myimage.png -q myfractal.fct 
+
+General Flags:
 -h --help\t\tShow this message
 -v --version\t\tShow version info
--p --params FILE\tUse FILE as a parameter file
 -q --quit\t\tExit as soon as the image is finished
--s --save IMAGEFILE\tSave image to IMAGEFILE
+-X --explorer\t\tStart in explorer mode
+
+Fractal Settings:
+-p --params FILE\tUse FILE as a parameter file
+-s --save IMAGEFILE\tSave image to IMAGEFILE after calculation
 -i --width N\t\tMake image N pixels wide
 -j --height N\t\tMake image N pixels tall
 -P --path P\t\tAdd P to the formula search path
@@ -109,11 +116,22 @@ Flags:
    --inner F#func\tUse coloring algorithm 'func' from file F
    --outer F#func\tUse coloring algorithm 'func' from file F
 -m --maxiter N\t\tUse N as maximum number of iterations
--X --explorer\tStart in explorer mode
 
-To generate an image non-interactively, use:
-gnofract4d -s myimage.png -q myfractal.fct
+Positional Parameters:
+   --xcenter N
+   --ycenter N
+   --zcenter N
+   --wcenter N
+   --xyangle N
+   --xzangle N
+   --xwangle N
+   --yzangle N
+   --ywangle N
+   --zwangle N
+   --magnitude N
 
+Obscure settings:
+   --trace\t\tProduce voluminous tracing output
 """ % version
 
 def print_version():
@@ -154,23 +172,31 @@ def main():
     (innername,innerfunc) = (None,None)
     (outername,outerfunc) = (None,None)
     maxiter = -1
+    trace = False
+    paramchanges = {}
     try:
+        longparams = [
+            "params=",
+            "maxiter=",
+            "width=",
+            "height=",
+            "save=",
+            "help",
+            "path=",
+            "formula=",
+            "inner=",
+            "outer=",
+            "xcenter=","ycenter=","zcenter=","wcenter=",
+            "xyangle=","xzangle=","xwangle=","yzangle=","ywangle=","zwangle=",
+            "magnitude=",
+            "quit",
+            "explorer",
+            "trace",
+            "version"]
+        
         (opts, args) = getopt.getopt(
             sys.argv[1:],
-            "p:m:i:j:s:qhP:Xv",
-            [ "params=",
-              "maxiter=",
-              "width=",
-              "height=",
-              "save=",
-              "help",
-              "path=",
-              "formula=",
-              "inner=",
-              "outer=",
-              "quit",
-              "explorer",
-              "version"])
+            "p:m:i:j:s:qhP:Xv", longparams)
 
         for (name, val) in opts:
             if name=="-p" or name=="--params":
@@ -201,11 +227,22 @@ def main():
             elif name=="--version" or name=="-v":
                 print_version()
                 return
+            elif name=="--trace":
+                print "parsed trace"
+                trace = True
             else:
-                print "Unknown argument", name, val
+                # see if it's a positional param
+                pname = name[2:].upper()
+                if hasattr(fractal.T,pname):
+                    pnum = getattr(fractal.T,pname)
+                    paramchanges[pnum]= val
+                else:
+                    print "Unknown argument", name, val
                 
-    except getopt.GetoptError:
+    except getopt.GetoptError, err:
         help()
+
+        print "Error parsing arguments: %s" % err
         return 1
     
     mainWindow.f.set_size(width,height)
@@ -227,7 +264,15 @@ def main():
 
     if maxiter != -1:
         mainWindow.f.set_maxiter(maxiter)
+
+    for (num,val) in paramchanges.items():
+        mainWindow.f.set_param(num,val)
         
+    if trace:
+        print "trace"
+        mainWindow.f.set_dump_option("trace", trace)
+        mainWindow.f.compile()
+
     if mainWindow.f.thaw():
         mainWindow.on_fractal_change()
 

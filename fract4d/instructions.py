@@ -150,12 +150,13 @@ class Oper(Insn):
 
 class Binop(Oper):
     'A binary infix operation, like addition'
-    def __init__(self, op, src, dst):
+    def __init__(self, op, src, dst, generate_trace = False):
         Insn.__init__(self,"")
         self.op = op
         self.src = src
         self.dst = dst
-
+        self.trace = generate_trace
+        
     def const_eval(self):
         c1 = self.src[0]
         c2 = self.src[1]
@@ -181,11 +182,20 @@ class Binop(Oper):
                 string.join([x.__str__() for x in self.dst],","))
         
     def format(self):
-        return "%s = %s %s %s;" % (
+        result = "%s = %s %s %s;" % (
             self.dst[0].format(),
             self.src[0].format(),
             self.op,
             self.src[1].format())
+        if self.trace:
+            result += "printf(\"%s = %s (%s %s %s)\\n\",%s);" % (
+                self.dst[0].format(),
+                self.dst[0].cformat(),
+                self.src[0].format(),
+                self.op,
+                self.src[1].format(),
+                self.dst[0].format())
+        return result
         
 class Label(Insn):
     'A label which can be jumped to'

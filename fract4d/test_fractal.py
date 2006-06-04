@@ -1268,7 +1268,15 @@ solids=[
         f.compile()
         im = image.T(40,30)
         f.draw(im)
-        
+
+    def disabled_testDump(self):
+        # produces distracting output
+        f = fractal.T(self.compiler)
+        f.dump["trace"] = True
+        f.compile()
+        im = image.T(4,3)
+        f.draw(im)               
+
         
 def suite():
     return unittest.makeSuite(Test,'test')
