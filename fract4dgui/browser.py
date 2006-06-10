@@ -64,7 +64,9 @@ class BrowserDialog(dialog.T):
             gobject.TYPE_STRING)
 
         self.file_list = gtk.ListStore(
-            gobject.TYPE_STRING)
+            gobject.TYPE_STRING, #formname
+            gobject.TYPE_STRING,
+            gobject.TYPE_INT)
 
         self.f = f
         self.compiler = f.compiler
