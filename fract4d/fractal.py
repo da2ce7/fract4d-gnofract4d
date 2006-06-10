@@ -147,7 +147,6 @@ class T(fctutils.T):
             needs_redraw = False
             if self.forms[1].is_direct() or \
                self.forms[2].is_direct():
-                print "Needs redraw"
                 needs_redraw = True
                
             self.changed(True) #needs_redraw)
@@ -370,7 +369,6 @@ class T(fctutils.T):
         if self.dirtyFormula == False:
             return self.outputfile
 
-        print "compiling with ", self, " ", self.dump
         outputfile = self.compiler.compile_all(
             self.forms[0].formula, 
             self.forms[1].formula,

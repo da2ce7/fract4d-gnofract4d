@@ -7,7 +7,7 @@ fixed in next version:
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
-* BBB	stops drawing after new gradient applied to DCA fractal (sometimes)
+
 * BB	-q doesn't work at some points within the cmd-line (eg at end)
 * BB	Renderqueue should antialias even if main window doesn't
 * BB	func with a bailout of 1 will never quit and can't be interrupted
@@ -21,14 +21,15 @@ bugs (the more B's, the worse the bug):
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * BB	infinite loops are possible in while loops
-* B	shouldn't need to compile anything to print help or version
-* B	compile 17x before display when loading parfile.fct ?
-* B	MandelbrotMix4 function doesn't work 
-* B	default param values: 'true' is case-sensitive, 'True' is false
-* B	apply a new gradient to a DCA-based fractal which uses a gradient - 
-        doesn't redraw
 * BB	auto-generated names are wrong (image should == fractal name, 
         don't remove numbers once added)
+* BB	apply a new gradient to a DCA-based fractal which uses a gradient - 
+        doesn't redraw
+* BB	stops drawing after new gradient applied to DCA fractal (sometimes)
+
+* B	shouldn't need to compile anything to print help or version
+* B	compile 17x before display when loading parfile.fct ?
+* B	default param values: 'true' is case-sensitive, 'True' is false
 * B	bwp.ucl#bwp1: off-by-one on enums? (Square == Circle)
 * B	RQ: progress bar should be more colorful
 * B	half-done images left behind when RQ aborted
