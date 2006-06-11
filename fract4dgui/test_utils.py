@@ -34,6 +34,11 @@ class Test(unittest.TestCase):
         utils.set_selected(om,3)
         self.assertEqual(3, utils.get_selected(om))
 
+        utils.set_menu_from_list(om, ["hello","world"])
+        utils.set_selected(om,1)
+        item1 = utils.get_selected_value(om)
+        self.assertEqual("world",item1)
+        
     def testCreateColor(self):
         cyan = utils.create_color(0.0,1.0,1.0)
         self.assertEqual(cyan.red,0)

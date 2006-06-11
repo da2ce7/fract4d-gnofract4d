@@ -916,14 +916,24 @@ class MainWindow:
         warpmenu = utils.create_option_menu(["None"])
         
         def populate_warpmenu(f, warpmenu):
-            params = f.forms[0].params_of_type(fracttypes.Complex)
-            
-            for p in params:
-                utils.add_menu_item(warpmenu,p)
+            params = f.forms[0].params_of_type(fracttypes.Complex, True)
+            utils.set_menu_from_list(warpmenu, ["None"] + params)
+
+        def update_warp_param(menu, f):
+            param = utils.get_selected_value(menu)
+            if param == "None":
+                order = -1 
+            else:
+                order = f.forms[0].order_of_name(param)
                 
+            f.set_warp_param(order)                
+            self.on_formula_change(f)
+            
         populate_warpmenu(self.f,warpmenu)
 
         self.f.connect('formula-changed', populate_warpmenu, warpmenu)
+
+        warpmenu.connect("changed", update_warp_param, self.f)
         
         self.toolbar.add_widget(
             warpmenu,

@@ -183,7 +183,7 @@ def file_chooser_set_preview(chooser, preview, preview_cb):
     except AttributeError, err:
         # not supported, skip
         pass
-    
+
 def create_option_menu(items):
     try:
         _throwback()
@@ -193,6 +193,7 @@ def create_option_menu(items):
         
     except Exception, exn:
         widget = gtk.OptionMenu()
+        widget.item_list = items # for get_selected_value
         menu = gtk.Menu()
         for item in items:
             mi = gtk.MenuItem(item)
@@ -201,6 +202,22 @@ def create_option_menu(items):
         
     return widget
 
+def set_menu_from_list(menu, items):
+    try:
+        _throwback()
+        model = menu.get_model().clear()
+        for item in items:
+            menu.append_text(item)
+    except:
+        menu.item_list = items
+        submenu = menu.get_menu()
+        for child in submenu.get_children():
+            submenu.remove(child)
+
+        for item in items:
+            mi = gtk.MenuItem(item)
+            submenu.append(mi)
+        
 def add_menu_item(menu, item):
     try:
         _throwback()
@@ -221,7 +238,16 @@ def get_selected(menu):
         return menu.get_active()
     except:
         return menu.get_history()
-        
+
+def get_selected_value(menu):
+    try:
+        _throwback()
+        iter = menu.get_active_iter()
+        val = menu.get_model().get_value(iter,0)
+        return val
+    except:
+        return menu.item_list[menu.get_history()]
+    
 def create_color(r,g,b):
     # multiply up to match range expected by gtk
     try:

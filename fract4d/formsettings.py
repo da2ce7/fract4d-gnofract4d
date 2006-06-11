@@ -101,13 +101,16 @@ class T:
     def param_names(self):
         return self.formula.symbols.param_names()
 
-    def params_of_type(self,type):
+    def params_of_type(self,type,readable=False):
         params = []
         op = self.formula.symbols.order_of_params()
         for name in op.keys():
             if name != '__SIZE__':
                 if self.formula.symbols[name].type == type:
-                    params.append(name)
+                    if readable:
+                        params.append(self.formula.symbols.demangle(name))
+                    else:
+                        params.append(name)
         return params
 
     def get_func_value(self,func_to_get):
@@ -167,7 +170,7 @@ class T:
                     self.params[ord+1] = im
                     self.changed()
             elif val == "warp":
-                self.warp_param = ord
+                self.parent.set_warp_param(ord)
         elif t == fracttypes.Hyper or t == fracttypes.Color:
             m = hyper_re.match(val)
             if m!= None:
