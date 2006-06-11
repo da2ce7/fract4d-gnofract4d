@@ -126,6 +126,7 @@ if(t__warp_param != -1)
 {
     t__pfo->p[t__warp_param].doubleval = t__h_zwpixel_re;
     t__pfo->p[t__warp_param+1].doubleval = t__h_zwpixel_im;
+    t__h_zwpixel_re = t__h_zwpixel_im = 0.0;
 }
 
 /* variable declarations */
@@ -214,6 +215,7 @@ if(t__warp_param != -1)
 {
     t__pfo->p[t__warp_param].doubleval = t__h_zwpixel_re;
     t__pfo->p[t__warp_param+1].doubleval = t__h_zwpixel_im;
+    t__h_zwpixel_re = t__h_zwpixel_im = 0.0;
 }
 
 /* variable declarations */
