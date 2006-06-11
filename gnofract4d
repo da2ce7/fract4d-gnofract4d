@@ -95,6 +95,11 @@ except:
     pass
 
 class Options:
+    "Gathers command-line args, wraps crappy getOpt interface"
+    def get_list(self):
+        return [
+            Option("maxiter",arg=True,type=int
+
     def __init__(self,args):
         (self.basename,self.func) = (None,None)
         (self.innername,self.innerfunc) = (None,None)
@@ -109,7 +114,7 @@ class Options:
         self.save_filename = None
         self.extra_paths = []
         (self.width, self.height) = (0,0)
-        
+
         longparams = [
             "params=",
             "maxiter=",
@@ -266,43 +271,7 @@ def main():
 
     mainWindow = main_window.MainWindow()
 
-    width = options.width or preferences.userPrefs.getint("display","width")
-    height = options.height or preferences.userPrefs.getint("display","height")
-
-    mainWindow.quit_when_done = options.quit_when_done
-    mainWindow.save_filename = options.save_filename
-
-    mainWindow.compiler.file_path += options.extra_paths
-        
-    if len(options.args) > 0:
-        mainWindow.load(options.args[0])
-        
-    if options.basename and options.func:
-        mainWindow.f.set_formula(options.basename,options.func)
-        mainWindow.f.reset()
-
-    if options.innername and options.innerfunc:
-        mainWindow.f.set_inner(options.innername, options.innerfunc)
-        mainWindow.f.reset()
-
-    if options.outername and options.outerfunc:
-        mainWindow.f.set_outer(options.outername, options.outerfunc)
-        mainWindow.f.reset()
-
-    if options.maxiter != -1:
-        mainWindow.f.set_maxiter(options.maxiter)
-
-    for (num,val) in options.paramchanges.items():
-        mainWindow.f.set_param(num,val)
-        
-    if options.trace:
-        mainWindow.f.set_dump_option("trace", options.trace)
-        mainWindow.f.compile()
-
-    if options.explore:
-        mainWindow.set_explorer_state(True)
-
-    mainWindow.f.set_size(width,height)
+    mainWindow.apply_options(options)
     
     if mainWindow.f.thaw():
         mainWindow.on_fractal_change()

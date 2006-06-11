@@ -1339,4 +1339,44 @@ class MainWindow:
         finally:
             gtk.main_quit()
 
+    def apply_options(self,options):
+        "Deal with options gathered from cmd-line"
+        width = options.width or preferences.userPrefs.getint("display","width")
+        height = options.height or preferences.userPrefs.getint("display","height")
 
+        self.quit_when_done = options.quit_when_done
+        self.save_filename = options.save_filename
+
+        self.compiler.file_path += options.extra_paths
+
+        if len(options.args) > 0:
+            self.load(options.args[0])
+
+        if options.basename and options.func:
+            self.f.set_formula(options.basename,options.func)
+            self.f.reset()
+
+        if options.innername and options.innerfunc:
+            self.f.set_inner(options.innername, options.innerfunc)
+            self.f.reset()
+
+        if options.outername and options.outerfunc:
+            self.f.set_outer(options.outername, options.outerfunc)
+            self.f.reset()
+
+        if options.maxiter != -1:
+            self.f.set_maxiter(options.maxiter)
+
+        for (num,val) in options.paramchanges.items():
+            self.f.set_param(num,val)
+
+        if options.trace:
+            self.f.set_dump_option("trace", options.trace)
+            self.f.compile()
+
+        if options.explore:
+            self.set_explorer_state(True)
+
+        self.f.set_size(width,height)
+    
+    

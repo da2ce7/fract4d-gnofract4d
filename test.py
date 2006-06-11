@@ -82,7 +82,7 @@ def main():
 
     
 if __name__ == '__main__':
-    if sys.argv[1] == "--thisonly":
+    if len(sys.argv) > 1 and sys.argv[1] == "--thisonly":
         sys.argv.remove("--thisonly")
         unittest.main(defaultTest='suite')
     else:
