@@ -912,21 +912,21 @@ class MainWindow:
         self.f.nudge(dx/10.0, dy/10.0, widget.axis)
 
     def add_warpmenu(self,tip):
-
         warpmenu = utils.create_option_menu(["None"])
         
         def populate_warpmenu(f, warpmenu):
             params = f.forms[0].params_of_type(fracttypes.Complex, True)
             utils.set_menu_from_list(warpmenu, ["None"] + params)
-
+            p = f.warp_param
+            if p == None: p = "None"
+            utils.set_selected_value(warpmenu, p)
+            
         def update_warp_param(menu, f):
             param = utils.get_selected_value(menu)
             if param == "None":
-                order = -1 
-            else:
-                order = f.forms[0].order_of_name(param)
-                
-            f.set_warp_param(order)                
+                param = None
+
+            f.set_warp_param(param)                
             self.on_formula_change(f)
             
         populate_warpmenu(self.f,warpmenu)

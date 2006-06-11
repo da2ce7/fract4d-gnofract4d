@@ -159,7 +159,7 @@ class Test(unittest.TestCase):
         self.assertEqual("(1.00000000000000000,2.00000000000000000,3.00000000000000000,4.00000000000000000)",
                          fs1.initvalue("@h"))
 
-        self.assertEqual("warp",fs1.initvalue("@c",2))
+        self.assertEqual("warp",fs1.initvalue("@c","@c"))
         
     def testSetNamedParam(self):
         fs1 = formsettings.T(g_comp)

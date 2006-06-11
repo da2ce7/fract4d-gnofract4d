@@ -866,7 +866,7 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
     def testWarpParameter(self):
         # test using a specific parameter for warping
         f = fractal.T(self.compiler)
-        self.assertEqual(f.warp_param, -1)
+        self.assertEqual(f.warp_param, None)
         f.set_formula("test.frm","test_warp_param")
         f.compile()
         f.reset()
@@ -876,10 +876,7 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
         im.save("no_warp.png") # should be completely white
 
         # now set the parameter to be warped
-        ord = f.order_of_name("@p1",f.forms[0].formula.symbols)
-        self.assertEqual(ord,1)
-
-        f.set_warp_param(ord)
+        f.set_warp_param("@p1")
 
         # check we call it warped in the parameter file
         s = f.serialize()

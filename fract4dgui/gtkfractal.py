@@ -302,6 +302,11 @@ class Hidden(gobject.GObject):
             print initparams
             raise
 
+        if self.warp_param:
+            warp = self.forms[0].order_of_name(self.warp_param)
+        else:
+            warp = -1
+
         self.running = True
         try:
             fract4dc.calc(
@@ -315,7 +320,7 @@ class Hidden(gobject.GObject):
                 auto_deepen=self.f.auto_deepen,
                 periodicity=self.f.periodicity,
                 render_type=self.f.render_type,
-                warp_param=self.f.warp_param,
+                warp_param=warp,
                 image=image._img,
                 site=self.site,
                 dirty=self.f.clear_image,

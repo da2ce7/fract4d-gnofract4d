@@ -60,7 +60,7 @@ class T(fctutils.T):
         self.outputfile = None
         self.render_type = 0
         
-        self.warp_param = -1
+        self.warp_param = None
         # gradient
         
         # default is just white outside
@@ -414,7 +414,7 @@ class T(fctutils.T):
         return weirdness * (random.random() - 0.5) * math.pi/2.0
 
     def is4D(self):
-        return self.warp_param != -1 or self.forms[0].formula.is4D()
+        return self.warp_param != None or self.forms[0].formula.is4D()
 
     def mutate(self,weirdness,color_weirdness,colormaps):
         '''randomly adjust position, colors, angles and parameters.
@@ -519,6 +519,11 @@ class T(fctutils.T):
         initparams = self.all_params()
         fract4dc.pf_init(pfunc,1.0E-9,initparams)
 
+        if self.warp_param:
+            warp = self.forms[0].order_of_name(self.warp_param)
+        else:
+            warp = -1
+            
         for (xoff,yoff,xres,yres) in image.get_tile_list():
             image.resize_tile(xres,yres)
             image.set_offset(xoff,yoff)
@@ -536,7 +541,7 @@ class T(fctutils.T):
                 render_type=self.render_type,
                 image=image._img,
                 site=self.site,
-                warp_param=self.warp_param,
+                warp_param=warp,
                 dirty=self.clear_image)
 
             image.save_tile()

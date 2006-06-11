@@ -377,6 +377,15 @@ other two axes, resulting in a mutated version of the current image.
 Click inside one then drag the mouse, watching the preview window
 update, then release the mouse when you like the results.  </para>
 
+<para>The warp menu allows even formulas which weren't designed to be
+used with &gf4d; to be used in 4D mode. If the current fractal has any
+complex parameters, they're listed in this menu. If you select one,
+that parameter's value is set to the value of the Z and W coordinates
+for each pixel. Basically what this means is that the parameter you choose
+becomes the fourth dimension. NB: If you set an explicit value for the parameter as
+well, it'll be ignored.
+</para>
+
 <para>
 The weird black and white button (OK, so I can't draw) allows you to
 increase the current iteration count, for those occasions when the
