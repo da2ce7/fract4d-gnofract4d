@@ -36,7 +36,8 @@ except Exception:
     pygtk_ok = False
 
 if not pygtk_ok:
-    print _("Sorry, your PyGTK version is too old. You need at least 1.99")
+    print _("Sorry, your PyGTK version (%d.%d.%d) is too old. You need at least 1.99" % \
+            gtk.pygtk_version)
     sys.exit(1)
 
 try:
@@ -92,9 +93,118 @@ try:
     pass
 except:
     pass
+
+class Options:
+    def __init__(self,args):
+        (self.basename,self.func) = (None,None)
+        (self.innername,self.innerfunc) = (None,None)
+        (self.outername,self.outerfunc) = (None,None)
+        self.maxiter = -1
+        self.trace = False
+        self.paramchanges = {}
+        self.quit_now = False
+        self.quit_when_done = False
+        self.output = ""
+        self.explore = False
+        self.save_filename = None
+        self.extra_paths = []
+        (self.width, self.height) = (0,0)
+        
+        longparams = [
+            "params=",
+            "maxiter=",
+            "width=",
+            "height=",
+            "save=",
+            "help",
+            "path=",
+            "formula=",
+            "inner=",
+            "outer=",
+            "xcenter=","ycenter=","zcenter=","wcenter=",
+            "xyangle=","xzangle=","xwangle=","yzangle=","ywangle=","zwangle=",
+            "magnitude=",
+            "quit",
+            "explorer",
+            "trace",
+            "version"]
+
+        (opts, self.args) = getopt.getopt(
+            args,
+            "p:m:i:j:s:f:qhP:Xv", longparams)
+
+        for (name, val) in opts:
+            if name=="-p" or name=="--params":
+                args.insert(0,val)
+            if name=="-m" or name=="--maxiter":
+                self.maxiter=int(val)
+            elif name=="-q" or name=="--quit":
+                self.quit_when_done = True
+            elif name=="-s" or name=="--save":
+                self.save_filename = val
+            elif name=="-i" or name=="--width":
+                self.width = int(val)
+            elif name=="-j" or name=="--height":
+                self.height = int(val)
+            elif name=="-h" or name=="--help":
+                self.output += help()
+                self.quit_now = True
+            elif name=="-P" or name=="--path":
+                self.extra_paths.append(val)
+            elif name=="-X" or name=="--explorer":
+                self.explore = True
+            elif name=="-f" or name=="--formula":
+                (self.basename,self.func) = self.splitarg(val,name)
+            elif name=="--inner":
+                (self.innername,self.innerfunc) = self.splitarg(val,name)
+            elif name=="--outer":
+                (self.outername,self.outerfunc) = self.splitarg(val,name)
+            elif name=="--version" or name=="-v":
+                self.print_version()
+                self.quit_now = True
+            elif name=="--trace":
+                self.trace = True
+            else:
+                # see if it's a positional param
+                pname = name[2:].upper()
+                if hasattr(fractal.T,pname):
+                    pnum = getattr(fractal.T,pname)
+                    self.paramchanges[pnum]= val
+                else:
+                    print "Unknown argument", name, val
+
+    def splitarg(self,val, name):
+        n = val.rfind('#')
+        if n==-1:
+            help()
+            print "ERROR: %s should be file#func" % name
+            sys.exit(1)
+        (file, func) = (val[:n], val[n+1:])
+        path = os.path.dirname(file)
+        if path:
+            self.extra_paths.append(path)
+
+        basename = os.path.basename(file)
+        return (basename,func)
+
+    def print_version(self):
+        try:
+            gtk_version = "%d.%d.%d" % gtk.gtk_version
+        except:
+            gtk_version = "unknown"
+
+        try:
+            pygtk_version = "%d.%d.%d" % gtk.pygtk_version
+        except:
+            pygtk_version = "unknown"
+
+        self.output += """Gnofract 4D %s
+GTK %s
+PyGTK %s""" % (version, gtk_version, pygtk_version)
+               
     
 def help():
-    print """Gnofract 4D %s
+    return """Gnofract 4D %s
 Usage: gnofract4d [flags] [paramfile]
 
 To generate an image non-interactively, use:
@@ -134,145 +244,66 @@ Obscure settings:
    --trace\t\tProduce voluminous tracing output
 """ % version
 
-def print_version():
+def main():    
+    # parse the options    
     try:
-        gtk_version = "%d.%d.%d" % gtk.gtk_version
-    except:
-        gtk_version = "unknown"
-
-    try:
-        pygtk_version = "%d.%d.%d" % gtk.pygtk_version
-    except:
-        pygtk_version = "unknown"
-        
-    print """Gnofract 4D %s
-GTK %s
-PyGTK %s""" % (version, gtk_version, pygtk_version)
-               
-def splitarg(val, name,mainWindow):
-    n = val.rfind('#')
-    if n==-1:
-        help()
-        print "ERROR: %s should be file#func" % name
-        sys.exit(1)
-    (file, func) = (val[:n], val[n+1:])
-    path = os.path.dirname(file)
-    if path: 
-        mainWindow.compiler.file_path.append(path)
-
-    basename = os.path.basename(file)
-    return (basename,func)
-
-def main():
-    mainWindow = main_window.MainWindow()
-
-    width = preferences.userPrefs.getint("display","width")
-    height = preferences.userPrefs.getint("display","height")
-    (basename,func) = (None,None)
-    (innername,innerfunc) = (None,None)
-    (outername,outerfunc) = (None,None)
-    maxiter = -1
-    trace = False
-    paramchanges = {}
-    try:
-        longparams = [
-            "params=",
-            "maxiter=",
-            "width=",
-            "height=",
-            "save=",
-            "help",
-            "path=",
-            "formula=",
-            "inner=",
-            "outer=",
-            "xcenter=","ycenter=","zcenter=","wcenter=",
-            "xyangle=","xzangle=","xwangle=","yzangle=","ywangle=","zwangle=",
-            "magnitude=",
-            "quit",
-            "explorer",
-            "trace",
-            "version"]
-        
-        (opts, args) = getopt.getopt(
-            sys.argv[1:],
-            "p:m:i:j:s:qhP:Xv", longparams)
-
-        for (name, val) in opts:
-            if name=="-p" or name=="--params":
-                args.insert(0,val)
-            if name=="-m" or name=="--maxiter":
-                maxiter=int(val)
-            elif name=="-q" or name=="--quit":
-                mainWindow.quit_when_done = True
-            elif name=="-s" or name=="--save":
-                mainWindow.save_filename = val
-            elif name=="-i" or name=="--width":
-                width = int(val)
-            elif name=="-j" or name=="--height":
-                height = int(val)
-            elif name=="-h" or name=="--help":
-                help()
-                return
-            elif name=="-P" or name=="--path":
-                mainWindow.compiler.file_path.append(val)
-            elif name=="-X" or name=="--explorer":
-                mainWindow.set_explorer_state(True)
-            elif name=="--formula":
-                (basename,func) = splitarg(val,name,mainWindow)
-            elif name=="--inner":
-                (innername,innerfunc) = splitarg(val,name,mainWindow)
-            elif name=="--outer":
-                (outername,outerfunc) = splitarg(val,name,mainWindow)
-            elif name=="--version" or name=="-v":
-                print_version()
-                return
-            elif name=="--trace":
-                print "parsed trace"
-                trace = True
-            else:
-                # see if it's a positional param
-                pname = name[2:].upper()
-                if hasattr(fractal.T,pname):
-                    pnum = getattr(fractal.T,pname)
-                    paramchanges[pnum]= val
-                else:
-                    print "Unknown argument", name, val
-                
+        options = Options(sys.argv[1:])
     except getopt.GetoptError, err:
-        help()
+        print help()
 
         print "Error parsing arguments: %s" % err
         return 1
-    
-    mainWindow.f.set_size(width,height)
 
-    if len(args) > 0:
-        mainWindow.load(args[0])
+    # having parsed them, apply them. The reason for this 2-pass
+    # approach is that it matters what order these operations are
+    # done in, but it shouldn't matter what order params are
+    # presented on the command-line
+    if len(options.output) > 0:
+        print options.output
         
-    if basename and func:
-        mainWindow.f.set_formula(basename,func)
+    if options.quit_now:
+        sys.exit(0)
+
+    mainWindow = main_window.MainWindow()
+
+    width = options.width or preferences.userPrefs.getint("display","width")
+    height = options.height or preferences.userPrefs.getint("display","height")
+
+    mainWindow.quit_when_done = options.quit_when_done
+    mainWindow.save_filename = options.save_filename
+
+    mainWindow.compiler.file_path += options.extra_paths
+        
+    if len(options.args) > 0:
+        mainWindow.load(options.args[0])
+        
+    if options.basename and options.func:
+        mainWindow.f.set_formula(options.basename,options.func)
         mainWindow.f.reset()
 
-    if innername and innerfunc:
-        mainWindow.f.set_inner(innername, innerfunc)
+    if options.innername and options.innerfunc:
+        mainWindow.f.set_inner(options.innername, options.innerfunc)
         mainWindow.f.reset()
 
-    if outername and outerfunc:
-        mainWindow.f.set_outer(outername, outerfunc)
+    if options.outername and options.outerfunc:
+        mainWindow.f.set_outer(options.outername, options.outerfunc)
         mainWindow.f.reset()
 
-    if maxiter != -1:
-        mainWindow.f.set_maxiter(maxiter)
+    if options.maxiter != -1:
+        mainWindow.f.set_maxiter(options.maxiter)
 
-    for (num,val) in paramchanges.items():
+    for (num,val) in options.paramchanges.items():
         mainWindow.f.set_param(num,val)
         
-    if trace:
-        print "trace"
-        mainWindow.f.set_dump_option("trace", trace)
+    if options.trace:
+        mainWindow.f.set_dump_option("trace", options.trace)
         mainWindow.f.compile()
 
+    if options.explore:
+        mainWindow.set_explorer_state(True)
+
+    mainWindow.f.set_size(width,height)
+    
     if mainWindow.f.thaw():
         mainWindow.on_fractal_change()
 

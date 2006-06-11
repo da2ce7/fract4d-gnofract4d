@@ -20,7 +20,6 @@ def create_stdlib_docs():
         # create list of mouse and GUI commands
         import fract4dgui.createdocs
         fract4dgui.createdocs.main("doc/gnofract4d-manual/C/commands.xml")
-
         
     except Exception, err:
         print >>sys.stderr,\
