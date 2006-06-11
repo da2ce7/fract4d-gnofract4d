@@ -9,6 +9,15 @@ default:
 maxiter = 1000000000
 }
 
+WarpTest {
+init:
+	z = @p1
+loop:
+	z = z*z + #pixel
+bailout:
+	|z| < 4.0
+}
+
 PeterDeJong {
 init:
 	z = 0

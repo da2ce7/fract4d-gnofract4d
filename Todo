@@ -8,7 +8,7 @@ fixed in next version:
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 
-* BB	-q doesn't work at some points within the cmd-line (eg at end)
+* BB	warp_param menu not working
 * BB	Renderqueue should antialias even if main window doesn't
 * BB	func with a bailout of 1 will never quit and can't be interrupted
 * BB	better image-sizing widgets for render queue
