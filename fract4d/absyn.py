@@ -139,6 +139,8 @@ def Number(n,pos):
     return Node("const", pos, None, n, t)
 
 def Const(n,pos):
+    if isinstance(n,types.StringType):
+        n = n.lower()
     return Node("const", pos, None, n=="true" or n=="yes", fracttypes.Bool)
 
 def Binop(op, left, right,pos):

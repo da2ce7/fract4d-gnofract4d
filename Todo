@@ -6,6 +6,8 @@ fixed in next version:
 * W	added position, --trace cmd-line params
 * W	warp_param menu
 * B	shouldn't need to compile anything to print help or version
+* B	default param values: 'true' is case-sensitive, 'True' is false
+* B	parse continuation lines correctly mid-token
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -29,7 +31,6 @@ bugs (the more B's, the worse the bug):
 * BB	stops drawing after new gradient applied to DCA fractal (sometimes)
 
 * B	compile 17x before display when loading parfile.fct ?
-* B	default param values: 'true' is case-sensitive, 'True' is false
 * B	bwp.ucl#bwp1: off-by-one on enums? (Square == Circle)
 * B	RQ: progress bar should be more colorful
 * B	half-done images left behind when RQ aborted
@@ -47,7 +48,6 @@ bugs (the more B's, the worse the bug):
 * B	untitled_5 displays weirdly - so do some combinations of bailout+colorfunc
 * B	should start drawing straight away when image returns to normal size
 * B	recoloring during deepening can make things shallower
-* B	parse continuation lines correctly mid-token
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
 * B	mandrake: pygtk2 is called pygtk2.0
