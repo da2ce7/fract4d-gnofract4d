@@ -96,10 +96,6 @@ except:
 
 class Options:
     "Gathers command-line args, wraps crappy getOpt interface"
-    def get_list(self):
-        return [
-            Option("maxiter",arg=True,type=int
-
     def __init__(self,args):
         (self.basename,self.func) = (None,None)
         (self.innername,self.innerfunc) = (None,None)

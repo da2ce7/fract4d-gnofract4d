@@ -799,6 +799,17 @@ default:
         x < 8
         }''')
         self.assertNoProbs(t2)
+
+    def testMixedCaseDefaultBool(self):
+        t = self.translate('''t {
+        default:
+        bool param x
+            default = True
+        endparam        
+        }''')
+
+        self.assertNoErrors(t)
+        self.assertEqual(True, t.symbols["@x"].default.value)
         
     def disable_testMixedImplicitAndNamedParams(self):
         t = self.translate('''t_mix {
