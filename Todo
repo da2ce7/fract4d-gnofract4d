@@ -5,6 +5,7 @@ fixed in next version:
 * W	added maxiter cmd-line param
 * W	added position, --trace cmd-line params
 * W	warp_param menu
+* B	shouldn't need to compile anything to print help or version
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -27,7 +28,6 @@ bugs (the more B's, the worse the bug):
         doesn't redraw
 * BB	stops drawing after new gradient applied to DCA fractal (sometimes)
 
-* B	shouldn't need to compile anything to print help or version
 * B	compile 17x before display when loading parfile.fct ?
 * B	default param values: 'true' is case-sensitive, 'True' is false
 * B	bwp.ucl#bwp1: off-by-one on enums? (Square == Circle)
