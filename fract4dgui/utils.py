@@ -247,6 +247,24 @@ def get_selected_value(menu):
         return val
     except:
         return menu.item_list[menu.get_history()]
+
+def set_selected_value(menu,val):
+    try:
+        _throwback()
+        model = menu.get_model()
+        i = 0
+        iter = model.get_iter_first()
+        while iter != None:
+            item = model.get_value(iter,0)
+            if item == val:
+                menu.set_active(i)
+                return
+            iter = model.iter_next(iter)
+            i += 1
+        
+    except:
+        i = menu.item_list.index(val)
+        menu.set_history(i)
     
 def create_color(r,g,b):
     # multiply up to match range expected by gtk

@@ -4,11 +4,11 @@ fixed in next version:
 * B	DeprecationError on pygtk 2.8+
 * W	added maxiter cmd-line param
 * W	added position, --trace cmd-line params
+* W	warp_param menu
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 
-* BB	warp_param menu not working
 * BB	Renderqueue should antialias even if main window doesn't
 * BB	func with a bailout of 1 will never quit and can't be interrupted
 * BB	better image-sizing widgets for render queue

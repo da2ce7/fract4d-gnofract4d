@@ -56,12 +56,12 @@ class T:
         # FIXME is this required?
         self.params = [copy.copy(x) for x in other.params]
 
-    def initvalue(self,name,warp_param=-1):
+    def initvalue(self,name,warp_param=None):
         ord = self.order_of_name(name)
         type = self.formula.symbols[name].type
         
         if type == fracttypes.Complex:
-            if warp_param == ord:
+            if warp_param == name:
                 return "warp"
             else:
                 return "(%.17f,%.17f)"%(self.params[ord],self.params[ord+1])
@@ -79,7 +79,7 @@ class T:
         else:
             raise ValueError("Unknown type %s for param %s" % (type,name))
 
-    def save_formula_params(self,file,warp_param=-1):
+    def save_formula_params(self,file,warp_param=None):
         print >>file, "[%s]" % self.sectname
         print >>file, "formulafile=%s" % self.funcFile
         print >>file, "function=%s" % self.funcName
@@ -170,7 +170,7 @@ class T:
                     self.params[ord+1] = im
                     self.changed()
             elif val == "warp":
-                self.parent.set_warp_param(ord)
+                self.parent.set_warp_param(name)
         elif t == fracttypes.Hyper or t == fracttypes.Color:
             m = hyper_re.match(val)
             if m!= None:
