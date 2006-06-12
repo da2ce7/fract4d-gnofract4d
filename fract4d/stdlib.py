@@ -528,6 +528,9 @@ def recip_h_h(gen,t,srcs):
            gen.emit_binop('*', [re, re_k_minus_ij], Float)], Float),
            det], Float))
 
+def abs_i_i(gen,t,srcs):
+    return gen.emit_func('abs',srcs,Int)
+
 def abs_f_f(gen,t,srcs):
     return gen.emit_func('fabs',srcs, Float)
 

@@ -21,7 +21,7 @@ compressed_re = re.compile(r'^::')
 
 uncompressed_re = re.compile(r'\}')
 
-space_re = re.compile(r'^\s+')
+space_re = re.compile(r'^[ \t]+')
 
 class Error(Exception):
     def __init__(self,msg):

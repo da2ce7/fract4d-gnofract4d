@@ -287,7 +287,7 @@ def createDefaultDict():
       doc='''Returns zero.''')
     
     f("abs",
-      cfl("[_], _", [Float, Complex]),
+      cfl("[_], _", [Int,Float, Complex]),
       doc='''The absolute value of a number. abs(3) = abs(-3) = 3.
       abs() of a complex number is a complex number consisting of
       the absolute values of the real and imaginary parts, i.e.
