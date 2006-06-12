@@ -49,6 +49,18 @@ class Test(unittest.TestCase):
 
         ''')
 
+    def testContinuation2(self):
+        pp = preprocessor.T('''
+; The normal library that comes with Ultra Fractal includes much more advanced routines. \\
+
+; Most of the routines includes something called "Iteration trap".
+''')
+        self.assertEqual(pp.out(),'''
+; The normal library that comes with Ultra Fractal includes much more advanced routines. 
+
+; Most of the routines includes something called "Iteration trap".
+''')
+
     def testBadUndef(self):
         pp = preprocessor.T('''
         $UNDEF foo
