@@ -75,6 +75,8 @@ class Segment:
             self.blend_mode, self.color_mode)
     
     def __eq__(self,other):
+        if other == None: return False
+        if not isinstance(other, Segment): return False
         return self.cmode == other.cmode and \
                self.bmode == other.bmode and \
                self.close(self.left, other.left) and \
@@ -86,6 +88,22 @@ class Segment:
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def left_of(self,other):
+        # true if other.left == this.right
+        return other.left == self.right and \
+               other.left_color[0] == self.right_color[0] and \
+               other.left_color[1] == self.right_color[1] and \
+               other.left_color[2] == self.right_color[2] and \
+               other.left_color[3] == self.right_color[3]
+
+    def right_of(self,other):
+        # true if other.right == this.left
+        return other.right == self.left and \
+               other.right_color[0] == self.left_color[0] and \
+               other.right_color[1] == self.left_color[1] and \
+               other.right_color[2] == self.left_color[2] and \
+               other.right_color[3] == self.left_color[3]
+    
     def close(self, a, b):
         # True if a is nearly == b
         if isinstance(a, types.ListType):
@@ -174,10 +192,17 @@ class Segment:
         else:
             return HSVtoRGB([RH,GS,BV,A])
 
-    def save(self,f):
-        print >>f, "%6f %6f %6f" % (self.left, self.mid, self.right),
-        for x in self.left_color + self.right_color:
-            print >>f, "%6f" % x,
+    def save(self,f,skip_left=False):
+        if skip_left:
+            # this segment's left end == previous right, so leave it out
+            print >>f, "+%6f %6f" % (self.mid, self.right),
+            for x in self.right_color:
+                print >>f, "%6f" % x,
+        else:
+            print >>f, "%6f %6f %6f" % (self.left, self.mid, self.right),
+            for x in self.left_color + self.right_color:
+                print >>f, "%6f" % x,
+        
         print >>f, "%d %d" % (self.bmode, self.cmode)
             
 class Gradient:
@@ -199,6 +224,7 @@ class Gradient:
         return c
 
     def __eq__(self, other):
+        if other == None: return False
         if not isinstance(other, Gradient): return False
         if self.name != other.name: return False
         if self.segments != other.segments: return False
@@ -209,17 +235,20 @@ class Gradient:
     
     def serialize(self):
         s = StringIO.StringIO()
-        self.save(s)
+        self.save(s,True)
         return s.getvalue()
 
-    def save(self,f):
+    def save(self,f,compress=False):
         print >>f, "GIMP Gradient"
         if self.name:
             print >>f, "Name:", self.name
         print >>f, len(self.segments)
+        last = None
         for seg in self.segments:
-            seg.save(f)
-
+            compress_seg = compress and last != None and seg.right_of(last)
+            seg.save(f, compress_seg)
+            last = seg
+            
     def load_ugr(self, f):
         "Load an ir tree parsed by the translator"
         prev_index = 0.0
@@ -274,10 +303,16 @@ class Gradient:
         num_vals = int(line)
         for i in xrange(num_vals):
             line = f.readline()
-            [left, mid, right,
-             lr, lg, lb, la,
-             rr, rg, rb, ra,
-             bmode, cmode] = line.split()
+            if line[:1] == "+":
+                # a compressed continuation, use last vals
+                left = right
+                lr,lg,lb,la = rr,rg,rb,ra
+                [mid,right,rr,rg,rb,ra,bmode,cmode] = line.split()
+            else:
+                [left, mid, right,
+                 lr, lg, lb, la,
+                 rr, rg, rb, ra,
+                 bmode, cmode] = line.split()
 
             if int(cmode) != ColorMode.RGB:
                 raise HsvError("This gradient file requires HSV support, which is not yet implemented")
