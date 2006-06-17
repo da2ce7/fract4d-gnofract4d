@@ -20,7 +20,7 @@ import formsettings
 
 # the version of the earliest gf4d release which can parse all the files
 # this version can output
-THIS_FORMAT_VERSION="2.8"
+THIS_FORMAT_VERSION="3.0"
 
 class T(fctutils.T):
     XCENTER = 0

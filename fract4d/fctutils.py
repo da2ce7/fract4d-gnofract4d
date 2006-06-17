@@ -54,8 +54,13 @@ class ParamBag(T):
         self.dict[sect + name] = val
 
     def load(self,f):
+        encoded = False
         line = f.readline()
         while line != "":
+            if line[:2]=="::":
+                # start of an encoded block
+                line = line[2:]
+                
             (name,val) = self.nameval(line)
             if name != None:
                 if name == self.endsect:
@@ -71,5 +76,6 @@ class ParamBag(T):
                     val = "".join(vals)
 
                 self.parseVal(name,val,f)
+
             line = f.readline()
 
