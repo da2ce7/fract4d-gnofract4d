@@ -105,9 +105,15 @@ class T(fctutils.T):
         self.loadFctFile(StringIO.StringIO(string))
         self.changed()
         
-    def save(self,file,update_saved_flag=True):
+    def save(self,file,update_saved_flag=True,**kwds):
         print >>file, "gnofract4d parameter file"
         print >>file, "version=%s" % THIS_FORMAT_VERSION
+
+        compress = kwds.get("compress",False)
+        if compress:
+            # compress this file
+            main_file = file
+            file = fctutils.Compressor()
 
         paramnames = ["x","y","z","w","size","xy","xz","xw","yz","yw","zw"]
         for pair in zip(paramnames,self.params):
@@ -127,6 +133,10 @@ class T(fctutils.T):
         for solid in self.solids:
             print >>file, "%02x%02x%02x%02x" % solid
         print >>file, "]"
+
+        if compress:
+            file.close()
+            print >> main_file, file.getvalue()
         
         if update_saved_flag:
             self.saved = True
@@ -731,12 +741,9 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
         line = f.readline()
         if line == None or not line.startswith("gnofract4d parameter file"):
             raise Exception("Not a valid parameter file")
-        while line != "":
-            (name,val) = self.nameval(line)
-            if name != None:             
-                self.parseVal(name,val,f)
-            
-            line = f.readline()
+
+        self.load(f)
+
         self.fix_bailout()
         #self.fix_gradients(old_gradient)
         self.saved = True
