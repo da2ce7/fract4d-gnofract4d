@@ -24,13 +24,19 @@ class T:
                 if name == self.endsect:
                     break
 
+                if name=="compressed":
+                    compressed = True
+                else:
+                    compressed = False
                 if val == "[":
                     # start of a multi-line parameter
                     line = f.readline()
                     vals = []
                     while line != "" and line.rstrip() != "]":
+                        if compressed:
+                            line = line.rstrip()
                         vals.append(line)
-                        line = f.readline()
+                        line = f.readline()                    
                     val = "".join(vals)
 
                 if name == "compressed":
@@ -66,7 +72,6 @@ class T:
     def decompress(self,b64string):
         # decompress remaining codes
         bytes = base64.standard_b64decode(b64string)
-            
         embedded_file = gzip.GzipFile(None,"rb",9,StringIO.StringIO(bytes))
         self.load(embedded_file)
 
@@ -87,7 +92,7 @@ class Compressor(gzip.GzipFile):
     def split_by(self,thestring, n):
         numblocks,therest = divmod(len(thestring),n)
         baseblock = "%ds" % n
-        format = "%s %dx" % (baseblock *numblocks, therest)
+        format = "%s%ds" % (baseblock *numblocks, therest)
         return struct.unpack(format, thestring)    
     
     def getvalue(self):

@@ -267,29 +267,26 @@ class Gradient:
         if line != "GIMP Gradient\n":
             raise Error("Invalid gradient file: no header found")
         
-        try:
+        line = f.readline()
+        if line.startswith("Name:"):
+            name = line[5:].strip()
             line = f.readline()
-            if line.startswith("Name:"):
-                name = line[5:].strip()
-                line = f.readline()
-            num_vals = int(line)
-            for i in xrange(num_vals):
-                line = f.readline()
-                [left, mid, right,
-                 lr, lg, lb, la,
-                 rr, rg, rb, ra,
-                 bmode, cmode] = line.split()
+        num_vals = int(line)
+        for i in xrange(num_vals):
+            line = f.readline()
+            [left, mid, right,
+             lr, lg, lb, la,
+             rr, rg, rb, ra,
+             bmode, cmode] = line.split()
 
-                if int(cmode) != ColorMode.RGB:
-                    raise HsvError("This gradient file requires HSV support, which is not yet implemented")
-                seg = Segment(
-                    float(left), [float(lr), float(lg), float(lb), float(la)],
-                    float(right),[float(rr), float(rg), float(rb), float(ra)],
-                    float(mid),
-                    int(bmode), int(cmode))
-                new_segments.append(seg)
-        except Exception, err:
-            raise err
+            if int(cmode) != ColorMode.RGB:
+                raise HsvError("This gradient file requires HSV support, which is not yet implemented")
+            seg = Segment(
+                float(left), [float(lr), float(lg), float(lb), float(la)],
+                float(right),[float(rr), float(rg), float(rb), float(ra)],
+                float(mid),
+                int(bmode), int(cmode))
+            new_segments.append(seg)
         
         self.segments = new_segments
         self.name = name
