@@ -10,6 +10,7 @@ fixed in next version:
 * B	parse continuation lines correctly mid-token
 * B	wrong line numbers when \ followed by blank line
 * B	sp.ucl#AllInOne - compiler error, wrong type for abs (Int version of abs)
+* W	smaller .fct files for easier sharing
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
