@@ -619,6 +619,10 @@ blue=0.3
         self.assertEqual(f1.warp_param, f2.warp_param)
         
     def testSave(self):
+        self.runSaveTest(False)
+        self.runSaveTest(True)
+        
+    def runSaveTest(self,compressed):
         # load some settings
         f1 = fractal.T(self.compiler)
         file1 = StringIO.StringIO(g_testfile)        
@@ -626,7 +630,7 @@ blue=0.3
 
         # save again
         file2 = StringIO.StringIO()
-        f1.save(file2)
+        f1.save(file2,compress=compressed)
         saved = file2.getvalue()
         self.failUnless(saved.startswith("gnofract4d parameter file"))
         

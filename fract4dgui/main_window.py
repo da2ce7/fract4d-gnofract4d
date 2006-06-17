@@ -976,7 +976,7 @@ class MainWindow:
         
     def save_file(self,file):
         try:
-            self.f.save(open(file,'w'))
+            self.f.save(open(file,'w'),compress=True)
             self.set_filename(file)
             self.update_recent_files(file)
             return True

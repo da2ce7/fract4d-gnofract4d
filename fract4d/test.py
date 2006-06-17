@@ -9,6 +9,7 @@ import test_canon
 import test_codegen
 import test_fc
 import test_fract4d
+import test_fctutils
 import test_parfile
 import test_fractal
 import test_3d
@@ -30,6 +31,7 @@ def suite():
     test_codegen.suite(),
     test_fc.suite(),
     test_fract4d.suite(),
+    test_fctutils.suite(),
     test_parfile.suite(),
     test_fractal.suite(),
     test_3d.suite(),
