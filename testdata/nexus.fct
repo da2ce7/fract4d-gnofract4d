@@ -31,7 +31,7 @@ function=zero
 @_density=1.00000000000000000
 [endsection]
 [outer]
-formulafile=standard.cfrm
+formulafile=standard.ucl
 function=GaussianInteger
 @_transfer=ident
 @normfunc=ident
