@@ -181,7 +181,18 @@ class Test(unittest.TestCase):
         
     def testRandomize(self):
         self.mw.randomize_colors(8,None)
+
+    def testDefaultFilenames(self):
+        self.assertEqual("Mandelbrot.fct", self.mw.default_save_filename())
+        self.assertEqual("Mandelbrot.png", self.mw.default_save_filename(".png"))
+        self.assertEqual("Mandelbrot.png", self.mw.default_image_filename())
         
+        self.mw.load("../testdata/elfglow.fct")
+        self.assertEqual("../testdata/elfglow002.fct", self.mw.default_save_filename())
+        self.assertEqual(
+            "../testdata/elfglow.png",
+            self.mw.image_save_filename("../testdata/elfglow.fct"))
+
 def suite():
     return unittest.makeSuite(Test,'test')
 
