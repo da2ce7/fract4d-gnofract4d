@@ -36,7 +36,7 @@ main()
     pfoParams[6].doubleval = 0.0; // offset
 
     pfo->vtbl->init(
-	pfo,1.0e-12,
+	pfo,2.0e-9,
 	pfoParams,
 	7);
 

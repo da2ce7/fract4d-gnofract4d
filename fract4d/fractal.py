@@ -110,7 +110,7 @@ class T(fctutils.T):
         print >>file, "version=%s" % THIS_FORMAT_VERSION
 
         compress = kwds.get("compress",False)
-        if compress:
+        if compress != False:
             # compress this file
             main_file = file
             file = fctutils.Compressor()

@@ -58,7 +58,8 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
               "browser" : _get_default_browser()
             },
             "general" : {
-              "threads" : "1"
+              "threads" : "1",
+              "compress_fct" : "1",
             },
             "user_info" : {
               "name" : "",
@@ -304,6 +305,24 @@ class PrefsDialog(dialog.T):
         entry.connect('focus-out-event', set_prefs)
         return entry
 
+    def create_save_compress_widget(self):
+        widget = gtk.CheckButton(_("Compress _Parameter Files"))
+        self.tips.set_tip(
+            widget,_("Write .fct files in a shorter but unreadable format"))
+        widget.set_use_underline(True)
+        
+        def set_widget(*args):
+            widget.set_active(self.prefs.getboolean("general","compress_fct"))
+
+        def set_prefs(*args):
+            self.prefs.set("general","compress_fct",str(widget.get_active()))
+
+        set_widget()
+        self.prefs.connect('preferences-changed',set_widget)
+        widget.connect('toggled',set_prefs)
+
+        return widget
+
     def create_general_page(self):
         table = gtk.Table(5,2,False)
         label = gtk.Label(_("_General"))
@@ -319,17 +338,9 @@ class PrefsDialog(dialog.T):
         name_label.set_mnemonic_widget(entry)
         table.attach(name_label,0,1,0,1,0,0,2,2)
 
-        #entry = self.create_option_entry("user_info","name")
-        #self.tips.set_tip(
-        #    entry,_("This text is saved in each image and parameter file you create"))
-        #
-        #table.attach(entry,1,2,1,2,gtk.EXPAND | gtk.FILL, 0, 2, 2)
-        #
-        #name_label = gtk.Label(_("_User Info :"))
-        #name_label.set_use_underline(True)
-        #name_label.set_mnemonic_widget(entry)
-        #table.attach(name_label,0,1,1,2,0,0,2,2)
-
+        save_compress = self.create_save_compress_widget()
+        table.attach(save_compress,0,2,1,2,gtk.EXPAND | gtk.FILL,0,2,2)
+                
     def create_directory_list(self, section_name):
         self.path_list = gtk.ListStore(
             gobject.TYPE_STRING)

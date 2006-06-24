@@ -27,6 +27,7 @@ class MainWindow:
     def __init__(self, extra_paths=[]):
         self.quit_when_done =False
         self.save_filename = None
+        self.compress_saves = True
         self.f = None
 
         self.four_d_sensitives = []
@@ -142,7 +143,7 @@ class MainWindow:
             gtk.EXPAND | gtk.FILL,
             1,1)        
         return table
-
+    
     def get_save_as_fs(self):
         if self.saveas_fs == None:
             self.saveas_fs = utils.get_file_save_chooser(
@@ -976,7 +977,8 @@ class MainWindow:
         
     def save_file(self,file):
         try:
-            self.f.save(open(file,'w'),compress=True)
+            comp = preferences.userPrefs.getboolean("general","compress_fct")
+            self.f.save(open(file,'w'),compress=comp)
             self.set_filename(file)
             self.update_recent_files(file)
             return True
