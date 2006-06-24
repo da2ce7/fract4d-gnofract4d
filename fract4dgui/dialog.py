@@ -36,7 +36,6 @@ class T(gtk.Dialog):
         global _dialogs
         if not _dialogs.get(type):
             _dialogs[type] = type(parent, *args)
-            
         if dialog_mode:
             _dialogs[type].show_all()
             _dialogs[type].present()
