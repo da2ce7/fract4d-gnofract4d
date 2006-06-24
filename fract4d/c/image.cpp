@@ -109,7 +109,7 @@ rgba_t
 image::get(int x, int y) const
 {
     char *start = buffer + x*3 + y * row_length();
-    assert(start  + 2 - buffer <= bytes());
+    //assert(start  + 2 - buffer <= bytes());
     rgba_t pixel;
     pixel.r = start[RED];
     pixel.g = start[GREEN];

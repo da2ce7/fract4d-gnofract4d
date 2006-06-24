@@ -39,7 +39,7 @@ def main(args):
     files = " ".join(pc.cfiles + [cfile])
     
     cmd = "%s %s %s -o %s %s" % \
-          (pc.compiler_name, files, "-g -O3 -Ic -lpthread", "proftest", "")
+          (pc.compiler_name, files, "-g -pg -O3 -Ic -lpthread", "proftest", "")
 
     print cmd
     (status,output) = commands.getstatusoutput(cmd)

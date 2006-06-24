@@ -687,8 +687,8 @@ extern pf_obj *pf_new(void);
                 old_z_im = z_im;'''
 
             inserts["check_period"] = '''
-                if ((fabs(z_re - old_z_re) < t__pfo->period_tolerance) &&
-                    (fabs(z_im - old_z_im) < t__pfo->period_tolerance))
+                if ( fabs(z_re - old_z_re) + fabs(z_im - old_z_im) <
+                     t__pfo->period_tolerance)
                 {
                     period_iters = t__h_numiter;
                     t__h_numiter = maxiter; break;
