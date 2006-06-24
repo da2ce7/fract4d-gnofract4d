@@ -154,6 +154,7 @@ def set_file_chooser_filename(chooser,name):
     try:
         _throwback()
         if name:
+            chooser.set_current_folder(os.path.abspath(os.path.dirname(name)))
             chooser.set_current_name(os.path.basename(name))
     except:
         pass

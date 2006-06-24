@@ -344,26 +344,38 @@ class MainWindow:
         else:
             return self.filename
 
-    def default_save_filename(self,extension=".fct"):
-        global re_ends_with_num, re_cleanup        
+    def base_filename(self, extension):
         if self.filename == None:
             base_name = self.f.get_func_name()
             base_name = re_cleanup.sub("_", base_name) + extension
         else:
             base_name = self.filename
+        return base_name
+    
+    def default_save_filename(self,extension=".fct"):
+        base_name = self.base_filename(extension)
 
         # need to gather a filename
         (base,ext) = os.path.splitext(base_name)
         base = re_ends_with_num.sub("",base)
 
         save_filename = base + extension
-        i = 1
+        i = 2
         while True:
             if not os.path.exists(save_filename):
                 break
             save_filename = base + ("%03d" % i) + extension
             i += 1
         return save_filename
+
+    def default_image_filename(self,extension=".png"):
+        base_name = self.base_filename(extension)
+
+        return self.image_save_filename(base_name)
+    
+    def image_save_filename(self,fctname,extension=".png"):
+        (base,ext) = os.path.splitext(fctname)
+        return base + extension
     
     def set_window_title(self):
         title = self.display_filename()
@@ -441,7 +453,7 @@ class MainWindow:
     
     def save_hires_image(self, action, widget):
         """Add the current fractal to the render queue."""
-        save_filename = self.default_save_filename(".png")
+        save_filename = self.default_image_filename(".png")
 
         fs = self.get_save_hires_image_as_fs()
         utils.set_file_chooser_filename(fs,save_filename)
@@ -1090,7 +1102,7 @@ class MainWindow:
 
     def save_image(self,action,widget):
         """Save the current image to a file."""
-        save_filename = self.default_save_filename(".png")
+        save_filename = self.default_image_filename(".png")
 
         fs = self.get_save_image_as_fs()
         utils.set_file_chooser_filename(fs,save_filename)
