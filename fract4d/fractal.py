@@ -96,9 +96,9 @@ class T(fctutils.T):
 
         self.saved = True # initial params not worth saving
 
-    def serialize(self):
+    def serialize(self,comp=False):
         out = StringIO.StringIO()
-        self.save(out,False)
+        self.save(out,False,compress=comp)
         return out.getvalue()
 
     def deserialize(self,string):

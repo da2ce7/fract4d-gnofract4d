@@ -30,7 +30,7 @@ def update(file=None, formula=None):
     global formula_to_use
     b = dialog.get(BrowserDialog)
     if file:
-        if b:            
+        if b:
             b.current_fname=os.path.basename(file)
             b.current_formula=formula
             b.populate_file_list()
@@ -210,14 +210,18 @@ class BrowserDialog(dialog.T):
 
         current_iter = None
         files.sort(stricmp)
+        index,i = 0,0
         for fname in files:
             iter = self.file_list.append ()
             if fname == self.current_fname:
                 current_iter = iter
+                index = i
             self.file_list.set (iter, 0, fname)
-
+            i += 1
+            
         # re-select current file, if any
         if current_iter:
+            self.filetreeview.scroll_to_cell(index)
             sel = self.filetreeview.get_selection()
             if sel:
                 sel.unselect_all()
@@ -235,14 +239,17 @@ class BrowserDialog(dialog.T):
         exclude = [None, "OUTSIDE", "INSIDE"]
         
         form_names = ff.get_formula_names(exclude[self.func_type])
-        form_names.sort(stricmp)        
+        form_names.sort(stricmp)
+        i = 0
         for formula_name in form_names:
             iter = self.formula_list.append()
             self.formula_list.set(iter,0,formula_name)
             if formula_name == self.current_formula:
                 self.treeview.get_selection().select_iter(iter)
+                self.treeview.scroll_to_cell(i)
                 self.set_formula(formula_name)
-                
+            i += 1
+            
     def create_formula_list(self):
         sw = gtk.ScrolledWindow ()
         sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)

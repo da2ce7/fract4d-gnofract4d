@@ -161,13 +161,14 @@ class FlickrUploadDialog(dialog.T):
         self.hide()
 
     def get_description(self):
+        compress = preferences.userPrefs.getboolean("general","compress_fct")
         buffer = self.description.get_buffer()
         description =  buffer.get_text(
             buffer.get_start_iter(),buffer.get_end_iter())
 
         if self.include_params.get_active():
             description += "\n-----------------------------------\n"
-            description += self.f.serialize()
+            description += self.f.serialize(compress)
 
         return description
     
@@ -184,8 +185,11 @@ class FlickrUploadDialog(dialog.T):
             self.blogs.append(blog)
         
     def get_tags(self):
-        formula_tag = FlickrUploadDialog.clean_formula_re.sub('',self.f.forms[0].funcName)
-        return "fractal gnofract4d %s %s" % (formula_tag,self.tags.get_text())
+        formula_tags = " ".join([
+            FlickrUploadDialog.clean_formula_re.sub('',x.funcName) for x in
+            self.f.forms])
+        
+        return "fractal gnofract4d %s %s" % (formula_tags,self.tags.get_text())
 
     def set_upload_mode(self,is_upload):
         self.cancel_button.set_sensitive(not is_upload)

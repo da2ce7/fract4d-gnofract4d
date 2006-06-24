@@ -82,11 +82,10 @@ class Test(unittest.TestCase):
         f.save(StringIO.StringIO(""))
         self.assertEqual(f.saved,True)
         
-        
         mag = f.get_param(f.MAGNITUDE)
         f.set_param(f.MAGNITUDE,9.0)
 
-        self.assertEqual(f.saved,False)
+        self.assertEqual(False, f.saved)
         
         self.assertEqual(counter.count,1)
         self.assertEqual(f.get_param(f.MAGNITUDE),9.0)

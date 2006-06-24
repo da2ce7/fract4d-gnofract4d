@@ -112,7 +112,7 @@ class Hidden(gobject.GObject):
         self.set_saved(False)
         if not self.frozen:
             self.emit('parameters-changed')
-            
+        
     def formula_changed(self):
         self.f.dirtyFormula = True
         #if not self.frozen:
@@ -385,10 +385,10 @@ class Hidden(gobject.GObject):
             return True
         return self.f.get_saved()
 
-    def serialize(self):
+    def serialize(self,compress=False):
         if self.f == None:
             return None
-        return self.f.serialize()
+        return self.f.serialize(compress)
 
     def set_size(self, new_width, new_height):
         self.interrupt()

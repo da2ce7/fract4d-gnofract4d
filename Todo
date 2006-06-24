@@ -11,6 +11,7 @@ fixed in next version:
 * B	wrong line numbers when \ followed by blank line
 * B	sp.ucl#AllInOne - compiler error, wrong type for abs (Int version of abs)
 * W	smaller .fct files for easier sharing
+* B	browser doesn't scroll to current func when opened
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -42,7 +43,6 @@ bugs (the more B's, the worse the bug):
 * B	painter click on inner sometimes gives "IndexError: list assignment 
         out of range" @ self.f.solids[color] = 
         (int(r*255.0),int(g*255.0),int(b*255.0),255)
-* B	browser doesn't jump to current func when opened
 * B	is a cmap loaded from a .map file correct? Think index math is squiffy 
 * B     var called 'loat' would clash with C reserved word
 * B	weird behavior when using explorer mode & oversized image
