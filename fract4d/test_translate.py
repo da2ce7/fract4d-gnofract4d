@@ -476,7 +476,7 @@ default:
         t = self.translate('''
         t1 {
         init:
-        if @y == "foo"
+        if @y == "fOo"
            x = 1
         elseif @y == "bar"
            x = 2
@@ -484,7 +484,7 @@ default:
         bool b = @y == "bar"
         default:
         param y
-        enum = "foo" "bar"
+        enum = "Foo" "bar"
         default = "bar"
         endparam
         }

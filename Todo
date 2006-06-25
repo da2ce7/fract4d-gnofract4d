@@ -17,6 +17,7 @@ fixed in next version:
         don't remove numbers once added)
 * B	dmj.ufm:DHNovaJulka - '#magn' - no symbol starting with t__ is allowed
 * W	added #magn symbol
+* B	enum string comparisons should be case-sensitive
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

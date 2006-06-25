@@ -158,7 +158,7 @@ class TBase:
             if isinstance(v.default, ir.Const) \
                    and v.default.datatype == String:
                 try:
-                    val = v.enum.value.index(v.default.value)
+                    val = self.find_index_nocase(v.enum.value, v.default.value)
                     v.default = ir.Const(val,node,Int)
                 except ValueError:
                     msg = "%d: enum value '%s' invalid for param %s" % \
@@ -678,6 +678,15 @@ class TBase:
         r = ir.ESeq([test, trueBlock, falseBlock, doneDest],
                     temp, node, op.ret)
         return r
+
+    def find_index_nocase(self,list,value):
+        i = 0
+        v = value.lower()
+        for item in list:
+            if item.lower() == v:
+                return i
+            i += 1
+        raise ValueError, "not found"
     
     def expand_enums(self, node, children):
         'special case for @foo <binop> "enum"'
@@ -688,7 +697,7 @@ class TBase:
             if hasattr(var, "enum"):
                 if isinstance(rhs, ir.Const) and rhs.datatype == String:
                     try:
-                        val = var.enum.value.index(rhs.value)
+                        val = self.find_index_nocase(var.enum.value,rhs.value)
                         children[1] = ir.Const(val,node,Int)
                     except ValueError:
                         msg = "%d: enum value '%s' invalid for param %s" % \
