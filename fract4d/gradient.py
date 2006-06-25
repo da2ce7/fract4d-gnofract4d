@@ -258,12 +258,10 @@ class Gradient:
         list = []
         for i in xrange(ncolors):
             (r,g,b,skip) = struct.unpack("<BBBxI", f.read(8))
-            #print "%2x%2x%2x %d" % (r,g,b,skip)
             entry = (i/float(ncolors), r,g,b,255)
-            #print 'skipping "%s"' % f.read(skip)
+            f.read(skip)
             (r2,g2,b2,skip) = struct.unpack("BBBB", f.read(4))
-            #print "%2x%2x%2x %d" % (r2,g2,b2,skip)
-            #print 'skipping "%s"' % f.read(skip+1)
+            f.read(skip+1)
             list.append(entry)
             
         self.load_list(list)

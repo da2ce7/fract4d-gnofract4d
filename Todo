@@ -4,6 +4,7 @@ fixed in next version:
 * B	DeprecationError on pygtk 2.8+
 * W	added maxiter cmd-line param
 * W	added position, --trace cmd-line params
+* W	--map cmd-line param
 * W	warp_param menu
 * B	warp_param menu should be hidden unless there are warpable params
 * B	shouldn't need to compile anything to print help or version
@@ -18,6 +19,7 @@ fixed in next version:
 * B	dmj.ufm:DHNovaJulka - '#magn' - no symbol starting with t__ is allowed
 * W	added #magn symbol
 * B	enum string comparisons should be case-sensitive
+* W	load ColorSchemer palette files, added some handsome files
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
