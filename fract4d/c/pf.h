@@ -31,6 +31,9 @@
 // maximum number of params which can be passed to init
 #define PF_MAXPARAMS 200
 
+// number of positional params used
+#define N_PARAMS 11
+
 typedef enum
 {
     INT = 0,
@@ -53,6 +56,7 @@ struct s_pf_vtable {
     void (*init)(
 	struct s_pf_data *p,
         double period_tolerance,
+	double *pos_params,
         struct s_param *params,
 	int nparams
 	);

@@ -69,13 +69,15 @@ class T:
 typedef struct {
     pf_obj parent;
     struct s_param p[PF_MAXPARAMS];
+    double pos_params[N_PARAMS];
     double period_tolerance;
     %(var_decls)s
 } pf_real ;
 
 static void pf_init(
     struct s_pf_data *p_stub,
-    double period_tolerance, 
+    double period_tolerance,
+    double *pos_params,
     struct s_param *params,
     int nparams)
 {
@@ -91,6 +93,11 @@ static void pf_init(
         pfo->p[i] = params[i];
         /* printf("param %%d = %%.17g\\n",i,params[i]); */
     }
+    for(i = 0; i < N_PARAMS; ++i)
+    {
+        pfo->pos_params[i] = pos_params[i];
+    }
+    
     pfo->period_tolerance = period_tolerance;
 }
 
@@ -334,6 +341,9 @@ pf_obj *pf_new()
 // maximum number of params which can be passed to init
 #define PF_MAXPARAMS 200
 
+// number of positional params used
+#define N_PARAMS 11
+
 typedef enum
 {
     INT = 0,
@@ -356,6 +366,7 @@ struct s_pf_vtable {
     void (*init)(
 	struct s_pf_data *p,
         double period_tolerance,
+	double *pos_params,
         struct s_param *params,
 	int nparams
 	);
@@ -628,7 +639,8 @@ extern pf_obj *pf_new(void);
                      "t__h_tolerance" :
                          "double t__h_tolerance = t__pfo->period_tolerance;",
                      "t__h_solid" : "",
-                     "t__h_color" : ""
+                     "t__h_color" : "",
+                     "t__h_magn" : "double t__h_magn = log(4.0/t__pfo->pos_params[4])/log(2.0) + 1.0;"
                      }
         for (k,v) in user_overrides.items():
             #print "%s = %s" % (k,v)

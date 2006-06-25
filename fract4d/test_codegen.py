@@ -36,6 +36,11 @@ class Test(testbase.TestBase):
 int main()
 {
     double pparams[] = { 1.5, 0.0, 0.0, 0.0};
+    double pos_params[] = {
+        0.0, 0.0, 0.0, 0.0,
+        4.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0} ;
+        
     struct s_param initparams[] = {
         { GRADIENT, 0, 0},
         { FLOAT, 0, 1.0},
@@ -53,7 +58,7 @@ int main()
     double colors[4] = {0.0};
     
     pf_obj *pf = pf_new();
-    pf->vtbl->init(pf,0.001,initparams,6);
+    pf->vtbl->init(pf,0.001,pos_params,initparams,6);
     
     pf->vtbl->calc(
          pf,
@@ -166,24 +171,11 @@ int main()
         #include <math.h>
 
         #include "cmap.cpp"
+        #include "pf.h"
         
-        typedef enum
-	{
-	    INT = 0,
-	    FLOAT = 1,
-            GRADIENT = 2
-	} e_paramtype;
-	
-	struct s_param
-	{
-	    e_paramtype t;
-	    int intval;
-	    double doubleval;
-            void *gradient;
-	};
-
         typedef struct {
             struct s_param *p;
+            double pos_params[N_PARAMS];
         } pf_fake;
         
         int main(){
@@ -201,7 +193,14 @@ int main()
             params[i].doubleval = 0.0;
             params[i].gradient = pMap;
         };
+
         pf_fake t__f;
+
+        for(i = 0; i < N_PARAMS; ++i) {
+           t__f.pos_params[i] = 0.0;
+        }
+        t__f.pos_params[4]=4.0;
+
         t__f.p = params;
         pf_fake *t__pfo = &t__f;
         double pixel_re = 0.0, pixel_im = 0.0;
@@ -1908,6 +1907,14 @@ Newton4(XYAXIS) {; Mark Peterson
         }'''
         self.assertCSays(src,"init","","")
 
+    def testMagn(self):
+        '''Use the #magn variable and check it has the right value'''
+        src = '''t_magn {
+        init:
+        float x = #magn
+        }'''
+        self.assertCSays(src,"init",self.inspect_float("x"),"x = 1")
+        
     # assertions
     def assertCSays(self,source,section,check,result,dump=None):
         asm = self.sourceToAsm(source,section,dump)

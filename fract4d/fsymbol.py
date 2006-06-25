@@ -99,6 +99,7 @@ def createDefaultDict():
         "t__h_pi" : Alias("pi"),
         "t__h_rand" : Alias("rand"),
         "t__h_random" : Alias("rand"),
+        "t__h_magn" : Var(Float,doc="The magnification factor of the image. This i s the number of times the image size has doubled, or ln(4.0/size)"),
         "rand" : OverloadList(
           [ Func([], Complex, stdlib, "rand") ],
           doc="Each time this is accessed, it returns a new peudo-random complex number. This is primarily for backwards compatibility with Fractint formulas - use the random() function in new formulas."),

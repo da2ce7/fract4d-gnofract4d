@@ -337,12 +337,14 @@ cmap_create_gradient(PyObject *self, PyObject *args)
 static PyObject *
 pf_init(PyObject *self, PyObject *args)
 {
-    PyObject *pyobj, *pyarray;
+    PyObject *pyobj, *pyarray, *py_posparams;
     double period_tolerance;
     struct s_param *params;
     struct pfHandle *pfh;
+    double pos_params[N_PARAMS];
 
-    if(!PyArg_ParseTuple(args,"OdO",&pyobj,&period_tolerance,&pyarray))
+    if(!PyArg_ParseTuple(
+	   args,"OdOO",&pyobj,&period_tolerance,&py_posparams, &pyarray))
     {
 	return NULL;
     }
@@ -354,14 +356,45 @@ pf_init(PyObject *self, PyObject *args)
 
     pfh = (struct pfHandle *)PyCObject_AsVoidPtr(pyobj);
 
-    if(!PySequence_Check(pyarray))
+    // check and parse pos_params
+    if(!PySequence_Check(py_posparams))
     {
 	PyErr_SetString(PyExc_TypeError,
-			"Argument 3 should be an array");
+			"Argument 3 should be an array of floats");
 	return NULL;
     }
 
-    int len = PySequence_Size(pyarray);
+    int len = PySequence_Size(py_posparams);
+    if(len != N_PARAMS)
+    {
+	PyErr_SetString(
+	    PyExc_ValueError,
+	    "Wrong number of positional params");
+	return NULL;
+    }
+    
+    for(int i = 0; i < N_PARAMS; ++i)
+    {
+	PyObject *pyitem = PySequence_GetItem(py_posparams,i);
+	if(!PyFloat_Check(pyitem))
+	{
+	    PyErr_SetString(
+		PyExc_ValueError,
+		"All positional params must be floats");
+	    return NULL;
+	}
+	pos_params[i] = PyFloat_AsDouble(pyitem);
+    }
+
+    // check and parse fractal params
+    if(!PySequence_Check(pyarray))
+    {
+	PyErr_SetString(PyExc_TypeError,
+			"Argument 4 should be an array");
+	return NULL;
+    }
+
+    len = PySequence_Size(pyarray);
     if(len == 0)
     {
 	params = (struct s_param *)malloc(sizeof(struct s_param));
@@ -444,7 +477,7 @@ pf_init(PyObject *self, PyObject *args)
 	    Py_XDECREF(pyitem);
 	} 
 	/*finally all args are assembled */
-	pfh->pfo->vtbl->init(pfh->pfo,period_tolerance,params,len);
+	pfh->pfo->vtbl->init(pfh->pfo,period_tolerance,pos_params,params,len);
 	free(params);
     }
     Py_INCREF(Py_None);

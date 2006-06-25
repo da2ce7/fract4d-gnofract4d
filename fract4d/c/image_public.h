@@ -69,7 +69,7 @@ public:
     virtual rgba_t get(int x, int y) const = 0;
 
     // lower-level color data accessors for image_writer
-    virtual inline char *getBuffer() const = 0;
+    virtual char *getBuffer() const = 0;
     inline int row_length() const { return Xres() * 3; };
 
     // accessors for iteration data
