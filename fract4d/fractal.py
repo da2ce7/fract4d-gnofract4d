@@ -527,7 +527,7 @@ class T(fctutils.T):
         fract4dc.cmap_set_solid(cmap,1,r,g,b,a)
         
         initparams = self.all_params()
-        fract4dc.pf_init(pfunc,1.0E-9,initparams)
+        fract4dc.pf_init(pfunc,1.0E-9,self.params,initparams)
 
         if self.warp_param:
             warp = self.forms[0].order_of_name(self.warp_param)

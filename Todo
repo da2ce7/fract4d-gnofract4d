@@ -5,6 +5,7 @@ fixed in next version:
 * W	added maxiter cmd-line param
 * W	added position, --trace cmd-line params
 * W	warp_param menu
+* B	warp_param menu should be hidden unless there are warpable params
 * B	shouldn't need to compile anything to print help or version
 * B	default param values: 'true' is case-sensitive, 'True' is false
 * B	parse continuation lines correctly mid-token
@@ -14,24 +15,27 @@ fixed in next version:
 * B	browser doesn't scroll to current func when opened
 * BB	auto-generated names are wrong (image should == fractal name, 
         don't remove numbers once added)
+* B	dmj.ufm:DHNovaJulka - '#magn' - no symbol starting with t__ is allowed
+* W	added #magn symbol
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
+	until antialias, seems to run single-threaded more often than not
 
 * BB	Renderqueue should antialias even if main window doesn't
 * BB	func with a bailout of 1 will never quit and can't be interrupted
+* B	interrupt takes too long on deep-zoomed fractals
+
+* BB	infinite loops are possible in while loops
 * BB	better image-sizing widgets for render queue
 * BB	gnd.ufm#4D Julia - behaves very oddly
 * BB	fractint doesn't reset vars between points
-* BB	explorer rather slgow with complex colorfuncs (recompile too much)
-* BB	not all keyboard shortcuts available when menu hidden
+* BB	explorer rather slow with complex colorfuncs (recompile too much)
+* BB	not all keyboard shortcuts available when menu hidden (fullscreen)
 * BB	should save enum params as strings, not indexes
 * BB	squares left behind when changing from a smooth colormap to a jagged one
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
-* BB	infinite loops are possible in while loops
-* BB	apply a new gradient to a DCA-based fractal which uses a gradient - 
-        doesn't redraw
 * BB	stops drawing after new gradient applied to DCA fractal (sometimes)
 
 * B	compile 17x before display when loading parfile.fct ?
@@ -43,7 +47,6 @@ bugs (the more B's, the worse the bug):
 * B	painter click on inner sometimes gives "IndexError: list assignment 
         out of range" @ self.f.solids[color] = 
         (int(r*255.0),int(g*255.0),int(b*255.0),255)
-* B	is a cmap loaded from a .map file correct? Think index math is squiffy 
 * B     var called 'loat' would clash with C reserved word
 * B	weird behavior when using explorer mode & oversized image
 * B	untitled_5 displays weirdly - so do some combinations of bailout+colorfunc
@@ -51,7 +54,6 @@ bugs (the more B's, the worse the bug):
 * B	recoloring during deepening can make things shallower
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
-* B	interrupt takes too long on deep-zoomed fractals
 * B	horrible_drawing_bug.fct - zoom out & it looks very different
 * B	giger.fct - results of extangle are different vs 1.9
 * B	fractint builtin fns with () in the name 
@@ -127,7 +129,6 @@ UF Incompatibilities:
 * B? 	jgr.ufm:Rowan - default is blank
 * B	jgr.ufm:Willow - '@fn1' is predefined (in switch)
 * B	browse fhq.ufm - invalid UTF8 string passed to pango_layout
-* B	dmj.ufm:DHNovaJulka - '#magn' - no symbol starting with t__ is allowed
 * B	dmj.udm:dmj-ManyJulia - looks like 3 quadrants are wrong somehow
 * W	raise/remove limit on number of parameters
 * W	allow redeclaration of variables

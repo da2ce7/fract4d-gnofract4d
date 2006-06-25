@@ -17,6 +17,11 @@ import image
 
 from test_fractalsite import FractalSite
 
+pos_params = [
+    0.0, 0.0, 0.0, 0.0,
+    4.0,
+    0.0, 0.0, 0.0, 0.0,0.0, 0.0
+    ]
 class Test(testbase.TestBase):
     def compileMandel(self):
         self.compiler.file_path.append('../formulas')
@@ -86,7 +91,7 @@ class Test(testbase.TestBase):
         handle = fract4dc.pf_load("./test-pf.so")
         pfunc = fract4dc.pf_create(handle)
 
-        fract4dc.pf_init(pfunc,0.001,[self.gradient, 4.0, 0.5])
+        fract4dc.pf_init(pfunc,0.001,pos_params, [self.gradient, 4.0, 0.5])
         
         # a point which doesn't bail out
         result = fract4dc.pf_calc(pfunc,[0.15, 0.0, 0.0, 0.0],100,0,0,0)
@@ -113,7 +118,7 @@ class Test(testbase.TestBase):
         file = self.compileColorDiagonal()
         handle = fract4dc.pf_load(file)
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,self.color_diagonal_params)
+        fract4dc.pf_init(pfunc,0.001,pos_params, self.color_diagonal_params)
 
         fw = fract4dc.fw_create(1,pfunc,cmap,image,site)
         ff = fract4dc.ff_create(
@@ -142,7 +147,7 @@ class Test(testbase.TestBase):
         file = self.compileColorDiagonal()
         handle = fract4dc.pf_load(file)
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,self.color_diagonal_params)
+        fract4dc.pf_init(pfunc,0.001,pos_params,self.color_diagonal_params)
 
         (w,h,tw,th) = (40,20,40,20)
         im = image.T(w,h)
@@ -315,7 +320,7 @@ class Test(testbase.TestBase):
         file = self.compileColorMandel()
         handle = fract4dc.pf_load(file)
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,self.color_mandel_params)
+        fract4dc.pf_init(pfunc,0.001,pos_params,self.color_mandel_params)
         cmap = fract4dc.cmap_create(
             [(0.0,0,0,0,255),
              (1/256.0,255,255,255,255),
@@ -383,7 +388,7 @@ class Test(testbase.TestBase):
         file = self.compileColorMandel()
         handle = fract4dc.pf_load(file)
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,self.color_mandel_params)
+        fract4dc.pf_init(pfunc,0.001,pos_params,self.color_mandel_params)
         cmap = fract4dc.cmap_create(
             [(0.0,0,0,0,255),
              (1/256.0,255,255,255,255),
@@ -454,7 +459,7 @@ class Test(testbase.TestBase):
         for x in xrange(10):
             handle = fract4dc.pf_load(file)
             pfunc = fract4dc.pf_create(handle)
-            fract4dc.pf_init(pfunc,0.001,self.color_mandel_params)
+            fract4dc.pf_init(pfunc,0.001,pos_params,self.color_mandel_params)
             cmap = fract4dc.cmap_create(
                 [(0.0,0,0,0,255),
                  (1/256.0,255,255,255,255),
@@ -541,7 +546,7 @@ class Test(testbase.TestBase):
         file = self.compileColorMandel()
         handle = fract4dc.pf_load(file)
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,self.color_mandel_params)
+        fract4dc.pf_init(pfunc,0.001,pos_params,self.color_mandel_params)
 
         cmap = fract4dc.cmap_create(
             [(1.0, 255, 255, 255, 255)])
@@ -597,7 +602,7 @@ class Test(testbase.TestBase):
         self.compileMandel()
         handle = fract4dc.pf_load("./test-pf.so")
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,[0,4.0])
+        fract4dc.pf_init(pfunc,0.001,pos_params,[0,4.0])
         image = []
         for y in xrange(-20,20):
             line = []
@@ -628,9 +633,11 @@ class Test(testbase.TestBase):
         self.compileMandel()
         handle = fract4dc.pf_load("./test-pf.so")
         pfunc = fract4dc.pf_create(handle)
-        self.assertRaises(TypeError,fract4dc.pf_init,pfunc,0.001,72)
-        self.assertRaises(ValueError,fract4dc.pf_init,7,0.00,[0.4])
-        self.assertRaises(ValueError,fract4dc.pf_init,pfunc,0.001,[0.0]*201)
+        self.assertRaises(TypeError,fract4dc.pf_init,pfunc,0.001,pos_params,72)
+        self.assertRaises(ValueError,fract4dc.pf_init,7,0.00,pos_params, [0.4])
+        self.assertRaises(ValueError,fract4dc.pf_init,pfunc,0.001,pos_params,[0.0]*201)
+        self.assertRaises(ValueError,fract4dc.pf_init,pfunc,0.001,"fish",72)
+        self.assertRaises(ValueError,fract4dc.pf_init,pfunc,0.001,[0.0]*12,72)
         pfunc = None
         handle = None
 
@@ -638,13 +645,13 @@ class Test(testbase.TestBase):
         self.compileMandel()
         handle = fract4dc.pf_load("./test-pf.so")
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc, 0.001, [1,2,3,4])
+        fract4dc.pf_init(pfunc, 0.001, pos_params, [1,2,3,4])
         
     def testBadCalc(self):
         self.compileMandel()
         handle = fract4dc.pf_load("./test-pf.so")
         pfunc = fract4dc.pf_create(handle)
-        fract4dc.pf_init(pfunc,0.001,[])
+        fract4dc.pf_init(pfunc,0.001, pos_params, [])
         self.assertRaises(ValueError,fract4dc.pf_calc,0,[1.0,2.0,3.0,4.0],100)
         self.assertRaises(TypeError,fract4dc.pf_calc,pfunc,[1.0,2.0,3.0],100)
         pfunc = None

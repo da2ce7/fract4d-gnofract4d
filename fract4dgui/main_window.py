@@ -84,6 +84,7 @@ class MainWindow:
         preferences.userPrefs.connect('image-preferences-changed',
                                       self.on_prefs_changed)
 
+        browser.update(self.f.forms[0].funcFile, self.f.forms[0].funcName)
         self.create_menu()
         self.create_toolbar()
         self.create_fractal(self.f)
@@ -99,6 +100,7 @@ class MainWindow:
         self.window.show_all()
 
         self.update_subfract_visibility(False)
+        self.populate_warpmenu(self.f)
         self.update_recent_file_menu()
         
         self.update_image_prefs(preferences.userPrefs)
@@ -925,16 +927,21 @@ class MainWindow:
     def on_release_fourway(self,widget,dx,dy):
         self.f.nudge(dx/10.0, dy/10.0, widget.axis)
 
-    def add_warpmenu(self,tip):
-        warpmenu = utils.create_option_menu(["None"])
-        
-        def populate_warpmenu(f, warpmenu):
-            params = f.forms[0].params_of_type(fracttypes.Complex, True)
-            utils.set_menu_from_list(warpmenu, ["None"] + params)
+
+    def populate_warpmenu(self,f):
+        params = f.forms[0].params_of_type(fracttypes.Complex, True)
+        if params == []:
+            self.warpmenu.hide()
+        else:
+            utils.set_menu_from_list(self.warpmenu, ["None"] + params)
             p = f.warp_param
             if p == None: p = "None"
-            utils.set_selected_value(warpmenu, p)
-            
+            utils.set_selected_value(self.warpmenu, p)
+            self.warpmenu.show()                
+
+    def add_warpmenu(self,tip):
+        self.warpmenu = utils.create_option_menu(["None"])
+        
         def update_warp_param(menu, f):
             param = utils.get_selected_value(menu)
             if param == "None":
@@ -943,14 +950,14 @@ class MainWindow:
             f.set_warp_param(param)                
             self.on_formula_change(f)
             
-        populate_warpmenu(self.f,warpmenu)
+        #self.populate_warpmenu(self.f,warpmenu)
 
-        self.f.connect('formula-changed', populate_warpmenu, warpmenu)
+        self.f.connect('formula-changed', self.populate_warpmenu)
 
-        warpmenu.connect("changed", update_warp_param, self.f)
+        self.warpmenu.connect("changed", update_warp_param, self.f)
         
         self.toolbar.add_widget(
-            warpmenu,
+            self.warpmenu,
             tip,
             None)
         
