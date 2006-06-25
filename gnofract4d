@@ -109,6 +109,7 @@ class Options:
         self.explore = False
         self.save_filename = None
         self.extra_paths = []
+        self.map = None
         (self.width, self.height) = (0,0)
 
         longparams = [
@@ -122,6 +123,7 @@ class Options:
             "formula=",
             "inner=",
             "outer=",
+            "map=",
             "xcenter=","ycenter=","zcenter=","wcenter=",
             "xyangle=","xzangle=","xwangle=","yzangle=","ywangle=","zwangle=",
             "magnitude=",
@@ -160,6 +162,8 @@ class Options:
                 (self.innername,self.innerfunc) = self.splitarg(val,name)
             elif name=="--outer":
                 (self.outername,self.outerfunc) = self.splitarg(val,name)
+            elif (name=="--map"):
+                self.map = val
             elif name=="--version" or name=="-v":
                 self.print_version()
                 self.quit_now = True
@@ -227,7 +231,8 @@ Fractal Settings:
    --inner F#func\tUse coloring algorithm 'func' from file F
    --outer F#func\tUse coloring algorithm 'func' from file F
 -m --maxiter N\t\tUse N as maximum number of iterations
-
+   --map FILE\t\tLoad map file FILE
+   
 Positional Parameters:
    --xcenter N
    --ycenter N

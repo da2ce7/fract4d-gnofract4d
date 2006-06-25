@@ -1395,6 +1395,9 @@ class MainWindow:
         if options.trace:
             self.f.set_dump_option("trace", options.trace)
             self.f.compile()
+
+        if options.map:
+            self.f.set_cmap(options.map)
             
         if options.explore:
             self.set_explorer_state(True)
