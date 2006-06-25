@@ -36,6 +36,7 @@ class MainWindow:
         self.set_icon()
         
         self.window = gtk.Window()
+        self.window.set_default_size(900,700)
         self.window.connect('delete-event', self.quit)
 
         # keyboard handling
@@ -267,7 +268,7 @@ class MainWindow:
         f.connect('parameters-changed', self.on_fractal_change)
         f.connect('formula-changed', self.on_formula_change)
         
-        self.swindow.set_size_request(640+8,400+8)
+        #self.swindow.set_size_request(640+8,400+8)
 
         self.fixed = gtk.Fixed()
         self.ftable = gtk.Table(4,4,False)
@@ -1387,7 +1388,7 @@ class MainWindow:
         if options.trace:
             self.f.set_dump_option("trace", options.trace)
             self.f.compile()
-
+            
         if options.explore:
             self.set_explorer_state(True)
 

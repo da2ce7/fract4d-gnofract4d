@@ -23,7 +23,7 @@ bugs (the more B's, the worse the bug):
 * BB	better image-sizing widgets for render queue
 * BB	gnd.ufm#4D Julia - behaves very oddly
 * BB	fractint doesn't reset vars between points
-* BB	explorer rather slow with complex colorfuncs (recompile too much)
+* BB	explorer rather slgow with complex colorfuncs (recompile too much)
 * BB	not all keyboard shortcuts available when menu hidden
 * BB	should save enum params as strings, not indexes
 * BB	squares left behind when changing from a smooth colormap to a jagged one
@@ -52,7 +52,6 @@ bugs (the more B's, the worse the bug):
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
 * B	interrupt takes too long on deep-zoomed fractals
-* B	incredibly slow when allocate very big image which fits in VM
 * B	horrible_drawing_bug.fct - zoom out & it looks very different
 * B	giger.fct - results of extangle are different vs 1.9
 * B	fractint builtin fns with () in the name 
@@ -61,7 +60,7 @@ bugs (the more B's, the worse the bug):
 * B	default chebyshev gives blank screen
 * B	deeper.fct, hive.fct, image.fct doesn't load properly - old format
 * B	compile whenever resolution changes - pointless
-* B	O-fractals in fractint-g4.frm broken
+* B	O-fractals in fractint-g4.frm broken (don't work in Fractint either)
 * B	Mandrake: desktop icon not added to menu
 * B	mandrake: pygtk2 is called pygtk2.0
 

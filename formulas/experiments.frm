@@ -361,3 +361,39 @@ color param out
 	default = rgb(0,0,1)
 endparam
 }
+
+Taylor Series {
+init:
+target = exp(#pixel)
+float denominator = 1
+int count = 0
+z = 0
+start = exp(#zwpixel)
+loop:
+	z = z + exp(start) * ((#pixel - start)^count) / denominator
+	if count > 0
+		denominator = denominator * (count + 1)
+	endif
+	count = count + 1
+bailout:
+	|z - target| > @tolerance
+default:
+float param tolerance
+	default = 0.00000001
+endparam
+}
+
+EvenOddAbs {
+init:
+z = #zwpixel
+int i = 0
+loop:
+	if i % 2 == 0
+		z = (abs(real(z)),imag(z))
+	else
+		z = (real(z),abs(imag(z)))
+	endif
+	z = z*z + #pixel
+bailout:
+	|z| < 400.0
+}
