@@ -6,6 +6,7 @@ import StringIO
 import copy
 import random
 import types
+import struct
 
 #Class definition for Gradients
 #These use the format defined by the GIMP
@@ -248,7 +249,25 @@ class Gradient:
             compress_seg = compress and last != None and seg.right_of(last)
             seg.save(f, compress_seg)
             last = seg
+
+    def load_cs(self, f):
+        "Load a ColorSchemer (.cs) palette file"
+        # this appears to work but file format was reverse engineered
+        # so there may be cases unaccounted for
+        (ncolors,) = struct.unpack("2xB5x",f.read(8))
+        list = []
+        for i in xrange(ncolors):
+            (r,g,b,skip) = struct.unpack("<BBBxI", f.read(8))
+            #print "%2x%2x%2x %d" % (r,g,b,skip)
+            entry = (i/float(ncolors), r,g,b,255)
+            #print 'skipping "%s"' % f.read(skip)
+            (r2,g2,b2,skip) = struct.unpack("BBBB", f.read(4))
+            #print "%2x%2x%2x %d" % (r2,g2,b2,skip)
+            #print 'skipping "%s"' % f.read(skip+1)
+            list.append(entry)
             
+        self.load_list(list)
+        
     def load_ugr(self, f):
         "Load an ir tree parsed by the translator"
         prev_index = 0.0
@@ -294,7 +313,13 @@ class Gradient:
         name = None
         line = f.readline()
         if line != "GIMP Gradient\n":
-            raise Error("Invalid gradient file: no header found")
+            if line[:2] == "\x03\x00":
+                # a .cs file, we suspect
+                f.seek(0)
+                self.load_cs(f)
+                return
+            else:
+                raise Error("Invalid gradient file: no header found")
         
         line = f.readline()
         if line.startswith("Name:"):

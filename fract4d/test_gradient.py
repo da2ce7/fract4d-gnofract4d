@@ -672,6 +672,19 @@ opacity:
         self.checkGreyGradient(g, 0.5, lambda x,mid : x)
         self.assertEqual(g.segments[1].left, 1.0/3.0)
 
+    def testLoadCS(self):
+        g = gradient.Gradient()
+        f = open("../testdata/test.cs")
+
+        g.load_cs(f)
+        self.assertEqual(8,len(g.segments))
+        self.assertEqual(
+            [ 0x1d/255.0 , 0x10/255.0, 0x10/255.0, 1.0],
+            g.segments[0].left_color)
+
+        f.seek(0)
+        g.load(f)
+        
     def assertNearlyEqual(self,a,b,msg, epsilon=1.0e-12):
         # check that each element is within epsilon of expected value
         for (ra,rb) in zip(a,b):
