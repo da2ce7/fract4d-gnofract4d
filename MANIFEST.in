@@ -1,5 +1,6 @@
 include fract4d/c/*.h
 include maps/*.map
+include maps/*.cs
 include formulas/gf4d.frm
 include formulas/gf4d.cfrm
 include formulas/fractint-g4.frm
