@@ -41,6 +41,7 @@ bugs (the more B's, the worse the bug):
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * BB	stops drawing after new gradient applied to DCA fractal (sometimes)
 
+* B	painter doesn't work on purple background of gfp2lob003.fct
 * B	compile 17x before display when loading parfile.fct ?
 * B	RQ: progress bar should be more colorful
 * B	half-done images left behind when RQ aborted
