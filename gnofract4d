@@ -138,8 +138,8 @@ class Options:
 
         for (name, val) in opts:
             if name=="-p" or name=="--params":
-                args.insert(0,val)
-            if name=="-m" or name=="--maxiter":
+                self.args.insert(0,val)
+            elif name=="-m" or name=="--maxiter":
                 self.maxiter=int(val)
             elif name=="-q" or name=="--quit":
                 self.quit_when_done = True
