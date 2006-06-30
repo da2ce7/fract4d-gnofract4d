@@ -65,6 +65,11 @@ class Test(unittest.TestCase):
 
         self.assertEqual(780, o.width)
         self.assertEqual(445, o.height)
+
+        o = gnofract4d.Options(
+            ["--params", "foo"])
+
+        self.assertEqual(["foo"], o.args)
         
 def suite():
     return unittest.makeSuite(Test,'test')
