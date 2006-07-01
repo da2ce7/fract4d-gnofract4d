@@ -19,6 +19,7 @@ class Test(unittest.TestCase):
         pass
 
     def testGConf(self):
+        "This will fail if gconf support not compiled in"
         mail_editor = fract4dguic.get_gconf_string("/desktop/gnome/url-handlers/mailto/command")
         browser = fract4dguic.get_gconf_string("/desktop/gnome/url-handlers/http/command")
                 

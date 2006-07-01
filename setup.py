@@ -61,6 +61,7 @@ def call_package_config(package,option,optional=False):
     if status != 0:
         if optional:
             print >>sys.stderr, "Can't find '%s'" % package
+            print >>sys.stderr, "Some functionality will be disabled"
             return []
         else:
             print >>sys.stderr, "Can't set up. Error running '%s'." % cmd
@@ -70,10 +71,13 @@ def call_package_config(package,option,optional=False):
 
     return output.split()
 
-gconf_flags = call_package_config(pkgs,"--cflags")
-gconf_libs =  call_package_config(pkgs,"--libs")
+gconf_flags = call_package_config(pkgs,"--cflags",True)
+gconf_libs =  call_package_config(pkgs,"--libs",True)
 
 extra_macros = []
+if gconf_flags != []:
+    extra_macros.append(('GCONF_ENABLED',1))
+
 png_flags = call_package_config("libpng", "--cflags", True)
 if png_flags != []:
     extra_macros.append(('PNG_ENABLED', 1))
@@ -156,7 +160,7 @@ module2 = Extension(
     extra_link_args = gconf_libs,    
     define_macros = [ ('_REENTRANT',1),
                       #('DEBUG_CREATION',1)
-                      ],
+                      ] + extra_macros,
     undef_macros = [ 'NDEBUG']    
     )
 
