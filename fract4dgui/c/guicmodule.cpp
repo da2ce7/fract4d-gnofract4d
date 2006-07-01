@@ -8,7 +8,9 @@
 #include <assert.h>
 #include <errno.h>
 
+#if GCONF_ENABLED
 #include "gconf/gconf.h"
+#endif
 
 /* not sure why this isn't defined already */
 #ifndef PyMODINIT_FUNC 
@@ -26,6 +28,7 @@ get_gconf_string(PyObject *self, PyObject *args)
 	return NULL;
     }
 
+#if GCONF_ENABLED
     GConfEngine *confEngine = gconf_engine_get_default();
     PyObject *pyRet = NULL;
 
@@ -59,6 +62,10 @@ get_gconf_string(PyObject *self, PyObject *args)
  err:
     gconf_engine_unref(confEngine);
     return NULL;
+#else
+    PyErr_SetString(PyExc_EnvironmentError, "Gconf not compiled in");
+    return NULL;
+#endif
 }
 
 static PyMethodDef Methods[] = {

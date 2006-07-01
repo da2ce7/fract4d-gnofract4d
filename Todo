@@ -1,25 +1,8 @@
 todo:
 
 fixed in next version:
-* B	DeprecationError on pygtk 2.8+
-* W	added maxiter cmd-line param
-* W	added position, --trace cmd-line params
-* W	--map cmd-line param
-* W	warp_param menu
-* B	warp_param menu should be hidden unless there are warpable params
-* B	shouldn't need to compile anything to print help or version
-* B	default param values: 'true' is case-sensitive, 'True' is false
-* B	parse continuation lines correctly mid-token
-* B	wrong line numbers when \ followed by blank line
-* B	sp.ucl#AllInOne - compiler error, wrong type for abs (Int version of abs)
-* W	smaller .fct files for easier sharing
-* B	browser doesn't scroll to current func when opened
-* BB	auto-generated names are wrong (image should == fractal name, 
-        don't remove numbers once added)
-* B	dmj.ufm:DHNovaJulka - '#magn' - no symbol starting with t__ is allowed
-* W	added #magn symbol
-* B	enum string comparisons should be case-sensitive
-* W	load ColorSchemer palette files, added some handsome files
+* B	-p, --params flags broken (reported by Elaine Normandy)
+* W	make gconf optional
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -151,6 +134,28 @@ params (not all applicable to all types):
 1) how to set color of point
 2) time step
 3) which points to start with
+
+fixed in 3.0:
+* B	DeprecationError on pygtk 2.8+
+* W	added maxiter cmd-line param
+* W	added position, --trace cmd-line params
+* W	--map cmd-line param
+* W	warp_param menu
+* B	warp_param menu should be hidden unless there are warpable params
+* B	shouldn't need to compile anything to print help or version
+* B	default param values: 'true' is case-sensitive, 'True' is false
+* B	parse continuation lines correctly mid-token
+* B	wrong line numbers when \ followed by blank line
+* B	sp.ucl#AllInOne - compiler error, wrong type for abs (Int version of abs)
+* W	smaller .fct files for easier sharing
+* B	browser doesn't scroll to current func when opened
+* BB	auto-generated names are wrong (image should == fractal name, 
+        don't remove numbers once added)
+* B	dmj.ufm:DHNovaJulka - '#magn' - no symbol starting with t__ is allowed
+* W	added #magn symbol
+* B	enum string comparisons should be case-sensitive
+* W	load ColorSchemer palette files, added some handsome files
+
 
 fixed in 2.14:
 * B	KeyError: "symbol '#width' : no symbol starting with t__ is allowed
