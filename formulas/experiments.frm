@@ -397,3 +397,27 @@ loop:
 bailout:
 	|z| < 400.0
 }
+
+He02-01 {; V.1.1 - earlier versions may be discarded
+         ; Copyright (c)1998,1999 Morgan L. Owens
+         ; Chebyshev Types:
+         ; Inspired by Clifford A. Pickover:
+         ; Dynamic (Euler method)
+         ;
+         ; He(n+1) = xHe(n)-nHe(n-1)
+         ; He(0)  = 1
+         ; He(1)  = sqrt(2)x
+         ;
+         ; = xHe(1)-He(0)
+  s=sqrt(2), t=#zwpixel, z=pixel:
+  x=real(z), y=imag(z)
+  Tx=s*x*x-1
+  Ty=s*y*y-1
+  x=x-t*Ty, y=y+t*Tx
+  z=x+flip(y)
+  |z|<= @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+}

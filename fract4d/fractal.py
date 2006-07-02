@@ -321,7 +321,8 @@ class T(fctutils.T):
         self.forms[index].set_formula(formulafile,func,self.get_gradient())
 
         if index == 0:
-            self.set_bailfunc()    
+            self.set_bailfunc()
+            self.warp_param = None
         self.formula_changed()
         self.changed()
         
