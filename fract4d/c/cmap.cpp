@@ -136,24 +136,21 @@ find(double key, list_item_t *array, int n)
 }
 
 rgba_t
-ColorMap::lookup_with_dca(int fate, int solid, double *colors) const
+ColorMap::lookup_with_dca(int solid, int inside, double *colors) const
 {
     rgba_t new_color;
-    if(fate > 1)
-    {
-	fate = 1;
-    }
 
     if(solid)
     {
-	return solids[fate];
+	return solids[inside];
     }
     
-    e_transferType t = transfers[fate];
+
+    e_transferType t = transfers[inside];
     switch(t)
     {
     case TRANSFER_NONE:
-	return solids[fate];
+	return solids[inside];
     case TRANSFER_LINEAR:
 	new_color.r = (unsigned char)(255.0 * colors[0]);
 	new_color.g = (unsigned char)(255.0 * colors[1]);
@@ -167,23 +164,18 @@ ColorMap::lookup_with_dca(int fate, int solid, double *colors) const
 }
  
 rgba_t
-ColorMap::lookup_with_transfer(int fate, double index, int solid) const
+ColorMap::lookup_with_transfer(double index, int solid, int inside) const
 {
-    if(fate > 1)
-    {
-	fate = 1;
-    }
-
     if(solid)
     {
-	return solids[fate];
+	return solids[inside];
     }
     
-    e_transferType t = transfers[fate];
+    e_transferType t = transfers[inside];
     switch(t)
     {
     case TRANSFER_NONE:
-	return solids[fate];
+	return solids[inside];
     case TRANSFER_LINEAR:
 	return lookup(index);
     default:

@@ -76,7 +76,7 @@ class Test(testbase.TestBase):
         # check that a formula consisting of a simple 2.0-radius hypersphere
         # can be effectively ray-traced
         (iter,fate,dist,solid) = fract4dc.pf_calc(self.pfunc, [0.0, 0.0, 0.0, 0.0], 100)
-        self.assertEqual(fate,1) # should be inside
+        self.assertEqual(fate,32) # should be inside
         
         (iter,fate,dist,solid) = fract4dc.pf_calc(self.pfunc, [-2.5, 0.0, 0.0, 0.0], 100)
         self.assertEqual(fate,0) # should be outside

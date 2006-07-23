@@ -95,7 +95,8 @@ class Test(testbase.TestBase):
         
         # a point which doesn't bail out
         result = fract4dc.pf_calc(pfunc,[0.15, 0.0, 0.0, 0.0],100,0,0,0)
-        self.assertEqual(result,(100, 1, 0.0,0))
+        self.assertEqual(result,(100, 32, 0.0,0))
+        
         # one which does
         result = fract4dc.pf_calc(pfunc,[1.0, 1.0, 0.0, 0.0],100,0,0,0)
         self.assertEqual(result,(1,0, 0.0,0)) 
@@ -608,7 +609,7 @@ class Test(testbase.TestBase):
             line = []
             for x in xrange(-20,20):
                 (iter,fate,dist,solid) = fract4dc.pf_calc(pfunc,[x/10.0,y/10.0,0,0],100)
-                if(fate == 1):
+                if(fate == 32):
                     line.append("#")
                 else:
                     line.append(" ")
@@ -701,9 +702,9 @@ class Test(testbase.TestBase):
         # inside should be all-black by default, outside should never be
         index = 0.0
         while index < 2.0: 
-            color = fract4dc.cmap_fate_lookup(cmap,1,index,0)
+            color = fract4dc.cmap_lookup_flags(cmap,index,0,1)
             self.assertEqual(color,(0,0,0,255))
-            color = fract4dc.cmap_fate_lookup(cmap,0,index,0)
+            color = fract4dc.cmap_lookup_flags(cmap,index,0,0)
             self.assertEqual(color,(33,33,33,255))            
             index += 0.1
 
@@ -714,9 +715,9 @@ class Test(testbase.TestBase):
         
         index = 0.0
         while index < 2.0: 
-            color = fract4dc.cmap_fate_lookup(cmap,1,index,0)
+            color = fract4dc.cmap_lookup_flags(cmap,index,0,1)
             self.assertEqual(color,(177,177,177,255))
-            color = fract4dc.cmap_fate_lookup(cmap,0,index,0)
+            color = fract4dc.cmap_lookup_flags(cmap,index,0,0)
             self.assertEqual(color,(166,166,166,255))            
             index += 0.1
 
@@ -725,16 +726,16 @@ class Test(testbase.TestBase):
 
         index = 0.0
         while index < 2.0: 
-            color = fract4dc.cmap_fate_lookup(cmap,1,index,0)
+            color = fract4dc.cmap_lookup_flags(cmap,index,0,1)
             self.assertEqual(color,(33,33,33,255))
-            color = fract4dc.cmap_fate_lookup(cmap,0,index,0)
+            color = fract4dc.cmap_lookup_flags(cmap,index,0,0)
             self.assertEqual(color,(166,166,166,255))            
             index += 0.1
 
         # test that solid overrides
-        color = fract4dc.cmap_fate_lookup(cmap,1,0.1,1)
+        color = fract4dc.cmap_lookup_flags(cmap,0.1,1,1)
         self.assertEqual(color,(177,177,177,255))
-        color = fract4dc.cmap_fate_lookup(cmap,0,0.1,1)
+        color = fract4dc.cmap_lookup_flags(cmap,0.1,1,0)
         self.assertEqual(color,(166,166,166,255))
 
     def assertColorTransformHSV(self,r,g,b,eh,es,ev,a=1.0):

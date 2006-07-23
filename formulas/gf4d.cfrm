@@ -12,7 +12,24 @@ final:
 
 basins {
 final:
-#index = (#fate * 0.25) + (#numiter / 256.0) % 0.25
+#index = (#fate * 1.0/@nbasins)
+if @mode == "basin + iterations"
+	#index = #index + (#numiter / 256.0) % @nbasins
+elseif @mode == "basin + potential"
+        float ed = @bailout/(|z| + 1.0e-9) 
+	#index = #index + ((#numiter + ed)/ 256.0) % @nbasins
+endif	
+default:
+int param nbasins
+	default = 3
+endparam
+int param mode
+	enum = "basin" "basin + iterations" "basin + potential"
+	default = "basin + iterations"
+endparam
+float param bailout
+	default = 4.0
+endparam
 }
 
 zero (BOTH) {

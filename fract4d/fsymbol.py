@@ -121,7 +121,8 @@ def createDefaultDict():
         "t__h_zwpixel" : Var(Complex,doc="The (Z,W) coordinates of the current point. (See #pixel for the other two coordinates.) When viewing the Mandelbrot set, this remains constant for each pixel on the screen; when viewing the Julia set, it's different for each pixel. Initialize z to some function of this to take advantage of 4D drawing."),
         "t__h_solid" : Var(Bool,doc="Set this to true in a coloring function to use the solid color rather than the color map."),
         "t__h_color" : Var(Color,doc="Set this from a coloring function to directly set the color instead of using a gradient"),
-        "t__h_fate" : Var(Int,doc="The fate of a point can be used to distinguish between different basins of attraction or whatever you like. Set this to a number from 2 to 128 to indicate that a different 'fate' has befallen this point. 0 indicates the point has diverged, 1 that it has been trapped, >1 whatever you like. Can only be usefully updated in the #final section.")
+        "t__h_fate" : Var(Int,doc="The fate of a point can be used to distinguish between different basins of attraction or whatever you like. Set this to a number from 2 to 128 to indicate that a different 'fate' has befallen this point. 0 indicates the point has diverged, 1 that it has been trapped, >1 whatever you like. Can only be usefully updated in the #final section."),
+        "t__h_inside" : Var(Bool,doc="Set this in the final section of a formula to override whether a point is colored with the inside or outside coloring algorithm. This is mainly useful in conjuction with #fate.")
         }
 
     # extra shorthand to make things as short as possible

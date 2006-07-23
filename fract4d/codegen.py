@@ -123,6 +123,7 @@ double t__h_zwpixel_im = t__params[3];
 double t__h_index = 0.0;
 int t__h_solid = 0;
 int t__h_fate = 0;
+int t__h_inside = 0;
 double t__h_color_re = 0.0;
 double t__h_color_i = 0.0;
 double t__h_color_j = 0.0;
@@ -164,7 +165,7 @@ do
 }while(t__h_numiter < maxiter);
 
 /* fate of 0 = escaped, 1 = trapped */
-t__h_fate = (t__h_numiter >= maxiter);
+t__h_inside = (t__h_numiter >= maxiter);
 
 %(pre_final_inserts)s
 %(final)s
@@ -172,7 +173,7 @@ t__end_ffinal:
 %(done_inserts)s
 
 *t__p_pnIters = t__h_numiter;
-if(t__h_fate == 0)
+if(t__h_inside == 0)
 {
     %(cf0_final)s
     t__end_cf0final:
@@ -184,7 +185,7 @@ else
     t__end_cf1final:
         ;
 }
-*t__p_pFate = t__h_fate;
+*t__p_pFate = t__h_fate | (t__h_inside ? FATE_INSIDE : 0);
 *t__p_pDist = t__h_index;
 *t__p_pSolid = t__h_solid;
 %(save_colors)s
@@ -215,6 +216,7 @@ double t__h_zwpixel_im = t__params[3];
 double t__h_index = 0.0;
 int t__h_solid = 0;
 int t__h_fate = 0;
+int t__h_inside = 0;
 double t__h_color_re = 0.0;
 double t__h_color_i = 0.0;
 double t__h_color_j = 0.0;
@@ -258,7 +260,7 @@ do
 }while(t__h_numiter < maxiter);
 
 /* fate of 0 = escaped, 1 = trapped */
-t__h_fate = (t__h_numiter >= maxiter);
+t__h_inside = (t__h_numiter >= maxiter);
 
 %(pre_final_inserts)s
 %(final)s
@@ -267,7 +269,7 @@ t__end_ffinal:
 
 *t__p_pFate = (t__h_numiter >= maxiter);
 *t__p_pnIters = t__h_numiter;
-if(t__h_fate == 0)
+if(t__h_inside == 0)
 {
     %(cf0_final)s
     t__end_cf0final:
@@ -279,7 +281,7 @@ else
     t__end_cf1final:
         ;
 }
-*t__p_pFate = t__h_fate;
+*t__p_pFate = t__h_fate | (t__h_inside ? FATE_INSIDE : 0);
 *t__p_pDist = t__h_index;
 *t__p_pSolid = t__h_solid;
 %(save_colors)s
@@ -350,6 +352,21 @@ pf_obj *pf_new()
 
 // number of positional params used
 #define N_PARAMS 11
+
+/* the 'fate' of a point. This can be either
+   Unknown (255) - not yet calculated
+   N - reached an attractor numbered N (up to 30)
+   N | FATE_INSIDE - did not escape
+   N | FATE_SOLID - color with solid color 
+   N | FATE_DIRECT - color with DCA
+*/
+
+typedef unsigned char fate_t;
+
+#define FATE_UNKNOWN 255
+#define FATE_SOLID 0x80
+#define FATE_DIRECT 0x40
+#define FATE_INSIDE 0x20
 
 typedef enum
 {
@@ -615,16 +632,18 @@ extern pf_obj *pf_new(void);
 
     def output_var_decls(self,ir,user_overrides):            
         overrides = {
-                     "t__h_zwpixel" : "",
-                     "pixel" : "",
-                     "t__h_numiter" : "",
-                     "t__h_index" : "",
-                     "maxiter" : "",
-                     "t__h_tolerance" : "",
-                     "t__h_solid" : "",
-                     "t__h_color" : "",
-                     "t__h_fate" : ""
-                     }
+            "t__h_zwpixel" : "",
+            "pixel" : "",
+            "t__h_numiter" : "",
+            "t__h_index" : "",
+            "maxiter" : "",
+            "t__h_tolerance" : "",
+            "t__h_solid" : "",
+            "t__h_color" : "",
+            "t__h_fate" : "",
+            "t__h_inside" : ""            
+            }
+        
         for (k,v) in user_overrides.items():
             overrides[k] = v
             
@@ -639,18 +658,21 @@ extern pf_obj *pf_new(void);
 
     def output_symbols(self,ir,user_overrides):
         overrides = {
-                     "t__h_zwpixel" : "",
-                     "pixel" : "",
-                     "t__h_numiter" : "",
-                     "t__h_index" : "",
-                     "maxiter" : "",
-                     "t__h_tolerance" :
-                         "double t__h_tolerance = t__pfo->period_tolerance;",
-                     "t__h_solid" : "",
-                     "t__h_color" : "",
-                     "t__h_fate" : "",
-                     "t__h_magn" : "double t__h_magn = log(4.0/t__pfo->pos_params[4])/log(2.0) + 1.0;"
-                     }
+            "t__h_zwpixel" : "",
+            "pixel" : "",
+            "t__h_numiter" : "",
+            "t__h_index" : "",
+            "maxiter" : "",
+            "t__h_tolerance" :
+            "double t__h_tolerance = t__pfo->period_tolerance;",
+            "t__h_solid" : "",
+            "t__h_color" : "",
+            "t__h_fate" : "",
+            "t__h_inside" : "",
+            "t__h_magn" : \
+                "double t__h_magn = log(4.0/t__pfo->pos_params[4])/log(2.0) + 1.0;",
+            }
+        
         for (k,v) in user_overrides.items():
             #print "%s = %s" % (k,v)
             overrides[k] = v
