@@ -16,7 +16,7 @@ from fractutils import flickr
 
 import gtkfractal, model, preferences, autozoom, settings, toolbar
 import colors, undo, browser, fourway, angle, utils, hig, ignore_info, painter
-import icons, flickr_assistant, renderqueue
+import icons, flickr_assistant, renderqueue, director
 import fract4dguic
 
 
@@ -567,6 +567,8 @@ class MainWindow:
              self.toggle_explorer, 0, '<ToggleItem>'),
             (_('/_Tools/Formula _Browser...'), '<control>B',
              self.browser, 0, ''),
+            (_('/_Tools/_Movie Editor'), '<control>M',
+             self.director, 0, ''),
             (_('/_Tools/_Randomize Colors'), '<control>R',
              self.randomize_colors, 0, ''),
             
@@ -617,7 +619,10 @@ class MainWindow:
         self.save_factory = item_factory
         self.vbox.pack_start(menubar, False, True, 0)
         self.menubar = menubar
-            
+
+    def director(self,action,menuitem):
+        director.show(self.window,self.control_box, self.f, True)
+        
     def browser(self,action,menuitem):
         """Display formula browser."""
         browser.show(self.window,self.f,browser.FRACTAL)

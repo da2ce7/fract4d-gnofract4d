@@ -796,6 +796,55 @@ func fn1
         self.assertEqual(outlines[0],"0")
         self.assertEqual(outlines[2],"1")
 
+    def testFateCF(self):
+        'test that #solid works correctly'
+        tcf0 = self.translatecf('''
+        biomorph {
+        init:
+        float d = |z|
+        loop:
+        d = d + |z|
+        final:
+        #index = log(d+1.0) + 3.0
+        }''',"cf0")
+        cg_cf0 = codegen.T(tcf0.symbols)
+        cg_cf0.output_all(tcf0)
+
+        tcf1 = self.translatecf('x {\n #solid = true\n}', "cf1")
+        cg_cf1 = codegen.T(tcf1.symbols)
+        cg_cf1.output_all(tcf1)
+
+        t = self.translate('''
+        mandel {
+        loop:
+        z = sqr(z)+#pixel
+        bailout:
+        |z| < 4.0
+        final:
+        if #fate == 0
+          #fate = 2
+        endif
+        }''')
+
+        cg = codegen.T(t.symbols)
+        cg.output_all(t)
+        
+        t.merge(tcf0,"cf0_")
+        t.merge(tcf1,"cf1_")
+
+        cg.output_decls(t)
+
+        inserts = {
+            "main_inserts": self.main_stub,
+            "return_inserts": "printf(\"%d\\n\",t__h_fate);" 
+            }
+        
+        c_code = self.codegen.output_c(t,inserts)
+        output = self.compileAndRun(c_code)
+        outlines = output.split("\n")
+        self.assertEqual(outlines[0],"2")
+        self.assertEqual(outlines[2],"1")
+
     def testDirectCF(self):
         'test that direct coloring algorithms work'
         tcf0 = self.translatecf('''

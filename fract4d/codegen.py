@@ -122,6 +122,7 @@ double t__h_zwpixel_im = t__params[3];
 
 double t__h_index = 0.0;
 int t__h_solid = 0;
+int t__h_fate = 0;
 double t__h_color_re = 0.0;
 double t__h_color_i = 0.0;
 double t__h_color_j = 0.0;
@@ -162,15 +163,16 @@ do
     t__h_numiter++;
 }while(t__h_numiter < maxiter);
 
+/* fate of 0 = escaped, 1 = trapped */
+t__h_fate = (t__h_numiter >= maxiter);
+
 %(pre_final_inserts)s
 %(final)s
 t__end_ffinal:
 %(done_inserts)s
 
-/* fate of 0 = escaped, 1 = trapped */
-*t__p_pFate = (t__h_numiter >= maxiter);
 *t__p_pnIters = t__h_numiter;
-if(*t__p_pFate == 0)
+if(t__h_fate == 0)
 {
     %(cf0_final)s
     t__end_cf0final:
@@ -182,6 +184,7 @@ else
     t__end_cf1final:
         ;
 }
+*t__p_pFate = t__h_fate;
 *t__p_pDist = t__h_index;
 *t__p_pSolid = t__h_solid;
 %(save_colors)s
@@ -211,6 +214,7 @@ double t__h_zwpixel_im = t__params[3];
 
 double t__h_index = 0.0;
 int t__h_solid = 0;
+int t__h_fate = 0;
 double t__h_color_re = 0.0;
 double t__h_color_i = 0.0;
 double t__h_color_j = 0.0;
@@ -253,15 +257,17 @@ do
     t__h_numiter++;
 }while(t__h_numiter < maxiter);
 
+/* fate of 0 = escaped, 1 = trapped */
+t__h_fate = (t__h_numiter >= maxiter);
+
 %(pre_final_inserts)s
 %(final)s
 t__end_ffinal:
 %(done_inserts)s
 
-/* fate of 0 = escaped, 1 = trapped */
 *t__p_pFate = (t__h_numiter >= maxiter);
 *t__p_pnIters = t__h_numiter;
-if(*t__p_pFate == 0)
+if(t__h_fate == 0)
 {
     %(cf0_final)s
     t__end_cf0final:
@@ -273,6 +279,7 @@ else
     t__end_cf1final:
         ;
 }
+*t__p_pFate = t__h_fate;
 *t__p_pDist = t__h_index;
 *t__p_pSolid = t__h_solid;
 %(save_colors)s
@@ -615,7 +622,8 @@ extern pf_obj *pf_new(void);
                      "maxiter" : "",
                      "t__h_tolerance" : "",
                      "t__h_solid" : "",
-                     "t__h_color" : ""
+                     "t__h_color" : "",
+                     "t__h_fate" : ""
                      }
         for (k,v) in user_overrides.items():
             overrides[k] = v
@@ -640,6 +648,7 @@ extern pf_obj *pf_new(void);
                          "double t__h_tolerance = t__pfo->period_tolerance;",
                      "t__h_solid" : "",
                      "t__h_color" : "",
+                     "t__h_fate" : "",
                      "t__h_magn" : "double t__h_magn = log(4.0/t__pfo->pos_params[4])/log(2.0) + 1.0;"
                      }
         for (k,v) in user_overrides.items():

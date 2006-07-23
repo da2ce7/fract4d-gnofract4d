@@ -120,7 +120,8 @@ def createDefaultDict():
         "t__h_tolerance" : Var(Float, doc="10% of the distance between adjacent pixels."),
         "t__h_zwpixel" : Var(Complex,doc="The (Z,W) coordinates of the current point. (See #pixel for the other two coordinates.) When viewing the Mandelbrot set, this remains constant for each pixel on the screen; when viewing the Julia set, it's different for each pixel. Initialize z to some function of this to take advantage of 4D drawing."),
         "t__h_solid" : Var(Bool,doc="Set this to true in a coloring function to use the solid color rather than the color map."),
-        "t__h_color" : Var(Color,doc="Set this from a coloring function to directly set the color instead of using a gradient")
+        "t__h_color" : Var(Color,doc="Set this from a coloring function to directly set the color instead of using a gradient"),
+        "t__h_fate" : Var(Int,doc="The fate of a point can be used to distinguish between different basins of attraction or whatever you like. Set this to a number from 2 to 128 to indicate that a different 'fate' has befallen this point. 0 indicates the point has diverged, 1 that it has been trapped, >1 whatever you like. Can only be usefully updated in the #final section.")
         }
 
     # extra shorthand to make things as short as possible
@@ -448,7 +449,6 @@ by the 3rd parameter.''')
       [ [Float, Float, Float], Color],
       doc='''Creste a color from hue, saturation and value components. HSV is a similar color model to HSL but has a different valid range for brightness.''')
     
-      
     # operators
     
     f("+", 
