@@ -538,7 +538,7 @@ bailout:
 
         # 2nd point doesn't
         self.assertEqual(lines[3],"(0.02,0.26)",output)
-        self.assertEqual(lines[-1],"(20,1,0)",output)
+        self.assertEqual(lines[-1],"(20,32,0)",output)
         self.assertEqual(lines[-2],lines[-3],output)        
 
     def testBirch(self):
@@ -749,7 +749,7 @@ func fn1
         c_code = self.codegen.output_c(t,inserts)
 
         output = self.compileAndRun(c_code)
-        self.assertEqual(["(0,0,3)", "(20,1,789.1)"],output.split("\n"))
+        self.assertEqual(["(0,0,3)", "(20,32,789.1)"],output.split("\n"))
 
     def testSolidCF(self):
         'test that #solid works correctly'
@@ -796,8 +796,36 @@ func fn1
         self.assertEqual(outlines[0],"0")
         self.assertEqual(outlines[2],"1")
 
+    def testInside(self):
+        'test that #inside works correctly'
+        t = self.translate('''
+        mandel {
+        loop:
+        z = sqr(z)+#pixel
+        bailout:
+        |z| < 4.0
+        final:
+        #inside = ! #inside
+        }''')
+
+        cg = codegen.T(t.symbols)
+        cg.output_all(t)
+        cg.output_decls(t)
+        
+        inserts = {
+            "main_inserts": self.main_stub,
+            "return_inserts": "printf(\"%d\\n\",t__h_inside);" 
+            }
+        
+        c_code = self.codegen.output_c(t,inserts)
+        output = self.compileAndRun(c_code)
+        outlines = output.split("\n")
+        self.assertEqual(outlines[0],"1")
+        self.assertEqual(outlines[2],"0")
+        
+        
     def testFateCF(self):
-        'test that #solid works correctly'
+        'test that #fate works correctly'
         tcf0 = self.translatecf('''
         biomorph {
         init:
@@ -843,7 +871,7 @@ func fn1
         output = self.compileAndRun(c_code)
         outlines = output.split("\n")
         self.assertEqual(outlines[0],"2")
-        self.assertEqual(outlines[2],"1")
+        self.assertEqual(outlines[2],"2")
 
     def testDirectCF(self):
         'test that direct coloring algorithms work'
@@ -1807,7 +1835,7 @@ bailout:
         lines = string.split(output,"\n")
 
         self.assertEqual(lines[0],'16')
-        self.assertEqual(lines[1],'(100,1,0)')
+        self.assertEqual(lines[1],'(100,32,0)')
 
     def complexFromLine(self,str):
         cmplx_re = re.compile(r'\((.*?),(.*?)\)')
@@ -1844,7 +1872,7 @@ bailout:
 
         # 2nd point doesn't
         self.assertEqual(lines[3],"(0.02,0.26)",output)
-        self.assertEqual(lines[-1],"(20,1,0)",output)
+        self.assertEqual(lines[-1],"(20,32,0)",output)
 
         # last 2 points should be within #tolerance of each other
         p1 = self.complexFromLine(lines[-2])
@@ -1943,6 +1971,7 @@ Newton4(XYAXIS) {; Mark Peterson
         #print c_code
         cmd = "gcc -Wall -fPIC -DPIC -shared %s -o %s -lm" % (cFileName, oFileName)
         (status,output) = commands.getstatusoutput(cmd)
+        
         self.assertEqual(status,0,"C error:\n%s\nProgram:\n%s\n" % \
                          ( output,c_code))
 

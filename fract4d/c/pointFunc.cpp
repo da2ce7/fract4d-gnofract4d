@@ -52,6 +52,7 @@ public:
 	    int solid = 0;
 	    int fUseColors = 0;
 	    double colors[4] = {0.0};
+	    int inside = 0;
 
 	    if (checkPeriod)
 	    {
@@ -70,25 +71,27 @@ public:
 		    &fUseColors, &colors[0]);
 	    }
 
-	    if(fate == 1)
+	    if(fate & FATE_INSIDE)
 	    {
 		*pnIters = -1;
+		inside = 1;
 	    }
 
 	    if(fUseColors)
 	    {
-		*color = m_cmap->lookup_with_dca(fate, solid, colors);
+		*color = m_cmap->lookup_with_dca(solid, inside, colors);
 		fate |= FATE_DIRECT;
 	    }
 	    else
 	    {
-		*color = m_cmap->lookup_with_transfer(fate,dist,solid);
+		*color = m_cmap->lookup_with_transfer(dist,solid, inside);
 	    }
 
 	    if (solid)
 	    {
 		fate |= FATE_SOLID;
 	    }
+
 	    *pFate = (fate_t) fate;
 	    *pIndex = (float) dist;
 
@@ -101,17 +104,20 @@ public:
     inline rgba_t recolor(double dist, fate_t fate, rgba_t current) const
 	{	    
 	    int solid = 0;
+	    int inside = 0;
 	    if(fate & FATE_DIRECT)
 	    {
 		return current;
 	    }
 	    if(fate & FATE_SOLID)
 	    {
-		fate &= ~FATE_SOLID;
 		solid = 1;
 	    }
-	    
-	    return m_cmap->lookup_with_transfer(fate,dist,solid);
+	    if(fate & FATE_INSIDE)
+	    {
+		inside = 1;
+	    }
+	    return m_cmap->lookup_with_transfer(dist,solid, inside);
 	}
 };
 

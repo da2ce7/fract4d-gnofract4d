@@ -20,7 +20,7 @@ class T:
     COL_SIZE = 3
     SOLID = 128
     OUT=0
-    IN=1 | SOLID # in pixels have solid bit set
+    IN=32 | SOLID # in pixels have solid bit set
     UNKNOWN=255
     BLACK=[0,0,0]
     WHITE=[255,255,255]

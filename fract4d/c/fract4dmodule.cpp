@@ -662,16 +662,16 @@ cmap_pylookup(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-cmap_pylookup_with_fate(PyObject *self, PyObject *args)
+cmap_pylookup_with_flags(PyObject *self, PyObject *args)
 {
     PyObject *pyobj, *pyret;
     double d;
     rgba_t color;
     ColorMap *cmap;
-    int fate;
+    int inside;
     int solid;
 
-    if(!PyArg_ParseTuple(args,"Oidi", &pyobj, &fate, &d,&solid))
+    if(!PyArg_ParseTuple(args,"Odii", &pyobj, &d, &solid, &inside))
     {
 	return NULL;
     }
@@ -682,7 +682,7 @@ cmap_pylookup_with_fate(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    color = cmap->lookup_with_transfer(fate,d,solid);
+    color = cmap->lookup_with_transfer(d,solid,inside);
     
     pyret = Py_BuildValue("iiii",color.r,color.g,color.b,color.a);
 
@@ -2113,8 +2113,8 @@ static PyMethodDef PfMethods[] = {
       "Create a new gradient-based colormap"},
     { "cmap_lookup", cmap_pylookup, METH_VARARGS,
       "Get a color tuple from a distance value"},
-    { "cmap_fate_lookup", cmap_pylookup_with_fate, METH_VARARGS,
-      "Get a color tuple from a distance value and a fate"},
+    { "cmap_lookup_flags", cmap_pylookup_with_flags, METH_VARARGS,
+      "Get a color tuple from a distance value and solid/inside flags"},
     { "cmap_set_solid", pycmap_set_solid, METH_VARARGS,
       "Set the inner or outer solid color"},
     { "cmap_set_transfer", pycmap_set_transfer, METH_VARARGS,

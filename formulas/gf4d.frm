@@ -458,6 +458,76 @@ endparam
 
 }
 
+
+NewtBasin {
+; Newton-Raphson method which determines which 'basin of attraction'
+; each point ends up in.
+init:
+	z = #zwpixel
+	nm1 = @power - 1.0
+loop:
+	last = z
+	z = z - (z ^ @power - 1.0)/ (@power * z ^ nm1)
+bailout:
+	|z - last| > #tolerance
+final:
+	int i = 0
+	int whichroot = 0
+	float dist = 1.0e20
+	while i < @power
+		root = (cos(i*#pi * 2.0 / @power), sin(i*#pi * 2.0 / @power))
+		float thisdist = |root - z|
+		if(thisdist < dist)
+			whichroot = i
+			dist = thisdist
+		endif
+		i = i + 1
+	endwhile
+	#fate = whichroot
+
+default:
+xzangle=1.5707963267948966
+ywangle=1.5707963267948966
+xcenter=1.0
+int param power
+	default = 3
+endparam
+}
+
+;NewtBasin {
+;; Newton is the Newton-Raphson method applied to z^a = -1
+;init:
+;	z = #zwpixel
+;	ca = (@a,0)
+;	nm1 = @a - 1.0
+;loop:
+;	last = z
+;	z = z - (z ^ ca)/ (@a * z ^ nm1)
+;bailout:
+;	|z - last| > #tolerance
+;final:
+;;	int i = 0
+;;	int whichroot = 0
+;;	float dist = 1.0e20
+;;	while i < @a
+;;		root = (cos(i*#pi * 2.0 / @a), sin(i*#pi * 2.0 / @a))
+;;		float thisdist = |root - z|
+;;		if(thisdist < dist)
+;;			whichroot = i
+;;		endif
+;;	endwhile
+;;	if whichroot > 0
+;;		#fate = whichroot + 1
+;;	endif		
+;default:
+;xzangle=1.5707963267948966
+;ywangle=1.5707963267948966
+;xcenter=1.0
+;int param a
+;	default = 3
+;endparam
+;}
+
 Nova {
 ; Nova is Paul Derbyshire's Nova fractal.
 init:
@@ -549,26 +619,57 @@ zwcenter = (0.02,0.01)
 Cubic Connectedness Locus {
 ; iterates both critical points of the cubic set,
 ; bails out only if both escape
+; NB: this formula is incorrect, but is kept for backwards compatibility
 
+init:
+ k = #zwpixel
+ z1 = k
+ z2 = -k
+
+loop:
+ z1 = z1*z1*z1 - 3*k + #pixel
+ z2 = z2*z2*z2 - 3*k + #pixel
+ z = z1 + z2 ; so coloring algorithms have something to work ond
+ 
+bailout:
+ |z1| < @bailout || |z2| < @bailout
+
+default:
+ float param bailout
+ 	default = 4.0
+ endparam
+}
+
+Cubic Connectedness Locus 2 {
+; iterates both critical points of the cubic set,
+; bails out if either escape
+; NB: this formula is incorrect, but is kept for backwards compatibility
 init:
 k = #zwpixel
 z1 = k
 z2 = -k
-
 loop:
 z1 = z1*z1*z1 - 3*k + #pixel
 z2 = z2*z2*z2 - 3*k + #pixel
-z = z1 + z2 ; so coloring algorithms have something to work ond
+z = z1 + z2 ; so coloring algorithms have something to work on
 
 bailout:
-|z1| < @bailout || |z2| < @bailout
+|z1| < @bailout && |z2| < @bailout
+
+final:
+if |z1| < @bailout
+   #fate = 1
+elseif |z2| < @bailout
+   #fate = 2
+endif
+
 default:
 float param bailout
 	default = 4.0
 endparam
 }
 
-Cubic Connectedness Locus 2 {
+Cubic Connectedness Locus 3 {
 ; iterates both critical points of the cubic set,
 ; bails out only if both escape
 
@@ -576,21 +677,35 @@ init:
 k = #zwpixel
 z1 = k
 z2 = -k
-z1_iter = -1
-z2_iter = -1
+k2 = 3.0 * k * k
+int z1_iter = -1
+int z2_iter = -1
 
 loop:
-z1 = z1*z1*z1 - 3*k + #pixel
-z2 = z2*z2*z2 - 3*k + #pixel
+z1 = z1*z1*z1 - k2 * z1 + #pixel
+z2 = z2*z2*z2 - k2 * z2 + #pixel
 z = z1 + z2 ; so coloring algorithms have something to work ond
 
+if |z1| > @bailout && z1_iter == -1
+   z1_iter = #numiter
+elseif |z2| > @bailout && z2_iter == -1
+   z2_iter = #numiter
+endif
+
 bailout:
-|z1| < @bailout && |z2| < @bailout
+|z1| < @bailout || |z2| < @bailout
+
 final:
 if |z1| < @bailout
-   #fate = 2
+   if |z2| >= @bailout
+      #fate = 1
+      #inside = false
+      #numiter = z2_iter
+   endif
 elseif |z2| < @bailout
-   #fate = 3
+   #fate = 2
+   #inside = false
+   #numiter = z1_iter
 endif
 
 default:
