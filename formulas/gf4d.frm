@@ -586,6 +586,13 @@ z = z1 + z2 ; so coloring algorithms have something to work ond
 
 bailout:
 |z1| < @bailout && |z2| < @bailout
+final:
+if |z1| < @bailout
+   #fate = 2
+elseif |z2| < @bailout
+   #fate = 3
+endif
+
 default:
 float param bailout
 	default = 4.0

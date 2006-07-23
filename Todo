@@ -4,16 +4,17 @@ fixed in next version:
 * B	-p, --params flags broken (reported by Elaine Normandy)
 * W	make gconf optional
 * BB	use form 1, select warp_param, choose another form = disaster
+* W	added Chebyshev formula
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 	until antialias, seems to run single-threaded more often than not
 
-* BB	Renderqueue should antialias even if main window doesn't
 * BB	func with a bailout of 1 will never quit and can't be interrupted
 * B	interrupt takes too long on deep-zoomed fractals
-
 * BB	infinite loops are possible in while loops
+
+* BB	Renderqueue should antialias even if main window doesn't
 * BB	better image-sizing widgets for render queue
 * BB	gnd.ufm#4D Julia - behaves very oddly
 * BB	fractint doesn't reset vars between points
@@ -450,11 +451,8 @@ gnofract4d
 * W	warn about save overwrites
 
 fract4d
-* W	introduce image class
 * W	support calc()
 * W	parse command-line arguments
-* W	save .tga
-* WW	save .png
 
 xscreensaver version
 * W	auto random parameters

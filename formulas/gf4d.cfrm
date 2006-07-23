@@ -10,6 +10,11 @@ final:
 #index = #numiter / 256.0
 }
 
+basins {
+final:
+#index = (#fate * 0.25) + (#numiter / 256.0) % 0.25
+}
+
 zero (BOTH) {
 final:
 #solid = true

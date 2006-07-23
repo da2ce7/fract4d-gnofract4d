@@ -20,12 +20,11 @@ bailout:
 
 PeterDeJong {
 init:
-	z = 0
+	z = #rand
 loop:
 	float x = sin(@a * imag(z)) - cos(@b * real(z))
 	float y = sin(@c * real(z)) - cos(@d * imag(z))
 	z = (x,y)
-	; plot(z)
 default:
 	
 float param a
@@ -43,7 +42,7 @@ endparam
 float param d
 	default = 0.7
 endparam
-maxiter = 1000000000		
+maxiter = 10000
 }
 
 C4G {; p1 is (plus or minus) 1 or i 
