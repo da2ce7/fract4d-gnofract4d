@@ -131,44 +131,6 @@ endparam
 
 }
 
-Hot And Cold Gradient {
-; On each orbit, the closer we are to 0, the lower in the gradient we are.
-; the closer we are to bailout, the higher. 
-
-init:
-float dist=0.0
-color thecolor = @startcolor
-loop:
-dist = |z|/@bailout
-color thiscolor = gradient(dist)
-thecolor = compose(thecolor, blend(thiscolor, @mergemode(thecolor, thiscolor), 1.0), @mergeopacity)   
-
-final:
-#color = thecolor
-default:
-float param bailout
-	default = 4.0
-endparam
-color param startcolor
-	default = rgb(1.0, 1.0, 1.0)
-endparam
-
-color func mergemode
-  caption = "Color Merge"
-  default = mergenormal()
-  hint = "This chooses the merge mode used to blend colors at each iteration."
-endfunc
-
-param mergeopacity
-  caption = "Trap Merge Opacity"
-  default = 0.2
-  hint = "Sets the opacity of each trap shape. Even if you set this value to 1 \
-        (forcing all traps to be fully opaque) you can still control opacity \
-        using the alpha channel in the gradient."
-endparam
-
-}
-
 velocity {
 init:
 complex oldz = 0.0

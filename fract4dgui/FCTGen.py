@@ -27,7 +27,7 @@ import math
 import sys
 import os
 import math
-from DirectorBean import *
+from fract4d.directorbean import *
 
 class FCTGeneration:
 	

@@ -567,7 +567,7 @@ class MainWindow:
              self.toggle_explorer, 0, '<ToggleItem>'),
             (_('/_Tools/Formula _Browser...'), '<control>B',
              self.browser, 0, ''),
-            (_('/_Tools/_Movie Editor'), '<control>M',
+            (_('/_Tools/_Director...'), '<control>D',
              self.director, 0, ''),
             (_('/_Tools/_Randomize Colors'), '<control>R',
              self.randomize_colors, 0, ''),

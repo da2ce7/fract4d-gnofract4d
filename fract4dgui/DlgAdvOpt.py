@@ -26,7 +26,7 @@ import os
 import re
 from threading import *
 
-from DirectorBean import *
+from fract4d.directorbean import *
 
 class DlgAdvOptions:
 	

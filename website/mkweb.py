@@ -76,7 +76,10 @@ pages = [
     "Thanks for a cool site and amazing app/creations!",
     "Really a nice tool."        
     ]),
-        
+
+    Bag(name="Manual",
+        file="manual/index.html",
+        stub=True)    
     ]
 
 def create_manual():
@@ -86,10 +89,14 @@ def create_manual():
     os.system("cp ../doc/gnofract4d-manual/C/figures/*.png manual/figures")
     os.chdir("in/manual")
     os.system("xsltproc --param use.id.as.filename 1 ../../gnofract4d.xsl ../../gnofract4d-manual.xml")
+    os.system("cp * ../../manual")
     os.chdir("../..")
 
 def process_all(pages):
     for page in pages:
+        if hasattr(page,"stub"):
+            continue
+        
         body_text = open(os.path.join("in", page.file)).read()
         out = open(page.file, "w")
         template = module.Template(

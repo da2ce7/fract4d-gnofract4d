@@ -32,6 +32,37 @@ float param bailout
 endparam
 }
 
+direct_basins {
+final:
+float ratio = log(#numiter+1)/log(#maxiter+1)
+if #fate == 0
+	#color = blend(@basin1,@background,ratio)
+elseif #fate == 1
+	#color = blend(@basin2,@background,ratio)
+elseif #fate == 2
+	#color = blend(@basin3,@background,ratio)
+else
+	#color = blend(@basin4,@background,ratio)
+endif
+
+default:
+color param basin1
+	default = rgb(0.464, 0.597, 0.664)
+endparam
+color param basin2
+	default = rgb(0.199, 0.332, 0.398)
+endparam
+color param basin3
+	default = rgb(0.867, 0.851, 0.789)
+endparam
+color param basin4
+	default = rgb(0.551, 0.531, 0.438)
+endparam
+color param background
+	default = rgb(1.0,1.0,1.0)
+endparam
+}
+
 zero (BOTH) {
 final:
 #solid = true
@@ -191,3 +222,41 @@ param angle_type
 	enum = "delta total" "delta max" "delta min" "min" "max" "total" "iter @ min" "iter @ max"
 endparam
 }  
+
+Hot And Cold Gradient {
+; On each orbit, the closer we are to 0, the lower in the gradient we are.
+; the closer we are to bailout, the higher. 
+
+init:
+float dist=0.0
+color thecolor = @startcolor
+loop:
+dist = |z|/@bailout
+color thiscolor = gradient(dist)
+thecolor = compose(thecolor, blend(thiscolor, @mergemode(thecolor, thiscolor), 1.0), @mergeopacity)   
+
+final:
+#color = thecolor
+default:
+float param bailout
+	default = 4.0
+endparam
+color param startcolor
+	default = rgb(1.0, 1.0, 1.0)
+endparam
+
+color func mergemode
+  caption = "Color Merge"
+  default = mergenormal()
+  hint = "This chooses the merge mode used to blend colors at each iteration."
+endfunc
+
+param mergeopacity
+  caption = "Trap Merge Opacity"
+  default = 0.2
+  hint = "Sets the opacity of each trap shape. Even if you set this value to 1 \
+        (forcing all traps to be fully opaque) you can still control opacity \
+        using the alpha channel in the gradient."
+endparam
+
+}
