@@ -1,24 +1,9 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
+#UI and logic for generation of AVI file from bunch of images
+#it knows from director bean class where images are stored (there is also a list file
+#containing list of images that will be frames - needed for transcode) and it create
+#thread to call transcode.
 
-# Copyright (C) 2006  Branko Kokanovic
-#
-#   AVIGen.py: generates AVI from transcode software
-#
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-#                                                                             
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-#                                                                             
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-# USA
+#Limitations: user can destroy dialog, but it will not destroy transcode process!?
 
 import gtk
 import gobject
@@ -26,34 +11,33 @@ import os
 import re
 from threading import *
 
-from DirectorBean import *
+from fract4d.directorbean import *
 
 class AVIGeneration:
-	
-	def __init__(self,dir_bean,parent):
-		self.dialog=gtk.Dialog("Generating AVI file...",parent,
+
+	def __init__(self,dir_bean):
+		self.dialog=gtk.Dialog("Generating AVI file...",None,
 					gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
 		self.pbar = gtk.ProgressBar()
 		self.pbar.set_text("Please wait...")
 		self.dialog.vbox.pack_start(self.pbar,True,True,0)
 		self.dialog.set_geometry_hints(None,min_aspect=3.5,max_aspect=3.5)
 		self.dir_bean=dir_bean
-		self.parent=parent
 		self.delete_them=-1
-			
+
 	def generate_avi(self):
 		#-------getting all needed information------------------------------
 		folder_png=self.dir_bean.get_png_dir()
 		if folder_png[-1]!="/":
 			folder_png=folder_png+"/"
-			
+
 		avi_file=self.dir_bean.get_avi_file()
 		width=self.dir_bean.get_width()
 		height=self.dir_bean.get_height()
 		framerate=self.dir_bean.get_framerate()
 		yield True
 		#------------------------------------------------------------------
-		
+
 		try:
 			if self.running==False:
 				yield False
@@ -82,15 +66,15 @@ class AVIGeneration:
 			swap=""
 			if self.dir_bean.get_redblue():
 				swap="-k"
-				
+
 			call="transcode -z -i %slist -x imlist,null -g %dx%d -y ffmpeg,null -F mpeg4 -f %d -o %s -H 0 --use_rgb %s 2>/dev/null"%(folder_png,width,height,framerate,avi_file,swap)
 			dt=DummyThread(call,self.pbar,float(count))
 			dt.start()
 
-			radi=True
-			while(radi):
+			working=True
+			while(working):
 				dt.join(0.5) #refresh gtk every 0.5 seconds
-				radi=dt.isAlive()
+				working=dt.isAlive()
 				yield True
 
 			if self.running==False:
@@ -161,7 +145,7 @@ class AVIGeneration:
 			self.running=False
 			self.dialog.destroy()
 			return 1
-		
+
 #thread for calling transcode
 class DummyThread(Thread):
 	def __init__(self,s,pbar,count):
@@ -169,7 +153,7 @@ class DummyThread(Thread):
 		self.s=s
 		self.pbar=pbar
 		self.count=count
-	
+
 	def run(self):
 		#os.system(self.s) <----this is little faster, but user can't see any progress
 		reg=re.compile("\[.*-.*\]")

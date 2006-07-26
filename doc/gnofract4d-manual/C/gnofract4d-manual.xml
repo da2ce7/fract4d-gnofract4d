@@ -1186,13 +1186,17 @@ work.
 </para>
 
 <para>
+Branko Kokanovic developed and contributed the animation
+feature. Chris Le Sueur provided parts of the gradient editing
+feature. </para>
+
+<para>
 The formula language which &gf4d; uses originated in &fractint; and
 was substantially enhanced in &ultrafractal;. However the compiler
 implementation does not share any code with those programs.
 </para>
 
 <para>
-Chris Le Sueur provided parts of the gradient editing feature.
 The &gf4d; distribution contains palette (.map) files by a number of
 authors which were originally distributed with <ulink
 url="http://spanky.triumf.ca/">&fractint;</ulink> under somewhat murky

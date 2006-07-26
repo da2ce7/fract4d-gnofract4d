@@ -3,9 +3,8 @@
 
 
 <!-- Imports the DocBook HTML chunking stylesheets. --> 
-<xsl:import href="/usr/share/sgml/docbook/xsl-stylesheets-1.68.1-1/html/chunk.xsl"/>
+<xsl:import href="/usr/share/sgml/docbook/xsl-stylesheets-1.68.1-1/xhtml/chunk.xsl"/>
 <xsl:template match="guimenuitem">
   <span class="guimenuitem"><xsl:call-template name="inline.charseq"/></span>
 </xsl:template>
-
 </xsl:stylesheet>
