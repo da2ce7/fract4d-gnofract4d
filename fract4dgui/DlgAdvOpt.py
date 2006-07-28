@@ -30,8 +30,8 @@ from fract4d.directorbean import *
 
 class DlgAdvOptions:
 	
-	def __init__(self,current_kf,dir_bean,parent):
-		self.dialog=gtk.Dialog("Keyframe advanced options...",parent,
+	def __init__(self,current_kf,dir_bean):
+		self.dialog=gtk.Dialog("Keyframe advanced options...",None,
 					gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
 					(gtk.STOCK_OK,gtk.RESPONSE_OK,gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
 

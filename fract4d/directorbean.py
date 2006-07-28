@@ -4,21 +4,6 @@
 #
 #   DirectorBean.py: bean for storing configuration
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-#
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-# USA
-
 
 #interpolation type constants
 INT_LINEAR=	0
@@ -27,6 +12,20 @@ INT_INVLOG=	2
 INT_COS=	3
 
 class DirectorBean:
+	def __init__(self):
+		self.base_keyframe=""
+		self.base_stop=1
+		self.fct_enabled=False
+		self.fct_dir="/tmp"
+		self.png_dir="/tmp"
+		self.avi_file=""
+		self.width=640
+		self.height=480
+		self.framerate=25
+		self.redblue=True
+		#keyframe is a list containing of a tuples
+		#example: keyframe=[("/home/baki/a.fct",25),("/home/baki/b.fct",50)]
+		self.keyframes=[]
 
 	def get_base_keyframe(self):
 		return self.base_keyframe
@@ -88,20 +87,6 @@ class DirectorBean:
 	def set_redblue(self,rb):
 		self.redblue=rb
 
-	def __init__(self):
-		self.base_keyframe=""
-		self.base_stop=1
-		self.fct_enabled=False
-		self.fct_dir="/tmp"
-		self.png_dir="/tmp"
-		self.avi_file=""
-		self.width=640
-		self.height=480
-		self.framerate=25
-		self.redblue=True
-		#keyframe is a list containing of a tuples
-		#example: keyframe=[("/home/baki/a.fct",25),("/home/baki/b.fct",50)]
-		self.keyframes=[]
 
 	def add_keyframe(self,filename,duration,stop,int_type,index=None):
 		if index==None:
@@ -166,6 +151,6 @@ class DirectorBean:
 		self.keyframes=[]
 		self.__dict__.update(dict)   # update attributes
 
-	#leftover from debuging purposes
+	#leftover from debugging purposes
 	def pr(self):
 		print self.__dict__
