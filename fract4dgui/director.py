@@ -443,22 +443,11 @@ class DirectorDialog(dialog.T):
 			pickle.dump(self.dir_bean,output)
 			output.close()
 
-	#show about dialog
-	def about(self,widget,data=None):
-		about=gtk.AboutDialog()
-		about.set_name("FractalDirector")
-		about.set_version(VERSION)
-		about.set_copyright("Branko Kokanovic 2006 (C)")
-		about.set_comments("Utility to create fractal videos")
-		about.set_authors(["Branko Kokanovic"])
-		about.show()
-
-	#huh:(
 	#creating window...
 	def __init__(self, main_window, f):
 		dialog.T.__init__(
 			self,
-			_("Fractal Settings"),
+			_("Director"),
 			main_window,
 			gtk.DIALOG_DESTROY_WITH_PARENT,
 			(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
@@ -466,7 +455,6 @@ class DirectorDialog(dialog.T):
 		self.dir_bean=directorbean.DirectorBean()
 		self.f=f
 		self.realize()
-		self.window.set_title("Fractal Director "+VERSION)
 
 		#self.window.set_border_width(10)
 		#main VBox
@@ -478,8 +466,6 @@ class DirectorDialog(dialog.T):
 			( "/Configuration/_Save configuration",    "<control>S", self.save_configuration, 0, None ),
 			#( "/File/sep1",     None,         None, 0, "<Separator>" ),
 			#( "/File/Quit",     "<control>Q", self.quit, 0, None ),
-			( "/_Help",         None,         None, 0, "<LastBranch>" ),
-			( "/_Help/About",   None,         self.about,0, None ),
 		)
 		accel_group = gtk.AccelGroup()
 		self.item_factory = gtk.ItemFactory(gtk.MenuBar, "<main>", accel_group)
@@ -697,7 +683,7 @@ class DirectorDialog(dialog.T):
 		#------------------button box-------------------------------------
 		self.box_buttons=gtk.HBox(False,10)
 
-		self.btn_generate = gtk.Button("Generate",gtk.STOCK_EXECUTE)
+		self.btn_generate = gtk.Button(_("Generate"),gtk.STOCK_EXECUTE)
 		self.btn_generate.connect("clicked", self.generate, None)
 		self.box_buttons.pack_start(self.btn_generate,True,False,0)
 
@@ -709,65 +695,6 @@ class DirectorDialog(dialog.T):
 		#--------------showing all-------------------------------
 		self.vbox.add(self.box_main)
 		self.controls = self.vbox
-		#menu
-		self.menubar.show()
-		#temporary directory box
-		self.chk_create_fct.show()
-		self.lbl_temp_fct.show()
-		self.txt_temp_fct.show()
-		self.btn_temp_fct.show()
-		self.lbl_temp_png.show()
-		self.txt_temp_png.show()
-		self.btn_temp_png.show()
-		self.tbl_dirs.show()
-		self.frm_dirs.show()
-		#first keyframe box
-		self.lbl_first_kf.show()
-		self.txt_first_kf.show()
-		self.btn_browse_first_kf.show()
-		self.lbl_first_kf_stopped.show()
-		self.spin_base_stop.show()
-		self.tbl_base.show()
-		self.frm_base.show()
-		#keyframes box
-		self.tv_keyframes.show()
-		self.sw.show()
-		self.btn_add_keyframe.show()
-		self.btn_remove_keyframe.show()
-		self.lbl_duration.show()
-		self.spin_duration.show()
-		self.lbl_kf_stop.show()
-		self.spin_kf_stop.show()
-		self.lbl_int_type.show()
-		self.cmb_interpolation_type.show()
-		self.btn_adv_opt.show()
-		self.tbl_keyframes_left.show()
-		self.tbl_keyframes_right.show()
-		self.hbox_kfs.show()
-		self.frm_kf.show()
-		#output box
-		self.lbl_temp_avi.show()
-		self.txt_temp_avi.show()
-		self.btn_temp_avi.show()
-		self.lbl_res.show()
-		self.spin_width.show()
-		self.lbl_x.show()
-		self.spin_height.show()
-		self.lbl_framerate.show()
-		self.spin_framerate.show()
-		self.chk_swapRB.show()
-		self.box_output_file.show()
-		self.box_output_res.show()
-		self.box_output_framerate.show()
-		self.box_output_main.show()
-		self.frm_output.show()
-		#button box
-		self.btn_generate.show()
-		#self.btn_exit.show()
-		self.box_buttons.show()
-		#main window
-		self.box_main.show()
-		self.window.show()
 
 	def main(self):
 		gtk.main()
