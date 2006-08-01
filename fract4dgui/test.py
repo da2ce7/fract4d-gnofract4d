@@ -25,6 +25,7 @@ import test_colors
 import test_fract4dguic
 import test_utils
 import test_renderqueue
+import test_director
 
 def suite():
     tests = (
@@ -42,12 +43,13 @@ def suite():
         test_colors.suite(),
         test_fract4dguic.suite(),
         test_utils.suite(),
-        test_main_window.suite())
+        test_main_window.suite(),
+		test_director.suite())
     return unittest.TestSuite(tests)
 
 def main():
     unittest.main(defaultTest='suite')
-    
+
 if __name__ == '__main__':
     main()
 

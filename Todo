@@ -5,6 +5,7 @@ fixed in next version:
 * W	make gconf optional
 * BB	use form 1, select warp_param, choose another form = disaster
 * W	added Chebyshev formula
+* WW	Added Fractal Director (Branko Kokanovic)
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -26,6 +27,8 @@ bugs (the more B's, the worse the bug):
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * BB	stops drawing after new gradient applied to DCA fractal (sometimes)
 
+* B	hth.ufm#StrangeKindOfMandelbrot gives 'cmag_c_c not found'
+* B	can't have a DCA and a non-DCA formula for inner and outer
 * B	painter doesn't work on purple background of gfp2lob003.fct
 * B	compile 17x before display when loading parfile.fct ?
 * B	RQ: progress bar should be more colorful

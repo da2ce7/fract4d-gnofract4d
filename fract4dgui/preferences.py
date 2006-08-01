@@ -81,14 +81,19 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             "recent_files" : {
             },
             "ignored" : {
-            }
+            },
+			"director" : {
+				"fct_enabled": "0",
+				"fct_dir" : "/tmp",
+				"png_dir" : "/tmp"
+			}
         }
 
         self.image_changed_sections = {
             "display" : True,
             "compiler" : True
             }
-        
+
         gobject.GObject.__init__(self) # MUST be called before threaded.init
 
         ConfigParser.ConfigParser.__init__(self)

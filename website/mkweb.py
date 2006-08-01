@@ -60,6 +60,10 @@ pages = [
     "Thanks for creating Gnofract 4D, I've found it a real pleasure to use so far..."]
         ),
 
+    Bag(name="Help Wanted",
+        file="contributing.html",
+        image="bg_parts.jpg"),
+
     Bag(name="FAQ",
         file="faq.html",
         image="faq.jpg",
@@ -69,17 +73,17 @@ pages = [
     ]
         ),
 
+    Bag(name="Manual",
+        file="manual/index.html",
+        stub=True),    
+
     Bag(name="Links",
         file="links.html",
         image="jm.jpg",
         comments=[
     "Thanks for a cool site and amazing app/creations!",
     "Really a nice tool."        
-    ]),
-
-    Bag(name="Manual",
-        file="manual/index.html",
-        stub=True)    
+    ])
     ]
 
 def create_manual():

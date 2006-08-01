@@ -1,24 +1,9 @@
 #!/usr/bin/python
-# -*- coding: UTF-8 -*-
 
 # Copyright (C) 2006  Branko Kokanovic
 #
-#   DlgAdvOpt.py: dialog for advanced options
+#   DlgAdvOpt.py: dialog for advanced interpolation options for director
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-#                                                                             
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-#                                                                             
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-# USA
 
 import gtk
 import gobject
@@ -29,7 +14,7 @@ from threading import *
 from fract4d.directorbean import *
 
 class DlgAdvOptions:
-	
+
 	def __init__(self,current_kf,dir_bean):
 		self.dialog=gtk.Dialog("Keyframe advanced options...",None,
 					gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -37,14 +22,14 @@ class DlgAdvOptions:
 
 		self.current_kf=current_kf
 		self.dir_bean=dir_bean
-		
+
 		self.tbl_main=gtk.Table(6,2,False)
 		self.tbl_main.set_row_spacings(10)
 		self.tbl_main.set_col_spacings(10)
 		self.tbl_main.set_border_width(10)
-		
+
 		dirs=dir_bean.get_directions(self.current_kf)
-		
+
 		self.lbl_xy=gtk.Label("XY angles interpolation direction:")
 		self.tbl_main.attach(self.lbl_xy,0,1,0,1)
 		self.cmb_xy=gtk.combo_box_new_text() #gtk.ComboBox()
@@ -109,6 +94,6 @@ class DlgAdvOptions:
 			dirs=(self.cmb_xy.get_active(),self.cmb_xz.get_active(),self.cmb_xw.get_active(),
 				self.cmb_yz.get_active(),self.cmb_yw.get_active(),self.cmb_zw.get_active())
 			self.dir_bean.set_directions(self.current_kf,dirs)
-			
+
 		self.dialog.destroy()
 		return
