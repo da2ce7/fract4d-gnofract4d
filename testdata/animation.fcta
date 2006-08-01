@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<animation>
+	<base filename="base_name" stopped="30"/>
+	<keyframes>
+		<keyframe filename="kf1">
+			<duration value="10"/>
+			<stopped value="10"/>
+			<interpolation value="0"/>
+			<directions xy="0" xz="0" xw="1" yz="0" yw="0" zw="0"/>
+		</keyframe>
+		<keyframe filename="kf2">
+			<duration value="20"/>
+			<stopped value="20"/>
+			<interpolation value="1"/>
+			<directions xy="1" xz="1" xw="0" yz="0" yw="0" zw="0"/>
+		</keyframe>
+	</keyframes>
+	<output filename="output.avi" framerate="28" width="320" height="240" swap="0"/>
+</animation>

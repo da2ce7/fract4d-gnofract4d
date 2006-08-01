@@ -326,6 +326,43 @@ are. </para></listitem>
 </para>
 </sect3>
 
+<sect3 id="director">
+<title>Director</title>
+<para>
+
+The <emphasis>Director</emphasis> allows you to create fractal movies.
+You first define keyframes (including base keyframes) which are stops in video.
+Then, for each of them, you define for how long they last (<guilabel>duration</guilabel> - in frames),
+how long still image of keyframe will stay in video (<guilabel>stopped for</guilabel>) and interpolation
+type between several possibilities. When you hit <guibutton>Render</guibutton> button,
+Director will render all frames and put them in directory you selected and then it
+will try to create video using
+<ulink url="http://www.transcoding.org/"><emphasis>transcode</emphasis></ulink> tool.
+</para>
+
+<para>
+Tips:
+<itemizedlist>
+
+<listitem><para>
+For end up with video file, not just a bunch of images, you need to have
+<emphasis>transcode</emphasis> tool compiled with support for ImageMagick.
+</para></listitem>
+
+<listitem><para>
+You can always save your animation configuration for later use.
+</para></listitem>
+
+<listitem><para>
+You can always stop rendering images. As long as you use same animation setting again
+(for example, saving them before starting rendering), Director will starts from where
+it stopped last time.
+</para></listitem>
+
+</itemizedlist>
+</para>
+</sect3>
+
 <sect3 id="randomizecolors">
 <title>Randomize Colors</title>
 <para>

@@ -10,30 +10,27 @@ import os
 import fnmatch
 import pickle
 import sys
+import tempfile
 
 import dialog
-
 from fract4d import directorbean
 
-import PNGGen,AVIGen,DlgAdvOpt
+import PNGGen,AVIGen,DlgAdvOpt,director_prefs
 
 VERSION="0.13b"
 
-def show(parent,alt_parent, f,dialog_mode):
-    DirectorDialog.show(parent,alt_parent, f,dialog_mode)
+def show(parent,alt_parent, f,dialog_mode,conf_file=""):
+    DirectorDialog.show(parent,alt_parent, f,dialog_mode,conf_file)
 
 class DirectorDialog(dialog.T):
-	def show(parent, alt_parent, f,dialog_mode):
-		dialog.T.reveal(DirectorDialog, dialog_mode, parent, alt_parent, f)
+	def show(parent, alt_parent, f,dialog_mode,conf_file):
+		dialog.T.reveal(DirectorDialog, dialog_mode, parent, alt_parent, f,conf_file)
 
 	show = staticmethod(show)
 
 	#returns -1 if there was problem, 0 otherwise
 	def check_sanity(self):
 		try:
-			#get tmp dirs
-			self.dir_bean.set_fct_dir(self.txt_temp_fct.get_text())
-			self.dir_bean.set_png_dir(self.txt_temp_png.get_text())
 			#check if base keyframe has been set
 			if self.dir_bean.get_base_keyframe()=="":
 				error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -146,19 +143,6 @@ class DirectorDialog(dialog.T):
 			return -1
 		return 0
 
-	#wrapper to show dialog for selecting folder
-	#returns selected folder or empty string
-	def get_folder(self):
-		temp_folder=""
-		dialog = gtk.FileChooserDialog("Choose directory...",None,gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
-			(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN, gtk.RESPONSE_OK))
-		dialog.set_default_response(gtk.RESPONSE_OK)
-		response = dialog.run()
-		if response == gtk.RESPONSE_OK:
-			temp_folder=dialog.get_filename()
-		dialog.destroy()
-		return temp_folder
-
 	#wrapper to show dialog for selecting .fct file
 	#returns selected file or empty string
 	def get_fct_file(self):
@@ -199,9 +183,20 @@ class DirectorDialog(dialog.T):
 	#returns selected file or empty string
 	def get_cfg_file_save(self):
 		temp_file=""
-		dialog = gtk.FileChooserDialog("Save configuration...",None,gtk.FILE_CHOOSER_ACTION_SAVE,
+		dialog = gtk.FileChooserDialog("Save animation...",None,gtk.FILE_CHOOSER_ACTION_SAVE,
 			(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN, gtk.RESPONSE_OK))
 		dialog.set_default_response(gtk.RESPONSE_OK)
+		dialog.set_current_name("animation.fcta")
+		#----setting filters---------
+		filter = gtk.FileFilter()
+		filter.set_name("gnofract4d animation files (*.fcta)")
+		filter.add_pattern("*.fcta")
+		dialog.add_filter(filter)
+		filter = gtk.FileFilter()
+		filter.set_name("All files")
+		filter.add_pattern("*")
+		dialog.add_filter(filter)
+		#----------------------------
 		response = dialog.run()
 		if response == gtk.RESPONSE_OK:
 			temp_file=dialog.get_filename()
@@ -212,9 +207,19 @@ class DirectorDialog(dialog.T):
 	#returns selected file or empty string
 	def get_cfg_file_open(self):
 		temp_file=""
-		dialog = gtk.FileChooserDialog("Choose configuration...",None,gtk.FILE_CHOOSER_ACTION_OPEN,
+		dialog = gtk.FileChooserDialog("Choose animation...",None,gtk.FILE_CHOOSER_ACTION_OPEN,
 			(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN, gtk.RESPONSE_OK))
 		dialog.set_default_response(gtk.RESPONSE_OK)
+		#----setting filters---------
+		filter = gtk.FileFilter()
+		filter.set_name("gnofract4d animation files (*.fcta)")
+		filter.add_pattern("*.fcta")
+		dialog.add_filter(filter)
+		filter = gtk.FileFilter()
+		filter.set_name("All files")
+		filter.add_pattern("*")
+		dialog.add_filter(filter)
+		#----------------------------
 		response = dialog.run()
 		if response == gtk.RESPONSE_OK:
 			temp_file=dialog.get_filename()
@@ -223,29 +228,11 @@ class DirectorDialog(dialog.T):
 		dialog.destroy()
 		return temp_file
 
-	def temp_fct_clicked(self,widget, data=None):
-		fold=self.get_folder()
-		if fold!="":
-			self.txt_temp_fct.set_text(fold)
-			self.dir_bean.set_fct_dir(fold)
-
-	def temp_png_clicked(self,widget, data=None):
-		fold=self.get_folder()
-		if fold!="":
-			self.txt_temp_png.set_text(fold)
-			self.dir_bean.set_png_dir(fold)
-
 	def temp_avi_clicked(self,widget, data=None):
 		avi=self.get_avi_file()
 		if avi!="":
 			self.txt_temp_avi.set_text(avi)
 			self.dir_bean.set_avi_file(avi)
-
-	def browse_base_keyframe(self, widget, data=None):
-		file=self.get_fct_file()
-		if file!="":
-			self.txt_first_kf.set_text(file)
-			self.dir_bean.set_base_keyframe(file)
 
 	def output_width_changed(self,widget,data=None):
 		self.dir_bean.set_width(self.spin_width.get_value())
@@ -260,11 +247,13 @@ class DirectorDialog(dialog.T):
 		if self.current_select==-1:
 			return
 		self.dir_bean.set_keyframe_duration(self.current_select,int(self.spin_duration.get_value()))
+		self.update_model()
 
 	def stop_changed(self,widget, data=None):
 		if self.current_select==-1:
 			return
 		self.dir_bean.set_keyframe_stop(self.current_select,int(self.spin_kf_stop.get_value()))
+		self.update_model()
 
 	def base_stop_changed(self,widget, data=None):
 		self.dir_bean.set_base_stop(int(self.spin_base_stop.get_value()))
@@ -273,38 +262,39 @@ class DirectorDialog(dialog.T):
 		if self.current_select==-1:
 			return
 		self.dir_bean.set_keyframe_int(self.current_select,int(self.cmb_interpolation_type.get_active()))
+		self.update_model()
 
 	#point of whole program:)
 	#first we generate  png files and list, then .avi
-	def generate(self, widget, data=None):
+	def generate(self,create_avi=True):
 		if self.check_sanity()!=0:
 			return
 		png_gen=PNGGen.PNGGeneration(self.dir_bean)
 		res=png_gen.show()
 		if res==1:
+			gtk.threads_enter()
 			error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
 					gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
 					"User canceled")
 			error_dlg.run()
 			error_dlg.destroy()
+			gtk.threads_leave()
 			return
-		elif res==0:
-			dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-					gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
-					"Images created. Now I'll try creating video. Press OK to continue")
-			dlg.run()
-			dlg.destroy()
-		else:
+		elif res!=0:
 			return
 
+		if create_avi==False:
+			return
 		avi_gen=AVIGen.AVIGeneration(self.dir_bean)
 		res=avi_gen.show()
 		if res==1:
+			gtk.threads_enter()
 			error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
 					gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
 					"User canceled (but avi file is still generating, check later if it exist?)")
 			error_dlg.run()
 			error_dlg.destroy()
+			gtk.threads_leave()
 			return
 		elif res==0:
 			dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -314,6 +304,9 @@ class DirectorDialog(dialog.T):
 			dlg.destroy()
 		else:
 			return
+
+	def generate_clicked(self, widget, data=None):
+		self.generate(True)
 
 	def adv_opt_clicked(self,widget,data=None):
 		if self.current_select==-1:
@@ -350,23 +343,65 @@ class DirectorDialog(dialog.T):
 			self.cmb_interpolation_type.set_active(directorbean.INT_LINEAR)
 			self.current_select=-1
 
+	def update_model(self):
+		(model,it)=self.tv_keyframes.get_selection().get_selected()
+		if it!=None:
+			#------getting index of selected row-----------
+			index=0
+			it=model.get_iter_first()
+			while it!=None:
+				if self.tv_keyframes.get_selection().iter_is_selected(it):
+					break
+				it=model.iter_next(it)
+				index=index+1
+
+			model.set(it,1,self.dir_bean.get_keyframe_duration(index))
+			model.set(it,2,self.dir_bean.get_keyframe_stop(index))
+			int_type=self.dir_bean.get_keyframe_int(index)
+			if int_type==directorbean.INT_LINEAR:
+				model.set(it,3,"Linear")
+			elif int_type==directorbean.INT_LOG:
+				model.set(it,3,"Logarithmic")
+			elif int_type==directorbean.INT_INVLOG:
+				model.set(it,3,"Inverse logarithmic")
+			else:
+				model.set(it,3,"Cosine")
+
 	def swap_redblue_clicked(self,widget,data=None):
 		self.dir_bean.set_redblue(self.chk_swapRB.get_active())
 
-	def create_fct_toggled(self,widget,data=None):
-		self.dir_bean.set_fct_enabled(self.chk_create_fct.get_active())
-		self.btn_temp_fct.set_sensitive(self.chk_create_fct.get_active())
-		self.txt_temp_fct.set_sensitive(self.chk_create_fct.get_active())
-
-	def add_keyframe_clicked(self,widget, data=None):
+	def add_from_file(self,widget,data=None):
 		file=self.get_fct_file()
+		if file!="":
+			self.add_keyframe(file)
+
+	def add_from_file_bk(self,widget,data=None):
+		file=self.get_fct_file()
+		if file!="":
+			self.add_basekeyframe(file)
+
+	def add_from_current(self,widget,data=None):
+		(tmp_fd, tmp_name) = tempfile.mkstemp(suffix='.fct')
+		f = os.fdopen(tmp_fd, 'w')
+		self.f.save(f)
+		self.add_keyframe(tmp_name)
+		return
+
+	def add_from_current_bk(self,widget,data=None):
+		(tmp_fd, tmp_name) = tempfile.mkstemp(suffix='.fct')
+		f = os.fdopen(tmp_fd, 'w')
+		self.f.save(f)
+		self.add_basekeyframe(tmp_name)
+		return
+
+	def add_keyframe(self,file):
 		if file!="":
 			#get current seletion
 			(model,it)=self.tv_keyframes.get_selection().get_selected()
 			if it==None: #if it's none, just append at the end of the list
-				it=model.append([file])
+				it=model.append([file,25,1,"Linear"])
 			else: #append after currently selected
-				it=model.insert_after(it,[file])
+				it=model.insert_after(it,[file,25,1,"Linear"])
 
 			#add to bean with default parameters
 			if self.current_select!=-1:
@@ -382,6 +417,29 @@ class DirectorDialog(dialog.T):
 			#set default interpolation type
 			self.cmb_interpolation_type.set_active(directorbean.INT_LINEAR)
 
+	def add_basekeyframe(self,file):
+		if file!="":
+			self.txt_first_kf.set_text(file)
+			self.dir_bean.set_base_keyframe(file)
+
+	def add_keyframe_clicked(self,widget, event):
+		if event.type == gtk.gdk.BUTTON_PRESS:
+			widget.popup(None, None, None, event.button, event.time)
+			# Tell calling code that we have handled this event the buck
+			# stops here.
+			return True
+		# Tell calling code that we have not handled this event pass it on.
+		return False
+
+	def add_basekeyframe_clicked(self, widget, event):
+		if event.type == gtk.gdk.BUTTON_PRESS:
+			widget.popup(None, None, None, event.button, event.time)
+			# Tell calling code that we have handled this event the buck
+			# stops here.
+			return True
+		# Tell calling code that we have not handled this event pass it on.
+		return False
+
 	def remove_keyframe_clicked(self,widget,data=None):
 		#is anything selected
 		(model,it)=self.tv_keyframes.get_selection().get_selected()
@@ -390,61 +448,83 @@ class DirectorDialog(dialog.T):
 			model.remove(it)
 			self.dir_bean.remove_keyframe(temp_curr)
 
+	def updateGUI(self):
+		#base keyframe part
+		self.txt_first_kf.set_text(self.dir_bean.get_base_keyframe())
+		self.spin_base_stop.set_value(self.dir_bean.get_base_stop())
+		#keyframes
+		(model,it)=self.tv_keyframes.get_selection().get_selected()
+		model.clear()
+		for i in range(self.dir_bean.keyframes_count()-1,-1,-1):
+			filename=self.dir_bean.get_keyframe_filename(i)
+			duration=self.dir_bean.get_keyframe_duration(i)
+			stopped=self.dir_bean.get_keyframe_stop(i)
+			it=model.insert(0,[filename,duration,stopped,""])
+			int_type=self.dir_bean.get_keyframe_int(i)
+			if int_type==directorbean.INT_LINEAR:
+				model.set(it,3,"Linear")
+			elif int_type==directorbean.INT_LOG:
+				model.set(it,3,"Logarithmic")
+			elif int_type==directorbean.INT_INVLOG:
+				model.set(it,3,"Inverse logarithmic")
+			else:
+				model.set(it,3,"Cosine")
+		#output part
+		self.txt_temp_avi.set_text(self.dir_bean.get_avi_file())
+		self.spin_width.set_value(self.dir_bean.get_width())
+		self.spin_height.set_value(self.dir_bean.get_height())
+		self.spin_framerate.set_value(self.dir_bean.get_framerate())
+		self.chk_swapRB.set_active(self.dir_bean.get_redblue())
+
+	#loads configuration file, returns 0 on ok, -1 on error (and displays error message)
+	def load_configuration(self,file):
+		if file=="":
+			return -1
+		result=self.dir_bean.load_animation(file)
+		if result==-1:
+			dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+								gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+								"Animation file could not be loaded.")
+			dlg.run()
+			dlg.destroy()
+			return -1
+		#set GUI to reflect changes
+		self.updateGUI()
+		return 0
+
 	#loads configuration from pickled file
-	def load_configuration(self,widget,data=None):
+	def load_configuration_clicked(self,widget,data=None):
 		cfg=self.get_cfg_file_open()
 		if cfg!="":
-			#first try to load pickled file in test object to make sure it's ok
-			#before we overwrite our DirecotorBean and clear keyframe list
-			try:
-				inp=open(cfg,"r")
-				testing=pickle.load(inp)
-				inp.close()
-			except:
+			self.load_configuration(cfg)
+
+	#reset all field to defaults
+	def new_configuration_clicked(self,widget,data=None):
+		self.dir_bean.reset()
+		self.updateGUI()
+
+	#save pickled configuration in file
+	def save_configuration_clicked(self,widget,data=None):
+		cfg=self.get_cfg_file_save()
+		if cfg!="":
+			#output=open(cfg,"w")
+			#pickle.dump(self.dir_bean,output)
+			#output.close()
+			result=self.dir_bean.save_animation(cfg)
+			if result==-1:
 				dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-					gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-					"Configuration file could not be loaded.")
+									gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+									"Error during saving animation file")
 				dlg.run()
 				dlg.destroy()
 				return
-			#everything is OK
-			(model,it)=self.tv_keyframes.get_selection().get_selected()
-			model.clear()
-			#do real unpickling
-			inp=open(cfg,"r")
-			self.dir_bean=pickle.load(inp)
-			inp.close()
-			#temp dir part
-			self.chk_create_fct.set_active(self.dir_bean.get_fct_enabled())
-			self.txt_temp_fct.set_text(self.dir_bean.get_fct_dir())
-			self.txt_temp_png.set_text(self.dir_bean.get_png_dir())
-			#base keyframe part
-			self.txt_first_kf.set_text(self.dir_bean.get_base_keyframe())
-			self.spin_base_stop.set_value(self.dir_bean.get_base_stop())
-			#keyframes
-			for i in range(self.dir_bean.keyframes_count()-1,-1,-1):
-				filename=self.dir_bean.get_keyframe_filename(i)
-				it=model.insert(0,[filename])
-			#output part
-			self.txt_temp_avi.set_text(self.dir_bean.get_avi_file())
-			self.spin_width.set_value(self.dir_bean.get_width())
-			self.spin_height.set_value(self.dir_bean.get_height())
-			self.spin_framerate.set_value(self.dir_bean.get_framerate())
-			self.chk_swapRB.set_active(self.dir_bean.get_redblue())
 
-	#save pickled configuration in file
-	def save_configuration(self,widget,data=None):
-		#get tmp dirs
-		self.dir_bean.set_fct_dir(self.txt_temp_fct.get_text())
-		self.dir_bean.set_png_dir(self.txt_temp_png.get_text())
-		cfg=self.get_cfg_file_save()
-		if cfg!="":
-			output=open(cfg,"w")
-			pickle.dump(self.dir_bean,output)
-			output.close()
+	def preferences_clicked(self,widget,data=None):
+		dlg=director_prefs.DirectorPrefs(self.dir_bean)
+		res=dlg.show()
 
 	#creating window...
-	def __init__(self, main_window, f):
+	def __init__(self, main_window, f,conf_file):
 		dialog.T.__init__(
 			self,
 			_("Director"),
@@ -461,11 +541,16 @@ class DirectorDialog(dialog.T):
 		self.box_main=gtk.VBox(False,0)
 		#--------------------menu-------------------------------
 		self.menu_items = (
-			( "/_Configuration",         None,         None, 0, "<Branch>" ),
-			( "/Configuration/_Load configuration",     "<control>O", self.load_configuration, 0, None ),
-			( "/Configuration/_Save configuration",    "<control>S", self.save_configuration, 0, None ),
+			( "/_Director",					None,			None, 0, "<Branch>" ),
+			( "/Director/_New animation", 	"<control>N",	self.new_configuration_clicked,	0, None),
+			( "/Director/_Load animation",	"<control>O",	self.load_configuration_clicked,0, None ),
+			( "/Director/_Save animation",	"<control>S",	self.save_configuration_clicked,0, None ),
+			( "/_Edit",						None,			None,							0, "<Branch>"),
+			( "/Edit/_Preferences...",		"<control>P",	self.preferences_clicked,		0, None)
 			#( "/File/sep1",     None,         None, 0, "<Separator>" ),
 			#( "/File/Quit",     "<control>Q", self.quit, 0, None ),
+			#( "/_Help",         None,         None, 0, "<LastBranch>" ),
+			#( "/_Help/About",   None,         self.about,0, None ),
 		)
 		accel_group = gtk.AccelGroup()
 		self.item_factory = gtk.ItemFactory(gtk.MenuBar, "<main>", accel_group)
@@ -473,48 +558,28 @@ class DirectorDialog(dialog.T):
 		#self.window.add_accel_group(accel_group)
 		self.menubar=self.item_factory.get_widget("<main>")
 		self.box_main.pack_start(self.menubar,False,False,0)
-		#-------------------------------------------------------
-		#-----------Temporary directory box---------------------
-		self.frm_dirs=gtk.Frame("Temporary directories selection")
-		self.frm_dirs.set_border_width(10)
-		self.tbl_dirs=gtk.Table(3,3,False)
-		self.tbl_dirs.set_row_spacings(10)
-		self.tbl_dirs.set_col_spacings(10)
-		self.tbl_dirs.set_border_width(10)
-
-		self.chk_create_fct=gtk.CheckButton("Create temporary .fct files")
-		self.chk_create_fct.set_active(False)
-		self.chk_create_fct.connect("toggled",self.create_fct_toggled,None)
-		self.tbl_dirs.attach(self.chk_create_fct,0,1,0,1)
-
-		self.lbl_temp_fct=gtk.Label("Temporary directory for .fct files:")
-		self.tbl_dirs.attach(self.lbl_temp_fct,0,1,1,2)
-
-		self.txt_temp_fct=gtk.Entry(0)
-		self.txt_temp_fct.set_text("/tmp")
-		self.txt_temp_fct.set_sensitive(False)
-		#self.txt_temp_fct.set_editable(False)
-		self.tbl_dirs.attach(self.txt_temp_fct,1,2,1,2)
-
-		self.btn_temp_fct=gtk.Button("Browse")
-		self.btn_temp_fct.connect("clicked",self.temp_fct_clicked,None)
-		self.btn_temp_fct.set_sensitive(False)
-		self.tbl_dirs.attach(self.btn_temp_fct,2,3,1,2)
-
-		self.lbl_temp_png=gtk.Label("Temporary directory for .png files:")
-		self.tbl_dirs.attach(self.lbl_temp_png,0,1,2,3)
-
-		self.txt_temp_png=gtk.Entry(0)
-		#self.txt_temp_png.set_editable(False)
-		self.txt_temp_png.set_text("/tmp")
-		self.tbl_dirs.attach(self.txt_temp_png,1,2,2,3)
-
-		self.btn_temp_png=gtk.Button("Browse")
-		self.btn_temp_png.connect("clicked",self.temp_png_clicked,None)
-		self.tbl_dirs.attach(self.btn_temp_png,2,3,2,3)
-
-		self.frm_dirs.add(self.tbl_dirs)
-		self.box_main.pack_start(self.frm_dirs,False,False,0)
+		#-------------------------------------------------------------
+		#-----------creating popup menu-------------------------------
+		#popup menu for keyframes
+		self.popup_menu=gtk.Menu()
+		self.mnu_pop_add_file=gtk.MenuItem("From file")
+		self.popup_menu.append(self.mnu_pop_add_file)
+		self.mnu_pop_add_file.connect("activate", self.add_from_file, None)
+		self.mnu_pop_add_file.show()
+		self.mnu_pop_add_current=gtk.MenuItem("From current fractal")
+		self.popup_menu.append(self.mnu_pop_add_current)
+		self.mnu_pop_add_current.connect("activate", self.add_from_current, None)
+		self.mnu_pop_add_current.show()
+		#popup menu for base keyframe
+		self.popup_menu_bk=gtk.Menu()
+		self.mnu_pop_add_file_bk=gtk.MenuItem("From file")
+		self.popup_menu_bk.append(self.mnu_pop_add_file_bk)
+		self.mnu_pop_add_file_bk.connect("activate", self.add_from_file_bk, None)
+		self.mnu_pop_add_file_bk.show()
+		self.mnu_pop_add_current_bk=gtk.MenuItem("From current fractal")
+		self.popup_menu_bk.append(self.mnu_pop_add_current_bk)
+		self.mnu_pop_add_current_bk.connect("activate", self.add_from_current_bk, None)
+		self.mnu_pop_add_current_bk.show()
 		#-------------------------------------------------------------
 		#-----------------base keyframe box---------------------------
 		self.frm_base=gtk.Frame("Base keyframe")
@@ -531,8 +596,9 @@ class DirectorDialog(dialog.T):
 		self.txt_first_kf.set_editable(False)
 		self.tbl_base.attach(self.txt_first_kf,1,2,0,1)
 
-		self.btn_browse_first_kf=gtk.Button("Browse")
-		self.btn_browse_first_kf.connect("clicked",self.browse_base_keyframe,None)
+		self.btn_browse_first_kf=gtk.Button("Set")
+		self.btn_browse_first_kf.connect_object("event",self.add_basekeyframe_clicked,self.popup_menu_bk)
+		#self.btn_browse_first_kf.connect("clicked",self.browse_base_keyframe,None)
 		self.tbl_base.attach(self.btn_browse_first_kf,2,3,0,1)
 
 		self.lbl_first_kf_stopped=gtk.Label("Stopped for:")
@@ -557,13 +623,34 @@ class DirectorDialog(dialog.T):
 
 		self.sw=gtk.ScrolledWindow()
 		self.sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		filenames=gtk.ListStore(str)
-		self.tv_keyframes=gtk.TreeView(filenames)
-		self.tv_column = gtk.TreeViewColumn('Keyframes')
-		self.tv_keyframes.append_column(self.tv_column)
-		self.cell = gtk.CellRendererText()
-		self.tv_column.pack_start(self.cell, True)
-		self.tv_column.add_attribute(self.cell, 'text', 0)
+#		filenames=gtk.ListStore(gobject.TYPE_STRING,
+#            gobject.TYPE_STRING)
+#		self.tv_keyframes=gtk.TreeView(filenames)
+#		self.tv_column_name = gtk.TreeViewColumn('Keyframes')
+#		self.tv_keyframes.append_column(self.tv_column_name)
+#		self.tv_column_duration = gtk.TreeViewColumn('Duration')
+#		self.tv_keyframes.append_column(self.tv_column_duration)
+#		self.cell_name = gtk.CellRendererText()
+#		self.tv_column_name.pack_start(self.cell_name, True)
+#		self.tv_column_name.add_attribute(self.cell_name, 'text', 0)
+#		self.cell_duration = gtk.CellRendererText()
+#		self.tv_column_name.pack_start(self.cell_duration, True)
+#		self.tv_column_name.add_attribute(self.cell_duration, 'text', 0)
+		filenames=gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_UINT,
+							gobject.TYPE_UINT, gobject.TYPE_STRING)
+		self.tv_keyframes = gtk.TreeView(filenames)
+		column = gtk.TreeViewColumn('Keyframes', gtk.CellRendererText(),text=0)
+		self.tv_keyframes.append_column(column)
+
+		column = gtk.TreeViewColumn('Duration', gtk.CellRendererText(),text=1)
+		self.tv_keyframes.append_column(column)
+
+		column = gtk.TreeViewColumn('Stopped for', gtk.CellRendererText(),text=2)
+		self.tv_keyframes.append_column(column)
+
+		column = gtk.TreeViewColumn('Interpolation type', gtk.CellRendererText(),text=3)
+		self.tv_keyframes.append_column(column)
+
 		self.sw.add_with_viewport(self.tv_keyframes)
 		self.tv_keyframes.get_selection().connect("changed",self.selection_changed,None)
 		self.tv_keyframes.get_selection().set_select_function(self.before_selection,None)
@@ -571,7 +658,8 @@ class DirectorDialog(dialog.T):
 		self.tbl_keyframes_left.attach(self.sw,0,2,0,1)
 
 		self.btn_add_keyframe=gtk.Button("Add",gtk.STOCK_ADD)
-		self.btn_add_keyframe.connect("clicked",self.add_keyframe_clicked,None)
+		#self.btn_add_keyframe.connect("clicked",self.add_keyframe_clicked,None)
+		self.btn_add_keyframe.connect_object("event",self.add_keyframe_clicked,self.popup_menu)
 		self.tbl_keyframes_left.attach(self.btn_add_keyframe,0,1,1,2,0,0)
 
 		self.btn_remove_keyframe=gtk.Button("Remove",gtk.STOCK_REMOVE)
@@ -683,8 +771,8 @@ class DirectorDialog(dialog.T):
 		#------------------button box-------------------------------------
 		self.box_buttons=gtk.HBox(False,10)
 
-		self.btn_generate = gtk.Button(_("Generate"),gtk.STOCK_EXECUTE)
-		self.btn_generate.connect("clicked", self.generate, None)
+		self.btn_generate = gtk.Button("Render")
+		self.btn_generate.connect("clicked", self.generate_clicked, None)
 		self.box_buttons.pack_start(self.btn_generate,True,False,0)
 
 		#self.btn_exit=gtk.Button("Exit",gtk.STOCK_QUIT)
@@ -695,6 +783,9 @@ class DirectorDialog(dialog.T):
 		#--------------showing all-------------------------------
 		self.vbox.add(self.box_main)
 		self.controls = self.vbox
+		if conf_file!="":
+			self.load_configuration(conf_file)
+
 
 	def main(self):
 		gtk.main()
@@ -703,5 +794,5 @@ class DirectorDialog(dialog.T):
 if __name__ == "__main__":
 	gobject.threads_init()
 	gtk.threads_init()
-	fracwin = FractalWindow()
+	fracwin = DirectorDialog()
 	fracwin.main()
