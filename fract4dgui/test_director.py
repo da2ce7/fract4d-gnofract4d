@@ -11,9 +11,9 @@ import gtk
 import gettext
 os.environ.setdefault('LANG', 'en')
 gettext.install('gnofract4d')
-import director
 
 sys.path.append("..")
+import director, PNGGen, hig
 
 from fract4d import fractal, image, fc,directorbean
 
@@ -23,10 +23,10 @@ g_comp.file_path.append("../formulas")
 
 class Test(unittest.TestCase):
     def setUp(self):
-        pass
+        # ensure any dialog boxes are dismissed without human interaction
+        hig.timeout = 250
 
     def tearDown(self):
-    	print "b"
         pass
 
     def wait(self):
@@ -55,6 +55,83 @@ class Test(unittest.TestCase):
         self.assertEqual(os.path.exists("./image_1.png"),True)
         dd.destroy()
 
+    def assertRaisesMessage(self, excClass, msg, callable, *args, **kwargs):
+        try:
+            callable(*args,**kwargs)
+        except excClass, exn:
+            self.assertEqual(msg,str(exn))
+        else:
+            if hasattr(excClass,'__name__'): excName = excClass.__name__
+            else: excName = str(excClass)
+            raise self.failureException, "%s not raised" % excName
+
+    def testOwnSanity(self):
+        # exercise each of the checks in the check_sanity function
+        f = fractal.T(g_comp)
+        dd= director.DirectorDialog(None,f,"")
+        self.assertRaisesMessage(
+            director.SanityCheckError, "Base keyframe not set",
+            dd.check_sanity)
+
+        dd.dir_bean.set_base_keyframe("fred")
+        self.assertRaisesMessage(
+            director.SanityCheckError, "There must be at least one keyframe",
+            dd.check_sanity)
+        
+        dd.dir_bean.add_keyframe("/tmp/director2.fct",1,10,directorbean.INT_LOG)
+        dd.dir_bean.set_png_dir("")
+        self.assertRaisesMessage(
+            director.SanityCheckError,
+            "Directory for temporary .png files not set",
+            dd.check_sanity)
+
+        dd.dir_bean.set_png_dir("fishy")
+        self.assertRaisesMessage(
+            director.SanityCheckError,
+            "Path for temporary .png files is not a directory",
+            dd.check_sanity)
+
+        dd.dir_bean.set_png_dir("/tmp/")
+        
+        self.assertRaisesMessage(
+            director.SanityCheckError,
+            "Output AVI file name not set",
+            dd.check_sanity)
+
+        dd.dir_bean.set_avi_file("/tmp/foo.avi")
+
+        dd.dir_bean.set_fct_enabled(True)
+        
+        self.assertRaisesMessage(
+            director.SanityCheckError,
+            "Keyframe /tmp/director2.fct is in the temporary .fct directory and could be overwritten. Please change temp directory.",
+            dd.check_sanity)
+
+        
+        
+    def testKeyframeClash(self):
+        f = fractal.T(g_comp)
+        dd= director.DirectorDialog(None,f,"")
+
+        dd.check_for_keyframe_clash("/a","/b")
+        
+        self.assertRaises(
+            director.SanityCheckError,
+            dd.check_for_keyframe_clash, "/tmp/foo.fct", "/tmp")
+        self.assertRaises(
+            director.SanityCheckError,
+            dd.check_for_keyframe_clash, "/tmp/foo.fct", "/tmp/")
+
+        
+        
+    def testPNGGen(self):
+        f = fractal.T(g_comp)
+        dd= director.DirectorDialog(None,f,"")
+        pg = PNGGen.PNGGeneration(dd.dir_bean,g_comp)
+        pg.generate_png()
+        
+        dd.destroy()
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 

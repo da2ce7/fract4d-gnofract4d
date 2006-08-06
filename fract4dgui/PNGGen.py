@@ -13,38 +13,39 @@ from threading import *
 
 from fract4d.directorbean import *
 
-import gtkfractal
-from fract4d import fractal,fc,fracttypes
+import gtkfractal, hig
+from fract4d import fractal,fracttypes
 
 running=False
 thread_error=False
 
-class PNGGeneration:
+class PNGGeneration(gtk.Dialog,hig.MessagePopper):
+	def __init__(self,dir_bean,compiler):
+		gtk.Dialog.__init__(self,
+			"Generating images...",None,
+			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+			(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
 
-	def __init__(self,dir_bean):
-		self.dialog=gtk.Dialog("Generating images...",None,
-					gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
+		hig.MessagePopper.__init__(self)
 		self.lbl_image=gtk.Label("Current image progress")
-		self.dialog.vbox.pack_start(self.lbl_image,True,True,0)
+		self.vbox.pack_start(self.lbl_image,True,True,0)
 		self.pbar_image = gtk.ProgressBar()
-		self.dialog.vbox.pack_start(self.pbar_image,True,True,0)
+		self.vbox.pack_start(self.pbar_image,True,True,0)
 		self.lbl_overall=gtk.Label("Overall progress")
-		self.dialog.vbox.pack_start(self.lbl_overall,True,True,0)
+		self.vbox.pack_start(self.lbl_overall,True,True,0)
 		self.pbar_overall = gtk.ProgressBar()
-		self.dialog.vbox.pack_start(self.pbar_overall,True,True,0)
-		self.dialog.set_geometry_hints(None,min_aspect=3.5,max_aspect=3.5)
+		self.vbox.pack_start(self.pbar_overall,True,True,0)
+		self.set_geometry_hints(None,min_aspect=3.5,max_aspect=3.5)
 		self.dir_bean=dir_bean
+
+		#-------------loads compiler----------------------------
+		self.compiler=compiler
 
 	def generate_png(self):
 		global running
 		self.values=[]
 		self.durations=[]
-		#-------------loads compiler----------------------------
-		self.compiler=fc.Compiler()
-		self.compiler.file_path.append("formulas")
-		self.compiler.file_path.append("../formulas")
-		self.compiler.file_path.append(os.path.join(sys.exec_prefix, "share/formulas/gnofract4d"))
-		#--------------------------------------------------------------
+
 		#-------find values from base keyframe first-------------------
 		try:
 			ret=self.find_values(self.dir_bean.get_base_keyframe())
@@ -54,10 +55,11 @@ class PNGGeneration:
 				self.show_error("Unknown error during reading base keyframe")
 				yield False
 				return
-		except:
-			self.show_error("Unknown error during reading base keyframe")
+		except Exception, err:
+			self.show_error("Error reading base keyframe", str(err))
 			yield False
 			return
+
 		#---------------------------------------------------------------
 		#--------find values and duration from all keyframes------------
 		try:
@@ -74,33 +76,37 @@ class PNGGeneration:
 					yield False
 					return
 				self.durations.append(self.dir_bean.get_keyframe_duration(i))
-		#---------------------------------------------------------------
-			create_all_images=self.to_create_images_again()
-			gt=GenerationThread(self.durations,self.values,self.dir_bean,create_all_images,self.pbar_image,self.pbar_overall)
-			gt.start()
-			working=True
-			while(working):
-				gt.join(1)
-				working=gt.isAlive()
-				yield True
-
-			if thread_error==True:
-				self.show_error("Error during image generation")
-				yield False
-				return
-
-		except:
-			self.show_error("Unknown error during generation of .fct files")
+		except Exception, err:
+			self.show_error(_("Error during generation of .fct files"), str(err))
 			yield False
 			return
+
+		#---------------------------------------------------------------
+		create_all_images=self.to_create_images_again()
+		gt=GenerationThread(
+			self.durations,self.values,self.dir_bean,
+			self.compiler,
+			create_all_images,self.pbar_image,self.pbar_overall)
+		gt.start()
+		working=True
+		while(working):
+			gt.join(1)
+			working=gt.isAlive()
+			yield True
+
+		if thread_error==True:
+			self.show_error("Error during image generation")
+			yield False
+			return
+
 
 		if running==False:
 			yield False
 			return
 		running=False
-		self.dialog.destroy()
+		self.destroy()
 		yield False
-
+	
 	def to_create_images_again(self):
 		folder_png=self.dir_bean.get_png_dir()
 		if folder_png[-1]!="/":
@@ -115,14 +121,17 @@ class PNGGeneration:
 		while i<sumN and answer==False:
 			if os.path.exists(folder_png+"image_"+str(i).zfill(lenN)+".png"): #check if image already exist
 				gtk.threads_enter()
-				error_dlg = gtk.MessageDialog(None,
-					gtk.DIALOG_MODAL  | gtk.DIALOG_DESTROY_WITH_PARENT,
-					gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
-					"In directory: %s already exist at least one image. Should I use them to speed up generation?" %(folder_png))
-				response=error_dlg.run()
-				error_dlg.destroy()
+				try:
+					response = self.ask_question(
+						_("The temporary directory: %s already contains at least one image" % folder_png),
+						_("Use them to speed up generation?"))
+
+				except Exception, err:
+					print err
+					raise
+				
 				gtk.threads_leave()
-				if response==gtk.RESPONSE_YES:
+				if response==gtk.RESPONSE_ACCEPT:
 					create=False
 				else:
 					create=True
@@ -162,46 +171,50 @@ class PNGGeneration:
 
 	#showing gtk thread safe error message
 
-	def show_error(self,s):
+	def show_error(self,message,secondary):
 		running=False
 		self.error=True
 		gtk.threads_enter()
-		error_dlg = gtk.MessageDialog(self.dialog,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-				gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,s)
+		error_dlg = hig.ErrorAlert(
+			parent=self,
+			primary=message,
+			secondary=secondary)
 		error_dlg.run()
 		error_dlg.destroy()
 		gtk.threads_leave()
 		event = gtk.gdk.Event(gtk.gdk.DELETE)
-		self.dialog.emit('delete_event', event)
+		self.emit('delete_event', event)
 
 	def show(self):
 		global running
-		self.dialog.show_all()
+		self.show_all()
 		running=True
 		self.error=False
 		task=self.generate_png()
 		gobject.idle_add(task.next)
-		response = self.dialog.run()
+		response = self.run()
 		if response != gtk.RESPONSE_CANCEL:
 			if running==True: #destroy by user
 				running=False
-				self.dialog.destroy()
+				self.destroy()
 				return 1
 			else:
 				if self.error==True: #error
-					self.dialog.destroy()
+					self.destroy()
 					return -1
 				else: #everything ok
-					self.dialog.destroy()
+					self.destroy()
 					return 0
 		else: #cancel pressed
 			running=False
-			self.dialog.destroy()
+			self.destroy()
 			return 1
 
 #thread to interpolate values and calls generation of .png files
 class GenerationThread(Thread):
-	def __init__(self,durations,values,dir_bean,create_all_images,pbar_image,pbar_overall):
+	def __init__(
+		self,durations,values,dir_bean,compiler,
+		create_all_images,pbar_image,pbar_overall):
 		Thread.__init__(self)
 		self.durations=durations
 		self.values=values
@@ -209,15 +222,12 @@ class GenerationThread(Thread):
 		self.create_all_images=create_all_images
 		self.pbar_image=pbar_image
 		self.pbar_overall=pbar_overall
-		#initializig progress bars
+		#initializing progress bars
 		self.pbar_image.set_fraction(0)
 		self.pbar_overall.set_fraction(0)
 		self.pbar_overall.set_text("0/"+str(sum(self.durations)+1))
-		#getting compiler
-		self.compiler=fc.Compiler()
-		self.compiler.file_path.append("formulas")
-		self.compiler.file_path.append("../formulas")
-		self.compiler.file_path.append(os.path.join(sys.exec_prefix, "share/formulas/gnofract4d"))
+		self.compiler=compiler
+
 		#semaphore to signalize that image generation is finished
 		self.next_image=Semaphore(1)
 

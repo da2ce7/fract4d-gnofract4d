@@ -4,6 +4,7 @@
 import gtk
 import xml.sax.saxutils
 
+import utils
 
 class Alert(gtk.Dialog):
     def __init__(self, **kwds):
@@ -102,13 +103,13 @@ class ConfirmationAlert(Alert):
 
         proceed_button = kwds.get("proceed_button", gtk.STOCK_OK)
         alternate_button = kwds.get("alternate_button")
-
+        cancel_button = kwds.get("cancel_button", gtk.STOCK_CANCEL)
         # if optional fix button supplied, add to list of buttons
         buttons = list(kwds.get("buttons", ()))
         if alternate_button:
             buttons = [ alternate_button, ConfirmationAlert.ALTERNATE]
 
-        buttons += [gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+        buttons += [cancel_button, gtk.RESPONSE_CANCEL,
                     proceed_button, gtk.RESPONSE_ACCEPT]
 
         kwds["buttons"] = tuple(buttons)
@@ -146,4 +147,41 @@ class SaveConfirmationAlert(ConfirmationAlert):
 
         ConfirmationAlert.__init__(self,**kwds)
 
+
+# global var for testing purposes. If none-zero, dialog will
+# automatically be dismissed after 'timeout' milliseconds
+timeout = 0
+
+class MessagePopper:
+    "A mixin type for a window which wants to display error messages"
+    def __init__(self):
+        pass
+
+    def show_error(self,msg, extra_message=""):
+        d = ErrorAlert(
+            parent=self,
+            primary=msg,
+            secondary=extra_message)
+
+        return self.do(d)
+
+    def ask_question(self, msg, secondary):
+        d = ConfirmationAlert(
+            primary=msg,
+            secondary=secondary,
+            image = gtk.STOCK_DIALOG_QUESTION,
+            proceed_button = gtk.STOCK_YES,
+            cancel_button = gtk.STOCK_NO)
         
+        return self.do(d)
+
+    def do(self,d):
+        if timeout > 0:
+            def dismiss():
+                d.response(gtk.RESPONSE_ACCEPT)
+                return False
+
+            utils.timeout_add(timeout,dismiss)
+        response = d.run()
+        d.destroy()
+        return response

@@ -12,136 +12,101 @@ import pickle
 import sys
 import tempfile
 
-import dialog
+import dialog, hig
 from fract4d import directorbean
 
 import PNGGen,AVIGen,DlgAdvOpt,director_prefs
 
-VERSION="0.13b"
-
 def show(parent,alt_parent, f,dialog_mode,conf_file=""):
     DirectorDialog.show(parent,alt_parent, f,dialog_mode,conf_file)
 
-class DirectorDialog(dialog.T):
+class SanityCheckError(Exception):
+    "The type of exception which is thrown when animation sanity checks fail"
+    def __init__(self,msg):
+        Exception.__init__(self,msg)
+        
+class DirectorDialog(dialog.T,hig.MessagePopper):
+        RESPONSE_RENDER=1
 	def show(parent, alt_parent, f,dialog_mode,conf_file):
 		dialog.T.reveal(DirectorDialog, dialog_mode, parent, alt_parent, f,conf_file)
 
 	show = staticmethod(show)
 
-	#returns -1 if there was problem, 0 otherwise
+        def check_for_keyframe_clash(self,keyframe,fct_dir):
+            keydir=os.path.dirname(keyframe)
+            if keydir[-1]!="/":
+                keydir += "/"
+
+            if fct_dir[-1]!="/":
+                fct_dir += "/"
+            if keydir == fct_dir:
+                raise SanityCheckError(
+                    _("Keyframe %s is in the temporary .fct directory and could be overwritten. Please change temp directory." % keyframe))
+
+        def check_fct_file_sanity(self):
+            #things to check with fct temp dir
+            if not self.dir_bean.get_fct_enabled():
+                # we're not generating .fct files, so this is superfluous
+                return
+            
+            #check fct temp dir is set
+            if self.dir_bean.get_fct_dir()=="":
+                raise SanityCheckError(
+                    _("Directory for temporary .fct files not set"))
+            
+            #check if it is directory
+            if not os.path.isdir(self.dir_bean.get_fct_dir()):
+                self.show_error(
+                    cannot_render,
+                    _("Path for temporary .fct files is not a directory"))
+                return -1
+            
+            fct_path=self.dir_bean.get_fct_dir()
+                
+            #check if any keyframe fct files are in temp fct dir
+            for i in range(self.dir_bean.keyframes_count()):
+                keyframe = self.dir_bean.get_keyframe_filename(i)
+                self.check_for_keyframe_clash(keyframe,fct_path)
+
+            #check if base keyframe is in temp fct dir
+            keyframe = self.dir_bean.get_base_keyframe()
+            self.check_for_keyframe_clash(keyframe,fct_path)
+            
+            #check if there are any .fct files in temp fct dir
+            has_any=False
+            for file in os.listdir(fct_path):
+                if fnmatch.fnmatch(file,"*.fct"):
+                    response = self.ask_question(
+                        _("Directory for temporary .fct files contains other .fct files"),                        
+                        _("These may be overwritten. Proceed?"))
+                    if response!=gtk.RESPONSE_YES:
+                        raise UserCancelledError
+            
+	#throws SanityCheckError if there was a problem
 	def check_sanity(self):
-		try:
-			#check if base keyframe has been set
-			if self.dir_bean.get_base_keyframe()=="":
-				error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-					gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-					"Base keyframe not set")
-				error_dlg.run()
-				error_dlg.destroy()
-				return -1
-			#check if at least one keyframe exist
-			if self.dir_bean.keyframes_count()<1:
-				error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-					gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-					"There must be at least one keyframe")
-				error_dlg.run()
-				error_dlg.destroy()
-				return -1
-			#check png temp dir is set
-			if self.dir_bean.get_png_dir()=="":
-				error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-					gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-					"Directory for temporary .png files not set")
-				error_dlg.run()
-				error_dlg.destroy()
-				return -1
-			#check if it is directory
-			if not os.path.isdir(self.dir_bean.get_png_dir()):
-				error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-					gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-					"Directory for temporary .png files is not directory")
-				error_dlg.run()
-				error_dlg.destroy()
-				return -1
-			#check avi file is set
-			if self.dir_bean.get_avi_file()=="":
-				error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-					gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-					"Directory for resulting avi file not set")
-				error_dlg.run()
-				error_dlg.destroy()
-				return -1
-			#things to check with fct temp dir
-			if self.dir_bean.get_fct_enabled()==True:
-				#check fct temp dir is set
-				if self.dir_bean.get_fct_dir()=="":
-					error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-												gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-												"Directory for temporary .fct files not set")
-					error_dlg.run()
-					error_dlg.destroy()
-					return -1
-				#check if it is directory
-				if not os.path.isdir(self.dir_bean.get_fct_dir()):
-					error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-												gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-												"Directory for temporary .fct files is not directory")
-					error_dlg.run()
-					error_dlg.destroy()
-					return -1
-				fct_path=self.dir_bean.get_fct_dir()
-				if fct_path[-1]!="/":
-					fct_path=fct_path+"/"
-				#chech if any keyframe fct files are in temp fct dir
-				for i in range(self.dir_bean.keyframes_count()):
-					k=os.path.split(self.dir_bean.get_keyframe_filename(i))[0]
-					if k[-1]!="/":
-						k=k+"/"
-						if k==fct_path:
-							error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-														gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-														"OMG! Keyframe %s resides in temporary .fct directory. I refuse to continue."%(self.dir_bean.get_keyframe_filename(i)))
-							error_dlg.run()
-							error_dlg.destroy()
-							return -1
-				#check if base keyframe is in temp fct dir
-				k=os.path.split(self.dir_bean.get_base_keyframe())[0]
-				if k[-1]!="/":
-					k=k+"/"
-					if k==fct_path:
-						error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-													gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-													"OMG! Base keyframe resides in temporary .fct directory. I refuse to continue.")
-						error_dlg.run()
-						error_dlg.destroy()
-						return -1
-				#check if there are any .fct files in temp fct dir
-				has_any=False
-				for file in os.listdir(fct_path):
-					if has_any:
-						break
-					if fnmatch.fnmatch(file,"*.fct"):
-						has_any=True
-				if has_any:
-					error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-												gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
-												"Directory for temporary .fct files contains other .fct files. Is it OK to delete them?")
-					response=error_dlg.run()
-					error_dlg.destroy()
-					if response==gtk.RESPONSE_YES:
-						for file in os.listdir(fct_path):
-							if fnmatch.fnmatch(file,"*.fct"):
-								os.unlink(fct_path+file)
-					else:
-						return -1
-		except:
-			error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-				gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK,
-				"Unknown error occured. I will not continue. Contact author:)")
-			response=error_dlg.run()
-			error_dlg.destroy()
-			return -1
-		return 0
+            #check if base keyframe has been set
+            if self.dir_bean.get_base_keyframe()=="":
+                raise SanityCheckError(_("Base keyframe not set"))
+            
+            #check if at least one keyframe exist
+            if self.dir_bean.keyframes_count()<1:
+                raise SanityCheckError(_("There must be at least one keyframe"))
+                
+            #check png temp dir is set
+            if self.dir_bean.get_png_dir()=="":
+                raise SanityCheckError(
+                    _("Directory for temporary .png files not set"))
+                
+            #check if it is directory
+            if not os.path.isdir(self.dir_bean.get_png_dir()):
+                raise SanityCheckError(
+                    _("Path for temporary .png files is not a directory"))
+                        
+            #check avi file is set
+            if self.dir_bean.get_avi_file()=="":
+                raise SanityCheckError(_("Output AVI file name not set"))
+
+            self.check_fct_file_sanity()
 
 	#wrapper to show dialog for selecting .fct file
 	#returns selected file or empty string
@@ -269,22 +234,24 @@ class DirectorDialog(dialog.T):
 	def generate(self,create_avi=True):
 		if self.check_sanity()!=0:
 			return
-		png_gen=PNGGen.PNGGeneration(self.dir_bean)
+		png_gen=PNGGen.PNGGeneration(self.dir_bean, self.compiler)
 		res=png_gen.show()
 		if res==1:
-			gtk.threads_enter()
-			error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-					gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
-					"User canceled")
-			error_dlg.run()
-			error_dlg.destroy()
-			gtk.threads_leave()
+                        # I don't think we need to display a box if the user cancels
+			#gtk.threads_enter()
+			#error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+			#		gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
+			#		"User canceled")
+			#error_dlg.run()
+			#error_dlg.destroy()
+			#gtk.threads_leave()
 			return
 		elif res!=0:
 			return
 
 		if create_avi==False:
 			return
+                    
 		avi_gen=AVIGen.AVIGeneration(self.dir_bean)
 		res=avi_gen.show()
 		if res==1:
@@ -480,14 +447,13 @@ class DirectorDialog(dialog.T):
 	def load_configuration(self,file):
 		if file=="":
 			return -1
-		result=self.dir_bean.load_animation(file)
-		if result==-1:
-			dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-								gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-								"Animation file could not be loaded.")
-			dlg.run()
-			dlg.destroy()
-			return -1
+                try:
+                    self.dir_bean.load_animation(file)
+                except Exception, err:
+                    self.show_error(
+                        _("Cannot load animation"),
+                        str(err))
+                    return -1
 		#set GUI to reflect changes
 		self.updateGUI()
 		return 0
@@ -503,21 +469,16 @@ class DirectorDialog(dialog.T):
 		self.dir_bean.reset()
 		self.updateGUI()
 
-	#save pickled configuration in file
+	#save configuration in file
 	def save_configuration_clicked(self,widget,data=None):
 		cfg=self.get_cfg_file_save()
 		if cfg!="":
-			#output=open(cfg,"w")
-			#pickle.dump(self.dir_bean,output)
-			#output.close()
+                    try:
 			result=self.dir_bean.save_animation(cfg)
-			if result==-1:
-				dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-									gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-									"Error during saving animation file")
-				dlg.run()
-				dlg.destroy()
-				return
+                    except Exception, err:
+                        self.show_error(
+                            _("Error saving animation"),
+                            str(err))
 
 	def preferences_clicked(self,widget,data=None):
 		dlg=director_prefs.DirectorPrefs(self.dir_bean)
@@ -530,13 +491,17 @@ class DirectorDialog(dialog.T):
 			_("Director"),
 			main_window,
 			gtk.DIALOG_DESTROY_WITH_PARENT,
-			(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+			(_("_Render"), DirectorDialog.RESPONSE_RENDER,
+                         gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
+                hig.MessagePopper.__init__(self)
 		self.dir_bean=directorbean.DirectorBean()
 		self.f=f
+                self.compiler = f.compiler
 		self.realize()
 
-		#self.window.set_border_width(10)
+                self.main_window = main_window
+                
 		#main VBox
 		self.box_main=gtk.VBox(False,0)
 		#--------------------menu-------------------------------
@@ -547,10 +512,6 @@ class DirectorDialog(dialog.T):
 			( "/Director/_Save animation",	"<control>S",	self.save_configuration_clicked,0, None ),
 			( "/_Edit",						None,			None,							0, "<Branch>"),
 			( "/Edit/_Preferences...",		"<control>P",	self.preferences_clicked,		0, None)
-			#( "/File/sep1",     None,         None, 0, "<Separator>" ),
-			#( "/File/Quit",     "<control>Q", self.quit, 0, None ),
-			#( "/_Help",         None,         None, 0, "<LastBranch>" ),
-			#( "/_Help/About",   None,         self.about,0, None ),
 		)
 		accel_group = gtk.AccelGroup()
 		self.item_factory = gtk.ItemFactory(gtk.MenuBar, "<main>", accel_group)
@@ -767,25 +728,20 @@ class DirectorDialog(dialog.T):
 
 		self.frm_output.add(self.box_output_main)
 		self.box_main.pack_start(self.frm_output,False,False,0)
-		#-----------------------------------------------------------------
-		#------------------button box-------------------------------------
-		self.box_buttons=gtk.HBox(False,10)
 
-		self.btn_generate = gtk.Button("Render")
-		self.btn_generate.connect("clicked", self.generate_clicked, None)
-		self.box_buttons.pack_start(self.btn_generate,True,False,0)
-
-		#self.btn_exit=gtk.Button("Exit",gtk.STOCK_QUIT)
-		#self.btn_exit.connect("clicked", self.quit,1)
-		#self.box_buttons.pack_start(self.btn_exit,True,False,0)
-
-		self.box_main.pack_start(self.box_buttons,False,False,10)
 		#--------------showing all-------------------------------
 		self.vbox.add(self.box_main)
 		self.controls = self.vbox
 		if conf_file!="":
 			self.load_configuration(conf_file)
 
+        def onResponse(self,widget,id):
+            if id == gtk.RESPONSE_CLOSE or \
+                   id == gtk.RESPONSE_NONE or \
+                   id == gtk.RESPONSE_DELETE_EVENT:
+                self.hide()
+            elif id == DirectorDialog.RESPONSE_RENDER:
+                self.generate()
 
 	def main(self):
 		gtk.main()

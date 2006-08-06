@@ -55,7 +55,7 @@ class DirectorBean:
 		return preferences.userPrefs.getboolean("director","fct_enabled")
 
 	def set_fct_enabled(self,fct_enabled):
-		if fct_enabled==True:
+		if fct_enabled:
 			preferences.userPrefs.set("director","fct_enabled","1")
 		else:
 			preferences.userPrefs.set("director","fct_enabled","0")
@@ -184,7 +184,6 @@ class DirectorBean:
 		self.keyframes=[]
 		self.__dict__.update(dict)   # update attributes
 
-	#returns -1 if there was error loading XML file, 0 otherwise
 	def load_animation(self,file):
 		#save __dict__ if there was error
 		odict = self.__dict__.copy()
@@ -195,36 +194,29 @@ class DirectorBean:
 			ah = AnimationHandler(self)
 			parser.setContentHandler(ah)
 			parser.parse(open(file))
-			return 0
-		except:
+		except Exception, err:
 			#retrieve previous__dict__
 			self.__dict__=odict.copy()
-			return -1
+			raise
 
-	#save current animation configuration in XML file
-	#returns -1 if there was error saving XML file, 0 otherwise
 	def save_animation(self,file):
-		try:
-			fh=open(file,"w")
-			fh.write('<?xml version="1.0"?>\n')
-			fh.write("<animation>\n")
-			fh.write('\t<base filename="%s" stopped="%d"/>\n'%(self.base_keyframe,self.base_stop))
-			fh.write('\t<keyframes>\n')
-			for kf in self.keyframes:
-				fh.write('\t\t<keyframe filename="%s">\n'%kf[0])
-				fh.write('\t\t\t<duration value="%d"/>\n'%kf[1])
-				fh.write('\t\t\t<stopped value="%d"/>\n'%kf[2])
-				fh.write('\t\t\t<interpolation value="%d"/>\n'%kf[3])
-				fh.write('\t\t\t<directions xy="%d" xz="%d" xw="%d" yz="%d" yw="%d" zw="%d"/>\n'%kf[4])
-				fh.write('\t\t</keyframe>\n')
-			fh.write('\t</keyframes>\n')
-			fh.write('\t<output filename="%s" framerate="%d" width="%d" height="%d" swap="%d"/>\n'%
-					(self.avi_file,self.framerate,self.width,self.height,self.redblue))
-			fh.write("</animation>\n")
-			fh.close()
-			return 0
-		except:
-			return -1
+		fh=open(file,"w")
+		fh.write('<?xml version="1.0"?>\n')
+		fh.write("<animation>\n")
+		fh.write('\t<base filename="%s" stopped="%d"/>\n'%(self.base_keyframe,self.base_stop))
+		fh.write('\t<keyframes>\n')
+		for kf in self.keyframes:
+			fh.write('\t\t<keyframe filename="%s">\n'%kf[0])
+			fh.write('\t\t\t<duration value="%d"/>\n'%kf[1])
+			fh.write('\t\t\t<stopped value="%d"/>\n'%kf[2])
+			fh.write('\t\t\t<interpolation value="%d"/>\n'%kf[3])
+			fh.write('\t\t\t<directions xy="%d" xz="%d" xw="%d" yz="%d" yw="%d" zw="%d"/>\n'%kf[4])
+			fh.write('\t\t</keyframe>\n')
+		fh.write('\t</keyframes>\n')
+		fh.write('\t<output filename="%s" framerate="%d" width="%d" height="%d" swap="%d"/>\n'%
+			 (self.avi_file,self.framerate,self.width,self.height,self.redblue))
+		fh.write("</animation>\n")
+		fh.close()
 
 	#leftover from debugging purposes
 	def pr(self):
