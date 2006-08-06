@@ -26,7 +26,13 @@ class MockIgnoreInfo:
 
     def is_ignore_suggested(self):
         return self.suggest_ignore
-    
+
+class MockDialog(gtk.Dialog,hig.MessagePopper):
+    def __init__(self):
+        gtk.Dialog.__init__(
+            self,"Title",None, 0, ())
+        hig.MessagePopper.__init__(self)
+        
 class Test(unittest.TestCase):
     def setUp(self):
         pass
@@ -134,7 +140,16 @@ class Test(unittest.TestCase):
         self.assertEqual(ii.is_ignored(), False)
         self.runAndDismiss(d)
         self.assertEqual(ii.is_ignored(), True)
-            
+
+    def testMessagePopper(self):
+        dd = MockDialog()
+        self.assertEqual(0, hig.timeout)
+
+        hig.timeout = 300
+
+        dd.show_error("Hello","A catastrophe has occurred")
+        dd.ask_question("Eh?", "Speak into t'trumpet!")
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 
