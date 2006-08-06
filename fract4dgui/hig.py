@@ -165,6 +165,14 @@ class MessagePopper:
 
         return self.do(d)
 
+    def show_info(self,msg,extra_message = ""):
+        d = InformationAlert(
+            parent=self,
+            primary=msg,
+            secondary=extra_message)
+
+        return self.do(d)
+        
     def ask_question(self, msg, secondary):
         d = ConfirmationAlert(
             primary=msg,
