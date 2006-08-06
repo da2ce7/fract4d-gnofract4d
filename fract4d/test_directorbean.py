@@ -96,7 +96,6 @@ class Test(unittest.TestCase):
 
 	def testLoading(self):
 		result=self.db.load_animation("../testdata/animation.fcta")
-		self.assertEqual(result,0)
 		#base stuff
 		self.assertEqual(self.db.get_base_keyframe(),"base_name")
 		self.assertEqual(self.db.get_base_stop(),30)

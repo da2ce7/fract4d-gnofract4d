@@ -232,45 +232,34 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
 	#point of whole program:)
 	#first we generate  png files and list, then .avi
 	def generate(self,create_avi=True):
-		if self.check_sanity()!=0:
-			return
-		png_gen=PNGGen.PNGGeneration(self.dir_bean, self.compiler)
-		res=png_gen.show()
-		if res==1:
-                        # I don't think we need to display a box if the user cancels
-			#gtk.threads_enter()
-			#error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-			#		gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
-			#		"User canceled")
-			#error_dlg.run()
-			#error_dlg.destroy()
-			#gtk.threads_leave()
-			return
-		elif res!=0:
-			return
+            try:
+		self.check_sanity()
+            except SanityCheckError, exn:
+                self.show_error(_("Cannot Generate Animation"), str(exn))
+                return
+            
+            png_gen=PNGGen.PNGGeneration(self.dir_bean, self.compiler)
+            res=png_gen.show()
+            if res==1:
+                # user cancelled, but they know that. Stop silently
+                return
+            elif res!=0:
+                # unexpected return code
+                return
 
-		if create_avi==False:
-			return
+            if create_avi==False:
+                return
                     
-		avi_gen=AVIGen.AVIGeneration(self.dir_bean)
-		res=avi_gen.show()
-		if res==1:
-			gtk.threads_enter()
-			error_dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-					gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
-					"User canceled (but avi file is still generating, check later if it exist?)")
-			error_dlg.run()
-			error_dlg.destroy()
-			gtk.threads_leave()
-			return
-		elif res==0:
-			dlg = gtk.MessageDialog(None,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-					gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
-					"AVI file created! Check to see what it looks like now;)")
-			dlg.run()
-			dlg.destroy()
-		else:
-			return
+            avi_gen=AVIGen.AVIGeneration(self.dir_bean)
+            res=avi_gen.show()
+            if res==1:
+                # user cancelled, but they know that. Stop silently
+                pass
+	    elif res==0:
+                # success
+                self.show_info(
+                    _("AVI Generation Complete"),
+                    _("File is %s." % self.dir_bean.get_avi_file()))
 
 	def generate_clicked(self, widget, data=None):
 		self.generate(True)
