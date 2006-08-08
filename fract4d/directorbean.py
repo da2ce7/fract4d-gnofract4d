@@ -2,13 +2,14 @@
 
 # Copyright (C) 2006  Branko Kokanovic
 #
-#   DirectorBean.py: bean for storing configuration
+#   DirectorBean.py: class which stores an animation
 #
 
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 import os
 
+# FIXME
 from fract4dgui import preferences
 
 #interpolation type constants
@@ -53,22 +54,22 @@ class DirectorBean:
 
 	def get_fct_enabled(self):
 		return preferences.userPrefs.getboolean("director","fct_enabled")
-
+	
 	def set_fct_enabled(self,fct_enabled):
 		if fct_enabled:
 			preferences.userPrefs.set("director","fct_enabled","1")
 		else:
 			preferences.userPrefs.set("director","fct_enabled","0")
-
+	
 	def get_fct_dir(self):
 		return preferences.userPrefs.get("director","fct_dir")
-
+	
 	def set_fct_dir(self,dir):
 		preferences.userPrefs.set("director","fct_dir",dir)
-
+	
 	def get_png_dir(self):
 		return preferences.userPrefs.get("director","png_dir")
-
+	
 	def set_png_dir(self,dir):
 		preferences.userPrefs.set("director","png_dir",dir)
 
@@ -196,7 +197,7 @@ class DirectorBean:
 			parser.parse(open(file))
 		except Exception, err:
 			#retrieve previous__dict__
-			self.__dict__=odict.copy()
+			self.__dict__=odict
 			raise
 
 	def save_animation(self,file):

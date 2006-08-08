@@ -82,11 +82,11 @@ class Preferences(ConfigParser.ConfigParser,gobject.GObject):
             },
             "ignored" : {
             },
-			"director" : {
-				"fct_enabled": "0",
-				"fct_dir" : "/tmp",
-				"png_dir" : "/tmp"
-			}
+            "director" : {
+              "fct_enabled": "0",
+              "fct_dir" : "/tmp",
+              "png_dir" : "/tmp"
+            }
         }
 
         self.image_changed_sections = {
