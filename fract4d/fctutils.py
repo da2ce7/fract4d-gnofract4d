@@ -71,7 +71,7 @@ class T:
 
     def decompress(self,b64string):
         # decompress remaining codes
-        bytes = base64.standard_b64decode(b64string)
+        bytes = base64.decodestring(b64string)
         embedded_file = gzip.GzipFile(None,"rb",9,StringIO.StringIO(bytes))
         self.load(embedded_file)
 
@@ -96,7 +96,7 @@ class Compressor(gzip.GzipFile):
         return struct.unpack(format, thestring)    
     
     def getvalue(self):
-        b64 = base64.standard_b64encode(self.sio.getvalue())
+        b64 = base64.encodestring(self.sio.getvalue())
         lines = self.split_by(b64, 70)
         return "compressed=[\n%s\n]" % "\n".join(lines) 
     

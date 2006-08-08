@@ -11,6 +11,7 @@ bugs (the more B's, the worse the bug):
 * BBB	too slow!
 	until antialias, seems to run single-threaded more often than not
 
+* BBB	Can't save with python > 2.4, standard_b64encode missing
 * BB	func with a bailout of 1 will never quit and can't be interrupted
 * B	interrupt takes too long on deep-zoomed fractals
 * BB	infinite loops are possible in while loops
