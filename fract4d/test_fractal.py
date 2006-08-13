@@ -1270,6 +1270,66 @@ solids=[
         im = image.T(40,30)
         f.draw(im)
 
+    def testBlend(self):
+        f = fractal.T(self.compiler)
+        f2 = fractal.T(self.compiler)
+        f2.set_param(f.XCENTER,4.0)
+        f2.forms[0].set_named_item("@bailout",4000.0)
+
+        blend = f.blend(f2,0.0)
+        self.assertFractalsEqual(blend,f)
+        blend = f.blend(f2,1.0)
+        self.assertFractalsEqual(blend,f2)
+        blend = f.blend(f2,0.5)
+        self.assertEqual(2.0, blend.get_param(f.XCENTER))
+        self.assertEqual(2002.0, blend.forms[0].get_named_param_value("@bailout"))
+
+    def testBadBlend(self):
+        f1 = fractal.T(self.compiler)
+        f2 = fractal.T(self.compiler)
+        f2.set_formula("gf4d.frm","Magnet")
+        self.assertRaises(ValueError,f1.blend,f2,0.5)
+        
+    def testBlendAngles(self):
+        f = fractal.T(self.compiler)
+        f2 = fractal.T(self.compiler)
+        
+        f2.set_param(f.XYANGLE,math.pi/4.0)
+        blend = f.blend(f2,0.5)
+
+        self.assertEqual(math.pi/8.0,blend.get_param(f.XYANGLE))
+
+    def testDetermineDirection(self):
+        f = fractal.T(self.compiler)
+
+        self.tryDirections(f,fractal.BLEND_NEAREST,  [True,  False, True,  False, True])
+        self.tryDirections(f,fractal.BLEND_FURTHEST, [False, True,  False, True,  False])
+        self.tryDirections(f,fractal.BLEND_CW,  [True]*5)
+        self.tryDirections(f,fractal.BLEND_CCW, [False]*5)
+
+        self.assertRaises(ValueError,f.determine_direction,0,math.pi,77)
+        
+    def tryDirections(self, f, mode, expected):        
+        self.assertEqual(
+            expected[0],
+            f.determine_direction(0, math.pi/2.0,mode))
+        
+        self.assertEqual(
+            expected[1],
+            f.determine_direction(0, -math.pi/2.0,mode))
+
+        self.assertEqual(
+            expected[2],
+            f.determine_direction(0, math.pi,mode))
+
+        self.assertEqual(
+            expected[3],
+            f.determine_direction(0, math.pi * 1.5,mode))
+
+        self.assertEqual(
+            expected[4],
+            f.determine_direction(0, -math.pi * 1.5,mode))
+
     def disabled_testDump(self):
         # produces distracting output
         f = fractal.T(self.compiler)

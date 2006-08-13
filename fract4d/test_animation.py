@@ -123,6 +123,29 @@ class Test(unittest.TestCase):
 	# then 3 more unchanging frames
 	self.assertEqual(["/tmp/image_0000010.png"] * 3, list[14:17])
 
+    def testFilenames(self):
+        self.assertEqual(
+		"/tmp/image_0000037.png",
+		self.anim.get_image_filename(37))
+
+	self.assertEqual(
+		"/tmp/file_0000064.fct",
+		self.anim.get_fractal_filename(64))
+
+    def testMu(self):
+        for x in xrange(animation.INT_LINEAR, animation.INT_COS+1):
+		# for all interpolation types, 0 -> 0 and 1.0 -> 1.0
+		self.assertEqual(0.0, self.anim.get_mu(x, 0.0))
+		self.assertEqual(1.0, self.anim.get_mu(x, 1.0))
+
+	# different results for internal points
+	self.assertEqual(0.5, self.anim.get_mu(animation.INT_LINEAR, 0.5))
+	self.assertEqual(0.58496250072115619, self.anim.get_mu(animation.INT_LOG, 0.5))
+	self.assertEqual(0.37754066879814552, self.anim.get_mu(animation.INT_INVLOG, 0.5))
+	self.assertEqual(0.49999999999999994, self.anim.get_mu(animation.INT_COS, 0.5))
+
+	self.assertRaises(ValueError, self.anim.get_mu,83, 0.6)
+	
     def testFindValues(self):
         f = fractal.T(g_comp)
 	f.loadFctFile(open("../testdata/chainsoflight.fct"))

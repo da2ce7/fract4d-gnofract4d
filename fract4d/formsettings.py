@@ -296,3 +296,23 @@ class T:
             else:
                 self.try_set_named_item(name,val)
 
+    def blend(self, other, ratio):
+        # update in-place our settings so that they are a mixture with the other
+        if self.funcName != other.funcName or self.funcFile != other.funcFile:
+            raise ValueError("Cannot blend parameters between different formulas")
+        
+        for i in xrange(len(self.params)):
+            (a,b) = (self.params[i],other.params[i])
+            if self.paramtypes[i] == fracttypes.Float:
+                self.params[i] = a*(1.0-ratio) + b*ratio
+            elif self.paramtypes[i] == fracttypes.Int:
+                self.params[i] = int(a*(1.0-ratio) + b*ratio)
+            elif self.paramtypes[i] == fracttypes.Bool:
+                if ratio >= 0.5:
+                    self.params[i] = b
+            else:
+                # don't interpolate
+                pass
+
+        
+            
