@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <animation>
-	<base filename="base_name" stopped="30"/>
 	<keyframes>
 		<keyframe filename="kf1">
 			<duration value="10"/>

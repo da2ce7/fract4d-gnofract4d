@@ -13,7 +13,7 @@ import sys
 import tempfile
 
 import dialog, hig
-from fract4d import directorbean
+from fract4d import animation
 
 import PNGGen,AVIGen,DlgAdvOpt,director_prefs
 
@@ -68,10 +68,6 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
                 keyframe = self.dir_bean.get_keyframe_filename(i)
                 self.check_for_keyframe_clash(keyframe,fct_path)
 
-            #check if base keyframe is in temp fct dir
-            keyframe = self.dir_bean.get_base_keyframe()
-            self.check_for_keyframe_clash(keyframe,fct_path)
-            
             #check if there are any .fct files in temp fct dir
             has_any=False
             for file in os.listdir(fct_path):
@@ -83,14 +79,10 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
                         raise UserCancelledError
             
 	#throws SanityCheckError if there was a problem
-	def check_sanity(self):
-            #check if base keyframe has been set
-            if self.dir_bean.get_base_keyframe()=="":
-                raise SanityCheckError(_("Base keyframe not set"))
-            
-            #check if at least one keyframe exist
-            if self.dir_bean.keyframes_count()<1:
-                raise SanityCheckError(_("There must be at least one keyframe"))
+	def check_sanity(self):            
+            #check if at least two keyframes exist
+            if self.dir_bean.keyframes_count()<2:
+                raise SanityCheckError(_("There must be at least two keyframes"))
                 
             #check png temp dir is set
             if self.dir_bean.get_png_dir()=="":
@@ -220,9 +212,6 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
 		self.dir_bean.set_keyframe_stop(self.current_select,int(self.spin_kf_stop.get_value()))
 		self.update_model()
 
-	def base_stop_changed(self,widget, data=None):
-		self.dir_bean.set_base_stop(int(self.spin_base_stop.get_value()))
-
 	def interpolation_type_changed(self,widget,data=None):
 		if self.current_select==-1:
 			return
@@ -296,7 +285,7 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
 		else:
 			self.spin_duration.set_value(25)
 			self.spin_kf_stop.set_value(1)
-			self.cmb_interpolation_type.set_active(directorbean.INT_LINEAR)
+			self.cmb_interpolation_type.set_active(animation.INT_LINEAR)
 			self.current_select=-1
 
 	def update_model(self):
@@ -314,11 +303,11 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
 			model.set(it,1,self.dir_bean.get_keyframe_duration(index))
 			model.set(it,2,self.dir_bean.get_keyframe_stop(index))
 			int_type=self.dir_bean.get_keyframe_int(index)
-			if int_type==directorbean.INT_LINEAR:
+			if int_type==animation.INT_LINEAR:
 				model.set(it,3,"Linear")
-			elif int_type==directorbean.INT_LOG:
+			elif int_type==animation.INT_LOG:
 				model.set(it,3,"Logarithmic")
-			elif int_type==directorbean.INT_INVLOG:
+			elif int_type==animation.INT_INVLOG:
 				model.set(it,3,"Inverse logarithmic")
 			else:
 				model.set(it,3,"Cosine")
@@ -331,23 +320,11 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
 		if file!="":
 			self.add_keyframe(file)
 
-	def add_from_file_bk(self,widget,data=None):
-		file=self.get_fct_file()
-		if file!="":
-			self.add_basekeyframe(file)
-
 	def add_from_current(self,widget,data=None):
 		(tmp_fd, tmp_name) = tempfile.mkstemp(suffix='.fct')
 		f = os.fdopen(tmp_fd, 'w')
 		self.f.save(f)
 		self.add_keyframe(tmp_name)
-		return
-
-	def add_from_current_bk(self,widget,data=None):
-		(tmp_fd, tmp_name) = tempfile.mkstemp(suffix='.fct')
-		f = os.fdopen(tmp_fd, 'w')
-		self.f.save(f)
-		self.add_basekeyframe(tmp_name)
 		return
 
 	def add_keyframe(self,file):
@@ -361,9 +338,9 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
 
 			#add to bean with default parameters
 			if self.current_select!=-1:
-				self.dir_bean.add_keyframe(file,25,1,directorbean.INT_LINEAR,self.current_select+1)
+				self.dir_bean.add_keyframe(file,25,1,animation.INT_LINEAR,self.current_select+1)
 			else:
-				self.dir_bean.add_keyframe(file,25,1,directorbean.INT_LINEAR)
+				self.dir_bean.add_keyframe(file,25,1,animation.INT_LINEAR)
 			#and select newly item
 			self.tv_keyframes.get_selection().select_iter(it)
 			#set default duration
@@ -371,23 +348,9 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
 			#set default stop
 			self.spin_kf_stop.set_value(1)
 			#set default interpolation type
-			self.cmb_interpolation_type.set_active(directorbean.INT_LINEAR)
-
-	def add_basekeyframe(self,file):
-		if file!="":
-			self.txt_first_kf.set_text(file)
-			self.dir_bean.set_base_keyframe(file)
+			self.cmb_interpolation_type.set_active(animation.INT_LINEAR)
 
 	def add_keyframe_clicked(self,widget, event):
-		if event.type == gtk.gdk.BUTTON_PRESS:
-			widget.popup(None, None, None, event.button, event.time)
-			# Tell calling code that we have handled this event the buck
-			# stops here.
-			return True
-		# Tell calling code that we have not handled this event pass it on.
-		return False
-
-	def add_basekeyframe_clicked(self, widget, event):
 		if event.type == gtk.gdk.BUTTON_PRESS:
 			widget.popup(None, None, None, event.button, event.time)
 			# Tell calling code that we have handled this event the buck
@@ -405,9 +368,6 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
 			self.dir_bean.remove_keyframe(temp_curr)
 
 	def updateGUI(self):
-		#base keyframe part
-		self.txt_first_kf.set_text(self.dir_bean.get_base_keyframe())
-		self.spin_base_stop.set_value(self.dir_bean.get_base_stop())
 		#keyframes
 		(model,it)=self.tv_keyframes.get_selection().get_selected()
 		model.clear()
@@ -417,11 +377,11 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
 			stopped=self.dir_bean.get_keyframe_stop(i)
 			it=model.insert(0,[filename,duration,stopped,""])
 			int_type=self.dir_bean.get_keyframe_int(i)
-			if int_type==directorbean.INT_LINEAR:
+			if int_type==animation.INT_LINEAR:
 				model.set(it,3,"Linear")
-			elif int_type==directorbean.INT_LOG:
+			elif int_type==animation.INT_LOG:
 				model.set(it,3,"Logarithmic")
-			elif int_type==directorbean.INT_INVLOG:
+			elif int_type==animation.INT_INVLOG:
 				model.set(it,3,"Inverse logarithmic")
 			else:
 				model.set(it,3,"Cosine")
@@ -484,7 +444,7 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
                          gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
                 hig.MessagePopper.__init__(self)
-		self.dir_bean=directorbean.DirectorBean()
+		self.dir_bean=animation.T(f.compiler)
 		self.f=f
                 self.compiler = f.compiler
 		self.realize()
@@ -520,47 +480,6 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
 		self.popup_menu.append(self.mnu_pop_add_current)
 		self.mnu_pop_add_current.connect("activate", self.add_from_current, None)
 		self.mnu_pop_add_current.show()
-		#popup menu for base keyframe
-		self.popup_menu_bk=gtk.Menu()
-		self.mnu_pop_add_file_bk=gtk.MenuItem("From file")
-		self.popup_menu_bk.append(self.mnu_pop_add_file_bk)
-		self.mnu_pop_add_file_bk.connect("activate", self.add_from_file_bk, None)
-		self.mnu_pop_add_file_bk.show()
-		self.mnu_pop_add_current_bk=gtk.MenuItem("From current fractal")
-		self.popup_menu_bk.append(self.mnu_pop_add_current_bk)
-		self.mnu_pop_add_current_bk.connect("activate", self.add_from_current_bk, None)
-		self.mnu_pop_add_current_bk.show()
-		#-------------------------------------------------------------
-		#-----------------base keyframe box---------------------------
-		self.frm_base=gtk.Frame("Base keyframe")
-		self.frm_base.set_border_width(10)
-		self.tbl_base=gtk.Table(2,3,False)
-		self.tbl_base.set_row_spacings(10)
-		self.tbl_base.set_col_spacings(10)
-		self.tbl_base.set_border_width(10)
-
-		self.lbl_first_kf=gtk.Label("Base keyframe")
-		self.tbl_base.attach(self.lbl_first_kf,0,1,0,1)
-
-		self.txt_first_kf=gtk.Entry(0)
-		self.txt_first_kf.set_editable(False)
-		self.tbl_base.attach(self.txt_first_kf,1,2,0,1)
-
-		self.btn_browse_first_kf=gtk.Button("Set")
-		self.btn_browse_first_kf.connect_object("event",self.add_basekeyframe_clicked,self.popup_menu_bk)
-		#self.btn_browse_first_kf.connect("clicked",self.browse_base_keyframe,None)
-		self.tbl_base.attach(self.btn_browse_first_kf,2,3,0,1)
-
-		self.lbl_first_kf_stopped=gtk.Label("Stopped for:")
-		self.tbl_base.attach(self.lbl_first_kf_stopped,0,1,1,2)
-
-		adj_base_stop=gtk.Adjustment(1,1,10000,1,10)
-		self.spin_base_stop=gtk.SpinButton(adj_base_stop)
-		self.spin_base_stop.connect("output",self.base_stop_changed,None)
-		self.tbl_base.attach(self.spin_base_stop,1,2,1,2)
-
-		self.frm_base.add(self.tbl_base)
-		self.box_main.pack_start(self.frm_base,False,False,0)
 		#--------------------------------------------------------------
 		#--------------Keyframes box-----------------------------------
 		self.frm_kf=gtk.Frame("Keyframes")
