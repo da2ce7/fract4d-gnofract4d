@@ -5,9 +5,10 @@
 #   DirectorBean.py: class which stores an animation
 #
 
+import os, sys, copy, math
+
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
-import os, sys, copy
 
 import fracttypes, fractal
 
@@ -213,10 +214,27 @@ class T:
     def pr(self):
         print self.__dict__
 
-    def get_filename(self,folder,n):
-        "The filename of the Nth frame"
-        return os.path.join(folder,"image_%07d.png" %n)
+    def get_image_filename(self,n):
+        "The filename of the image containing the Nth frame"
+        return os.path.join(self.get_png_dir(),"image_%07d.png" %n)
 
+    def get_fractal_filename(self,n):
+        "The filename of the .fct file which generates the Nth frame"
+        return os.path.join(self.get_fct_dir(),"file_%07d.fct" % n)
+
+    def get_mu(self, int_type, x):
+        if int_type==INT_LINEAR:
+            mu=x
+        elif int_type==INT_LOG:
+            mu=math.log(x+1,2)
+        elif int_type==INT_INVLOG:
+            mu=(math.exp(x)-1)/(math.e-1)
+        elif int_type==INT_COS:
+            mu=(1-math.cos(x*math.pi))/2
+        else:
+            raise ValueError("Unknown interpolation type %d" % int_type)
+        return mu
+    
     # create a list containing all the filenames of the frames
     def create_list(self):
         framelist = []
@@ -225,12 +243,12 @@ class T:
         current=1
         for i in range(self.keyframes_count()):
             for j in range(self.get_keyframe_stop(i)): #output keyframe 'stop' times
-                framelist.append(self.get_filename(folder_png,current-1))
+                framelist.append(self.get_image_filename(current-1))
 
 	    if i < self.keyframes_count()-1:
                 # final frame has no transitions following it
                 for j in range(self.get_keyframe_duration(i)): #output all transition files
-                    framelist.append(self.get_filename(folder_png,current))
+                    framelist.append(self.get_image_filename(current))
                     current=current+1
 	
 	return framelist

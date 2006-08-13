@@ -22,6 +22,11 @@ import formsettings
 # this version can output
 THIS_FORMAT_VERSION="3.0"
 
+BLEND_NEAREST=0
+BLEND_FURTHEST=1
+BLEND_CW=2
+BLEND_CCW=3
+
 class T(fctutils.T):
     XCENTER = 0
     YCENTER = 1
@@ -208,6 +213,66 @@ class T(fctutils.T):
         c.warp_param = self.warp_param
         return c
 
+    def determine_direction(self,a,b,mode):
+        isClockwise = False
+        
+        if mode==BLEND_NEAREST:
+            if abs(b-a)<=math.pi and a<b:
+                isClockwise=True
+            elif abs(b-a)>math.pi and a>b:
+                isClockwise=True
+        elif mode==BLEND_FURTHEST:
+            if abs(b-a)<=math.pi and a>b:
+                isClockwise=True
+            if abs(b-a)>math.pi and a<b:
+                isClockwise=True
+        elif mode==BLEND_CW:
+            isClockwise = True
+        elif mode==BLEND_CCW:
+            isClockwise = False
+        else:
+            raise ValueError("Unknown angle blend mode %s" % mode)
+
+        return isClockwise
+    
+    def blend_angle(self,a,b,ratio,mode):
+        angle = 0.0
+        isClockwise = self.determine_direction(a,b,mode)
+        
+        if isClockwise and b < a:
+            b = b + math.pi * 2.0
+        if not isClockwise and b > a:
+            a = a + math.pi * 2.0
+
+        angle = a * (1-ratio) + b * ratio
+        while angle > math.pi:
+            angle -= math.pi * 2.0
+            
+        return angle
+    
+    def blend(self,other,ratio,angle_options=()):
+        """Create a new fractal which blends the this and other's parameter sets using ratio.
+        'angle_options' can be used to override the default method of interpolating angles."""
+        new = copy.copy(self)
+        # fixme, magnitude should be logarithmic
+        for i in xrange(self.XCENTER,self.MAGNITUDE+1):
+            (a,b) = (self.params[i], other.params[i])
+            new.set_param(i, a*(1-ratio) + b* ratio)
+
+        for i in xrange(self.XYANGLE, self.ZWANGLE+1):
+            (a,b) = (self.params[i], other.params[i])
+            option = angle_options[i-self.XYANGLE:i-self.XYANGLE]
+            if len(option):
+                mode = option[0]
+            else:
+                mode = BLEND_NEAREST
+            new.set_param(i, self.blend_angle(a,b,ratio,mode))
+
+        for (form1,form2) in zip(new.forms,other.forms):
+            form1.blend(form2,ratio)
+            
+        return new
+    
     def reset_angles(self):
         for i in xrange(self.XYANGLE,self.ZWANGLE+1):
             self.set_param(i,0.0)
