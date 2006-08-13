@@ -19,7 +19,7 @@ import test_graph
 import test_optimize
 import test_image
 import test_colorizer
-import test_directorbean
+import test_animation
 #import test_stdlib
 
 def suite():
@@ -42,7 +42,7 @@ def suite():
     test_optimize.suite(),
     test_image.suite(),
     test_colorizer.suite(),
-    test_directorbean.suite()
+    test_animation.suite()
 	#test_stdlib.suite()
     ))
 

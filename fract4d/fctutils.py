@@ -89,16 +89,9 @@ class Compressor(gzip.GzipFile):
         self.sio = StringIO.StringIO("")
         gzip.GzipFile.__init__(self,None,"wb",9,self.sio)
 
-    def split_by(self,thestring, n):
-        numblocks,therest = divmod(len(thestring),n)
-        baseblock = "%ds" % n
-        format = "%s%ds" % (baseblock *numblocks, therest)
-        return struct.unpack(format, thestring)    
-    
     def getvalue(self):
         b64 = base64.encodestring(self.sio.getvalue())
-        lines = self.split_by(b64, 70)
-        return "compressed=[\n%s\n]" % "\n".join(lines) 
+        return "compressed=[\n%s\n]" % b64 
     
 class ParamBag(T):
     "A class for reading in and holding a bag of name-value pairs"

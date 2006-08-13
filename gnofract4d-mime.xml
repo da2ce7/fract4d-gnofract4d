@@ -11,5 +11,8 @@
     <glob pattern="*.cfrm"/>
     <glob pattern="*.ucl"/>
   </mime-type>
-
+  <mime-type type="text/x-gnofract4d-fractal-animation">
+    <comment>Fractal animation parameter file</comment>
+    <glob pattern="*.fcta"/>
+  </mime-type>
 </mime-info>

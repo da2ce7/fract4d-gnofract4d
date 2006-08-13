@@ -29,8 +29,7 @@ import os
 import math
 from fract4d.directorbean import *
 
-class FCTGeneration:
-	
+class FCTGeneration:	
 	def __init__(self,dir_bean,parent):
 		self.dialog=gtk.Dialog("Generating .fct files...",parent,
 					gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))

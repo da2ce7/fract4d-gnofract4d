@@ -43,7 +43,7 @@ class Test(unittest.TestCase):
         fct_enabled_before=dd.dir_bean.get_fct_enabled()
         dd.dir_bean.set_png_dir("./")
         dd.dir_bean.set_fct_enabled(False)
-        dd.dir_bean.set_base_keyframe("../testdata/director1.fct")
+        dd.dir_bean.add_keyframe("../testdata/director1.fct",1,10,directorbean.INT_LOG)
         dd.dir_bean.add_keyframe("../testdata/director2.fct",1,10,directorbean.INT_LOG)
         dd.dir_bean.set_avi_file("./video.avi")
         dd.dir_bean.set_width(320)
@@ -68,14 +68,11 @@ class Test(unittest.TestCase):
     def testOwnSanity(self):
         # exercise each of the checks in the check_sanity function
         f = fractal.T(g_comp)
-        dd= director.DirectorDialog(None,f,"")
+        dd=director.DirectorDialog(None,f,"")
+        
+        dd.dir_bean.add_keyframe("/foo/director1.fct",1,10,directorbean.INT_LOG)
         self.assertRaisesMessage(
-            director.SanityCheckError, "Base keyframe not set",
-            dd.check_sanity)
-
-        dd.dir_bean.set_base_keyframe("fred")
-        self.assertRaisesMessage(
-            director.SanityCheckError, "There must be at least one keyframe",
+            director.SanityCheckError, "There must be at least two keyframes",
             dd.check_sanity)
         
         dd.dir_bean.add_keyframe("/tmp/director2.fct",1,10,directorbean.INT_LOG)
