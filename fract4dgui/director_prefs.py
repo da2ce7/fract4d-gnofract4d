@@ -2,7 +2,7 @@ import gtk
 import gobject
 import os
 
-from fract4d.directorbean import *
+from fract4d import animation
 
 class DirectorPrefs:
 
@@ -33,12 +33,12 @@ class DirectorPrefs:
 		if fold!="":
 			self.txt_temp_png.set_text(fold)
 
-	def __init__(self,dir_bean):
+	def __init__(self,animation):
 		self.dialog=gtk.Dialog("Director preferences...",None,
 					gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
 					(gtk.STOCK_OK,gtk.RESPONSE_OK,gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
 
-		self.dir_bean=dir_bean
+		self.animation=animation
 		#-----------Temporary directories---------------------
 		#self.frm_dirs=gtk.Frame("Temporary directories selection")
 		#self.frm_dirs.set_border_width(10)
@@ -51,7 +51,7 @@ class DirectorPrefs:
 		self.tbl_dirs.attach(self.lbl_temp_fct,0,1,1,2)
 
 		self.txt_temp_fct=gtk.Entry(0)
-		self.txt_temp_fct.set_text(self.dir_bean.get_fct_dir())
+		self.txt_temp_fct.set_text(self.animation.get_fct_dir())
 		self.txt_temp_fct.set_sensitive(False)
 		self.tbl_dirs.attach(self.txt_temp_fct,1,2,1,2)
 
@@ -64,14 +64,14 @@ class DirectorPrefs:
 		#we connect and change its state here and it change those buttons, so they wouldn't exist
 		self.chk_create_fct=gtk.CheckButton("Create temporary .fct files")
 		self.chk_create_fct.connect("toggled",self.create_fct_toggled,None)
-		self.chk_create_fct.set_active(self.dir_bean.get_fct_enabled())
+		self.chk_create_fct.set_active(self.animation.get_fct_enabled())
 		self.tbl_dirs.attach(self.chk_create_fct,0,1,0,1)
 
 		self.lbl_temp_png=gtk.Label("Temporary directory for .png files:")
 		self.tbl_dirs.attach(self.lbl_temp_png,0,1,2,3)
 
 		self.txt_temp_png=gtk.Entry(0)
-		self.txt_temp_png.set_text(self.dir_bean.get_png_dir())
+		self.txt_temp_png.set_text(self.animation.get_png_dir())
 		self.tbl_dirs.attach(self.txt_temp_png,1,2,2,3)
 
 		self.btn_temp_png=gtk.Button("Browse")
@@ -118,10 +118,10 @@ class DirectorPrefs:
 				is_ok=True
 
 		if write:
-			self.dir_bean.set_fct_enabled(self.chk_create_fct.get_active())
+			self.animation.set_fct_enabled(self.chk_create_fct.get_active())
 			if self.chk_create_fct.get_active():
-				self.dir_bean.set_fct_dir(self.txt_temp_fct.get_text())
-			self.dir_bean.set_png_dir(self.txt_temp_png.get_text())
+				self.animation.set_fct_dir(self.txt_temp_fct.get_text())
+			self.animation.set_png_dir(self.txt_temp_png.get_text())
 
 		self.dialog.destroy()
 		return
