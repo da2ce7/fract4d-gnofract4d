@@ -27,7 +27,7 @@ import math
 import sys
 import os
 import math
-from fract4d.directorbean import *
+from fract4d import animation
 
 class FCTGeneration:	
 	def __init__(self,dir_bean,parent):
