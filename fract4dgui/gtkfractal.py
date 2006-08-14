@@ -410,7 +410,9 @@ class HighResolution(Hidden):
         (tile_width, tile_height) = self.compute_tile_size(width,height)
 
         Hidden.__init__(self,comp,tile_width, tile_height, width,height)
+        self.reset_render()
 
+    def reset_render(self):
         self.tile_list = self.image.get_tile_list()
         self.ntiles = len(self.tile_list)
         self.ncomplete_tiles = 0

@@ -162,6 +162,13 @@ class GenerationThread(Thread):
         self.pbar_overall.set_text("0/"+str(sum(self.durations)+1))
         self.compiler=compiler
 
+	self.current = gtkfractal.HighResolution(
+		compiler,
+		int(self.anim.get_width()),int(self.anim.get_height()))
+
+	self.current.connect('status-changed', self.onStatusChanged)
+	self.current.connect('progress-changed', self.onProgressChanged)
+
         #semaphore to signalize that image generation is finished
         self.next_image=Semaphore(1)
 
@@ -204,32 +211,18 @@ class GenerationThread(Thread):
 
 
     def generate_base_keyframe(self):
-        #sum of all frames, needed for padding output files
-        sumN=sum(self.durations)
-        lenN=len(str(sumN))
         f=fractal.T(self.compiler)
         f.loadFctFile(open(self.anim.get_keyframe_filename(0)))
-        #--------------gets directories--------------------------
-        folder_png=self.anim.get_png_dir()
-        if folder_png[-1]!="/":
-            folder_png=folder_png+"/"
-        if self.anim.get_fct_enabled():
-            folder_fct=self.anim.get_fct_dir()
-            if folder_fct[-1]!="/":
-                folder_fct=folder_fct+"/"
-        #--------------------------------------------------------
+
         self.next_image.acquire()
         #writes .fct file if user wanted that
         if self.anim.get_fct_enabled():
-            f.save(open(folder_fct+"file_"+str(0).zfill(lenN)+".fct","w"))
+            f.save(open(self.anim.get_fractal_filename(0),"w"))
         #check if image already exist and user wants to leave it or not
-        if not(os.path.exists(folder_png+"image_"+str(0).zfill(lenN)+".png") and self.create_all_images==False): #check if image already exist
-            self.current = gtkfractal.HighResolution(f.compiler,
-                int(self.anim.get_width()),int(self.anim.get_height()))
+        if not(os.path.exists(self.anim.get_image_filename(0)) and self.create_all_images==False): #check if image already exist
             self.current.set_fractal(f)
-            self.current.connect('status-changed', self.onStatusChanged)
-            self.current.connect('progress-changed', self.onProgressChanged)
-            self.current.draw_image(folder_png+"image_"+str(0).zfill(lenN)+".png")
+	    self.current.reset_render()
+            self.current.draw_image(self.anim.get_image_filename(0))
         else:
             #just release semaphore
             self.next_image.release()
@@ -242,7 +235,6 @@ class GenerationThread(Thread):
     #then, in a loop, it generates inter values, fill fractal class with it and
     #calls gtkfractal.HighResolution to generate images
     def generate_images(self,iteration):
-        print iteration, len(self.durations)
         global running
         #sum of all frames, needed for padding output files
         sumN=sum(self.durations)
@@ -251,218 +243,16 @@ class GenerationThread(Thread):
         sumBefore=sum(self.durations[0:iteration])
         #current duration
         N=self.durations[iteration]
-        #creates fractal with base from base keyframe
-        f=fractal.T(self.compiler)
-        f.loadFctFile(open(self.anim.get_keyframe_filename(0)))
-        #--------------gets directories--------------------------
-        folder_png=self.anim.get_png_dir()
-        if folder_png[-1]!="/":
-            folder_png=folder_png+"/"
-        if self.anim.get_fct_enabled():
-            folder_fct=self.anim.get_fct_dir()
-            if folder_fct[-1]!="/":
-                folder_fct=folder_fct+"/"
-        #--------------------------------------------------------
-        #----------------get all values--------------------------
-        #x,y,z,w,size
-        x1=float(self.values[iteration][f.XCENTER])
-        x2=float(self.values[iteration+1][f.XCENTER])
-        y1=float(self.values[iteration][f.YCENTER])
-        y2=float(self.values[iteration+1][f.YCENTER])
-        z1=float(self.values[iteration][f.ZCENTER])
-        z2=float(self.values[iteration+1][f.ZCENTER])
-        w1=float(self.values[iteration][f.WCENTER])
-        w2=float(self.values[iteration+1][f.WCENTER])
-        size1=float(self.values[iteration][f.MAGNITUDE])
-        size2=float(self.values[iteration+1][f.MAGNITUDE])
-        #angles
-        xy1=float(self.values[iteration][f.XYANGLE])
-        xy2=float(self.values[iteration+1][f.XYANGLE])
-        xz1=float(self.values[iteration][f.XZANGLE])
-        xz2=float(self.values[iteration+1][f.XZANGLE])
-        xw1=float(self.values[iteration][f.XWANGLE])
-        xw2=float(self.values[iteration+1][f.XWANGLE])
-        yz1=float(self.values[iteration][f.YZANGLE])
-        yz2=float(self.values[iteration+1][f.YZANGLE])
-        yw1=float(self.values[iteration][f.YWANGLE])
-        yw2=float(self.values[iteration+1][f.YWANGLE])
-        zw1=float(self.values[iteration][f.ZWANGLE])
-        zw2=float(self.values[iteration+1][f.ZWANGLE])
-        #parameters
-        param1={}
-        param2={}
-        for param in self.values[iteration][f.ZWANGLE+1]:
-            if param in self.values[iteration][f.ZWANGLE+1]:
-                param1[param]=self.values[iteration][f.ZWANGLE+1][param]
-                param2[param]=self.values[iteration+1][f.ZWANGLE+1][param]
-        #-----------------------------------------------------------
-        #------------find direction for angles----------------------
-        to_right=[False]*6
-        #----------xy--------------
-        dir_xy=self.anim.get_directions(iteration)[0]
-        if dir_xy==0:
-            if abs(xy2-xy1)<math.pi and xy1<xy2:
-                to_right[0]=True
-            if abs(xy2-xy1)>math.pi and xy1>xy2:
-                to_right[0]=True
-        elif dir_xy==1:
-            if abs(xy2-xy1)<math.pi and xy1>xy2:
-                to_right[0]=True
-            if abs(xy2-xy1)>math.pi and xy1<xy2:
-                to_right[0]=True
-        elif dir_xy==2:
-            to_right[0]=True
-        if to_right[0]==True and xy2<xy1:
-                xy2=xy2+2*math.pi
-        if to_right[0]==False and xy2>xy1:
-                xy1=xy1+2*math.pi
-        #--------------------------
-        #----------xz--------------
-        dir_xz=self.anim.get_directions(iteration)[1]
-        if dir_xz==0:
-            if abs(xz2-xz1)<math.pi and xz1<xz2:
-                to_right[1]=True
-            if abs(xz2-xz1)>math.pi and xz1>xz2:
-                to_right[1]=True
-        elif dir_xz==1:
-            if abs(xz2-xz1)<math.pi and xz1>xz2:
-                to_right[1]=True
-            if abs(xz2-xz1)>math.pi and xz1<xz2:
-                to_right[1]=True
-        elif dir_xz==2:
-            to_right[1]=True
-        if to_right[1]==True and xz2<xz1:
-                xz2=xz2+2*math.pi
-        if to_right[1]==False and xz2>xz1:
-                xz1=xz1+2*math.pi
-        #--------------------------
-        #----------xw--------------
-        dir_xw=self.anim.get_directions(iteration)[2]
-        if dir_xw==0:
-            if abs(xw2-xw1)<math.pi and xw1<xw2:
-                to_right[2]=True
-            if abs(xw2-xw1)>math.pi and xw1>xw2:
-                to_right[2]=True
-        elif dir_xw==1:
-            if abs(xw2-xw1)<math.pi and xw1>xw2:
-                to_right[2]=True
-            if abs(xw2-xw1)>math.pi and xw1<xw2:
-                to_right[2]=True
-        elif dir_xw==2:
-            to_right[2]=True
-        if to_right[2]==True and xw2<xw1:
-                xw2=xw2+2*math.pi
-        if to_right[2]==False and xw2>xw1:
-                xw1=xw1+2*math.pi
-        #--------------------------
-        #----------yz--------------
-        dir_yz=self.anim.get_directions(iteration)[3]
-        if dir_yz==0:
-            if abs(yz2-yz1)<math.pi and yz1<yz2:
-                to_right[3]=True
-            if abs(yz2-yz1)>math.pi and yz1>yz2:
-                to_right[3]=True
-        elif dir_yz==1:
-            if abs(yz2-yz1)<math.pi and yz1>yz2:
-                to_right[3]=True
-            if abs(yz2-yz1)>math.pi and yz1<yz2:
-                to_right[3]=True
-        elif dir_yz==2:
-            to_right[3]=True
-        if to_right[3]==True and yz2<yz1:
-                yz2=yz2+2*math.pi
-        if to_right[3]==False and yz2>yz1:
-                yz1=yz1+2*math.pi
-        #--------------------------
-        #----------yw--------------
-        dir_yw=self.anim.get_directions(iteration)[4]
-        if dir_yw==0:
-            if abs(yw2-yw1)<math.pi and yw1<yw2:
-                to_right[4]=True
-            if abs(yw2-yw1)>math.pi and yw1>yw2:
-                to_right[4]=True
-        elif dir_yw==1:
-            if abs(yw2-yw1)<math.pi and yw1>yw2:
-                to_right[4]=True
-            if abs(yw2-yw1)>math.pi and yw1<yw2:
-                to_right[4]=True
-        elif dir_yw==2:
-            to_right[4]=True
-        if to_right[4]==True and yw2<yw1:
-                yw2=yw2+2*math.pi
-        if to_right[4]==False and yw2>yw1:
-                yw1=yw1+2*math.pi
-        #--------------------------
-        #----------zw--------------
-        dir_zw=self.anim.get_directions(iteration)[5]
-        if dir_zw==0:
-            if abs(zw2-zw1)<math.pi and zw1<zw2:
-                to_right[5]=True
-            if abs(zw2-zw1)>math.pi and zw1>zw2:
-                to_right[5]=True
-        elif dir_zw==1:
-            if abs(zw2-zw1)<math.pi and zw1>zw2:
-                to_right[5]=True
-            if abs(zw2-zw1)>math.pi and zw1<zw2:
-                to_right[5]=True
-        elif dir_zw==2:
-            to_right[5]=True
-        if to_right[5]==True and zw2<zw1:
-                zw2=zw2+2*math.pi
-        if to_right[5]==False and zw2>zw1:
-                zw1=zw1+2*math.pi
-        #--------------------------
+
+        f_prev=fractal.T(self.compiler)
+        f_prev.loadFctFile(open(self.anim.get_keyframe_filename(iteration)))
+
+	f_next=fractal.T(self.compiler)
+	f_next.loadFctFile(open(self.anim.get_keyframe_filename(iteration+1)))
+	
         #------------------------------------------------------------
         #loop to generate images between current (iteration-th) and previous keyframe
         for i in range(1,N+1):
-            #--------------calculating mu----------------------------
-            #depending on interpolation type, mu constant get different values from 0 to 1
-            int_type=self.anim.get_keyframe_int(iteration)
-            mu=float(i)/float(N)
-            if int_type==animation.INT_LINEAR:
-                mu=mu
-            elif int_type==animation.INT_LOG:
-                mu=math.log(mu+1,2)
-            elif int_type==animation.INT_INVLOG:
-                mu=(math.exp(mu)-1)/(math.e-1)
-            else:
-                mu=(1-math.cos(mu*math.pi))/2
-            #--------------------------------------------------------
-            #--------------calculating new values-------------------
-            #x,y,z,w,size
-            new_x=x1*(1-mu)+x2*mu
-            new_y=y1*(1-mu)+y2*mu
-            new_z=z1*(1-mu)+z2*mu
-            new_w=w1*(1-mu)+w2*mu
-            new_size=size1*(1-mu)+size2*mu
-            #angles
-            new_xy=xy1*(1-mu)+xy2*mu
-            while new_xy>math.pi:
-                new_xy=new_xy-2*math.pi
-            new_xz=xz1*(1-mu)+xz2*mu
-            while new_xz>math.pi:
-                new_xz=new_xz-2*math.pi
-            new_xw=xw1*(1-mu)+xw2*mu
-            while new_xw>math.pi:
-                new_xw=new_xw-2*math.pi
-            new_yz=yz1*(1-mu)+yz2*mu
-            while new_yz>math.pi:
-                new_yz=new_yz-2*math.pi
-            new_yw=yw1*(1-mu)+yw2*mu
-            while new_yw>math.pi:
-                new_yw=new_yw-2*math.pi
-            new_zw=zw1*(1-mu)+zw2*mu
-            while new_zw>math.pi:
-                new_zw=new_zw-2*math.pi
-            #parameters
-            new_param={}
-            for param in param1:
-                if len(param1[param])==2:
-                    new_param[param]=(param1[param][0]*(1-mu)+param2[param][0]*mu,param1[param][1]*(1-mu)+param2[param][1]*mu)
-                elif len(param1[param])==1:
-                    new_param[param]=(param1[param][0]*(1-mu)+param2[param][0]*mu,)
-            #---------------------------------------------------------
-            #--------------putting new values in fractal---------------
             #but, first, wait for previous image to finish rendering
             self.next_image.acquire()
             #check if user canceled us
@@ -472,44 +262,21 @@ class GenerationThread(Thread):
             percent=float((sumBefore+i))/(sumN+1)
             self.pbar_overall.set_fraction(percent)
             self.pbar_overall.set_text(str(sumBefore+i)+"/"+str(sumN+1))
-            #x,y,z,w,size
-            f.set_param(f.XCENTER,new_x)
-            f.set_param(f.YCENTER,new_y)
-            f.set_param(f.ZCENTER,new_z)
-            f.set_param(f.WCENTER,new_w)
-            f.set_param(f.MAGNITUDE,new_size)
-            #angles
-            f.set_param(f.XYANGLE,new_xy)
-            f.set_param(f.XZANGLE,new_xz)
-            f.set_param(f.XWANGLE,new_xw)
-            f.set_param(f.YZANGLE,new_yz)
-            f.set_param(f.YWANGLE,new_yw)
-            f.set_param(f.ZWANGLE,new_zw)
-            #parameters
-            for form in f.forms:
-                if form.sectname=='function':
-                    break
-            for param in new_param:
-                if len(new_param[param])==2:
-                    re=new_param[param][0]
-                    im=new_param[param][1]
-                    form.set_named_param(param,"(%f,%f)"%(re,im))
-                elif len(new_param[param])==1:
-                    n=new_param[param][0]
-                    form.set_named_param(param,"%f"%n)
-            #----------------------------------------------------------
+
+            #--------------putting new values in fractal---------------
+	    int_type=self.anim.get_keyframe_int(iteration)
+            mu=self.anim.get_mu(int_type, float(i)/float(N))
+            f_frame = f_prev.blend(f_next,mu)
+
             #writes .fct file if user wanted that
             if self.anim.get_fct_enabled():
-                f.save(open(folder_fct+"file_"+str(sumBefore+i).zfill(lenN)+".fct","w"))
+                f_frame.save(open(self.anim.get_fractal_filename(sumBefore+i),"w"))
 
             #check if image already exist and user wants to leave it or not
-            if not(os.path.exists(folder_png+"image_"+str(sumBefore+i).zfill(lenN)+".png") and self.create_all_images==False): #check if image already exist
-                self.current = gtkfractal.HighResolution(f.compiler,
-                    int(self.anim.get_width()),int(self.anim.get_height()))
-                self.current.set_fractal(f)
-                self.current.connect('status-changed', self.onStatusChanged)
-                self.current.connect('progress-changed', self.onProgressChanged)
-                self.current.draw_image(folder_png+"image_"+str(sumBefore+i).zfill(lenN)+".png")
+            if not(os.path.exists(self.anim.get_image_filename(sumBefore+i)) and self.create_all_images==False): #check if image already exist
+                self.current.set_fractal(f_frame)
+		self.current.reset_render()
+                self.current.draw_image(self.anim.get_image_filename(sumBefore+i))
             else:
                 #just release semaphore
                 self.next_image.release()
