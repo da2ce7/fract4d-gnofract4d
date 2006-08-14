@@ -468,7 +468,7 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
         #self.window.add_accel_group(accel_group)
         self.menubar=self.item_factory.get_widget("<main>")
         self.box_main.pack_start(self.menubar,False,False,0)
-        #-------------------------------------------------------------
+
         #-----------creating popup menu-------------------------------
         #popup menu for keyframes
         self.popup_menu=gtk.Menu()
@@ -480,7 +480,7 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
         self.popup_menu.append(self.mnu_pop_add_current)
         self.mnu_pop_add_current.connect("activate", self.add_from_current, None)
         self.mnu_pop_add_current.show()
-        #--------------------------------------------------------------
+
         #--------------Keyframes box-----------------------------------
         self.frm_kf=gtk.Frame("Keyframes")
         self.frm_kf.set_border_width(10)
@@ -536,6 +536,15 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
         self.tbl_keyframes_left.attach(self.btn_remove_keyframe,1,2,1,2,0,0)
         self.hbox_kfs.pack_start(self.tbl_keyframes_left,True,True,10)
 
+        self.frm_kf.add(self.hbox_kfs)
+        self.box_main.pack_start(self.frm_kf,True,True,0)
+
+        # current keyframe box
+        self.current_kf=gtk.Frame("Current Keyframe")
+        self.current_kf.set_border_width(10)
+
+        self.box_main.pack_start(self.current_kf,True,True,0)
+
         self.tbl_keyframes_right=gtk.Table(4,2,True)
         self.tbl_keyframes_right.set_row_spacings(10)
         self.tbl_keyframes_right.set_col_spacings(10)
@@ -573,9 +582,7 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
         self.btn_adv_opt.connect("clicked",self.adv_opt_clicked,None)
         self.tbl_keyframes_right.attach(self.btn_adv_opt,0,2,3,4)
 
-        self.hbox_kfs.pack_start(self.tbl_keyframes_right,False,False,10)
-        self.frm_kf.add(self.hbox_kfs)
-        self.box_main.pack_start(self.frm_kf,True,True,0)
+        self.current_kf.add(self.tbl_keyframes_right) #,False,False,10)
         #-------------------------------------------------------------------
         #----------------------output box-----------------------------------
         self.frm_output=gtk.Frame("Output options")
@@ -643,13 +650,13 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
         if conf_file!="":
             self.load_configuration(conf_file)
 
-        def onResponse(self,widget,id):
-            if id == gtk.RESPONSE_CLOSE or \
-                   id == gtk.RESPONSE_NONE or \
-                   id == gtk.RESPONSE_DELETE_EVENT:
-                self.hide()
-            elif id == DirectorDialog.RESPONSE_RENDER:
-                self.generate()
+    def onResponse(self,widget,id):
+        if id == gtk.RESPONSE_CLOSE or \
+               id == gtk.RESPONSE_NONE or \
+               id == gtk.RESPONSE_DELETE_EVENT:
+            self.hide()
+        elif id == DirectorDialog.RESPONSE_RENDER:
+            self.generate()
 
     def main(self):
         gtk.main()
