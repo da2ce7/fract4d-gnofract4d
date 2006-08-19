@@ -23,12 +23,12 @@ INT_INVLOG=    2
 INT_COS=    3
 
 class KeyFrame:
-    def __init__(self,filename,duration,stop,int_type):
+    def __init__(self,filename,duration,stop,int_type,flags=(0,0,0,0,0,0)):
         self.filename = filename
         self.duration = duration
         self.stop = stop
         self.int_type = int_type
-        
+        self.flags = flags
 class T:
     def __init__(self, compiler):
         self.compiler = compiler
@@ -40,8 +40,7 @@ class T:
         self.height=480
         self.framerate=25
         self.redblue=True
-        #keyframe is a list containing of a tuples
-        #example: keyframe=[("/home/baki/a.fct",25),("/home/baki/b.fct",50)]
+        #keyframes is a list of KeyFrame objects
         self.keyframes=[]
 
     def get_fct_enabled(self):
@@ -115,55 +114,55 @@ class T:
             self.redblue=True
 
     def add_keyframe(self,filename,duration,stop,int_type,index=None):
+        kf = KeyFrame(filename,duration,stop,int_type)
         if index==None:
-            self.keyframes.append((filename,duration,stop,int_type,(0,0,0,0,0,0)))
+            self.keyframes.append(kf)
         else:
-            self.keyframes[index:index]=[(filename,duration,stop,int_type,(0,0,0,0,0,0))]
+            self.keyframes.insert(index, kf)
 
     def remove_keyframe(self,index):
         self.keyframes[index:index+1]=[]
 
     def change_keyframe(self,index,duration,stop,int_type):
         if index<len(self.keyframes):
-            self.keyframes[index:index+1]=[(self.keyframes[index][0],duration,stop,int_type,self.keyframes[index][4])]
+            kf = self.keyframes[index]
+            kf.duration = duration
+            kf.stop = stop
+            kf.int_type = int_type
 
     def get_keyframe(self,index):
         return self.keyframes[index]
 
     def get_keyframe_filename(self,index):
-        return self.keyframes[index][0]
+        return self.keyframes[index].filename
 
     def get_keyframe_duration(self,index):
-        return self.keyframes[index][1]
+        return self.keyframes[index].duration
 
     def set_keyframe_duration(self,index,duration):
         if index<len(self.keyframes):
-            self.keyframes[index:index+1]=[(self.keyframes[index][0],duration,
-                self.keyframes[index][2],self.keyframes[index][3],self.keyframes[index][4])]
+            self.keyframes[index].duration = duration
 
     def get_keyframe_stop(self,index):
-        return self.keyframes[index][2]
+        return self.keyframes[index].stop
 
     def set_keyframe_stop(self,index,stop):
         if index<len(self.keyframes):
-            self.keyframes[index:index+1]=[(self.keyframes[index][0],self.keyframes[index][1],
-                stop,self.keyframes[index][3],self.keyframes[index][4])]
+            self.keyframes[index].stop= stop
 
     def get_keyframe_int(self,index):
-        return self.keyframes[index][3]
+        return self.keyframes[index].int_type
 
     def set_keyframe_int(self,index,int_type):
         if index<len(self.keyframes):
-            self.keyframes[index:index+1]=[(self.keyframes[index][0],self.keyframes[index][1],
-                self.keyframes[index][2],int_type,self.keyframes[index][4])]
+            self.keyframes[index].int_type=int_type
 
     def get_directions(self,index):
-        return self.keyframes[index][4]
+        return self.keyframes[index].flags
 
     def set_directions(self,index,drct):
         if index<len(self.keyframes):
-            self.keyframes[index:index+1]=[(self.keyframes[index][0],self.keyframes[index][1],
-                self.keyframes[index][2],self.keyframes[index][3],drct)]
+            self.keyframes[index].flags = drct
 
     def keyframes_count(self):
         return len(self.keyframes)
@@ -280,6 +279,12 @@ class AnimationHandler(ContentHandler):
         self.curr_int_type=0
         self.curr_directions=()
 
+    def getAttrOrDefault(self, attrs, name, default):
+        x = attrs.get(name)
+        if x == None:
+            x = default
+        return x
+    
     def startElement(self, name, attrs):
         if name=="output":
             self.dir_bean.set_avi_file(attrs.get("filename"))
@@ -288,42 +293,24 @@ class AnimationHandler(ContentHandler):
             self.dir_bean.set_height(attrs.get("height"))
             self.dir_bean.set_redblue(int(attrs.get("swap")))
         elif name=="keyframe":
-            if attrs.get("filename")!=None:
-                self.curr_filename=attrs.get("filename")
+            self.curr_filename=attrs.get("filename")
         elif name=="duration":
-            if attrs.get("value")!=None:
-                self.curr_duration=int(attrs.get("value"))
+            self.curr_duration=int(
+                self.getAttrOrDefault(attrs,"value",self.curr_duration))
         elif name=="stopped":
-            if attrs.get("value")!=None:
-                self.curr_stopped=int(attrs.get("value"))
+            self.curr_stopped=int(
+                self.getAttrOrDefault(attrs, "value", self.curr_stopped))
         elif name=="interpolation":
             if attrs.get("value")!=None:
                 self.curr_int_type=int(attrs.get("value"))
         elif name=="directions":
-            if attrs.get("xy")!=None:
-                xy=int(attrs.get("xy"))
-            else:
-                xy=0
-            if attrs.get("xz")!=None:
-                xz=int(attrs.get("xz"))
-            else:
-                xz=0
-            if attrs.get("xw")!=None:
-                xw=int(attrs.get("xw"))
-            else:
-                xw=0
-            if attrs.get("yz")!=None:
-                yz=int(attrs.get("yz"))
-            else:
-                yz=0
-            if attrs.get("yw")!=None:
-                yw=int(attrs.get("yw"))
-            else:
-                yw=0
-            if attrs.get("zw")!=None:
-                zw=int(attrs.get("zw"))
-            else:
-                zw=0
+            xy=int(self.getAttrOrDefault(attrs,"xy",0))
+            xz=int(self.getAttrOrDefault(attrs,"xz",0))
+            xw=int(self.getAttrOrDefault(attrs,"xw",0))
+            yz=int(self.getAttrOrDefault(attrs,"yz",0))
+            yw=int(self.getAttrOrDefault(attrs,"yw",0))
+            zw=int(self.getAttrOrDefault(attrs,"zw",0))
+            
             self.curr_directions=(xy,xz,xw,yz,yw,zw)
         return
 

@@ -171,6 +171,16 @@ class Test(unittest.TestCase):
             "../testdata/director2.fct", 7, 1, animation.INT_LINEAR)
 
         self.assertEqual(10+5+3+1,self.anim.get_total_frames())
+
+    def testKeyFrame(self):
+        kf = animation.KeyFrame(
+            "../testdata/director1.fct", 10, 5, animation.INT_INVLOG)
+
+        self.assertEqual("../testdata/director1.fct", kf.filename)
+        self.assertEqual(10, kf.duration)
+        self.assertEqual(5, kf.stop)
+        self.assertEqual(animation.INT_INVLOG, kf.int_type)
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 
