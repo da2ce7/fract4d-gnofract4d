@@ -125,8 +125,6 @@ class Test(unittest.TestCase):
             director.SanityCheckError,
             dd.check_for_keyframe_clash, "/tmp/foo.fct", "/tmp/")
 
-        
-        
     def testPNGGen(self):
         f = fractal.T(g_comp)
         dd= director.DirectorDialog(None,f,"")
