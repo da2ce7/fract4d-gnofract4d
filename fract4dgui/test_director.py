@@ -35,24 +35,32 @@ class Test(unittest.TestCase):
     def quitloop(self,rq):
         gtk.main_quit()
 
+    def removeIfExists(self,file):
+        if os.path.exists(file):
+            os.remove(file)
+            
     def testDirectorDialog(self):
+        self.removeIfExists("video.avi")
+
         f = fractal.T(g_comp)
         dd=director.DirectorDialog(None,f,"")
         dd.show(None,None,f,True,"")
-        png_before=dd.animation.get_png_dir()
-        fct_enabled_before=dd.animation.get_fct_enabled()
         dd.animation.set_png_dir("./")
         dd.animation.set_fct_enabled(False)
         dd.animation.add_keyframe("../testdata/director1.fct",1,10,animation.INT_LOG)
         dd.animation.add_keyframe("../testdata/director2.fct",1,10,animation.INT_LOG)
+        for f in dd.animation.create_list():
+            self.removeIfExists(f)
+
         dd.animation.set_avi_file("./video.avi")
         dd.animation.set_width(320)
         dd.animation.set_height(240)
-        dd.generate(False)
-        dd.animation.set_png_dir(png_before)
-        dd.animation.set_fct_enabled(fct_enabled_before)
-        self.assertEqual(os.path.exists("./image_0.png"),True)
-        self.assertEqual(os.path.exists("./image_1.png"),True)
+        dd.generate(True)
+            
+        self.assertEqual(True,os.path.exists("./image_0000000.png"))
+        self.assertEqual(True,os.path.exists("./image_0000001.png"))
+        self.assertEqual(True,os.path.exists("video.avi"))
+
         dd.destroy()
 
     def assertRaisesMessage(self, excClass, msg, callable, *args, **kwargs):
@@ -103,8 +111,6 @@ class Test(unittest.TestCase):
             director.SanityCheckError,
             "Keyframe /tmp/director2.fct is in the temporary .fct directory and could be overwritten. Please change temp directory.",
             dd.check_sanity)
-
-        
         
     def testKeyframeClash(self):
         f = fractal.T(g_comp)

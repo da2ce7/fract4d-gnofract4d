@@ -42,24 +42,23 @@ class AVIGeneration:
                 yield False
                 return
 
-            if not(os.path.exists(folder_png+"list")): #check if image listing already exist
-                    gtk.threads_enter()
-                    error_dlg = gtk.MessageDialog(self.dialog,
-                        gtk.DIALOG_MODAL  | gtk.DIALOG_DESTROY_WITH_PARENT,
-                        gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-                        "In directory: %s there is no listing file. Cannot continue" %(folder_png))
-                    response=error_dlg.run()
-                    error_dlg.destroy()
-                    gtk.threads_leave()
-                    event = gtk.gdk.Event(gtk.gdk.DELETE)
-                    self.dialog.emit('delete_event', event)
-                    yield False
-                    return
+            if not(os.path.exists(folder_png+"list")):#check if image listing already exist
+                gtk.threads_enter()
+                error_dlg = gtk.MessageDialog(
+                    self.dialog,
+                    gtk.DIALOG_MODAL  | gtk.DIALOG_DESTROY_WITH_PARENT,
+                    gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+                    "In directory: %s there is no listing file. Cannot continue" %(folder_png))
+                response=error_dlg.run()
+                error_dlg.destroy()
+                gtk.threads_leave()
+                event = gtk.gdk.Event(gtk.gdk.DELETE)
+                self.dialog.emit('delete_event', event)
+                yield False
+                return
+            
             #--------calculating total number of frames------------
-            count=self.animation.get_base_stop()
-            for i in range(self.animation.keyframes_count()):
-                count=count+self.animation.get_keyframe_duration(i)
-                count=count+self.animation.get_keyframe_stop(i)-1
+            count=self.animation.get_total_frames()
             #------------------------------------------------------
             #calling transcode
             swap=""
@@ -80,13 +79,13 @@ class AVIGeneration:
                 yield False
                 return
             yield True
-        except:
+        except Exception, err:
             self.running=False
             self.error=True
             gtk.threads_enter()
             error_dlg = gtk.MessageDialog(self.dialog,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                     gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-                    "Unknown error during generation of avi file")
+                    _("Error during generation of avi file: %s" % err))
             error_dlg.run()
             error_dlg.destroy()
             gtk.threads_leave()

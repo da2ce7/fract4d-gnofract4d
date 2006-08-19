@@ -146,43 +146,31 @@ class Test(unittest.TestCase):
 
 	self.assertRaises(ValueError, self.anim.get_mu,83, 0.6)
 	
-    def testFindValues(self):
-        f = fractal.T(g_comp)
-	f.loadFctFile(open("../testdata/chainsoflight.fct"))
-        vals = self.anim.find_values(f)
-	self.assertEqual(
-		[-692.29926383912390975,
-		 84.20938258550194178,
-		 0.00000000000000000,
-		 0.00000000000000000,
-		 708.66008038696850235,
-		 -0.34249284178074824,
-		 0.00000000000000000,
-		 0.00000000000000000,
-		 0.00000000000000000,
-		 0.00000000000000000,
-		 0.00000000000000000,
-		 {"@p1" : (0.66253178213589414,-0.22238807443609804)}],
-		vals)
-
     def testGetKeyframeValues(self):
         self.anim.add_keyframe("../testdata/director1.fct", 10, 0, animation.INT_LINEAR)
 	self.anim.add_keyframe("../testdata/director2.fct", 5, 0, animation.INT_LINEAR)
 
-	(values, durations ) = self.anim.get_keyframe_values()
-
-	self.assertEqual(2,len(values))
-	self.assertEqual(
-		[0.0] * 4 + [4.0] + [0.0] * 6  + [ { "@bailout" : (4.0,) }],
-		values[0])
-
-	self.assertEqual(
-		[-0.121875, 0.94999999999999996, 0.0, 0.0, 0.46875,
-		 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, {'@bailout': (4.0,)}],
-		values[1])
+	durations = self.anim.get_keyframe_durations()
 
 	self.assertEqual([10,5], durations)
-			
+
+    def testGetTotalFrames(self):
+        self.assertEqual(0, self.anim.get_total_frames())
+
+        self.anim.add_keyframe(
+            "../testdata/director1.fct", 10, 0, animation.INT_LINEAR)
+        
+        self.assertEqual(0,self.anim.get_total_frames())
+        
+        self.anim.add_keyframe(
+            "../testdata/director2.fct", 5, 3, animation.INT_LINEAR)
+        
+        self.assertEqual(10+3,self.anim.get_total_frames())
+
+        self.anim.add_keyframe(
+            "../testdata/director2.fct", 7, 1, animation.INT_LINEAR)
+
+        self.assertEqual(10+5+3+1,self.anim.get_total_frames())
 def suite():
     return unittest.makeSuite(Test,'test')
 
