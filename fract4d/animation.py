@@ -253,47 +253,23 @@ class T:
 	
 	return framelist
 
-    #finding x,y,z,w,size, all angles and formula parameters from argument file and returns them as tuple
-    def find_values(self,f):
-        x=f.params[f.XCENTER]
-        y=f.params[f.YCENTER]
-        z=f.params[f.ZCENTER]
-        w=f.params[f.WCENTER]
-        size=f.params[f.MAGNITUDE]
-        xy=f.params[f.XYANGLE]
-        xz=f.params[f.XZANGLE]
-        xw=f.params[f.XWANGLE]
-        yz=f.params[f.YZANGLE]
-        yw=f.params[f.YWANGLE]
-        zw=f.params[f.ZWANGLE]
-        #params (only complex for now)
-        params={}
-        for form in f.forms:
-            if form.sectname=='function':
-                break
-        for param in form.param_names():
-            if not param.startswith("@_"):
-                if form.formula.symbols[param].type==fracttypes.Complex:
-                    ord=form.order_of_name(param)
-                    params[param]=(form.params[ord],form.params[ord+1])
-                if form.formula.symbols[param].type==fracttypes.Float:
-                    ord=form.order_of_name(param)
-                    params[param]=(form.params[ord],)
-        return copy.copy(f.params) + [params]
-
-    def get_keyframe_values(self):
-        values = []
+    def get_keyframe_durations(self):
         durations = []
-        f = fractal.T(self.compiler)
         for i in xrange(self.keyframes_count()):
-            file = self.get_keyframe_filename(i)
-            f.loadFctFile(open(file))
-            ret=self.find_values(f)
-            values.append(ret)
             durations.append(self.get_keyframe_duration(i))
 
-        return (values, durations)
+        return durations
 
+    def get_total_frames(self):
+        count = 0
+        nframes = self.keyframes_count()
+        for i in xrange(nframes):
+            count += self.get_keyframe_stop(i)
+            if i < nframes - 1:
+                # don't count the last frame's duration
+                count += self.get_keyframe_duration(i)
+        return count
+    
 class AnimationHandler(ContentHandler):
     def __init__(self,dir_bean):
         self.dir_bean=dir_bean

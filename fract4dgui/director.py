@@ -28,7 +28,8 @@ class SanityCheckError(Exception):
 class DirectorDialog(dialog.T,hig.MessagePopper):
     RESPONSE_RENDER=1
     def show(parent, alt_parent, f,dialog_mode,conf_file):
-        dialog.T.reveal(DirectorDialog, dialog_mode, parent, alt_parent, f,conf_file)
+        dialog.T.reveal(DirectorDialog, dialog_mode,
+                        parent, alt_parent, f,conf_file)
 
     show = staticmethod(show)
 
@@ -219,7 +220,7 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
         self.update_model()
 
     #point of whole program:)
-    #first we generate  png files and list, then .avi
+    #first we generate png files and list, then .avi
     def generate(self,create_avi=True):
         try:
             self.check_sanity()
@@ -236,7 +237,7 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
             # unexpected return code
             return
 
-        if create_avi==False:
+        if not create_avi:
             return
 
         avi_gen=AVIGen.AVIGeneration(self.animation)

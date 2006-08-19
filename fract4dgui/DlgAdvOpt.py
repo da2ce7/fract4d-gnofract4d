@@ -11,24 +11,23 @@ import os
 import re
 from threading import *
 
-from fract4d.directorbean import *
 
 class DlgAdvOptions:
 
-    def __init__(self,current_kf,dir_bean):
+    def __init__(self,current_kf,animation):
         self.dialog=gtk.Dialog("Keyframe advanced options...",None,
                     gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                     (gtk.STOCK_OK,gtk.RESPONSE_OK,gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
 
         self.current_kf=current_kf
-        self.dir_bean=dir_bean
+        self.animation=animation
 
         self.tbl_main=gtk.Table(6,2,False)
         self.tbl_main.set_row_spacings(10)
         self.tbl_main.set_col_spacings(10)
         self.tbl_main.set_border_width(10)
 
-        dirs=dir_bean.get_directions(self.current_kf)
+        dirs=animation.get_directions(self.current_kf)
 
         self.lbl_xy=gtk.Label("XY angles interpolation direction:")
         self.tbl_main.attach(self.lbl_xy,0,1,0,1)
@@ -93,7 +92,7 @@ class DlgAdvOptions:
         if response == gtk.RESPONSE_OK:
             dirs=(self.cmb_xy.get_active(),self.cmb_xz.get_active(),self.cmb_xw.get_active(),
                 self.cmb_yz.get_active(),self.cmb_yw.get_active(),self.cmb_zw.get_active())
-            self.dir_bean.set_directions(self.current_kf,dirs)
+            self.animation.set_directions(self.current_kf,dirs)
 
         self.dialog.destroy()
         return

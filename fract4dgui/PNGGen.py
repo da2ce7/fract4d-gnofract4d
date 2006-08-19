@@ -41,12 +41,11 @@ class PNGGeneration(gtk.Dialog,hig.MessagePopper):
 
     def generate_png(self):
         global running
-        values=[]
         durations=[]
 
         #--------find values and duration from all keyframes------------
         try:
-	   (values, durations) = self.anim.get_keyframe_values()
+	   durations = self.anim.get_keyframe_durations()
         except Exception, err:
             self.show_error(_("Error processing keyframes"), str(err))
             yield False
@@ -55,7 +54,7 @@ class PNGGeneration(gtk.Dialog,hig.MessagePopper):
         #---------------------------------------------------------------
         create_all_images=self.to_create_images_again()
         gt=GenerationThread(
-            durations,values,self.anim,
+            durations,self.anim,
             self.compiler,
             create_all_images,self.pbar_image,self.pbar_overall)
         gt.start()
@@ -147,11 +146,10 @@ class PNGGeneration(gtk.Dialog,hig.MessagePopper):
 #thread to interpolate values and calls generation of .png files
 class GenerationThread(Thread):
     def __init__(
-        self,durations,values,animation,compiler,
+        self,durations,animation,compiler,
         create_all_images,pbar_image,pbar_overall):
         Thread.__init__(self)
         self.durations=durations
-        self.values=values
         self.anim=animation
         self.create_all_images=create_all_images
         self.pbar_image=pbar_image
@@ -263,7 +261,7 @@ class GenerationThread(Thread):
             self.pbar_overall.set_fraction(percent)
             self.pbar_overall.set_text(str(sumBefore+i)+"/"+str(sumN+1))
 
-            #--------------putting new values in fractal---------------
+            # create a blended fractal partway between prev and next keyframe
 	    int_type=self.anim.get_keyframe_int(iteration)
             mu=self.anim.get_mu(int_type, float(i)/float(N))
             f_frame = f_prev.blend(f_next,mu)
