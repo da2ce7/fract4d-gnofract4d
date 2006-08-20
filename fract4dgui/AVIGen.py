@@ -5,6 +5,8 @@
 
 #Limitations: user can destroy dialog, but it will not destroy transcode process!?
 
+from __future__ import generators
+
 import gtk
 import gobject
 import os

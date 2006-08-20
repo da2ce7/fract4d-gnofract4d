@@ -3,6 +3,8 @@
 #in special thread, while it finds in-between values it call gtkfractal.HighResolution
 #to create images
 
+from __future__ import generators
+
 import gtk
 import gobject
 import re
