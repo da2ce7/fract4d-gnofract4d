@@ -91,25 +91,32 @@ class Test(unittest.TestCase):
         self.anim.remove_keyframe(0)
         self.assertEqual(self.anim.keyframes_count(),0)
 
-    def testLoading(self):
-        result=self.anim.load_animation("../testdata/animation.fcta")
+    def checkExpectedLoadedValues(self,anim):
         #keyframes
-        self.assertEqual(self.anim.keyframes_count(),2)
-        self.assertEqual(self.anim.get_keyframe_filename(0),"kf1")
-        self.assertEqual(self.anim.get_keyframe_duration(0),10)
-        self.assertEqual(self.anim.get_keyframe_stop(0),10)
-        self.assertEqual(self.anim.get_keyframe_int(0),0)
-        self.assertEqual(self.anim.get_keyframe_filename(1),"kf2")
-        self.assertEqual(self.anim.get_keyframe_duration(1),20)
-        self.assertEqual(self.anim.get_keyframe_stop(1),20)
-        self.assertEqual(self.anim.get_keyframe_int(1),1)
+        self.assertEqual(anim.keyframes_count(),2)
+        self.assertEqual(anim.get_keyframe_filename(0),"kf1")
+        self.assertEqual(anim.get_keyframe_duration(0),10)
+        self.assertEqual(anim.get_keyframe_stop(0),10)
+        self.assertEqual(anim.get_keyframe_int(0),0)
+        self.assertEqual(anim.get_keyframe_filename(1),"kf2")
+        self.assertEqual(anim.get_keyframe_duration(1),20)
+        self.assertEqual(anim.get_keyframe_stop(1),20)
+        self.assertEqual(anim.get_keyframe_int(1),1)
         #output stuff
-        self.assertEqual(self.anim.get_avi_file(),u"output.avi")
-        self.assertEqual(self.anim.get_framerate(),28)
-        self.assertEqual(self.anim.get_width(),320)
-        self.assertEqual(self.anim.get_height(),240)
-        self.assertEqual(self.anim.get_redblue(),False)
-
+        self.assertEqual(anim.get_avi_file(),u"output.avi")
+        self.assertEqual(anim.get_framerate(),28)
+        self.assertEqual(anim.get_width(),320)
+        self.assertEqual(anim.get_height(),240)
+        self.assertEqual(anim.get_redblue(),False)
+    
+    def testLoading(self):
+        self.anim.load_animation("../testdata/animation.fcta")
+        self.checkExpectedLoadedValues(self.anim)
+        self.anim.save_animation("test.fcta")
+        anim2 = animation.T(g_comp)
+        anim2.load_animation("test.fcta")
+        self.checkExpectedLoadedValues(anim2)
+        
     def testCreateList(self):
         self.anim.add_keyframe("f1.fct", 10, 4, animation.INT_LOG)
 	self.anim.add_keyframe("f2.fct", 6, 3, animation.INT_LOG)

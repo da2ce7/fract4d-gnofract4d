@@ -22,6 +22,19 @@ INT_LOG=    1
 INT_INVLOG=    2
 INT_COS=    3
 
+def getAttrOrDefault(attrs, name, default):
+    x = attrs.get(name)
+    if x == None:
+        x = default
+    return x
+    
+def getAttrOrElse(attrs, name):
+    x = attrs.get(name)
+    if x == None:
+        raise ValueError(
+            "Invalid file: Cannot find required attribute '%s'" % name)
+    return x
+
 class KeyFrame:
     def __init__(self,filename,duration,stop,int_type,flags=(0,0,0,0,0,0)):
         self.filename = filename
@@ -29,6 +42,30 @@ class KeyFrame:
         self.stop = stop
         self.int_type = int_type
         self.flags = flags
+
+    def save(self,fh):
+        fh.write(
+            '\t\t<keyframe filename="%s" duration="%d" stop="%d" inttype="%d" ' % (self.filename, self.duration, self.stop, self.int_type))
+        fh.write(
+            'xy="%d" xz="%d" xw="%d" yz="%d" yw="%d" zw="%d"' % self.flags)
+        fh.write('/>\n')
+
+    def load_from_xml(attrs):
+        kf = KeyFrame(
+            getAttrOrElse(attrs,"filename"),
+            int(getAttrOrElse(attrs,"duration")),
+            int(getAttrOrElse(attrs,"stop")),
+            int(getAttrOrElse(attrs,"inttype")),
+            (int(getAttrOrDefault(attrs,"xy",0)),
+             int(getAttrOrDefault(attrs,"xz",0)),
+             int(getAttrOrDefault(attrs,"xw",0)),
+             int(getAttrOrDefault(attrs,"yz",0)),
+             int(getAttrOrDefault(attrs,"yw",0)),
+             int(getAttrOrDefault(attrs,"zw",0))))
+        return kf
+    
+    load_from_xml=staticmethod(load_from_xml)
+        
 class T:
     def __init__(self, compiler):
         self.compiler = compiler
@@ -197,12 +234,7 @@ class T:
         fh.write("<animation>\n")
         fh.write('\t<keyframes>\n')
         for kf in self.keyframes:
-            fh.write('\t\t<keyframe filename="%s">\n'%kf[0])
-            fh.write('\t\t\t<duration value="%d"/>\n'%kf[1])
-            fh.write('\t\t\t<stopped value="%d"/>\n'%kf[2])
-            fh.write('\t\t\t<interpolation value="%d"/>\n'%kf[3])
-            fh.write('\t\t\t<directions xy="%d" xz="%d" xw="%d" yz="%d" yw="%d" zw="%d"/>\n'%kf[4])
-            fh.write('\t\t</keyframe>\n')
+            kf.save(fh)
         fh.write('\t</keyframes>\n')
         fh.write('\t<output filename="%s" framerate="%d" width="%d" height="%d" swap="%d"/>\n'%
              (self.avi_file,self.framerate,self.width,self.height,self.redblue))
@@ -270,60 +302,19 @@ class T:
         return count
     
 class AnimationHandler(ContentHandler):
-    def __init__(self,dir_bean):
-        self.dir_bean=dir_bean
-        self.curr_index=0
-        self.curr_filename=""
-        self.curr_duration=25
-        self.curr_stopped=1
-        self.curr_int_type=0
-        self.curr_directions=()
+    def __init__(self,animation):
+        self.animation=animation
 
-    def getAttrOrDefault(self, attrs, name, default):
-        x = attrs.get(name)
-        if x == None:
-            x = default
-        return x
-    
     def startElement(self, name, attrs):
         if name=="output":
-            self.dir_bean.set_avi_file(attrs.get("filename"))
-            self.dir_bean.set_framerate(attrs.get("framerate"))
-            self.dir_bean.set_width(attrs.get("width"))
-            self.dir_bean.set_height(attrs.get("height"))
-            self.dir_bean.set_redblue(int(attrs.get("swap")))
+            self.animation.set_avi_file(attrs.get("filename"))
+            self.animation.set_framerate(attrs.get("framerate"))
+            self.animation.set_width(attrs.get("width"))
+            self.animation.set_height(attrs.get("height"))
+            self.animation.set_redblue(int(attrs.get("swap")))
         elif name=="keyframe":
-            self.curr_filename=attrs.get("filename")
-        elif name=="duration":
-            self.curr_duration=int(
-                self.getAttrOrDefault(attrs,"value",self.curr_duration))
-        elif name=="stopped":
-            self.curr_stopped=int(
-                self.getAttrOrDefault(attrs, "value", self.curr_stopped))
-        elif name=="interpolation":
-            if attrs.get("value")!=None:
-                self.curr_int_type=int(attrs.get("value"))
-        elif name=="directions":
-            xy=int(self.getAttrOrDefault(attrs,"xy",0))
-            xz=int(self.getAttrOrDefault(attrs,"xz",0))
-            xw=int(self.getAttrOrDefault(attrs,"xw",0))
-            yz=int(self.getAttrOrDefault(attrs,"yz",0))
-            yw=int(self.getAttrOrDefault(attrs,"yw",0))
-            zw=int(self.getAttrOrDefault(attrs,"zw",0))
-            
-            self.curr_directions=(xy,xz,xw,yz,yw,zw)
+            kf= KeyFrame.load_from_xml(attrs)
+            self.animation.keyframes.append(kf)
         return
 
-    def endElement(self, name):
-        if name=="keyframe":
-            self.dir_bean.add_keyframe(self.curr_filename,self.curr_duration,self.curr_stopped,self.curr_int_type)
-            self.dir_bean.set_directions(self.curr_index,self.curr_directions)
-            self.curr_index=self.curr_index+1
-            #reset
-            self.curr_filename=""
-            self.curr_duration=25
-            self.curr_stopped=1
-            self.curr_int_type=0
-            self.curr_directions=()
-        return
 
