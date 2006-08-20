@@ -38,7 +38,7 @@ class Test(unittest.TestCase):
     def testDocVersionMatches(self):        
         # check the docs
         doc = open("doc/gnofract4d-manual/C/gnofract4d-manual.xml").read()
-        doc_re = re.compile(r'This is &gf4d; version (\S+)\.')
+        doc_re = re.compile(r'\<\!ENTITY version "(\S+)"\>')
 
         m = doc_re.search(doc)
         self.failUnless(m,"doc doesn't specify version")
