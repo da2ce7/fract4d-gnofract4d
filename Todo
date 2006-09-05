@@ -5,8 +5,9 @@ fixed in next version:
 * W	make gconf optional
 * BB	use form 1, select warp_param, choose another form = disaster
 * W	added Chebyshev formula
-* WW	Added Fractal Director (Branko Kokanovic)
+* WWW	Added Fractal Director (Branko Kokanovic)
 * BBB	Can't save with python > 2.4, standard_b64encode missing
+* WW	Added fate/basin code
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
