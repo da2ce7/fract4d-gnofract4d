@@ -1,6 +1,6 @@
 todo:
 
-fixed in next version:
+fixed in 3.1:
 * B	-p, --params flags broken (reported by Elaine Normandy)
 * W	make gconf optional
 * BB	use form 1, select warp_param, choose another form = disaster
