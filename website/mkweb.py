@@ -15,8 +15,8 @@ class Bag:
 
 
 announce = Bag(
-    date="June 15th, 2006",
-    text="Version 3.0 released. This introduces 'warp params' and some other small features and bug fixes.")
+    date="September 5th, 2006",
+    text="Version 3.1 released. This introduces animations, 'fate-based' coloring, and some other small features and bug fixes.")
 
 pages = [
     Bag(name="Home",
