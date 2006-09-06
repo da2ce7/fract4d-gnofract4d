@@ -20,11 +20,14 @@ import PNGGen,AVIGen,DlgAdvOpt,director_prefs
 def show(parent,alt_parent, f,dialog_mode,conf_file=""):
     DirectorDialog.show(parent,alt_parent, f,dialog_mode,conf_file)
 
+class UserCancelledError(Exception):
+	pass
+
 class SanityCheckError(Exception):
     "The type of exception which is thrown when animation sanity checks fail"
     def __init__(self,msg):
         Exception.__init__(self,msg)
-        
+
 class DirectorDialog(dialog.T,hig.MessagePopper):
     RESPONSE_RENDER=1
     def show(parent, alt_parent, f,dialog_mode,conf_file):
@@ -72,15 +75,19 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
         #check if there are any .fct files in temp fct dir
         has_any=False
         for file in os.listdir(fct_path):
-            if fnmatch.fnmatch(file,"*.fct"):
-                response = self.ask_question(
-                    _("Directory for temporary .fct files contains other .fct files"),                        
-                    _("These may be overwritten. Proceed?"))
-                if response!=gtk.RESPONSE_YES:
-                    raise UserCancelledError
-            
+        	if fnmatch.fnmatch(file,"*.fct"):
+        		has_any=True
+
+		if has_any==True:
+			response = self.ask_question(
+										_("Directory for temporary .fct files contains other .fct files"),
+										_("These may be overwritten. Proceed?"))
+			if response!=gtk.RESPONSE_ACCEPT:
+				raise UserCancelledError()
+		return
+
     #throws SanityCheckError if there was a problem
-    def check_sanity(self):            
+    def check_sanity(self):
         #check if at least two keyframes exist
         if self.animation.keyframes_count()<2:
             raise SanityCheckError(_("There must be at least two keyframes"))
@@ -227,7 +234,9 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
         except SanityCheckError, exn:
             self.show_error(_("Cannot Generate Animation"), str(exn))
             return
-            
+        except UserCancelledError:
+        	return
+
         png_gen=PNGGen.PNGGeneration(self.animation, self.compiler)
         res=png_gen.show()
         if res==1:
@@ -451,7 +460,7 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
         self.realize()
 
         self.main_window = main_window
-                
+
         #main VBox
         self.box_main=gtk.VBox(False,0)
         #--------------------menu-------------------------------
