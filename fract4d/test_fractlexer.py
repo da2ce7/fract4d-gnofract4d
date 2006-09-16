@@ -2,8 +2,9 @@
 
 import unittest
 import fractlexer
+import preprocessor
 
-class LexerTest(unittest.TestCase):
+class Test(unittest.TestCase):
     def setUp(self):
         self.lexer = fractlexer.lexer
         self.lexer.lineno = 1
@@ -123,15 +124,15 @@ myComment {}
                         ts[2].type == "COMPLEX" and ts[2].value == "1" and
                         ts[4].type == "ID")
 
-    def disabled_testEscapedNewline(self):
+    def testEscapedNewline(self):
         # fractint allows \ IN THE MIDDLE OF A TOKEN
-        # I have no idea how to make this work right now :-(
-        ts = self.tokensFromString('&\\\n&')
-        print ts
-        self.failUnless(ts[0] == "BOOL_AND")
+        # this is handled by the preprocessor, not the lexer
+        pp = preprocessor.T('&\\\n&')
+        ts = self.tokensFromString(pp.out())
+        self.failUnless(ts[0].type == "BOOL_AND")
         
 def suite():
-    return unittest.makeSuite(LexerTest,'test')
+    return unittest.makeSuite(Test,'test')
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

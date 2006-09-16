@@ -132,11 +132,11 @@ class Test(unittest.TestCase):
 
     def testFilenames(self):
         self.assertEqual(
-		"/tmp/image_0000037.png",
+		self.anim.get_png_dir() + "/image_0000037.png",
 		self.anim.get_image_filename(37))
 
 	self.assertEqual(
-		"/tmp/file_0000064.fct",
+		self.anim.get_fct_dir() + "/file_0000064.fct",
 		self.anim.get_fractal_filename(64))
 
     def testMu(self):
