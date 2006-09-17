@@ -1,13 +1,7 @@
 todo:
 
-fixed in 3.1:
-* B	-p, --params flags broken (reported by Elaine Normandy)
-* W	make gconf optional
-* BB	use form 1, select warp_param, choose another form = disaster
-* W	added Chebyshev formula
-* WWW	Added Fractal Director (Branko Kokanovic)
-* BBB	Can't save with python > 2.4, standard_b64encode missing
-* WW	Added fate/basin code
+fixed in 3.2:
+* B	Problem clicking 'yes' to overwrite temp .fct files
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -141,6 +135,16 @@ params (not all applicable to all types):
 1) how to set color of point
 2) time step
 3) which points to start with
+
+
+fixed in 3.1:
+* B	-p, --params flags broken (reported by Elaine Normandy)
+* W	make gconf optional
+* BB	use form 1, select warp_param, choose another form = disaster
+* W	added Chebyshev formula
+* WWW	Added Fractal Director (Branko Kokanovic)
+* BBB	Can't save with python > 2.4, standard_b64encode missing
+* WW	Added fate/basin code
 
 fixed in 3.0:
 * B	DeprecationError on pygtk 2.8+
