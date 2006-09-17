@@ -62,7 +62,10 @@ pages = [
 
     Bag(name="Help Wanted",
         file="contributing.html",
-        image="bg_parts.jpg"),
+        image="bg_parts.jpg",
+        comments=["I wanted to thank you for gnofract4d, it's a beautiful application, generates some true work of arts."
+                  ]
+        ),
 
     Bag(name="FAQ",
         file="faq.html",

@@ -6,6 +6,7 @@ import unittest
 import sys
 import os
 
+sys.path.append("..")
 import preferences
 
 class CallCounter:
@@ -21,20 +22,6 @@ class Test(unittest.TestCase):
     def tearDown(self):
         pass
         
-    def testCreate(self):        
-        flags = self.config.get("compiler","options")
-        self.assertEqual(flags,
-                         "-fPIC -DPIC -D_REENTRANT -O2 -shared -ffast-math")
-
-    def testSave(self):
-        self.config.set("compiler","options","-foo")
-        self.assertEqual(self.config.get("compiler","options"),"-foo")
-        self.config.write(open("config.tmp","w"))
-
-        config2 = preferences.Preferences("config.tmp")
-        self.assertEqual(config2.get("compiler","options"),"-foo")
-        os.remove("config.tmp")
-
     def testSignals(self):
         counter = CallCounter()
         

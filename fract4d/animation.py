@@ -10,11 +10,7 @@ import os, sys, copy, math
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 
-import fracttypes, fractal
-
-# FIXME
-sys.path.append("..")
-from fract4dgui import preferences
+import fracttypes, fractal, fractconfig
 
 #interpolation type constants
 INT_LINEAR=    0
@@ -81,25 +77,25 @@ class T:
         self.keyframes=[]
 
     def get_fct_enabled(self):
-        return preferences.userPrefs.getboolean("director","fct_enabled")
+        return fractconfig.instance.getboolean("director","fct_enabled")
     
     def set_fct_enabled(self,fct_enabled):
         if fct_enabled:
-            preferences.userPrefs.set("director","fct_enabled","1")
+            fractconfig.instance.set("director","fct_enabled","1")
         else:
-            preferences.userPrefs.set("director","fct_enabled","0")
+            fractconfig.instance.set("director","fct_enabled","0")
     
     def get_fct_dir(self):
-        return preferences.userPrefs.get("director","fct_dir")
+        return fractconfig.instance.get("director","fct_dir")
     
     def set_fct_dir(self,dir):
-        preferences.userPrefs.set("director","fct_dir",dir)
+        fractconfig.instance.set("director","fct_dir",dir)
     
     def get_png_dir(self):
-        return preferences.userPrefs.get("director","png_dir")
+        return fractconfig.instance.get("director","png_dir")
     
     def set_png_dir(self,dir):
-        preferences.userPrefs.set("director","png_dir",dir)
+        fractconfig.instance.set("director","png_dir",dir)
 
     def get_avi_file(self):
         return self.avi_file
