@@ -43,6 +43,16 @@ export MAX=2.5
 ./mkrpm.sh $BUILD_PYTHON $MIN $MAX
 mv dist/gnofract4d-3.1-1.$ARCH.rpm dist/gnofract4d-python24-3.1-1.$ARCH.rpm 
 
+# Python 2.5 version
+export BUILD_PYTHON_VERSION=2.5
+export BUILD_PYTHON=/usr/bin/python2.5
+export MIN=2.5
+export MAX=2.6
+
+./mkrpm.sh $BUILD_PYTHON $MIN $MAX
+mv dist/gnofract4d-3.1-1.$ARCH.rpm dist/gnofract4d-python25-3.1-1.$ARCH.rpm 
+
+
 unset BUILD_PYTHON_VERSION
 unset BUILD_PYTHON
 unset CC

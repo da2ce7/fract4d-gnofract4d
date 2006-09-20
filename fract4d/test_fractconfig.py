@@ -48,15 +48,9 @@ class Test(unittest.TestCase):
         self.assertEqual("-foo",config2.get("compiler","options"))
         os.remove("testprefs")
 
-    def testShared(self):
-        c = fractconfig.T("testprefs")
-        c2 = fractconfig.T("testprefs")
-        c.set("compiler","options","-foo")
-
-        self.assertEqual("-foo",c2.get("compiler", "options"))
-
     def testInstance(self):
         dummy = fractconfig.instance
+        self.assertEqual(".gnofract4d",os.path.basename(dummy.file))
         
 def suite():
     return unittest.makeSuite(Test,'test')

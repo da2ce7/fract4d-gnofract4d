@@ -106,6 +106,7 @@ class Test(unittest.TestCase):
         dd.animation.set_avi_file("/tmp/foo.avi")
 
         dd.animation.set_fct_enabled(True)
+        dd.animation.set_fct_dir("/tmp")
         
         self.assertRaisesMessage(
             director.SanityCheckError,

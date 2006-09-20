@@ -60,10 +60,8 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
 
         #check if it is directory
         if not os.path.isdir(self.animation.get_fct_dir()):
-            self.show_error(
-                cannot_render,
+            raise SanityCheckError(
                 _("Path for temporary .fct files is not a directory"))
-            return -1
 
         fct_path=self.animation.get_fct_dir()
 
@@ -75,16 +73,16 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
         #check if there are any .fct files in temp fct dir
         has_any=False
         for file in os.listdir(fct_path):
-        	if fnmatch.fnmatch(file,"*.fct"):
-        		has_any=True
-
-		if has_any==True:
-			response = self.ask_question(
-										_("Directory for temporary .fct files contains other .fct files"),
-										_("These may be overwritten. Proceed?"))
-			if response!=gtk.RESPONSE_ACCEPT:
-				raise UserCancelledError()
-		return
+            if fnmatch.fnmatch(file,"*.fct"):
+                has_any=True
+                
+            if has_any==True:
+                response = self.ask_question(
+                    _("Directory for temporary .fct files contains other .fct files"),
+                    _("These may be overwritten. Proceed?"))
+                if response!=gtk.RESPONSE_ACCEPT:
+                    raise UserCancelledError()
+            return
 
     #throws SanityCheckError if there was a problem
     def check_sanity(self):

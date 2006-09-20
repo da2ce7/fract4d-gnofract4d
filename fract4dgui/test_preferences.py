@@ -8,6 +8,7 @@ import os
 
 sys.path.append("..")
 import preferences
+from fract4d import fractconfig
 
 class CallCounter:
     def __init__(self):
@@ -17,7 +18,8 @@ class CallCounter:
 
 class Test(unittest.TestCase):
     def setUp(self):
-        self.config = preferences.Preferences("test.config")
+        self.baseconfig = fractconfig.T("test.config")
+        self.config = preferences.Preferences(self.baseconfig)
     
     def tearDown(self):
         pass
@@ -38,6 +40,10 @@ class Test(unittest.TestCase):
         # new option, callback called
         self.config.set('compiler','foop','cc')
         self.assertEqual(counter.count,2)
+
+    def testInstance(self):
+        dummy = preferences.userPrefs
+        self.assertNotEqual(None,dummy)
         
 def suite():
     return unittest.makeSuite(Test,'test')
