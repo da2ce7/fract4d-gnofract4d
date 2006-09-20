@@ -7,6 +7,9 @@ bugs (the more B's, the worse the bug):
 * BBB	too slow!
 	until antialias, seems to run single-threaded more often than not
 
+* BB	animation colors are screwed
+* BB	animation hangs on FC3?
+* BB	browser doesn't always update with current formula
 * BB	func with a bailout of 1 will never quit and can't be interrupted
 * B	interrupt takes too long on deep-zoomed fractals
 * BB	infinite loops are possible in while loops

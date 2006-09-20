@@ -4,7 +4,6 @@ import unittest
 import string
 import commands
 import re
-import dl
 import os
 import time
 
@@ -111,12 +110,6 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         self.assertEqual(string.count(output,"pf_init"),1)
         self.assertEqual(string.count(output,"pf_calc_period"),1)
         self.assertEqual(string.count(output,"pf_kill"),1)
-
-        # load it and mess around
-        # DL module doesn't work on x86_64, so disabling this part
-        #so = dl.open('./test-out.so', dl.RTLD_NOW)
-        #self.assertNotEqual(so.sym('pf_new'),0)
-        #self.assertNotEqual(so.call('pf_new'),0)
 
     def testErrors(self):
         'Check we raise appropriate exns when formulas are busted'

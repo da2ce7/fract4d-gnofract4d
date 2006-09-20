@@ -5,11 +5,13 @@ import copy
 import math
 import os
 import gettext
+import sys
+
+sys.path.append("..")
+from fract4d import fc
 
 import gtkfractal
 import gtk
-
-from fract4d import fc
 
 os.environ.setdefault('LANG', 'en')
 gettext.install('gnofract4d')

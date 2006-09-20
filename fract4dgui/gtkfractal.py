@@ -12,10 +12,6 @@ import random
 import gtk
 import gobject
 
-# so we can run without installing.
-# FIXME is there a better way?
-sys.path.append("..")
-
 from fract4d import fractal,fract4dc,fracttypes, image
 import fract4dguic
 

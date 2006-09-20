@@ -13,24 +13,9 @@ from fract4d import fractconfig
 
 import fract4dguic
 
-def _get_default_mailer():
-    try:
-        mailer = fract4dguic.get_gconf_string("/desktop/gnome/url-handlers/mailto/command")
-    except:
-        # oh well, something went wrong
-        mailer = "evolution %s"
-    return mailer
 
-def _get_default_browser():
-    try:
-        browser = fract4dguic.get_gconf_string("/desktop/gnome/url-handlers/http/command")
-    except:
-        # oh well, something went wrong
-        browser = "mozilla %s"
-    return browser
-
-class Preferences(fractconfig.T,gobject.GObject):
-    # This class holds the preference data
+class Preferences(gobject.GObject):
+    # A wrapper for the preference data
     __gsignals__ = {
         'preferences-changed' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
@@ -41,19 +26,66 @@ class Preferences(fractconfig.T,gobject.GObject):
         
         }
 
-    def __init__(self, file='~/.gnofract4d'):
-        gobject.GObject.__init__(self) 
-        fractconfig.T.__init__(self, file)
+    def __init__(self, config):
+        gobject.GObject.__init__(self)
+        self.config = config
+        self.config.changed = self.changed
 
     def changed(self, section):
         self.emit('preferences-changed')
-        if self.image_changed_sections.get(section, False):
+        if self.config.image_changed_sections.get(section, False):
             self.emit('image-preferences-changed')
-                
+
+    def get_default_mailer():
+        try:
+            mailer = fract4dguic.get_gconf_string("/desktop/gnome/url-handlers/mailto/command")
+        except:
+            # oh well, something went wrong
+            mailer = "evolution %s"
+        return mailer
+
+    def _get_default_browser():
+        try:
+            browser = fract4dguic.get_gconf_string("/desktop/gnome/url-handlers/http/command")
+        except:
+            # oh well, something went wrong
+            browser = "mozilla %s"
+        return browser
+
+    def set(self,section,key,val):
+        self.config.set(section,key,val)
+
+    def get(self,section,key):
+        return self.config.get(section,key)
+
+    def getboolean(self,section,key):
+        return self.config.getboolean(section,key)
+
+    def getint(self,section,key):
+        return self.config.getint(section,key)
+    
+    def set_size(self,width,height):
+        self.config.set_size(width,height)
+
+    def get_list(self,name):
+        return self.config.get_list(name)
+
+    def set_list(self,name,list):
+        self.config.set_list(name,list)
+
+    def update_list(self,name,new_entry,maxsize):
+        return self.config.update_list(name,new_entry,maxsize)
+
+    def remove_all_in_list_section(self,name):
+        self.config.remove_all_in_list_section(name)
+
+    def save(self):
+        self.config.save()
+
 # explain our existence to GTK's object system
 gobject.type_register(Preferences)
 
-userPrefs = Preferences()
+userPrefs = Preferences(fractconfig.instance)
     
 def show_preferences(parent,f):
     PrefsDialog.show(parent,f)

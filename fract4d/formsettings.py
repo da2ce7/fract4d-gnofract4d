@@ -53,7 +53,6 @@ class T:
                                 other.get_func_value(name))
 
         # copy the params
-        # FIXME is this required?
         self.params = [copy.copy(x) for x in other.params]
 
     def initvalue(self,name,warp_param=None):

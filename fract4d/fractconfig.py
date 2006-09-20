@@ -4,9 +4,7 @@ import sys
 
 class T(ConfigParser.ConfigParser):    
     "Holds preference data"
-    _shared_state = {}
     def __init__(self, file):
-        self.__dict__ = self._shared_state # Borg
         _defaults = {
             "compiler" : {
               "name" : "gcc",
@@ -138,13 +136,9 @@ class T(ConfigParser.ConfigParser):
         return list
     
     def changed(self, section):
-        if self.image_changed_sections.get(section, False):
-            self.image_changed()
-
-    def image_changed(self):
         pass
             
     def save(self):
         self.write(open(self.file,"w"))
 
-instance = T("~/gnofract4d")
+instance = T("~/.gnofract4d")
