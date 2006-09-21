@@ -16,74 +16,9 @@ if os.path.isdir('po'):
 else:
     gettext.install('gnofract4d')
 
-# gtk
-try:
-    import gtk
-except ImportError, err:
-    print _("Can't find PyGTK. You need to install it before you can run Gnofract 4D.")
-    sys.exit(1)
-
-# check for pygtk >=1.99
-pygtk_ok = True
-try:
-    (major,minor,patch) = gtk.pygtk_version
-    if major < 2:
-        if minor < 99:
-            pygtk_ok = False
-    import gobject
-    
-except Exception:
-    pygtk_ok = False
-
-if not pygtk_ok:
-    print _("Sorry, your PyGTK version (%d.%d.%d) is too old. You need at least 1.99" % \
-            gtk.pygtk_version)
-    sys.exit(1)
-
-try:
-    # newer pygtk's are incompatible with older ones. In most cases I 
-    # try the new version and fall back to the older if it's missing. See utils.py.
-    # In these cases I can't, so hiding the DeprecationWarnings so users
-    # don't have to suffer
-    import warnings
-
-    # we use ItemFactory because I want this to carry on working with older PyGTK's,
-    # so UIManager is out, and the differences between the 2 are too large to hide
-
-    warnings.filterwarnings(
-        "ignore",
-        ".*UIManager.*",
-        DeprecationWarning,
-        ".*",
-        0)
-
-    # newer pygtk's don't need us to call gobject.type_register, but older ones
-    # most certainly do.
-    warnings.filterwarnings(
-        "ignore",
-        ".*GObject-registered.*",
-        DeprecationWarning,
-        ".*",
-        0)
-
-except Exception, exn :
-    print exn
-    pass
-
-try:
-    libdir = '/usr/lib'
-    # we install our libs privately instead of to site-packages
-    sys.path.append(os.path.join(libdir, 'gnofract4d-%s' % version))
-    # gui modules
-    from fract4dgui import main_window, preferences, utils
-    from fract4d import fractal
-    
-except ImportError, err:
-    print _('''
-Can't import a required module.
-If you haven't set up Gnofract 4D yet, run './setup.py build'
-Error was: '%s' ''') % err
-    sys.exit(1)
+# we install our libs privately instead of to site-packages
+libdir = '/usr/lib'
+sys.path.append(os.path.join(libdir, 'gnofract4d-%s' % version))
 
 # Threads are optional because RedHat seem to compile pygtk
 # without thread support. Grrr.
@@ -110,6 +45,7 @@ class Options:
         self.save_filename = None
         self.extra_paths = []
         self.map = None
+        self.nogui = False
         (self.width, self.height) = (0,0)
 
         longparams = [
@@ -130,6 +66,7 @@ class Options:
             "quit",
             "explorer",
             "trace",
+            "nogui",
             "version"]
 
         (opts, self.args) = getopt.getopt(
@@ -169,6 +106,8 @@ class Options:
                 self.quit_now = True
             elif name=="--trace":
                 self.trace = True
+            elif name=="--nogui":
+                self.nogui = True
             else:
                 # see if it's a positional param
                 pname = name[2:].upper()
@@ -248,6 +187,7 @@ Positional Parameters:
 
 Obscure settings:
    --trace\t\tProduce voluminous tracing output
+   --nogui\t\tRun with no UI (doesn't require X or GTK)
 """ % version
 
 def main():    
@@ -270,6 +210,83 @@ def main():
     if options.quit_now:
         sys.exit(0)
 
+    if options.nogui:
+        plainmain(options)
+    else:
+        gtkmain(options)
+
+def suppress_gtk_warnings():
+    try:
+        # newer pygtk's are incompatible with older ones. In most cases I 
+        # try the new version and fall back to the older if it's missing.
+        # See utils.py for details.
+        # In these cases I can't, so hiding the DeprecationWarnings so users
+        # don't have to suffer
+        import warnings
+
+        # we use ItemFactory because I want this to carry on working
+        # with older PyGTK's, so UIManager is out, and the differences
+        # between the 2 are too large to hide
+
+        warnings.filterwarnings(
+            "ignore",
+            ".*UIManager.*",
+            DeprecationWarning,
+            ".*",
+            0)
+
+        # newer pygtk's don't need us to call gobject.type_register,
+        # but older ones most certainly do.
+        
+        warnings.filterwarnings(
+            "ignore",
+            ".*GObject-registered.*",
+            DeprecationWarning,
+            ".*",
+            0)
+
+    except Exception, exn :
+        print exn
+        pass
+
+def gtkmain(options):
+    # gtk
+    try:
+        import gtk
+    except ImportError, err:
+        print _("Can't find PyGTK. You need to install it before you can run Gnofract 4D.")
+        sys.exit(1)
+
+    # check for pygtk >=1.99
+    pygtk_ok = True
+    try:
+        (major,minor,patch) = gtk.pygtk_version
+        if major < 2:
+            if minor < 99:
+                pygtk_ok = False
+        import gobject
+
+    except Exception:
+        pygtk_ok = False
+
+    if not pygtk_ok:
+        print _("Sorry, your PyGTK version (%d.%d.%d) is too old. You need at least 1.99" % \
+                gtk.pygtk_version)
+        sys.exit(1)
+
+    suppress_gtk_warnings()
+    
+    try:
+        # gui modules
+        from fract4dgui import main_window, preferences, utils
+
+    except ImportError, err:
+        print _('''
+    Can't import a required module.
+    If you haven't set up Gnofract 4D yet, run './setup.py build'
+    Error was: '%s' ''') % err
+        sys.exit(1)
+    
     mainWindow = main_window.MainWindow()
 
     mainWindow.apply_options(options)
@@ -278,6 +295,21 @@ def main():
         mainWindow.on_fractal_change()
 
     gtk.main()
+
+def plainmain(options):
+    try:
+        # nogui modules
+        from fract4d import fractal, fractmain
+
+    except ImportError, err:
+        print _('''
+    Can't import a required module.
+    If you haven't set up Gnofract 4D yet, run './setup.py build'
+    Error was: '%s' ''') % err
+        sys.exit(1)
+
+    t = fractmain.T()
+    t.run(options)
 
 def main_n(n):
     for i in xrange(n):
