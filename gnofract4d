@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
 # the main GUI program. Relies on fract4d libs to do the real work
-version = '3.1'
+version = '3.2'
 
 # python stdlib
 import sys
 import os
-import getopt
 
 # gettext
 import gettext
@@ -29,173 +28,40 @@ try:
 except:
     pass
 
-class Options:
-    "Gathers command-line args, wraps crappy getOpt interface"
-    def __init__(self,args):
-        (self.basename,self.func) = (None,None)
-        (self.innername,self.innerfunc) = (None,None)
-        (self.outername,self.outerfunc) = (None,None)
-        self.maxiter = -1
-        self.trace = False
-        self.paramchanges = {}
-        self.quit_now = False
-        self.quit_when_done = False
-        self.output = ""
-        self.explore = False
-        self.save_filename = None
-        self.extra_paths = []
-        self.map = None
-        self.nogui = False
-        (self.width, self.height) = (0,0)
+try:
+    # nogui modules
+    from fract4d import fractal, fractmain, options
 
-        longparams = [
-            "params=",
-            "maxiter=",
-            "width=",
-            "height=",
-            "save=",
-            "help",
-            "path=",
-            "formula=",
-            "inner=",
-            "outer=",
-            "map=",
-            "xcenter=","ycenter=","zcenter=","wcenter=",
-            "xyangle=","xzangle=","xwangle=","yzangle=","ywangle=","zwangle=",
-            "magnitude=",
-            "quit",
-            "explorer",
-            "trace",
-            "nogui",
-            "version"]
+except ImportError, err:
+    print _('''
+Can't import a required module.
+If you haven't set up Gnofract 4D yet, run './setup.py build'
+Error was: '%s' ''') % err
+    sys.exit(1)
 
-        (opts, self.args) = getopt.getopt(
-            args,
-            "p:m:i:j:s:f:qhP:Xv", longparams)
+def get_version_info():
+    try:
+        import gtk
+        gtk_version = "%d.%d.%d" % gtk.gtk_version
+    except:
+        gtk_version = "unknown"
 
-        for (name, val) in opts:
-            if name=="-p" or name=="--params":
-                self.args.insert(0,val)
-            elif name=="-m" or name=="--maxiter":
-                self.maxiter=int(val)
-            elif name=="-q" or name=="--quit":
-                self.quit_when_done = True
-            elif name=="-s" or name=="--save":
-                self.save_filename = val
-            elif name=="-i" or name=="--width":
-                self.width = int(val)
-            elif name=="-j" or name=="--height":
-                self.height = int(val)
-            elif name=="-h" or name=="--help":
-                self.output += help()
-                self.quit_now = True
-            elif name=="-P" or name=="--path":
-                self.extra_paths.append(val)
-            elif name=="-X" or name=="--explorer":
-                self.explore = True
-            elif name=="-f" or name=="--formula":
-                (self.basename,self.func) = self.splitarg(val,name)
-            elif name=="--inner":
-                (self.innername,self.innerfunc) = self.splitarg(val,name)
-            elif name=="--outer":
-                (self.outername,self.outerfunc) = self.splitarg(val,name)
-            elif (name=="--map"):
-                self.map = val
-            elif name=="--version" or name=="-v":
-                self.print_version()
-                self.quit_now = True
-            elif name=="--trace":
-                self.trace = True
-            elif name=="--nogui":
-                self.nogui = True
-            else:
-                # see if it's a positional param
-                pname = name[2:].upper()
-                if hasattr(fractal.T,pname):
-                    pnum = getattr(fractal.T,pname)
-                    self.paramchanges[pnum]= val
-                else:
-                    print "Unknown argument", name, val
+    try:
+        pygtk_version = "%d.%d.%d" % gtk.pygtk_version
+    except:
+        pygtk_version = "unknown"
 
-    def splitarg(self,val, name):
-        n = val.rfind('#')
-        if n==-1:
-            help()
-            print "ERROR: %s should be file#func" % name
-            sys.exit(1)
-        (file, func) = (val[:n], val[n+1:])
-        path = os.path.dirname(file)
-        if path:
-            self.extra_paths.append(path)
-
-        basename = os.path.basename(file)
-        return (basename,func)
-
-    def print_version(self):
-        try:
-            gtk_version = "%d.%d.%d" % gtk.gtk_version
-        except:
-            gtk_version = "unknown"
-
-        try:
-            pygtk_version = "%d.%d.%d" % gtk.pygtk_version
-        except:
-            pygtk_version = "unknown"
-
-        self.output += """Gnofract 4D %s
+    return """Gnofract 4D %s
 GTK %s
 PyGTK %s""" % (version, gtk_version, pygtk_version)
                
-    
-def help():
-    return """Gnofract 4D %s
-Usage: gnofract4d [flags] [paramfile]
-
-To generate an image non-interactively, use:
-gnofract4d -s myimage.png -q myfractal.fct 
-
-General Flags:
--h --help\t\tShow this message
--v --version\t\tShow version info
--q --quit\t\tExit as soon as the image is finished
--X --explorer\t\tStart in explorer mode
-
-Fractal Settings:
--p --params FILE\tUse FILE as a parameter file
--s --save IMAGEFILE\tSave image to IMAGEFILE after calculation
--i --width N\t\tMake image N pixels wide
--j --height N\t\tMake image N pixels tall
--P --path P\t\tAdd P to the formula search path
--f --formula F#func\tUse formula 'func' from file F
-   --inner F#func\tUse coloring algorithm 'func' from file F
-   --outer F#func\tUse coloring algorithm 'func' from file F
--m --maxiter N\t\tUse N as maximum number of iterations
-   --map FILE\t\tLoad map file FILE
-   
-Positional Parameters:
-   --xcenter N
-   --ycenter N
-   --zcenter N
-   --wcenter N
-   --xyangle N
-   --xzangle N
-   --xwangle N
-   --yzangle N
-   --ywangle N
-   --zwangle N
-   --magnitude N
-
-Obscure settings:
-   --trace\t\tProduce voluminous tracing output
-   --nogui\t\tRun with no UI (doesn't require X or GTK)
-""" % version
-
 def main():    
-    # parse the options    
+    opts = options.T()
     try:
-        options = Options(sys.argv[1:])
-    except getopt.GetoptError, err:
-        print help()
+        opts.parse(sys.argv[1:])
+    except options.OptionError, err:
+        print get_version_info()
+        print opts.help()
 
         print "Error parsing arguments: %s" % err
         return 1
@@ -204,16 +70,19 @@ def main():
     # approach is that it matters what order these operations are
     # done in, but it shouldn't matter what order params are
     # presented on the command-line
-    if len(options.output) > 0:
-        print options.output
+    if len(opts.output) > 0:
+        print opts.output
+
+    if opts.print_version:
+        print get_version_info()
         
-    if options.quit_now:
+    if opts.quit_now:
         sys.exit(0)
 
-    if options.nogui:
-        plainmain(options)
+    if opts.nogui:
+        plainmain(opts)
     else:
-        gtkmain(options)
+        gtkmain(opts)
 
 def suppress_gtk_warnings():
     try:
@@ -297,17 +166,6 @@ def gtkmain(options):
     gtk.main()
 
 def plainmain(options):
-    try:
-        # nogui modules
-        from fract4d import fractal, fractmain
-
-    except ImportError, err:
-        print _('''
-    Can't import a required module.
-    If you haven't set up Gnofract 4D yet, run './setup.py build'
-    Error was: '%s' ''') % err
-        sys.exit(1)
-
     t = fractmain.T()
     t.run(options)
 
