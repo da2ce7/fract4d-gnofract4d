@@ -438,7 +438,30 @@ class T(fctutils.T):
     def set_dump_option(self,option,val):
         self.dump[option] = val
         self.dirtyFormula = True
-        
+
+    def apply_options(self,options):
+        if options.basename and options.func:
+            self.set_formula(options.basename,options.func)
+            self.reset()
+
+        if options.innername and options.innerfunc:
+            self.set_inner(options.innername, options.innerfunc)
+            self.reset()
+
+        if options.outername and options.outerfunc:
+            self.set_outer(options.outername, options.outerfunc)
+            self.reset()
+
+        if options.maxiter != -1:
+            self.set_maxiter(options.maxiter)
+
+        for (num,val) in options.paramchanges.items():
+            self.set_param(num,val)
+
+        if options.map:
+            self.f.set_cmap(options.map)
+            
+
     def compile(self):
         if self.forms[0].formula == None:
             raise ValueError("no formula")

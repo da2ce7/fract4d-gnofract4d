@@ -19,7 +19,7 @@ export MIN=2.2
 export MAX=2.3
  
 ./mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-3.1-1.$ARCH.rpm dist/gnofract4d-python22-3.1-1.$ARCH.rpm 
+mv dist/gnofract4d-3.2-1.$ARCH.rpm dist/gnofract4d-python22-3.2-1.$ARCH.rpm 
 
 # Python 2.3 version
 export BUILD_PYTHON_VERSION=2.3
@@ -28,7 +28,7 @@ export MIN=2.3
 export MAX=2.4
 
 ./mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-3.1-1.$ARCH.rpm dist/gnofract4d-python23-3.1-1.$ARCH.rpm 
+mv dist/gnofract4d-3.2-1.$ARCH.rpm dist/gnofract4d-python23-3.2-1.$ARCH.rpm 
 
 # use local gcc for Python 2.4, since that's the best match on my dev machine (FC4)
 export CC=/usr/bin/gcc
@@ -41,7 +41,7 @@ export MIN=2.4
 export MAX=2.5
 
 ./mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-3.1-1.$ARCH.rpm dist/gnofract4d-python24-3.1-1.$ARCH.rpm 
+mv dist/gnofract4d-3.2-1.$ARCH.rpm dist/gnofract4d-python24-3.2-1.$ARCH.rpm 
 
 # Python 2.5 version
 export BUILD_PYTHON_VERSION=2.5
@@ -50,7 +50,7 @@ export MIN=2.5
 export MAX=2.6
 
 ./mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-3.1-1.$ARCH.rpm dist/gnofract4d-python25-3.1-1.$ARCH.rpm 
+mv dist/gnofract4d-3.2-1.$ARCH.rpm dist/gnofract4d-python25-3.2-1.$ARCH.rpm 
 
 
 unset BUILD_PYTHON_VERSION
@@ -63,7 +63,7 @@ unset CXX
 
 # make ISO image for testing on different OSes
 pushd dist
-mkisofs -J -R -o gf4d.iso *3.1*.gz *3.1*.rpm
+mkisofs -J -R -o gf4d.iso *3.2*.gz *3.2*.rpm
 popd dist
 
 

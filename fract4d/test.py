@@ -21,6 +21,7 @@ import test_image
 import test_colorizer
 import test_animation
 import test_fractconfig
+import test_options
 #import test_stdlib
 
 def suite():
@@ -44,7 +45,8 @@ def suite():
     test_image.suite(),
     test_colorizer.suite(),
     test_animation.suite(),
-    test_fractconfig.suite()
+    test_fractconfig.suite(),
+    test_options.suite()
 	#test_stdlib.suite()
     ))
 

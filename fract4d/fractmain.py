@@ -19,13 +19,16 @@ class T:
         width = options.width or fractconfig.instance.getint("display","width")
         height = options.height or fractconfig.instance.getint("display","height")
         im = image.T(width,height)
-        
+
         if len(options.args) > 0:
             self.load(options.args[0])
 
+        self.f.apply_options(options)
+
         self.f.compile()
         self.f.draw(im)
-        im.save(options.save_filename)
+        if options.save_filename:
+            im.save(options.save_filename)
         
     def load(self,filename):
         self.f.loadFctFile(open(filename))
