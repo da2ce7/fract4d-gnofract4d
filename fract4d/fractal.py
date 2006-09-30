@@ -43,6 +43,8 @@ class T(fctutils.T):
     FORMULA=0
     OUTER=1
     INNER=2
+    DEFAULT_FORMULA_FILE="gf4d.frm"
+    DEFAULT_FORMULA_FUNC="Mandelbrot"
     def __init__(self,compiler,site=None):
         fctutils.T.__init__(self)
         
@@ -77,7 +79,7 @@ class T(fctutils.T):
         self.solids = [(0,0,0,255),(0,0,0,255)]
 
         # formula defaults
-        self.set_formula("gf4d.frm","Mandelbrot",0)
+        self.set_formula(T.DEFAULT_FORMULA_FILE,T.DEFAULT_FORMULA_FUNC,0)
         self.set_inner("gf4d.cfrm","zero")
         self.set_outer("gf4d.cfrm","continuous_potential")
         self.dirtyFormula = True # formula needs recompiling
@@ -846,7 +848,7 @@ if __name__ == '__main__':
     g_comp.file_path.append("formulas")
     g_comp.file_path.append("../formulas")
     g_comp.file_path.append(
-            os.path.join(sys.exec_prefix, "share/formulas/gnofract4d"))
+            os.path.join(sys.exec_prefix, "share/gnofract4d/formulas"))
 
     f = T(g_comp)
     for arg in sys.argv[1:]:

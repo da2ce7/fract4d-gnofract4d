@@ -211,7 +211,7 @@ int main()
         double t__h_color_k = 0.0;
         '''
 
-        codegen_symbols = self.codegen.output_symbols(self.codegen,{})
+        codegen_symbols = self.codegen.output_local_vars(self.codegen,{})
         decls = string.join(map(lambda x: x.format(), codegen_symbols),"\n")
         str_output = string.join(map(lambda x : x.format(), self.codegen.out),"\n")
         postamble = "\nreturn 0;}\n"
@@ -450,19 +450,27 @@ fa_re = t__f1;
 fa_im = t__f2;
 goto t__end_finit;''')
     
-    def testSymbols(self):
+    def testNewSymbol(self):
         'test symbols used are declared correctly'
         self.codegen.symbols["q"] = Var(Complex)
         z = self.codegen.symbols["q"] # ping z to get it in output list
-        out = self.codegen.output_symbols(self.codegen,{})
+        out = self.codegen.output_local_vars(self.codegen,{})
         l = [x for x in out if x.assem == "double q_re = 0.00000000000000000;"]
         self.failUnless(len(l)==1,l)
 
+    def testOverrideSymbol(self):
         z = self.codegen.symbols["z"] # ping z to get it in output list
-        out = self.codegen.output_symbols(self.codegen,{ "z" : "foo"})
+        out = self.codegen.output_local_vars(self.codegen,{ "z" : "foo"})
         l = [x for x in out if x.assem == "foo"]
         self.failUnless(len(l)==1)
 
+    def testTempSymbol(self):
+        x = self.codegen.newTemp(Float)
+        dummy = self.codegen.symbols[x.value]
+        out = self.codegen.output_local_vars(self.codegen, {})
+        l = [x for x in out if x.assem == "double t__0 = 0.00000000000000000;"]
+        self.failUnless(len(l)==1)
+        
     def testBailoutVars(self):
         t = self.translate('''t{
         init:

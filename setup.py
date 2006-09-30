@@ -26,27 +26,7 @@ if build_version and build_python and sys.version[:3] != build_version:
     print "running other Python version %s with args: %s" % (build_python,args)
     os.execv(build_python, args)
 
-from buildtools import my_bdist_rpm, my_build, my_build_ext
-
-# I need to be able to install an executable script to a data directory
-# so scripts= is no use. Pretend it's data then fix up the permissions
-# with chmod afterwards
-
-from distutils.command.install_lib import install_lib
-class my_install_lib(install_lib):
-    def install(self):
-        #need to change self.install_dir to the library dir
-        outfiles = install_lib.install(self)
-        for f in outfiles:
-            if f.endswith("get.py"):
-                if os.name == 'posix':
-                    # Set the executable bits (owner, group, and world) on
-                    # the script we just installed.
-                    mode = ((os.stat(f)[stat.ST_MODE]) | 0555) & 07777
-                    print "changing mode of %s to %o" % (f, mode)
-                    os.chmod(f, mode)
-
-        return outfiles
+from buildtools import my_bdist_rpm, my_build, my_build_ext, my_install_lib
 
 # Extensions need to link against appropriate libs
 # We use pkg-config to find the appropriate set of includes and libs
@@ -185,12 +165,12 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
        scripts = ['gnofract4d'],
        data_files = [
            # color maps
-           ('share/maps/gnofract4d',
+           ('share/gnofract4d/maps',
             get_files("maps",".map") +
             get_files("maps",".cs")),
 
            # formulas
-           ('share/formulas/gnofract4d',
+           ('share/gnofract4d/formulas',
             get_files("formulas","frm") + get_files("formulas", "ucl")),
 
            # documentation
@@ -209,7 +189,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
             ['pixmaps/gnofract4d-logo.png']),
            
            # .desktop file
-           ('share/gnofract4d', ['gnofract4d.desktop']),
+           ('share/applications', ['gnofract4d.desktop']),
 
            # MIME type registration
            ('share/mime/packages', ['gnofract4d-mime.xml']),
@@ -222,7 +202,8 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
            "my_bdist_rpm": my_bdist_rpm.my_bdist_rpm,
            "build" : my_build.my_build,
            "my_build_ext" : my_build_ext.my_build_ext,
-           "install_lib" : my_install_lib }
+           "install_lib" : my_install_lib.my_install_lib           
+           }
        )
 
 # I need to find the file I just built and copy it up out of the build

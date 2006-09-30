@@ -8,7 +8,7 @@ import gettext
 import sys
 
 sys.path.append("..")
-from fract4d import fc
+from fract4d import fc, fractal
 
 import gtkfractal
 import gtk
@@ -360,7 +360,7 @@ class Test(unittest.TestCase):
         self.f.draw_image(0,1)
         print "d2 done"
         self.wait()
-        
+
     def assertNearlyEqual(self,a,b):
         # check that each element is within epsilon of expected value
         epsilon = 1.0e-12
@@ -368,6 +368,7 @@ class Test(unittest.TestCase):
             d = abs(ra-rb)
             self.failUnless(d < epsilon,"%f != %f (by %f)" % (ra,rb,d))
 
+            
 def suite():
     s = unittest.makeSuite(Test,'test')
     s.addTest(unittest.makeSuite(TestHidden, 'test'))

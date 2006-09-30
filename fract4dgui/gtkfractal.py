@@ -78,14 +78,9 @@ class Hidden(gobject.GObject):
             self.width,self.height,total_width,total_height)
 
     def try_init_fractal(self):
-        try:
-            f = fractal.T(self.compiler,self.site)
-            self.set_fractal(f)
-            self.f.compile()
-            return True
-        except IOError, err:
-            self.error(_("Can't load default fractal"), err)
-            return False
+        f = fractal.T(self.compiler,self.site)
+        self.set_fractal(f)
+        self.f.compile()
             
     def set_fractal(self,f):
         if f != self.f:
@@ -165,11 +160,7 @@ class Hidden(gobject.GObject):
         return copy.copy(self.f)
 
     def set_formula(self, fname, formula):
-        ok = True
-        if self.f == None:
-            ok = self.try_init_fractal()
-        if ok:
-            self.f.set_formula(fname, formula)
+        self.f.set_formula(fname, formula)
 
     def onData(self,fd,condition):
         bytes = os.read(fd,self.msgsize)
@@ -457,13 +448,13 @@ class HighResolution(Hidden):
         if overall_progress > self.last_overall_progress:
             self.emit('progress-changed',overall_progress)
             self.last_overall_progress = overall_progress
-        
+
 class T(Hidden):
     "A visible GtkFractal which responds to user input"
     def __init__(self,comp,parent=None,width=640,height=480):
+        self.parent = parent
         Hidden.__init__(self,comp,width,height)
 
-        self.parent = parent
         self.paint_mode = False
                 
         drawing_area = gtk.DrawingArea()
@@ -706,10 +697,11 @@ class T(Hidden):
             self.changed()
     
     def error(self,msg,err):
+        print self, self.parent
         if self.parent:
             self.parent.show_error_message(msg, err)
         else:
-            print "Error: %s %s" % (msg,err)
+            print "Error: %s : %s" % (msg,err)
         
     def warn(self,msg):
         if self.parent:
@@ -1016,4 +1008,8 @@ class SubFract(T):
         
     def onButtonRelease(self,widget,event):
         self.master.set_fractal(self.copy_f())
-        
+
+    def error(self,msg,exn):
+        # suppress errors from subfracts, if they ever happened
+        # it would be too confusing
+        pass

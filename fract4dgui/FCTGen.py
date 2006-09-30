@@ -57,7 +57,7 @@ class FCTGeneration:
     			self.compiler=fc.Compiler()
     			self.compiler.file_path.append("formulas")
     			self.compiler.file_path.append("../formulas")
-    			self.compiler.file_path.append(os.path.join(sys.exec_prefix, "share/formulas/gnofract4d"))
+    			self.compiler.file_path.append(os.path.join(sys.exec_prefix, "share/gnofract4d/formulas"))
 		except:
 			self.show_error("Gnofract4d libs could not be found")
 			yield False

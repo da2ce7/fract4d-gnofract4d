@@ -71,7 +71,7 @@ typedef struct {
     struct s_param p[PF_MAXPARAMS];
     double pos_params[N_PARAMS];
     double period_tolerance;
-    %(var_decls)s
+    %(struct_members)s
 } pf_real ;
 
 static void pf_init(
@@ -630,7 +630,7 @@ extern pf_obj *pf_new(void);
             #print "override %s for %s" % (override, key)
             out.append(Decl(override))
 
-    def output_var_decls(self,ir,user_overrides):            
+    def output_struct_members(self,ir,user_overrides):            
         overrides = {
             "t__h_zwpixel" : "",
             "pixel" : "",
@@ -656,7 +656,7 @@ extern pf_obj *pf_new(void);
             ir.output_sections["var_decls"] = out
         return out
 
-    def output_symbols(self,ir,user_overrides):
+    def output_local_vars(self,ir,user_overrides):
         overrides = {
             "t__h_zwpixel" : "",
             "pixel" : "",
@@ -698,8 +698,8 @@ extern pf_obj *pf_new(void);
 
     def output_decls(self,t,overrides={}):
         # must be done after other sections or temps are missing
-        self.output_symbols(t,overrides)
-        self.output_var_decls(t,overrides)
+        self.output_local_vars(t,overrides)
+        self.output_struct_members(t,overrides)
 
     def get_bailout_var(self,t):
         return t.symbols["__bailout"].cname

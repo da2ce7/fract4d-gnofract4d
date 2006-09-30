@@ -4,6 +4,7 @@ import os
 import urllib, urllib2, urlparse, mimetools, mimetypes
 import xml.dom.minidom
 import md5
+import random
 
 API_KEY="f29c6d8fa5d950131c4ae13adc55700d"
 SECRET="037ec6eec0e91cab"
@@ -241,13 +242,20 @@ class Group:
         self.name = element.getAttribute("name")
     
 # This code is from www.voidspace.org.uk/atlantibots/pythonutils.html
-def encode_multipart_formdata(fields, files, BOUNDARY = '-----'+mimetools.choose_boundary()+'-----'):
+def encode_multipart_formdata(fields, files):
     """ Encodes fields and files for uploading.
     fields is a sequence of (name, value) elements for regular form fields - or a dictionary.
     files is a sequence of (name, filename, value) elements for data to be uploaded as files.
     Return (content_type, body) ready for urllib2.Request instance
     You can optionally pass in a boundary string to use or we'll let mimetools provide one.
-    """    
+    """
+    try:
+        BOUNDARY = '-----'+mimetools.choose_boundary()+'-----'
+    except socket.gaierror:
+        # occurs on some peoples' computers, appears to be due to subtle
+        # misconfiguration. But since we don't really need it...
+        BOUNDARY = '-----'+int(random.uniform(1000000000))+'-----'
+        
     CRLF = '\r\n'
     L = []
     if isinstance(fields, dict):

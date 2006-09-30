@@ -34,12 +34,12 @@ class T(ConfigParser.ConfigParser):
             },
             "formula_path" : {
               "0" : "formulas",
-              "1" : os.path.join(sys.exec_prefix, "share/formulas/gnofract4d"),
+              "1" : os.path.join(sys.exec_prefix, "share/gnofract4d/formulas"),
               "2" : os.path.expandvars("${HOME}/formulas")
             },
             "map_path" : {
               "0" : "maps",
-              "1" : os.path.join(sys.exec_prefix, "share/maps/gnofract4d"),
+              "1" : os.path.join(sys.exec_prefix, "share/gnofract4d/maps"),
               "2" : os.path.expandvars("${HOME}/maps")
             },
             "recent_files" : {

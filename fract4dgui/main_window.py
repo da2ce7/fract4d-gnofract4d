@@ -64,7 +64,7 @@ class MainWindow:
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
         
-        self.f = gtkfractal.T(self.compiler,self)
+        self.f = gtkfractal.T(self.compiler,self)            
         self.f.freeze() # create frozen - main prog will thaw us
         self.create_subfracts(self.f)
         
@@ -75,7 +75,7 @@ class MainWindow:
             self.f.set_cmap(utils.find_resource(
                 "basic.map",
                 "maps",
-                "share/maps/gnofract4d"))
+                "share/gnofract4d/maps"))
         except:
             pass
             
@@ -85,6 +85,7 @@ class MainWindow:
                                       self.on_prefs_changed)
 
         browser.update(self.f.forms[0].funcFile, self.f.forms[0].funcName)
+            
         self.create_menu()
         self.create_toolbar()
         self.create_fractal(self.f)

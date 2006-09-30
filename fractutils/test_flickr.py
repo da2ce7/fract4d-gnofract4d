@@ -11,8 +11,7 @@ import gtk
 import flickr
 import slave
 
-sys.path.append("..") #FIXME
-
+sys.path.append("..")
 
 class GTKTestSlave(object):
     def __init__(self, request):
