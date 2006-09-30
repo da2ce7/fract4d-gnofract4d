@@ -170,7 +170,11 @@ class Var:
         self.is_temp = False
         self.__doc__ = kwds.get("doc")
         self.declared = False
-        
+
+    def _get_is_temp(self):
+        return False
+    is_temp = property(_get_is_temp)
+    
     def struct_name(self):
         if self.is_temp:
             return "pfo->" + self.cname
@@ -187,10 +191,13 @@ class Temp(Var):
     def __init__(self,type_,name):
         self.type = type_
         self.cname = name
-        self.is_temp = True
         self.declared = False
         self.pos = -1
         self.value = default_value(type_)
+
+    def _get_is_temp(self):
+        return True
+    is_temp = property(_get_is_temp)
     
 # a convenient place to put this.
 class TranslationError(exceptions.Exception):

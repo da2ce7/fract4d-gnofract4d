@@ -15,13 +15,15 @@ os.environ.setdefault('LANG', 'en')
 gettext.install('gnofract4d')
 sys.path.append("..")
 
+from fract4d import fractal
+
 import main_window
 
 class WrapMainWindow(main_window.MainWindow):
     def __init__(self):
         self.errors = []
         main_window.MainWindow.__init__(self, ['../formulas'])
-        
+
     def show_error_message(self,message,exception):
         self.errors.append((message,exception))
         
@@ -193,6 +195,15 @@ class Test(unittest.TestCase):
         self.assertEqual(
             "../testdata/elfglow.png",
             self.mw.image_save_filename("../testdata/elfglow.fct"))
+
+    def testCantFindDefault(self):
+        old_default = fractal.T.DEFAULT_FORMULA_FILE
+        fractal.T.DEFAULT_FORMULA_FILE="no_such_file.frm"
+        try:
+            self.assertRaises(IOError, WrapMainWindow)
+        finally:
+            fractal.T.DEFAULT_FORMULA_FILE=old_default
+            
 
 def suite():
     return unittest.makeSuite(Test,'test')

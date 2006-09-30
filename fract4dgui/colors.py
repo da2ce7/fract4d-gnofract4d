@@ -52,7 +52,7 @@ class ColorModel:
         self.add_directory("maps")
         self.add_directory("other_maps")
         self.add_directory(
-            os.path.join(sys.exec_prefix,"share/maps/gnofract4d"))
+            os.path.join(sys.exec_prefix,"share/gnofract4d/maps"))
 
         # find gimp gradient files
         gimp_dir = os.path.join(sys.exec_prefix,"share/gimp/")

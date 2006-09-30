@@ -47,6 +47,24 @@ class Test(unittest.TestCase):
     def testOptionsVersionMatches(self):
         from fract4d import options
         self.assertEqual(gnofract4d.version,options.version)
+
+    def testDesktopFileVersionMatches(self):
+        dtop = open("gnofract4d.desktop").read()
+        dtop_re  = re.compile("Version=(\S+)")
+        m = dtop_re.search(dtop)
+        self.failUnless(m,"Desktop file doesn't specify version")
+        self.assertEqual(gnofract4d.version,m.group(1), "Version mismatch")
+
+    def testGenerateMandelbrot(self):
+        if os.path.exists("test.png"):
+            os.remove("test.png")
+        try:
+            gnofract4d.main(["-s", "test.png", "--width", "24", "-j", "12", "-q"])
+            self.failUnless(os.path.exists("test.png"))
+        finally:
+            if os.path.exists("test.png"):
+                os.remove("test.png")
+            
         
 def suite():
     return unittest.makeSuite(Test,'test')
