@@ -1,19 +1,41 @@
 #!/usr/bin/env python
 
 # create a color map based on an image.
-# vaguely octre-inspired
+# vaguely octree-inspired
 
 from PIL import ImageFile
 
+class Node:
+    def __init__(self,r,g,b,count):
+        self.branches = [None] * 8
+        self.r = r
+        self.g = g
+        self.b = b
+        self.count = count
+        self._isleaf = True
+        
+    def isleaf(self):
+        return self._isleaf
+
+    def matches(self,r,g,b):
+        return self.r == r and self.g == g and self.b == b
+    
 class T:
     R = 0
     G = 1
     B = 2
     def __init__(self):
         'Load an image from open stream "file"'
-        N = 8
-        self.nodes = [0] * 8**N
+        self.root = None
 
+    def addLeafNode(self,r,g,b,count):
+        return Node(r,g,b,count)
+
+    def addInternalNode(self,r,g,b):
+        n = Node(r,g,b,0)
+        n._isleaf = False
+        return n
+    
     def load(self,file):
         p = ImageFile.Parser()
         while 1:
@@ -31,55 +53,68 @@ class T:
         for (r,g,b) in self.getdata():
             self.insert_pixel(r,g,b)
 
-    def getIndex(self,r,g,b,n):
-        r = r >> (8-n)
-        g = g >> (8-n)
-        b = b >> (8-n)        
-        return (r << n*2) | (g << n) | b
+    def getBranch(self,r,g,b,nr,ng,nb):
+        branch = 0
+        if r > nr:
+            branch += 4
+        if g > ng:
+            branch += 2
+        if b > nb:
+            branch += 1
+        return branch
+
+    def getInteriorRGB(self,r,g,b,nr,ng,nb,size):
+        if r > nr:
+            nr += size
+        else:
+            nr -= size
+        if g > ng:
+            ng += size
+        else:
+            ng -= size
+        if b > nb:
+            nb += size
+        else:
+            nb -= size
+        return (nr,ng,nb)
+    
+    def insertNode(self,parent,r,g,b,count,nr,ng,nb,size):
+        if parent == None:
+            parent = self.addLeafNode(r,g,b,count)
+        elif parent.matches(r,g,b) and parent.isleaf():
+            parent.count += 1
+        elif parent.isleaf():
+            # replace it with a new interior node, reinsert this leaf and the new one
+            currentleaf = parent
+            parent = self.addInternalNode(nr,ng,nb)
+            currentbranch = self.getBranch(
+                currentleaf.r,currentleaf.g,currentleaf.b,nr,ng,nb)
+            newbranch = self.getBranch(
+                r,g,b,nr,ng,nb)
+            if currentbranch == newbranch:
+                # need to subdivide further
+                (nr,ng,nb) = self.getInteriorRGB(r,g,b,nr,ng,nb,size/2)
+                parent.branches[newbranch] = self.addInternalNode(nr,ng,nb)
+                parent.branches[newbranch] = self.insertNode(
+                    parent.branches[newbranch],r,g,b,1,nr,ng,nb,size/2)
+                parent.branches[newbranch] = self.insertNode(
+                    parent.branches[newbranch],
+                    currentleaf.r, currentleaf.g, currentleaf.b,
+                    currentleaf.count,
+                    nr,ng,nb,size/2)
+            else:
+                parent.branches[currentbranch] = currentleaf
+                parent.branches[newbranch] = self.addLeafNode(r,g,b,1)
+        else:
+            # parent is an interior node, recurse to appropriate branch
+            newbranch = self.getBranch(r,g,b,nr,ng,nb)
+            (nr,ng,nb) = self.getInteriorRGB(r,g,b,nr,ng,nb,size/2)
+            parent.branches[newbranch] = self.insertNode(
+                parent.branches[newbranch],r,g,b,1,nr,ng,nb,size/2)
+        return parent
     
     def insert_pixel(self,r,g,b):
-        self.nodes[self.getIndex(r,g,b,8)] += 1
+        self.root = self.insertNode(self.root,r,g,b,1,127,127,127,128)
 
-    def combine(self,r,g,b,n):
-        return (r << n*2) | (g << n) | b
-        
-    def children(self,r,g,b,n):
-        # all 8 pixels which are (r|r+1,g|g+1,b|b+1),
-        # ie children of node (which must be even) at level n
-        delta = 1 << (8-n)
-        r = r >> (8-n)
-        g = g >> (8-n)
-        b = b >> (8-n)
-        indexes = [
-            (r,g,b),
-            (r,g,b+delta),
-            (r,g+delta,b),
-            (r,g+delta, b+delta),
-            (r+delta,g,b),
-            (r+delta, g, b+delta),
-            (r+delta, g+delta, b),
-            (r+delta, g+delta, b+delta)]
-        
-        return [ self.combine(a,b,c,n) for (a,b,c) in indexes]
-            
-        
-    def most_popular(self,n):
-        pops = []
-        minpop = 0
-        for i in xrange(len(self.nodes)):
-            if self.nodes[i] > minpop:
-                pops.append((self.nodes[i],i))
-        pops.sort()
-        pops.reverse()
-        return [i for (pop,i) in pops[:n]]
 
-if __name__ == "__main__":
-    import sys
-    mm = T()
-    mm.load(open(sys.argv[1]))
-    mm.build()
-    mp = mm.most_popular(256)
-    for c in mp:
-        (r,g,b) = (c >> 16, c >> 8 & 0xff, c & 0xff)
-        print "%d %d %d" % (r,g,b)
 
