@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
 import unittest
+import sys
 
 import makemap
+
+sys.path.append("..")
+from fract4d import gradient
 
 class Test(unittest.TestCase):
     def setUp(self):
@@ -219,7 +223,24 @@ class Test(unittest.TestCase):
         self.assertEqual([(1,0,0)] + in_colors[3:],colors)
 
         mm.reduceColors(3)
-        print mm.colors()
+
+    def testRealImage(self):
+        mm = makemap.T()
+        mm.load(open("67650162_7847d7bccb.jpg"))
+        mm.build(100)
+
+        mm.reduceColors(10)
+
+        grad = gradient.Gradient()
+
+        colors = []
+        i = 0
+        for (r,g,b) in mm.colors():
+            colors.append((i/10.0,r,g,b,255))
+            i += 1
+
+        grad.load_list(colors)
+        grad.save(open("../maps/test.ggr","w"))
         
 def suite():
     return unittest.makeSuite(Test,'test')
