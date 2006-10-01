@@ -3,6 +3,11 @@
 # create a color map based on an image.
 # vaguely octree-inspired
 
+import sys
+
+sys.path.append("..")
+from fract4d import gradient
+
 from PIL import ImageFile
 
 class Node:
@@ -55,9 +60,12 @@ class T:
     def getdata(self):
         return self.im.getdata()
     
-    def build(self):
+    def build(self,divby=1):
+        i = 0
         for (r,g,b) in self.getdata():
-            self.insertPixel(r,g,b)
+            if i % divby == 0:
+                self.insertPixel(r,g,b)
+            i += 1
 
     def dump(self,node,indent=""):
         if not node:
@@ -220,4 +228,23 @@ class T:
             self.collapse(candidates[0][1])
 
     
+def main(args):
+    mm = T()
+    mm.load(open(args[0]))
+    mm.build(100)
+    
+    mm.reduceColors(int(args[1]))
+    
+    grad = gradient.Gradient()
+    
+    colors = []
+    i = 0
+    for (r,g,b) in mm.colors():
+        colors.append((i/10.0,r,g,b,255))
+        i += 1
 
+    grad.load_list(colors)
+    grad.save(sys.stdout)
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
