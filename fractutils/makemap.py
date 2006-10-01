@@ -19,7 +19,13 @@ class Node:
 
     def matches(self,r,g,b):
         return self.r == r and self.g == g and self.b == b
-    
+
+    def difference_from(self,node):
+        dr = self.r - node.r
+        dg = self.g - node.g
+        db = self.b - node.b
+        return (dr*dr + dg*dg + db*db) * self.count 
+
 class T:
     R = 0
     G = 1
@@ -51,8 +57,76 @@ class T:
     
     def build(self):
         for (r,g,b) in self.getdata():
-            self.insert_pixel(r,g,b)
+            self.insertPixel(r,g,b)
 
+    def dump(self,node,indent=""):
+        if not node:
+            return ""
+
+        if node.isleaf():
+            leafness = "L"
+        else:
+            leafness = "I"
+        val = [ indent + "[(%s,%d,%d,%d,%d)" % \
+                (leafness, node.r, node.g, node.b, node.count)]
+        val += [self.dump(b,indent+"  ") for b in node.branches]
+        val += [ indent + "]"]
+        return "\n".join(val)
+    
+    def get_collapse_info(self,node):
+        maxchild = None
+        maxcount = 0
+        totalchildren = 0
+        for child in node.branches:
+            if child:
+                totalchildren += child.count
+                if child.count > maxcount:
+                    maxchild = child
+                    maxcount = child.count
+        return (maxchild, totalchildren)
+
+    def get_collapse_error(self,node):
+        "How much the image's error will increase if this node is collapsed"
+        # only works on internal nodes which only have leaves as children
+        if not node or node.isleaf():
+            return 0
+        (maxchild, totalchildren) = self.get_collapse_info(node)
+
+        error = 0
+        for child in node.branches:
+            if child:
+                error += child.difference_from(maxchild)
+        return error
+
+    def find_collapse_candidates(self,node,candidates):
+        if not node or node.isleaf():
+            return candidates
+
+        has_children = False
+        for b in node.branches:
+            if b and not b.isleaf():
+                self.find_collapse_candidates(b,candidates)
+                has_children = True
+
+        if not has_children:
+            cost = self.get_collapse_error(node)
+            candidates.append((cost,node))
+        return candidates
+    
+    def collapse(self,node):
+        '''Collapse all children into this node, getting the most
+        popular child color'''
+        if not node or node.isleaf():
+            raise ArgumentError("Can't collapse")
+        
+        (maxchild,totalchildren) = self.get_collapse_info(node)
+        node._isleaf = True
+        node.branches = [None] * 8
+        node.count = totalchildren
+        node.r = maxchild.r
+        node.g = maxchild.g
+        node.b = maxchild.b
+        
     def getBranch(self,r,g,b,nr,ng,nb):
         branch = 0
         if r > nr:
@@ -113,8 +187,37 @@ class T:
                 parent.branches[newbranch],r,g,b,1,nr,ng,nb,size/2)
         return parent
     
-    def insert_pixel(self,r,g,b):
+    def insertPixel(self,r,g,b):
         self.root = self.insertNode(self.root,r,g,b,1,127,127,127,128)
 
+    def numColors(self):
+        return self._numColors(self.root)
+    
+    def _numColors(self,node):
+        if not node:
+            return 0
+        if node.isleaf():
+            return 1
 
+        colors = 0
+        return sum(map(self._numColors,node.branches))
+
+    def _colors(self,node,list):
+        if not node:
+            return
+        if node.isleaf():
+            list.append((node.r,node.g,node.b))
+        for b in node.branches:
+            self._colors(b,list)
+        return list
+    
+    def colors(self):
+        return self._colors(self.root,[])
+    
+    def reduceColors(self,n):
+        while self.numColors() > n:
+            candidates = self.find_collapse_candidates(self.root,[])
+            self.collapse(candidates[0][1])
+
+    
 

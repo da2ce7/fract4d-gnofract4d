@@ -18,27 +18,27 @@ class Test(unittest.TestCase):
 
     def testAddOnePixel(self):
         mm = makemap.T()
-        mm.insert_pixel(0,0,0)
+        mm.insertPixel(0,0,0)
         n = mm.root
         self.assertEqual((0,0,0,1), (n.r, n.g, n.b, n.count))
 
     def testAddOnePixelTwice(self):
         mm = makemap.T()
-        mm.insert_pixel(0,0,0)
-        mm.insert_pixel(0,0,0)
+        mm.insertPixel(0,0,0)
+        mm.insertPixel(0,0,0)
         n = mm.root
         self.assertEqual((0,0,0,2), (n.r, n.g, n.b, n.count))
 
     def testAddTwoPixels(self):
         mm = makemap.T()
-        mm.insert_pixel(0,0,0)
-        mm.insert_pixel(0xff,0xff,0xff)
+        mm.insertPixel(0,0,0)
+        mm.insertPixel(0xff,0xff,0xff)
         self.checkTwoPixels(mm)
         
     def testAddTwoPixelsReversed(self):
         mm = makemap.T()
-        mm.insert_pixel(0xff,0xff,0xff)
-        mm.insert_pixel(0,0,0)
+        mm.insertPixel(0xff,0xff,0xff)
+        mm.insertPixel(0,0,0)
         self.checkTwoPixels(mm)
 
     def checkTwoPixels(self,mm):
@@ -51,9 +51,9 @@ class Test(unittest.TestCase):
 
     def testAddThreePixels(self):
         mm = makemap.T()
-        mm.insert_pixel(0xff,0xff,0xff)
-        mm.insert_pixel(0,0,0)
-        mm.insert_pixel(0xff,0x00,0x00)
+        mm.insertPixel(0xff,0xff,0xff)
+        mm.insertPixel(0,0,0)
+        mm.insertPixel(0xff,0x00,0x00)
         self.checkThreePixels(mm)
 
     def checkThreePixels(self,mm):
@@ -63,8 +63,8 @@ class Test(unittest.TestCase):
 
     def testAddTwoPixelsToSameBranch(self):
         mm = makemap.T()
-        mm.insert_pixel(0xff,0xff,0xff)
-        mm.insert_pixel(0x80,0x80,0x80)
+        mm.insertPixel(0xff,0xff,0xff)
+        mm.insertPixel(0x80,0x80,0x80)
         r = mm.root
         self.assertEqual(False,r.isleaf())
         b = r.branches[7]
@@ -72,8 +72,8 @@ class Test(unittest.TestCase):
 
     def testAddTwoVerySimilarPixels(self):
         mm = makemap.T()
-        mm.insert_pixel(0xff,0xff,0xff)
-        mm.insert_pixel(0xff,0xff,0xfe)
+        mm.insertPixel(0xff,0xff,0xff)
+        mm.insertPixel(0xff,0xff,0xfe)
         r = mm.root
         depth=0
         n = 127
@@ -125,7 +125,101 @@ class Test(unittest.TestCase):
         whiteNode = r.branches[7]
         self.assertEqual(blackNode.count,50)
         self.assertEqual(whiteNode.count,50)
+
+    def testCollapseNode(self):
+        mm = makemap.T()
+        # 2 black + 1 white pixels
+        mm.insertPixel(0xff,0xff,0xff)
+        mm.insertPixel(0x00,0x00,0x00)
+        mm.insertPixel(0x00,0x00,0x00)
+
+        expected_err = 0xFF**2 * 3
+        self.assertEqual(expected_err, mm.get_collapse_error(mm.root))
+
+        candidates = mm.find_collapse_candidates(mm.root,[])
+        self.assertEqual(1, len(candidates))
+        self.assertEqual(
+            [ (expected_err, mm.root)], candidates)
+
+        mm.collapse(mm.root)
+
+        # should have 1 leaf containing all 3 pixels using
+        # most popular color
+        self.assertEqual(True, mm.root.isleaf())
+        self.assertEqual(3, mm.root.count)
+        self.assertEqual((0,0,0), (mm.root.r, mm.root.g, mm.root.b))
+
+    def testCollapseNode2(self):
+        mm = makemap.T()
+        # 2 black, 1 white, 1 dark gray pixels
+        mm.insertPixel(0xff,0xff,0xff)
+        mm.insertPixel(0x00,0x00,0x00)
+        mm.insertPixel(0x00,0x00,0x00)
+        mm.insertPixel(0x01,0x01,0x01)
+
+        while True:
+            candidates = mm.find_collapse_candidates(mm.root,[])
+            self.assertEqual(1, len(candidates))
+            (err,c) = candidates[0]
+            if c == mm.root:
+                break
+            
+            self.failUnless(err <= 1*3, err)
+            mm.collapse(c)
+
+        self.assertEqual(0xFF**2 * 3, err)
+
+    def testReduceColors(self):
+        mm = makemap.T()
+        self.assertEqual(0,mm.numColors())
         
+        # 2 black, 1 white, 1 dark gray pixels
+        mm.insertPixel(0xff,0xff,0xff)
+        self.assertEqual(1,mm.numColors())
+        mm.insertPixel(0x00,0x00,0x00)
+        self.assertEqual(2,mm.numColors())
+        mm.insertPixel(0x00,0x00,0x00)
+        self.assertEqual(2,mm.numColors())
+        mm.insertPixel(0x01,0x01,0x01)
+        self.assertEqual(3,mm.numColors())
+
+        colors = mm.colors()
+        colors.sort()
+        self.assertEqual(
+            [(0x00,0x00,0x00), (0x01,0x01,0x01), (0xff,0xff,0xff)],
+            colors)
+
+        mm.reduceColors(2)
+        self.assertEqual(2,mm.numColors())
+
+        colors = mm.colors()
+        colors.sort()
+        self.assertEqual(
+            [(0x00,0x00,0x00), (0xff,0xff,0xff)],
+            colors)
+
+    def testReduceColors2(self):
+        mm = makemap.T()
+        in_colors = []
+        for i in xrange(256):
+            in_colors.append((i,0,0))
+            for j in xrange(i+1):
+                mm.insertPixel(i,0,0)
+        self.assertEqual(256,mm.numColors())
+
+        mm.reduceColors(255)
+        colors = mm.colors()
+        colors.sort()
+        self.assertEqual(in_colors[1:],colors)
+
+        mm.reduceColors(254)
+        colors = mm.colors()
+        colors.sort()
+        # 0 and 2 are removed
+        self.assertEqual([(1,0,0)] + in_colors[3:],colors)
+
+        mm.reduceColors(3)
+        print mm.colors()
         
 def suite():
     return unittest.makeSuite(Test,'test')
