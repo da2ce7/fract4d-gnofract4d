@@ -39,6 +39,7 @@ class T:
     def __init__(self,symbols,dump=None):
         self.symbols = symbols
         self.out = []
+        self.optimize_flags = optimize.Nothing
         # a list of templates and associated actions
         # this must be ordered with largest, most efficient templates first
         # thus performing a crude 'maximal munch' instruction generation
@@ -936,6 +937,7 @@ extern pf_obj *pf_new(void);
     def generate_all_code(self,treelist):
         for tree in treelist:
             self.generate_code(tree)
+        self.optimize(self.optimize_flags)
         
     def generate_code(self,tree):
         action = self.match(tree)
@@ -965,7 +967,6 @@ extern pf_obj *pf_new(void);
         else:
             return isinstance(tree, template)
         
-
     def optimize(self, flags):
         optimizer = optimize.T()
         self.out = optimizer.optimize(flags, self.out)

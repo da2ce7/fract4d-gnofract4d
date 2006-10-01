@@ -147,8 +147,9 @@ int main()
         self.assertNoErrors(t)
         return t
         
-    def sourceToAsm(self,s,section,dump=None):
+    def sourceToAsm(self,s,section,dump=None,flags=0):
         t = self.translate(s,dump)
+        self.codegen.optimize_flags = flags
         if dump != None and dump.get("trace") == 1:
             self.codegen.generate_trace = True
         self.codegen.generate_all_code(t.canon_sections[section])
@@ -159,10 +160,11 @@ int main()
     def printAsm(self):
         for i in self.codegen.out:
             try:
-                #print i
+                print i
                 print i.format()
             except Exception, e:
                 print "Can't format %s:%s" % (i,e)
+                raise
 
     def makeC(self,user_preamble="", user_postamble=""):
         # construct a C stub for testing
@@ -1424,6 +1426,19 @@ endparam
             ],"\n")
         self.assertCSays(src,"init",tests,results)
 
+    def testOptimizeFlagsWork(self):
+        self.assertEqual(optimize.Nothing,self.codegen.optimize_flags)
+        src = '''t_opt{
+        init:
+        float x = 2.0 * 0.0
+        }
+        '''
+
+        asm = self.sourceToAsm(
+            src,"init")
+
+        asm = self.sourceToAsm(src,"init", {}, optimize.Peephole)
+        
     def testEnum(self):
         'Test we can correctly generate code for enumerated params'
         src = '''t_c7{

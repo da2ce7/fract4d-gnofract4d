@@ -11,6 +11,7 @@
 import instructions
 import graph
 
+Nothing = 0
 Peephole = 1
 ConstantPropagation = 2
 
@@ -59,14 +60,14 @@ class T:
             # 1 * n => n
             if insn.src[const_index].is_one():
                 return instructions.Move(
-                    insn.src[other_index],
-                    insn.dst[0])
+                    [insn.src[other_index]],
+                    insn.dst)
 
             # 0 * n -> 0
             if insn.src[const_index].is_zero():
                 return instructions.Move(
-                    insn.src[const_index],
-                    insn.dst[0])
+                    [insn.src[const_index]],
+                    insn.dst)
 
         return insn
     

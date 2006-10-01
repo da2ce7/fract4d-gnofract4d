@@ -461,7 +461,7 @@ class T(fctutils.T):
             self.set_param(num,val)
 
         if options.map:
-            self.f.set_cmap(options.map)
+            self.set_cmap(options.map)
             
 
     def compile(self):
