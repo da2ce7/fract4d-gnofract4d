@@ -173,7 +173,7 @@ class Binop(Oper):
             # don't know how to const_eval
             return self
         
-        return Move(val, self.dst[0])
+        return Move([val], self.dst)
 
     def __str__(self):
         return "BINOP(%s,[%s],[%s])" % \

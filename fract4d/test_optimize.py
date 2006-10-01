@@ -5,6 +5,7 @@
 import unittest
 import copy
 import stdlib
+import types
 
 from instructions import *
 import optimize
@@ -33,6 +34,19 @@ class Test(unittest.TestCase):
         self.assertEqual(g.define[1], [self.b])
         self.assertEqual(g.define[2], [self.c])
         self.assertEqual(g.use[2], [self.a, self.b])
+
+    def assertTreesEqual(self,t1,t2):
+        self.assertEqual(t1.__class__, t2.__class__)
+        if isinstance(t1,types.ListType):
+            for (a,b) in zip(t1,t2):
+                self.assertTreesEqual(a,b)
+
+        if isinstance(t1,Insn):
+            self.assertEqual(t1.format(), t2.format())
+            for (s1,s2) in zip(t1.source(),t2.source()):
+                self.assertTreesEqual(s1,s2)
+            for (d1,d2) in zip(t1.dest(), t2.dest()):
+                self.assertTreesEqual(d1,d2)
         
     def testPeephole(self):
         tests = [
@@ -43,25 +57,25 @@ class Test(unittest.TestCase):
 
             # constant folding
             (Binop("*", [ ConstFloatArg(2.0), ConstFloatArg(2.0)], [TempArg("b",Float)]),
-             Move(ConstFloatArg(4.0), TempArg("b",Float))),
+             Move([ConstFloatArg(4.0)], [TempArg("b",Float)])),
             (Binop("-", [ ConstFloatArg(12.0), ConstFloatArg(14.0)], [TempArg("b",Float)]),
-             Move(ConstFloatArg(-2.0), TempArg("b",Float))),
+             Move([ConstFloatArg(-2.0)], [TempArg("b",Float)])),
             (Binop("+", [ ConstFloatArg(3.0), ConstFloatArg(2.0)], [TempArg("b",Float)]),
-             Move(ConstFloatArg(5.0), TempArg("b",Float))),
+             Move([ConstFloatArg(5.0)], [TempArg("b",Float)])),
             (Binop("/", [ ConstFloatArg(2.0), ConstFloatArg(0.2)], [TempArg("b",Float)]),
-             Move(ConstFloatArg(10.0), TempArg("b",Float))),
+             Move([ConstFloatArg(10.0)], [TempArg("b",Float)])),
 
             # multiplication by 1
             (Binop("*", [ ConstFloatArg(1.0), TempArg("a",Float)], [TempArg("c",Float)]),
-             Move(TempArg("a",Float), TempArg("c",Float))),
+             Move([TempArg("a",Float)], [TempArg("c",Float)])),
             (Binop("*", [ TempArg("a",Float), ConstFloatArg(1.0)], [TempArg("c",Float)]),
-             Move(TempArg("a",Float), TempArg("c",Float))),
+             Move([TempArg("a",Float)], [TempArg("c",Float)])),
 
             # multiplication by 0
             (Binop("*", [ ConstFloatArg(0.0), TempArg("a",Float)], [TempArg("c",Float)]),
-             Move(ConstFloatArg(0.0), TempArg("c",Float))),
+             Move([ConstFloatArg(0.0)], [TempArg("c",Float)])),
             (Binop("*", [ TempArg("a",Float), ConstFloatArg(0.0)], [TempArg("c",Float)]),
-             Move(ConstFloatArg(0.0), TempArg("c",Float)))
+             Move([ConstFloatArg(0.0)], [TempArg("c",Float)]))
             
             ]
 
@@ -72,14 +86,12 @@ class Test(unittest.TestCase):
                 expected = input
             allexp.append(expected)
             out = self.o.peephole_binop(input)
-            self.assertEqual(str(out), str(expected))
-            
-        out = self.o.optimize(optimize.Peephole, allin)
-        for (input, output, expected) in zip(allin, out, allexp):
-            self.assertEqual(
-                str(output), str(expected),
-                "%s should produce %s, not %s" % (input, expected, output))
-                
+            try:                
+                self.assertTreesEqual(out, expected)
+            except Exception, exn:
+                print "Error comparing trees %s, %s" % (out,expected)
+                raise
+                            
 def suite():
     return unittest.makeSuite(Test,'test')
 
