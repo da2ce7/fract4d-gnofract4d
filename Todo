@@ -3,6 +3,8 @@ todo:
 fixed in 3.2:
 * B	Problem clicking 'yes' to overwrite temp .fct files
 * W	--nogui option
+* BB	--map doesn't work
+* W	makemap sort of works now
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

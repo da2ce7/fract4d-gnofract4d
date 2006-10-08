@@ -36,10 +36,10 @@ class Formatter:
 
 class T:
     'code generator'
-    def __init__(self,symbols,dump=None):
+    def __init__(self,symbols,options={}):
         self.symbols = symbols
         self.out = []
-        self.optimize_flags = optimize.Nothing
+        self.optimize_flags = options.get("optimize",optimize.Nothing)
         # a list of templates and associated actions
         # this must be ordered with largest, most efficient templates first
         # thus performing a crude 'maximal munch' instruction generation
@@ -57,8 +57,8 @@ class T:
             ])
         
         self.generate_trace = False
-        if dump != None:
-            self.generate_trace = dump.get("trace",False)
+
+        self.generate_trace = options.get("trace",False)
             
         self.output_template = '''
 #include <stdio.h>

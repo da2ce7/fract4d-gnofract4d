@@ -1,7 +1,7 @@
 # translation of gnofract4d-1.8_it.po to Italiano
 # This file is distributed under the same license as the gnofract4d package.
 # Kostantino <inverness1ATvirgilio.it>, 2003.
-# Copyright (C) 2003 Edwin Young
+# Copyright (C) 2006 Tim Whidbey
 # Kostantino <inverness1ATvirgilio.it>, 2003.
 #
 msgid ""

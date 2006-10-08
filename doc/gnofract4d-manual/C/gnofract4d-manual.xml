@@ -15,7 +15,7 @@
 ]>
 <article id="gnofract4d">
 <articleinfo>
-<author><firstname>Edwin</firstname><surname>Young</surname></author>
+<author><firstname>Tim</firstname><surname>Whidbey</surname></author>
 <date>1999-12-12</date>
 <title>Gnofract 4D</title>
 <subtitle><emphasis>For when 2D fractals just aren't weird enough</emphasis></subtitle>
@@ -1159,8 +1159,8 @@ will happen. </para> </warning>
 <para>
 <emphasis>Please</emphasis> report any bugs you encounter, either by
 mailing <ulink
-url="mailto:edwin@users.sourceforge.net">
-edwin@users.sourceforge.net</ulink> or by
+url="mailto:catenary@users.sourceforge.net">
+catenary@users.sourceforge.net</ulink> or by
 using the <ulink
 url="http://sourceforge.net/tracker/?func=add&amp;group_id=785&amp;atid=100785">
 bug form</ulink> at SourceForge. I'll do my best to fix them.  </para>
@@ -1207,8 +1207,8 @@ http://gnofract4d.sourceforge.net/</ulink>.
 <title>Credits and copyright</title>
 
 <para>
-&gf4d; is Copyright 1999-2006 Edwin Young <ulink
-url="mailto:edwin@users.sourceforge.net">(edwin@users.sourceforge.net)
+&gf4d; is Copyright 1999-2006 Tim Whidbey <ulink
+url="mailto:catenary@users.sourceforge.net">(catenary@users.sourceforge.net)
 </ulink>, and is distributed under the <emphasis>BSD
 license</emphasis>.  See the file "COPYING" for details. 
 </para>
