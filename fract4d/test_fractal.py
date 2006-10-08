@@ -1299,6 +1299,11 @@ solids=[
 
         self.assertEqual(math.pi/8.0,blend.get_param(f.XYANGLE))
 
+    def testSetCompilerOptions(self):
+        f = fractal.T(self.compiler)
+        f.set_compiler_option("optimize", 1)
+        self.assertEqual({"optimize" : 1 } , f.compiler_options)
+        
     def testDetermineDirection(self):
         f = fractal.T(self.compiler)
 

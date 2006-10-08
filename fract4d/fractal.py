@@ -58,7 +58,7 @@ class T(fctutils.T):
             formsettings.T(compiler,self,"cf1") # inner
             ]
 
-        self.dump = {}
+        self.compiler_options = { "optimize" : 1 }
         self.yflip = False
         self.periodicity = True
         self.auto_tolerance = False
@@ -437,8 +437,8 @@ class T(fctutils.T):
     def set_outer(self,funcfile,funcname):
         self.set_formula(funcfile,funcname,1)
 
-    def set_dump_option(self,option,val):
-        self.dump[option] = val
+    def set_compiler_option(self,option,val):
+        self.compiler_options[option] = val
         self.dirtyFormula = True
 
     def apply_options(self,options):
@@ -474,7 +474,7 @@ class T(fctutils.T):
             self.forms[0].formula, 
             self.forms[1].formula,
             self.forms[2].formula,
-            self.dump)
+            self.compiler_options)
         
         if outputfile != None:
             if self.outputfile != outputfile:

@@ -8,7 +8,10 @@ class T(ConfigParser.ConfigParser):
         _defaults = {
             "compiler" : {
               "name" : "gcc",
-              "options" : "-fPIC -DPIC -D_REENTRANT -O2 -shared -ffast-math"
+              "options" : "-fPIC -DPIC -D_REENTRANT -O2 -shared -ffast-math",
+            },
+            "optimize" : {
+              "peephole" : "1"
             },
             "display" : {
               "width" : "640",

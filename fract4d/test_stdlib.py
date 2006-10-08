@@ -374,29 +374,29 @@ class Test(testbase.TestBase):
         else:
             self.assertEqual(output,result)
 
-    def translate(self,s,dump=None):
+    def translate(self,s,options={}):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
         #print pt.pretty()
-        t = translate.T(pt.children[0],dump)
+        t = translate.T(pt.children[0],options)
         #print t.pretty()
         self.assertNoErrors(t)
-        self.codegen = codegen.T(t.symbols,dump)
+        self.codegen = codegen.T(t.symbols,options)
         return t
 
-    def translatecf(self,s,name,dump=None):
+    def translatecf(self,s,name,options={}):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
         #print pt.pretty()
-        t = translate.ColorFunc(pt.children[0],name,dump)
+        t = translate.ColorFunc(pt.children[0],name,options)
         #print t.pretty()
         self.assertNoErrors(t)
         return t
         
-    def sourceToAsm(self,s,section,dump=None):
-        t = self.translate(s,dump)
+    def sourceToAsm(self,s,section,options={}):
+        t = self.translate(s,options)
         self.codegen.generate_all_code(t.canon_sections[section])
-        if dump != None and dump.get("dumpAsm") == 1:
+        if options.get("dumpAsm") == 1:
             self.printAsm()
         return self.codegen.out
 

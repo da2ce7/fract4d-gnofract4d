@@ -21,6 +21,7 @@ import fractparser
 import fractlexer
 import stdlib
 import optimize
+import instructions
 
 g_exp = None
 g_x = None
@@ -128,32 +129,31 @@ int main()
         self.codegen = codegen.T(fsymbol.T())
         self.codegen.generate_code(t)
 
-    def translate(self,s,dump=None):
+    def translate(self,s,options={}):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
         #print pt.pretty()
-        t = translate.T(pt.children[0],dump)
+        t = translate.T(pt.children[0],options)
         #print t.pretty()
         self.assertNoErrors(t)
-        self.codegen = codegen.T(t.symbols,dump)
+        self.codegen = codegen.T(t.symbols,options)
         return t
 
-    def translatecf(self,s,name,dump=None):
+    def translatecf(self,s,name,options={}):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
         #print pt.pretty()
-        t = translate.ColorFunc(pt.children[0],name,dump)
+        t = translate.ColorFunc(pt.children[0],name,options)
         #print t.pretty()
         self.assertNoErrors(t)
         return t
         
-    def sourceToAsm(self,s,section,dump=None,flags=0):
-        t = self.translate(s,dump)
-        self.codegen.optimize_flags = flags
-        if dump != None and dump.get("trace") == 1:
+    def sourceToAsm(self,s,section,options={}):
+        t = self.translate(s,options)
+        if options.get("trace") == 1:
             self.codegen.generate_trace = True
         self.codegen.generate_all_code(t.canon_sections[section])
-        if dump != None and dump.get("dumpAsm") == 1:
+        if options.get("dumpAsm") == 1:
             self.printAsm()
         return self.codegen.out
 
@@ -310,12 +310,6 @@ BINOP(+,[Temp(t__2),Temp(t__3)],[Temp(t__5)])""")
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
         self.assertEqual(op.format(),"t__0 = 0 + a;",op.format())
 
-    def testOptimize(self):
-        tree = self.binop(
-            [self.const([1,3],Complex),self.var("a",Complex)],"*",Complex)
-        self.codegen.generate_code(tree)
-        self.codegen.optimize(optimize.ConstantPropagation)
-        
     def testHyperGen(self):
         'generate hypercomplex code'
         tree = self.var("h",Hyper)
@@ -1434,10 +1428,13 @@ endparam
         }
         '''
 
-        asm = self.sourceToAsm(
-            src,"init")
+        asm = self.sourceToAsm(src,"init", {"optimize" : optimize.Peephole})
+        self.assertEqual(optimize.Peephole, self.codegen.optimize_flags)
 
-        asm = self.sourceToAsm(src,"init", {}, optimize.Peephole)
+        # check we just assign 0 to x instead of doing any math
+        move_insn = asm[1]
+        self.failUnless(isinstance(move_insn, instructions.Move))
+        self.assertEqual(0.0, move_insn.source()[0][0].value)
         
     def testEnum(self):
         'Test we can correctly generate code for enumerated params'
@@ -2017,8 +2014,8 @@ Newton4(XYAXIS) {; Mark Peterson
         self.assertCSays(src,"init",self.inspect_float("x"),"x = 1")
         
     # assertions
-    def assertCSays(self,source,section,check,result,dump=None):
-        asm = self.sourceToAsm(source,section,dump)
+    def assertCSays(self,source,section,check,result,options={}):
+        asm = self.sourceToAsm(source,section,options)
         postamble = "t__end_f%s:\n%s\n" % (section,check)
         c_code = self.makeC("", postamble)        
         output = self.compileAndRun(c_code)
