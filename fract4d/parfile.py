@@ -43,8 +43,8 @@ def get_params(file):
     return preprocessor.T(file.read()).out().split()
 
 def parse_logmap(val,f):
-    f.set_outer("gf4d.cfrm","logmap")
-    f.forms[1].set_named_param("@n",val)
+    f.set_outer("fractint.ucl","outside")
+    f.forms[1].set_named_param("@logmap",val)
     
 def get_param_pairs(params):
     pairs = {}
@@ -137,7 +137,7 @@ def decode_val(c):
     elif c == '`':
         return 4 * 37
     elif c >= 'a' and c <= 'z':
-        return 4 * (ord(c) - ord('A') + 38)
+        return 4 * (ord(c) - ord('a') + 38)
     else:
         raise RuntimeError, "Invalid character %s in colors" % c
     

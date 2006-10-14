@@ -38,6 +38,8 @@ import struct
 
 #gradientfile_re = re.compile(r'\s*(RGB|HSV)\s+(Linear|Sinusoidal|CurvedI|CurvedD)\s+(\d+\.?\d+)\s+(\d+)\s+(\d+)\s+(\d+\.?\d+)\s+(\d+)\s+(\d+)')
 
+rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
+
 class Blend:
     LINEAR, CURVED, SINE, SPHERE_INCREASING, SPHERE_DECREASING = range(5)
 
@@ -358,6 +360,26 @@ class Gradient:
             if abs(a8 - b8) > maxdiff:
                 return False
         return True
+
+    def load_map_file(self,mapfile,maxdiff=0):
+        i = 0
+        colorlist = []
+        solid = (0,0,0,255)
+        for line in mapfile:
+            m = rgb_re.match(line)
+            if m != None:
+                (r,g,b) = (min(255, int(m.group(1))),
+                           min(255, int(m.group(2))),
+                           min(255, int(m.group(3))))
+                
+                if i == 0:
+                    # first color is inside solid color
+                    solid = (r,g,b,255)
+                else:
+                    colorlist.append(((i-1)/255.0,r,g,b,255))
+            i += 1
+        self.load_list(colorlist,maxdiff)
+        return solid
     
     def load_list(self,l, maxdiff=0):
         # a colorlist is a simplified gradient, of the form
@@ -406,7 +428,7 @@ class Gradient:
         self.segments = new_segments
 
     def load_fractint(self,l):
-        # s is a list of colors from a Fractint .par file
+        # l is a list of colors from a Fractint .par file
 
         # convert format to colorlist
         i = 0
