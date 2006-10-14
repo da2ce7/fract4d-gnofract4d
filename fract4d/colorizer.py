@@ -3,7 +3,6 @@ import re
 import fctutils 
 import gradient
 
-rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
 
 class T(fctutils.T):
     '''Parses the various different kinds of color data we have'''
@@ -125,20 +124,5 @@ class T(fctutils.T):
         
     def parse_fractint_map_file(self,mapfile,maxdiff=0):
         'parse a fractint .map file'
-        i = 0
-        colorlist = []
-        for line in mapfile:
-            m = rgb_re.match(line)
-            if m != None:
-                (r,g,b) = (min(255, int(m.group(1))),
-                           min(255, int(m.group(2))),
-                           min(255, int(m.group(3))))
-                
-                if i == 0:
-                    # first color is inside solid color
-                    self.solids[0] = (r,g,b,255)
-                else:
-                    colorlist.append(((i-1)/255.0,r,g,b,255))
-            i += 1
-        self.gradient.load_list(colorlist,maxdiff)
+        self.solids[0] = self.gradient.load_map_file(mapfile,maxdiff)
         self.read_gradient = True
