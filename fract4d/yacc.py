@@ -617,7 +617,7 @@ def add_production(f,file,line,prodname,syms):
     p = Production()
     p.name = prodname
     p.prod = syms
-    p.file = file
+    p.file = os.path.basename(file)
     p.line = line
     p.func = f
     p.number = len(Productions)
