@@ -8,7 +8,6 @@
 #
 # Copyright (C) 2001, David M. Beazley
 #
-# $Header: /home/cgarnham/dev/gnofract4d_repos-v8/ref/gnofract4d_reposurgeon/gnofract4d-mirror/gnofract4d/fract4d/lex.py,v 1.1 2004/02/21 16:24:34 edwin Exp $
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
