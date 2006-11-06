@@ -10,7 +10,6 @@ import fractparser
 import fractlexer
 import ir
 import canon
-import stdlib
 
 from fracttypes import *
     
@@ -18,7 +17,7 @@ class TBase:
     def __init__(self,prefix,dump=None):
         #print "translating"
         self.symbols = fsymbol.T(prefix)
-        self.canon = canon.T(self.symbols,dump)
+        self.canonicalizer = canon.T(self.symbols,dump)
         self.errors = []
         self.warnings = []
         self.sections = {}
@@ -110,7 +109,7 @@ class TBase:
         for (k,tree) in self.sections.items():
             startLabel = "t__start_" + self.symbols.prefix + k
             endLabel = "t__end_" + self.symbols.prefix + k
-            self.canon_sections[k] = self.canon.canonicalize(tree,startLabel,endLabel)
+            self.canon_sections[k] = self.canonicalizer.canonicalize(tree,startLabel,endLabel)
 
     def dupSectionWarning(self,sect):
         self.warning(
@@ -243,7 +242,7 @@ class TBase:
                 func.ret = f.ret
                 func.args = f.args
             
-            func.set_func(stdlib,fname)
+            func.set_func(fname)
         elif name == "visible":
             # fixme can't deal with visibility calculations yet
             return
@@ -268,7 +267,7 @@ class TBase:
             elif node.datatype == Color:
                 argtype = [Color, Color]
                 fname = "mergenormal"
-            f = Func(argtype,node.datatype,stdlib,fname)
+            f = Func(argtype,node.datatype,fname)
             set_f = True
         else:
             # check only declared once
@@ -539,7 +538,7 @@ class TBase:
                 # an attempt to call an undeclared parameter function,
                 # create it now. Point to ident by default
                 overloadList = self.symbols[func] = fsymbol.OverloadList([
-                    Func([Complex],Complex,stdlib,"ident")])
+                    Func([Complex],Complex,"ident")])
             else:
                 raise
         

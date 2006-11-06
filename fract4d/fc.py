@@ -38,6 +38,7 @@ import codegen
 import fracttypes
 import absyn
 import preprocessor
+import cache
 
 class FormulaFile:
     def __init__(self, formulas, contents,mtime,filename):
@@ -46,12 +47,6 @@ class FormulaFile:
         self.mtime = mtime
         self.filename = filename
         self.file_backed = True
-        
-    def override_buffer(self,buffer,formulas):
-        'file has been changed in memory'
-        self.contents = buffer
-        self.formulas = formulas
-        self.file_backed= False
         
     def out_of_date(self):
         return self.file_backed and \
@@ -80,6 +75,7 @@ class Compiler:
         self.files = {}
         self.c_code = ""
         self.file_path = []
+        self.cache = cache.T()
         self.cache_dir = os.path.expanduser("~/.gnofract4d-cache/")
         self.init_cache()
         self.compiler_name = "gcc"
@@ -122,8 +118,7 @@ class Compiler:
                  if Compiler.isCFRM.search(x)]
         
     def init_cache(self):
-        if not os.path.exists(self.cache_dir):
-            os.makedirs(self.cache_dir)
+        self.cache.init()
 
     def last_chance(self,filename):
         '''does nothing here, but can be overridden by GUI to prompt user.'''
@@ -230,9 +225,6 @@ class Compiler:
         cg.output_all(ir)
         return cg
 
-    def makefilename(self,name,ext):
-        return os.path.join(self.cache_dir, "fract4d_%s%s" % (name, ext))
-
     def hashcode(self,c_code):
         hash = md5.new(c_code)
         hash.update(self.compiler_name)
@@ -247,13 +239,13 @@ class Compiler:
         hash = self.hashcode(self.c_code)
         
         if outputfile == None:
-            outputfile = self.makefilename(hash,".so")
+            outputfile = self.cache.makefilename(hash,".so")
             if os.path.exists(outputfile):
                 # skip compilation - we already have this code
                 return outputfile
         
         if cfile == None:
-            cfile = self.makefilename(hash,".c")
+            cfile = self.cache.makefilename(hash,".c")
             
         open(cfile,"w").write(self.c_code)
 
@@ -285,8 +277,7 @@ class Compiler:
         return f
         
     def clear_cache(self):
-        for f in os.listdir(self.cache_dir):
-            os.remove(os.path.join(self.cache_dir,f))
+        self.cache.clear()
 
     def __del__(self):
         if not self.leave_dirty:

@@ -5,7 +5,6 @@
 import fsymbol
 import unittest
 import copy
-import stdlib
 
 from fracttypes import *
 
@@ -18,7 +17,7 @@ class SymbolTest(unittest.TestCase):
 
     def testCopy(self):
         self.t["foo"] = Var(Int, 4)
-        self.t["@fn1"][0].set_func(stdlib, "sin")
+        self.t["@fn1"][0].set_func("sin")
         name = self.t.newTemp(Float)
         c = copy.copy(self.t)
 
@@ -27,7 +26,7 @@ class SymbolTest(unittest.TestCase):
         self.assertEqual(c.nextTemp, self.t.nextTemp)
         
         self.t["foo"].value = 5
-        self.t["@fn1"][0].set_func(stdlib, "sinh")
+        self.t["@fn1"][0].set_func("sinh")
         
         self.assertEqual(c["foo"].value,4)
         self.assertEqual(c["@fn1"][0].cname,"sin")

@@ -41,7 +41,7 @@ def efl(fname, template, tlist,**kwds):
     'short-hand for expandFuncList - just reduces the amount of finger-typing'
     list = []
     for t in tlist:            
-        f = "Func(%s,stdlib,\"%s\")" % (re.sub("_", str(t), template), fname)
+        f = "Func(%s,\"%s\")" % (re.sub("_", str(t), template), fname)
         realf = eval(f)
         list.append(eval(f))
     return OverloadList(list,**kwds)
@@ -54,9 +54,9 @@ def cfl(template, tlist):
         list.append(eval(f))
     return list
 
-def mkf(args, ret, fname, module=stdlib):
+def mkf(args, ret, fname):
     # create a function
-    return Func(args,ret,module,fname)
+    return Func(args,ret,fname)
 
 def mkfl(dict, name, list, **kwds):
     "make a list of functions"
@@ -76,9 +76,9 @@ class Alias:
     
 def createDefaultDict():
     d = {
-        "^": OverloadList([Func([Float, Float], Float, stdlib, "pow"),
-                           Func([Complex, Float], Complex, stdlib, "pow"),
-                           Func([Complex, Complex], Complex, stdlib, "pow")],
+        "^": OverloadList([Func([Float, Float], Float, "pow"),
+                           Func([Complex, Float], Complex, "pow"),
+                           Func([Complex, Complex], Complex, "pow")],
                           operator=True,
                           doc='''Exponentiation operator. Computes x to the power y.'''),
         
@@ -86,13 +86,13 @@ def createDefaultDict():
 
         # logical ops
         "&&": OverloadList(
-            [ Func([Bool, Bool], Bool, stdlib, None) ],
+            [ Func([Bool, Bool], Bool, None) ],
             doc="Logical AND.", operator=True),
         "||": OverloadList(
-            [ Func([Bool, Bool], Bool, stdlib, None) ],
+            [ Func([Bool, Bool], Bool, None) ],
             doc="Logical OR.", operator=True),
         "t__not" : OverloadList(
-            [ Func([Bool],Bool, stdlib, "not") ],
+            [ Func([Bool],Bool, "not") ],
             doc="Logical NOT.", operator=True),
 
         # predefined magic variables
@@ -101,7 +101,7 @@ def createDefaultDict():
         "t__h_random" : Alias("rand"),
         "t__h_magn" : Var(Float,doc="The magnification factor of the image. This i s the number of times the image size has doubled, or ln(4.0/size)"),
         "rand" : OverloadList(
-          [ Func([], Complex, stdlib, "rand") ],
+          [ Func([], Complex, "rand") ],
           doc="Each time this is accessed, it returns a new peudo-random complex number. This is primarily for backwards compatibility with Fractint formulas - use the random() function in new formulas."),
         
         "t__h_pixel": Alias("pixel"),
@@ -545,10 +545,10 @@ by the 3rd parameter.''')
         name = "fn%d" % p
         d[name] = Alias("t__a_" + name)
         d["t__a_" + name ] = OverloadList(
-            [Func([Complex],Complex, stdlib, "ident") ],
+            [Func([Complex],Complex, "ident") ],
             doc="Predefined function parameter used by Fractint formulas")
 
-    d["t__a__transfer"] = OverloadList([Func([Float],Float, stdlib, "ident") ])
+    d["t__a__transfer"] = OverloadList([Func([Float],Float, "ident") ])
     d["t__a__gradient"] = Var(Gradient)
     
     for (k,v) in d.items():
@@ -832,7 +832,7 @@ class T(UserDict):
 
     def set_std_func(self,func,fname):
         # repoint parameter @func to use fname next time we compile
-        func.set_func(stdlib,fname)
+        func.set_func(fname)
         
     def __delitem__(self,key):
         del self.data[mangle(key)]
