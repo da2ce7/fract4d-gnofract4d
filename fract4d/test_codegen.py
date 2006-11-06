@@ -1489,9 +1489,9 @@ endparam
 
         # then again with overridden funcs
         t = self.translate(src)
-        t.symbols["@my_func"][0].set_func(stdlib,"sqr")
-        t.symbols["@fn1"][0].set_func(stdlib,"conj")
-        t.symbols["@fn2"][0].set_func(stdlib,"ident")
+        t.symbols["@my_func"][0].set_func("sqr")
+        t.symbols["@fn1"][0].set_func("conj")
+        t.symbols["@fn2"][0].set_func("ident")
         self.codegen.generate_all_code(t.canon_sections["init"])
 
         check = self.inspect_complex("x") + self.inspect_complex("y")

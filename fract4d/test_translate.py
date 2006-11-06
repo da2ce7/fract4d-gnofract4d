@@ -5,6 +5,7 @@
 import string
 import unittest
 import types
+import cPickle
 
 import testbase
 
@@ -1169,6 +1170,17 @@ default:
 
         self.assertNoErrors(t)
 
+    def testMandelPickle(self):
+        t = self.translate('''t_mandel_1 {
+        loop:
+        z = z * z + c
+        bailout:
+        |z| < 4.0
+        }''')
+
+        self.assertNoErrors(t)
+        cPickle.dumps(t.canonicalizer.symbols,True)
+        
     def testHyperOps(self):
         t = self.translate('''t_c8{
         init:

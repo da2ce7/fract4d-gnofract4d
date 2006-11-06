@@ -5,6 +5,7 @@ fixed in 3.2:
 * W	--nogui option
 * BB	--map doesn't work
 * W	makemap sort of works now
+* B	fix .par color parsing
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -92,12 +93,10 @@ features (the more W's, the more work involved):
 * W	max size for .so cache
 * W	diff bailout for other types
 * W	signal tpool conds after releasing mutex? (tiny perf change, maybe)
-* W	associate with file type?
 * WWW	make it work with GMP
 * W 	desktop mode
 * W 	demo mode
 * W	bookmarks
-* WW	critical values + multiple basins/color schemes
 * WW	import .par files
 * WW	import .upr files
 * W	import ultrafractal gradient (.ugr) files
@@ -144,6 +143,7 @@ params (not all applicable to all types):
 
 
 fixed in 3.1:
+* WW	critical values + multiple basins/color schemes
 * B	-p, --params flags broken (reported by Elaine Normandy)
 * W	make gconf optional
 * BB	use form 1, select warp_param, choose another form = disaster
@@ -153,6 +153,7 @@ fixed in 3.1:
 * WW	Added fate/basin code
 
 fixed in 3.0:
+* W	associate with file type?
 * B	DeprecationError on pygtk 2.8+
 * W	added maxiter cmd-line param
 * W	added position, --trace cmd-line params

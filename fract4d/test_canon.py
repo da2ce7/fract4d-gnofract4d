@@ -3,6 +3,7 @@
 # unit tests for canon module
 
 import unittest
+import cPickle
 
 import testbase
 
@@ -41,7 +42,10 @@ class CanonTest(testbase.TestBase):
         return ir.Cast(e,self.fakeNode, type)
     def label(self,name):
         return ir.Label(name,self.fakeNode)
-    
+
+    def testPickle(self):
+        cPickle.dumps(self.canon,True)
+        
     def testEmptyTree(self):
         self.assertEqual(self.canon.linearize(None),None)
                                      

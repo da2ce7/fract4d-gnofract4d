@@ -102,8 +102,6 @@ class BrowserDialog(dialog.T):
             self.onEdit()
         elif id == BrowserDialog.RESPONSE_REFRESH:
             self.onRefresh()
-        elif id == BrowserDialog.RESPONSE_COMPILE:
-            self.onCompile()
         else:
             print "unexpected response %d" % id
 
@@ -122,18 +120,6 @@ class BrowserDialog(dialog.T):
                                buffer.get_end_iter(), False)
         return text
     
-    def onCompile(self):
-        if self.current_fname:
-            text = self.get_current_text()
-            formulas = self.compiler.parse_file(text)
-
-            ff = self.compiler.files.get(self.current_fname)
-            ff.override_buffer(text,formulas)
-            self.set_file(self.current_fname)
-            frm = formulas.get(self.current_formula)
-            if self.ir and self.ir.errors == []:
-                self.onApply()
-            
     def onApply(self):
         self.f.freeze()
         if not self.current_formula or not self.current_fname:

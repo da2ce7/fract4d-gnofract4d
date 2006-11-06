@@ -113,22 +113,34 @@ def canBeCast(t1,t2):
     if t1 == None or t2 == None:
         return 0
     return _canBeCast[t1][t2]
+
+# a convenient place to put this.
+class TranslationError(exceptions.Exception):
+    def __init__(self,msg):
+        exceptions.Exception.__init__(self)
+        self.msg = msg
+
+class InternalCompilerError(TranslationError):
+    def __init__(self,msg):
+        TranslationError.__init__("Internal Compiler Error:" + msg)
     
+import stdlib
+
 class Func:
-    def __init__(self,args,ret,module,fname,pos=-1):
+    def __init__(self,args,ret,fname,pos=-1):
         self.args = args
         self.ret = ret
         self.pos = pos
-        self.set_func(module,fname)
+        self.set_func(fname)
         
     def __copy__(self):
-        c = Func(self.args,self.ret,self.module,self.fname,self.pos)
+        c = Func(self.args,self.ret,self.fname,self.pos)
         return c
     
     def first(self):
         return self
         
-    def set_func(self,module,fname):
+    def set_func(self,fname):
         # compute the name of the stdlib function to call
         # this is sort of equivalent to C++ overload resolution
         if fname == None:
@@ -140,10 +152,9 @@ class Func:
             typed_fname = typed_fname + "_" + suffixOfType[self.ret]
         
             #print typed_fname
-            self.genFunc = module.__dict__.get(typed_fname,typed_fname)
+            self.genFunc = stdlib.__dict__.get(typed_fname,typed_fname)
 
         self.cname = fname
-        self.module = module
         self.fname = fname
         
     def matchesArgs(self, potentialArgs):
@@ -198,14 +209,4 @@ class Temp(Var):
     def _get_is_temp(self):
         return True
     is_temp = property(_get_is_temp)
-    
-# a convenient place to put this.
-class TranslationError(exceptions.Exception):
-    def __init__(self,msg):
-        exceptions.Exception.__init__(self)
-        self.msg = msg
-
-class InternalCompilerError(TranslationError):
-    def __init__(self,msg):
-        TranslationError.__init__("Internal Compiler Error:" + msg)
     
