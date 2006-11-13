@@ -6,6 +6,7 @@ import commands
 import re
 import os
 import time
+import cPickle
 
 import testbase
 
@@ -93,6 +94,23 @@ class Test(testbase.TestBase):
         c = cache.T("experiment")
         c.init()
         f = open("experiment/file1.txt","w").write("fish")
+
+        contents = c.getcontents("experiment/file1.txt", self.readall)        
+        self.assertEqual(
+            "experiment/0de8fb66544e4ae95935a50ab783fdba.pkl",
+            c.files["experiment/file1.txt"].cache_file)
+        self.failUnless(
+            os.path.exists("experiment/0de8fb66544e4ae95935a50ab783fdba.pkl"),
+            "no pickled file found")
+        val = cPickle.load(open("experiment/0de8fb66544e4ae95935a50ab783fdba.pkl"))
+        self.assertEqual(contents, val)
+
+    def testHashCode(self):
+        c = cache.T("experiment")
+        c.init()
+        self.assertEqual("acbd18db4cc2f85cedef654fccc4a4d8", c.hashcode("foo"))
+        self.assertEqual(
+            "b34231a85737d0b078d7ffb17e6bb3b5",c.hashcode("foo","flag"))
         
 def suite():
     return unittest.makeSuite(Test,'test')
