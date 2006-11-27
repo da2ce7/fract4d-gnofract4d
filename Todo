@@ -6,6 +6,7 @@ fixed in 3.2:
 * BB	--map doesn't work
 * W	makemap sort of works now
 * B	fix .par color parsing
+* BB	fixed mimetools problem with FC6 (and sporadically other systems)
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

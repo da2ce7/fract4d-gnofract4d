@@ -70,7 +70,7 @@ class my_bdist_rpm (bdist_rpm):
     def _make_spec_file(self):
         '''HACK: override the default PRIVATE function to specify:
            AutoReqProv: no
-           add some commands to install desktop files & mime types
+           add some commands to update mime types
            '''
         
         spec = bdist_rpm._make_spec_file(self)
@@ -84,12 +84,6 @@ class my_bdist_rpm (bdist_rpm):
         # install a .desktop file and register .fct files with ourselves
         self.insert_after(spec, '%define', '%define desktop_vendor ey')
         self.add_to_section(spec, '%install', '''
-%{__install} -d -m0755 %{buildroot}/usr/share/applications/
-desktop-file-install \
---vendor %{desktop_vendor}                 \
---dir %{buildroot}/usr/share/applications \
-%{buildroot}%{_datadir}/gnofract4d/gnofract4d.desktop
-
 %post
 update-mime-database %{_datadir}/mime &> /dev/null || :
 update-desktop-database &> /dev/null || :
@@ -100,10 +94,6 @@ update-desktop-database &> /dev/null || :
 
 ''')
 
-        self.add_to_section(
-            spec, '%files',
-            '%{_datadir}/applications/%{desktop_vendor}-gnofract4d.desktop')
-        
         print "SPEC>"
         print "\n".join(spec)
         print "EOF>"
