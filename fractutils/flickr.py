@@ -265,7 +265,7 @@ def encode_multipart_formdata(fields, files):
         L.append('Content-Disposition: form-data; name="%s"' % key)
         L.append('')
         L.append(value)
-
+        
     for (key, filename, value) in files:
         filetype = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
         L.append('--' + BOUNDARY)
@@ -280,6 +280,8 @@ def encode_multipart_formdata(fields, files):
     except UnicodeDecodeError, err:
         print "unicode error", str(err)
         for x in L:
+            print x.__class__
+            print "%x" % ord(x[0])
             print x[:100]
         raise 
     content_type = 'multipart/form-data; boundary=%s' % BOUNDARY

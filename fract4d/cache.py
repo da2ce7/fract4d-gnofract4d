@@ -20,7 +20,18 @@ class T:
     def init(self):
         if not os.path.exists(self.dir):
             os.makedirs(self.dir)
+        self._loadHash()
 
+    def _indexName(self):
+        return os.path.join(self.dir,"index_v00.pkl")
+    
+    def _loadHash(self):
+        if os.path.exists(self._indexName()):
+            self.files = self.loadPickledFile(self._indexName())
+                                               
+    def save(self):
+        self.createPickledFile(self._indexName(), self.files)
+    
     def clear(self):
         for f in os.listdir(self.dir):
             os.remove(os.path.join(self.dir,f))
@@ -46,7 +57,15 @@ class T:
             cPickle.dump(contents,f,True)
         finally:
             f.close()
-        
+
+    def loadPickledFile(self,file):
+        f = open(file, "rb")
+        try:
+            contents = cPickle.load(f)
+        finally:
+            f.close()
+        return contents
+    
     def getcontents(self,file,parser):
         mtime = os.stat(file)[stat.ST_MTIME]
 

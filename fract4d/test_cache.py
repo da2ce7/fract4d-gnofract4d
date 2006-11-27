@@ -105,6 +105,17 @@ class Test(testbase.TestBase):
         val = cPickle.load(open("experiment/0de8fb66544e4ae95935a50ab783fdba.pkl"))
         self.assertEqual(contents, val)
 
+        c.save()
+
+        c2 = cache.T("experiment")
+        c2.init()
+        self.readall_called = False
+        contents2 = c2.getcontents("experiment/file1.txt", self.readall)        
+
+        self.assertEqual(False, self.readall_called)
+        self.assertEqual(contents,contents2)
+        
+        
     def testHashCode(self):
         c = cache.T("experiment")
         c.init()
