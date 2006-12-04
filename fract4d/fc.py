@@ -250,7 +250,7 @@ class Compiler:
         open(cfile,"w").write(self.c_code)
 
         # -march=i686 for 10% speed gain
-        cmd = "%s %sx %s -o %s %s" % \
+        cmd = "%s %s %s -o %s %s" % \
               (self.compiler_name, cfile, self.flags, outputfile, self.libs)
         #print "cmd: %s" % cmd
 
