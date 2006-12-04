@@ -79,11 +79,15 @@ def main(args):
     if opts.quit_now:
         sys.exit(0)
 
-    if opts.nogui:
-        plainmain(opts)
-    else:
-        gtkmain(opts)
-
+    try:
+        if opts.nogui:
+            plainmain(opts)
+        else:
+            gtkmain(opts)
+    except Exception, err:
+        print "A fatal error occurred:\n\t%s\n\n" % str(err)
+        raise
+    
 def suppress_gtk_warnings():
     try:
         # newer pygtk's are incompatible with older ones. In most cases I 
