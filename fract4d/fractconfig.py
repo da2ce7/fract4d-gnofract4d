@@ -5,6 +5,10 @@ import sys
 class T(ConfigParser.ConfigParser):    
     "Holds preference data"
     def __init__(self, file):
+        _shared_formula_dir = os.path.join(
+            sys.exec_prefix, "share/gnofract4d/formulas")
+        _shared_map_dir = os.path.join(
+            sys.exec_prefix, "share/gnofract4d/maps")
         _defaults = {
             "compiler" : {
               "name" : "gcc",
@@ -37,12 +41,12 @@ class T(ConfigParser.ConfigParser):
             },
             "formula_path" : {
               "0" : "formulas",
-              "1" : os.path.join(sys.exec_prefix, "share/gnofract4d/formulas"),
+              "1" : _shared_formula_dir,
               "2" : os.path.expandvars("${HOME}/formulas")
             },
             "map_path" : {
               "0" : "maps",
-              "1" : os.path.join(sys.exec_prefix, "share/gnofract4d/maps"),
+              "1" : _shared_map_dir,
               "2" : os.path.expandvars("${HOME}/maps")
             },
             "recent_files" : {
@@ -76,6 +80,15 @@ class T(ConfigParser.ConfigParser):
                 if not self.has_option(section,key):
                     self.set(section,key,val)
 
+        self.ensure_contains("formula_path", _shared_formula_dir)
+        self.ensure_contains("map_path", _shared_map_dir)
+
+    def ensure_contains(self,section,required_item):
+        l = self.get_list(section)
+        if not l.count(required_item):
+            l.append(required_item)
+            self.set_list(section,l)
+    
     def get_default_mailer(self):
         return "evolution %s"
 
