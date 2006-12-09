@@ -1,14 +1,5 @@
 todo:
 
-fixed in 3.2:
-* B	Problem clicking 'yes' to overwrite temp .fct files
-* W	--nogui option
-* BB	--map doesn't work
-* W	makemap sort of works now
-* B	fix .par color parsing
-* BB	fixed mimetools problem with FC6 (and sporadically other systems)
-* BBB	upgrade breaks since .gnofract4d contains wrong formula path
-
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 	until antialias, seems to run single-threaded more often than not
@@ -143,6 +134,15 @@ params (not all applicable to all types):
 1) how to set color of point
 2) time step
 3) which points to start with
+
+fixed in 3.2:
+* B	Problem clicking 'yes' to overwrite temp .fct files
+* W	--nogui option
+* BB	--map doesn't work
+* W	makemap sort of works now
+* B	fix .par color parsing
+* BB	fixed mimetools problem with FC6 (and sporadically other systems)
+* BBB	upgrade breaks since .gnofract4d contains wrong formula path
 
 
 fixed in 3.1:
