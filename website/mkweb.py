@@ -15,8 +15,8 @@ class Bag:
 
 
 announce = Bag(
-    date="September 5th, 2006",
-    text="Version 3.1 released. This introduces animations, 'fate-based' coloring, and some other small features and bug fixes.")
+    date="December 8th, 2006",
+    text="Version 3.2 released. This contains only bug fixes, including one to improve compatibility with Fedora Core 6.")
 
 pages = [
     Bag(name="Home",
