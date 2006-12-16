@@ -316,8 +316,7 @@ pf_obj *pf_new()
 '''
 
         # we insert pf.h so C compiler doesn't have to find it
-        # FIXME: find a better way to sync with any changes to
-        # C header (c/pf.h)
+        # this needs to be updated each time pf.h changes
         self.pf_header= '''
 #ifndef PF_H_
 #define PF_H_
@@ -782,6 +781,9 @@ extern pf_obj *pf_new(void);
 
     def newTemp(self,type):
         return TempArg(self.symbols.newTemp(type),type)
+
+    def temp(self,name,type):
+        return TempArg(name,type)
     
     # action routines
     def cast(self,t):
@@ -922,16 +924,16 @@ extern pf_obj *pf_new(void);
         name = self.symbols.realName(t.name)
         if t.datatype == fracttypes.Complex:
             return ComplexArg(
-                TempArg(name + "_re", fracttypes.Float),
-                TempArg(name + "_im", fracttypes.Float))
+                self.temp(name + "_re", fracttypes.Float),
+                self.temp(name + "_im", fracttypes.Float))
         elif t.datatype == fracttypes.Hyper or t.datatype == fracttypes.Color:
             return HyperArg(
-                TempArg(name + "_re", fracttypes.Float),
-                TempArg(name + "_i", fracttypes.Float),
-                TempArg(name + "_j", fracttypes.Float),
-                TempArg(name + "_k", fracttypes.Float))
+                self.temp(name + "_re", fracttypes.Float),
+                self.temp(name + "_i", fracttypes.Float),
+                self.temp(name + "_j", fracttypes.Float),
+                self.temp(name + "_k", fracttypes.Float))
         else:
-            return TempArg(name,t.datatype)
+            return self.temp(name,t.datatype)
     
     # matching machinery
     def generate_all_code(self,treelist):
