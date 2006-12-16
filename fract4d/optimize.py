@@ -55,7 +55,7 @@ class T:
             else:
                 # neither are constant, we can't do anything
                 return insn
-            
+
         if insn.op == "*":
             # 1 * n => n
             if insn.src[const_index].is_one():
@@ -84,11 +84,12 @@ class T:
         which don't require any global knowledge."""
 
         out_insns = []
+        
         for insn in insns:
             result = self.peephole_insn(insn)
             if result:
                 out_insns.append(result)
-                
+
         return out_insns
 
     def constant_propagation(self, insns):

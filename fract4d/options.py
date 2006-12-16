@@ -150,10 +150,9 @@ Obscure settings:
 
     def splitarg(self,val, name):
         n = val.rfind('#')
-        if n==-1:
-            self.output += self.help()
-            self.output += "ERROR: argument '%s' to %s should be file#func" % (val,name)
-            raise OptionError
+        if n==-1:            
+            raise OptionError(
+                "argument '%s' to %s should be file#func" % (val,name))
         
         (file, func) = (val[:n], val[n+1:])
         path = os.path.dirname(file)

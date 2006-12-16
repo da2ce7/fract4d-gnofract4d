@@ -394,3 +394,10 @@ default:
     hint = "Specifies the zoom level of Julia sets within each division."
   endparam
 }
+
+test_optimizer {
+init:
+	float f = 2 * 2
+	float l = 0 * f
+	float r = f * 1
+}

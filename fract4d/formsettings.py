@@ -151,7 +151,6 @@ class T:
             self.set_named_param(name,val)
 
     def set_named_param(self,name,val):
-        # FIXME: changed() notifications look busted
         ord = self.order_of_name(name)
         if ord == None:
             #print "Ignoring unknown param %s" % name
@@ -204,6 +203,7 @@ class T:
             grad = gradient.Gradient()
             grad.load(StringIO.StringIO(val))
             self.params[ord] = grad
+            self.changed()
         else:
             raise ValueError("Unknown param type %s for %s" % (t,name))
 

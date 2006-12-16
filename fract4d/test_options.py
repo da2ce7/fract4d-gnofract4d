@@ -45,9 +45,6 @@ class Test(unittest.TestCase):
     def testBadSplit(self):
         o = options.T()
         self.assertRaises(options.OptionError,o.parse,["-f", "bar"])
-        self.assertEqual(
-            o.output.count("ERROR: argument 'bar' to -f should be file#func"),1,
-            "unexpected output: %s" % o.output)
         
     def testHeightWidth(self):
         o = options.T()
