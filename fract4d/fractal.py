@@ -506,6 +506,7 @@ class T(fctutils.T):
             self.forms[0].formula, 
             self.forms[1].formula,
             self.forms[2].formula,
+            [x.formula for x in self.transforms],
             self.compiler_options)
         
         if outputfile != None:
