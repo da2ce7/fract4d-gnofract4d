@@ -815,7 +815,7 @@ class TBase:
         self.warnings.append(msg)
 
 class T(TBase):
-    def __init__(self,f,dump=None):
+    def __init__(self,f,prefix="f", dump=None):
         TBase.__init__(self,"f",dump)
 
         # magic vars always included in funcs
@@ -902,6 +902,39 @@ class T(TBase):
 
         if self.dumpCanon:
             print f.pretty()
+
+class Transform(TBase):
+    "For transforms (.uxf files)"
+    def __init__(self,f,prefix,dump=None):
+        TBase.__init__(self,prefix,dump)
+
+        try:
+            self.main(f)
+            if self.dumpPreCanon:
+                self.dumpSections(f,self.sections)
+            self.canonicalize()
+        except TranslationError, e:
+            self.errors.append(e.msg)
+
+        self.post_init()
+
+    def main(self, f):
+        if len(f.children) == 0:
+            return
+        
+        if f.children[0].type == "error":
+            self.error(f.children[0].leaf)
+            return
+
+        s = f.childByName("default")
+        if s: self.default(s)
+        s = f.childByName("global")
+        if s: self.global_(s)
+        s = f.childByName("transform")
+        if s: self.transform(s)
+
+    def transform(self,node):
+        self.add_to_section("transform", self.stmlist(node))
 
 class ParFile(TBase):
     "For translating Fractint .par files"

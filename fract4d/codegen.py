@@ -671,6 +671,9 @@ extern pf_obj *pf_new(void);
             "t__h_inside" : "",
             "t__h_magn" : \
                 "double t__h_magn = log(4.0/t__pfo->pos_params[4])/log(2.0) + 1.0;",
+            "t__h_center" : \
+                """double t__h_center_re = t__pfo->pos_params[0];
+                double t__h_center_im = t__pfo->pos_params[1];"""
             }
         
         for (k,v) in user_overrides.items():

@@ -1,9 +1,12 @@
 todo:
 
+changes in 3.3:
+* B 	better error message when no func name to --formula
+* W	added #center variable
+
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 	until antialias, seems to run single-threaded more often than not
-
 
 * BB	animation colors are screwed
 * BB	animation hangs on FC3?
@@ -85,7 +88,6 @@ features (the more W's, the more work involved):
 * W	regenerate for explorer mode 
 * W	autosave/restore?
 * W	max size for .so cache
-* W	diff bailout for other types
 * W	signal tpool conds after releasing mutex? (tiny perf change, maybe)
 * WWW	make it work with GMP
 * W 	desktop mode
@@ -143,7 +145,6 @@ fixed in 3.2:
 * B	fix .par color parsing
 * BB	fixed mimetools problem with FC6 (and sporadically other systems)
 * BBB	upgrade breaks since .gnofract4d contains wrong formula path
-
 
 fixed in 3.1:
 * WW	critical values + multiple basins/color schemes

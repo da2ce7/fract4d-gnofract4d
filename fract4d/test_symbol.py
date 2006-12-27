@@ -128,6 +128,13 @@ class SymbolTest(unittest.TestCase):
         self.t.reset()
         self.assertRaises(KeyError, self.t.__getitem__, ("fish"))
 
+    def testChangeValue(self):
+        x = Var(Int,1,1)
+        self.t["x"] = x
+        self.assertEqual(1, self.t["x"].value)
+        x.value = 20
+        self.assertEqual(20, self.t["x"].value)
+                
     def testAvailable(self):
         fnames = self.t.available_param_functions(Complex,[Complex])
         self.assertEqual(fnames.count("ident"),1)

@@ -58,6 +58,7 @@ class T(fctutils.T):
             formsettings.T(compiler,self,"cf1") # inner
             ]
 
+        self.transforms = []
         self.compiler_options = { "optimize" : 1 }
         self.yflip = False
         self.periodicity = True
@@ -236,7 +237,7 @@ class T(fctutils.T):
             raise ValueError("Unknown angle blend mode %s" % mode)
 
         return isClockwise
-    
+
     def blend_angle(self,a,b,ratio,mode):
         angle = 0.0
         isClockwise = self.determine_direction(a,b,mode)
@@ -436,6 +437,11 @@ class T(fctutils.T):
 
     def set_outer(self,funcfile,funcname):
         self.set_formula(funcfile,funcname,1)
+
+    def append_transform(self,funcfile,funcname):
+        fs = formsettings.T(self.compiler,self,"t0")        
+        fs.set_formula(funcfile, funcname, self.get_gradient())
+        self.transforms.append(fs)
 
     def set_compiler_option(self,option,val):
         self.compiler_options[option] = val

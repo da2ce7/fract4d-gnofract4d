@@ -69,6 +69,7 @@ class FormulaFile:
 class Compiler:
     isFRM = re.compile(r'(\.frm\Z)|(.ufm\Z)', re.IGNORECASE)
     isCFRM = re.compile(r'(\.cfrm\Z)|(.ucl\Z)', re.IGNORECASE)
+    isXFRM = re.compile(r'\.uxf\Z', re.IGNORECASE)
     def __init__(self):
         self.parser = fractparser.parser
         self.lexer = fractlexer.lexer
@@ -116,6 +117,10 @@ class Compiler:
     def colorfunc_files(self):
         return [ (x,y) for (x,y) in self.files.items() 
                  if Compiler.isCFRM.search(x)]
+
+    def transform_files(self):
+        return [ (x,y) for (x,y) in self.files.items() 
+                 if Compiler.isXFRM.search(x)]
         
     def init_cache(self):
         self.cache.init()
@@ -265,15 +270,22 @@ class Compiler:
         ff = self.get_file(filename)
         if ff == None : return None
         return ff.get_formula(formname)
-        
+
+    def guess_type_from_filename(self,filename):
+        if Compiler.isFRM.search(filename):
+            return translate.T
+        elif Compiler.isCFRM.search(filename):
+            return translate.ColorFunc        
+        elif Compiler.isXFRM.search(filename):
+            return translate.Transform
+    
     def get_formula(self, filename, formname,prefix=None):
+        type = self.guess_type_from_filename(filename)
+            
         f = self.get_parsetree(filename,formname)
 
         if f != None:
-            if prefix == None:
-                f = translate.T(f)
-            else:
-                f = translate.ColorFunc(f,prefix)    
+            f = type(f,prefix)
         return f
         
     def clear_cache(self):

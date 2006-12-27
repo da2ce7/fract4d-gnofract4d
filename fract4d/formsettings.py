@@ -23,6 +23,10 @@ class T:
         self.params = []
         self.paramtypes = []
         self.dirty = False
+        self.set_prefix(prefix)
+        self.parent = parent
+
+    def set_prefix(self,prefix):
         self.prefix = prefix
         if prefix == None:
             self.sectname = "function"
@@ -30,10 +34,10 @@ class T:
             self.sectname = "outer"
         elif prefix == "cf1":
             self.sectname = "inner"
+        elif prefix[0] == 't':
+            self.sectname = "transform%s" % prefix[1:]
         else:
-            raise ValueError("Unexpected prefix" + prefix)
-        
-        self.parent = parent
+            raise ValueError("Unexpected prefix '%s' " % prefix)
         
     def set_initparams_from_formula(self,g):
         self.params = self.formula.symbols.default_params()

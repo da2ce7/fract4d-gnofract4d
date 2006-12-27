@@ -38,19 +38,36 @@ class Test(testbase.TestBase):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
         return translate.GradientFunc(pt.children[0], dump)
+
+    def translateTransform(self,s,dump=None):
+        fractlexer.lexer.lineno = 1
+        pt = self.parser.parse(s)
+        return translate.Transform(pt.children[0], "t0", dump)
         
     def testEmpty(self):
         pt = absyn.Formula("",[],-1)
         t = translate.T(pt)
         self.assertEqual(t.sections,{})
 
+    def testTransform(self):
+        t = self.translateTransform('''t {
+        transform:
+        #pixel = 2.0 * #pixel
+        }
+        ''')
+
+        self.assertNoErrors(t)
+
+        xform = t.sections["transform"].children
+        self.assertEqual(1, len(xform))        
+        
     def testGradientCF(self):
         t = self.translatecf('''c1 {
         #color = gradient(cmag(#z))
         }''')
 
         self.assertNoErrors(t)
-
+        
     def testGradientFile(self):
         t = self.translateGradient('''
         blatte10 {
@@ -226,6 +243,18 @@ switch:
         }''')
         self.assertNoErrors(t3)
 
+    def disabled_testOrbitTrace(self):
+        t1 = self.translatecf('''
+OrbitTrace {
+loop:
+	#count(#z) = #count(#z) + 1
+recolor:
+        #index = #count/#maxiter
+}
+''')
+
+        self.assertNoErrors(t1)
+        
     def testMultiplyFunc(self):
         "Make sure we get a sensible error for this typo"
         t = self.translatecf('''
@@ -832,6 +861,7 @@ default:
         xyangle = 4.9
         center = (8.1,-2.0)
         title = "Hello World"
+        point_mode = "random"
         complex param foo
             caption = "Angle"
             default = 10.0
@@ -854,7 +884,8 @@ default:
         self.assertEqual(t.defaults["center"].value[0].value,8.1)
         self.assertEqual(t.defaults["center"].value[1].value,-2.0)
         self.assertEqual(t.defaults["title"].value,"Hello World")
-
+        self.assertEqual("random", t.defaults["point_mode"].value)
+        
         k = t.symbols.parameters().keys()
         k.sort()
         exp_k = ["t__a__gradient", "t__a_f1", "t__a_foo","t__a_with_turnaround8", "t__a_h1"]

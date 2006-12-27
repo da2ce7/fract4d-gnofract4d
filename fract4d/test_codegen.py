@@ -2012,6 +2012,14 @@ Newton4(XYAXIS) {; Mark Peterson
         float x = #magn
         }'''
         self.assertCSays(src,"init",self.inspect_float("x"),"x = 1")
+
+    def testCenter(self):
+        '''Use the #center variable and check it has the right value'''
+        src = '''t_center {
+        init:
+        complex c = #center
+        }'''
+        self.assertCSays(src,"init",self.inspect_complex("c"),"c = (0,0)")
         
     # assertions
     def assertCSays(self,source,section,check,result,options={}):
