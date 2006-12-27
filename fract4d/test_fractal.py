@@ -46,9 +46,14 @@ outer=1
 [function]
 function=Mandelbar
 [endsection]
+[transform]=1
+function=XFlip
+formulafile=gf4d.uxf
+[endsection]
 [transform]=0
 function=Inverse
 formulafile=gf4d.uxf
+@radius=3.0
 [endsection]
 [colorizer]=0
 colorizer=1
@@ -161,8 +166,7 @@ class Test(unittest.TestCase):
         self.assertEqual(f.params[f.YZANGLE],-0.1)
         self.assertEqual(f.params[f.YWANGLE],0.4)
         self.assertEqual(f.params[f.ZWANGLE],0.2)
-        self.assertEqual(
-            f.forms[0].params[f.forms[0].order_of_name("@bailout")],5.1)
+        self.assertEqual(5.1, f.forms[0].get_named_param_value("@bailout"))
         
         self.assertEqual(f.forms[0].funcName,"Mandelbar")
         self.assertEqual(f.forms[0].funcFile,"gf4d.frm")
@@ -170,7 +174,13 @@ class Test(unittest.TestCase):
         self.assertEqual(f.forms[1].funcFile, "gf4d.cfrm")
         self.assertEqual(f.forms[2].funcName, "zero")
         self.assertEqual(f.forms[2].funcFile, "gf4d.cfrm")
-        
+
+        self.assertEqual(2,len(f.transforms))
+        t = f.transforms[0]
+        self.assertEqual("gf4d.uxf", t.funcFile)
+        self.assertEqual("Inverse", t.funcName)
+        self.assertEqual(3.0, t.get_named_param_value("@radius"))
+
         self.assertEqual(f.maxiter, 259)
         g = f.get_gradient()
         self.failUnless(len(g.segments)> 1)
@@ -179,10 +189,6 @@ class Test(unittest.TestCase):
         self.assertEqual(f.solids[0],(0,0,0,255))
         self.assertEqual(f.yflip,False)
 
-        self.assertEqual(1,len(f.transforms))
-        t = f.transforms[0]
-        self.assertEqual("gf4d.uxf", t.funcFile)
-        self.assertEqual("Inverse", t.funcName)
         
         sofile = f.compile()
         im = image.T(40,30)

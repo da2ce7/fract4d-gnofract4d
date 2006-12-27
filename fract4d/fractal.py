@@ -196,11 +196,13 @@ class T(fctutils.T):
     def parse__transform_(self,val,f):
         which_transform = int(val)
         params = fctutils.ParamBag()
-        params.load(f)
-        self.append_transform(
+        params.load(f)        
+        self.set_transform(
             params.dict["formulafile"],
-            params.dict["function"])
-
+            params.dict["function"],
+            which_transform)
+        self.transforms[which_transform].load_param_bag(params)
+        
     def __del__(self):
         if self.outputfile:
             os.remove(self.outputfile)
@@ -455,10 +457,18 @@ class T(fctutils.T):
         self.set_formula(funcfile,funcname,1)
 
     def append_transform(self,funcfile,funcname):
-        fs = formsettings.T(self.compiler,self,"t0")        
+        fs = formsettings.T(self.compiler,self,"t")        
         fs.set_formula(funcfile, funcname, self.get_gradient())
         self.transforms.append(fs)
 
+    def set_transform(self,funcfile,funcname,i):
+        fs = formsettings.T(self.compiler,self,"t")        
+        fs.set_formula(funcfile, funcname, self.get_gradient())
+        if len(self.transforms) <= i:
+            self.transforms.extend([None] * (i- len(self.transforms)+1))
+
+        self.transforms[i] = fs
+        
     def set_compiler_option(self,option,val):
         self.compiler_options[option] = val
         self.dirtyFormula = True
