@@ -15,6 +15,7 @@ import fc
 import fractal
 import fracttypes
 import image
+import formsettings
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
@@ -1140,6 +1141,14 @@ solids=[
         self.assertEqual(g,c)
         self.assertEqual(b,c)
 
+    def testTransforms(self):
+        f = fractal.T(self.compiler)
+        self.assertEqual([], f.transforms)
+        f.append_transform("gf4d.uxf","Inverse")
+        self.assertEqual(1,len(f.transforms))
+        t = f.transforms[0]
+        self.failUnless(isinstance(t, formsettings.T))
+        
     def testSet(self):
         f = fractal.T(self.compiler)
         f.set_formula("gf4d.frm","Mandelbar")
@@ -1250,14 +1259,13 @@ solids=[
         f.loadFctFile(open("../testdata/elfglow.fct"))
         self.assertEqual(len(f.forms[0].formula.symbols.parameters()),5)
         
-        
     def testFractalBadness(self):
         f = fractal.T(self.compiler)
         self.assertRaises(ValueError,f.set_formula,"gf4d.frm","xMandelbrot")
         self.assertRaises(ValueError,f.set_inner,"gf4d.cfrm","xdefault")
         self.assertRaises(ValueError,f.set_outer,"gf4d.cfrm","xzero")
 
-        # none of these should have changed the fractal, which should still work
+        # none of these should have changed the fractal,which should still work
         self.assertEqual(f.forms[0].funcName,"Mandelbrot")
         f.compile()
 

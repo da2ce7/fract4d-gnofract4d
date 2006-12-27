@@ -10,6 +10,7 @@ import time
 import testbase
 
 import fc
+import translate
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
@@ -17,7 +18,8 @@ g_comp.file_path.append("../formulas")
 g_comp.load_formula_file("gf4d.frm")
 g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")
-        
+g_comp.load_formula_file("gf4d.uxf")
+
 class FCTest(testbase.TestBase):
     def setUp(self):
         global g_comp
@@ -26,6 +28,17 @@ class FCTest(testbase.TestBase):
     def tearDown(self):
         pass
 
+    def testGetFileType(self):
+        self.assertEqual(
+            translate.T,
+            self.compiler.guess_type_from_filename("x.frm"))
+        self.assertEqual(
+            translate.ColorFunc,
+            self.compiler.guess_type_from_filename("x.ucl"))
+        self.assertEqual(
+            translate.Transform,
+            self.compiler.guess_type_from_filename("x.uxf"))
+        
     def testLists(self):
         'Check we correctly classify funcs by color/insideness'
         fl = [x for (x,y) in self.compiler.formula_files()]
@@ -36,6 +49,9 @@ class FCTest(testbase.TestBase):
         cfl = [x for (x,y) in self.compiler.colorfunc_files()]
         self.assertEqual(cfl.count("gf4d.cfrm"),1)
         self.assertEqual(cfl.count("gf4d.frm"), 0)
+
+        xfl = [x for (x,y) in self.compiler.transform_files()]
+        self.assertEqual(xfl.count("gf4d.uxf"),1)
         
         file = self.compiler.files["gf4d.cfrm"]
         names = file.get_formula_names()

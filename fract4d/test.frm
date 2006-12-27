@@ -51,6 +51,7 @@ default:
 func fn1
 endfunc
 }
+
 test_noz {
 init:
 	complex x
