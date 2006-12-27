@@ -139,18 +139,25 @@ class Compiler:
         outputfile = os.path.abspath(self.generate_code(t, cg))        
         return outputfile
         
-    def compile_all(self,formula,cf0,cf1,options={}):        
+    def compile_all(self,formula,cf0,cf1,transforms,options={}):        
         self.compile(formula,options)
         self.compile(cf0,options)
         self.compile(cf1,options)
 
+        for transform in transforms:
+            self.compile(transform,options)
+            
         # create temp empty formula and merge everything into that
         t = translate.T(absyn.Formula("",[],-1))
         cg = self.compile(t,options)
         t.merge(formula,"")
         t.merge(cf0,"cf0_")        
         t.merge(cf1,"cf1_")
-
+        i = 0
+        for tranform in transforms:
+            t.merge(transform,"t%d_" % i)
+            i += 1
+            
         #print t.symbols.keys()
         #print cg.symbols.keys()
         

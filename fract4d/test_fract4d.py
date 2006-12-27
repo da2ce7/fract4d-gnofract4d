@@ -48,7 +48,7 @@ class Test(testbase.TestBase):
                                    cf1.symbols.default_params() + \
                                    cf2.symbols.default_params()
 
-        return self.compiler.compile_all(f,cf1,cf2)
+        return self.compiler.compile_all(f,cf1,cf2,[])
 
     def compileColorDiagonal(self):
         self.compiler.file_path.append('../formulas')
@@ -63,7 +63,7 @@ class Test(testbase.TestBase):
         self.compiler.compile(cf2)
         
         f = self.compiler.get_formula("test.frm","test_simpleshape")
-        outputfile = self.compiler.compile_all(f,cf1,cf2)
+        outputfile = self.compiler.compile_all(f,cf1,cf2,[])
 
         self.color_diagonal_params = f.symbols.default_params() + \
                                      cf1.symbols.default_params() + \
