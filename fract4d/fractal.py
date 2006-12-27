@@ -20,7 +20,7 @@ import formsettings
 
 # the version of the earliest gf4d release which can parse all the files
 # this version can output
-THIS_FORMAT_VERSION="3.0"
+THIS_FORMAT_VERSION="3.3"
 
 BLEND_NEAREST=0
 BLEND_FURTHEST=1
@@ -134,7 +134,12 @@ class T(fctutils.T):
         self.forms[0].save_formula_params(file,self.warp_param)
         self.forms[1].save_formula_params(file)
         self.forms[2].save_formula_params(file)
-        
+
+        i = 0
+        for transform in self.transforms:
+            transform.save_formula_params(file,None,i)
+            i += 1
+            
         print >>file, "[colors]"
         print >>file, "colorizer=1"
         print >>file, "solids=["
@@ -188,6 +193,14 @@ class T(fctutils.T):
         self.set_outer(params.dict["formulafile"],params.dict["function"])
         self.forms[1].load_param_bag(params)
 
+    def parse__transform_(self,val,f):
+        which_transform = int(val)
+        params = fctutils.ParamBag()
+        params.load(f)
+        self.append_transform(
+            params.dict["formulafile"],
+            params.dict["function"])
+
     def __del__(self):
         if self.outputfile:
             os.remove(self.outputfile)
@@ -207,7 +220,10 @@ class T(fctutils.T):
         for i in range(3):
             c.set_formula(self.forms[i].funcFile,self.forms[i].funcName,i)
             c.forms[i].copy_from(self.forms[i])
-                    
+
+        for t in self.transforms:
+            c.append_transform(t.funcFile, t.funcName)
+            
         c.solids = copy.copy(self.solids)
         c.yflip = self.yflip
         c.periodicity = self.periodicity
