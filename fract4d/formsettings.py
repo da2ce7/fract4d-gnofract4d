@@ -35,7 +35,7 @@ class T:
         elif prefix == "cf1":
             self.sectname = "inner"
         elif prefix[0] == 't':
-            self.sectname = "transform%s" % prefix[1:]
+            self.sectname = "transform" 
         else:
             raise ValueError("Unexpected prefix '%s' " % prefix)
         
@@ -82,8 +82,12 @@ class T:
         else:
             raise ValueError("Unknown type %s for param %s" % (type,name))
 
-    def save_formula_params(self,file,warp_param=None):
-        print >>file, "[%s]" % self.sectname
+    def save_formula_params(self,file,warp_param=None,sectnum=None):
+        if sectnum == None:
+            print >>file, "[%s]" % self.sectname
+        else:
+            print >>file, "[%s]=%d" % (self.sectname, sectnum)
+            
         print >>file, "formulafile=%s" % self.funcFile
         print >>file, "function=%s" % self.funcName
 
