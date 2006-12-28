@@ -1017,7 +1017,6 @@ default:
         t = self.translate('t_badfunc {\nx= badfunc(0):\n}')
         self.assertError(t,"Unknown function badfunc on line 2")
         
-        
     def testIDs(self):
         t11 = self.translate('''t11 {
         init: int a = 1, int b = 2
@@ -1309,7 +1308,7 @@ default:
             }''')
 
         self.assertNoErrors(t)
-
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 

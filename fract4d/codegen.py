@@ -141,8 +141,10 @@ if(t__warp_param != -1)
 
 /* variable declarations */
 %(var_inits)s
+%(t_transform)s
 int t__h_numiter = 0;
 %(init)s
+
 
 t__end_finit:
 %(cf0_init)s
