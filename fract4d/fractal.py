@@ -196,7 +196,7 @@ class T(fctutils.T):
     def parse__transform_(self,val,f):
         which_transform = int(val)
         params = fctutils.ParamBag()
-        params.load(f)        
+        params.load(f)
         self.set_transform(
             params.dict["formulafile"],
             params.dict["function"],

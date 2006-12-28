@@ -153,13 +153,9 @@ class Compiler:
         t.merge(formula,"")
         t.merge(cf0,"cf0_")        
         t.merge(cf1,"cf1_")
-        i = 0
-        for tranform in transforms:
-            t.merge(transform,"t%d_" % i)
-            i += 1
-            
-        #print t.symbols.keys()
-        #print cg.symbols.keys()
+
+        for transform in transforms:
+            t.merge(transform,"t_")
         
         outputfile = os.path.abspath(self.generate_code(t, cg))
         

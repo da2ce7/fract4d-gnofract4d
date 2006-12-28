@@ -193,7 +193,8 @@ class Test(unittest.TestCase):
         sofile = f.compile()
         im = image.T(40,30)
         f.draw(im)
-
+        self.compiler.leave_dirty = True
+        
     def testLoadGradientFunc(self):
         f = fractal.T(self.compiler)
         f.loadFctFile(open("../testdata/gradient_func.fct"))

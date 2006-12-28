@@ -61,7 +61,11 @@ class TBase:
     
     def merge(self,other,name):
         for (k,s) in other.output_sections.items():
-            self.output_sections[name + k] = s
+            existing_section = self.output_sections.get(name + k)
+            if existing_section:
+                existing_section.extend(s)
+            else:
+                self.output_sections[name + k] = s
         self.symbols.merge(other.symbols)
 
     def dumpSections(self,f,dict):
