@@ -141,29 +141,28 @@ if(t__warp_param != -1)
 
 /* variable declarations */
 %(var_inits)s
-%(t_transform)s
 int t__h_numiter = 0;
+
+%(t_transform)s
+
 %(init)s
 
-
-t__end_finit:
 %(cf0_init)s
-t__end_cf0init:
+
 %(cf1_init)s
-t__end_cf1init:
 do
 {
     %(loop)s
-    t__end_floop:
+
     %(loop_inserts)s
     %(bailout)s
-    t__end_fbailout:
+
     %(bailout_inserts)s
     if(!%(bailout_var)s) break;
     %(cf0_loop)s
-    t__end_cf0loop:
+
     %(cf1_loop)s
-    t__end_cf1loop:
+
     t__h_numiter++;
 }while(t__h_numiter < maxiter);
 
@@ -172,20 +171,18 @@ t__h_inside = (t__h_numiter >= maxiter);
 
 %(pre_final_inserts)s
 %(final)s
-t__end_ffinal:
+
 %(done_inserts)s
 
 *t__p_pnIters = t__h_numiter;
 if(t__h_inside == 0)
 {
     %(cf0_final)s
-    t__end_cf0final:
         ;
 }
 else
 {
     %(cf1_final)s
-    t__end_cf1final:
         ;
 }
 *t__p_pFate = t__h_fate | (t__h_inside ? FATE_INSIDE : 0);
@@ -238,27 +235,25 @@ if(t__warp_param != -1)
 %(var_inits)s
 %(decl_period)s
 int t__h_numiter = 0;
+
 %(init)s
-t__end_finit:
 %(cf0_init)s
-t__end_cf0init:
 %(cf1_init)s
-t__end_cf1init:
+
 %(init_period)s
 do
 {
     %(loop)s
-    t__end_floop:
+
     %(loop_inserts)s
     %(bailout)s
-    t__end_fbailout:
+
     %(bailout_inserts)s
     if(!%(bailout_var)s) break;
     %(check_period)s   
     %(cf0_loop)s
-    t__end_cf0loop:
     %(cf1_loop)s
-    t__end_cf1loop:
+
     t__h_numiter++;
 }while(t__h_numiter < maxiter);
 
@@ -267,7 +262,6 @@ t__h_inside = (t__h_numiter >= maxiter);
 
 %(pre_final_inserts)s
 %(final)s
-t__end_ffinal:
 %(done_inserts)s
 
 *t__p_pFate = (t__h_numiter >= maxiter);
@@ -275,13 +269,11 @@ t__end_ffinal:
 if(t__h_inside == 0)
 {
     %(cf0_final)s
-    t__end_cf0final:
         ;
 }
 else
 {
     %(cf1_final)s
-    t__end_cf1final:
         ;
 }
 *t__p_pFate = t__h_fate | (t__h_inside ? FATE_INSIDE : 0);
@@ -695,6 +687,7 @@ extern pf_obj *pf_new(void);
     def output_section(self,t,section):
         self.out = []
         self.generate_all_code(t.canon_sections[section])
+        self.emit_label("t__end_%s%s" % (t.symbols.prefix, section))
         t.output_sections[section] = self.out
     
     def output_all(self,t):
