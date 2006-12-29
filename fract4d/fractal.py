@@ -467,7 +467,8 @@ class T(fctutils.T):
         fs = formsettings.T(self.compiler,self,self.get_transform_prefix())    
         fs.set_formula(funcfile, funcname, self.get_gradient())
         self.transforms.append(fs)
-
+        self.formula_changed()
+        
     def set_transform(self,funcfile,funcname,i):
         fs = formsettings.T(self.compiler,self,self.get_transform_prefix())    
         fs.set_formula(funcfile, funcname, self.get_gradient())
@@ -475,6 +476,7 @@ class T(fctutils.T):
             self.transforms.extend([None] * (i- len(self.transforms)+1))
 
         self.transforms[i] = fs
+        self.formula_changed()
         
     def set_compiler_option(self,option,val):
         self.compiler_options[option] = val

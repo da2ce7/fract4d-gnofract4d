@@ -70,7 +70,14 @@ class Test(unittest.TestCase):
             page = notebook.get_nth_page(i)
             
         self.fail("Can't find page %s" % page_name)
-        
+
+    def get_first_transform(self):
+        iter = self.settings.transform_store.get_iter_first()
+        if iter == None:
+            return None
+        val = self.settings.transform_store.get(iter,0)[0]
+        return val
+    
     def testFractalChangeUpdatesSettings(self):
         self.f.set_param(self.f.MAGNITUDE, 2000.0)
         widget = self.get_param_entry(_("Location"), _("Size :"))
@@ -83,6 +90,11 @@ class Test(unittest.TestCase):
         widget = self.get_param_entry(_("Formula"), _("bailout"))
         self.assertEqual(widget.get_text(),"578.00000000000000000")
 
+        self.assertEqual(None, self.get_first_transform())
+        self.f.append_transform("gf4d.uxf","Inverse")
+        
+        self.assertEqual("Inverse", self.get_first_transform())
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 
