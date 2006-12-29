@@ -59,6 +59,7 @@ class T(fctutils.T):
             ]
 
         self.transforms = []
+        self.next_transform_id = 0
         self.compiler_options = { "optimize" : 1 }
         self.yflip = False
         self.periodicity = True
@@ -456,13 +457,19 @@ class T(fctutils.T):
     def set_outer(self,funcfile,funcname):
         self.set_formula(funcfile,funcname,1)
 
+    def get_transform_prefix(self):
+        i = self.next_transform_id
+        prefix = "t%d" % i
+        self.next_transform_id += 1
+        return prefix
+    
     def append_transform(self,funcfile,funcname):
-        fs = formsettings.T(self.compiler,self,"t")        
+        fs = formsettings.T(self.compiler,self,self.get_transform_prefix())    
         fs.set_formula(funcfile, funcname, self.get_gradient())
         self.transforms.append(fs)
 
     def set_transform(self,funcfile,funcname,i):
-        fs = formsettings.T(self.compiler,self,"t")        
+        fs = formsettings.T(self.compiler,self,self.get_transform_prefix())    
         fs.set_formula(funcfile, funcname, self.get_gradient())
         if len(self.transforms) <= i:
             self.transforms.extend([None] * (i- len(self.transforms)+1))
