@@ -182,6 +182,7 @@ class SettingsDialog(dialog.T):
 
         set_store()
 
+        self.f.connect('formula-changed', set_store)
         self.transform_view = gtk.TreeView(self.transform_store)
         self.transform_view.set_headers_visible(True)
 
@@ -190,7 +191,8 @@ class SettingsDialog(dialog.T):
         
         self.transform_view.append_column (column)
 
-        table.attach(self.transform_view, 0, 2, 0, 1, gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        table.attach(
+            self.transform_view, 0, 2, 0, 1, gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         self.add_notebook_page(vbox,_("T_ransforms"))
 
