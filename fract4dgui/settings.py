@@ -1,6 +1,6 @@
 # GUI for modifying the fractal's settings
 
-import gtk
+import gtk, gobject
 
 import dialog
 import browser
@@ -35,9 +35,9 @@ class SettingsDialog(dialog.T):
         self.create_formula_parameters_page()
         self.create_outer_page()
         self.create_inner_page()
+        self.create_transforms_page()
         self.create_general_page()
         self.create_location_page()
-        self.create_angle_page()
         
     def create_location_page(self):
         table = self.create_location_table()
@@ -52,6 +52,13 @@ class SettingsDialog(dialog.T):
         self.create_param_entry(table,2,_("_Z :"), self.f.ZCENTER)
         self.create_param_entry(table,3,_("_W :"), self.f.WCENTER)
         self.create_param_entry(table,4,_("_Size :"), self.f.MAGNITUDE)
+        self.create_param_entry(table,5,_("XY (_1):"), self.f.XYANGLE)
+        self.create_param_entry(table,6,_("XZ (_2):"), self.f.XZANGLE)
+        self.create_param_entry(table,7,_("XW (_3):"), self.f.XWANGLE)
+        self.create_param_entry(table,8,_("YZ (_4):"), self.f.YZANGLE)
+        self.create_param_entry(table,9,_("YW (_5):"), self.f.YWANGLE)
+        self.create_param_entry(table,10,_("ZW (_6):"), self.f.ZWANGLE)
+        
         return table
     
     def create_general_page(self):
@@ -65,18 +72,6 @@ class SettingsDialog(dialog.T):
         periodicity_widget = self.create_periodicity_widget()
         table.attach(periodicity_widget,0,2,1,2,
                      gtk.EXPAND | gtk.FILL, 0, 2, 2)
-
-    def create_angle_page(self):
-        table = gtk.Table(5,2,False)
-        label = gtk.Label("_Angles")
-        label.set_use_underline(True)
-        self.notebook.append_page(table,label)
-        self.create_param_entry(table,0,_("XY (_1):"), self.f.XYANGLE)
-        self.create_param_entry(table,1,_("XZ (_2):"), self.f.XZANGLE)
-        self.create_param_entry(table,2,_("XW (_3):"), self.f.XWANGLE)
-        self.create_param_entry(table,3,_("YZ (_4):"), self.f.YZANGLE)
-        self.create_param_entry(table,4,_("YW (_5):"), self.f.YWANGLE)
-        self.create_param_entry(table,5,_("ZW (_6):"), self.f.ZWANGLE)
 
     def create_yflip_widget(self):
         widget = gtk.CheckButton(_("Flip Y Axis"))
@@ -116,16 +111,19 @@ class SettingsDialog(dialog.T):
 
         return widget
 
+    def add_notebook_page(self,page,text):
+        label = gtk.Label(text)
+        label.set_use_underline(True)
+        self.notebook.append_page(page,label)
+        
     def create_outer_page(self):
         vbox = gtk.VBox()
         table = gtk.Table(5,2,False)
         vbox.pack_start(table)
 
         self.create_formula_widget_table(vbox,1)
-        
-        label = gtk.Label("_Outer")
-        label.set_use_underline(True)
-        self.notebook.append_page(vbox,label)
+
+        self.add_notebook_page(vbox,_("_Outer"))
 
         cflabel = gtk.Label(_("Colorfunc :"))
         table.attach(cflabel, 0,1,0,1,0,0,2,2)
@@ -151,10 +149,8 @@ class SettingsDialog(dialog.T):
         vbox.pack_start(table)
 
         self.create_formula_widget_table(vbox,2)
-        
-        label = gtk.Label(_("_Inner"))
-        label.set_use_underline(True)
-        self.notebook.append_page(vbox,label)
+
+        self.add_notebook_page(vbox, _("_Inner"))
 
         table.attach(gtk.Label(_("Colorfunc :")), 0,1,0,1,0,0,2,2)
         label = gtk.Label(self.f.forms[2].funcName)
@@ -173,16 +169,39 @@ class SettingsDialog(dialog.T):
         hbox.pack_start(button)
         table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2) 
 
+    def create_transforms_page(self):
+        vbox = gtk.VBox()
+        table = gtk.Table(5,2,False)
+        vbox.pack_start(table)
+
+        self.transform_store = gtk.ListStore(gobject.TYPE_STRING, object)
+        def set_store(*args):
+            self.transform_store.clear()
+            for transform in self.f.transforms:
+                self.transform_store.append((transform.funcName,transform))
+
+        set_store()
+
+        self.transform_view = gtk.TreeView(self.transform_store)
+        self.transform_view.set_headers_visible(True)
+
+        renderer = gtk.CellRendererText ()
+        column = gtk.TreeViewColumn ('_Transform', renderer, text=0)
+        
+        self.transform_view.append_column (column)
+
+        table.attach(self.transform_view, 0, 2, 0, 1, gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        self.add_notebook_page(vbox,_("T_ransforms"))
+
     def create_formula_parameters_page(self):
         vbox = gtk.VBox()
         table = gtk.Table(5,2,False)
         vbox.pack_start(table)
 
         self.create_formula_widget_table(vbox,0)
-        
-        pagelabel = gtk.Label(_("_Formula"))
-        pagelabel.set_use_underline(True)
-        self.notebook.append_page(vbox,pagelabel)
+
+        self.add_notebook_page(vbox, _("_Formula"))
 
         table.attach(gtk.Label(_("Formula :")), 0,1,0,1,0,0,2,2)
         hbox = gtk.HBox(False,1)
