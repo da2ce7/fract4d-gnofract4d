@@ -236,6 +236,8 @@ if(t__warp_param != -1)
 %(decl_period)s
 int t__h_numiter = 0;
 
+%(t_transform)s
+
 %(init)s
 %(cf0_init)s
 %(cf1_init)s
