@@ -139,6 +139,30 @@ float param bailout
 endparam
 }
 
+Gravitybrot3 {
+init:
+	z = #zwpixel
+loop:
+	z = z*z + #pixel
+	dz = (z/|z| * @g) / @gravfunc(|z|)
+	z = z - dz
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param g
+	default = 1.0e-6
+endparam
+float func bailfunc
+	default = cmag
+endfunc
+float param bailout
+	default = 4.0
+endparam
+float func gravfunc
+	argtype = float
+	default = sqr
+endfunc
+}
 
 Damp {
 init:
