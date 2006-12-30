@@ -30,7 +30,8 @@ class SettingsDialog(dialog.T):
         self.controls = gtk.VBox()
         self.controls.add(self.notebook)
         self.vbox.add(self.controls)
-        self.tables = [None,None,None]
+        self.tables = [None,None,None,None]
+        self.selected_transform = None
         
         self.create_formula_parameters_page()
         self.create_outer_page()
@@ -192,10 +193,33 @@ class SettingsDialog(dialog.T):
         self.transform_view.append_column (column)
 
         table.attach(
-            self.transform_view, 0, 2, 0, 1, gtk.EXPAND | gtk.FILL, 0, 2, 2)
+            self.transform_view, 0, 1, 0, 1, gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        selection = self.transform_view.get_selection()
+        selection.connect('changed',self.transform_selection_changed,vbox)
 
         self.add_notebook_page(vbox,_("T_ransforms"))
 
+        self.create_transform_widget_table(vbox)
+
+    def transform_selection_changed(self,selection, parent):
+        (model,iter) = selection.get_selected()
+        if iter == None:
+            self.selected_transform = None
+        else:        
+            transform = model.get_value(iter,1)
+            # this is bogus. How do I get the index into the list in a less
+            # stupid way?
+            i = 0
+            for t in self.f.transforms:
+                if t == transform:
+                    self.selected_transform = i
+                    break
+                i += 1
+
+        print self.selected_transform
+        self.update_transform_parameters(parent)
+            
     def create_formula_parameters_page(self):
         vbox = gtk.VBox()
         table = gtk.Table(5,2,False)
@@ -222,6 +246,36 @@ class SettingsDialog(dialog.T):
         hbox.pack_start(button)
         table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)
 
+    def update_transform_parameters(self, parent, *args):
+        widget = self.tables[3] 
+        if widget != None and widget.parent != None:
+            parent.remove(self.tables[3])
+
+        if self.selected_transform != None:
+            self.tables[3] = \
+                self.f.populate_formula_settings(
+                    self.selected_transform+3,self.tooltips)
+
+            self.tables[3].show_all()
+            parent.pack_start(self.tables[3])
+
+    def create_transform_widget_table(self,parent):
+        self.tables[3] = None
+                    
+        self.update_transform_parameters(parent)
+
+        def update_all_widgets(*args):
+            if not self.tables[3]:
+                return
+            for widget in self.tables[3].get_children():
+                update_function = widget.get_data("update_function")
+                if update_function != None:
+                    update_function()
+                    
+        self.f.connect(
+            'formula-changed', self.update_transform_parameters, parent)
+        self.f.connect('parameters-changed', update_all_widgets)
+        
     def create_formula_widget_table(self,parent,param_type): 
         self.tables[param_type] = None
         

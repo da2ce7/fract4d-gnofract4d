@@ -33,10 +33,14 @@ class SymbolTest(unittest.TestCase):
         self.failUnless(c[name].is_temp == True)
         
     def testKeySort(self):
-        list = ["t__a_cf1val", "t__a_fangle", "t__a_cf0val"]
+        list = ["t__a_t1val","t__a_cf1val", "t__a_fangle", "t__a_cf0val",
+                "t__a_t0val"]
         list.sort(self.t.keysort)
 
-        self.assertEqual(list, ["t__a_fangle", "t__a_cf0val", "t__a_cf1val"])
+        self.assertEqual(
+            ["t__a_fangle", "t__a_cf0val", "t__a_cf1val",
+             "t__a_t0val", "t__a_t1val"],
+            list)
                          
     def testPrefix(self):
         t = fsymbol.T("boo")

@@ -3,6 +3,8 @@ todo:
 changes in 3.3:
 * B 	better error message when no func name to --formula
 * W	added #center variable
+* B	on freebsd, gtkfractal.onmotionnotify, self has no x
+* B	on freebsd, gtkfractal.onbuttonrelease, self has no x
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -44,8 +46,6 @@ bugs (the more B's, the worse the bug):
 * B	untitled_5 displays weirdly - so do some combinations of bailout+colorfunc
 * B	should start drawing straight away when image returns to normal size
 * B	recoloring during deepening can make things shallower
-* B	on freebsd, gtkfractal.onmotionnotify, self has no x
-* B	on freebsd, gtkfractal.onbuttonrelease, self has no x
 * B	horrible_drawing_bug.fct - zoom out & it looks very different
 * B	giger.fct - results of extangle are different vs 1.9
 * B	fractint builtin fns with () in the name 

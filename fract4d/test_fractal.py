@@ -474,7 +474,8 @@ colorlist=[
         self.assertEqual(f.forms[1].params,[1.0,0.0,4.0])
         
         f.set_outer("test.cfrm", "Triangle")
-
+        f.append_transform("gf4d.uxf","Inverse")
+        
         self.assertEqual(f.forms[1].params,[ 1.0, 0.0, 1.0e20, 2.0])
         
         cf0p = f.forms[1].formula.symbols.parameters()
@@ -510,7 +511,9 @@ colorlist=[
             '__SIZE__' : 8
             })
         params = f.all_params()
-        self.assertEqual(params,[f.get_gradient(), 4.0,1.0, 0.0, 1.0e20, 2.0, 1.0, 0.0])
+        self.assertEqual(
+            [f.get_gradient(), 4.0,1.0, 0.0, 1.0e20, 2.0, 1.0, 0.0],
+            params)
 
         # check for appropriate snippets in the code
         cg.output_decls(f.forms[0].formula)
@@ -520,6 +523,23 @@ colorlist=[
             c_code.find("double t__a_cf0bailout = t__pfo->p[4]"),-1)
         self.assertNotEqual( # use
             c_code.find("log(t__a_cf0bailout)"),-1)
+
+    def testAllParams(self):
+        f = fractal.T(self.compiler)
+
+        self.assertEqual(f.forms[1].params,[1.0,0.0,4.0])
+        
+        f.set_outer("test.cfrm", "Triangle")
+        f.append_transform("gf4d.uxf","Inverse")
+
+        f.compile()
+        params = f.all_params()
+        self.assertEqual(11, len(params))
+        self.assertEqual(
+            [f.get_gradient(), 4.0,1.0,0.0,1.0e20,2.0,1.0,0.0,0.0,0.0,1.0],
+            params)
+
+        print params
         
     def assertNearlyEqual(self,a,b):
         # check that each element is within epsilon of expected value
