@@ -113,7 +113,11 @@ class Compiler:
     def find_colorfunc_files(self):
         return [file for file in self.find_files()
                 if Compiler.isCFRM.search(file)]
-        
+
+    def find_transform_files(self):
+        return [file for file in self.find_files()
+                if Compiler.isXFRM.search(file)]
+
     def colorfunc_files(self):
         return [ (x,y) for (x,y) in self.files.items() 
                  if Compiler.isCFRM.search(x)]
@@ -282,7 +286,7 @@ class Compiler:
         elif Compiler.isXFRM.search(filename):
             return translate.Transform
     
-    def get_formula(self, filename, formname,prefix=None):
+    def get_formula(self, filename, formname,prefix=""):
         type = self.guess_type_from_filename(filename)
             
         f = self.get_parsetree(filename,formname)

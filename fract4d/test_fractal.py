@@ -474,7 +474,6 @@ colorlist=[
         self.assertEqual(f.forms[1].params,[1.0,0.0,4.0])
         
         f.set_outer("test.cfrm", "Triangle")
-        f.append_transform("gf4d.uxf","Inverse")
         
         self.assertEqual(f.forms[1].params,[ 1.0, 0.0, 1.0e20, 2.0])
         
@@ -539,8 +538,6 @@ colorlist=[
             [f.get_gradient(), 4.0,1.0,0.0,1.0e20,2.0,1.0,0.0,0.0,0.0,1.0],
             params)
 
-        print params
-        
     def assertNearlyEqual(self,a,b):
         # check that each element is within epsilon of expected value
         epsilon = 1.0e-12
