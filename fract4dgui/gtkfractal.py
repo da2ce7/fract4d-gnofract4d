@@ -61,6 +61,7 @@ class Hidden(gobject.GObject):
             "PIXEL"
             ]
 
+        self.x = self.y = 0
         self.last_progress = 0.0
         self.skip_updates = False
         self.running = False
@@ -783,10 +784,10 @@ class T(Hidden):
         label.set_mnemonic_widget(widget)
         table.attach(widget,1,2,i,i+1,0,0,2,2)
         return i+1
-        
+
     def populate_formula_settings(self, param_type, tips):
         # create widget to fiddle with this fractal's settings
-        form = self.f.forms[param_type]
+        form = self.f.get_form(param_type)
         formula = form.formula
         
         table = gtk.Table(5,2,False)

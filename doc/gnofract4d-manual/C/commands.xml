@@ -94,6 +94,10 @@
 <entry>Display formula browser.</entry>
 </row>
 <row>
+<entry>Ctrl+D</entry>
+<entry></entry>
+</row>
+<row>
 <entry>Ctrl+E</entry>
 <entry>Enter (or leave) Explorer mode.</entry>
 </row>
@@ -120,6 +124,10 @@
 <row>
 <entry>Ctrl+I</entry>
 <entry>Save the current image to a file.</entry>
+</row>
+<row>
+<entry>Ctrl+Shift+I</entry>
+<entry>Add the current fractal to the render queue.</entry>
 </row>
 <row>
 <entry>Ctrl+M</entry>

@@ -763,13 +763,21 @@ class T(UserDict):
             
         return flist
 
-    def keysort(self,a,b):
-        'comparison fn for key sorting - ensures colorfuncs come at the end'
-        if a.startswith('t__a_cf') and not b.startswith('t__a_cf'):
+    def _highorder(self,a):
+        if a.startswith("t__a_f"):
             return 1
-        if b.startswith('t__a_cf') and not a.startswith('t__a_cf'):
-            return -1
-        return cmp(a,b)
+        if a.startswith("t__a_cf"):
+            return 2
+        if a.startswith("t__a_t"):
+            return 3
+        return 0
+    
+    def keysort(self,a,b):
+        """comparison fn for key sorting - ensures the order is formula,
+        colorfuncs, transforms"""
+        cmp_a = (self._highorder(a),a)
+        cmp_b = (self._highorder(b),b)
+        return cmp(cmp_a,cmp_b)
     
     def order_of_params(self):
         # a hash which maps param name -> order in input list

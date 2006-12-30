@@ -401,8 +401,8 @@ class T(fctutils.T):
                 else:
                     print "ignored unknown parameter %s" % name
 
-        for i in xrange(2):
-            self.forms[i+1].reset_params()
+        for form in self.forms[1:] + self.transforms:
+            form.reset_params()
 
     def set_formula(self,formulafile,func,index=0):
         self.forms[index].set_formula(formulafile,func,self.get_gradient())
@@ -589,8 +589,16 @@ class T(fctutils.T):
         # move a little way in x or y
         self.relocate(0.025 * x , 0.025 * y, 1.0,axis)
 
-    def nudge_param(self, i, param_type, x, y):        
-        self.forms[param_type].nudge_param(i,x,y)
+    def get_form(self,param_type):
+        if param_type > 2:
+            form = self.transforms[param_type-3]
+        else:
+            form = self.forms[param_type]
+        return form
+    
+    def nudge_param(self, i, param_type, x, y):
+        form = self.get_form(param_type)
+        form.nudge_param(i,x,y)
 
     def relocate(self,dx,dy,zoom,axis=0):
         if dx == 0 and dy == 0 and zoom == 1.0:
@@ -647,7 +655,8 @@ class T(fctutils.T):
         p = []
         for form in self.forms:
             p += form.params
-
+        for transform in self.transforms:
+            p += transform.params
         return p
 
     def draw(self,image):
