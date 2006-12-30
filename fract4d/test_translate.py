@@ -905,6 +905,7 @@ default:
 
         params = t.symbols.parameters(True)
         op = t.symbols.order_of_params()
+
         self.assertEqual(op["t__a_f1"],1)
         self.assertEqual(op["t__a_foo"],2)
         self.assertEqual(op["t__a_h1"],4)

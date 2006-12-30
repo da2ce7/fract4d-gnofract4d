@@ -5,6 +5,12 @@ changes in 3.3:
 * W	added #center variable
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
+* WW	transforms
+
+to fix before release:
+* B	preview wrong when moving transform's 4-ways
+* W	more transforms, incl 4-d ones
+* W	remove/reorder transforms
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

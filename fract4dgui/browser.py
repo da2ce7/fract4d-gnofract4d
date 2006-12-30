@@ -14,7 +14,7 @@ import utils
 FRACTAL = 0
 INNER = 1
 OUTER = 2
-GRADIENT = 3
+TRANSFORM = 3
 
 fname_to_use = None
 formula_to_use = None
@@ -133,6 +133,8 @@ class BrowserDialog(dialog.T):
             self.f.set_inner(self.current_fname,self.current_formula)
         elif self.func_type == OUTER:
             self.f.set_outer(self.current_fname,self.current_formula)
+        elif self.func_type == TRANSFORM:
+            self.f.append_transform(self.current_fname,self.current_formula)
         else:
             assert(False)
         if self.f.thaw():
@@ -189,8 +191,11 @@ class BrowserDialog(dialog.T):
     def populate_file_list(self):
         # find all appropriate files and add to file list
         self.file_list.clear()
+
         if self.func_type == FRACTAL:
             files = self.compiler.find_formula_files()
+        elif self.func_type == TRANSFORM:
+            files = self.compiler.find_transform_files()
         else:
             files = self.compiler.find_colorfunc_files()
 
@@ -222,7 +227,7 @@ class BrowserDialog(dialog.T):
         
         ff = self.compiler.files[fname]
 
-        exclude = [None, "OUTSIDE", "INSIDE"]
+        exclude = [None, "OUTSIDE", "INSIDE", None]
         
         form_names = ff.get_formula_names(exclude[self.func_type])
         form_names.sort(stricmp)
@@ -278,7 +283,8 @@ class BrowserDialog(dialog.T):
         self.funcTypeMenu = utils.create_option_menu(
             [_("Fractal Function"),
              _("Inner Coloring Function"),
-             _("Outer Coloring Function")])
+             _("Outer Coloring Function"),
+             _("Transform Function")])
 
         utils.set_selected(self.funcTypeMenu,0)
         

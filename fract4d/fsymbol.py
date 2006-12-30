@@ -764,13 +764,11 @@ class T(UserDict):
         return flist
 
     def _highorder(self,a):
-        if a.startswith("t__a_f"):
-            return 1
         if a.startswith("t__a_cf"):
             return 2
         if a.startswith("t__a_t"):
             return 3
-        return 0
+        return 1
     
     def keysort(self,a,b):
         """comparison fn for key sorting - ensures the order is formula,

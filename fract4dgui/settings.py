@@ -193,8 +193,15 @@ class SettingsDialog(dialog.T):
         self.transform_view.append_column (column)
 
         table.attach(
-            self.transform_view, 0, 1, 0, 1, gtk.EXPAND | gtk.FILL, 0, 2, 2)
+            self.transform_view, 0, 1, 0, 4, gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
+        add_button = gtk.Button(None,gtk.STOCK_ADD)
+        add_button.connect(
+            'clicked', self.show_browser, browser.TRANSFORM)
+
+        table.attach(
+            add_button, 1,2,0,1, gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        
         selection = self.transform_view.get_selection()
         selection.connect('changed',self.transform_selection_changed,vbox)
 
