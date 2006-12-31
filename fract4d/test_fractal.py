@@ -1182,6 +1182,9 @@ solids=[
         t = f.transforms[0]
         self.failUnless(isinstance(t, formsettings.T))
         self.assertEqual("Inverse", t.funcName)
+
+        f.remove_transform(0)
+        self.assertEqual(0,len(f.transforms))
         
     def testSet(self):
         f = fractal.T(self.compiler)

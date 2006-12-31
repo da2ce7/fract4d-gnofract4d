@@ -477,6 +477,12 @@ class T(fctutils.T):
 
         self.transforms[i] = fs
         self.formula_changed()
+        self.changed()
+        
+    def remove_transform(self,i):
+        self.transforms.pop(i)
+        self.formula_changed()
+        self.changed()
         
     def set_compiler_option(self,option,val):
         self.compiler_options[option] = val

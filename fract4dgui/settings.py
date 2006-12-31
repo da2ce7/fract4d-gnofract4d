@@ -170,6 +170,12 @@ class SettingsDialog(dialog.T):
         hbox.pack_start(button)
         table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2) 
 
+    def remove_transform(self,*args):
+        if self.selected_transform == None:
+            return
+
+        self.f.remove_transform(self.selected_transform)
+        
     def create_transforms_page(self):
         vbox = gtk.VBox()
         table = gtk.Table(5,2,False)
@@ -201,6 +207,13 @@ class SettingsDialog(dialog.T):
 
         table.attach(
             add_button, 1,2,0,1, gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
+        remove_button = gtk.Button(None,gtk.STOCK_REMOVE)
+        remove_button.connect(
+            'clicked', self.remove_transform)
+
+        table.attach(
+            remove_button, 1,2,1,2, gtk.EXPAND | gtk.FILL, 0, 2, 2)
         
         selection = self.transform_view.get_selection()
         selection.connect('changed',self.transform_selection_changed,vbox)
