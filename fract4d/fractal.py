@@ -226,6 +226,7 @@ class T(fctutils.T):
 
         for t in self.transforms:
             c.append_transform(t.funcFile, t.funcName)
+            c.transforms[-1].copy_from(t)
             
         c.solids = copy.copy(self.solids)
         c.yflip = self.yflip
@@ -468,6 +469,7 @@ class T(fctutils.T):
         fs.set_formula(funcfile, funcname, self.get_gradient())
         self.transforms.append(fs)
         self.formula_changed()
+        self.changed()
         
     def set_transform(self,funcfile,funcname,i):
         fs = formsettings.T(self.compiler,self,self.get_transform_prefix())    

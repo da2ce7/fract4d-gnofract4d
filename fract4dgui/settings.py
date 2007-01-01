@@ -190,16 +190,19 @@ class SettingsDialog(dialog.T):
         set_store()
 
         self.f.connect('formula-changed', set_store)
+
         self.transform_view = gtk.TreeView(self.transform_store)
-        self.transform_view.set_headers_visible(True)
+        self.transform_view.set_headers_visible(False)
 
         renderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn ('_Transform', renderer, text=0)
+        column = gtk.TreeViewColumn ('_Transforms', renderer, text=0)
         
         self.transform_view.append_column (column)
 
         table.attach(
-            self.transform_view, 0, 1, 0, 4, gtk.EXPAND | gtk.FILL, 0, 2, 2)
+            self.transform_view, 0, 1, 0, 4,
+            gtk.EXPAND | gtk.FILL, gtk.EXPAND | gtk.FILL, 2, 2)
+
 
         add_button = gtk.Button(None,gtk.STOCK_ADD)
         add_button.connect(
@@ -237,7 +240,6 @@ class SettingsDialog(dialog.T):
                     break
                 i += 1
 
-        print self.selected_transform
         self.update_transform_parameters(parent)
             
     def create_formula_parameters_page(self):

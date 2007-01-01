@@ -6,11 +6,12 @@ changes in 3.3:
 * B	on freebsd, gtkfractal.onmotionnotify, self has no x
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
 * WW	transforms
+* B	preview wrong when moving transform's 4-ways
 
 to fix before release:
-* B	preview wrong when moving transform's 4-ways
 * W	more transforms, incl 4-d ones
-* W	remove/reorder transforms
+* BBB	nasty black lines going east - regression?
+* B	odd behavior re: selected transform in list
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
