@@ -3,6 +3,7 @@ include maps/*.map
 include maps/*.cs
 include formulas/gf4d.frm
 include formulas/gf4d.cfrm
+include formulas/gf4d.uxf
 include formulas/fractint-g4.frm
 include formulas/fractint-builtin.frm
 include formulas/fractint.cfrm
