@@ -927,7 +927,12 @@ class MainWindow:
         self.draw_preview()
 
     def on_drag_param_fourway(self, widget, dx, dy, order, param_type):
-        self.preview.nudge_param(order, param_type, dx, dy)
+        try:
+            self.preview.nudge_param(order, param_type, dx, dy)
+        except Exception, err:
+            print param_type
+            print err
+            raise
         self.draw_preview()
                 
     def on_release_fourway(self,widget,dx,dy):
