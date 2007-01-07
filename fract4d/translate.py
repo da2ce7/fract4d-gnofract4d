@@ -150,7 +150,7 @@ class TBase:
 
     def paramsetting(self,node,var):
         name = node.children[0]
-        if name.leaf == "visible":
+        if name.leaf == "visible" or name.leaf == "enabled":
             #FIXME ignore visibility for now, parser can't deal with it
             return
         val = self.const_exp(node.children[1])
@@ -343,6 +343,12 @@ class TBase:
             return const
         elif node.type == "funcall" and node.leaf == "rgba":
             return self.make_const(node, fracttypes.Color)
+        elif node.type == "id":
+            if self.symbols.is_builtin(node.leaf):
+                return ir.Var(
+                    node.leaf, node, self.symbols[node.leaf].type)
+            else:
+                self.error("%d: only built-in variables (starting with '#') can be used in default sections" % node.pos)
         else:
             #print node.pretty()
             self.error("%d: only constants can be used in default sections" %
