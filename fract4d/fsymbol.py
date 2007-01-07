@@ -663,7 +663,10 @@ class T(UserDict):
             self.data[mangle(key)] = val
             
         return val
-     
+
+    def is_builtin(self,key):
+        return key[0] == '#'
+    
     def __setitem__(self,key,value):
         k = mangle(key)
         if self.data.has_key(k):
@@ -683,7 +686,7 @@ class T(UserDict):
                 msg = "is predefined as %s" % strOfType(T.default_dict[k].type)
                 raise KeyError, ("symbol '%s' %s" % (key,msg))
             return
-        elif key[0]=='#':
+        elif self.is_builtin(key):
             msg = "symbol '%s': only predefined symbols can begin with #" % key
             raise KeyError, msg                  
         elif string.find(k,"t__",0,3)==0 and not key[0]=='@':

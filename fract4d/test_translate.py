@@ -216,7 +216,18 @@ switch:
         ''')
 
         self.assertError(t, "4: unknown default function 'bar'")
-        
+
+    def testParamUsingBuiltin(self):
+        t = self.translate(''' t {
+        default:
+        complex param twirlcenter
+        caption = "Ripple Center"
+        default = #center
+        endparam
+        }''')
+
+        self.assertNoErrors(t)
+
     def testCF(self):
         t1 = self.translatecf('''c1 {
                             final:
