@@ -102,6 +102,17 @@ static void pf_init(
     pfo->period_tolerance = period_tolerance;
 }
 
+static void pf_set_defaults(
+    // "object" pointer
+    struct s_pf_data *t__p_stub,
+    // in params
+    const double *t__params, int maxiter, int t__warp_param
+    )
+{
+    pf_real *t__pfo = (pf_real *)t__p_stub;
+    /* %(default)s */
+}
+
 static void pf_calc(
     // "object" pointer
     struct s_pf_data *t__p_stub,
@@ -538,64 +549,64 @@ extern pf_obj *pf_new(void);
         return self.symbols.has_user_key("#color")
 
     def output_symbol(self,key,sym,op,out,overrides):
-        if isinstance(sym,fracttypes.Var):
-            t = fracttypes.ctype(sym.type)
-            val = sym.value
-            override = overrides.get(key)
-            if override == None:
-                if sym.type == fracttypes.Complex:
-                    ord = op.get(key)
-                    if ord == None:
-                        re_val = "%.17f" % val[0]
-                        im_val = "%.17f" % val[1]
-                        out += self.make_complex_init(t,sym.cname, re_val, im_val)
-                    else:
-                        re_val = "t__pfo->p[%d].doubleval" % ord
-                        im_val = "t__pfo->p[%d].doubleval" % (ord+1)
-                        out += self.make_complex_init(t,sym.cname, re_val, im_val)
-
-                elif sym.type == fracttypes.Hyper or \
-                     sym.type == fracttypes.Color:
-                    ord = op.get(key)
-                    if ord == None:
-                        fval = [ "%.17f" % v for v in val]
-                        out += self.make_hyper_init(t,sym.cname, fval)
-                    else:
-                        fval = [ "t__pfo->p[%d].doubleval" % x for x in range(ord,ord+4)]
-                        out += self.make_hyper_init(t,sym.cname, fval)
-                    
-                elif sym.type == fracttypes.Float:
-                    ord = op.get(key)
-                    if ord == None:
-                        out.append(Decl("%s %s = %.17f;" % (t,sym.cname,val)))
-                    else:
-                        out.append(Decl("%s %s = t__pfo->p[%d].doubleval;" % \
-                                            (t, sym.cname, ord)))
-                elif sym.type == fracttypes.Int or \
-                         sym.type == fracttypes.Bool:
-                    ord = op.get(key)
-                    if ord == None:
-                        out.append(Decl("%s %s = %d;" % (t,sym.cname,val)))
-                    else:
-                        out.append(Decl("%s %s = t__pfo->p[%d].intval;" % \
-                                            (t, sym.cname, ord)))
-                elif sym.type == fracttypes.Gradient:
-                    ord = op.get(key)
-                    if ord == None:
-                        raise fracttypes.TranslationError(
-                            "Internal Compiler Error: gradient not as a param")
-                    else:
-                        out.append(Decl("%s %s = t__pfo->p[%d].gradient;" % \
-                                        (t, sym.cname, ord)))
-                else:
-                    raise ValueError("Unknown symbol type %d for %s" % \
-                                     (sym.type, key))
+        if not isinstance(sym,fracttypes.Var):
+            return
+        
+        t = fracttypes.ctype(sym.type)
+        val = sym.value
+        override = overrides.get(key)
+        
+        if override != None:
+            #print "override %s for %s" % (override, key)
+            out.append(Decl(override))
+            return
+            
+        if sym.type == fracttypes.Complex:
+            ord = op.get(key)
+            if ord == None:
+                re_val = "%.17f" % val[0]
+                im_val = "%.17f" % val[1]
             else:
-                #print "override %s for %s" % (override, key)
-                out.append(Decl(override))
+                re_val = "t__pfo->p[%d].doubleval" % ord
+                im_val = "t__pfo->p[%d].doubleval" % (ord+1)
+            out += self.make_complex_init(t,sym.cname, re_val, im_val)
+
+        elif sym.type == fracttypes.Hyper or \
+             sym.type == fracttypes.Color:
+            ord = op.get(key)
+            if ord == None:
+                fval = [ "%.17f" % v for v in val]            
+            else:
+                fval = [ "t__pfo->p[%d].doubleval" % x for x in range(ord,ord+4)]
+            out += self.make_hyper_init(t,sym.cname, fval)
+
+        elif sym.type == fracttypes.Float:
+            ord = op.get(key)
+            if ord == None:
+                out.append(Decl("%s %s = %.17f;" % (t,sym.cname,val)))
+            else:
+                out.append(Decl("%s %s = t__pfo->p[%d].doubleval;" % \
+                                    (t, sym.cname, ord)))
+        elif sym.type == fracttypes.Int or \
+                 sym.type == fracttypes.Bool:
+            ord = op.get(key)
+            if ord == None:
+                out.append(Decl("%s %s = %d;" % (t,sym.cname,val)))
+            else:
+                out.append(Decl("%s %s = t__pfo->p[%d].intval;" % \
+                                    (t, sym.cname, ord)))
+        elif sym.type == fracttypes.Gradient:
+            ord = op.get(key)
+            if ord == None:
+                raise fracttypes.TranslationError(
+                    "Internal Compiler Error: gradient not as a param")
+            else:
+                out.append(Decl("%s %s = t__pfo->p[%d].gradient;" % \
+                                (t, sym.cname, ord)))
         else:
-            #print "Weird symbol %s: %s" %( key,sym)
-            pass
+            raise ValueError("Unknown symbol type %d for %s" % \
+                             (sym.type, key))
+
 
     def make_complex_decl(self,type,varname):
         return [ Decl("%s %s_re;" % (type,varname)),
