@@ -125,9 +125,14 @@ class TBase:
         if self.sections.has_key(sectname):
             return self.sections[sectname]
         return None
-    
+
+    def update_settings(self,sectname,node):
+        l = self.setlist(node)
+        #print l.pretty()
+        self.add_to_section(sectname, l) #self.setlist(node))
+        
     def default(self,node):
-        self.add_to_section("default", self.setlist(node))
+        self.update_settings("default", node)
 
     def add_to_section(self,sectname,stmlist):
         current = self.sections.get(sectname)
@@ -223,6 +228,12 @@ class TBase:
         if set_v:
             self.symbols[name] = v
 
+        #if node.datatype:
+        #    return ir.Move(
+        #        ir.Var(name,node,node.datatype),
+        #        ir.Const(0.0,node,fracttypes.Float),
+        #        node, node.datatype)
+        
     def funcsetting(self,node,func):
         name = node.children[0].leaf
         if name == "default":
@@ -967,7 +978,7 @@ class ParFile(TBase):
         if s: self.params(s)
 
     def params(self, node):
-        self.add_to_section("gradient", self.setlist(node))
+        self.update_settings("gradient", node)
         
     def set(self,node):
         name = node.children[0].leaf
@@ -999,10 +1010,10 @@ class GradientFunc(TBase):
         if s: self.opacity(s)
 
     def gradient(self, node):
-        self.add_to_section("gradient", self.setlist(node))
+        self.update_settings("gradient", node)
         
     def opacity(self, node):
-        self.add_to_section("opacity",self.setlist(node))
+        self.update_settings("opacity", node)
 
     def set(self,node):
         name = node.children[0].leaf
