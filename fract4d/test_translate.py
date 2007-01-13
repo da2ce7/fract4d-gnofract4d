@@ -24,10 +24,10 @@ class Test(testbase.TestBase):
     def tearDown(self):
         pass
 
-    def translate(self,s,dump=None):
+    def translate(self,s,prefix="f",dump=None):
         fractlexer.lexer.lineno = 1
         pt = self.parser.parse(s)
-        return translate.T(pt.children[0], dump)
+        return translate.T(pt.children[0], prefix, dump)
 
     def translatecf(self,s,dump=None):
         fractlexer.lexer.lineno = 1
@@ -513,26 +513,6 @@ default:
 
         self.assertNoErrors(t)
         
-    def testEnums(self):
-        t = self.translate('''
-        t1 {
-        init:
-        if @y == "fOo"
-           x = 1
-        elseif @y == "bar"
-           x = 2
-        endif
-        bool b = @y == "bar"
-        default:
-        param y
-        enum = "Foo" "bar"
-        default = "bar"
-        endparam
-        }
-        ''')
-
-        self.assertNoErrors(t)
-
     def testBadEnum(self):
         t = self.translate('''
         t1 {
@@ -547,7 +527,7 @@ default:
         }
         ''')
 
-        self.assertError(t, "4: enum value 'xxx' invalid for param @y")
+        self.assertError(t, "4: Unknown enumeration value 'xxx'")
 
     def testBadEnum2(self):
         t = self.translate('''
@@ -560,8 +540,7 @@ default:
         }
         ''')
 
-        # line number is (unfortunately) start of param, not line with default
-        self.assertError(t, "4: enum value 'xxx' invalid for param @y")
+        self.assertError(t, "6: Unknown enumeration value 'xxx'")
 
     def testColorParam(self):
         t = self.translate('''
@@ -733,7 +712,7 @@ default:
         self.assertEqual(move.children[0].name, "__bailout")
 
         # a complex expression
-        t = self.translate('''t_bail_3 {        
+        t = self.translate('''t_bail_4 {        
         bailout:
         (x && y) || (y && x)
         }''')
@@ -798,7 +777,7 @@ default:
             default = "fish"
         endparam
         }''')
-        self.assertError(t, "4: Cannot convert string (fish) to complex")
+        self.assertError(t, "4: Unknown enumeration value 'fish'")
 
     def testParamTypeConversion(self):
         t = self.translate('''t_badparam {
@@ -954,13 +933,41 @@ default:
         e = calculate.enum
         self.assertEqual(e.value, ["Sum", "Abs", "Diff"])
         self.assertEqual(calculate.type,fracttypes.Int)
-        
-    def testStringErrors(self):
+
+    def testEnums(self):
+        t = self.translate('''
+        t1 {
+        init:
+        if @y == "fOo"
+           x = 1
+        elseif @y == "bar"
+           x = 2
+        endif
+        bool b = @y == "bar"
+        default:
+        param y
+        enum = "Foo" "bar"
+        default = "bar"
+        endparam
+        }
+        ''')
+
+        self.assertEqual(t.symbols.get("__enum_foo").value,0)
+        self.assertEqual(t.symbols.get("__enum_bar").value,1)
+        self.assertNoErrors(t)
+
+
+    def testDefaultWithEnum(self):
         t = self.translate('''t_se {
         init:
         x = 1 + "hello"
+        default:
+        param @wibble
+        enum = "hello"
+        endparam
         }''')
-        self.assertError(t, "Invalid argument types ['int', 'string'] for + on line 3")
+        
+        self.assertNoErrors(t)
         
     def testParams(self):
         t12 = self.translate('''t_params {

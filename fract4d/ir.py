@@ -22,7 +22,16 @@ class T:
             if child == None:
                 r.append(d(depth+1,"<<None>>"))
             else:
-                r.append(child.pretty(depth+1))
+                try:
+                    r.append(child.pretty(depth+1))
+                except Exception, exn:
+                    print "self",self
+                    print len(child)
+                    for c in child:
+                        print c
+                    print "<Error printing child '%s'>" % child
+                    raise
+                
         return string.join(r,"")    
     def __iter__(self):
         return absyn.NodeIter(self)

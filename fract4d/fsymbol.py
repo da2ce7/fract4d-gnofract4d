@@ -574,6 +574,7 @@ class T(UserDict):
         self.reset()
         self.nextlabel = 0
         self.nextTemp = 0
+        self.nextEnum = 0
         self.prefix = prefix
         self.temp_prefix = "t__%s" % prefix
         
@@ -666,7 +667,14 @@ class T(UserDict):
 
     def is_builtin(self,key):
         return key[0] == '#'
-    
+
+    def clashes_with_private(self,mangled_key,old_key):
+        if string.find(mangled_key,"t__",0,3)!=0:
+            return False
+        if old_key[0]=='@':
+            return False
+        return True
+            
     def __setitem__(self,key,value):
         k = mangle(key)
         if self.data.has_key(k):
@@ -689,7 +697,7 @@ class T(UserDict):
         elif self.is_builtin(key):
             msg = "symbol '%s': only predefined symbols can begin with #" % key
             raise KeyError, msg                  
-        elif string.find(k,"t__",0,3)==0 and not key[0]=='@':
+        elif self.clashes_with_private(k,key):
             raise KeyError, \
                   ("symbol '%s': no symbol starting with t__ is allowed" % key)
         self.data[k] = value
@@ -864,3 +872,10 @@ class T(UserDict):
         
         
         return name
+
+    def newEnum(self,name,val,pos):
+        var = Var(Int, val, pos)
+        var.cname = "enum%d" % self.nextEnum
+        self.nextEnum += 1
+        self["__enum_" + name] = var
+        return var

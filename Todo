@@ -7,9 +7,10 @@ changes in 3.3:
 * B	on freebsd, gtkfractal.onbuttonrelease, self has no x
 * WW	transforms
 * B	preview wrong when moving transform's 4-ways
+* W	skip 'enabled' flag in defaults
 
 to fix before release:
-* W	more transforms, incl 4-d ones
+* W	more transforms, incl 4-d ones. Make 4D a 'standard' transform?
 * BBB	nasty black lines going east - regression?
 * B	odd behavior re: selected transform in list
 
