@@ -334,34 +334,15 @@ cmap_create_gradient(PyObject *self, PyObject *args)
     return pyret;
 }
 
-static PyObject *
-pf_init(PyObject *self, PyObject *args)
+static bool
+parse_posparams(PyObject *py_posparams, double *pos_params)
 {
-    PyObject *pyobj, *pyarray, *py_posparams;
-    double period_tolerance;
-    struct s_param *params;
-    struct pfHandle *pfh;
-    double pos_params[N_PARAMS];
-
-    if(!PyArg_ParseTuple(
-	   args,"OdOO",&pyobj,&period_tolerance,&py_posparams, &pyarray))
-    {
-	return NULL;
-    }
-    if(!PyCObject_Check(pyobj))
-    {
-	PyErr_SetString(PyExc_ValueError,"Not a valid handle");
-	return NULL;
-    }
-
-    pfh = (struct pfHandle *)PyCObject_AsVoidPtr(pyobj);
-
     // check and parse pos_params
     if(!PySequence_Check(py_posparams))
     {
 	PyErr_SetString(PyExc_TypeError,
-			"Argument 3 should be an array of floats");
-	return NULL;
+			"Positional params should be an array of floats");
+	return false;
     }
 
     int len = PySequence_Size(py_posparams);
@@ -370,7 +351,7 @@ pf_init(PyObject *self, PyObject *args)
 	PyErr_SetString(
 	    PyExc_ValueError,
 	    "Wrong number of positional params");
-	return NULL;
+	return false;
     }
     
     for(int i = 0; i < N_PARAMS; ++i)
@@ -381,20 +362,28 @@ pf_init(PyObject *self, PyObject *args)
 	    PyErr_SetString(
 		PyExc_ValueError,
 		"All positional params must be floats");
-	    return NULL;
+	    return false;
 	}
 	pos_params[i] = PyFloat_AsDouble(pyitem);
     }
+    return true;
+}
+
+static s_param *
+parse_params(PyObject *pyarray, int *plen)
+{
+    struct s_param *params;
 
     // check and parse fractal params
     if(!PySequence_Check(pyarray))
     {
 	PyErr_SetString(PyExc_TypeError,
-			"Argument 4 should be an array");
+			"parameters argument should be an array");
 	return NULL;
     }
 
-    len = PySequence_Size(pyarray);
+
+    int len = PySequence_Size(pyarray);
     if(len == 0)
     {
 	params = (struct s_param *)malloc(sizeof(struct s_param));
@@ -476,12 +465,135 @@ pf_init(PyObject *self, PyObject *args)
 	    }
 	    Py_XDECREF(pyitem);
 	} 
-	/*finally all args are assembled */
-	pfh->pfo->vtbl->init(pfh->pfo,period_tolerance,pos_params,params,len);
-	free(params);
     }
+    *plen = len;
+    return params;
+}
+
+static PyObject *
+pf_init(PyObject *self, PyObject *args)
+{
+    PyObject *pyobj, *pyarray, *py_posparams;
+    double period_tolerance;
+    struct s_param *params;
+    struct pfHandle *pfh;
+    double pos_params[N_PARAMS];
+
+    if(!PyArg_ParseTuple(
+	   args,"OdOO",&pyobj,&period_tolerance,&py_posparams, &pyarray))
+    {
+	return NULL;
+    }
+    if(!PyCObject_Check(pyobj))
+    {
+	PyErr_SetString(PyExc_ValueError,"Not a valid handle");
+	return NULL;
+    }
+
+    pfh = (struct pfHandle *)PyCObject_AsVoidPtr(pyobj);
+
+    if(!parse_posparams(py_posparams, pos_params))
+    {
+	return NULL;
+    }
+
+    int len=0;
+    params = parse_params(pyarray,&len);
+    if(!params)
+    {
+	return NULL;
+    }
+
+    /*finally all args are assembled */
+    pfh->pfo->vtbl->init(pfh->pfo,period_tolerance,pos_params,params,len);
+    free(params);
+
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+/* convert an array of params from the s_param representation 
+   to a Python list */
+
+static PyObject *
+params_to_python(struct s_param *params, int len)
+{
+    PyObject *pyret = PyList_New(len);
+    if(!pyret)
+    {
+	PyErr_SetString(PyExc_MemoryError, "Can't allocate defaults list");
+	return NULL;
+    }
+    for(int i = 0; i < len; ++i)
+    {
+	switch(params[i].t)
+	{
+	case FLOAT:
+	    PyList_SET_ITEM(pyret,i,PyFloat_FromDouble(params[i].doubleval));
+	    break;
+	case INT:
+	    PyList_SET_ITEM(pyret,i,PyInt_FromLong(params[i].intval));
+	    break;
+	case GRADIENT:
+	    Py_INCREF(Py_None);
+	    PyList_SET_ITEM(pyret,i,Py_None);
+	    break;
+	default:
+	    assert(0 && "Unexpected type for parameter");
+	    Py_INCREF(Py_None);
+	    PyList_SET_ITEM(pyret,i,Py_None);
+	}
+    }
+    return pyret;
+}
+
+static PyObject *
+pf_defaults(PyObject *self, PyObject *args)
+{
+    PyObject *pyobj, *pyarray, *py_posparams;
+    double period_tolerance;
+    struct s_param *params;
+    struct pfHandle *pfh;
+    double pos_params[N_PARAMS];
+
+    if(!PyArg_ParseTuple(
+	   args,"OdOO",&pyobj,&period_tolerance,&py_posparams, &pyarray))
+    {
+	return NULL;
+    }
+    if(!PyCObject_Check(pyobj))
+    {
+	PyErr_SetString(PyExc_ValueError,"Not a valid handle");
+	return NULL;
+    }
+
+    pfh = (struct pfHandle *)PyCObject_AsVoidPtr(pyobj);
+
+    if(!parse_posparams(py_posparams, pos_params))
+    {
+	return NULL;
+    }
+
+    int len=0;
+    params = parse_params(pyarray,&len);
+    if(!params)
+    {
+	return NULL;
+    }
+
+    /*finally all args are assembled */
+    pfh->pfo->vtbl->get_defaults(
+	pfh->pfo,
+	period_tolerance,
+	pos_params,
+	params,
+	len);
+    
+
+    PyObject *pyret = params_to_python(params,len);
+    free(params);
+
+    return pyret;
 }
 
 static PyObject *
@@ -2106,6 +2218,8 @@ static PyMethodDef PfMethods[] = {
      "Init a point function"},
     {"pf_calc", pf_calc, METH_VARARGS,
      "Calculate one point"},
+    {"pf_defaults", pf_defaults, METH_VARARGS,
+     "Get defaults for this formula"},
 
     { "cmap_create", cmap_create, METH_VARARGS,
       "Create a new colormap"},

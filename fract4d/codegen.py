@@ -102,11 +102,16 @@ static void pf_init(
     pfo->period_tolerance = period_tolerance;
 }
 
-static void pf_set_defaults(
-    // "object" pointer
-    struct s_pf_data *t__p_stub,
-    // in params
-    const double *t__params, int maxiter, int t__warp_param
+static void pf_get_defaults(
+      // "object" pointer
+      struct s_pf_data *t__p_stub,
+      // in params
+      double period_tolerance,
+      double *pos_params,
+      // out params
+      struct s_param *params,
+      // in param
+      int nparams
     )
 {
     pf_real *t__pfo = (pf_real *)t__p_stub;
@@ -305,6 +310,7 @@ static void pf_kill(
 
 static struct s_pf_vtable vtbl = 
 {
+    pf_get_defaults,
     pf_init,
     pf_calc,
     pf_calc_period,
@@ -393,6 +399,15 @@ struct s_param
 struct s_pf_data;
 
 struct s_pf_vtable {
+    /* fill in params with the default values for this formula */
+    void (*get_defaults)(
+	struct s_pf_data *p,
+        double period_tolerance,
+	double *pos_params,
+        struct s_param *params,
+	int nparams
+	);
+
     /* fill in fields in pf_data with appropriate stuff */
     void (*init)(
 	struct s_pf_data *p,

@@ -875,7 +875,8 @@ class T(UserDict):
 
     def newEnum(self,name,val,pos):
         var = Var(Int, val, pos)
-        var.cname = "enum%d" % self.nextEnum
+        # set cname because the enum value may not be a valid C identifier
+        var.cname = "enum%s%d" % (self.prefix,self.nextEnum) 
         self.nextEnum += 1
         self["__enum_" + name] = var
         return var
