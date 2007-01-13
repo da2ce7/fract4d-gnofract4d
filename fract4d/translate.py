@@ -32,9 +32,10 @@ class TBase:
         self.dumpTranslation = 0
         self.dumpVars = 0
         self.dumpPreCanon = 0
-        
+
         if dump != None:
             for k in dump.keys():
+                print k
                 self.__dict__[k]=1
 
     def post_init(self):
@@ -158,6 +159,14 @@ class TBase:
         if name.leaf == "visible" or name.leaf == "enabled":
             #FIXME ignore visibility for now, parser can't deal with it
             return
+        
+        if name.leaf == "default":
+            e = self.exp(node.children[1])
+            var.full_default = e
+
+        if name.leaf == "enum":
+            self.enum(node.children[1])
+        
         val = self.const_exp(node.children[1])
         setattr(var,name.leaf,val)
 
@@ -228,11 +237,18 @@ class TBase:
         if set_v:
             self.symbols[name] = v
 
-        #if node.datatype:
-        #    return ir.Move(
-        #        ir.Var(name,node,node.datatype),
-        #        ir.Const(0.0,node,fracttypes.Float),
-        #        node, node.datatype)
+        if node.datatype:
+            if(hasattr(v,"full_default")):
+                e = self.coerce(v.full_default,node.datatype)
+                defexp = e
+            else:
+                defexp = ir.Const(fracttypes.default_value(node.datatype),
+                                  node,node.datatype)
+
+            return ir.Move(
+                ir.Var(name,node,node.datatype),
+                defexp,
+                node, node.datatype)
         
     def funcsetting(self,node,func):
         name = node.children[0].leaf
@@ -326,7 +342,22 @@ class TBase:
             parts.append(self.const_convert(
                 self.const_exp(node.children[i]), fracttypes.Float))
         return ir.Const(parts, node, type)
-    
+
+    def add_enum_value(self,name,val,pos):
+        self.symbols.newEnum(name,val,pos)
+        
+    def enum(self,node):
+        # declaring an enum
+        vals = self.string(node)
+        
+        strings = [node.leaf]
+        strings += map(lambda n : n.leaf, node.children)
+        
+        i = 0
+        for s in strings:
+            self.add_enum_value(s,i,node.pos)
+            i += 1
+            
     def const_exp(self,node):
         # FIXME should compute full constant expressions
         if node.type == "const":
@@ -466,7 +497,6 @@ class TBase:
 
         # convert boolean operation
         children = map(lambda n : self.exp(n) , node.children[0].children)
-        children = self.expand_enums(node, children)
         op = self.findOp(node.children[0].leaf, node.children[0].pos,children)
         convertedChildren = self.coerceList(op.args,children)
 
@@ -501,7 +531,6 @@ class TBase:
         
         # convert boolean operation
         children = map(lambda n : self.exp(n) , node.children[0].children)
-        children = self.expand_enums(node, children)
         op = self.findOp(node.children[0].leaf, node.children[0].pos,children)
         convertedChildren = self.coerceList(op.args,children)
 
@@ -605,7 +634,7 @@ class TBase:
         elif node.type == "assign":
             r = self.assign(node)
         elif node.type == "string":
-            r = self.string(node)
+            r = self.enum_lookup(node)
         else:
             self.badNode(node,"exp")
 
@@ -708,30 +737,11 @@ class TBase:
             i += 1
         raise ValueError, "not found"
     
-    def expand_enums(self, node, children):
-        'special case for @foo <binop> "enum"'
-        lhs = children[0]
-        rhs = children[1]
-        if isinstance(lhs, ir.Var):
-            var = self.symbols[lhs.name]
-            if hasattr(var, "enum"):
-                if isinstance(rhs, ir.Const) and rhs.datatype == String:
-                    try:
-                        val = self.find_index_nocase(var.enum.value,rhs.value)
-                        children[1] = ir.Const(val,node,Int)
-                    except ValueError:
-                        msg = "%d: enum value '%s' invalid for param %s" % \
-                              (node.pos, rhs.value, lhs.name)
-                        raise TranslationError(msg)
-                    
-        return children
-    
     def binop(self, node):
         if self.isShortcut(node):
             return self.shortcut(node)
         else:
             children = map(lambda n : self.exp(n) , node.children)
-            children = self.expand_enums(node, children)
             op = self.findOp(node.leaf, node.pos,children)
             children = self.coerceList(op.args,children)
 
@@ -779,7 +789,15 @@ class TBase:
             strings = [node.leaf]
             strings += map(lambda n : n.leaf, node.children)
             return ir.Enum(strings, node, node.datatype)
-    
+
+    def enum_lookup(self,node):
+        try:
+            val = self.symbols["__enum_" + node.leaf].value
+            return ir.Const(val, node, fracttypes.Int)
+        except KeyError, err:            
+            msg = "%d: Unknown enumeration value '%s'" % (node.pos,node.leaf)
+            raise TranslationError(msg)
+        
     def coerceList(self,expList,typeList):
         return map( lambda (exp,ty) : self.coerce(exp,ty) ,
                     zip(typeList, expList))

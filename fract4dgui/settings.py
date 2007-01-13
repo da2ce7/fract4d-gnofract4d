@@ -193,16 +193,19 @@ class SettingsDialog(dialog.T):
 
         self.transform_view = gtk.TreeView(self.transform_store)
         self.transform_view.set_headers_visible(False)
-
+        self.transform_view.set_size_request(150,250)
         renderer = gtk.CellRendererText ()
         column = gtk.TreeViewColumn ('_Transforms', renderer, text=0)
         
         self.transform_view.append_column (column)
 
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        sw.add(self.transform_view)
+        sw.set_shadow_type(gtk.SHADOW_IN)
         table.attach(
-            self.transform_view, 0, 1, 0, 4,
-            gtk.EXPAND | gtk.FILL, gtk.EXPAND | gtk.FILL, 2, 2)
-
+            sw, 0, 1, 0, 4,
+            0, 0, 2, 2)
 
         add_button = gtk.Button(None,gtk.STOCK_ADD)
         add_button.connect(
