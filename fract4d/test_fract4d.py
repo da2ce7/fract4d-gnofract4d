@@ -86,6 +86,17 @@ class Test(testbase.TestBase):
     def tearDown(self):
         pass
 
+    def testGetDefaults(self):
+        self.compileMandel()
+        handle = fract4dc.pf_load("./test-pf.so")
+        pfunc = fract4dc.pf_create(handle)
+
+        ret = fract4dc.pf_defaults(
+            pfunc,0.001,pos_params, [self.gradient, 0.0, 0.0])
+        self.failUnless(isinstance(ret, types.ListType))
+        self.assertEqual(3,len(ret))
+        self.assertEqual([None,4.0,1.0],ret)
+
     def testBasic(self):
         self.compileMandel()
         handle = fract4dc.pf_load("./test-pf.so")
