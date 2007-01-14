@@ -9,13 +9,18 @@ __connection__ = hub
 # class YourDataClass(SQLObject):
 #     pass
 
-class Formula:
-    formulaFile = StringCol()
-    formulaName = StringCol()
+class FormulaFile(SQLObject):
+    file_name = StringCol(alternateID=True)
+    formulas = MultipleJoin('Formula')
+    
+class Formula(SQLObject):
+    formula_name = StringCol()
+    formulaFile = ForeignKey('FormulaFile')
 
-class Fractal:
+class Fractal(SQLObject):
     title = StringCol()
     description = StringCol()
+    formula = ForeignKey('Formula')
     
 # identity models.
 class Visit(SQLObject):
