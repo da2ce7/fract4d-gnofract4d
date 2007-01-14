@@ -44,3 +44,7 @@ class Root(controllers.RootController):
     def logout(self):
         identity.current.logout()
         raise redirect("/")
+
+    @expose(template="elephant_valley.templates.more")
+    def more(self):
+        return dict()

@@ -13,17 +13,22 @@ def teardown_func():
 
 cherrypy.root = Root()
 
-def test_method():
+def test_index_method():
     "the index method should return a string called now"
     import types
     result = testutil.call(cherrypy.root.index)
     assert type(result["now"]) == types.StringType
-test_method = with_setup(teardown=teardown_func)(test_method)
+test_index_method = with_setup(teardown=teardown_func)(test_index_method)
+
+def test_more():
+    testutil.createRequest("/more")
+    assert "<title>About Elephant Valley</title>" in cherrypy.response.body[0]
+test_more = with_setup(teardown=teardown_func)(test_more)
 
 def test_indextitle():
     "The indexpage should have the right title"
     testutil.createRequest("/")
-    assert "<title>Welcome to TurboGears</title>" in cherrypy.response.body[0]
+    assert "<title>Elephant Valley: A Fractal Gallery</title>" in cherrypy.response.body[0]
 test_indextitle = with_setup(teardown=teardown_func)(test_indextitle)
 
 def test_logintitle():

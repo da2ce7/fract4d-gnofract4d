@@ -48,6 +48,21 @@ class TestFormula(testutil.DBTest):
         obj = Formula(formulaFile=ff,formula_name = "Mandelbrot")
         assert obj.formulaFile.file_name == "x"
 
+    def testFractals(self):
+        ff = FormulaFile(file_name = "x")
+        f = Formula(formulaFile=ff,formula_name = "a")
+
+        assert f.fractals == []
+
+        f1 = Fractal(title="a",description="wibble")
+        f1.addFormula(f)
+        f2 = Fractal(title="b",description="wibble2")
+        f2.addFormula(f)
+        
+        print f.fractals
+        assert f.fractals.count(f1) != 0
+        assert f.fractals.count(f2) != 0
+        
 class TestFractal(testutil.DBTest):
     def get_model(self):
         return Fractal
@@ -55,6 +70,7 @@ class TestFractal(testutil.DBTest):
     def test_creation(self):
         ff = FormulaFile(file_name = "x")        
         f = Formula(formulaFile=ff,formula_name = "Mandelbrot")
-        fractal = Fractal(formula=f,title="My Fractal",description="Boring")
-        assert fractal.formula.formulaFile.file_name == "x"
+        fractal = Fractal(title="My Fractal",description="Boring")
+        fractal.addFormula(f)
+        assert fractal.formulas[0] == f
     
