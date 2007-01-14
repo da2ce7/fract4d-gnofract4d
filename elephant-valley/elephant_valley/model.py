@@ -16,11 +16,12 @@ class FormulaFile(SQLObject):
 class Formula(SQLObject):
     formula_name = StringCol()
     formulaFile = ForeignKey('FormulaFile')
-
+    fractals = RelatedJoin('Fractal')
+    
 class Fractal(SQLObject):
     title = StringCol()
     description = StringCol()
-    formula = ForeignKey('Formula')
+    formulas = RelatedJoin('Formula')
     
 # identity models.
 class Visit(SQLObject):
