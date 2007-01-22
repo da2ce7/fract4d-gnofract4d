@@ -68,6 +68,17 @@ _defaultOfType = {
     Gradient : 0
     }
 
+_slotsForType = {
+    Int: 1,
+    Float : 1,
+    Complex: 2,
+    Bool : 1,
+    Color : 4,
+    String : 0,
+    Hyper: 4,
+    Gradient: 1
+    }
+
 _cTypeOfType = {
     Int : "int",
     Float : "double",
@@ -94,6 +105,9 @@ def ctype(t):
 
 def default_value(t):
     return _defaultOfType[t]
+
+def slotsForType(t):
+    return _slotsForType[t]
 
 _canBeCast = [
     # rows are from, columns are to
@@ -181,7 +195,8 @@ class Var:
         self.is_temp = False
         self.__doc__ = kwds.get("doc")
         self.declared = False
-
+        self.param_slot = -1
+        
     def _get_is_temp(self):
         return False
     is_temp = property(_get_is_temp)
