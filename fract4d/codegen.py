@@ -115,7 +115,7 @@ static void pf_get_defaults(
     )
 {
     pf_real *t__pfo = (pf_real *)t__p_stub;
-    /* %(default)s */
+    /*%(default)s*/
 }
 
 static void pf_calc(

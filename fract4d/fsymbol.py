@@ -575,6 +575,8 @@ class T(UserDict):
         self.nextlabel = 0
         self.nextTemp = 0
         self.nextEnum = 0
+        self.nextParamSlot = 0
+        self.var_params = []
         self.prefix = prefix
         self.temp_prefix = "t__%s" % prefix
         
@@ -674,7 +676,12 @@ class T(UserDict):
         if old_key[0]=='@':
             return False
         return True
-            
+
+    def record_param(self,value):
+        value.param_slot = self.nextParamSlot
+        self.nextParamSlot += slotsForType(value.type)
+        self.var_params.append(value)
+        
     def __setitem__(self,key,value):
         k = mangle(key)
         if self.data.has_key(k):
@@ -701,6 +708,8 @@ class T(UserDict):
             raise KeyError, \
                   ("symbol '%s': no symbol starting with t__ is allowed" % key)
         self.data[k] = value
+        if self.is_param(k) and isinstance(value,Var):
+            self.record_param(value)
         if hasattr(value,"cname") and value.cname == None:
             value.cname=self.insert_prefix(self.prefix,k)
 
@@ -796,12 +805,7 @@ class T(UserDict):
         op = {}; i = 0
         for k in karray:
             op[k] = i
-            if p[k].type == Complex:
-                i += 2
-            elif p[k].type == Hyper or p[k].type == Color:
-                i += 4
-            else:
-                i += 1
+            i += slotsForType(p[k].type)
         op["__SIZE__"]=i
 
         return op

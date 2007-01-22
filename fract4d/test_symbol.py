@@ -41,7 +41,38 @@ class SymbolTest(unittest.TestCase):
             ["t__a_fangle", "t__a_cf0val", "t__a_cf1val",
              "t__a_t0val", "t__a_t1val"],
             list)
-                         
+
+    def testParamSlots(self):
+        t = fsymbol.T("boo")
+        v = Var(Int,1)
+        self.assertEqual(-1,v.param_slot)
+        t["x"] = v
+        self.assertEqual(-1,v.param_slot)
+
+        v2 = Var(Complex,[1.0,2.0])
+        self.assertEqual(-1,v2.param_slot)
+        t["@p"] = v2
+        self.assertEqual(0,v2.param_slot)
+        self.assertEqual(2,t.nextParamSlot)
+
+        v3 = Var(Hyper,[1.0,2.0,3.0,4.0])
+        self.assertEqual(-1,v3.param_slot)
+        t["@pc"] = v3
+        self.assertEqual(2,v3.param_slot)
+        self.assertEqual(6,t.nextParamSlot)
+        
+        v4 = Var(Int,77)
+        self.assertEqual(-1,v4.param_slot)
+        t["@pi"] = v4
+        self.assertEqual(6,v4.param_slot)
+        self.assertEqual(7,t.nextParamSlot)
+
+        # functions shouldn't affect this
+        f = fsymbol.OverloadList([Func([Int],Int,"ident")])
+        t["@myfunc"] = f
+        self.assertNotEqual(True,hasattr(f,"param_slot"))
+        self.assertEqual(7,t.nextParamSlot)
+        
     def testPrefix(self):
         t = fsymbol.T("boo")
         v = Var(Int,1)
