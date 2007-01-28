@@ -32,16 +32,6 @@ class SymbolTest(unittest.TestCase):
         self.assertEqual(c["@fn1"][0].cname,"sin")
         self.failUnless(c[name].is_temp == True)
         
-    def testKeySort(self):
-        list = ["t__a_t1val","t__a_cf1val", "t__a_fangle", "t__a_cf0val",
-                "t__a_t0val"]
-        list.sort(self.t.keysort)
-
-        self.assertEqual(
-            ["t__a_fangle", "t__a_cf0val", "t__a_cf1val",
-             "t__a_t0val", "t__a_t1val"],
-            list)
-
     def testParamSlots(self):
         t = fsymbol.T("boo")
         v = Var(Int,1)
@@ -94,6 +84,26 @@ class SymbolTest(unittest.TestCase):
         self.assertEqual(2, op["t__a_p"])
         self.assertEqual(3, op["__SIZE__"])
 
+    def testParameterTypes(self):
+        t = fsymbol.T("f")
+        t["@a"] = Var(Int,1)
+        t["@b"] = Var(Bool,False)
+        t["@c"] = Var(Float,1.0)
+        t["@d"] = Var(Complex,[10,20])
+        t["@e"] = Var(Hyper,[1.0,1.0,1.0,1.0])
+        t["@f"] = Var(Gradient,None)
+        t["@g"] = Var(Color,[0.0,1.0,2.0,3.0])
+        
+        self.assertEqual(
+            [Int,
+             Bool,
+             Float,
+             Float,Float,
+             Float,Float,Float,Float,
+             Gradient,
+             Float,Float,Float,Float],
+            t.type_of_params())
+    
     def testOrderOfParamsMerges(self):
         (t1,t2) = (fsymbol.T("a"), fsymbol.T("b"))
         t1["@a"] = Var(Int, 1)

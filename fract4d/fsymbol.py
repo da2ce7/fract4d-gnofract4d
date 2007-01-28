@@ -809,26 +809,12 @@ class T(UserDict):
             
         return flist
 
-    def _highorder(self,a):
-        if a.startswith("t__a_cf"):
-            return 2
-        if a.startswith("t__a_t"):
-            return 3
-        return 1
-    
-    def keysort(self,a,b):
-        """comparison fn for key sorting - ensures the order is formula,
-        colorfuncs, transforms"""
-        cmp_a = (self._highorder(a),a)
-        cmp_b = (self._highorder(b),b)
-        return cmp(cmp_a,cmp_b)
-    
     def order_of_params(self):
         # a hash which maps param name -> order in input list
         p = self.parameters(True)
-        karray = p.keys()
+
         op = {}; 
-        for k in karray:
+        for k in p.keys():
             op[k] = self[k].param_slot
 
         op["__SIZE__"]=self.nextParamSlot
@@ -838,25 +824,26 @@ class T(UserDict):
     def type_of_params(self):
         # an array from param order -> type
         p = self.parameters(True)
-        karray = p.keys()
-        karray.sort(self.keysort)
-        tp = []; 
-        for k in karray:
+
+        tp = [ None] * self.nextParamSlot; 
+        for k in p.keys():
+            i = self[k].param_slot
             t = p[k].type
             if t == Complex:
-                tp += [Float, Float]
+                tp[i:i+2] = [Float, Float]
             elif t == Hyper or t == Color:
-                tp += [Float, Float, Float, Float]
+                tp[i:i+4] = [Float, Float, Float, Float]
             elif t == Float:
-                tp.append(Float)
+                tp[i] = Float
             elif t == Int:
-                tp.append(Int)
+                tp[i] = Int
             elif t == Bool:
-                tp.append(Int)
+                tp[i] = Bool
             elif t == Gradient:
-                tp.append(Gradient)
+                tp[i] = Gradient
             else:
                 raise ValueError("Unknown param type %s for %s" % (t, k))
+        #assert not None in tp
         return tp
 
     def default_params(self):
