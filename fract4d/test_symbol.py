@@ -72,6 +72,46 @@ class SymbolTest(unittest.TestCase):
         t["@myfunc"] = f
         self.assertNotEqual(True,hasattr(f,"param_slot"))
         self.assertEqual(7,t.nextParamSlot)
+
+    def testOrderOfParams(self):
+        "Are parameters returned in the right order?"
+        t = fsymbol.T("f")
+        t["@a"] = Var(Int,1)
+
+        op = t.order_of_params()
+        self.assertEqual(0, op["t__a_a"])
+
+        # add another param
+        t["@y"] = Var(Int,1)
+        op = t.order_of_params()
+        self.assertEqual(1, op["t__a_y"])
+
+        # and another earlier in the alphabet. This should
+        # still end up later, unlikely when order_of_params
+        # sorted by keys
+        t["@p"] = Var(Int,1)
+        op = t.order_of_params()
+        self.assertEqual(2, op["t__a_p"])
+        self.assertEqual(3, op["__SIZE__"])
+
+    def testOrderOfParamsMerges(self):
+        (t1,t2) = (fsymbol.T("a"), fsymbol.T("b"))
+        t1["@a"] = Var(Int, 1)
+        t2["@a"] = Var(Int, 3)
+        t2["@b"] = Var(Float, 2)
+        t1["@myfunc"] = fsymbol.OverloadList([Func([Int],Int,"ident")])
+        t2["@myotherfunc"] = fsymbol.OverloadList([Func([Int],Int,"ident")])
+        t1.merge(t2)
+
+        op = t1.order_of_params()
+        self.assertEqual(0, op["t__a_a"])
+        self.assertEqual(1, op["t__a_ba"])
+        self.assertEqual(2, op["t__a_bb"])
+        
+    def testGetDefaultParamSetsSlot(self):
+        t = fsymbol.T("f")
+        x = t["@p1"]
+        self.assertEqual(0,x.param_slot)
         
     def testPrefix(self):
         t = fsymbol.T("boo")
