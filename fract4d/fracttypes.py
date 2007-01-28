@@ -64,13 +64,6 @@ suffixOfType = {
     Gradient : "G"
     }
 
-# the appropriate C printf specifier for this type
-_printfOfType = {
-    Int : "%d",
-    Float: "%g",
-    Bool: "%d"
-    }
-
 _typeOfStr = {
     "int" : Int,
     "float" : Float,
@@ -116,9 +109,6 @@ _slotsForType = {
     Gradient: 1
     }
 
-def printfOfType(t):
-    return typeObjectList[t].printf
-
 def typeOfStr(tname):
     if not tname: return None
     return _typeOfStr[string.lower(tname)]
@@ -126,11 +116,8 @@ def typeOfStr(tname):
 def strOfType(t):
     return _strOfType[t]
 
-def ctype(t):
-    return typeObjectList[t].cname
-
 def default_value(t):
-    return _defaultOfType[t]
+    return typeObjectList[t].default
 
 def slotsForType(t):
     return _slotsForType[t]

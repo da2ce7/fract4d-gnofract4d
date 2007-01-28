@@ -57,7 +57,10 @@ class Exp(T):
 class Const(Exp):
     def __init__(self, value, node, datatype):
         Exp.__init__(self, node, datatype)
-        self.value = value
+        if value == None:
+            self.value = fracttypes.default_value(datatype)
+        else:
+            self.value = value
     def __str__(self):
         return "Const(%s" % self.value
 

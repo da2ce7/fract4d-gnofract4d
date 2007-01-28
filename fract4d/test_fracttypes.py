@@ -52,10 +52,14 @@ class Test(unittest.TestCase):
             self.assertEqual(i,fracttypes.typeObjectList[i].typeid)
             
     def testPrintfOfType(self):
-        self.assertEqual("%d", fracttypes.printfOfType(fracttypes.Bool))
-        self.assertEqual("%d", fracttypes.printfOfType(fracttypes.Int))
-        self.assertEqual("%g", fracttypes.printfOfType(fracttypes.Float))
-        self.assertEqual(None, fracttypes.printfOfType(fracttypes.String))
+        self.assertEqual(
+            "%d", fracttypes.typeObjectList[fracttypes.Bool].printf)
+        self.assertEqual(
+            "%d", fracttypes.typeObjectList[fracttypes.Int].printf)
+        self.assertEqual(
+            "%g", fracttypes.typeObjectList[fracttypes.Float].printf)
+        self.assertEqual(
+            None, fracttypes.typeObjectList[fracttypes.String].printf)
 
     def testCType(self):
         expected =  {
@@ -70,7 +74,7 @@ class Test(unittest.TestCase):
             }
 
         for (k,v) in expected.items():            
-            self.assertEqual(v,fracttypes.ctype(k))
+            self.assertEqual(v,fracttypes.typeObjectList[k].cname)
         
 def suite():
     return unittest.makeSuite(Test,'test')

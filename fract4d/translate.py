@@ -209,7 +209,7 @@ class TBase:
         v = self.symbols.get(name)    
         set_v = False
         if not v:
-            v = Var(datatype, default_value(datatype), node.pos)
+            v = Var(datatype, None, node.pos)
             set_v = True
 
         # check only declared once
@@ -242,8 +242,7 @@ class TBase:
                 e = self.coerce(v.full_default,node.datatype)
                 defexp = e
             else:
-                defexp = ir.Const(fracttypes.default_value(node.datatype),
-                                  node,node.datatype)
+                defexp = ir.Const(None,node,node.datatype)
 
             return ir.Move(
                 ir.Var(name,node,node.datatype),
@@ -406,8 +405,7 @@ class TBase:
         if val.datatype == type_out:
             return val
 
-        retval = ir.Const(fracttypes.default_value(type_out),
-                          val.node,type_out)
+        retval = ir.Const(None,val.node,type_out)
         
         if val.datatype == fracttypes.Complex:
             if type_out == fracttypes.Bool or \
@@ -559,7 +557,7 @@ class TBase:
             if not self.symbols.has_key(name):
                 # implicitly create a new var - a warning?
                 self.symbols[name] = \
-                    Var(Complex,default_value(Complex),lvalue.pos)
+                    Var(Complex,None,lvalue.pos)
 
             if isinstance(self.symbols[name],fracttypes.Var): 
                 expectedType = self.symbols[name].type
@@ -606,12 +604,10 @@ class TBase:
             exp = self.stm(node.children[0])
         else:
             # default initializer
-            exp = ir.Const(fracttypes.default_value(node.datatype),
-                           node, node.datatype)
+            exp = ir.Const(None, node, node.datatype)
 
         try:
-            self.symbols[node.leaf] = Var(node.datatype,
-                                          default_value(node.datatype), node.pos)
+            self.symbols[node.leaf] = Var(node.datatype, None, node.pos)
             return ir.Move(
                 ir.Var(node.leaf, node, node.datatype),                
                 self.coerce(exp, node.datatype),
@@ -758,7 +754,7 @@ class TBase:
                 (node.leaf, node.pos))
             try:
                 self.symbols[node.leaf] = Var(
-                    fracttypes.Complex, default_value(Complex), node.pos)
+                    fracttypes.Complex, None, node.pos)
             except KeyError, e:
                 raise TranslationError("%d: %s" % (node.pos, e.args[0]))
             

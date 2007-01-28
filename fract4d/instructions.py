@@ -3,7 +3,7 @@
 import string
 
 from fracttypes import Bool, Int, Float, Complex, Hyper, Color
-from fracttypes import TranslationError, printfOfType
+from fracttypes import TranslationError, typeObjectList
 
 class ComplexArg:
     ' a pair of args'
@@ -68,11 +68,11 @@ class ConstIntArg(ConstArg):
 class TempArg:
     def __init__(self,value,type):
         self.value = value
-        self.type = type
+        self.type = typeObjectList[type]
     def format(self):
         return self.value
     def cformat(self):
-        return printfOfType(self.type)
+        return self.type.printf
     def __str__(self):
         return "Temp(%s)" % self.format()
     
