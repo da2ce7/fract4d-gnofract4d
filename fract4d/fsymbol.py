@@ -593,17 +593,29 @@ class T(UserDict):
         # self = union(self,other)
         # any clashes are won by self
         for k in other.data.keys():
+            #print "key",k
             if self.data.get(k) == None:
+                #print "don't already have", k
                 if self.is_param(k):
+                    #print "update param", k
                     new_key = self.insert_prefix(other.prefix,k)
-                    self.data[new_key] = copy.copy(other.data[k])
+                    new_val = copy.copy(other.data[k])
+                    self.data[new_key] = new_val
+                    if isinstance(new_val,Var):
+                        new_val.param_slot += self.nextParamSlot
                 else:
                     self.data[k] = copy.copy(other.data[k])
             elif hasattr(self.data[k],"cname") and \
                  hasattr(other.data[k],"cname") and \
                  self.data[k].cname != other.data[k].cname:
-                    new_key = self.insert_prefix(other.prefix,k)
-                    self.data[new_key] = copy.copy(other.data[k])
+                #print "have", k
+                new_key = self.insert_prefix(other.prefix,k)
+                new_val = copy.copy(other.data[k])
+                self.data[new_key] = new_val
+                if isinstance(new_val,Var):
+                    new_val.param_slot += self.nextParamSlot
+
+        self.nextParamSlot += other.nextParamSlot
         
     def has_user_key(self,key):
         return self.data.has_key(mangle(key))
@@ -655,16 +667,19 @@ class T(UserDict):
         return k
     
     def __getitem__(self,key):
-        val = self.data.get(mangle(key),None)
+        k = mangle(key)
+        val = self.data.get(k,None)
         if val == None:
-            val = self.default_dict[mangle(key)]
+            val = self.default_dict[k]
             if isinstance(val,Alias):
                 key = val.realName
                 return self.__getitem__(key)
 
             val = copy.copy(val)
-            self.data[mangle(key)] = val
-            
+            self.data[k] = val
+            if self.is_param(k) and isinstance(val,Var) and \
+                   val.param_slot == -1:
+                self.record_param(val)
         return val
 
     def is_builtin(self,key):
@@ -684,7 +699,9 @@ class T(UserDict):
         
     def __setitem__(self,key,value):
         k = mangle(key)
+        #print "set",k
         if self.data.has_key(k):
+            #print "in this",k
             pre_type = self.data[k].type
             if  pre_type != value.type:                
                 l = self.data[k].pos
@@ -694,12 +711,17 @@ class T(UserDict):
             return
         elif T.default_dict.has_key(k):
             pre_var = T.default_dict[k]
+            #print "in default",k
             if isinstance(pre_var,OverloadList):
                 msg = "is predefined as a function"
                 raise KeyError, ("symbol '%s' %s" % (key,msg))
-            if pre_var.type != value.type:
-                msg = "is predefined as %s" % strOfType(T.default_dict[k].type)
-                raise KeyError, ("symbol '%s' %s" % (key,msg))
+            else:
+                if pre_var.type != value.type:
+                    msg = "is predefined as %s" % \
+                          strOfType(T.default_dict[k].type)
+                    raise KeyError, ("symbol '%s' %s" % (key,msg))
+
+                self.record_param(pre_var)
             return
         elif self.is_builtin(key):
             msg = "symbol '%s': only predefined symbols can begin with #" % key
@@ -709,7 +731,11 @@ class T(UserDict):
                   ("symbol '%s': no symbol starting with t__ is allowed" % key)
         self.data[k] = value
         if self.is_param(k) and isinstance(value,Var):
+            #print "recording",k
             self.record_param(value)
+        else:
+            pass #print "not recording",k
+            
         if hasattr(value,"cname") and value.cname == None:
             value.cname=self.insert_prefix(self.prefix,k)
 
@@ -801,12 +827,11 @@ class T(UserDict):
         # a hash which maps param name -> order in input list
         p = self.parameters(True)
         karray = p.keys()
-        karray.sort(self.keysort)
-        op = {}; i = 0
+        op = {}; 
         for k in karray:
-            op[k] = i
-            i += slotsForType(p[k].type)
-        op["__SIZE__"]=i
+            op[k] = self[k].param_slot
+
+        op["__SIZE__"]=self.nextParamSlot
 
         return op
 

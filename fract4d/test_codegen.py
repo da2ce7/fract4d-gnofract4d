@@ -44,10 +44,10 @@ int main()
         
     struct s_param initparams[] = {
         { GRADIENT, 0, 0},
-        { FLOAT, 0, 1.0},
         { FLOAT, 0, 0.0},
         { FLOAT, 0, 1.0},
         { FLOAT, 0, 0.0},
+        { FLOAT, 0, 1.0},
         { FLOAT, 0, 5.0},
         { FLOAT, 0, 2.0}
         };

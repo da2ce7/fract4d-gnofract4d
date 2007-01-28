@@ -878,7 +878,13 @@ default:
         
         k = t.symbols.parameters().keys()
         k.sort()
-        exp_k = ["t__a__gradient", "t__a_f1", "t__a_foo","t__a_with_turnaround8", "t__a_h1"]
+        exp_k = [
+            "t__a__gradient",
+            "t__a_f1",
+            "t__a_foo",
+            "t__a_with_turnaround8",
+            "t__a_h1"]
+        
         exp_k.sort()
         self.assertEqual(k,exp_k)        
 
@@ -895,20 +901,21 @@ default:
 
         params = t.symbols.parameters(True)
         op = t.symbols.order_of_params()
-
-        self.assertEqual(op["t__a_f1"],1)
-        self.assertEqual(op["t__a_foo"],2)
-        self.assertEqual(op["t__a_h1"],4)
-        self.assertEqual(op["t__a_with_turnaround8"],8)
-        self.assertEqual(op["__SIZE__"],10)
+        
+        self.assertEqual(0, op["t__a__gradient"])
+        self.assertEqual(1, op["t__a_foo"])
+        self.assertEqual(3, op["t__a_with_turnaround8"])
+        self.assertEqual(5, op["t__a_f1"])
+        self.assertEqual(6, op["t__a_h1"])
+        self.assertEqual(10, op["__SIZE__"])
 
         defparams = t.symbols.default_params()
         self.assertEqual(defparams,[
             0.0, # gradient
-            1.2, #f1
             10.0,0.0, #foo
+            1.0,0.0, # turnaround
+            1.2, #f1
             4.0,5.0,6.0,7.0, #h1
-            1.0,0.0 # turnaround
             ])
         
     def testEnum(self):
@@ -990,13 +997,14 @@ default:
 
         exp_ord = {
             "t__a__gradient" : 0,
-            "t__a_my_param": 1,
-            "t__a_p1": 3,
-            "t__a_p2": 5,
+            "t__a_p1": 1,
+            "t__a_p2": 3,
+            "t__a_my_param": 5,
             "__SIZE__": 7
             }
         
         op = t12.symbols.order_of_params()
+
         for (key,ord) in op.items():
             self.assertEqual(op[key],exp_ord[key])
 

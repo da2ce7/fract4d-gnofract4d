@@ -123,14 +123,14 @@ class Test(unittest.TestCase):
         global g_comp
         self.compiler = g_comp
         self.default_flat_params = [
-            1.0, #_density
             0.0, #_offset
-            1, # bool b
-            0.01, 0.02, 0.03, 0.04, # color col
-            1, # enum ep
-            4, # int i 
+            1.0, #_density
             0.4, # float val
-            0.7, 0.8, 0.9, 1.0 # hyper val2
+            0.7, 0.8, 0.9, 1.0, # hyper val2
+            4, # int i 
+            1, # bool b
+            1, # enum ep
+            0.01, 0.02, 0.03, 0.04, # color col
             ]
 
     def tearDown(self):
@@ -471,11 +471,13 @@ colorlist=[
     def testCFParams(self):
         f = fractal.T(self.compiler)
 
-        self.assertEqual(f.forms[1].params,[1.0,0.0,4.0])
+        # offset, density, bailout
+        self.assertEqual([0.0, 1.0, 4.0], f.forms[1].params)
         
         f.set_outer("test.cfrm", "Triangle")
-        
-        self.assertEqual(f.forms[1].params,[ 1.0, 0.0, 1.0e20, 2.0])
+
+        # offset, density, power, bailout
+        self.assertEqual([ 0.0, 1.0, 2.0, 1.0e20], f.forms[1].params)
         
         cf0p = f.forms[1].formula.symbols.parameters()
         self.assertEqual(cf0p["t__a_bailout"].cname, "t__a_cf0bailout")
@@ -498,35 +500,48 @@ colorlist=[
         self.assertEqual(p2["t__a_cf0bailout"].cname, "t__a_cf0bailout") 
 
         op2 = f.forms[0].formula.symbols.order_of_params()
-        self.assertEqual(op2, {
+
+        expected_order = {
             't__a__gradient' : 0,
             't__a_bailout' : 1,
-            't__a_cf0_density' : 2,
-            't__a_cf0_offset' : 3,
-            't__a_cf0bailout' : 4,
-            't__a_cf0power' : 5,
-            't__a_cf1_density' : 6,
-            't__a_cf1_offset' : 7,
+            't__a_cf0_offset' : 2,
+            't__a_cf0_density' : 3,
+            't__a_cf0power' : 4,
+            't__a_cf0bailout' : 5,
+            't__a_cf1_offset' : 6,
+            't__a_cf1_density' : 7,
             '__SIZE__' : 8
-            })
+            }
+        self.assertEqual(expected_order, op2)
+
+        expected_params = [
+            # f
+            f.get_gradient(),
+            4.0,
+            #cf0
+            0.0,
+            1.0,
+            2.0,
+            1.0e20,
+            #cf1
+            0.0,
+            1.0]
+
         params = f.all_params()
-        self.assertEqual(
-            [f.get_gradient(), 4.0,1.0, 0.0, 1.0e20, 2.0, 1.0, 0.0],
-            params)
+        self.assertEqual(expected_params, params)
 
         # check for appropriate snippets in the code
         cg.output_decls(f.forms[0].formula)
         c_code = cg.output_c(f.forms[0].formula)
 
-        self.assertNotEqual( # init
-            c_code.find("double t__a_cf0bailout = t__pfo->p[4]"),-1)
+        self.failUnless("double t__a_cf0bailout = t__pfo->p[5]" in c_code)
+
         self.assertNotEqual( # use
             c_code.find("log(t__a_cf0bailout)"),-1)
 
     def testAllParams(self):
         f = fractal.T(self.compiler)
-
-        self.assertEqual(f.forms[1].params,[1.0,0.0,4.0])
+        self.assertEqual(f.forms[1].params,[0.0,1.0,4.0])
         
         f.set_outer("test.cfrm", "Triangle")
         f.append_transform("gf4d.uxf","Inverse")
@@ -534,8 +549,17 @@ colorlist=[
         f.compile()
         params = f.all_params()
         self.assertEqual(11, len(params))
+
         self.assertEqual(
-            [f.get_gradient(), 4.0,1.0,0.0,1.0e20,2.0,1.0,0.0,0.0,0.0,1.0],
+            [
+            # f
+            f.get_gradient(), 4.0,
+            # cf0
+            0.0,1.0,2.0,1.0e20,
+            #cf1
+            0.0,1.0,
+            # transform
+            1.0,0.0,0.0],
             params)
 
     def assertNearlyEqual(self,a,b):
@@ -592,17 +616,17 @@ blue=0.3
         f1.loadFctFile(file1)
 
         f1.compile()
-        
-        self.assertEqual(f1.forms[1].params,[1.0, 0.0, 1.0e12, 3.0])
+
+        self.assertEqual(f1.forms[1].params,[0.0, 1.0, 3.0, 1.0e12])
         self.assertEqual(f1.forms[2].params,[
-            2.0, #_density
             0.5, #_offset
-            0, # bool b
-            0.09, 0.08, 0.07, 0.06, # color col
-            2, # enum ep
-            78, # int i 
+            2.0, #_density
             3.3, # float val
-            2.0, 3.7, 6.1, 8.9 # hyper val2
+            2.0, 3.7, 6.1, 8.9, # hyper val2
+            78, # int i 
+            0, # bool b
+            2, # enum ep
+            0.09, 0.08, 0.07, 0.06, # color col
             ])
         self.assertEqual(f1.forms[2].get_func_value("@myfunc"),"sqrt")
         
@@ -862,10 +886,11 @@ blue=0.3
         self.assertEqual(f.title,"Hello World")
         self.assertEqual(f.forms[0].params,[f.get_gradient(), 8.0,7.0,1.0])
         self.assertEqual(f.periodicity, 0)
-        
+
         self.assertEqual(
-            f.forms[2].params,
-            self.default_flat_params)
+            self.default_flat_params,
+            f.forms[2].params)
+
 
     def testResetAngles(self):
         f = fractal.T(self.compiler)
@@ -1092,7 +1117,10 @@ blue=0.5543108971162746
         f.warn = wc.warn
         f.loadFctFile(StringIO.StringIO(file))
 
-        self.assertEqual(f.forms[0].params,[f.get_gradient(), 0.34,-0.28,4.0])
+        self.assertEqual(
+            [ f.get_gradient(), 4.0, 0.34,-0.28],
+            f.forms[0].params)
+
 
     def testNewGradientRead(self):
         file = '''gnofract4d parameter file
