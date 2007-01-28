@@ -109,8 +109,6 @@ int main()
     def var(self,name="a",type=Int):
         return ir.Var(name,self.fakeNode, type)
     def const(self,value=None,type=Int):
-        if value == None:
-            value = default_value(type)
         return ir.Const(value, self.fakeNode, type)
     def binop(self,stms,op="+",type=Int):
         return ir.Binop(op,stms,self.fakeNode, type)
