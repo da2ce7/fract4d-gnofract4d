@@ -3,6 +3,7 @@
 import unittest
 import test_fractlexer
 import test_fractparser
+import test_fracttypes
 import test_symbol
 import test_translate
 import test_canon
@@ -29,6 +30,7 @@ def suite():
     return unittest.TestSuite((
     test_fractlexer.suite(),
     test_fractparser.suite(),
+    test_fracttypes.suite(),
     test_symbol.suite(),
     test_translate.suite(),
     test_canon.suite(),

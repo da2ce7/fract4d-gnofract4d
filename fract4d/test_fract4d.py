@@ -86,7 +86,7 @@ class Test(testbase.TestBase):
     def tearDown(self):
         pass
 
-    def testGetDefaults(self):
+    def disabled_testGetDefaults(self):
         self.compileMandel()
         handle = fract4dc.pf_load("./test-pf.so")
         pfunc = fract4dc.pf_create(handle)
