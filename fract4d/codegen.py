@@ -567,7 +567,7 @@ extern pf_obj *pf_new(void);
         if not isinstance(sym,fracttypes.Var):
             return
         
-        t = fracttypes.ctype(sym.type)
+        t = sym.ctype
         val = sym.value
         override = overrides.get(key)
         
@@ -637,7 +637,7 @@ extern pf_obj *pf_new(void);
         if not isinstance(sym,fracttypes.Var):
             return
         
-        t = fracttypes.ctype(sym.type)
+        t = sym.ctype
         val = sym.value
         override = overrides.get(key)
         if override == None:

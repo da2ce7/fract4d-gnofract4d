@@ -14,6 +14,43 @@ String = 5
 Hyper = 6
 Gradient = 7
 
+class Type(object):
+    def __init__(self,**kwds):
+        self.suffix = kwds["suffix"]
+        self.printf = kwds.get("printf") # optional
+        self.typename = kwds["typename"]
+        self.default = kwds["default"]
+        self.slots = kwds.get("slots",1)
+        self.cname = kwds["cname"]
+        self.typeid = kwds["id"]
+        
+# these have to be in the indexes given by the constants above
+typeObjectList = [
+    Type(id=Bool, suffix="b",printf="%d",typename="bool",
+         default=0,cname="int"),
+    
+    Type(id=Int,suffix="i",printf="%d",typename="int",
+         default=0,cname="int"),
+
+    Type(id=Float,suffix="f",printf="%g",typename="float",
+         default=0.0,cname="double"),
+
+    Type(id=Complex,suffix="c",typename="complex",
+         default=[0.0,0.0],slots=2,cname="double"),
+
+    Type(id=Color,suffix="C",typename="color",
+         default=[0.0,0.0,0.0,0.0],slots=4, cname="double"),
+
+    Type(id=String,suffix="S",typename="string",
+         default="",slots=0,cname="<Error>"),
+
+    Type(id=Hyper,suffix="h",typename="hyper",
+         default=[0.0,0.0,0.0,0.0],slots=4,cname="double"),
+    
+    Type(id=Gradient,suffix="G",typename="gradient",
+         default=0,cname="void *")
+    ]
+
 typeList = [ Bool, Int, Float, Complex, Color, String, Hyper, Gradient]
 
 suffixOfType = {
@@ -79,19 +116,8 @@ _slotsForType = {
     Gradient: 1
     }
 
-_cTypeOfType = {
-    Int : "int",
-    Float : "double",
-    Complex : "double",
-    Hyper : "double",
-    Bool : "int",
-    Color : "double",
-    String : "<Error>",
-    Gradient : "void *"
-    }
-
 def printfOfType(t):
-    return _printfOfType[t]
+    return typeObjectList[t].printf
 
 def typeOfStr(tname):
     if not tname: return None
@@ -101,7 +127,7 @@ def strOfType(t):
     return _strOfType[t]
 
 def ctype(t):
-    return _cTypeOfType[t]
+    return typeObjectList[t].cname
 
 def default_value(t):
     return _defaultOfType[t]
@@ -182,17 +208,16 @@ class Func:
         return True 
 
 class Var:
-    def __init__(self,type_,value=None,pos=-1,**kwds):
+    def __init__(self,type,value=None,pos=-1,**kwds):
         #assert(type_ != None)
         #assert(isinstance(pos,types.IntType))
-        self.type = type_
+        self._set_type(type)
         if value == None:
-            self.value = default_value(type_)
+            self.value = self._typeobj.default
         else:
             self.value = value
         self.pos = pos
         self.cname = None
-        self.is_temp = False
         self.__doc__ = kwds.get("doc")
         self.declared = False
         self.param_slot = -1
@@ -200,6 +225,19 @@ class Var:
     def _get_is_temp(self):
         return False
     is_temp = property(_get_is_temp)
+
+    def _get_type(self):
+        return self._typeobj.typeid
+
+    def _set_type(self,t):
+        self._typeobj = typeObjectList[t]
+
+    type = property(_get_type, _set_type)
+
+    def _get_ctype(self):
+        return self._typeobj.cname
+
+    ctype = property(_get_ctype)
     
     def struct_name(self):
         if self.is_temp:
@@ -213,15 +251,27 @@ class Var:
     def __str__(self):
         return "%s %s (%d)" % (strOfType(self.type), self.value, self.pos)
 
+    def init_vals(self):
+        if self.type == Complex:
+            ord = self.param_slot
+            if ord == -1:
+                re_val = "%.17f" % self.value[0]
+                im_val = "%.17f" % self.value[1]
+            else:
+                re_val = "t__pfo->p[%d].doubleval" % ord
+                im_val = "t__pfo->p[%d].doubleval" % (ord+1)
+            
+            return [re_val,im_val]
+        else:
+            raise Exception("not done")
+        
 class Temp(Var):
     def __init__(self,type_,name):
-        self.type = type_
+        Var.__init__(self,type_)
         self.cname = name
-        self.declared = False
-        self.pos = -1
-        self.value = default_value(type_)
 
     def _get_is_temp(self):
         return True
+
     is_temp = property(_get_is_temp)
-    
+
