@@ -563,19 +563,23 @@ extern pf_obj *pf_new(void);
     def is_direct(self):
         return self.symbols.has_user_key("#color")
 
+    def decl_from_sym(self,sym):
+        parts = sym.part_names
+        vals = sym.init_val()
+        decls = [None] * len(parts)
+        for i in xrange(len(parts)):
+            decls[i] = Decl(
+                "%s %s%s = %s;"% (sym.ctype,sym.cname,parts[i],vals[i]))
+
+        return decls
+    
     def get_decls_for_sym(self,key,sym,op):
         t = sym.ctype
         val = sym.value
 
         if sym.type == fracttypes.Complex:
-            ord = op.get(key)
-            if ord == None:
-                re_val = "%.17f" % val[0]
-                im_val = "%.17f" % val[1]
-            else:
-                re_val = "t__pfo->p[%d].doubleval" % ord
-                im_val = "t__pfo->p[%d].doubleval" % (ord+1)
-
+            #return self.decl_from_sym(sym)
+            (re_val, im_val) = sym.init_val()
             return self.make_complex_init(t,sym.cname, re_val, im_val)
 
         elif sym.type == fracttypes.Hyper or \
@@ -588,7 +592,7 @@ extern pf_obj *pf_new(void);
             return self.make_hyper_init(t,sym.cname, fval)
 
         elif sym.type == fracttypes.Float:
-            return [Decl("%s %s = %s;" % (t,sym.cname,sym.init_val()))]
+            return self.decl_from_sym(sym)
         elif sym.type == fracttypes.Int or \
                  sym.type == fracttypes.Bool:
             ord = op.get(key)

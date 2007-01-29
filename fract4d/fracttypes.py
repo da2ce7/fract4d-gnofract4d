@@ -23,16 +23,31 @@ class Type(object):
         self.slots = kwds.get("slots",1)
         self.cname = kwds["cname"]
         self.typeid = kwds["id"]
-
+        self.part_names = kwds.get("parts",[""])
+        
 class FloatType(Type):
     def __init__(self,**kwds):
         Type.__init__(self,**kwds)
 
     def init_val(self,var):
         if var.param_slot == -1:
-            return "%.17f" % var.value
+            return ["%.17f" % var.value]
         else:
-            return "t__pfo->p[%d].doubleval" % var.param_slot
+            return ["t__pfo->p[%d].doubleval" % var.param_slot]
+
+class ComplexType(Type):
+    def __init__(self,**kwds):
+        Type.__init__(self,**kwds)
+
+    def init_val(self,var):
+        if var.param_slot == -1:
+            return [
+                "%.17f" % var.value[0],
+                "%.17f" % var.value[1]]     
+        else:
+            return [
+                "t__pfo->p[%d].doubleval" % var.param_slot,
+                "t__pfo->p[%d].doubleval" % (var.param_slot+1)]
     
 # these have to be in the indexes given by the constants above
 typeObjectList = [
@@ -45,8 +60,8 @@ typeObjectList = [
     FloatType(id=Float,suffix="f",printf="%g",typename="float",
          default=0.0,cname="double"),
 
-    Type(id=Complex,suffix="c",typename="complex",
-         default=[0.0,0.0],slots=2,cname="double"),
+    ComplexType(id=Complex,suffix="c",typename="complex",
+         default=[0.0,0.0],slots=2,cname="double",parts=["_re","_im"]),
 
     Type(id=Color,suffix="C",typename="color",
          default=[0.0,0.0,0.0,0.0],slots=4, cname="double"),
@@ -243,7 +258,12 @@ class Var:
         except AttributeError:
             print "%s type for %s" % (self._typeobj.typename, self.cname)
             raise
-        
+
+    def _get_part_names(self):
+        return self._typeobj.part_names
+
+    part_names = property(_get_part_names)
+    
 class Temp(Var):
     def __init__(self,type_,name):
         Var.__init__(self,type_)

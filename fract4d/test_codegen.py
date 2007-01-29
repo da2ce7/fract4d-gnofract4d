@@ -49,7 +49,8 @@ int main()
         { FLOAT, 0, 0.0},
         { FLOAT, 0, 1.0},
         { FLOAT, 0, 5.0},
-        { FLOAT, 0, 2.0}
+        { FLOAT, 0, 2.0},
+        { FLOAT, 888, 1.0e20} /* sentinel to see if we read too far */
         };
     int nItersDone=0;
     int nFate=0;
@@ -59,7 +60,7 @@ int main()
     double colors[4] = {0.0};
     
     pf_obj *pf = pf_new();
-    pf->vtbl->init(pf,0.001,pos_params,initparams,6);
+    pf->vtbl->init(pf,0.001,pos_params,initparams,7);
     
     pf->vtbl->calc(
          pf,
@@ -720,14 +721,21 @@ func fn1
         final:
         #index = log(d+1.0) + 3.0
         }''',"cf0")
-        
+
+        self.assertEqual(-1,tcf0.symbols["z"].param_slot)
+
         cg_cf0 = codegen.T(tcf0.symbols)
         cg_cf0.output_all(tcf0)
 
         tcf1 = self.translatecf('x {\n float d = 1.0\n#index = 789.1\n}', "cf1")
+        self.assertEqual(-1,tcf0.symbols["z"].param_slot)
+
         cg_cf1 = codegen.T(tcf1.symbols)
         cg_cf1.output_all(tcf1)
 
+        self.assertEqual(-1,tcf1.symbols["d"].param_slot)
+        self.assertEqual(-1,tcf1.symbols["z"].param_slot)
+        
         t = self.translate('''
         mandel {
         loop:
@@ -742,6 +750,8 @@ func fn1
         t.merge(tcf0,"cf0_")
         t.merge(tcf1,"cf1_")
 
+        self.assertEqual(-1,t.symbols["cf1d"].param_slot)
+        
         cg.output_decls(t)
 
         inserts = {
@@ -750,8 +760,11 @@ func fn1
         
         c_code = self.codegen.output_c(t,inserts)
 
+        #print c_code
         output = self.compileAndRun(c_code)
-        self.assertEqual(["(0,0,3)", "(20,32,789.1)"],output.split("\n"))
+        self.assertEqual(
+            ["(0,0,3)", "(20,32,789.1)"],output.split("\n"),
+            c_code)
 
     def testSolidCF(self):
         'test that #solid works correctly'

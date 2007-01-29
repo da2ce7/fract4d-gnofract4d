@@ -612,7 +612,7 @@ class T(UserDict):
                 new_key = self.insert_prefix(other.prefix,k)
                 new_val = copy.copy(other.data[k])
                 self.data[new_key] = new_val
-                if isinstance(new_val,Var):
+                if self.is_param(k) and isinstance(new_val,Var):
                     new_val.param_slot += self.nextParamSlot
 
         self.nextParamSlot += other.nextParamSlot
@@ -693,6 +693,9 @@ class T(UserDict):
         return True
 
     def record_param(self,value):
+        if value.cname == "z":
+            print value
+            assert False
         value.param_slot = self.nextParamSlot
         self.nextParamSlot += slotsForType(value.type)
         self.var_params.append(value)
@@ -721,7 +724,8 @@ class T(UserDict):
                           strOfType(T.default_dict[k].type)
                     raise KeyError, ("symbol '%s' %s" % (key,msg))
 
-                self.record_param(pre_var)
+                if self.is_param(k):
+                    self.record_param(pre_var)
             return
         elif self.is_builtin(key):
             msg = "symbol '%s': only predefined symbols can begin with #" % key
