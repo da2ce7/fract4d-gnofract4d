@@ -80,13 +80,32 @@ class Test(unittest.TestCase):
         float_type = fracttypes.typeObjectList[fracttypes.Float]
         v = fracttypes.Var(fracttypes.Float,1.234)
         
-        self.assertEqual("1.23399999999999999",float_type.init_val(v))
-        self.assertEqual("1.23399999999999999",v.init_val())
+        self.assertEqual(["1.23399999999999999"],float_type.init_val(v))
+        self.assertEqual(["1.23399999999999999"],v.init_val())
         
         v.param_slot = 3
-        self.assertEqual("t__pfo->p[3].doubleval",float_type.init_val(v))
-        self.assertEqual("t__pfo->p[3].doubleval",v.init_val())
+        self.assertEqual(["t__pfo->p[3].doubleval"],float_type.init_val(v))
+        self.assertEqual(["t__pfo->p[3].doubleval"],v.init_val())
+
+    def testPartNames(self):
+        v = fracttypes.Var(fracttypes.Float)
+        self.assertEqual([""], v.part_names)
+
+        v = fracttypes.Var(fracttypes.Complex)
+        self.assertEqual(["_re","_im"], v.part_names)
         
+    def testComplexInitVal(self):
+        v = fracttypes.Var(fracttypes.Complex, [1.234,-7.89])
+        
+        self.assertEqual(
+            ["1.23399999999999999","-7.88999999999999968"],
+            v.init_val())
+        
+        v.param_slot = 3
+        self.assertEqual(
+            ["t__pfo->p[3].doubleval","t__pfo->p[4].doubleval"],
+            v.init_val())
+
 def suite():
     return unittest.makeSuite(Test,'test')
 

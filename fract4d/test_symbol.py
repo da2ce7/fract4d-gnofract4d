@@ -107,8 +107,10 @@ class SymbolTest(unittest.TestCase):
     def testOrderOfParamsMerges(self):
         (t1,t2) = (fsymbol.T("a"), fsymbol.T("b"))
         t1["@a"] = Var(Int, 1)
+        t1["d"] = Var(Int,100)
+        t2["d"] = Var(Int,200)
         t2["@a"] = Var(Int, 3)
-        t2["@b"] = Var(Float, 2)
+        t2["@b"] = Var(Float, 2)        
         t1["@myfunc"] = fsymbol.OverloadList([Func([Int],Int,"ident")])
         t2["@myotherfunc"] = fsymbol.OverloadList([Func([Int],Int,"ident")])
         t1.merge(t2)
@@ -117,6 +119,13 @@ class SymbolTest(unittest.TestCase):
         self.assertEqual(0, op["t__a_a"])
         self.assertEqual(1, op["t__a_ba"])
         self.assertEqual(2, op["t__a_bb"])
+        self.assertEqual(-1, t1["d"].param_slot)
+        self.assertEqual(-1, t2["d"].param_slot)
+
+    def testZ(self):
+        t1 = fsymbol.T("a")
+        x = t1["z"]
+        self.assertEqual(-1,x.param_slot)
         
     def testGetDefaultParamSetsSlot(self):
         t = fsymbol.T("f")
