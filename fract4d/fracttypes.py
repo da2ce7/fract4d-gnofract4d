@@ -23,7 +23,17 @@ class Type(object):
         self.slots = kwds.get("slots",1)
         self.cname = kwds["cname"]
         self.typeid = kwds["id"]
-        
+
+class FloatType(Type):
+    def __init__(self,**kwds):
+        Type.__init__(self,**kwds)
+
+    def init_val(self,var):
+        if var.param_slot == -1:
+            return "%.17f" % var.value
+        else:
+            return "t__pfo->p[%d].doubleval" % var.param_slot
+    
 # these have to be in the indexes given by the constants above
 typeObjectList = [
     Type(id=Bool, suffix="b",printf="%d",typename="bool",
@@ -32,7 +42,7 @@ typeObjectList = [
     Type(id=Int,suffix="i",printf="%d",typename="int",
          default=0,cname="int"),
 
-    Type(id=Float,suffix="f",printf="%g",typename="float",
+    FloatType(id=Float,suffix="f",printf="%g",typename="float",
          default=0.0,cname="double"),
 
     Type(id=Complex,suffix="c",typename="complex",
@@ -87,17 +97,6 @@ _strOfType = {
     Gradient : "grad"
    }
 
-_defaultOfType = {
-    Int : 0,
-    Float : 0.0,
-    Complex : [0.0, 0.0],
-    Bool : 0,
-    Color : [0.0, 0.0, 0.0, 0.0],
-    String : "",
-    Hyper : [0.0, 0.0, 0.0, 0.0],
-    Gradient : 0
-    }
-
 _slotsForType = {
     Int: 1,
     Float : 1,
@@ -120,7 +119,7 @@ def default_value(t):
     return typeObjectList[t].default
 
 def slotsForType(t):
-    return _slotsForType[t]
+    return typeObjectList[t].slots
 
 _canBeCast = [
     # rows are from, columns are to
@@ -238,19 +237,12 @@ class Var:
     def __str__(self):
         return "%s %s (%d)" % (strOfType(self.type), self.value, self.pos)
 
-    def init_vals(self):
-        if self.type == Complex:
-            ord = self.param_slot
-            if ord == -1:
-                re_val = "%.17f" % self.value[0]
-                im_val = "%.17f" % self.value[1]
-            else:
-                re_val = "t__pfo->p[%d].doubleval" % ord
-                im_val = "t__pfo->p[%d].doubleval" % (ord+1)
-            
-            return [re_val,im_val]
-        else:
-            raise Exception("not done")
+    def init_val(self):
+        try:
+            return self._typeobj.init_val(self)
+        except AttributeError:
+            print "%s type for %s" % (self._typeobj.typename, self.cname)
+            raise
         
 class Temp(Var):
     def __init__(self,type_,name):

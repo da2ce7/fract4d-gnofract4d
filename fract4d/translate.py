@@ -227,7 +227,8 @@ class TBase:
 
         if hasattr(v,"default") and v.default != None:
             if node.datatype == None:
-                v.type = v.default.datatype
+                # oddly, this was bypassing the property when I used v.type
+                v._set_type(v.default.datatype) 
                 v.value = default_value(v.type)
 
             v.default = self.expand_enum(node, v, name)
