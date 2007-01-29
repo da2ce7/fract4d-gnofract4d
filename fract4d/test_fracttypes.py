@@ -75,6 +75,17 @@ class Test(unittest.TestCase):
 
         for (k,v) in expected.items():            
             self.assertEqual(v,fracttypes.typeObjectList[k].cname)
+
+    def testFloatInitVal(self):
+        float_type = fracttypes.typeObjectList[fracttypes.Float]
+        v = fracttypes.Var(fracttypes.Float,1.234)
+        
+        self.assertEqual("1.23399999999999999",float_type.init_val(v))
+        self.assertEqual("1.23399999999999999",v.init_val())
+        
+        v.param_slot = 3
+        self.assertEqual("t__pfo->p[3].doubleval",float_type.init_val(v))
+        self.assertEqual("t__pfo->p[3].doubleval",v.init_val())
         
 def suite():
     return unittest.makeSuite(Test,'test')
