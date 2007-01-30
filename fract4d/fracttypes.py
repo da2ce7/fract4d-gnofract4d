@@ -48,6 +48,19 @@ class ComplexType(Type):
             return [
                 "t__pfo->p[%d].doubleval" % var.param_slot,
                 "t__pfo->p[%d].doubleval" % (var.param_slot+1)]
+
+class QuadType(Type):
+    def __init__(self,**kwds):
+        Type.__init__(self,**kwds)
+
+    def init_val(self,var):
+        if var.param_slot == -1:
+            return [ "%.17f" % x for x in var.value]
+        else:
+            return [
+                "t__pfo->p[%d].doubleval" % \
+                x for x in xrange(var.param_slot,var.param_slot+4)]
+
     
 # these have to be in the indexes given by the constants above
 typeObjectList = [
@@ -63,14 +76,16 @@ typeObjectList = [
     ComplexType(id=Complex,suffix="c",typename="complex",
          default=[0.0,0.0],slots=2,cname="double",parts=["_re","_im"]),
 
-    Type(id=Color,suffix="C",typename="color",
-         default=[0.0,0.0,0.0,0.0],slots=4, cname="double"),
+    QuadType(id=Color,suffix="C",typename="color",
+         default=[0.0,0.0,0.0,0.0],slots=4, cname="double",
+         parts=["_re","_i","_j","_k"]),
 
     Type(id=String,suffix="S",typename="string",
          default="",slots=0,cname="<Error>"),
 
-    Type(id=Hyper,suffix="h",typename="hyper",
-         default=[0.0,0.0,0.0,0.0],slots=4,cname="double"),
+    QuadType(id=Hyper,suffix="h",typename="hyper",
+             default=[0.0,0.0,0.0,0.0],slots=4,cname="double",
+             parts=["_re","_i","_j","_k"]),
     
     Type(id=Gradient,suffix="G",typename="gradient",
          default=0,cname="void *")
