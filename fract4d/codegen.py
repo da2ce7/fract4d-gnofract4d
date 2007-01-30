@@ -578,19 +578,10 @@ extern pf_obj *pf_new(void);
         val = sym.value
 
         if sym.type == fracttypes.Complex:
-            #return self.decl_from_sym(sym)
-            (re_val, im_val) = sym.init_val()
-            return self.make_complex_init(t,sym.cname, re_val, im_val)
-
+            return self.decl_from_sym(sym)
         elif sym.type == fracttypes.Hyper or \
              sym.type == fracttypes.Color:
-            ord = op.get(key)
-            if ord == None:
-                fval = [ "%.17f" % v for v in val]            
-            else:
-                fval = [ "t__pfo->p[%d].doubleval" % x for x in range(ord,ord+4)]
-            return self.make_hyper_init(t,sym.cname, fval)
-
+            return self.decl_from_sym(sym)
         elif sym.type == fracttypes.Float:
             return self.decl_from_sym(sym)
         elif sym.type == fracttypes.Int or \

@@ -93,6 +93,9 @@ class Test(unittest.TestCase):
 
         v = fracttypes.Var(fracttypes.Complex)
         self.assertEqual(["_re","_im"], v.part_names)
+
+        v = fracttypes.Var(fracttypes.Color)
+        self.assertEqual(["_re","_i","_j","_k"], v.part_names)
         
     def testComplexInitVal(self):
         v = fracttypes.Var(fracttypes.Complex, [1.234,-7.89])
@@ -104,6 +107,31 @@ class Test(unittest.TestCase):
         v.param_slot = 3
         self.assertEqual(
             ["t__pfo->p[3].doubleval","t__pfo->p[4].doubleval"],
+            v.init_val())
+
+    def testColorInitVal(self):
+        v = fracttypes.Var(fracttypes.Color, [1.234,-7.89, 11.1, 1.0e10])
+        self.checkQuadInitVal(v)
+
+    def testHyperInitVal(self):
+        v = fracttypes.Var(fracttypes.Hyper, [1.234,-7.89, 11.1, 1.0e10])
+        self.checkQuadInitVal(v)
+        
+    def checkQuadInitVal(self,v):
+        self.assertEqual(
+            ["1.23399999999999999",
+             "-7.88999999999999968",
+             "11.09999999999999964",
+             "10000000000.00000000000000000"],
+            v.init_val())
+        
+        v.param_slot = 3
+        self.assertEqual(
+            ["t__pfo->p[3].doubleval",
+             "t__pfo->p[4].doubleval",
+             "t__pfo->p[5].doubleval",
+             "t__pfo->p[6].doubleval"
+             ],
             v.init_val())
 
 def suite():
