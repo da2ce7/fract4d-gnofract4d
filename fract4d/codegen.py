@@ -550,20 +550,10 @@ extern pf_obj *pf_new(void);
         var = self.var(temp_ir)
         return var
 
-    def make_complex_init(self,type,varname, re_val,im_val):
-        return [ Decl("%s %s_re = %s;" % (type,varname,re_val)),
-                 Decl("%s %s_im = %s;" % (type,varname,im_val))]
-
-    def make_hyper_init(self,type,varname, vals):
-        return [ Decl("%s %s_re = %s;" % (type,varname,vals[0])),
-                 Decl("%s %s_i = %s;"  % (type,varname,vals[1])),
-                 Decl("%s %s_j = %s;"  % (type,varname,vals[2])),
-                 Decl("%s %s_k = %s;"  % (type,varname,vals[3]))]
-
     def is_direct(self):
         return self.symbols.has_user_key("#color")
 
-    def decl_from_sym(self,sym):
+    def decl_with_init_from_sym(self,sym):
         parts = sym.part_names
         vals = sym.init_val()
         decls = [None] * len(parts)
@@ -572,77 +562,33 @@ extern pf_obj *pf_new(void);
                 "%s %s%s = %s;"% (sym.ctype,sym.cname,parts[i],vals[i]))
 
         return decls
+
+    def decl_from_sym(self,sym):
+        parts = sym.part_names
+        decls = [
+            Decl("%s %s%s;" % (sym.ctype,sym.cname,part)) \
+            for part in parts]
+        return decls
     
-    def get_decls_for_sym(self,key,sym,op):
-        t = sym.ctype
-        val = sym.value
-
-        if sym.type == fracttypes.Complex:
-            return self.decl_from_sym(sym)
-        elif sym.type == fracttypes.Hyper or \
-             sym.type == fracttypes.Color:
-            return self.decl_from_sym(sym)
-        elif sym.type == fracttypes.Float:
-            return self.decl_from_sym(sym)
-        elif sym.type == fracttypes.Int or \
-                 sym.type == fracttypes.Bool:
-            ord = op.get(key)
-            if ord == None:
-                return [Decl("%s %s = %d;" % (t,sym.cname,val))]
-            else:
-                return [Decl("%s %s = t__pfo->p[%d].intval;" % \
-                                    (t, sym.cname, ord))]
-        elif sym.type == fracttypes.Gradient:
-            ord = op.get(key)
-            if ord == None:
-                raise fracttypes.TranslationError(
-                    "Internal Compiler Error: gradient not initialized as a param")
-            else:
-                return [Decl("%s %s = t__pfo->p[%d].gradient;" % \
-                                (t, sym.cname, ord))]
-        else:
-            raise ValueError("Unknown symbol type %d for %s" % \
-                             (sym.type, key))
-
     def output_symbol(self,key,sym,op,out,overrides):
         if not isinstance(sym,fracttypes.Var):
             return
 
         override = overrides.get(key)
         
-        if override != None:
+        if override == None:
+            out += self.decl_with_init_from_sym(sym)
+        else:
             #print "override %s for %s" % (override, key)
             out.append(Decl(override))
-            return
-            
-        out += self.get_decls_for_sym(key,sym,op)
         
-
-    def make_complex_decl(self,type,varname):
-        return [ Decl("%s %s_re;" % (type,varname)),
-                 Decl("%s %s_im;" % (type,varname))]
-
-    def make_hyper_decl(self,type,varname):
-        return [ Decl("%s %s_re;" % (type,varname)),
-                 Decl("%s %s_i;" % (type,varname)),
-                 Decl("%s %s_j;" % (type,varname)),
-                 Decl("%s %s_k;" % (type,varname))]
-
     def output_decl(self,key,sym,out,overrides):
         if not isinstance(sym,fracttypes.Var):
             return
         
-        t = sym.ctype
-        val = sym.value
         override = overrides.get(key)
         if override == None:
-            if sym.type == fracttypes.Complex:
-                out += self.make_complex_decl(t,sym.cname)
-            elif sym.type == fracttypes.Hyper or \
-                 sym.type == fracttypes.Color:
-                out += self.make_hyper_decl(t,sym.cname)
-            else:
-                out.append(Decl("%s %s;" % (t,sym.cname)))
+            out += self.decl_from_sym(sym)
         else:
             #print "override %s for %s" % (override, key)
             out.append(Decl(override))
