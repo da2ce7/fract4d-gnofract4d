@@ -61,13 +61,36 @@ class QuadType(Type):
                 "t__pfo->p[%d].doubleval" % \
                 x for x in xrange(var.param_slot,var.param_slot+4)]
 
+class IntType(Type):
+    def __init__(self,**kwds):
+        Type.__init__(self,**kwds)
+
+    def init_val(self,var):
+        if var.param_slot == -1:
+            return [ "%d" % var.value] 
+        else:
+            return [
+                "t__pfo->p[%d].intval" % var.param_slot]
+
+class GradientType(Type):
+    def __init__(self,**kwds):
+        Type.__init__(self,**kwds)
+
+    def init_val(self,var):
+        if var.param_slot == -1:
+            raise TranslationError(
+                "Internal Compiler Error: gradient not initialized as a param")
+        else:
+            return [ "t__pfo->p[%d].gradient" % var.param_slot]
+
+        return []
     
 # these have to be in the indexes given by the constants above
 typeObjectList = [
-    Type(id=Bool, suffix="b",printf="%d",typename="bool",
+    IntType(id=Bool, suffix="b",printf="%d",typename="bool",
          default=0,cname="int"),
     
-    Type(id=Int,suffix="i",printf="%d",typename="int",
+    IntType(id=Int,suffix="i",printf="%d",typename="int",
          default=0,cname="int"),
 
     FloatType(id=Float,suffix="f",printf="%g",typename="float",
@@ -87,7 +110,7 @@ typeObjectList = [
              default=[0.0,0.0,0.0,0.0],slots=4,cname="double",
              parts=["_re","_i","_j","_k"]),
     
-    Type(id=Gradient,suffix="G",typename="gradient",
+    GradientType(id=Gradient,suffix="G",typename="gradient",
          default=0,cname="void *")
     ]
 

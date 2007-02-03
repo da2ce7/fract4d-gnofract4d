@@ -109,6 +109,27 @@ class Test(unittest.TestCase):
             ["t__pfo->p[3].doubleval","t__pfo->p[4].doubleval"],
             v.init_val())
 
+    def testGradientInitVal(self):
+        v = fracttypes.Var(fracttypes.Gradient, 0)
+        self.assertRaises(fracttypes.TranslationError,v.init_val)
+
+        v.param_slot = 3
+        self.assertEqual(["t__pfo->p[3].gradient"], v.init_val())
+        
+    def testIntInitVal(self):
+        v = fracttypes.Var(fracttypes.Int, 1)
+        self.checkIntInitVal(v)
+
+    def testBoolInitVal(self):
+        v = fracttypes.Var(fracttypes.Bool, 1)
+        self.checkIntInitVal(v)
+
+    def checkIntInitVal(self,v):
+        self.assertEqual(["1"], v.init_val())
+
+        v.param_slot = 3
+        self.assertEqual(["t__pfo->p[3].intval"],v.init_val())
+        
     def testColorInitVal(self):
         v = fracttypes.Var(fracttypes.Color, [1.234,-7.89, 11.1, 1.0e10])
         self.checkQuadInitVal(v)
@@ -133,7 +154,7 @@ class Test(unittest.TestCase):
              "t__pfo->p[6].doubleval"
              ],
             v.init_val())
-
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 
