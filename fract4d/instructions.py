@@ -129,7 +129,17 @@ class Insn:
             raise TranslationError(
                 "Internal Compiler Error: can't format " + msg)
 
-
+class Literal(Insn):
+    'A loophole in the system to sneak through text directly'
+    def __init__(self,text):
+        self.text = text
+    def format(self):
+        return self.text
+    def dest(self):
+        return []
+    def source(self):
+        return []
+    
 class Oper(Insn):
     'An operation'
     def __init__(self,assem, src, dst, jumps=[]):

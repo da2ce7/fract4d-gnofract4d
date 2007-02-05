@@ -970,7 +970,7 @@ def gradient_Gf_C(gen,t,srcs):
     return ColorArg(d1,d2,d3,ConstFloatArg(1.0)) 
 
 def gradient_f_C(gen,t,srcs):
-    grad = gen.get_var("@_gradient")
+    grad = gen.get_gradient_var()
     return gradient_Gf_C(gen,t,[grad,srcs[0]])
 
 def rand__c(gen,t,srcs):
