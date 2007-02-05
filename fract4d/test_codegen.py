@@ -108,6 +108,7 @@ int main()
     def seq(self,stms):
         return ir.Seq(stms,self.fakeNode)
     def var(self,name="a",type=Int):
+        self.codegen.symbols[name] = Var(type)
         return ir.Var(name,self.fakeNode, type)
     def const(self,value=None,type=Int):
         return ir.Const(value, self.fakeNode, type)
@@ -238,6 +239,32 @@ int main()
         return output
 
     # test methods
+    def testInitMethods(self):
+        v = Var(
+            Complex,[-1.0,3.7])
+        v.cname = "wibble"
+        
+        (d_re, d_im) = self.codegen.decl_from_sym(v)
+        self.assertEqual("double wibble_re;", d_re.assem)
+        self.assertEqual("double wibble_im;", d_im.assem)
+        
+        v.param_slot = 4
+        (a_re, a_im) = self.codegen.return_sym(v)
+
+        self.assertEqual("t__pfo->p[4].doubleval = wibble_re;", a_re.format())
+        self.assertEqual("t__pfo->p[5].doubleval = wibble_im;", a_im.format())
+
+    def testMove(self):
+        x = Var(Float, 2.0)
+        self.codegen.symbols["@x"] = x
+        self.assertNotEqual(-1, x.param_slot)
+        t = self.move(self.var("@x",Float),self.const(2.0, Float))
+        self.codegen.generate_code(t)
+
+        self.assertEqual(1, len(self.codegen.out))
+        move = self.codegen.out[0]
+        #print move.format()
+        
     def testPFHeader(self):
         'Check inline copy of pf.h is up-to-date'
         pfh = open('c/pf.h').read()
@@ -332,9 +359,10 @@ BINOP(+,[Temp(t__2),Temp(t__3)],[Temp(t__5)])""")
                  "t__1 = 3.00000000000000000 + a_im;"
         self.assertOutputMatch(expAdd)
 
+    def testComplexAdd2(self):
         # a + (1,3) 
         tree = self.binop([self.var("a",Complex),self.const([1,3],Complex)],"+",Complex)
-        self.generate_code(tree)
+        self.codegen.generate_code(tree)
         self.assertEqual(len(self.codegen.out),2)
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
 
@@ -343,13 +371,14 @@ BINOP(+,[Temp(t__2),Temp(t__3)],[Temp(t__5)])""")
 
         self.assertOutputMatch(expAdd)
 
+    def testComplexAdd3(self):
         # a + b + c
         tree = self.binop([
             self.binop([
                 self.var("a",Complex),
                 self.var("b",Complex)],"+",Complex),
             self.var("c", Complex)],"+",Complex)
-        self.generate_code(tree)
+        self.codegen.generate_code(tree)
         self.assertEqual(len(self.codegen.out),4)
         self.failUnless(isinstance(self.codegen.out[0],codegen.Oper))
 
@@ -362,7 +391,7 @@ BINOP(+,[Temp(t__2),Temp(t__3)],[Temp(t__5)])""")
 
     def testComplexMul(self):
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],"*",Complex)
-        self.generate_code(tree)
+        self.codegen.generate_code(tree)
         self.assertEqual(len(self.codegen.out),6)
         exp = '''t__0 = 1.00000000000000000 * a_re;
 t__1 = 3.00000000000000000 * a_im;
@@ -373,13 +402,14 @@ t__5 = t__2 + t__3;'''
         
         self.assertOutputMatch(exp)
 
+    def testComplexMul2(self):
         # a * b * c
         tree = self.binop([
             self.binop([
                 self.var("a",Complex),
                 self.var("b",Complex)],"*",Complex),
             self.var("c", Complex)],"*",Complex)
-        self.generate_code(tree)
+        self.codegen.generate_code(tree)
 
         expAdd = '''t__0 = a_re * b_re;
 t__1 = a_im * b_im;
@@ -395,24 +425,31 @@ t__10 = t__6 - t__7;
 t__11 = t__8 + t__9;'''
         self.assertOutputMatch(expAdd)
 
-    def testCompare(self):
+    def testCompareInt(self):
         'test comparisons produce correct code'
         tree = self.binop([self.const(3,Int),self.var("a",Int)],">",Bool)
-        self.generate_code(tree)
+        self.codegen.generate_code(tree)
         self.assertOutputMatch("t__0 = 3 > a;")
 
+    def testCompareComplexGreaterThan(self):
         tree = self.binop([self.const([1,3],Complex),self.var("a",Complex)],">",Complex)
-        self.generate_code(tree)
+        self.codegen.generate_code(tree)
         self.assertOutputMatch("t__0 = 1.00000000000000000 > a_re;")
 
-        tree.op = "=="
-        self.generate_code(tree)
+    def testCompareComplexEquality(self):
+        tree = self.binop(
+            [self.const([1,3],Complex),self.var("a",Complex)],"==",Complex)
+
+        self.codegen.generate_code(tree)
         self.assertOutputMatch('''t__0 = 1.00000000000000000 == a_re;
 t__1 = 3.00000000000000000 == a_im;
 t__2 = t__0 && t__1;''')
 
-        tree.op = "!="
-        self.generate_code(tree)
+    def testCompareComplexInequality(self):
+        tree = self.binop(
+            [self.const([1,3],Complex),self.var("a",Complex)],"!=",Complex)
+        
+        self.codegen.generate_code(tree)
         self.assertOutputMatch('''t__0 = 1.00000000000000000 != a_re;
 t__1 = 3.00000000000000000 != a_im;
 t__2 = t__0 || t__1;''')
@@ -763,8 +800,7 @@ func fn1
         #print c_code
         output = self.compileAndRun(c_code)
         self.assertEqual(
-            ["(0,0,3)", "(20,32,789.1)"],output.split("\n"),
-            c_code)
+            ["(0,0,3)", "(20,32,789.1)"],output.split("\n"))
 
     def testSolidCF(self):
         'test that #solid works correctly'
@@ -811,6 +847,50 @@ func fn1
         self.assertEqual(outlines[0],"0")
         self.assertEqual(outlines[2],"1")
 
+    def testParamDefaults(self):
+        'Test that parameter defaults are computed correctly'
+        t = self.translate('''
+        p {
+        default:
+        complex param x
+            default = #center
+        endparam
+        }''')
+
+        cg = codegen.T(t.symbols)
+        cg.output_all(t)
+        cg.output_decls(t)
+
+        defaults = t.output_sections["default"]
+        self.assertEqual("t__a_fx_re = t__h_center_re;",
+                         defaults[1].format())
+
+        return_syms = t.output_sections["return_syms"]
+        self.assertEqual("t__pfo->p[1].doubleval = t__a_fx_re;",
+                         return_syms[0].format())
+
+
+    def testStructMembers(self):
+        'Test that parameter defaults are computed correctly'
+        t = self.translate('''
+        p {
+        init:
+        int x = 4 + 3
+        complex xx = (1.0,2.0)
+        }''')
+
+        cg = codegen.T(t.symbols)
+        cg.output_all(t)
+        cg.output_decls(t)
+
+        structs = t.output_sections["struct_members"]
+
+        struct_string = "".join([x.format() for x in structs])
+        self.assertEqual(True, "int fx;" in struct_string)
+        self.assertEqual(True, "int t__f0;" in struct_string)
+        self.assertEqual(True, "double fxx_re;" in struct_string)
+        self.assertEqual(True, "double fxx_im;" in struct_string)
+        
     def testInside(self):
         'test that #inside works correctly'
         t = self.translate('''

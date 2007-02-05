@@ -869,6 +869,13 @@ default:
         endparam
         }''')
         self.assertNoErrors(t)
+
+        defsection = t.sections["default"]
+        # first item should be a move from 10.0 to @foo
+        firstchild = defsection.children[0]
+        self.assertEqual("@foo", firstchild.children[0].name)
+        self.assertEqual(10.0, firstchild.children[1].children[0].value)
+
         self.assertEqual(t.defaults["maxiter"].value,100)
         self.assertEqual(t.defaults["xyangle"].value,4.9)
         self.assertEqual(t.defaults["center"].value[0].value,8.1)
@@ -917,6 +924,7 @@ default:
             1.2, #f1
             4.0,5.0,6.0,7.0, #h1
             ])
+
         
     def testEnum(self):
         t = self.translate('''t_enum {

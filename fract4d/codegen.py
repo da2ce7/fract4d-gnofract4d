@@ -115,7 +115,10 @@ static void pf_get_defaults(
     )
 {
     pf_real *t__pfo = (pf_real *)t__p_stub;
-    /*%(default)s*/
+    /*
+    %(default)s
+    %(return_syms)s
+    */
 }
 
 static void pf_calc(
@@ -545,8 +548,8 @@ extern pf_obj *pf_new(void);
     def emit_label(self,name):
         self.out.append(Label(name))
 
-    def get_var(self,name):
-        temp_ir = ir.Var(name, absyn.Empty(0), fracttypes.Gradient)
+    def get_gradient_var(self):
+        temp_ir = ir.Var("@_gradient", absyn.Empty(0), fracttypes.Gradient)
         var = self.var(temp_ir)
         return var
 
@@ -554,6 +557,7 @@ extern pf_obj *pf_new(void);
         return self.symbols.has_user_key("#color")
 
     def decl_with_init_from_sym(self,sym):
+        "Declare a variable for sym and initialize it"
         parts = sym.part_names
         vals = sym.init_val()
         decls = [None] * len(parts)
@@ -564,13 +568,27 @@ extern pf_obj *pf_new(void);
         return decls
 
     def decl_from_sym(self,sym):
+        """Declare a variable for sym"""
         parts = sym.part_names
         decls = [
             Decl("%s %s%s;" % (sym.ctype,sym.cname,part)) \
             for part in parts]
         return decls
-    
-    def output_symbol(self,key,sym,op,out,overrides):
+
+    def return_sym(self,sym):
+        "Code to return computed value of sym to C caller"
+        initvals = sym.init_val()
+        parts = sym.part_names
+        returns = [None] * len(parts)
+        for i in xrange(len(parts)):
+            returns[i] = Move(
+                [ Literal( sym.cname + parts[i])], [Literal(initvals[i]) ],
+                self.generate_trace)
+
+        return returns
+            
+            
+    def output_symbol(self,key,sym,out,overrides):
         if not isinstance(sym,fracttypes.Var):
             return
 
@@ -616,7 +634,7 @@ extern pf_obj *pf_new(void);
             self.output_decl(key,sym,out,overrides)
 
         if hasattr(ir,"output_sections"):
-            ir.output_sections["var_decls"] = out
+            ir.output_sections["struct_members"] = out
         return out
 
     def output_local_vars(self,ir,user_overrides):
@@ -644,15 +662,25 @@ extern pf_obj *pf_new(void);
             overrides[k] = v
             
         out = []
-        op = ir.symbols.order_of_params()
         for (key,sym) in ir.symbols.items():
-            self.output_symbol(key,sym,op,out,overrides)
+            self.output_symbol(key,sym,out,overrides)
 
         if hasattr(ir,"output_sections"):
             ir.output_sections["var_inits"] = out
                 
         return out
 
+    def output_return_syms(self,ir):
+        out = []
+        for (key,sym) in ir.symbols.items():
+            if self.symbols.is_param(key) and isinstance(sym,fracttypes.Var):
+                out += self.return_sym(sym)
+
+        if hasattr(ir,"output_sections"):
+            ir.output_sections["return_syms"] = out
+
+        return out
+    
     def output_section(self,t,section):
         self.out = []
         self.generate_all_code(t.canon_sections[section])
@@ -667,7 +695,8 @@ extern pf_obj *pf_new(void);
         # must be done after other sections or temps are missing
         self.output_local_vars(t,overrides)
         self.output_struct_members(t,overrides)
-
+        self.output_return_syms(t)
+        
     def get_bailout_var(self,t):
         return t.symbols["__bailout"].cname
     

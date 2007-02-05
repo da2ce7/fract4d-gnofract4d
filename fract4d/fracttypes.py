@@ -279,10 +279,7 @@ class Var:
     ctype = property(_get_ctype)
     
     def struct_name(self):
-        if self.is_temp:
-            return "pfo->" + self.cname
-        else:
-            return self.cname
+        return "t__pfo->" + self.cname
     
     def first(self):
         return self

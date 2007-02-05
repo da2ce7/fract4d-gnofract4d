@@ -129,8 +129,7 @@ class TBase:
 
     def update_settings(self,sectname,node):
         l = self.setlist(node)
-        #print l.pretty()
-        self.add_to_section(sectname, l) #self.setlist(node))
+        self.add_to_section(sectname, l)
         
     def default(self,node):
         self.update_settings("default", node)
