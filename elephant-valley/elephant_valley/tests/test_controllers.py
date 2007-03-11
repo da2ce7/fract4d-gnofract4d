@@ -1,8 +1,10 @@
 import turbogears
 from nose import with_setup
-from turbogears import testutil
+from turbogears import testutil, database
 from elephant_valley.controllers import Root
 import cherrypy
+
+database.set_db_uri("sqlite:///:memory:")
 
 def teardown_func():
     """Tests for apps using identity need to stop CP/TG after each test to
@@ -18,6 +20,11 @@ def test_index_method():
     import types
     result = testutil.call(cherrypy.root.index)
     assert type(result["now"]) == types.StringType
+    assert result.get("fractal_titles") != None
+
+    titles = result.get["fractal_titles"]
+    assert titles.count("wibble") == 1
+    
 test_index_method = with_setup(teardown=teardown_func)(test_index_method)
 
 def test_more():

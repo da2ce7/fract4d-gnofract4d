@@ -1,5 +1,6 @@
 from turbogears import controllers, expose
-# from model import *
+
+import model
 from turbogears import identity, redirect
 from cherrypy import request, response
 # from elephant_valley import json
@@ -12,7 +13,10 @@ class Root(controllers.RootController):
     def index(self):
         import time
         # log.debug("Happy TurboGears Controller Responding For Duty")
-        return dict(now=time.ctime())
+        return dict(
+            now=time.ctime(),
+            image="/static/images/front.jpg",
+            fractal_titles=[x.title for x in model.Fractal.select()] + ["fish"])
 
     @expose(template="elephant_valley.templates.login")
     def login(self, forward_url=None, previous_url=None, *args, **kw):
@@ -47,4 +51,4 @@ class Root(controllers.RootController):
 
     @expose(template="elephant_valley.templates.more")
     def more(self):
-        return dict()
+        return dict(image="/static/images/cheby.jpg")

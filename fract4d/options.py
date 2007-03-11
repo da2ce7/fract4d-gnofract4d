@@ -1,5 +1,6 @@
 import getopt
 import os
+import string
 
 import fractal
 
@@ -19,9 +20,10 @@ class T:
             "save=",
             "help",
             "path=",
-            "formula=",
+            "formula=",            
             "inner=",
             "outer=",
+            "transforms=",
             "map=",
             "xcenter=","ycenter=","zcenter=","wcenter=",
             "xyangle=","xzangle=","xwangle=",
@@ -37,6 +39,7 @@ class T:
         (self.basename,self.func) = (None,None)
         (self.innername,self.innerfunc) = (None,None)
         (self.outername,self.outerfunc) = (None,None)
+        self.transforms = []
         self.maxiter = -1
         self.trace = False
         self.print_version = False
@@ -73,6 +76,7 @@ Fractal Settings:
 -f --formula F#func\tUse formula 'func' from file F
    --inner F#func\tUse coloring algorithm 'func' from file F
    --outer F#func\tUse coloring algorithm 'func' from file F
+   --transforms F#func1,F2#func2\tApply transforms 'func1' and 'func2'
 -m --maxiter N\t\tUse N as maximum number of iterations
    --map FILE\t\tLoad map file FILE
 
@@ -130,6 +134,10 @@ Obscure settings:
                 (self.innername,self.innerfunc) = self.splitarg(val,name)
             elif name=="--outer":
                 (self.outername,self.outerfunc) = self.splitarg(val,name)
+            elif name=="--transforms":
+                tlist = string.split(val,",")
+                for t in tlist:
+                    self.transforms.append(self.splitarg(t,name))
             elif (name=="--map"):
                 self.map = val
             elif name=="--version" or name=="-v":
@@ -146,7 +154,7 @@ Obscure settings:
                     pnum = getattr(fractal.T,pname)
                     self.paramchanges[pnum]= val
                 else:
-                    self.output += "Unknown argument", name, val
+                    self.output += "Unknown argument: '%s' with value '%s'" % (name, val)
 
     def splitarg(self,val, name):
         n = val.rfind('#')
@@ -161,3 +169,5 @@ Obscure settings:
 
         basename = os.path.basename(file)
         return (basename,func)
+
+

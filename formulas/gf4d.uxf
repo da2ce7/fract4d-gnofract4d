@@ -1,3 +1,7 @@
+; These are some simple examples; I suggest downloading 
+; http://formulas.ultrafractal.com/cgi-bin/formuladb?view;file=standard.uxf;type=.txt
+; for some more interesting transforms
+
 Inverse {
 ;
 ; Inverts the complex plane before calculating the fractal.
@@ -25,3 +29,4 @@ XFlip {
 transform:
   #pixel = (-real(#pixel),imag(#pixel))
 }
+

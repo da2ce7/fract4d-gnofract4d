@@ -20,5 +20,5 @@ function=Mandelbrot
 [endsection]
 [colors]
 colorizer=1
-file=/usr/share/maps/gnofract4d/topo.map
+file=/usr/share/gnofract4d/maps/topo.map
 [endsection]

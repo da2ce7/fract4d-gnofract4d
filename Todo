@@ -10,9 +10,6 @@ changes in 3.3:
 * W	skip 'enabled' flag in defaults
 
 to fix before release:
-* W	more transforms, incl 4-d ones. Make 4D a 'standard' transform?
-* BBB	nasty black lines going east - regression?
-* B	odd behavior re: selected transform in list
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -65,10 +62,12 @@ bugs (the more B's, the worse the bug):
 * B	O-fractals in fractint-g4.frm broken (don't work in Fractint either)
 * B	Mandrake: desktop icon not added to menu
 * B	mandrake: pygtk2 is called pygtk2.0
+* B	odd behavior re: selected transform in list
 
 features (the more W's, the more work involved):
 * WWW	toolbox: autozoom, clickzoom, UF-style zoom, realtime zoom, painter
 * WWW	database-backed browser
+* W	more transforms, incl 4-d ones. Make 4D a 'standard' transform?
 * W	minibrot finder a la explorer.c
 * WW	provide a way to get a gradient vector
 * W	progress and interruptability while parsing/compiling
