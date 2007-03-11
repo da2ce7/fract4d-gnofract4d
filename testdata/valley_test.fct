@@ -22,5 +22,5 @@ function=Mandelbrot
 [endsection]
 [colors]
 colorizer=1
-file=/usr/share/maps/gnofract4d/4zebbowx.map
+file=/usr/share/gnofract4d/maps/4zebbowx.map
 [endsection]

@@ -59,6 +59,11 @@ class Test(unittest.TestCase):
 
         self.assertEqual(["foo"], o.args)
 
+    def testTransforms(self):
+        o = options.T()
+        o.parse(["--transforms", "a#b,x#y"])
+        self.assertEqual([("a","b"), ("x","y")], o.transforms)
+        
     def testAllOptionsHaveHelp(self):
         o = options.T()
         help = o.help()

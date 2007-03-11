@@ -6,9 +6,6 @@ from turbogears import identity
 hub = PackageHub("elephant_valley")
 __connection__ = hub
 
-# class YourDataClass(SQLObject):
-#     pass
-
 class FormulaFile(SQLObject):
     file_name = StringCol(alternateID=True)
     formulas = MultipleJoin('Formula')

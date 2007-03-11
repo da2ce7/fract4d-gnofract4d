@@ -18,6 +18,9 @@
   </div>
   <div id="getting_started">
     <ol id="getting_started_steps">
+      <li py:for="title in fractal_titles">
+         ${title}
+      </li>
       <li class="getting_started">
         <h3>Model</h3>
         <p> <a href="http://docs.turbogears.org/1.0/GettingStarted/DefineDatabase">Design models</a> in the <span class="code">model.py</span>.<br/>

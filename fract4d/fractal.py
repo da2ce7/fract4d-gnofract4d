@@ -509,6 +509,9 @@ class T(fctutils.T):
         for (num,val) in options.paramchanges.items():
             self.set_param(num,val)
 
+        for (file,func) in options.transforms:
+            self.append_transform(file,func)
+            
         if options.map:
             self.set_cmap(options.map)
             

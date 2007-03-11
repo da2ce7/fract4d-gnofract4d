@@ -96,7 +96,7 @@ class Test(unittest.TestCase):
 
         v = fracttypes.Var(fracttypes.Color)
         self.assertEqual(["_re","_i","_j","_k"], v.part_names)
-        
+
     def testComplexInitVal(self):
         v = fracttypes.Var(fracttypes.Complex, [1.234,-7.89])
         

@@ -114,7 +114,8 @@ class TBase:
         for (k,tree) in self.sections.items():
             startLabel = "t__start_" + self.symbols.prefix + k
             endLabel = "t__end_" + self.symbols.prefix + k
-            self.canon_sections[k] = self.canonicalizer.canonicalize(tree,startLabel,endLabel)
+            self.canon_sections[k] = self.canonicalizer.canonicalize(
+                tree,startLabel,endLabel)
 
     def dupSectionWarning(self,sect):
         self.warning(
@@ -356,7 +357,7 @@ class TBase:
         for s in strings:
             self.add_enum_value(s,i,node.pos)
             i += 1
-            
+
     def const_exp(self,node):
         # FIXME should compute full constant expressions
         if node.type == "const":
@@ -386,8 +387,25 @@ class TBase:
             return self.make_const(node, fracttypes.Color)
         elif node.type == "id":
             if self.symbols.is_builtin(node.leaf):
-                return ir.Var(
-                    node.leaf, node, self.symbols[node.leaf].type)
+                # FIXME: not using the real default value of the var
+                t = self.symbols[node.leaf].type
+
+                if t == fracttypes.Complex:
+                    val = [ ir.Const(0.0, node, fracttypes.Float),
+                            ir.Const(0.0, node, fracttypes.Float)]
+
+                elif t == fracttypes.Hyper or t == fracttypes.Color:
+                    val = [ ir.Const(0.0, node, fracttypes.Float),
+                            ir.Const(0.0, node, fracttypes.Float),
+                            ir.Const(0.0, node, fracttypes.Float),
+                            ir.Const(0.0, node, fracttypes.Float)]
+                else:
+                    val = ir.Const(0.0, node, fracttypes.Float)
+                    
+                var = ir.Const(val,node,t)
+                    
+                #return ir.Var(
+                #    node.leaf, node, self.symbols[node.leaf].type)
             else:
                 self.error("%d: only built-in variables (starting with '#') can be used in default sections" % node.pos)
         else:
