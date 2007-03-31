@@ -15,7 +15,7 @@
 <p><strong>"There is no excellent beauty which hath not some strangeness in the proportion."</strong><br />(Francis Bacon)</p>
 </div>
 
-<img py:if="hasattr(page, 'image')" id="frontphoto" src="${page.image}" width="760" height="175" alt="" />
+<img py:if="hasattr(page, 'image')" id="frontphoto" src="${page.url_prefix}${page.image}" width="760" height="175" alt="" />
 
 <div id="avmenu">
 <h2 class="hide">Menu:</h2>

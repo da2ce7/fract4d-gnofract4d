@@ -45,7 +45,7 @@ manual_pages = [
         url_prefix="../"),
     
     Bag(name="Known Issues",
-        file="manual/maths.html",
+        file="manual/bugs.html",
         url_prefix="../"),
 
     Bag(name="About Gnofract 4D",
@@ -113,6 +113,7 @@ pages = [
 
     Bag(name="Manual",
         file="manual/index.html",
+        image="manual.jpg",
         url_prefix="../",
         children = manual_pages),
 
@@ -163,7 +164,7 @@ def strip_empty_hrefs(s):
     s = re_clear_style.sub('',s)
     return s
 
-def process_all(pages):
+def process_all(pages,side_pages):
     for page in pages:
         if hasattr(page,"stub"):
             continue
@@ -175,7 +176,7 @@ def process_all(pages):
         out = open(page.file, "w")
         template = module.Template(
             body=body_text,
-            pages=pages,
+            pages=side_pages,
             page=page)
         
         try:
@@ -188,7 +189,7 @@ def process_all(pages):
         out.close()
         if hasattr(page,"children"):
             print "children",page.children
-            process_all(page.children)
+            process_all(page.children,pages)
 
 create_manual()
-process_all(pages)
+process_all(pages,pages)
