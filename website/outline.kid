@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://purl.org/kid/ns#" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" type="text/css" href="gnofract4d.css" media="screen"/>
-<link rel="stylesheet" type="text/css" href="print.css" media="print" />
+<link rel="stylesheet" type="text/css" href="${page.url_prefix}gnofract4d.css" media="screen"/>
+<link rel="stylesheet" type="text/css" href="${page.url_prefix}print.css" media="print" />
 <title>Gnofract 4D: Superior Fractal Software : ${page.name}</title>
 </head>
 
@@ -21,7 +21,7 @@
 <h2 class="hide">Menu:</h2>
 <ul>
 <li py:for="refpage in pages">
-	<a py:if="refpage.file != page.file" href="${refpage.file}">${refpage.name}</a>
+	<a py:if="refpage.file != page.file" href="${page.url_prefix}${refpage.file}">${refpage.name}</a>
 	<span py:if="refpage.file == page.file">${refpage.name}</span>
 </li>
 <li>
