@@ -1,3 +1,5 @@
+<h2>Compile and Install Issues</h2>
+
 <p class="q">
 Q: When I try to install the Gnofract 4D RPM on
 Mandrake, Mandriva or SuSE, why do I get this message? <br/> 
@@ -58,7 +60,7 @@ Install those using YaST then try compiling again.
 </p>
 
 <p class="q">
-Q: When I try to compile Gnofract 4D on Ubuntu, why do I get this error?<br/>
+Q: When I try to compile older versions of Gnofract 4D on Ubuntu, why do I get this error?<br/>
 
 <pre class="q">
 Can't set up. Error running 'pkg-config gconf-2.0 --cflags'.
@@ -73,7 +75,9 @@ Possibly you don't have one of these installed: 'gconf-2.0'.
 <p>
 
 <b>A:</b>You need to install the libgconf2-dev package, which is
-required to build programs which use gconf.
+required to build programs which use gconf. Newer versions will still
+compile if you don't have gconf2-devel, but they will be unable to 
+pick up your browser settings from gconf.
 </p>
 
 <p class="q">
@@ -90,6 +94,8 @@ error: command 'gcc' failed with exit status 1
 compiler. You need to install the g++ (sometimes called gcc-c++)
 package, which is required to build C++ programs.
 </p>
+
+<h2>Runtime Issues</h2>
 
 <p class="q">
 Q: When I try to load a parameter file, why do I get an error 'Can't
@@ -111,7 +117,8 @@ Q: When I zoom in far enough, the image turns all pixelated and blocky. Why is t
 
 <p>
 <b>A:</b>You've reached the limit of the precision supplied by your
-processor's built-in math chip, I'm afraid. The numbers representing
-different pixels are so close together that it can't tell the
-difference. You'll have to zoom out again.
+processor's built-in math chip, I'm afraid. On Intel architectures
+this will be when the image size is around 10^-13. The numbers
+representing different pixels are so close together that it can't tell
+the difference. You'll have to zoom out again.
 </p>

@@ -4,6 +4,7 @@
 # generate all the HTML statically, and upload the new version
 
 import os
+import string, re
 
 import kid
 
@@ -11,13 +12,47 @@ module = kid.load_template("outline.kid",cache=1)
 
 class Bag:
     def __init__(self,**kwds):
+        self.__dict__["url_prefix"]=""
         self.__dict__.update(kwds)
-
-
+        
 announce = Bag(
-    date="December 8th, 2006",
-    text="Version 3.2 released. This contains only bug fixes, including one to improve compatibility with Fedora Core 6.")
+    date="March 10th, 2007",
+    text="Version 3.3 released. This adds support for image transforms.")
 
+manual_pages = [
+    Bag(name="Using Gnofract 4D",
+        file="manual/using.html",
+        url_prefix="../"),
+
+    Bag(name="Command Reference",
+        file="manual/cmdref.html",
+        url_prefix="../"),
+
+    Bag(name="About the maths",
+        file="manual/maths.html",
+        url_prefix="../"),
+
+    Bag(name="Writing Functions",
+        file="manual/compiler.html",        
+        url_prefix="../"),
+    
+    Bag(name="Language Reference",
+        file="manual/formref.html",
+        url_prefix="../"),
+    
+    Bag(name="Internals",
+        file="manual/internals.html",
+        url_prefix="../"),
+    
+    Bag(name="Known Issues",
+        file="manual/maths.html",
+        url_prefix="../"),
+
+    Bag(name="About Gnofract 4D",
+        file="manual/about.html",
+        url_prefix="../")
+    ]
+    
 pages = [
     Bag(name="Home",
         file="index.html",
@@ -78,7 +113,8 @@ pages = [
 
     Bag(name="Manual",
         file="manual/index.html",
-        stub=True),    
+        url_prefix="../",
+        children = manual_pages),
 
     Bag(name="Links",
         file="links.html",
@@ -90,6 +126,7 @@ pages = [
     ]
 
 def create_manual():
+    global pages
     if not os.path.isdir("manual/figures"):
         os.makedirs("manual/figures")
     os.system("cp ../doc/gnofract4d-manual/C/*.xml .")
@@ -99,25 +136,58 @@ def create_manual():
     os.system("cp * ../../manual")
     os.chdir("../..")
 
+
+def strip_body(s):
+    # remove everything outside <body></body>, if present
+    # because docbook XSLT produces <head> and other tags I don't want
+    bstart = s.find("<body>")
+    if bstart != -1:
+        bstart += 6
+        bend = s.find("</body>",bstart)
+        if bend == -1:
+            bend = len(s)
+        s = s[bstart:bend]
+        s = s.replace('xmlns=""', " ")
+    return s
+
+re_empty_link = re.compile(r'<a id="(.*?)" />')
+re_navheader = re.compile(r'<div class="navheader"(.*?)</div>')
+re_clear_style = re.compile(r'style="clear: both"')
+
+def strip_empty_hrefs(s):
+    # Seem to end up with <a id="blah"/> sometimes. Firefox makes the whole next para into a link to nowhere
+    s = re_empty_link.sub('',s)
+    # navheader doesn't display properly, just remove it
+    s = re_navheader.sub('',s)
+    # clearing styles causes content to move down to below avmenu. Why? god knows
+    s = re_clear_style.sub('',s)
+    return s
+
 def process_all(pages):
     for page in pages:
         if hasattr(page,"stub"):
             continue
         
         body_text = open(os.path.join("in", page.file)).read()
+        body_text = strip_body(body_text)
+
+        print "processing ",page.file
         out = open(page.file, "w")
         template = module.Template(
             body=body_text,
             pages=pages,
             page=page)
+        
         try:
-            print >>out, str(template)
+            processed_page = str(template)
+            print >>out, strip_empty_hrefs(processed_page)
         except Exception, exn:
             print "Error processing page %s" % page.file
             raise
             
         out.close()
         if hasattr(page,"children"):
+            print "children",page.children
             process_all(page.children)
 
 create_manual()
