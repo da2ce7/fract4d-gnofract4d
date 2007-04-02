@@ -13,7 +13,7 @@ import fctutils
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
-g_comp.file_path.append("../formulas")
+g_comp.add_func_path.append("../formulas")
 g_comp.load_formula_file("gf4d.frm")
 g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")

@@ -26,7 +26,7 @@ class PC(fc.Compiler):
 
 def main(args):
     pc = PC()
-    pc.file_path.append("../formulas")
+    pc.add_func_path("../formulas")
     pc.load_formula_file("gf4d.frm")
     pc.load_formula_file("gf4d.cfrm")
     pc.compiler_name = "g++"

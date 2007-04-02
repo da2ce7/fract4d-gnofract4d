@@ -57,7 +57,8 @@ class MainWindow:
         self.compiler = fc.Compiler()
 
         self.update_compiler_prefs(preferences.userPrefs)
-        self.compiler.file_path += extra_paths
+        for path in extra_paths:
+            self.compiler.add_func_path(path)
 
         self.recent_files = preferences.userPrefs.get_list("recent_files")
         
@@ -319,7 +320,7 @@ class MainWindow:
         # update compiler
         self.compiler.compiler_name = prefs.get("compiler","name")
         self.compiler.flags = prefs.get("compiler","options")
-        self.compiler.file_path = prefs.get_list("formula_path")
+        self.compiler.set_func_path_list(prefs.get_list("formula_path"))
 
         if self.f:
             self.f.update_formula()
@@ -1295,8 +1296,7 @@ class MainWindow:
 
     def load(self,file):
         try:
-            if fc.Compiler.isFRM.search(file) or \
-                   fc.Compiler.isCFRM.search(file):
+            if fc.FormulaTypes.isFormula(file):
                 self.load_formula(file)
                 return
             self.f.loadFctFile(open(file))
@@ -1312,10 +1312,7 @@ class MainWindow:
         try:
             self.compiler.load_formula_file(file)
             browser.update(file)
-            if fc.Compiler.isCFRM.search(file):
-                browser.show(self.window, self.f, browser.OUTER)
-            else:
-                browser.show(self.window, self.f, browser.FRACTAL)
+            browser.show(self.window, self.f, browser.FRACTAL)
 
             return True
         except Exception, err:
@@ -1380,7 +1377,8 @@ class MainWindow:
         self.quit_when_done = opts.quit_when_done
         self.save_filename = opts.save_filename
 
-        self.compiler.file_path += opts.extra_paths
+        for path in opts.extra_paths:
+            self.compiler.add_func_path(path)
 
         if len(opts.args) > 0:
             self.load(opts.args[0])

@@ -1,15 +1,6 @@
 todo:
 
-changes in 3.3:
-* B 	better error message when no func name to --formula
-* W	added #center variable
-* B	on freebsd, gtkfractal.onmotionnotify, self has no x
-* B	on freebsd, gtkfractal.onbuttonrelease, self has no x
-* WW	transforms
-* B	preview wrong when moving transform's 4-ways
-* W	skip 'enabled' flag in defaults
-
-to fix before release:
+changes in 3.4:
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -143,6 +134,87 @@ params (not all applicable to all types):
 1) how to set color of point
 2) time step
 3) which points to start with
+
+gnofract4d
+* W	automatic saving of picture and parameters at the same time 
+* WW	How about colour cycling?
+* B	aspect ratio locked with -i and -j params
+* W	add fractal params to image, add load image
+* W	Julia preview by moving around while holding button3
+* W	history window (move history inside library??)
+* WW	MDI
+* B	pause doesn't stop subfracts
+
+xscreensaver version
+* W	auto random parameters
+* W	draw to root window
+
+Movies-
+* B	movies turn off AA
+* W	implement frames/image
+* W	implement curves
+* W	load/save movies
+* B	antialiasing/auto-deepen broken for movies
+* W 	actually save movie images -> disk
+* W	move keyframes up/down 
+* B	lines are ugly
+* W 	"constant zoom speed" mode?
+* WW	run mpeg encoder?
+* W	draw image all-at-once for movies?
+
+CmapEditor
+* W	put "click to apply" right next to preview
+* B	update previews doesn't expose colorbuts
+* B 	setting to an rgb_cizer permanently breaks cmap editor
+* W	color cycling
+* W	choose range + smooth
+* W	choose every other in range
+* W 	save new .map + add to preview list
+* W 	remove debug printfs
+* W	finish cmapeditor
+
+Gnofract4d server:
+Browse formulas, .fct files interactively in web browser, gf4d
+gf4d fetch formulas automatically when missing
+formulas are versioned, .fct file lists revision it used
+local repository with versioning?
+anyone can edit any formula, no-one can delete older revisions
+all edits are attached to a named user. 
+Anyone can create an account without human intervention
+Post new formulas and .fct files easily from within GUI
+Post thumbnail images for browsing
+
+design possibilities:
+use revision control system (subversion, cvs, rcs, arch?)
+pysvn (has further dependencies)
+hosting: cvsdude? sourceforge?
+wiki? (need to remove formatting, though)
+
+Distributed computing: 
+
+Scenario: I have 3 computers at home, want to generate fractals more
+quickly. I install gf4d on all 3 of them, then without further
+configuration I can use any of the computers to create images and the
+others will contribute if available.
+
+Requires: discovery protocol, work distribution scheme that can cope
+with missing or misbehaving clients
+
+Scenario: I want to generate a huge animation. I join up to a global
+group of gf4d users who contribute spare cycles (via a screensaver?)
+in return for a look at what I'm generating, (like ElectricSheep).
+
+Requires: above, +able to deal with ad-hoc networks of thousands of peers,
+economic incentive, security, works with NAT
+
+changes in 3.3:
+* B 	better error message when no func name to --formula
+* W	added #center variable
+* B	on freebsd, gtkfractal.onmotionnotify, self has no x
+* B	on freebsd, gtkfractal.onbuttonrelease, self has no x
+* WW	transforms
+* B	preview wrong when moving transform's 4-ways
+* W	skip 'enabled' flag in defaults
 
 fixed in 3.2:
 * B	Problem clicking 'yes' to overwrite temp .fct files
@@ -457,91 +529,6 @@ done in 2.2:
 * W	there is no warning before files are overwritten (parameter files +
 	pictures)
 * B	undo/redo cause recompilation
-
-gnofract4d
-* W	automatic addition of file extensions and
-* W	automatic saving of picture and parameters at the same time 
-* WW	How about colour cycling?
-* B	image size should be persisted and kept under Preferences.
-* B	aspect ratio locked with -i and -j params
-* BB	hang changing back from explorer mode
-* W	add fractal params to image, add load image
-* W	remember .fct filenames and re-save to same place
-* W	Julia preview by moving around while holding button3
-* W	history window (move history inside library??)
-* B	SIGSEGV when changing mutant weirdness - hard to repro
-* WW	MDI
-* B	pause doesn't stop subfracts
-* WW	preview .fcts in open dialog
-* W	sort out libfract4d versioning
-* B	detect and report save problems
-* W	warn about save overwrites
-
-fract4d
-* W	support calc()
-* W	parse command-line arguments
-
-xscreensaver version
-* W	auto random parameters
-* W	draw to root window
-
-Movies-
-* B	movies turn off AA
-* W	implement frames/image
-* W	implement curves
-* W	load/save movies
-* B	antialiasing/auto-deepen broken for movies
-* W 	actually save movie images -> disk
-* W	move keyframes up/down 
-* B	lines are ugly
-* W 	"constant zoom speed" mode?
-* WW	run mpeg encoder?
-* W	draw image all-at-once for movies?
-
-CmapEditor
-* W	put "click to apply" right next to preview
-* B	update previews doesn't expose colorbuts
-* B 	setting to an rgb_cizer permanently breaks cmap editor
-* W	color cycling
-* W	choose range + smooth
-* W	choose every other in range
-* W 	save new .map + add to preview list
-* W 	remove debug printfs
-* W	finish cmapeditor
-
-Gnofract4d server:
-Browse formulas, .fct files interactively in web browser, gf4d
-gf4d fetch formulas automatically when missing
-formulas are versioned, .fct file lists revision it used
-local repository with versioning?
-anyone can edit any formula, no-one can delete older revisions
-all edits are attached to a named user. 
-Anyone can create an account without human intervention
-Post new formulas and .fct files easily from within GUI
-Post thumbnail images for browsing
-
-design possibilities:
-use revision control system (subversion, cvs, rcs, arch?)
-pysvn (has further dependencies)
-hosting: cvsdude? sourceforge?
-wiki? (need to remove formatting, though)
-
-Distributed computing: 
-
-Scenario: I have 3 computers at home, want to generate fractals more
-quickly. I install gf4d on all 3 of them, then without further
-configuration I can use any of the computers to create images and the
-others will contribute if available.
-
-Requires: discovery protocol, work distribution scheme that can cope
-with missing or misbehaving clients
-
-Scenario: I want to generate a huge animation. I join up to a global
-group of gf4d users who contribute spare cycles (via a screensaver?)
-in return for a look at what I'm generating, (like ElectricSheep).
-
-Requires: above, +able to deal with ad-hoc networks of thousands of peers,
-economic incentive, security, works with NAT
 
 Flickr ID: f29c6d8fa5d950131c4ae13adc55700d
 Shared Secret: 037ec6eec0e91cab

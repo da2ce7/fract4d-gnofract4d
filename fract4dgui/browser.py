@@ -7,6 +7,8 @@ import os
 import gobject
 import gtk
 
+from fract4d import fc
+
 import preferences
 import dialog
 import utils
@@ -15,7 +17,17 @@ FRACTAL = 0
 INNER = 1
 OUTER = 2
 TRANSFORM = 3
+GRADIENT = 4
 
+# from the above constants to those inside compiler
+func_mapping = [
+    fc.FormulaTypes.FRACTAL,
+    fc.FormulaTypes.COLORFUNC,
+    fc.FormulaTypes.COLORFUNC,
+    fc.FormulaTypes.TRANSFORM,
+    fc.FormulaTypes.GRADIENT
+    ]
+    
 fname_to_use = None
 formula_to_use = None
 
@@ -192,12 +204,8 @@ class BrowserDialog(dialog.T):
         # find all appropriate files and add to file list
         self.file_list.clear()
 
-        if self.func_type == FRACTAL:
-            files = self.compiler.find_formula_files()
-        elif self.func_type == TRANSFORM:
-            files = self.compiler.find_transform_files()
-        else:
-            files = self.compiler.find_colorfunc_files()
+        type = func_mapping[self.func_type]
+        files = self.compiler.find_files_of_type(type)
 
         current_iter = None
         files.sort(stricmp)
@@ -284,7 +292,8 @@ class BrowserDialog(dialog.T):
             [_("Fractal Function"),
              _("Inner Coloring Function"),
              _("Outer Coloring Function"),
-             _("Transform Function")])
+             _("Transform Function"),
+             _("Gradient")])
 
         utils.set_selected(self.funcTypeMenu,0)
         

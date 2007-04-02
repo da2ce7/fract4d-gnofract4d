@@ -30,6 +30,7 @@ import stat
 import random
 import md5
 import re
+import copy
 
 import fractparser
 import fractlexer
@@ -40,6 +41,37 @@ import absyn
 import preprocessor
 import cache
 
+class FormulaTypes:
+    FRACTAL = 0
+    COLORFUNC = 1
+    TRANSFORM = 2
+    GRADIENT = 3
+    NTYPES = 4
+    matches = [
+        re.compile(r'(\.frm\Z)|(\.ufm\Z)', re.IGNORECASE),
+        re.compile(r'(\.cfrm\Z)|(\.ucl\Z)', re.IGNORECASE),
+        re.compile(r'\.uxf\Z', re.IGNORECASE),
+        re.compile(r'(\.ugr\Z)|(\.map\Z)|(\.ggr\Z)', re.IGNORECASE)
+        ]
+    
+    def guess_type_from_filename(filename):
+        if FormulaTypes.matches[FormulaTypes.FRACTAL].search(filename):
+            return translate.T
+        elif FormulaTypes.matches[FormulaTypes.COLORFUNC].search(filename):
+            return translate.ColorFunc        
+        elif FormulaTypes.matches[FormulaTypes.TRANSFORM].search(filename):
+            return translate.Transform
+        elif FormulaTypes.matches[FormulaTypes.GRADIENT].search(filename):
+            return translate.GradientFunc
+    guess_type_from_filename = staticmethod(guess_type_from_filename)
+
+    def isFormula(filename):
+        for matcher in FormulaTypes.matches:
+            if matcher.search(filename):
+                return True
+        return False
+    isFormula = staticmethod(isFormula)
+    
 class FormulaFile:
     def __init__(self, formulas, contents,mtime,filename):
         self.formulas = formulas
@@ -67,15 +99,11 @@ class FormulaFile:
         return names
     
 class Compiler:
-    isFRM = re.compile(r'(\.frm\Z)|(.ufm\Z)', re.IGNORECASE)
-    isCFRM = re.compile(r'(\.cfrm\Z)|(.ucl\Z)', re.IGNORECASE)
-    isXFRM = re.compile(r'\.uxf\Z', re.IGNORECASE)
     def __init__(self):
         self.parser = fractparser.parser
         self.lexer = fractlexer.lexer
-        self.files = {}
         self.c_code = ""
-        self.file_path = []
+        self.path_lists = [ [], [], [], [] ]
         self.cache = cache.T()
         self.cache_dir = os.path.expanduser("~/.gnofract4d-cache/")
         self.init_cache()
@@ -84,14 +112,31 @@ class Compiler:
         self.libs = "-lm"
         self.tree_cache = {}
         self.leave_dirty = False
-        
-    def formula_files(self):
-        return [ (x,y) for (x,y) in self.files.items() 
-                 if Compiler.isFRM.search(x)]
 
-    def find_files(self):
+    def _get_files(self):
+        return self.cache.files
+
+    files = property(_get_files)
+
+    def add_path(self,path,type):
+        self.path_lists[type].append(path)
+
+    def add_func_path(self,path):
+        self.path_lists[FormulaTypes.FRACTAL].append(path)
+        self.path_lists[FormulaTypes.COLORFUNC].append(path)
+        self.path_lists[FormulaTypes.TRANSFORM].append(path)
+
+    def set_func_path_list(self,list):
+        self.path_lists[FormulaTypes.FRACTAL] = copy.copy(list)
+        self.path_lists[FormulaTypes.COLORFUNC] = copy.copy(list)
+        self.path_lists[FormulaTypes.TRANSFORM] = copy.copy(list)
+        
+    def init_cache(self):
+        self.cache.init()
+
+    def find_files(self,type):
         files = {}
-        for dir in self.file_path:
+        for dir in self.path_lists[type]:
             if not os.path.isdir(dir):
                 continue
             for file in os.listdir(dir):
@@ -99,10 +144,20 @@ class Compiler:
                     files[file] = 1
         return files.keys()
 
+    def find_files_of_type(self,type):
+        matcher = FormulaTypes.matches[type]
+        return [file for file in self.find_files(type)
+                if matcher.search(file)]
+
     def find_formula_files(self):
-        return [file for file in self.find_files()
-                if Compiler.isFRM.search(file)]
+        return self.find_files_of_type(FormulaTypes.FRACTAL)
                 
+    def find_colorfunc_files(self):
+        return self.find_files_of_type(FormulaTypes.COLORFUNC)
+
+    def find_transform_files(self):
+        return self.find_files_of_type(FormulaTypes.TRANSFORM)
+
     def get_text(self,fname):
         file = self.files.get(fname)
         if not file:
@@ -110,24 +165,6 @@ class Compiler:
         
         return self.files[fname].contents
 
-    def find_colorfunc_files(self):
-        return [file for file in self.find_files()
-                if Compiler.isCFRM.search(file)]
-
-    def find_transform_files(self):
-        return [file for file in self.find_files()
-                if Compiler.isXFRM.search(file)]
-
-    def colorfunc_files(self):
-        return [ (x,y) for (x,y) in self.files.items() 
-                 if Compiler.isCFRM.search(x)]
-
-    def transform_files(self):
-        return [ (x,y) for (x,y) in self.files.items() 
-                 if Compiler.isXFRM.search(x)]
-        
-    def init_cache(self):
-        self.cache.init()
 
     def last_chance(self,filename):
         '''does nothing here, but can be overridden by GUI to prompt user.'''
@@ -165,14 +202,14 @@ class Compiler:
         
         return outputfile
     
-    def find_file(self,filename):
+    def find_file(self,filename,type):
         if os.path.exists(filename):
             dir = os.path.dirname(filename)
-            if self.file_path.count(dir) == 0:
+            if self.path_lists[type].count(dir) == 0:
                 # add directory to search path
-                self.file_path.append(dir)            
+                self.path_lists[type].append(dir)            
             return filename
-        for path in self.file_path:
+        for path in self.path_lists[type]:
             f = os.path.join(path,filename)
             if os.path.exists(f):
                 return f
@@ -199,7 +236,8 @@ class Compiler:
     
     def load_formula_file(self, filename):
         try:
-            filename = self.find_file(filename)
+            type = FormulaTypes.FRACTAL # FIXME
+            filename = self.find_file(filename,type)
             s = open(filename,"r").read() # read in a whole file
             formulas = self.parse_file(s)
 
@@ -279,12 +317,7 @@ class Compiler:
         return ff.get_formula(formname)
 
     def guess_type_from_filename(self,filename):
-        if Compiler.isFRM.search(filename):
-            return translate.T
-        elif Compiler.isCFRM.search(filename):
-            return translate.ColorFunc        
-        elif Compiler.isXFRM.search(filename):
-            return translate.Transform
+        return FormulaTypes.guess_type_from_filename(filename)
     
     def get_formula(self, filename, formname,prefix=""):
         type = self.guess_type_from_filename(filename)

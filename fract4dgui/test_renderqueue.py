@@ -18,8 +18,8 @@ sys.path.append("..")
 from fract4d import fractal, image, fc
 
 g_comp = fc.Compiler()
-g_comp.file_path.append("../fract4d")
-g_comp.file_path.append("../formulas")
+g_comp.add_func_path("../fract4d")
+g_comp.add_func_path("../formulas")
 
 class Test(unittest.TestCase):
     def setUp(self):

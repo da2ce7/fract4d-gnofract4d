@@ -22,7 +22,7 @@ import gtkfractal
 class Test(unittest.TestCase):
     def setUp(self):
         self.compiler = fc.Compiler()
-        self.compiler.file_path.append("../formulas")
+        self.compiler.add_func_path("../formulas")
         
         self.f = gtkfractal.T(self.compiler,self)
 

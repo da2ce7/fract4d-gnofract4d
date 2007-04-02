@@ -24,7 +24,7 @@ class T:
             g = gradient.Gradient()
             g.load_ugr(t)
             out_name = g.name + ".ggr"
-            f = open(out_name, "w")
+            f = open("gradients/" + out_name, "w")
             print >>f, g.serialize()
             f.close()
 

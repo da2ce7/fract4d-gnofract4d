@@ -35,18 +35,19 @@ main()
     pfoParams[5].doubleval = 1.0; //cf1 density
     pfoParams[6].doubleval = 0.0; // offset
 
-    pfo->vtbl->init(
-	pfo,2.0e-9,
-	pfoParams,
-	7);
-
-    image *im = new image();
-    im->set_resolution(4096,4096,-1,-1);
-
     double params[] = { 
 	0.0, 0.0, 0.0, 0.0,
 	4.0,
 	0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+    pfo->vtbl->init(
+	pfo,2.0e-9,
+        params,
+	pfoParams,
+	7);
+
+    image *im = new image();
+    im->set_resolution(1024,1024,-1,-1);
 
     calc(
 	params,
