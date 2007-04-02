@@ -14,7 +14,11 @@ import translate
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
-g_comp.file_path.append("../formulas")
+g_comp.add_path("../formulas", fc.FormulaTypes.FRACTAL)
+g_comp.add_path("../formulas", fc.FormulaTypes.COLORFUNC)
+g_comp.add_path("../formulas", fc.FormulaTypes.TRANSFORM)
+g_comp.add_path("../maps", fc.FormulaTypes.GRADIENT)
+
 g_comp.load_formula_file("gf4d.frm")
 g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")
@@ -38,21 +42,39 @@ class FCTest(testbase.TestBase):
         self.assertEqual(
             translate.Transform,
             self.compiler.guess_type_from_filename("x.uxf"))
-        
-    def testLists(self):
-        'Check we correctly classify funcs by color/insideness'
-        fl = [x for (x,y) in self.compiler.formula_files()]
-        self.assertEqual(fl.count("gf4d.frm"), 1)
-        self.assertEqual(fl.count("test.frm"), 1)
-        self.assertEqual(fl.count("gf4d.cfrm"), 0)
-        
-        cfl = [x for (x,y) in self.compiler.colorfunc_files()]
-        self.assertEqual(cfl.count("gf4d.cfrm"),1)
-        self.assertEqual(cfl.count("gf4d.frm"), 0)
 
-        xfl = [x for (x,y) in self.compiler.transform_files()]
-        self.assertEqual(xfl.count("gf4d.uxf"),1)
-        
+    def testTypes(self):
+        self.assertEqual(0, fc.FormulaTypes.FRACTAL)
+
+    def assertListContains(self,list,element):
+        try:
+            return list.index(element)
+        except ValueError, err:
+            raise AssertionError("couldn't find %s in %s" % (element, list))
+
+    def assertListDoesntContain(self,list,element):
+        self.assertEqual(0, list.count(element))
+                         
+    def testFindFilesOfType(self):
+        expected_files = {
+            fc.FormulaTypes.FRACTAL : "gf4d.frm",
+            fc.FormulaTypes.COLORFUNC : "gf4d.cfrm",
+            fc.FormulaTypes.TRANSFORM : "gf4d.uxf",
+            fc.FormulaTypes.COLORFUNC : "standard.ucl",
+            fc.FormulaTypes.GRADIENT : "blatte1.ugr",
+            fc.FormulaTypes.GRADIENT : "4zebbowx.map"
+            }
+
+        for type in xrange(fc.FormulaTypes.FRACTAL, fc.FormulaTypes.GRADIENT + 1):
+            files = self.compiler.find_files_of_type(type)
+
+            for (exp_t, exp_val) in expected_files.items():
+                if exp_t == type:
+                    self.assertListContains(files, exp_val)
+                else:
+                    self.assertListDoesntContain(files, exp_val)
+
+    def testLists(self):
         file = self.compiler.files["gf4d.cfrm"]
         names = file.get_formula_names()
         self.assertEqual(names,file.formulas.keys())

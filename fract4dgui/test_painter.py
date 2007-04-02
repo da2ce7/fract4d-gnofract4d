@@ -25,8 +25,8 @@ class FakeEvent:
 class Test(unittest.TestCase):
     def setUp(self):
         self.compiler = fc.Compiler()
-        self.compiler.file_path.append("../formulas")
-        self.compiler.file_path.append("../fract4d")
+        self.compiler.add_func_path("../formulas")
+        self.compiler.add_func_path("../fract4d")
         
         self.f = gtkfractal.T(self.compiler)
         self.settings = painter.PainterDialog(None,self.f)

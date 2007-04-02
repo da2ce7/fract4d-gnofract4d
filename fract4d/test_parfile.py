@@ -17,7 +17,7 @@ import preprocessor
 import gradient
 
 g_comp = fc.Compiler()
-g_comp.file_path.append("../formulas")
+g_comp.add_func_path("../formulas")
 g_comp.load_formula_file("gf4d.frm")
 g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")

@@ -11,10 +11,12 @@ class T:
     def update_compiler_prefs(self, prefs):
         self.compiler.compiler_name = prefs.get("compiler","name")
         self.compiler.flags = prefs.get("compiler","options")
-        self.compiler.file_path = prefs.get_list("formula_path")
+        for path in prefs.get_list("formula_path"):
+            self.compiler.add_func_path(path)
         
     def run(self,options):
-        self.compiler.file_path += options.extra_paths
+        for path in options.extra_paths:            
+            self.compiler.add_func_path(path)
 
         width = options.width or fractconfig.instance.getint("display","width")
         height = options.height or fractconfig.instance.getint("display","height")

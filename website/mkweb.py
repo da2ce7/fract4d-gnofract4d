@@ -113,7 +113,7 @@ pages = [
 
     Bag(name="Manual",
         file="manual/index.html",
-        image="manual.jpg",
+        image="images/manual.jpg",
         url_prefix="../",
         children = manual_pages),
 

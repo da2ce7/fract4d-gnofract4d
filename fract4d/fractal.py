@@ -907,9 +907,9 @@ if __name__ == '__main__':
     import fract4dc
 
     g_comp = fc.Compiler()
-    g_comp.file_path.append("formulas")
-    g_comp.file_path.append("../formulas")
-    g_comp.file_path.append(
+    g_comp.add_func_path("formulas")
+    g_comp.add_func_path("../formulas")
+    g_comp.add_func_path(
             os.path.join(sys.exec_prefix, "share/gnofract4d/formulas"))
 
     f = T(g_comp)

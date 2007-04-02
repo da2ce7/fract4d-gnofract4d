@@ -24,14 +24,14 @@ pos_params = [
     ]
 class Test(testbase.TestBase):
     def compileMandel(self):
-        self.compiler.file_path.append('../formulas')
+        self.compiler.add_func_path('../formulas')
         self.compiler.load_formula_file("gf4d.frm")
         f = self.compiler.get_formula("gf4d.frm","Mandelbrot")
         cg = self.compiler.compile(f)
         self.compiler.generate_code(f,cg,"test-pf.so")
 
     def compileColorMandel(self):
-        self.compiler.file_path.append('../formulas')
+        self.compiler.add_func_path('../formulas')
         self.compiler.load_formula_file("gf4d.frm")
         self.compiler.load_formula_file("gf4d.cfrm")
         cf1 = self.compiler.get_formula("gf4d.cfrm","default","cf0")
@@ -51,7 +51,7 @@ class Test(testbase.TestBase):
         return self.compiler.compile_all(f,cf1,cf2,[])
 
     def compileColorDiagonal(self):
-        self.compiler.file_path.append('../formulas')
+        self.compiler.add_func_path('../formulas')
         self.compiler.load_formula_file("test.frm")
         self.compiler.load_formula_file("gf4d.cfrm")
         cf1 = self.compiler.get_formula("gf4d.cfrm","default","cf0")
