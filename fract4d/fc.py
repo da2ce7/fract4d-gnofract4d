@@ -65,6 +65,13 @@ class FormulaTypes:
             return translate.GradientFunc
     guess_type_from_filename = staticmethod(guess_type_from_filename)
 
+    def guess_formula_type_from_filename(filename):
+        for i in xrange(FormulaTypes.NTYPES):
+            if FormulaTypes.matches[i].search(filename):
+                return i
+        raise ValueError("Unknown file type for '%s'", filename)
+    guess_formula_type_from_filename = staticmethod(guess_formula_type_from_filename)
+        
     def isFormula(filename):
         for matcher in FormulaTypes.matches:
             if matcher.search(filename):
@@ -236,7 +243,7 @@ class Compiler:
     
     def load_formula_file(self, filename):
         try:
-            type = FormulaTypes.FRACTAL # FIXME
+            type = FormulaTypes.guess_formula_type_from_filename(filename)
             filename = self.find_file(filename,type)
             s = open(filename,"r").read() # read in a whole file
             formulas = self.parse_file(s)
@@ -321,7 +328,7 @@ class Compiler:
     
     def get_formula(self, filename, formname,prefix=""):
         type = self.guess_type_from_filename(filename)
-            
+        
         f = self.get_parsetree(filename,formname)
 
         if f != None:

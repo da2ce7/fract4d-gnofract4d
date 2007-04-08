@@ -1022,8 +1022,8 @@ class ParFile(TBase):
     
 class GradientFunc(TBase):
     "For translating UltraFractal .ugr files"
-    def __init__(self,f,dump=None):
-        TBase.__init__(self,"g",dump)
+    def __init__(self,f,prefix,dump=None):
+        TBase.__init__(self,prefix,dump)
 
         self.grad = []
         self.main(f)
