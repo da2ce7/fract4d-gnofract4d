@@ -40,6 +40,22 @@ import struct
 
 rgb_re = re.compile(r'\s*(\d+)\s+(\d+)\s+(\d+)')
 
+class FileType:
+    MAP, GGR, CS, UGR = range(4)
+    def guess(s):
+        s = s.lower()
+        if s.endswith(".map"):
+            return FileType.MAP
+        elif s.endswith(".cs"):
+            return FileType.CS
+        elif s.endswith(".ugr"):
+            return FileType.UGR
+        else:
+            # assume a GIMP gradient, those sometimes don't have extensions
+            return FileType.GGR
+        
+    guess = staticmethod(guess)
+    
 class Blend:
     LINEAR, CURVED, SINE, SPHERE_INCREASING, SPHERE_DECREASING = range(5)
 
@@ -307,20 +323,11 @@ class Gradient:
         segments.append(seg)
         
         self.segments = segments
-        
-    def load(self,f):
+
+    def load_gimp_gradient(self,f):
         new_segments = []
         name = None
-        line = f.readline()
-        if line != "GIMP Gradient\n":
-            if line[:2] == "\x03\x00":
-                # a .cs file, we suspect
-                f.seek(0)
-                self.load_cs(f)
-                return
-            else:
-                raise Error("Invalid gradient file: no header found")
-        
+
         line = f.readline()
         if line.startswith("Name:"):
             name = line[5:].strip()
@@ -351,6 +358,23 @@ class Gradient:
         self.segments = new_segments
         self.name = name
 
+    def load(self,f):
+        if hasattr(f, "readline"):
+            # assume this is a file type
+            line = f.readline()
+            if line == "GIMP Gradient\n":
+                return self.load_gimp_gradient(f)
+            elif line[:2] == "\x03\x00":
+                # a .cs file, we suspect
+                f.seek(0)
+                return self.load_cs(f)
+            else:
+                f.seek(0)
+                return self.load_map_file(f)
+        else:
+            # assume it's a translated UGR file
+            return self.load_ugr(f)
+            
     def compare_colors(self, c1, c2, maxdiff=0):
         # return true if floating-point colors c1 and c2 are close
         # enough that they would be equal when truncated to 8 bits

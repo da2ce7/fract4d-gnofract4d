@@ -155,7 +155,7 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
             IOError, self.compiler.load_formula_file, "nonexistent.frm")
 
         self.assertRaises(
-            IOError, self.compiler.get_formula, "test.xxx","nonexistent") 
+            ValueError, self.compiler.get_formula, "test.xxx","nonexistent") 
 
         f = self.compiler.get_formula("test.frm","nonexistent")
         self.assertEqual(f,None)

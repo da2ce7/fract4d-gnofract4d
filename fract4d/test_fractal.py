@@ -20,10 +20,12 @@ import formsettings
 # centralized to speed up tests
 g_comp = fc.Compiler()
 g_comp.add_func_path("../formulas")
+g_comp.add_path("../maps", fc.FormulaTypes.GRADIENT)
+
 g_comp.load_formula_file("gf4d.frm")
 g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")
-        
+
 g_testfile = '''gnofract4d parameter file
 version=2.0
 bailout=5.1
@@ -447,6 +449,15 @@ colorlist=[
         not_a_file = StringIO.StringIO("ceci n'est pas un file")
         self.assertRaises(Exception,f.loadFctFile,not_a_file)
 
+    def testSetBadGradientFromFile(self):
+        f = fractal.T(self.compiler)
+        self.assertRaises(IOError, f.set_gradient_from_file,"fish.uxf","moops")
+
+    def testSetGradientFromFile(self):
+        f = fractal.T(self.compiler)
+        f.set_gradient_from_file("blatte1.ugr","blatte10")
+        self.assertEqual("blatte10", f.get_gradient().name)
+        
     def testIntParams(self):
         f = fractal.T(self.compiler)
         f.set_formula("test.frm", "fn_with_intparam")

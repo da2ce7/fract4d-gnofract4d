@@ -109,20 +109,15 @@ class T(fctutils.T):
     def parse_map_file(self,mapfile, maxdiff=0):
         x = mapfile.tell()
         try:
-            self.gradient.load(mapfile)
-        except gradient.HsvError, err1:
+            result = self.gradient.load(mapfile)
+            if result:
+                self.solids[0] = result
+            self.read_gradient = True
+        except gradient.HsvError, err:
             if self.parent:
-                self.parent.warn("Error reading colormap: %s" % str(err1))
-            
-        except gradient.Error, err1:
-            try:
-                mapfile.seek(x)
-                self.parse_fractint_map_file(mapfile,maxdiff)
-            except Exception, err2:
-                if self.parent:
-                    self.parent.warn("Error reading colormap: %s" % str(err2))
+                self.parent.warn("Error reading colormap: %s" % str(err))            
+        except Exception, err:
+            if self.parent:
+                self.parent.warn("Error reading colormap: %s" % str(err))
+
         
-    def parse_fractint_map_file(self,mapfile,maxdiff=0):
-        'parse a fractint .map file'
-        self.solids[0] = self.gradient.load_map_file(mapfile,maxdiff)
-        self.read_gradient = True

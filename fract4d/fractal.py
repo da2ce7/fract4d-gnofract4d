@@ -163,7 +163,7 @@ class T(fctutils.T):
         except Exception, exn:
             g = self.default_gradient
         return g
-    
+
     def set_gradient(self, g):
         old_g = self.get_gradient()
         if old_g != g:
@@ -174,7 +174,17 @@ class T(fctutils.T):
                 needs_redraw = True
                
             self.changed(True) #needs_redraw)
+
+    def set_gradient_from_file(self, file, name):
+        g = gradient.Gradient()
+        if name == None:
+            g.load(open(self.compiler.find_file(file, 3))) # FIXME
+        else:
+            compiled_gradient = self.compiler.get_formula(file,name)
+            g.load_ugr(compiled_gradient)
             
+        self.set_gradient(g)
+        
     def parse_periodicity(self,val,f):
         try:
             self.set_periodicity(int(val))

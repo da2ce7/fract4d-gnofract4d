@@ -126,7 +126,7 @@ opacity:
   smooth=no index=0 opacity=255
 }
 ''')
-        t = translate.GradientFunc(pt.children[0])
+        t = translate.GradientFunc(pt.children[0],"f")
         g = gradient.Gradient()
         g.load_ugr(t)
 
