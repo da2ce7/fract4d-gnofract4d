@@ -14,9 +14,7 @@ import translate
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
-g_comp.add_path("../formulas", fc.FormulaTypes.FRACTAL)
-g_comp.add_path("../formulas", fc.FormulaTypes.COLORFUNC)
-g_comp.add_path("../formulas", fc.FormulaTypes.TRANSFORM)
+g_comp.add_func_path("../formulas", fc.FormulaTypes.FRACTAL)
 g_comp.add_path("../maps", fc.FormulaTypes.GRADIENT)
 
 g_comp.load_formula_file("gf4d.frm")
