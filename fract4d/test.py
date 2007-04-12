@@ -24,6 +24,7 @@ import test_animation
 import test_fractconfig
 import test_options
 import test_cache
+import test_browser_model
 #import test_stdlib
 
 def suite():
@@ -50,7 +51,8 @@ def suite():
     test_animation.suite(),
     test_fractconfig.suite(),
     test_options.suite(),
-    test_cache.suite()
+    test_cache.suite(),
+    test_browser_model.suite()
 	#test_stdlib.suite()
     ))
 
