@@ -60,6 +60,8 @@ class MainWindow:
         for path in extra_paths:
             self.compiler.add_func_path(path)
 
+        browser.get_model(self.compiler)
+
         self.recent_files = preferences.userPrefs.get_list("recent_files")
         
         self.vbox = gtk.VBox()
@@ -189,7 +191,7 @@ class MainWindow:
                 _("Open Parameter File"),
                 self.window,
                 ["*.fct"])
-            self.open_preview = gtkfractal.SubFract(self.compiler, 120, 90)
+            self.open_preview = gtkfractal.Preview(self.compiler)
 
             def on_update_preview(chooser, preview):
                 filename = chooser.get_preview_filename()
@@ -321,6 +323,12 @@ class MainWindow:
         self.compiler.compiler_name = prefs.get("compiler","name")
         self.compiler.flags = prefs.get("compiler","options")
         self.compiler.set_func_path_list(prefs.get_list("formula_path"))
+        
+        self.compiler.add_path("maps",fc.FormulaTypes.GRADIENT)
+        self.compiler.add_path("other_maps",fc.FormulaTypes.GRADIENT)
+        self.compiler.add_path(
+            os.path.join(sys.exec_prefix,"share/gnofract4d/maps"),
+            fc.FormulaTypes.GRADIENT)
 
         if self.f:
             self.f.update_formula()

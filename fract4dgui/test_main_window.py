@@ -128,12 +128,6 @@ class Test(unittest.TestCase):
         self.assertEqual(
             self.mw.errors[0][0], "Error opening /no_such_dir/wibble.frm")
 
-        # load bad file. Formula parser is pretty permissive so
-        # we'll just load it and claim it contains no formulas
-        fn_bad = "test_main_window.py"
-        result = self.mw.load_formula(fn_bad)
-        self.assertEqual(result, True, "load of bad file failed")
-
     def testPreview(self):
         'Check for problem where preview differs from main image'
         result = self.mw.load("../testdata/collapsar.fct")
