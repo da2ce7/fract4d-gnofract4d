@@ -76,7 +76,11 @@ class Test(unittest.TestCase):
 
     def test_update(self):
         b = browser.update(None)
-         
+        m = browser.get_model(self.compiler)
+        self.assertEqual(None, m.current.fname)
+        self.assertEqual(None, m.current.formula)
+
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 

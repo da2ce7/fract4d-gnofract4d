@@ -26,15 +26,18 @@ class Wrapper(browser_model.T):
         self.type_changelist = []
         self.file_changelist = []
         self.formula_changelist = []
-        browser_model.T.__init__(self, g_comp)
+        browser_model.T.__init__(self,g_comp)
+        self.type_changed += self._type_changed
+        self.file_changed += self._file_changed
+        self.formula_changed += self._formula_changed
         
-    def type_changed(self):
+    def _type_changed(self):
         self.type_changelist.append(self.current_type)
 
-    def file_changed(self):
+    def _file_changed(self):
         self.file_changelist.append(self.current.fname)
 
-    def formula_changed(self):
+    def _formula_changed(self):
         self.formula_changelist.append(self.current.formula)
         
 class Test(testbase.TestBase):
@@ -62,7 +65,7 @@ class Test(testbase.TestBase):
 
     def testSetType(self):
         bm = Wrapper()
-        self.assertEqual([browser_model.FRACTAL], bm.type_changelist)
+        self.assertEqual([], bm.type_changelist)
         self.assertEqual(browser_model.FRACTAL, bm.current_type)
         self.assertEqual(            
             bm.typeinfo[bm.current_type], bm.current)
@@ -70,7 +73,7 @@ class Test(testbase.TestBase):
         bm.set_type(browser_model.INNER)
         self.assertEqual(browser_model.INNER, bm.current_type)
         self.assertEqual(
-            [browser_model.FRACTAL, browser_model.INNER],
+            [browser_model.INNER],
             bm.type_changelist)
 
     def testFileList(self):
@@ -84,7 +87,7 @@ class Test(testbase.TestBase):
         bm.set_type(browser_model.INNER)
         bm.set_type(browser_model.INNER)
         self.assertEqual(
-            [browser_model.FRACTAL, browser_model.INNER],
+            [browser_model.INNER],
             bm.type_changelist)
 
     def testSetTypeUpdatesFnames(self):
@@ -153,6 +156,20 @@ class Test(testbase.TestBase):
         self.assertEqual(None, bm.current.formula)
         self.assertEqual(
             ["Mandelbrot", None], bm.formula_changelist)
+
+    def testUpdate(self):
+        bm = Wrapper()
+        bm.update("gf4d.frm","Mandelbrot")
+        self.assertEqual("gf4d.frm",bm.current.fname)
+        self.assertEqual("Mandelbrot", bm.current.formula)
+
+        bm.update("fractint-g4.frm", None)
+        self.assertEqual("fractint-g4.frm",bm.current.fname)
+        self.assertEqual(None, bm.current.formula)
+
+        bm.update(None, None)
+        self.assertEqual(None, bm.current.fname)
+        self.assertEqual(None, bm.current.formula)
         
 def suite():
     return unittest.makeSuite(Test,'test')

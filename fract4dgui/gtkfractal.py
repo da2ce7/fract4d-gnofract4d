@@ -999,6 +999,18 @@ class T(Hidden):
                 buf,
                 self.width*3)
 
+class Preview(T):
+    def __init__(self,comp,width=120,height=90):
+        T.__init__(self,comp,None,width,height)
+        
+    def onButtonRelease(self,widget,event):
+        pass
+
+    def error(self,msg,exn):
+        # suppress errors from subfracts, if they ever happened
+        # it would be too confusing
+        pass
+    
 class SubFract(T):
     def __init__(self,comp,width=640,height=480):
         T.__init__(self,comp,None,width,height)
@@ -1008,7 +1020,8 @@ class SubFract(T):
         self.master = master
         
     def onButtonRelease(self,widget,event):
-        self.master.set_fractal(self.copy_f())
+        if self.master:
+            self.master.set_fractal(self.copy_f())
 
     def error(self,msg,exn):
         # suppress errors from subfracts, if they ever happened

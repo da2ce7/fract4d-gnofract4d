@@ -7,29 +7,25 @@ import os
 import gobject
 import gtk
 
-from fract4d import fc
+from fract4d import fc, gradient, browser_model
 
-import preferences
-import dialog
-import utils
+import preferences, dialog, utils, gtkfractal
+
+_model = None
+
+def get_model(compiler=None):
+    global _model
+    if _model == None:
+        if compiler == None:
+            raise ValueError("Compiler must be set")
+        _model = browser_model.T(compiler)
+    return _model
 
 FRACTAL = 0
 INNER = 1
 OUTER = 2
 TRANSFORM = 3
 GRADIENT = 4
-
-# from the above constants to those inside compiler
-func_mapping = [
-    fc.FormulaTypes.FRACTAL,
-    fc.FormulaTypes.COLORFUNC,
-    fc.FormulaTypes.COLORFUNC,
-    fc.FormulaTypes.TRANSFORM,
-    fc.FormulaTypes.GRADIENT
-    ]
-    
-fname_to_use = None
-formula_to_use = None
 
 def stricmp(a,b):
     return cmp(a.lower(),b.lower())
@@ -38,26 +34,14 @@ def show(parent, f,type):
     BrowserDialog.show(parent,f,type)
 
 def update(file=None, formula=None):
-    global fname_to_use
-    global formula_to_use
-    b = dialog.get(BrowserDialog)
-    if file:
-        if b:
-            b.current_fname=os.path.basename(file)
-            b.current_formula=formula
-            b.populate_file_list()
-        else:
-            # browser doesn't exist yet, squirrel filename away
-            fname_to_use = os.path.basename(file)
-            formula_to_use = formula
-            
+    model = get_model()
+    model.update(file,formula)
+    
 class BrowserDialog(dialog.T):
     RESPONSE_EDIT = 1
     RESPONSE_REFRESH = 2
     RESPONSE_COMPILE = 3
     def __init__(self,main_window,f):
-        global fname_to_use
-        global formula_to_use
         dialog.T.__init__(
             self,
             _("Formula Browser"),
@@ -70,7 +54,8 @@ class BrowserDialog(dialog.T):
              gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
         self.set_default_response(gtk.RESPONSE_OK)
-        self.disable_apply()
+
+        self.model = get_model(f.compiler)
         
         self.formula_list = gtk.ListStore(
             gobject.TYPE_STRING)
@@ -82,17 +67,19 @@ class BrowserDialog(dialog.T):
 
         self.f = f
         self.compiler = f.compiler
-        self.current_fname = fname_to_use
-        self.current_formula = formula_to_use
-        self.ir = None
+
         self.func_type = FRACTAL
+        
+        self.ir = None
         self.tooltips = gtk.Tooltips()
         self.main_window = main_window
         self.set_size_request(600,500)
+        self.preview = gtkfractal.Preview(self.compiler)
 
         self.dirty_formula = False
         self.create_panes()
-
+        self.disable_apply()
+        
     def show(parent, f, type):
         _browser = dialog.T.reveal(BrowserDialog,True, parent, None, f)
         _browser.set_type(type)
@@ -119,48 +106,53 @@ class BrowserDialog(dialog.T):
 
     def onEdit(self):
         editor = preferences.userPrefs.get("editor","name")
-        file = self.compiler.find_file(self.current_fname)
+        file = self.compiler.find_file(self.model.current.fname)
         os.system("%s %s &" % (editor, file))
 
     def onRefresh(self):
         self.f.refresh()
-        self.set_file(self.current_fname) # update text window
+        self.set_file(self.model.current.fname) # update text window
 
     def get_current_text(self):
         buffer = self.sourcetext.get_buffer()
         text = buffer.get_text(buffer.get_start_iter(),
                                buffer.get_end_iter(), False)
         return text
-    
-    def onApply(self):
-        self.f.freeze()
-        if not self.current_formula or not self.current_fname:
-            #can't apply
+
+    def applyToFractal(self,f):
+        f.freeze()
+
+        if None == self.model.current.fname or None == self.model.current.formula:
             return
         
         if self.func_type == FRACTAL:
-            self.f.set_formula(self.current_fname,self.current_formula)
-            self.f.reset()
+            f.set_formula(self.model.current.fname,self.model.current.formula)
+            f.reset()
         elif self.func_type == INNER:
-            self.f.set_inner(self.current_fname,self.current_formula)
+            f.set_inner(self.model.current.fname,self.model.current.formula)
         elif self.func_type == OUTER:
-            self.f.set_outer(self.current_fname,self.current_formula)
+            f.set_outer(self.model.current.fname,self.model.current.formula)
         elif self.func_type == TRANSFORM:
-            self.f.append_transform(self.current_fname,self.current_formula)
+            f.append_transform(self.model.current.fname,self.model.current.formula)
+        elif self.func_type == GRADIENT:
+            f.set_gradient_from_file(self.model.current.fname, self.model.current.formula)
         else:
             assert(False)
-        if self.f.thaw():
-            self.f.changed()
+        if f.thaw():
+            f.changed()
+        
+    def onApply(self):
+        self.applyToFractal(self.f)
 
     def set_type_cb(self,optmenu):
         if self.confirm():
             self.set_type(utils.get_selected(optmenu))
             
     def set_type(self,type):
-        if self.func_type == type:
-            return
+        self.model.set_type(type)
         self.func_type = type
         utils.set_selected(self.funcTypeMenu, type)
+
         self.populate_file_list()
         
     def disable_apply(self):
@@ -169,13 +161,15 @@ class BrowserDialog(dialog.T):
         self.set_edit_sensitivity()
 
     def set_edit_sensitivity(self):
-        is_editable = hasattr(self,"current_fname") and self.current_fname != None
+        is_editable = self.model.current.fname != None
         self.set_response_sensitive(BrowserDialog.RESPONSE_EDIT,is_editable)
         
     def enable_apply(self):
         self.set_response_sensitive(gtk.RESPONSE_APPLY,True)
         self.set_response_sensitive(gtk.RESPONSE_OK,True)
         self.set_edit_sensitivity()
+        self.applyToFractal(self.preview)
+        self.preview.draw_image(False, False)
         
     def create_file_list(self):
         sw = gtk.ScrolledWindow ()
@@ -204,7 +198,7 @@ class BrowserDialog(dialog.T):
         # find all appropriate files and add to file list
         self.file_list.clear()
 
-        type = func_mapping[self.func_type]
+        type = self.model.current.formula_type
         files = self.compiler.find_files_of_type(type)
 
         current_iter = None
@@ -212,7 +206,7 @@ class BrowserDialog(dialog.T):
         index,i = 0,0
         for fname in files:
             iter = self.file_list.append ()
-            if fname == self.current_fname:
+            if fname == self.model.current.fname:
                 current_iter = iter
                 index = i
             self.file_list.set (iter, 0, fname)
@@ -225,25 +219,21 @@ class BrowserDialog(dialog.T):
             if sel:
                 sel.unselect_all()
                 sel.select_iter(current_iter)
-                self.populate_formula_list(self.current_fname)
+                self.populate_formula_list(self.model.current.fname)
         else:
             self.formula_list.clear()
             self.formula_selection_changed(None)
         
     def populate_formula_list(self,fname):
         self.formula_list.clear()
-        
-        ff = self.compiler.files[fname]
 
-        exclude = [None, "OUTSIDE", "INSIDE", None]
-        
-        form_names = ff.get_formula_names(exclude[self.func_type])
-        form_names.sort(stricmp)
+        form_names = self.model.current.formulas
+
         i = 0
         for formula_name in form_names:
             iter = self.formula_list.append()
             self.formula_list.set(iter,0,formula_name)
-            if formula_name == self.current_formula:
+            if formula_name == self.model.current.formula:
                 self.treeview.get_selection().select_iter(iter)
                 self.treeview.scroll_to_cell(i)
                 self.set_formula(formula_name)
@@ -332,6 +322,11 @@ class BrowserDialog(dialog.T):
         # right-hand pane is details of current formula
         notebook = gtk.Notebook()
 
+        # preview
+        label = gtk.Label(_('_Preview'))
+        label.set_use_underline(True)
+        notebook.append_page(self.preview.widget, label)
+        
         # source
         (self.sourcetext,sw) = self.create_scrolled_textview(
             _("The contents of the currently selected formula file"))
@@ -365,6 +360,7 @@ class BrowserDialog(dialog.T):
         panes1.add2(notebook)
 
     def file_selection_changed(self,selection):
+        self.model.current.formula = None
         (model,iter) = selection.get_selected()
         if iter == None:
             return
@@ -380,7 +376,7 @@ class BrowserDialog(dialog.T):
                                   gtk.DIALOG_MODAL,
                                   gtk.MESSAGE_QUESTION,
                                   gtk.BUTTONS_YES_NO,
-                                  msg % self.current_fname)
+                                  msg % self.model.current.fname)
             response = d.run()                
             d.destroy()
             carry_on = (response == gtk.RESPONSE_NO) 
@@ -392,30 +388,30 @@ class BrowserDialog(dialog.T):
         
     def save(self):
         text = self.get_current_text()
-        f = open(self.compiler.find_file(self.current_fname),"w")
+        f = open(self.compiler.find_file(self.model.current.fname),"w")
         f.write(text)
         f.close()
         self.dirty_formula = False
         
     def set_file(self,fname):
-        if self.dirty_formula and self.current_fname != fname:
+        if self.dirty_formula and self.model.current.fname != fname:
             if not self.confirm():
                 return
         
-        self.current_fname = fname
-        text = self.compiler.get_text(self.current_fname)
+        self.model.current.fname = fname
+        text = self.compiler.get_text(self.model.current.fname)
         self.clear_selection()
 
         self.display_text(text)
         self.dirty_formula = False
-        self.populate_formula_list(self.current_fname)
+        self.populate_formula_list(self.model.current.fname)
         self.set_edit_sensitivity()
         
     def clear_selection(self):
         self.text.get_buffer().set_text("",-1)
         self.transtext.get_buffer().set_text("",-1)
         self.msgtext.get_buffer().set_text("",-1)
-        self.disable_apply()
+        self.set_apply_sensitivity()
         
     def formula_selection_changed(self,selection):
         if not selection:
@@ -431,8 +427,8 @@ class BrowserDialog(dialog.T):
         self.set_formula(form_name)
         
     def set_formula(self,form_name):
-        self.current_formula = form_name
-        file = self.current_fname
+        self.model.current.formula = form_name
+        file = self.model.current.fname
         formula = self.compiler.get_parsetree(file,form_name)
         
         # update parse tree
@@ -461,7 +457,14 @@ class BrowserDialog(dialog.T):
             
         buffer.set_text(msg,-1)
 
-        if self.ir.errors == []:
+        self.set_apply_sensitivity()
+
+    def set_apply_sensitivity(self):
+        if self.model.current_type == GRADIENT and self.model.current.fname != None and \
+           gradient.FileType.guess(self.model.current.fname) != gradient.FileType.UGR:
+            # gradient files other than UGR do not contain subelements, so those can be applied directly
+            self.enable_apply()
+        elif self.ir and self.ir.errors == []:
             self.enable_apply()
         else:
             self.disable_apply()        
