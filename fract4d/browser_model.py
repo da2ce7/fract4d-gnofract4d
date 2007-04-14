@@ -46,7 +46,29 @@ class TypeInfo:
 
     def formula_changed(self):
         self.parent.formula_changed()
+
+    def apply(self,f,t):
+        f.freeze()
+
+        if None == self.fname or None == self.formula:
+            return
+
+        if t == FRACTAL:
+            f.set_formula(self.fname,self.formula)
+            f.reset()
+        elif t == INNER:
+            f.set_inner(self.fname,self.formula)
+        elif t == OUTER:
+            f.set_outer(self.fname,self.formula)
+        elif t == TRANSFORM:
+            f.append_transform(self.fname,self.formula)
+        elif t == GRADIENT:
+            f.set_gradient_from_file(self.fname, self.formula)
+
+        if f.thaw():
+            f.changed()
         
+
 class T:
     def __init__(self,compiler):
         self.compiler = compiler
@@ -85,3 +107,6 @@ class T:
     def update(self,fname,formula):
         self.set_file(fname)
         self.set_formula(formula)
+
+    def apply(self,f):
+        self.current.apply(f,self.current_type)

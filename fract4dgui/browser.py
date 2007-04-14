@@ -56,6 +56,8 @@ class BrowserDialog(dialog.T):
         self.set_default_response(gtk.RESPONSE_OK)
 
         self.model = get_model(f.compiler)
+        self.model.type_changed += self.on_type_changed
+        self.model.formula_changed += self.on_formula_changed
         
         self.formula_list = gtk.ListStore(
             gobject.TYPE_STRING)
@@ -68,8 +70,6 @@ class BrowserDialog(dialog.T):
         self.f = f
         self.compiler = f.compiler
 
-        self.func_type = FRACTAL
-        
         self.ir = None
         self.tooltips = gtk.Tooltips()
         self.main_window = main_window
@@ -97,17 +97,10 @@ class BrowserDialog(dialog.T):
         elif id == gtk.RESPONSE_OK:
             self.onApply()
             self.hide()
-        elif id == BrowserDialog.RESPONSE_EDIT:
-            self.onEdit()
         elif id == BrowserDialog.RESPONSE_REFRESH:
             self.onRefresh()
         else:
             print "unexpected response %d" % id
-
-    def onEdit(self):
-        editor = preferences.userPrefs.get("editor","name")
-        file = self.compiler.find_file(self.model.current.fname)
-        os.system("%s %s &" % (editor, file))
 
     def onRefresh(self):
         self.f.refresh()
@@ -120,26 +113,7 @@ class BrowserDialog(dialog.T):
         return text
 
     def applyToFractal(self,f):
-        f.freeze()
-
-        if None == self.model.current.fname or None == self.model.current.formula:
-            return
-        
-        if self.func_type == FRACTAL:
-            f.set_formula(self.model.current.fname,self.model.current.formula)
-            f.reset()
-        elif self.func_type == INNER:
-            f.set_inner(self.model.current.fname,self.model.current.formula)
-        elif self.func_type == OUTER:
-            f.set_outer(self.model.current.fname,self.model.current.formula)
-        elif self.func_type == TRANSFORM:
-            f.append_transform(self.model.current.fname,self.model.current.formula)
-        elif self.func_type == GRADIENT:
-            f.set_gradient_from_file(self.model.current.fname, self.model.current.formula)
-        else:
-            assert(False)
-        if f.thaw():
-            f.changed()
+        self.model.apply(f)
         
     def onApply(self):
         self.applyToFractal(self.f)
@@ -147,13 +121,13 @@ class BrowserDialog(dialog.T):
     def set_type_cb(self,optmenu):
         if self.confirm():
             self.set_type(utils.get_selected(optmenu))
-            
+
+    def on_type_changed(self):
+        utils.set_selected(self.funcTypeMenu, self.model.current_type)
+        self.populate_file_list()
+        
     def set_type(self,type):
         self.model.set_type(type)
-        self.func_type = type
-        utils.set_selected(self.funcTypeMenu, type)
-
-        self.populate_file_list()
         
     def disable_apply(self):
         self.set_response_sensitive(gtk.RESPONSE_APPLY,False)
@@ -198,11 +172,9 @@ class BrowserDialog(dialog.T):
         # find all appropriate files and add to file list
         self.file_list.clear()
 
-        type = self.model.current.formula_type
-        files = self.compiler.find_files_of_type(type)
+        files = self.model.current.files
 
         current_iter = None
-        files.sort(stricmp)
         index,i = 0,0
         for fname in files:
             iter = self.file_list.append ()
@@ -427,14 +399,13 @@ class BrowserDialog(dialog.T):
         self.set_formula(form_name)
         
     def set_formula(self,form_name):
-        self.model.current.formula = form_name
+        self.model.set_formula(form_name)
+
+    def on_formula_changed(self):
+        form_name = self.model.current.formula
         file = self.model.current.fname
         formula = self.compiler.get_parsetree(file,form_name)
         
-        # update parse tree
-        #buffer = self.text.get_buffer()
-        #buffer.set_text(formula.pretty(),-1)
-
         #update location of source buffer
         sourcebuffer = self.sourcetext.get_buffer()
         iter = sourcebuffer.get_iter_at_line(formula.pos-1)
@@ -442,9 +413,7 @@ class BrowserDialog(dialog.T):
 
         # update IR tree
         self.ir = self.compiler.get_formula(file,form_name)
-        #irbuffer = self.transtext.get_buffer()
-        #irbuffer.set_text(self.ir.pretty(),-1)
-        
+
         # update messages
         buffer = self.msgtext.get_buffer()
         msg = ""
