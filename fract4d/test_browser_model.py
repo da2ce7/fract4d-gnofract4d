@@ -170,6 +170,34 @@ class Test(testbase.TestBase):
         bm.update(None, None)
         self.assertEqual(None, bm.current.fname)
         self.assertEqual(None, bm.current.formula)
+
+    def testApplyStatus(self):
+        bm = browser_model.T(g_comp)
+        self.assertEqual(False, bm.current.can_apply)
+
+        bm.set_file("gf4d.frm")
+        self.assertEqual(False, bm.current.can_apply)
+
+        bm.set_formula("Mandelbrot")
+        self.assertEqual(True, bm.current.can_apply)
+
+        bm.set_type(browser_model.GRADIENT)
+        self.assertEqual(False, bm.current.can_apply)
+
+        bm.set_file("Gallet01.map")
+        self.assertEqual(True, bm.current.can_apply)
+
+        bm.set_file("blatte1.ugr")
+        self.assertEqual(False, bm.current.can_apply)
+
+        bm.update("test.frm","test_error")
+        self.assertEqual(False, bm.current.can_apply)
+
+    def testUgrPresent(self):
+        bm = browser_model.T(g_comp)
+        bm.set_type(browser_model.GRADIENT)
+        files = bm.current.files
+        self.assertEqual(1,files.count("blatte1.ugr"))
         
 def suite():
     return unittest.makeSuite(Test,'test')
