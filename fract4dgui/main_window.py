@@ -231,7 +231,6 @@ class MainWindow:
 
         aa = preferences.userPrefs.getint("display","antialias")
         auto_deepen = preferences.userPrefs.getboolean("display","autodeepen")
-        maps = colors.maps().values()
 
         for f in self.subfracts:
             f.interrupt()
@@ -239,8 +238,7 @@ class MainWindow:
             f.set_fractal(self.f.copy_f())
             f.mutate(
                 self.weirdness_adjustment.get_value()/100.0,
-                self.color_weirdness_adjustment.get_value()/100.0,
-                maps)
+                self.color_weirdness_adjustment.get_value()/100.0)
             f.thaw()
             f.draw_image(aa,auto_deepen)
             
@@ -317,7 +315,7 @@ class MainWindow:
         
     def update_compiler_prefs(self,prefs):
         # update compiler
-        self.compiler.update_compiler_prefs(prefs)
+        self.compiler.update_from_prefs(prefs)
         
         if self.f:
             self.f.update_formula()

@@ -41,6 +41,7 @@ import fracttypes
 import absyn
 import preprocessor
 import cache
+import gradient
 
 class FormulaTypes:
     FRACTAL = 0
@@ -344,7 +345,19 @@ class Compiler:
         if f != None:
             f = type(f,prefix)
         return f
-        
+
+    def get_random_gradient(self):
+        return self.get_random_formula(3) # FIXME
+
+    def get_random_formula(self,type):
+        file = random.choice(self.find_files_of_type(type))
+        if gradient.FileType.guess(file) == gradient.FileType.UGR:
+            ff = self.get_file(file)
+            formula = random.choice(ff.formulas.keys())
+        else:
+            formula = None
+        return (file,formula)
+    
     def clear_cache(self):
         self.cache.clear()
 
