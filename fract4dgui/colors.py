@@ -85,18 +85,14 @@ class ColorDialog(dialog.T):
         self.update_gradient()
         self.warning_message = None
         
-        self.model = _get_model()
-        sw = self.create_map_file_list()
         gradbox = self.create_editor()
         self.select_segment(-1)
                 
         hbox = gtk.HBox()
-        hbox.pack_start(sw)
         hbox.pack_start(gradbox)
 
         self.controls = hbox
         self.vbox.add(hbox)
-        self.treeview.get_selection().unselect_all()
 
     def update_gradient(self):
         self.grad= copy.copy(self.f.get_gradient())
@@ -396,30 +392,9 @@ class ColorDialog(dialog.T):
 
     show = staticmethod(show)
 
-    def file_selection_changed(self,selection):
-        (model,iter) = selection.get_selected()
-
-        if iter == None:
-            return
-        
-        mapfile = model.get_value(iter,0)
-        self.set_map_file(self.model.maps[mapfile])
-
     def warn(self, msg):
         self.warning_message = msg
 
-    def set_map_file(self, name):
-        self.warning_message = None
-        c = colorizer.T(self)
-        file = open(name)
-        c.parse_map_file(file, self.fudge_factor)
-        self.grad = c.gradient
-        if not self.grad.name:
-            self.grad.name = name
-
-        self.select_segment(-1)
-        self.redraw()
-        
     def redraw(self):
         allocation = self.gradarea.allocation
         self.redraw_rect(self.gradarea,
@@ -430,40 +405,6 @@ class ColorDialog(dialog.T):
         self.outer_solid_button.set_color(
             utils.floatColorFrom256(self.solids[0]))
             
-    def create_map_file_list(self):
-        sw = gtk.ScrolledWindow ()
-        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
-        sw.set_policy (gtk.POLICY_NEVER,
-                       gtk.POLICY_AUTOMATIC)
-
-        self.map_list = gtk.ListStore(
-            gobject.TYPE_STRING,
-            )
-
-        self.treeview = gtk.TreeView (self.map_list)
-        sw.add(self.treeview)
-
-        renderer = gtk.CellRendererText ()
-        column = gtk.TreeViewColumn (_('Gradient'), renderer, text=0)
-        self.treeview.append_column (column)
-
-        selection = self.treeview.get_selection()
-        selection.unselect_all()
-        
-        selection.connect(
-            'changed', self.file_selection_changed)
-
-        self.update_list()
-        return sw
-
-    def update_list(self):
-        self.map_list.clear()
-        keys = self.model.maps.keys()
-        keys.sort(stricmp)
-        for k in keys:
-            iter = self.map_list.append ()
-            self.map_list.set (iter, 0, k)
-
     def onRefresh(self):
         self.update_gradient()
         self.redraw()

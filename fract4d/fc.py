@@ -32,6 +32,7 @@ import md5
 import re
 import copy
 
+import fractconfig
 import fractparser
 import fractlexer
 import translate
@@ -125,6 +126,14 @@ class Compiler:
 
     files = property(_get_files)
 
+    def update_from_prefs(self,prefs):
+        self.compiler_name = prefs.get("compiler","name")
+        self.flags = prefs.get("compiler","options")
+
+        self.set_func_path_list(prefs.get_list("formula_path"))
+        self.path_lists[FormulaTypes.GRADIENT] = copy.copy(
+            prefs.get_list("map_path"))
+        
     def add_path(self,path,type):
         self.path_lists[type].append(path)
 
@@ -216,6 +225,7 @@ class Compiler:
                 # add directory to search path
                 self.path_lists[type].append(dir)            
             return filename
+
         for path in self.path_lists[type]:
             f = os.path.join(path,filename)
             if os.path.exists(f):
@@ -341,7 +351,10 @@ class Compiler:
     def __del__(self):
         if not self.leave_dirty:
             self.clear_cache()
-        
+
+instance = Compiler()
+instance.update_from_prefs(fractconfig.instance)
+
 def usage():
     print "FC : a compiler from Fractint .frm files to C code"
     print "fc.py -o [outfile] -f [formula] infile"

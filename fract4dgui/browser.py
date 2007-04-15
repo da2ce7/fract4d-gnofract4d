@@ -11,16 +11,6 @@ from fract4d import fc, gradient, browser_model
 
 import preferences, dialog, utils, gtkfractal
 
-_model = None
-
-def get_model(compiler=None):
-    global _model
-    if _model == None:
-        if compiler == None:
-            raise ValueError("Compiler must be set")
-        _model = browser_model.T(compiler)
-    return _model
-
 FRACTAL = 0
 INNER = 1
 OUTER = 2
@@ -34,8 +24,7 @@ def show(parent, f,type):
     BrowserDialog.show(parent,f,type)
 
 def update(file=None, formula=None):
-    model = get_model()
-    model.update(file,formula)
+    browser_model.instance.update(file,formula)
     
 class BrowserDialog(dialog.T):
     RESPONSE_EDIT = 1
@@ -55,7 +44,7 @@ class BrowserDialog(dialog.T):
 
         self.set_default_response(gtk.RESPONSE_OK)
 
-        self.model = get_model(f.compiler)
+        self.model = browser_model.instance
         self.model.type_changed += self.on_type_changed
         self.model.file_changed += self.on_file_changed
         self.model.formula_changed += self.on_formula_changed
@@ -78,7 +67,7 @@ class BrowserDialog(dialog.T):
         self.preview = gtkfractal.Preview(self.compiler)
 
         self.create_panes()
-        
+
     def show(parent, f, type):
         _browser = dialog.T.reveal(BrowserDialog,True, parent, None, f)
         _browser.set_type(type)
@@ -306,10 +295,14 @@ class BrowserDialog(dialog.T):
         self.model.set_file(fname)
 
     def on_file_changed(self):
-        text = self.compiler.get_text(self.model.current.fname)
+        fname = self.model.current.fname
+        if fname:
+            text = self.compiler.get_text(fname)
+        else:
+            text = ""
 
         self.display_text(text)
-        self.populate_formula_list(self.model.current.fname)
+        self.populate_formula_list(fname)
         self.set_apply_sensitivity()
         
     def clear_selection(self):
@@ -334,9 +327,16 @@ class BrowserDialog(dialog.T):
     def on_formula_changed(self):
         form_name = self.model.current.formula
         file = self.model.current.fname
-        formula = self.compiler.get_parsetree(file,form_name)
+
+        if not file:
+            return
         
-        #update location of source buffer
+        formula = self.compiler.get_parsetree(file,form_name)
+
+        if not formula:
+            return
+        
+        #update location of source buffer        
         sourcebuffer = self.sourcetext.get_buffer()
         iter = sourcebuffer.get_iter_at_line(formula.pos-1)
         self.sourcetext.scroll_to_iter(iter,0.0,True,0.0,0.0)

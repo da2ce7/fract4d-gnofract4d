@@ -6,7 +6,7 @@ import unittest
 import sys
 import os
 
-import fractconfig
+import fractconfig, fc
 
 class Test(unittest.TestCase):
     def testCreate(self):

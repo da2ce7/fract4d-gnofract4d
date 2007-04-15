@@ -130,3 +130,5 @@ class T:
 
     def apply(self,f):
         self.current.apply(f,self.current_type)
+
+instance = T(fc.instance)
