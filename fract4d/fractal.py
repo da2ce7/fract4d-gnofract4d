@@ -580,7 +580,7 @@ class T(fctutils.T):
     def is4D(self):
         return self.warp_param != None or self.forms[0].formula.is4D()
 
-    def mutate(self,weirdness,color_weirdness,colormaps):
+    def mutate(self,weirdness,color_weirdness):
         '''randomly adjust position, colors, angles and parameters.
         weirdness is between 0 and 1 - 0 is no change, 1 is lots'''
 
@@ -603,8 +603,9 @@ class T(fctutils.T):
         for f in self.forms:
             f.mutate(weirdness, size)
 
-        if random.random() < color_weirdness * 0.3:
-            self.set_cmap(random.choice(colormaps))
+        if random.random() < color_weirdness:
+            (file, formula) = self.compiler.get_random_gradient()
+            self.set_gradient_from_file(file,formula)
         
     def nudge(self,x,y,axis=0):
         # move a little way in x or y

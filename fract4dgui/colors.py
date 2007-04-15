@@ -14,53 +14,10 @@ import hig
 
 from fract4d import gradient, fractal, colorizer
 
-_color_model = None
 
 def show_colors(parent, alt_parent, f, dialog_mode):
     ColorDialog.show(dialog_mode, parent, alt_parent, f)
 
-def _get_model():
-    global _color_model
-    if not _color_model:
-        _color_model = ColorModel()
-    return _color_model
-
-def maps():
-    return _get_model().maps
-
-class ColorModel:
-    def __init__(self):
-        self.maps = {}
-        self.populate_file_list()
-        
-    def add_directory(self,dirname):
-        if not os.path.isdir(dirname):
-            return
-
-        files = os.listdir(dirname)
-        for f in files:
-            absfile = os.path.join(dirname,f)
-            if not os.path.isfile(absfile):
-                continue
-
-            (name,ext) = os.path.splitext(absfile)
-            if self.maps.get(f):
-                continue # avoid duplicates
-            self.maps[f] = absfile
-                
-    def populate_file_list(self):
-        self.add_directory("maps")
-        self.add_directory("other_maps")
-        self.add_directory(
-            os.path.join(sys.exec_prefix,"share/gnofract4d/maps"))
-
-        # find gimp gradient files
-        gimp_dir = os.path.join(sys.exec_prefix,"share/gimp/")
-        if os.path.isdir(gimp_dir):
-            for gimp_ver in os.listdir(gimp_dir):
-                self.add_directory(
-                    os.path.join(gimp_dir, gimp_ver, "gradients"))
-                    
 def stricmp(a,b):
     return cmp(a.lower(),b.lower())
 
