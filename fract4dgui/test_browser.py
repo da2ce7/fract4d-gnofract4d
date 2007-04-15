@@ -14,12 +14,13 @@ os.environ.setdefault('LANG', 'en')
 gettext.install('gnofract4d')
 sys.path.append("..")
 
-from fract4d import fc, fractal
+from fract4d import fc, fractal, browser_model
 import browser
+
 
 class Test(unittest.TestCase):
     def setUp(self):
-        self.compiler = fc.Compiler()
+        self.compiler = fc.instance
         self.compiler.add_func_path("../formulas")
         self.compiler.add_func_path("../fract4d")
         
@@ -47,6 +48,7 @@ class Test(unittest.TestCase):
 
     def testBadFormula(self):
         b = browser.BrowserDialog(None,self.f)
+        print b.model.compiler.path_lists[0]
         b.set_file('test.frm')
         b.set_formula('parse_error')
         self.assertNotEqual(b.ir.errors,[])
@@ -61,7 +63,7 @@ class Test(unittest.TestCase):
     def test_update(self):
         b = browser.BrowserDialog(None,self.f)
         b = browser.update(None)
-        m = browser.get_model(self.compiler)
+        m = browser_model.instance
         self.assertEqual(None, m.current.fname)
         self.assertEqual(None, m.current.formula)
 

@@ -9,12 +9,12 @@ import time
 
 import testbase
 
-import fc
+import fc, fractconfig
 import translate
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
-g_comp.add_func_path("../formulas", fc.FormulaTypes.FRACTAL)
+g_comp.add_func_path("../formulas")
 g_comp.add_path("../maps", fc.FormulaTypes.GRADIENT)
 
 g_comp.load_formula_file("gf4d.frm")
@@ -227,7 +227,28 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         func = ol[0]
         func2 = ol2[0]
         self.assertNotEqual(func,func2)
+
+    def testPrefs(self):
+        compiler = fc.Compiler()
+        prefs = fractconfig.T("testprefs")
+        prefs.set("compiler","name","x")
+        prefs.set("compiler","options","foo")
+        prefs.set_list("formula_path",["fish"])
+        prefs.set_list("map_path", ["wibble"])
         
+        compiler.update_from_prefs(prefs)
+
+        self.assertEqual("x", compiler.compiler_name)
+        self.assertEqual("foo", compiler.flags)
+        self.assertEqual(["fish"], compiler.path_lists[0])
+        self.assertEqual(["wibble"], compiler.path_lists[3])
+        
+    def testInstance(self):
+        compiler = fc.instance
+        self.assertNotEqual(None, compiler)
+        self.assertEqual(
+            compiler.flags, fractconfig.instance.get("compiler", "options"))
+            
     def testAllFormulasCompile(self):
         'Go through every formula and check for errors'
         for filename in self.compiler.find_formula_files():

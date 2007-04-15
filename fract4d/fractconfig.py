@@ -155,6 +155,6 @@ class T(ConfigParser.ConfigParser):
         pass
             
     def save(self):
-        self.write(open(self.file,"w"))
-
+        self.write(open(self.file,"w"))        
+    
 instance = T("~/.gnofract4d")

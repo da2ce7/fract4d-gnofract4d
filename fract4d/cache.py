@@ -55,7 +55,7 @@ class T:
         f = open(file,"wb")
         try:
             cPickle.dump(contents,f,True)
-            print "created %s" % file
+            #print "created %s" % file
         finally:
             f.close()
 

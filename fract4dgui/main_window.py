@@ -54,13 +54,10 @@ class MainWindow:
 
         # create fractal compiler and load standard formula and
         # coloring algorithm files
-        self.compiler = fc.Compiler()
+        self.compiler = fc.instance
 
-        self.update_compiler_prefs(preferences.userPrefs)
         for path in extra_paths:
             self.compiler.add_func_path(path)
-
-        browser.get_model(self.compiler)
 
         self.recent_files = preferences.userPrefs.get_list("recent_files")
         
@@ -320,16 +317,8 @@ class MainWindow:
         
     def update_compiler_prefs(self,prefs):
         # update compiler
-        self.compiler.compiler_name = prefs.get("compiler","name")
-        self.compiler.flags = prefs.get("compiler","options")
-        self.compiler.set_func_path_list(prefs.get_list("formula_path"))
+        self.compiler.update_compiler_prefs(prefs)
         
-        self.compiler.add_path("maps",fc.FormulaTypes.GRADIENT)
-        self.compiler.add_path("other_maps",fc.FormulaTypes.GRADIENT)
-        self.compiler.add_path(
-            os.path.join(sys.exec_prefix,"share/gnofract4d/maps"),
-            fc.FormulaTypes.GRADIENT)
-
         if self.f:
             self.f.update_formula()
 

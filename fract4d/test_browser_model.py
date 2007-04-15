@@ -198,6 +198,9 @@ class Test(testbase.TestBase):
         bm.set_type(browser_model.GRADIENT)
         files = bm.current.files
         self.assertEqual(1,files.count("blatte1.ugr"))
+
+    def testInstance(self):
+        x = browser_model.instance
         
 def suite():
     return unittest.makeSuite(Test,'test')
