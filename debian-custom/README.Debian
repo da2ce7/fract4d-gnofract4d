@@ -1,0 +1,30 @@
+gnofract4d for Debian
+---------------------
+
+Initial .deb release of GnoFract4d.  Only major addition is use of makefile
+for proper compilation of .deb files (because otherwise attempting to make
+.deb files using Python scripts is a wee bit of a pain).
+
+This *should* work in theory under any release of Edgy and *probably* under 
+Feisty as well (as Feisty is still alpha as of the time of this writing, I
+can't confirm this yet); future releases will probably be aimed at Feisty
+with backports available to Edgy upon request.
+
+This should also work with Debian-based distros that use the Ubuntu 
+repositories or are otherwise based on Ubuntu which use Gnome 2.0 in 
+their interface (Mepis and post-5.0 builds of Linspire) and *may* work 
+in non-Ubuntu flavours of Debian (I make no real guarantees on this, 
+though).
+
+Kubuntu/Xubuntu and pre-Edgy builds may be out of luck (the former is out
+of luck due to using interfaces other than Gnome, the latter out of luck
+as Dapper and below use pre-GTK2 flavours of Gnome).
+
+I would strongly appreciate comments on how or whether this package does in
+fact work under non-Edgy builds of Ubuntu (in particular, I'm interested in
+how this behaves under Feisty) and/or Ubuntu-derivative distros.
+
+If something seriously doesn't work, let me know this as well so that I can
+beat it into submission.
+
+ -- Fer Jackson <windigo@stormwarning.org>, Sat, 17 Mar 2007 15:00:20 -0400
