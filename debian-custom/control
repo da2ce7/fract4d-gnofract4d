@@ -1,0 +1,14 @@
+Source: gnofract4d
+Section: user/Graphics
+Priority: optional
+Maintainer: Fer Jackson <windigo@stormwarning.org>
+Build-Depends: debhelper (>= 5), python2.4-dev
+Standards-Version: 3.7.2
+
+Package: gnofract4d
+Architecture: any
+Depends: python-gtk2 (>= 1.99), python (>= 2.4), gcc (>= 2.95), libc6 (>= 2.4-1), libgcc1 (>= 1:4.1.1-12), libgconf2-4 (>= 2.13.5), libglib2.0-0 (>= 2.12.0), libjpeg62, liborbit2 (>= 1:2.14.1), libpng12-0 (>= 1.2.8rel), libstdc++6 (>= 4.1.1-12)
+Description: A program to draw fractals
+ Gnofract 4D is a fractal browser. It can generate many different fractals,
+ including some which are hybrids between the Mandelbrot and Julia sets,
+ and includes a Fractint-compatible parser for your own fractal formulas.
