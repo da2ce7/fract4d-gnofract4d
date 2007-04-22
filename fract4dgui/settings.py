@@ -5,6 +5,7 @@ import gtk, gobject
 import dialog
 import browser
 import utils
+import colors
 
 def show_settings(parent,alt_parent, f,dialog_mode):
     SettingsDialog.show(parent,alt_parent, f,dialog_mode)
@@ -39,7 +40,7 @@ class SettingsDialog(dialog.T):
         self.create_transforms_page()
         self.create_general_page()
         self.create_location_page()
-        
+
     def create_location_page(self):
         table = self.create_location_table()
         label = gtk.Label(_("_Location"))

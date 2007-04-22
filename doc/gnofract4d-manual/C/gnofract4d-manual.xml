@@ -1256,6 +1256,10 @@ distributed under the same terms as Python.  </para>
 <filename>lex.py</filename> and <filename>yacc.py</filename> come from
 the PLY package, and are distributed under the LGPL license. </para>
 
+<para>
+The scripts used to build Ubuntu packages were kindly contributed by
+Fer Jackson.</para>
+
 </sect2>
 
 </sect1>
