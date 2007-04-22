@@ -11,8 +11,9 @@ import pango
 import dialog
 import utils
 import hig
+import browser
 
-from fract4d import gradient, fractal, colorizer
+from fract4d import gradient, fractal, colorizer, browser_model
 
 
 def show_colors(parent, alt_parent, f, dialog_mode):
@@ -38,18 +39,14 @@ class ColorDialog(dialog.T):
         self.set_size_request(500,300)
         
         self.f = f
-        self.fudge_factor = 3
         self.update_gradient()
         self.warning_message = None
         
         gradbox = self.create_editor()
         self.select_segment(-1)
                 
-        hbox = gtk.HBox()
-        hbox.pack_start(gradbox)
-
-        self.controls = hbox
-        self.vbox.add(hbox)
+        self.controls = gradbox
+        self.vbox.add(gradbox)
 
     def update_gradient(self):
         self.grad= copy.copy(self.f.get_gradient())
@@ -177,24 +174,19 @@ class ColorDialog(dialog.T):
         table.attach(self.outer_solid_button.widget,
                      3,4,2,3, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
 
-        table.attach(gtk.Label("Simplify by:"),
-                     0,1,3,4)
+        browse_button = gtk.Button(_("_Browse..."))
 
-        self.fudge_spinbutton = gtk.SpinButton()
-        self.fudge_spinbutton.set_range(0,20)
-        self.fudge_spinbutton.set_value(self.fudge_factor)
-        self.fudge_spinbutton.set_increments(0.5,5)
-        table.attach(self.fudge_spinbutton,
-                     1,2,3,4)
+        def show_browser(*args):
+            browser.show(None,self.f,browser_model.GRADIENT)
+            
+        browse_button.connect("clicked", show_browser)
+            
 
-        self.fudge_spinbutton.connect("value-changed", self.fudge_changed)
+        table.attach(browse_button, 0,1,3,4,gtk.EXPAND | gtk.FILL, gtk.EXPAND)
         gradbox.add(table)
 
         return gradbox
 
-    def fudge_changed(self, widget):
-        self.fudge_factor = self.fudge_spinbutton.get_value()
-        
     def solid_color_changed(self, r, g, b, index):
         self.solids[index] = \
             utils.updateColor256FromFloat(r,g,b, self.solids[index])

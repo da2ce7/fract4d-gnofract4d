@@ -1,6 +1,9 @@
 todo:
 
 changes in 3.4:
+* W	support .ugr files
+* W	added blatte*.ugr
+* W	separated color editor and gradient browser
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

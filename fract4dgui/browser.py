@@ -102,7 +102,7 @@ class BrowserDialog(dialog.T):
 
     def onApply(self):
         self.model.apply(self.f)
-
+        
     def set_type_cb(self,optmenu):
         self.set_type(utils.get_selected(optmenu))
 
