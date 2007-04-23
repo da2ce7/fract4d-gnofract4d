@@ -4,11 +4,15 @@ changes in 3.4:
 * W	support .ugr files
 * W	added blatte*.ugr
 * W	separated color editor and gradient browser
+* B	deepen check was leaving odd pixels set
+* B	clear_in_fates not working properly
+* B	weird lines after deepening
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 	until antialias, seems to run single-threaded more often than not
 
+* BBB	deepening can leave weird black lines behind
 * BB	animation colors are screwed
 * BB	animation hangs on FC3?
 * BB	browser doesn't always update with current formula

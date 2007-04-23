@@ -162,6 +162,8 @@ inline bool STFractWorker::isTheSame(
         if(im->getIter(x,y) != targetIter) return false;
         // does it have the same colour too?
         if(RGB2INT(x,y) != targetCol) return false;
+	// other point is unknown
+	//if(im->getFate(x,y,0) & FATE_UNKNOWN) return false;
     }
     return bFlat;
 }
@@ -299,12 +301,16 @@ STFractWorker::pixel(int x, int y,int w, int h)
 		}
 		else if(iter == -1)
 		{
+		    rgba_t temp_pixel;
+		    float temp_index;
+		    fate_t temp_fate;
+		    int temp_iter;
 		    /* didn't bail out, try again with 2x as many iterations */
 		    pf->calc(pos.n, ff->maxiter*2,periodGuess(),ff->warp_param,
 			     x,y,-1,
-			     &pixel,&iter, &index, &fate);
+			     &temp_pixel,&temp_iter, &temp_index, &temp_fate);
 		    
-		    if(iter != -1)
+		    if(temp_iter != -1)
 		    {
 			/* we would have got this right if we used
 			 * twice as many iterations */
