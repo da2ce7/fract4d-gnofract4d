@@ -94,7 +94,28 @@ class Test(unittest.TestCase):
         self.f.append_transform("gf4d.uxf","Inverse")
         
         self.assertEqual("Inverse", self.get_first_transform())
+
+    def testPages(self):
+        notebook = self.settings.notebook
+        n = notebook.get_n_pages()
+        i = 0
+        pagelist = []
+        exp_pagelist = [
+            _("Formula"), _("Outer"), _("Inner"),
+            _("Transforms"), _("General"), _("Location"),
+            _("Colors")]
         
+        while i < n:
+            page = notebook.get_nth_page(i)
+            title = notebook.get_tab_label_text(page)
+            pagelist.append(title)
+            i += 1
+
+        self.assertEqual(exp_pagelist, pagelist)
+
+    def testColorsPage(self):
+        gradarea = self.settings.gradarea
+            
 def suite():
     return unittest.makeSuite(Test,'test')
 
