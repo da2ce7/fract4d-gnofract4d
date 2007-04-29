@@ -6,6 +6,7 @@ import dialog
 import browser
 import utils
 import colors
+import copy
 
 def show_settings(parent,alt_parent, f,dialog_mode):
     SettingsDialog.show(parent,alt_parent, f,dialog_mode)
@@ -40,6 +41,236 @@ class SettingsDialog(dialog.T):
         self.create_transforms_page()
         self.create_general_page()
         self.create_location_page()
+        self.create_colors_page()
+
+    def gradarea_mousedown(self, widget, event):
+        pass
+
+    def gradarea_clicked(self, widget, event):
+        pos = float(event.x) / widget.allocation.width
+        i = self.f.get_gradient().get_index_at(pos)
+        self.select_segment(i)
+        self.redraw()
+
+    def gradarea_mousemoved(self, widget, event):
+        pass
+    
+    def gradarea_realized(self, widget):
+        self.gradgc = widget.window.new_gc(fill=gtk.gdk.SOLID)
+        return True
+        
+    def gradarea_expose(self, widget, event):
+        #Draw the gradient itself
+        r = event.area
+        self.redraw_rect(widget, r.x, r.y, r.width, r.height)
+
+    def redraw_rect(self, widget, x, y, w, h):
+        # draw the color preview bar
+        wwidth = float(widget.allocation.width)
+        colorband_height = widget.allocation.height - self.grad_handle_height
+        
+        colormap = widget.get_colormap()
+        grad = self.f.get_gradient()
+        for i in xrange(x, x+w):
+            pos_in_gradient = float(i)/wwidth
+            col = grad.get_color_at(pos_in_gradient)
+            gtkcol = colormap.alloc_color(
+                int(col[0]*65535),
+                int(col[1]*65535),
+                int(col[2]*65535),
+                True, True)
+            
+            self.gradgc.set_foreground(gtkcol)
+            widget.window.draw_line(
+                self.gradgc, i, y, i, min(y+h, colorband_height))
+
+    def redraw(self,*args):
+        self.redraw_rect(
+            self.gradarea, 0, 0,
+            self.gradarea.allocation.width,self.gradarea.allocation.height)
+
+        self.inner_solid_button.set_color(
+            utils.floatColorFrom256(self.f.solids[1]))
+        self.outer_solid_button.set_color(
+            utils.floatColorFrom256(self.f.solids[0]))
+
+
+    def create_colors_table(self):
+        gradbox = gtk.VBox()
+
+        browse_button = gtk.Button(_("_Browse..."))
+
+        browse_button.connect("clicked", self.show_browser, browser.GRADIENT)
+            
+        gradbox.pack_start(browse_button, False, False, 1)
+        
+        # gradient viewer
+        self.grad_handle_height = 8
+        
+        self.gradarea=gtk.DrawingArea()
+        c = utils.get_rgb_colormap()
+        self.gradarea.set_colormap(c)        
+
+        self.gradarea.add_events(
+            gtk.gdk.BUTTON_RELEASE_MASK |
+            gtk.gdk.BUTTON1_MOTION_MASK |
+            gtk.gdk.POINTER_MOTION_HINT_MASK |
+            gtk.gdk.BUTTON_PRESS_MASK |
+            gtk.gdk.KEY_PRESS_MASK |
+            gtk.gdk.KEY_RELEASE_MASK
+            )
+
+        self.gradarea.set_size_request(256, 96)
+        self.gradarea.connect('realize', self.gradarea_realized)
+        self.gradarea.connect('expose_event', self.gradarea_expose)
+        self.gradarea.connect('button-press-event', self.gradarea_mousedown)
+        self.gradarea.connect('button-release-event', self.gradarea_clicked)
+        self.gradarea.connect('motion-notify-event', self.gradarea_mousemoved)
+
+        self.f.connect('parameters-changed', self.redraw)
+        gradbox.pack_start(self.gradarea, False, False, 1)
+
+        table = gtk.Table(4,4, True)
+        table.set_property("column-spacing",2)
+
+        grad = self.f.get_gradient()
+        self.left_color_button = utils.ColorButton(
+            grad.segments[0].left_color, self.color_changed, True)
+        self.tooltips.set_tip(
+            self.left_color_button.widget,
+            _("Color of segment's left end"))
+        
+        self.right_color_button = utils.ColorButton(
+            grad.segments[0].right_color, self.color_changed, False)
+        self.tooltips.set_tip(
+            self.right_color_button.widget,
+            _("Color of segment's right end"))
+
+        table.attach(gtk.Label("Left Color:"),
+                     0,1,0,1)
+        table.attach(self.left_color_button.widget,
+                     1,2,0,1, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+        table.attach(gtk.Label("Right Color:"),
+                     2,3,0,1)
+        table.attach(self.right_color_button.widget,
+                     3,4,0,1, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+
+        self.split_button = gtk.Button(_("Split"))
+        self.split_button.connect('clicked', self.split)
+        table.attach(self.split_button,
+                     0,1,1,2, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+
+        self.remove_button = gtk.Button(_("Remove"))
+        self.remove_button.connect('clicked', self.remove)
+        table.attach(self.remove_button,
+                     1,2,1,2, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+
+        self.copy_left_button = gtk.Button(_("<Copy"))
+        self.copy_left_button.connect('clicked', self.copy_left)
+        table.attach(self.copy_left_button,
+                     2,3,1,2, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+        
+        self.copy_right_button = gtk.Button(_("Copy>"))
+        self.copy_right_button.connect('clicked', self.copy_right)
+        table.attach(self.copy_right_button,
+                     3,4,1,2, gtk.EXPAND | gtk.FILL, gtk.EXPAND)        
+
+        self.inner_solid_button = utils.ColorButton(
+            utils.floatColorFrom256(self.f.solids[1]),
+            self.solid_color_changed, 1)
+
+        self.outer_solid_button = utils.ColorButton(
+            utils.floatColorFrom256(self.f.solids[0]),
+            self.solid_color_changed, 0)
+
+        table.attach(gtk.Label("Inner Color:"),
+                     0,1,2,3)
+        table.attach(self.inner_solid_button.widget,
+                     1,2,2,3, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+        table.attach(gtk.Label("Outer Color:"),
+                     2,3,2,3)
+        table.attach(self.outer_solid_button.widget,
+                     3,4,2,3, gtk.EXPAND | gtk.FILL, gtk.EXPAND)
+
+        gradbox.add(table)
+
+        return gradbox
+
+    def copy_left(self,widget):
+        i = self.selected_segment
+        if i == -1 or i == 0:
+            return
+
+        segments = self.f.get_gradient().segments
+        segments[i-1].right_color = copy.copy(segments[i].left_color)
+        self.redraw()
+        
+    def copy_right(self,widget):
+        i = self.selected_segment
+        if i == -1 or i == len(self.grad.segments)-1:
+            return
+
+        segments = self.f.get_gradient().segments
+        segments[i+1].left_color = copy.copy(segments[i].right_color)
+        self.redraw()
+
+    def split(self, widget):
+        i = self.selected_segment
+        if i == -1:
+            return
+        self.f.get_gradient().add(i)
+        self.redraw()
+
+    def remove(self, widget):
+        i = self.selected_segment
+        grad = self.f.get_gradient()
+        if i == -1 or len(grad.segments)==1:
+            return
+        grad.remove(i, True)
+        if self.selected_segment > 0:
+            self.selected_segment -= 1
+        self.redraw()
+        
+    def solid_color_changed(self, r, g, b, index):
+        self.f.solids[index] = \
+            utils.updateColor256FromFloat(r,g,b, self.f.solids[index])
+        
+    def color_changed(self,r,g,b, is_left):
+        #print "color changed", r, g, b, is_left
+        if self.selected_segment == -1:
+            return
+
+        seg = self.f.get_gradient().segments[self.selected_segment]
+        if is_left:
+            seg.left_color = [r,g,b, seg.left_color[3]]
+        else:
+            seg.right_color = [r,g,b, seg.right_color[3]]
+        self.redraw()
+
+    def select_segment(self,i):
+        self.selected_segment = i
+        
+        if i == -1:
+            self.left_color_button.set_color([0.5,0.5,0.5,1])
+            self.right_color_button.set_color([0.5,0.5,0.5,1])
+        else:
+            grad = self.f.get_gradient()
+            self.left_color_button.set_color(grad.segments[i].left_color)
+            self.right_color_button.set_color(grad.segments[i].right_color)
+        # buttons should be sensitive if selection is good
+        self.left_color_button.set_sensitive(i!= -1)
+        self.right_color_button.set_sensitive(i!= -1)
+        self.split_button.set_sensitive(i != -1)
+        self.remove_button.set_sensitive(i != -1)
+        self.copy_right_button.set_sensitive(i != -1)
+        self.copy_left_button.set_sensitive(i != -1)
+
+    def create_colors_page(self):
+        table = self.create_colors_table()
+        label = gtk.Label(_("_Colors"))
+        label.set_use_underline(True)
+        self.notebook.append_page(table,label)
+        self.select_segment(-1)
 
     def create_location_page(self):
         table = self.create_location_table()
