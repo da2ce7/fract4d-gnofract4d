@@ -1,6 +1,0 @@
-gnofract4d (3.3-1+cvs20070317.0ubuntu1) unstable; urgency=low
-
-  * Initial version--single major change involves creation of makefile for install.
-
- -- Fer Jackson <windigo@stormwarning.org>  Sat, 17 Mar 2007 16:29:07 -0400
-

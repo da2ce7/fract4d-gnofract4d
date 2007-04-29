@@ -237,11 +237,9 @@ void fractFunc::draw_all()
     float minp = 0.0, maxp= (eaa == AA_NONE ? 1.0 : 0.5);
     draw(8,8,minp,maxp);    
     
-    printf("Drawn blocks at %d iters\n", maxiter);
     int deepen;
     while((deepen = updateiters()) > 0)
     {
-	printf("Deepening\n");
 	float delta = (maxp-minp)/3.0;
 	minp = maxp;
 	maxp = maxp + delta;
@@ -250,14 +248,10 @@ void fractFunc::draw_all()
 	iters_changed(maxiter);
         status_changed(GF4D_FRACTAL_DEEPENING);
 	clear_in_fates();
-	printf("Redraw at %d iters\n", maxiter);
         draw(8,1,minp,maxp);
     }
     
-    printf("Done drawing: deepen = %d\n", deepen);
-
     if(eaa > AA_NONE) {
-	printf("Antialiasing\n");
         status_changed(GF4D_FRACTAL_ANTIALIASING);
         draw_aa(maxp,1.0);
     }
