@@ -63,6 +63,18 @@ class SettingsDialog(dialog.T):
         r = event.area
         self.redraw_rect(widget, r.x, r.y, r.width, r.height)
 
+    def draw_handle(self, widget, midpoint, fill):
+        # draw a triangle pointing up, centered on midpoint
+        total_height = widget.allocation.height
+        colorband_height = total_height - self.grad_handle_height
+        points = [
+            (midpoint, colorband_height),
+            (midpoint - 5, total_height),
+            (midpoint + 5, total_height)]
+
+        widget.window.draw_polygon(
+            widget.style.black_gc, fill, points)
+
     def redraw_rect(self, widget, x, y, w, h):
         # draw the color preview bar
         wwidth = float(widget.allocation.width)
@@ -83,18 +95,46 @@ class SettingsDialog(dialog.T):
             widget.window.draw_line(
                 self.gradgc, i, y, i, min(y+h, colorband_height))
 
+        #Draw the handles
+        wgc=widget.style.white_gc
+        bgc=widget.style.black_gc
+
+        style = widget.get_style()
+        widget.window.draw_rectangle(
+            style.bg_gc[gtk.STATE_NORMAL], True,
+            x, colorband_height, w, self.grad_handle_height)
+
+        for i in xrange(len(grad.segments)):
+            seg = grad.segments[i]
+            
+            left = int(seg.left * wwidth)
+            mid = int(seg.mid * wwidth)
+            right = int(seg.right * wwidth)
+
+            if i == self.selected_segment:
+                # draw this chunk selected
+                widget.window.draw_rectangle(
+                    style.bg_gc[gtk.STATE_SELECTED], True,
+                    left, colorband_height,
+                    right-left, self.grad_handle_height)
+
+            self.draw_handle(widget, left, True)
+            self.draw_handle(widget, mid, False)
+
+        # draw last handle on the right
+        self.draw_handle(widget, int(wwidth), True)
+
     def redraw(self,*args):
         if self.gradarea.window:
             self.gradarea.window.invalidate_rect(
                 gtk.gdk.Rectangle(0, 0,
                                   self.gradarea.allocation.width,
-                                  self.gradarea.allocation.height))
+                                  self.gradarea.allocation.height), True)
 
         self.inner_solid_button.set_color(
             utils.floatColorFrom256(self.f.solids[1]))
         self.outer_solid_button.set_color(
             utils.floatColorFrom256(self.f.solids[0]))
-
 
     def create_colors_table(self):
         gradbox = gtk.VBox()
