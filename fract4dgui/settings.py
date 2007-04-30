@@ -248,10 +248,10 @@ class SettingsDialog(dialog.T):
         
     def copy_right(self,widget):
         i = self.selected_segment
-        if i == -1 or i == len(self.grad.segments)-1:
+        segments = self.f.get_gradient().segments
+        if i == -1 or i == len(segments)-1:
             return
 
-        segments = self.f.get_gradient().segments
         segments[i+1].left_color = copy.copy(segments[i].right_color)
         self.f.changed()
 
