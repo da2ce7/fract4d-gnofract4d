@@ -55,10 +55,10 @@ class FCTGeneration:
         #-------------loads gnofract4d libs----------------------------
         try:
             self.fractal=fractal
-                self.compiler=fc.Compiler()
-                self.compiler.add_func_path("formulas")
-                self.compiler.add_func_path("../formulas")
-                self.compiler.add_func_path(
+            self.compiler=fc.Compiler()
+            self.compiler.add_func_path("formulas")
+            self.compiler.add_func_path("../formulas")
+            self.compiler.add_func_path(
                 os.path.join(sys.exec_prefix, "share/gnofract4d/formulas"))
         except:
             self.show_error("Gnofract4d libs could not be found")
@@ -358,9 +358,9 @@ class FCTGeneration:
         self.error=True
         gtk.threads_enter()
         error_dlg = gtk.MessageDialog(
-		self.dialog,
-		gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,s)
+            self.dialog,
+            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+            gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,s)
         error_dlg.run()
         error_dlg.destroy()
         gtk.threads_leave()
