@@ -5,7 +5,6 @@ import gtk, gobject
 import dialog
 import browser
 import utils
-import colors
 import copy
 
 def show_settings(parent,alt_parent, f,dialog_mode):
@@ -85,9 +84,11 @@ class SettingsDialog(dialog.T):
                 self.gradgc, i, y, i, min(y+h, colorband_height))
 
     def redraw(self,*args):
-        self.redraw_rect(
-            self.gradarea, 0, 0,
-            self.gradarea.allocation.width,self.gradarea.allocation.height)
+        if self.gradarea.window:
+            self.gradarea.window.invalidate_rect(
+                gtk.gdk.Rectangle(0, 0,
+                                  self.gradarea.allocation.width,
+                                  self.gradarea.allocation.height))
 
         self.inner_solid_button.set_color(
             utils.floatColorFrom256(self.f.solids[1]))
@@ -203,7 +204,7 @@ class SettingsDialog(dialog.T):
 
         segments = self.f.get_gradient().segments
         segments[i-1].right_color = copy.copy(segments[i].left_color)
-        self.redraw()
+        self.f.changed()
         
     def copy_right(self,widget):
         i = self.selected_segment
@@ -212,14 +213,14 @@ class SettingsDialog(dialog.T):
 
         segments = self.f.get_gradient().segments
         segments[i+1].left_color = copy.copy(segments[i].right_color)
-        self.redraw()
+        self.f.changed()
 
     def split(self, widget):
         i = self.selected_segment
         if i == -1:
             return
         self.f.get_gradient().add(i)
-        self.redraw()
+        self.f.changed()
 
     def remove(self, widget):
         i = self.selected_segment
@@ -229,22 +230,20 @@ class SettingsDialog(dialog.T):
         grad.remove(i, True)
         if self.selected_segment > 0:
             self.selected_segment -= 1
-        self.redraw()
+        self.f.changed()
         
     def solid_color_changed(self, r, g, b, index):
-        self.f.solids[index] = \
-            utils.updateColor256FromFloat(r,g,b, self.f.solids[index])
+        self.f.set_solid(
+            index,
+            utils.color256FromFloat(r,g,b, self.f.solids[index]))
         
     def color_changed(self,r,g,b, is_left):
         #print "color changed", r, g, b, is_left
-        if self.selected_segment == -1:
-            return
+        self.f.get_gradient().set_color(
+            self.selected_segment,
+            is_left,
+            r,g,b)
 
-        seg = self.f.get_gradient().segments[self.selected_segment]
-        if is_left:
-            seg.left_color = [r,g,b, seg.left_color[3]]
-        else:
-            seg.right_color = [r,g,b, seg.right_color[3]]
         self.redraw()
 
     def select_segment(self,i):

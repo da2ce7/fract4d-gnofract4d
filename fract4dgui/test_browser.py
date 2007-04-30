@@ -48,7 +48,7 @@ class Test(unittest.TestCase):
 
     def testBadFormula(self):
         b = browser.BrowserDialog(None,self.f)
-        print b.model.compiler.path_lists[0]
+        #print b.model.compiler.path_lists[0]
         b.set_file('test.frm')
         b.set_formula('parse_error')
         self.assertNotEqual(b.ir.errors,[])

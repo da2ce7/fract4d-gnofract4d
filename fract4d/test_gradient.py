@@ -684,7 +684,19 @@ opacity:
 
         f.seek(0)
         g.load(f)
-        
+
+    def testSetColor(self):
+        g = gradient.Gradient()
+        self.assertEqual(True, g.set_color(0,True,0.2,0.7,0.9))
+        self.assertEqual(g.segments[0].left_color, [0.2,0.7,0.9,1.0])
+        self.assertEqual(True, g.set_color(0,False,0.3,0.8,0.1))
+        self.assertEqual(g.segments[0].right_color, [0.3,0.8,0.1,1.0])
+
+    def testSetColorOutOfBounds(self):
+        g = gradient.Gradient()
+        self.assertEqual(False, g.set_color(-1,True,0.2,0.7,0.9))
+        self.assertEqual(False, g.set_color(7,True,0.2,0.7,0.9))
+
     def assertNearlyEqual(self,a,b,msg, epsilon=1.0e-12):
         # check that each element is within epsilon of expected value
         for (ra,rb) in zip(a,b):

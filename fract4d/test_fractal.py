@@ -240,6 +240,11 @@ endparam
         finally:
             os.remove("fracttest.frm")
 
+    def testSetSolid(self):
+        f = fractal.T(self.compiler)
+        f.set_solid(0,(255,127,8,190))
+        self.assertEqual((255,127,8,190), f.solids[0])
+        
     def testLoadMaliciousFile(self):
         'Try to inject code into a file in a way which worked on 2.0 and 2.1'
         bad_testfile = '''gnofract4d parameter file
