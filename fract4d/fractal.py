@@ -105,6 +105,9 @@ class T(fctutils.T):
 
         self.saved = True # initial params not worth saving
 
+    def set_solid(self):
+        pass
+    
     def serialize(self,comp=False):
         out = StringIO.StringIO()
         self.save(out,False,compress=comp)
@@ -343,7 +346,7 @@ class T(fctutils.T):
 
     def copy_colors(self, f):
         self.set_gradient(copy.copy(f.get_gradient()))
-        self.solids[0:len(f.solids)] = f.solids[:]
+        self.set_solids(f.solids)
         self.changed(False)
 
     def set_warp_param(self,param):
@@ -356,7 +359,7 @@ class T(fctutils.T):
         file = open(mapfile)
         c.parse_map_file(file)
         self.set_gradient(c.gradient)
-        self.solids[0:len(c.solids)] = c.solids[:]
+        self.set_solids(c.solids)
         self.changed(False)
 
     def get_initparam(self,n,param_type):
@@ -366,10 +369,22 @@ class T(fctutils.T):
     def set_initparam(self,n,val, param_type):
         self.forms[param_type].set_param(n,val)
 
-    def set_solids(self, solids):
-        if self.solids[0] == solids[0] and self.solids[1] == solids[1]:
+    def set_solid(self,i,newsolid):
+        if self.solids[i] == newsolid:
             return
-        self.solids = solids
+        self.solids[i] = newsolid
+        self.changed(False)
+        
+    def set_solids(self, solids):
+        same = True
+        for i in xrange(len(solids)):
+            if self.solids[i] != solids[i]:
+               same = False
+               break
+        if same:
+            return
+        
+        self.solids = copy.copy(solids)
         self.changed(False)
         
     def refresh(self):
@@ -786,7 +801,7 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
     def apply_colorizer(self, cf):
         if cf.read_gradient:
             self.set_gradient(cf.gradient)
-        self.solids[0:len(cf.solids)] = cf.solids[:]
+        self.set_solids(cf.solids)
         self.changed(False)
         if cf.direct:
             # loading a legacy rgb colorizer

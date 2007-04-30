@@ -21,7 +21,6 @@ import test_browser
 import test_main_window
 import test_settings
 import test_painter
-import test_colors
 import test_fract4dguic
 import test_utils
 import test_renderqueue
@@ -40,11 +39,10 @@ def suite():
         test_browser.suite(),
         test_settings.suite(),
         test_painter.suite(),
-        test_colors.suite(),
         test_fract4dguic.suite(),
         test_utils.suite(),
         test_main_window.suite(),
-		test_director.suite())
+        test_director.suite())
     return unittest.TestSuite(tests)
 
 def main():

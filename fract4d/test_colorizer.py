@@ -38,6 +38,10 @@ and most of them are included in the allmaps file.""")
         c.parse_map_file(open("../maps/4zebbowx.map"))
 
         self.assertEqual(len(c.gradient.segments), 255)        
+
+    def testSolids(self):
+        c = colorizer.T()
+        self.assertEqual([(0,0,0,255)], c.solids)
         
 def suite():
     return unittest.makeSuite(Test,'test')

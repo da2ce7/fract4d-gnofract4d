@@ -463,7 +463,18 @@ class Gradient:
         # load it
         
         self.load_list(colors,-1.0)
-        
+
+    def set_color(self,seg_id,is_left,r,g,b):
+        if seg_id < 0 or seg_id >= len(self.segments):
+            return False
+        seg = self.segments[seg_id]
+        if is_left:
+            seg.left_color = [r,g,b, seg.left_color[3]]
+        else:
+            seg.right_color = [r,g,b, seg.right_color[3]]
+
+        return True
+
     def complementaries(self, base_color):
         # return some other colors that "go" with this one
         hsv = RGBtoHSV(base_color)

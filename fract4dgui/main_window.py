@@ -15,7 +15,7 @@ from fract4d import fractal,fc,fract4dc,image, fracttypes
 from fractutils import flickr
 
 import gtkfractal, model, preferences, autozoom, settings, toolbar
-import colors, undo, browser, fourway, angle, utils, hig, ignore_info, painter
+import undo, browser, fourway, angle, utils, hig, ignore_info, painter
 import icons, flickr_assistant, renderqueue, director
 import fract4dguic
 
@@ -508,8 +508,6 @@ class MainWindow:
              None, 0, '<Branch>'),
             (_('/Edit/_Fractal Settings...'),'<control>F',
              self.settings, 0, ''),
-            (_('/Edit/_Gradient...'), '<control>G',
-             self.colors, 0, ''),
             (_('/Edit/_Preferences...'), '<control>P',
              self.preferences, 0, '<StockItem>', gtk.STOCK_PREFERENCES),
             (_('/Edit/sep1'), None,
@@ -1152,10 +1150,6 @@ class MainWindow:
     def settings(self,action,widget):
         """Show fractal settings controls."""
         settings.show_settings(self.window, self.control_box, self.f, False)
-        
-    def colors(self,action,widget):
-        """Show gradient editor."""
-        colors.show_colors(self.window, self.control_box, self.f, True)
         
     def preferences(self,action,widget):
         """Change current preferences."""
