@@ -67,6 +67,26 @@ class Test(testbase.TestBase):
         }''')
 
         self.assertNoErrors(t)
+
+    def testImageCF(self):
+        t = self.translatecf('''cf {
+        #color = @image(#z)
+        #color = @image(1.0,2.0)
+        default:
+        image param @image
+        endparam
+        }''')
+
+        self.assertNoErrors(t)
+
+    def testBadImageFunc(self):
+        t = self.translate('''cf {
+        init:
+        float wibble
+        x = wibble(3)
+        }''')
+
+        self.assertError(t, "4: 'wibble' is not a function")
         
     def testGradientFile(self):
         t = self.translateGradient('''

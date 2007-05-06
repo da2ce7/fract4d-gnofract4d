@@ -321,6 +321,68 @@ class Test(testbase.TestBase):
         self.assertPixelIs(
             im,3,1, [im.UNKNOWN]*4,
             [79,88,41], [100,101,102], im.OUT)        
+
+    def testMultiThreadedCalc(self):
+        xsize = 64
+        ysize = int(xsize * 3.0/4.0)
+        im = image.T(xsize,ysize)
+        siteobj = FractalSite()
+        site = fract4dc.site_create(siteobj)
+
+        file = self.compileColorMandel()
+        handle = fract4dc.pf_load(file)
+        pfunc = fract4dc.pf_create(handle)
+        fract4dc.pf_init(pfunc,0.001,pos_params,self.color_mandel_params)
+        cmap = fract4dc.cmap_create(
+            [(0.0,0,0,0,255),
+             (1/256.0,255,255,255,255),
+             (1.0, 255, 255, 255, 255)])
+        fract4dc.calc(
+            params=[0.0, 0.0, 0.0, 0.0,
+             4.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            antialias=0,
+            maxiter=100,
+            yflip=0,
+            nthreads=4,
+            pfo=pfunc,
+            cmap=cmap,
+            auto_deepen=0,
+            periodicity=1,
+            render_type=0,
+            image=im._img,
+            site=site)
+
+        self.assertEqual(siteobj.progress_list[-1], 0.0)
+        self.assertEqual(siteobj.progress_list[-2], 1.0)                        
+
+        self.failUnless(siteobj.image_list[-1]==(0,0,xsize,ysize))
+
+        self.failUnless(siteobj.status_list[0]== 1 and \
+                         siteobj.status_list[-1]== 0)
+
+        self.failUnless(not os.path.exists("test.tga"))
+        im.save("test.tga")
+        self.failUnless(os.path.exists("test.tga"))
+        os.remove('test.tga')
+
+        # fate of all non-aa pixels should be known, aa-pixels unknown
+        fate_buf = im.fate_buffer()
+        i = 0
+        for byte in fate_buf:
+            d = im.get_color_index(
+                    (i % (im.FATE_SIZE * xsize)) / im.FATE_SIZE,
+                    i / (im.FATE_SIZE * xsize),
+                    i % im.FATE_SIZE)
+            
+            if i % 4 == 0:
+                # no-aa
+                self.assertNotEqual(ord(byte), 255,
+                                    "pixel %d is %d" % (i,ord(byte)))
+                self.assertNotEqual("%g" % d,"inf")
+            else:
+                self.assertEqual(ord(byte), 255)
+            i+= 1
         
     def testCalc(self):
         xsize = 64
@@ -382,7 +444,6 @@ class Test(testbase.TestBase):
                 self.assertNotEqual("%g" % d,"inf")
             else:
                 self.assertEqual(ord(byte), 255)
-                self.assertEqual("%g" % d,"1e+30")
             i+= 1
 
     def testConstants(self):

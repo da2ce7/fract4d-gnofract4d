@@ -102,7 +102,8 @@ types = ["bool",
          "float",
          "hyper",
          "grad",
-         "int"]
+         "int",
+         "image"]
 
 consts = ["true", "false", "yes", "no"]
 

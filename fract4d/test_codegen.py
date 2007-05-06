@@ -173,6 +173,7 @@ int main()
         #include <math.h>
 
         #include "cmap.cpp"
+        #include "image.cpp"
         #include "pf.h"
         
         typedef struct {
@@ -194,6 +195,7 @@ int main()
             params[i].intval = 773;
             params[i].doubleval = 0.0;
             params[i].gradient = pMap;
+            params[i].image = NULL;
         };
 
         pf_fake t__f;
@@ -1256,6 +1258,23 @@ endparam
             "r = (1,0,0,1)\n"+
             "y = (0.498039,0.498039,0,1)\n"+
             "g = (0,1,0,1)")
+
+    def testImageFunc(self):
+        # image() functionality
+        src = '''t_image {
+        init:
+        complex zz
+        color black = @foo(zz)
+        default:
+        image param foo
+        endparam
+        }'''
+
+        self.assertCSays(
+            src,
+            "init",
+            self.inspect_color("black"),
+            "black = (0,0,0,1)")
         
     def testCHyper(self):
         'test arithmetic in hypercomplex numbers'

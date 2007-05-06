@@ -183,6 +183,11 @@ class TBase:
                     raise TranslationError(msg)
         return v.default
 
+    def normalize_name(self,name):
+        if name[0] == "@":
+            return name
+        return "@" + name
+    
     def param(self,node):
         # translate a param block
         
@@ -199,11 +204,7 @@ class TBase:
         else:
             datatype = node.datatype
 
-        # normalize name
-        if node.leaf[0] == "@":
-            name = node.leaf
-        else:
-            name = "@" + node.leaf
+        name = self.normalize_name(node.leaf)
 
         # create param if not already present
         v = self.symbols.get(name)    
@@ -285,19 +286,22 @@ class TBase:
         
     def func(self, node):
         # translate a func block
-        name = "@" + node.leaf
+        name = self.normalize_name(node.leaf)
 
         fol = self.symbols.get(name)
         set_f = False
         if not fol:
             # FIXME make more general
-            argtype = [Complex]
-            fname = "ident"
             if node.datatype == Hyper:
                 argtype = [Hyper]
+                fname = "ident"
             elif node.datatype == Color:
                 argtype = [Color, Color]
                 fname = "mergenormal"
+            else:
+                argtype = [Complex]
+                fname = "ident"
+                
             f = Func(argtype,node.datatype,fname)
             set_f = True
         else:
@@ -595,6 +599,17 @@ class TBase:
 
         return ir.Move(lhs,self.coerce(rhs,expectedType),node,expectedType)
 
+    def findPseudoOp(self, var, name, pos):
+        # return a 'pseudo-functions' associated with an image or
+        # gradient param
+        if var.type == fracttypes.Image:
+            f = Func([Image,Complex], Color, "image")
+            f.set_implicit_arg(ir.Var(name, None, fracttypes.Image))
+            return f
+        else:
+            raise TranslationError(
+                "%s: '%s' is not a function and cannot be called" % (pos, name))
+        
     def findOp(self, func, pos, list):
         ' find the most appropriate overload for this op'
         try:
@@ -607,8 +622,12 @@ class TBase:
                     Func([Complex],Complex,"ident")])
             else:
                 raise
+
+        if isinstance(overloadList, fracttypes.Var):
+            return self.findPseudoOp(overloadList, func, pos)
         
         typelist = map(lambda ir : ir.datatype , list)
+        
         for ol in overloadList:
             if ol.matchesArgs(typelist):
                 return ol
@@ -670,7 +689,7 @@ class TBase:
         except TranslationError, err:
             # hack to support old Fractint formulas which use exp(1,0)
             # instead of exp((1,0))
-            # convert the args into a single complex and see if call
+            # convert the args into a single complex and see if call works
             try:
                 cop = self.findOp('complex',node.pos,children)
                 children = self.coerceList(cop.args,children)
@@ -683,8 +702,15 @@ class TBase:
             raise TranslationError(
                     "Unknown function %s on line %d" % (node.leaf,node.pos))
 
+        if op.implicit_args == []:
+            name = node.leaf
+        else:
+            children = op.implicit_args + children
+            name = "_image"
+            print children
+                
         children = self.coerceList(op.args,children)
-        return ir.Call(node.leaf, children, node, op.ret)
+        return ir.Call(name, children, node, op.ret)
     
     def shortcut(self, node):
         # convert into an if-expression

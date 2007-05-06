@@ -184,6 +184,11 @@ STFractWorker::antialias(int x, int y)
     int single_iters = im->getIter(x,y);
     bool checkPeriod = periodGuess(single_iters); 
 
+    if(ff->debug_flags & DEBUG_DRAWING_STATS)
+    {
+	printf("doaa %d %d\n", x, y);
+    }
+
     last = im->get(x,y);
     // top left
     fate = im->getFate(x,y,0);
@@ -273,6 +278,7 @@ STFractWorker::pixel(int x, int y,int w, int h)
     float index;
 
     fate_t fate = im->getFate(x,y,0);
+
     if(fate == FATE_UNKNOWN)
     {
 	int iter = 0;
@@ -350,6 +356,12 @@ STFractWorker::pixel(int x, int y,int w, int h)
 	}
 
 	periodSet(&iter);
+
+	if(ff->debug_flags & DEBUG_DRAWING_STATS)
+	{
+	    printf("pixel %d %d %d %d\n", x, y, fate, iter);
+	}
+
 	im->setIter(x,y,iter);
 	im->setFate(x,y,0,fate);
 	im->setIndex(x,y,0,index);
@@ -412,10 +424,15 @@ STFractWorker::pixel_aa(int x, int y)
         bFlat = isTheSame(bFlat,iter,pcol,x+1,y+1);
         if(bFlat) 	    
         {
+	    if(ff->debug_flags & DEBUG_DRAWING_STATS)
+	    {
+		printf("noaa %d %d\n", x, y);
+	    }
 	    im->fill_subpixels(x,y);
             return;
         }
     }
+
     pixel = antialias(x,y);
 
     rectangle(pixel,x,y,1,1,true);
@@ -501,6 +518,10 @@ STFractWorker::rectangle_with_iter(
     {
         for(int j = x; j < x+w; j++) 
 	{
+	    if(ff->debug_flags & DEBUG_DRAWING_STATS)
+	    {
+		printf("guess %d %d %d %d\n",j,i,fate,iter);
+	    }
             im->put(j,i,pixel);
             im->setIter(j,i,iter);
 	    im->setFate(j,i,0,fate);

@@ -969,6 +969,11 @@ def gradient_Gf_C(gen,t,srcs):
     # fixme get alpha from gradient
     return ColorArg(d1,d2,d3,ConstFloatArg(1.0)) 
 
+def _image_Ic_C(gen,t,srcs):
+    c = srcs[1]
+    [d1,d2,d3] = gen.emit_func3_3("image_lookup", [srcs[0], c.re, c.im], Float)
+    return ColorArg(d1,d2,d3,ConstFloatArg(1.0)) 
+    
 def gradient_f_C(gen,t,srcs):
     grad = gen.get_gradient_var()
     return gradient_Gf_C(gen,t,[grad,srcs[0]])

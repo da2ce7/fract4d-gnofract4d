@@ -19,8 +19,8 @@ main()
     cmap->init(256);
     for(int i = 0; i < 256; ++i)
     {
-	int x = i % 2 ? 179 : 49;
-	cmap->set(i,1.0/256.0, x, x, x, 255);
+	int x = (i % 2) ? 179 : 49;
+	cmap->set(i,i/256.0, 255, x, x, 255);
     }
     
     pf_obj *pfo = pf_new();
@@ -30,10 +30,10 @@ main()
     pfoParams[0].gradient = cmap; //gradient
     pfoParams[1].doubleval = 4.0; //bailout
     pfoParams[2].doubleval = 1.0; //cf0 density
-    pfoParams[3].doubleval = 0.0; //cf0 offset
+    pfoParams[3].doubleval = 1.0; //cf0 offset
     pfoParams[4].doubleval = 4.0; //cf0 bailout
     pfoParams[5].doubleval = 1.0; //cf1 density
-    pfoParams[6].doubleval = 0.0; // offset
+    pfoParams[6].doubleval = 1.0; // offset
 
     double params[] = { 
 	0.0, 0.0, 0.0, 0.0,
@@ -60,6 +60,7 @@ main()
 	false,
 	true,
 	true,
+	DEBUG_QUICK_TRACE | DEBUG_DRAWING_STATS,
 	RENDER_TWO_D,
 	-1,
 	im,

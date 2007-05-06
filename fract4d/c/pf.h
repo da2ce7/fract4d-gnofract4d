@@ -53,7 +53,8 @@ typedef enum
 {
     INT = 0,
     FLOAT = 1,
-    GRADIENT = 2
+    GRADIENT = 2,
+    PARAM_IMAGE = 3
 } e_paramtype;
 
 struct s_param
@@ -62,6 +63,7 @@ struct s_param
     int intval;
     double doubleval;
     void *gradient;
+    void *image;
 };
 
 struct s_pf_data;

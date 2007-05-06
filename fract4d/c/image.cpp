@@ -97,7 +97,7 @@ image::bytes() const
 void 
 image::put(int x, int y, rgba_t pixel)
 {
-    int off = x*3 + y * row_length();
+    int off = x*3 + y * m_Xres * 3;
     assert(off  + BLUE < bytes());
     char *start = buffer + off;
     start[RED] = pixel.r;
@@ -108,7 +108,7 @@ image::put(int x, int y, rgba_t pixel)
 rgba_t 
 image::get(int x, int y) const
 {
-    char *start = buffer + x*3 + y * row_length();
+    char *start = buffer + x*3 + y * m_Xres * 3;
     //assert(start  + 2 - buffer <= bytes());
     rgba_t pixel;
     pixel.r = start[RED];
@@ -246,15 +246,26 @@ image::setIndex(int x, int y, int subpixel, float index)
 void 
 image::clear()
 {
-    // no need to clear image buffer
+    int fate_pos = 0;
+    // no need to clear image buffer, just iters and fate
     for(int y = 0; y < m_Yres; ++y) 
     {
 	for(int x = 0; x < m_Xres; ++x)
 	{
 	    iter_buf[y * m_Xres + x]=-1;
-	    clear_fate(x,y);
+	    for(int n = 0; n < N_SUBPIXELS; ++n)
+	    {
+		fate_buf[fate_pos++] = FATE_UNKNOWN;
+	    }
 	}
     }
 }
 
-       
+void
+image_lookup(void *im, double x, double y, double *pr, double *pg, double *pb)
+{
+    //printf("%p %g %g\n", im,x,y);
+    *pr = 0.0;
+    *pb = 0.0;
+    *pg = 0.0;
+}

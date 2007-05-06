@@ -14,6 +14,11 @@ class Test(unittest.TestCase):
 
         self.assertEqual("i",c.suffix)
 
+    def testTypeLists(self):
+        self.assertEqual(
+            len(fracttypes.typeObjectList),
+            len(fracttypes.typeList))
+        
     def testTypes(self):
         self.assertEqual(
             "bool",
@@ -46,6 +51,10 @@ class Test(unittest.TestCase):
         self.assertEqual(
             "gradient",
             fracttypes.typeObjectList[fracttypes.Gradient].typename)
+
+        self.assertEqual(
+            "image",
+            fracttypes.typeObjectList[fracttypes.Image].typename)
 
     def testTypeIDs(self):
         for i in xrange(len(fracttypes.typeObjectList)):

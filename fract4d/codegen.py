@@ -388,7 +388,8 @@ typedef enum
 {
     INT = 0,
     FLOAT = 1,
-    GRADIENT = 2
+    GRADIENT = 2,
+    IMAGE = 3
 } e_paramtype;
 
 struct s_param
@@ -397,6 +398,7 @@ struct s_param
     int intval;
     double doubleval;
     void *gradient;
+    void *image;
 };
 
 struct s_pf_data;
@@ -506,7 +508,7 @@ extern pf_obj *pf_new(void);
 
     def emit_func3_3(self,op,srcs,type):
         # emit a call to a C func which takes 3 args and returns 3 out params
-        # This rather specialized feature is to call hls2rgb
+        # This rather specialized feature is to call hls2rgb or image lookup
         dst = [
             self.newTemp(type),
             self.newTemp(type),
@@ -766,11 +768,17 @@ extern pf_obj *pf_new(void);
 
     def findOp(self,t):
         ' find the most appropriate overload for this op'
+        print t
         overloadList = self.symbols[t.op]
         typelist = map(lambda n : n.datatype , t.children)
-        for ol in overloadList:
-            if ol.matchesArgs(typelist):
-                return ol
+        try:
+            for ol in overloadList:
+                if ol.matchesArgs(typelist):
+                    return ol
+        except TypeError, err:
+            print overloadList
+            print err
+            
         raise fracttypes.TranslationError(
             "Internal Compiler Error: Invalid argument types %s for %s" % \
             (typelist, opnode.leaf))

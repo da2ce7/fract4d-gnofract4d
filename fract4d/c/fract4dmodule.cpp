@@ -1463,6 +1463,7 @@ calculation_thread(void *vdata)
     calc(args->params,args->eaa,args->maxiter,
 	 args->nThreads,args->pfo,args->cmap,
 	 args->auto_deepen,args->yflip, args->periodicity, args->dirty,
+	 0, // debug_flags
 	 args->render_type,
 	 args->warp_param,
 	 args->im,args->site);
@@ -1611,6 +1612,7 @@ pycalc(PyObject *self, PyObject *args, PyObject *kwds)
 	     cargs->yflip, 
 	     cargs->periodicity, 
 	     cargs->dirty,
+	     0, // debug_flags
 	     cargs->render_type,
 	     cargs->warp_param,
 	     cargs->im,

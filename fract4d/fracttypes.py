@@ -13,6 +13,7 @@ Color = 4
 String = 5
 Hyper = 6
 Gradient = 7
+Image = 8
 
 class Type(object):
     def __init__(self,**kwds):
@@ -84,6 +85,19 @@ class GradientType(Type):
             return [ "t__pfo->p[%d].gradient" % var.param_slot]
 
         return []
+
+class ImageType(Type):
+    def __init__(self,**kwds):
+        Type.__init__(self,**kwds)
+
+    def init_val(self,var):
+        if var.param_slot == -1:
+            raise TranslationError(
+                "Internal Compiler Error: image not initialized as a param")
+        else:
+            return [ "t__pfo->p[%d].image" % var.param_slot]
+
+        return []
     
 # these have to be in the indexes given by the constants above
 typeObjectList = [
@@ -111,10 +125,13 @@ typeObjectList = [
              parts=["_re","_i","_j","_k"]),
     
     GradientType(id=Gradient,suffix="G",typename="gradient",
-         default=0,cname="void *")
+         default=0,cname="void *"),
+
+    ImageType(id=Image,suffix="I", typename="image",
+              default=0, cname="void *")
     ]
 
-typeList = [ Bool, Int, Float, Complex, Color, String, Hyper, Gradient]
+typeList = [ Bool, Int, Float, Complex, Color, String, Hyper, Gradient, Image]
 
 suffixOfType = {
     Int : "i",
@@ -124,7 +141,8 @@ suffixOfType = {
     Color : "C",
     String : "S",
     Hyper : "h",
-    Gradient : "G"
+    Gradient : "G",
+    Image : "I"
     }
 
 _typeOfStr = {
@@ -135,7 +153,8 @@ _typeOfStr = {
     "color" : Color,
     "string" : String,
     "hyper" : Hyper,
-    "grad" : Gradient
+    "grad" : Gradient,
+    "image" : Image
     }
 
 _strOfType = {
@@ -147,7 +166,8 @@ _strOfType = {
     None : "none",
     String : "string",
     Hyper : "hyper",
-    Gradient : "grad"
+    Gradient : "grad",
+    Image : "image"
    }
 
 _slotsForType = {
@@ -158,7 +178,8 @@ _slotsForType = {
     Color : 4,
     String : 0,
     Hyper: 4,
-    Gradient: 1
+    Gradient: 1,
+    Image: 1
     }
 
 def typeOfStr(tname):
@@ -176,15 +197,16 @@ def slotsForType(t):
 
 _canBeCast = [
     # rows are from, columns are to
-    # Bool Int Float Complex Color String Hyper Gradient 
-    [ 1,   1,  1,    1,      0,    0,     1,    0 ], # Bool
-    [ 1,   1,  1,    1,      0,    0,     1,    0 ], # Int
-    [ 1,   0,  1,    1,      0,    0,     1,    0 ], # Float
-    [ 1,   0,  0,    1,      0,    0,     1,    0 ], # Complex
-    [ 0,   0,  0,    0,      1,    0,     0,    0 ], # Color
-    [ 0,   0,  0,    0,      0,    1,     0,    0 ], # String
-    [ 1,   0,  0,    0,      0,    0,     1,    0 ], # Hyper
-    [ 0,   0,  0,    0,      0,    0,     0,    1 ]  # Gradient
+    # Bool Int Float Complex Color String Hyper Gradient Image
+    [ 1,   1,  1,    1,      0,    0,     1,    0,       0 ], # Bool
+    [ 1,   1,  1,    1,      0,    0,     1,    0,       0 ], # Int
+    [ 1,   0,  1,    1,      0,    0,     1,    0,       0 ], # Float
+    [ 1,   0,  0,    1,      0,    0,     1,    0,       0 ], # Complex
+    [ 0,   0,  0,    0,      1,    0,     0,    0,       0 ], # Color
+    [ 0,   0,  0,    0,      0,    1,     0,    0,       0 ], # String
+    [ 1,   0,  0,    0,      0,    0,     1,    0,       0 ], # Hyper
+    [ 0,   0,  0,    0,      0,    0,     0,    1,       0 ], # Gradient
+    [ 0,   0,  0,    0,      0,    0,     0,    0,       1 ]  # Image
     ]
 
 def canBeCast(t1,t2):
@@ -208,6 +230,7 @@ import stdlib
 class Func:
     def __init__(self,args,ret,fname,pos=-1):
         self.args = args
+        self.implicit_args = []
         self.ret = ret
         self.pos = pos
         self.set_func(fname)
@@ -218,6 +241,9 @@ class Func:
     
     def first(self):
         return self
+
+    def set_implicit_arg(self,arg):
+        self.implicit_args.append(arg)
         
     def set_func(self,fname):
         # compute the name of the stdlib function to call

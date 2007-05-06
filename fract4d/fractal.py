@@ -383,8 +383,8 @@ class T(fctutils.T):
                break
         if same:
             return
-        
-        self.solids = copy.copy(solids)
+
+        self.solids[0:len(solids)] = solids[:]
         self.changed(False)
         
     def refresh(self):

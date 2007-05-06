@@ -30,6 +30,7 @@ def main(args):
     pc.load_formula_file("gf4d.frm")
     pc.load_formula_file("gf4d.cfrm")
     pc.compiler_name = "g++"
+    pc.leave_dirty = True
     f = fractal.T(pc)
     f.loadFctFile(open(args[0]))
     outfile = f.compile()
@@ -47,8 +48,14 @@ def main(args):
         raise Exception(
             "Error reported by C compiler:%s" % output)
 
-    # compiled - hurrah!
-    
+    print output
+    # compiled - hurrah! run it
+    (status,output) = commands.getstatusoutput("./proftest")
+    if status != 0:
+        raise Exception(
+            "Error reported by program:%s" % output)
+
+    print output
     
 if __name__ == "__main__":
     main(sys.argv[1:])

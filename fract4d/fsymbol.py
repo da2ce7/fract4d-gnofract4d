@@ -449,7 +449,11 @@ by the 3rd parameter.''')
 
     f("hsv",
       [ [Float, Float, Float], Color],
-      doc='''Creste a color from hue, saturation and value components. HSV is a similar color model to HSL but has a different valid range for brightness.''')
+      doc='''Create a color from hue, saturation and value components. HSV is a similar color model to HSL but has a different valid range for brightness.''')
+
+    f("_image",
+      [ [Image, Complex], Color],
+      doc='''Look up a color from a 2D array of colors.''')
     
     # operators
     

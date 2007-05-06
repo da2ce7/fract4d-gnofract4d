@@ -46,13 +46,13 @@ fractFunc::fractFunc(
     site = site_;
     im = im_;
     ok = true;
+    debug_flags = 0;
     render_type = render_type_;
     //printf("render type %d\n", render_type);
     worker = fw;
     params = params_;
 
     eaa = eaa_;
-    depth = eaa == AA_NONE ? 1 : 2;
     maxiter = maxiter_;
     nThreads = nThreads_;
     auto_deepen = auto_deepen_;
@@ -208,10 +208,12 @@ void fractFunc::reset_progress(float progress)
 // image got deeper
 void fractFunc::clear_in_fates()
 {
+    int w = im->Xres();
+    int h = im->Yres();
     // FIXME can end up with some subpixels known and some unknown
-    for(int y = 0; y < im->Yres(); ++y)
+    for(int y = 0; y < h; ++y)
     {
-	for(int x = 0; x < im->Xres(); ++x)
+	for(int x = 0; x < w; ++x)
 	{
 	    for(int n = 0; n < im->getNSubPixels(); ++n)
 	    {
@@ -270,9 +272,14 @@ void fractFunc::draw_all()
     status_changed(GF4D_FRACTAL_DONE);
 }
 
-void fractFunc::draw(int rsize, int drawsize, float min_progress, float max_progress)
+void 
+fractFunc::draw(
+    int rsize, int drawsize, float min_progress, float max_progress)
 {
-    //printf("drawing: %d\n", render_type);
+    if(debug_flags & DEBUG_QUICK_TRACE)
+    {
+	printf("drawing: %d\n", render_type);
+    }
     reset_counts();
 
     // init RNG based on time before generating image
@@ -340,6 +347,11 @@ void fractFunc::draw(int rsize, int drawsize, float min_progress, float max_prog
     reset_progress(1.0);
 }
 
+void 
+fractFunc::set_debug_flags(int debug_flags)
+{
+    this->debug_flags = debug_flags;
+}
 
 dvec4
 fractFunc::vec_for_point(double x, double y)
@@ -362,6 +374,7 @@ calc(
     bool yflip,
     bool periodicity,
     bool dirty,
+    int debug_flags,
     render_type_t render_type,
     int warp_param,
     IImage *im, 
@@ -387,6 +400,7 @@ calc(
 	    im,
 	    site);
 
+	ff.set_debug_flags(debug_flags);
 	if(dirty)
 	{
 	    im->clear();

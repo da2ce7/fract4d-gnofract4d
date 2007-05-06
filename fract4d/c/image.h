@@ -120,4 +120,11 @@ public:
     void clear();
 };
 
+extern "C" {
+
+void
+image_lookup(void *im, double x, double y, double *pr, double *pg, double *pb);
+
+}
+
 #endif /* _IMAGE_H_ */

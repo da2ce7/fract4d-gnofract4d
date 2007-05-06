@@ -32,7 +32,10 @@ class fractFunc {
 	IImage *_im, 
 	IFractalSite *_site);
     ~fractFunc();
-   
+
+    // additional flags controlling debugging & profiling options
+    void set_debug_flags(int debug_flags);
+
     void draw_all();
     void draw(int rsize, int drawsize, float min_progress, float max_progress);    
     void draw_aa(float min_progress, float max_progress);
@@ -86,12 +89,12 @@ class fractFunc {
     enum { AUTO_DEEPEN_FREQUENCY = 30 };
 
     // params from ctor
-    int depth;    
     int eaa;
     int maxiter;
     int nThreads;
     bool auto_deepen;
     bool periodicity;
+    int debug_flags;
     render_type_t render_type;
     int warp_param;
     d *params;
@@ -136,12 +139,16 @@ class fractFunc {
     // clear auto-deepen and last_update
     void reset_counts();
     void reset_progress(float progress);
-
 };
 
 // geometry utilities
 dmat4 rotated_matrix(double *params);
 dvec4 test_eye_vector(double *params, double dist);
+
+enum {
+    DEBUG_QUICK_TRACE = 1,
+    DEBUG_DRAWING_STATS = 2
+};
 
 #ifdef __cplusplus
 extern "C" {
@@ -158,6 +165,7 @@ extern void calc(
     bool yflip,
     bool periodicity,
     bool dirty,
+    int  debug_flags,
     render_type_t render_type,
     int warp_param,
     IImage *im, 

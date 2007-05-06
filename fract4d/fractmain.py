@@ -26,11 +26,14 @@ class T:
             self.load(options.args[0])
 
         self.f.apply_options(options)
+        self.draw(im)
 
-        self.f.compile()
-        self.f.draw(im)
         if options.save_filename:
             im.save(options.save_filename)
+
+    def draw(self,im):
+        self.f.compile()
+        self.f.draw(im)
         
     def load(self,filename):
         self.f.loadFctFile(open(filename))
