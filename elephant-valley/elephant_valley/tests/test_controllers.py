@@ -5,7 +5,7 @@ from turbogears import testutil, database
 database.set_db_uri("sqlite:///:memory:")
 
 from elephant_valley import model
-from elephant_valley.controllers import Root
+from elephant_valley.controllers import Root, Fractals
 
 import cherrypy
 
@@ -56,3 +56,10 @@ def test_logintitle():
     testutil.createRequest("/login")
     assert "<title>Login</title>" in cherrypy.response.body[0]
 test_logintitle = with_setup(teardown=teardown_func)(test_logintitle)
+
+def test_fractals():
+    f = Fractals()
+    print f.default("fred")
+    
+    testutil.createRequest("/fractals/fred")
+    assert cherrypy.response.status == "200 OK", cherrypy.response.status

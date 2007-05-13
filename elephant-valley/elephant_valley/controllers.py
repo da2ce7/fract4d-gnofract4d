@@ -8,6 +8,18 @@ from cherrypy import request, response
 import logging
 log = logging.getLogger("elephant_valley.controllers")
 
+class Fractals(controllers.Controller):
+    @expose(template="elephant_valley.templates.fractal_list")
+
+    def default(self, uid, **kwds):
+        log.debug("fractals for %s" % uid)
+        log.debug("users: %s" % list(model.User.selectBy()))
+        users = list(model.User.selectBy(user_name=u"fred"))
+        log.debug("found %s for %s" % (users,uid))
+        if users == []:
+            return "no such user: %s" % uid
+        return users[0].user_name
+    
 class Root(controllers.RootController):
     @expose(template="elephant_valley.templates.welcome")
     # @identity.require(identity.in_group("admin"))
@@ -58,3 +70,6 @@ class Root(controllers.RootController):
     @expose(template="elephant_valley.templates.more")
     def more(self):
         return dict(image="/static/images/cheby.jpg")
+
+    fractals = Fractals()
+    

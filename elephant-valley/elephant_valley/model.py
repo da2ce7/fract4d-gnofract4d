@@ -125,8 +125,7 @@ def ensureTables():
         t.dropTable(ifExists=True)
         t.createTable(ifNotExists=False)
 
-def addTestData():
-    
+def addTestData():    
     for user in User.selectBy(email_address=u"fred@elephantvalley.net"):
         print user
         user.destroySelf()
