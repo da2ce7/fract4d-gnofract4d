@@ -10,18 +10,23 @@ from elephant_valley.model import *
 import sqlite
 database.set_db_uri("sqlite:///:memory:")
 
+ensureTables()
+addTestData()
+
+uid = u'fred@bathysphere.org'
+
 class TestFormulaFile(testutil.DBTest):
     def get_model(self):
         return FormulaFile
     
     def test_creation(self):
         "Object creation should set the name"
-        obj = FormulaFile(file_name = "gf4d.frm")
+        obj = FormulaFile(file_name = "gf4d.frm",ownerID=uid)
         
         assert obj.file_name == "gf4d.frm"
 
     def testFormulas(self):
-        ff = FormulaFile(file_name = "x")
+        ff = FormulaFile(file_name = "x", ownerID=uid)
 
         assert ff.formulas == []
         
@@ -33,8 +38,8 @@ class TestFormulaFile(testutil.DBTest):
         
     def test_dup(self):
         try:
-            obj1 = FormulaFile(file_name = "1")
-            obj2 = FormulaFile(file_name = "1")
+            obj1 = FormulaFile(file_name = "1", ownerID=uid)
+            obj2 = FormulaFile(file_name = "1", ownerID=uid)
         except sqlite.IntegrityError:
             return
         assert False and "Should have failed integrity check"
@@ -44,19 +49,19 @@ class TestFormula(testutil.DBTest):
         return Formula
 
     def test_creation(self):
-        ff = FormulaFile(file_name = "x")        
+        ff = FormulaFile(file_name = "x", ownerID=uid)        
         obj = Formula(formulaFile=ff,formula_name = "Mandelbrot")
         assert obj.formulaFile.file_name == "x"
 
     def testFractals(self):
-        ff = FormulaFile(file_name = "x")
+        ff = FormulaFile(file_name = "x", ownerID=uid)
         f = Formula(formulaFile=ff,formula_name = "a")
 
         assert f.fractals == []
 
-        f1 = Fractal(title="a",description="wibble")
+        f1 = Fractal(title="a",description="wibble", ownerID=uid)
         f1.addFormula(f)
-        f2 = Fractal(title="b",description="wibble2")
+        f2 = Fractal(title="b",description="wibble2", ownerID=uid)
         f2.addFormula(f)
         
         print f.fractals
@@ -68,9 +73,9 @@ class TestFractal(testutil.DBTest):
         return Fractal
 
     def test_creation(self):
-        ff = FormulaFile(file_name = "x")        
+        ff = FormulaFile(file_name = "x",ownerID=uid)        
         f = Formula(formulaFile=ff,formula_name = "Mandelbrot")
-        fractal = Fractal(title="My Fractal",description="Boring")
+        fractal = Fractal(title="My Fractal",description="Boring",ownerID=uid)
         fractal.addFormula(f)
         assert fractal.formulas[0] == f
     

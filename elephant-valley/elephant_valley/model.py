@@ -6,20 +6,6 @@ from turbogears import identity
 hub = PackageHub("elephant_valley")
 __connection__ = hub
 
-class FormulaFile(SQLObject):
-    file_name = StringCol(alternateID=True)
-    formulas = MultipleJoin('Formula')
-    
-class Formula(SQLObject):
-    formula_name = StringCol()
-    formulaFile = ForeignKey('FormulaFile')
-    fractals = RelatedJoin('Fractal')
-    
-class Fractal(SQLObject):
-    title = StringCol()
-    description = StringCol()
-    formulas = RelatedJoin('Formula')
-
 # identity models.
 class Visit(SQLObject):
     class sqlmeta:
@@ -117,25 +103,64 @@ class Permission(SQLObject):
                          otherColumn="group_id")
 
 
+class FormulaFile(SQLObject):
+    file_name = StringCol(alternateID=True)
+    formulas = MultipleJoin('Formula')
+    owner = ForeignKey('User')
+    
+class Formula(SQLObject):
+    formula_name = StringCol()
+    formulaFile = ForeignKey('FormulaFile')
+    fractals = RelatedJoin('Fractal')
+    
+class Fractal(SQLObject):
+    title = StringCol()
+    description = StringCol()
+    formulas = RelatedJoin('Formula')
+    owner = ForeignKey('User')
+
 def ensureTables():
-    for t in [Fractal, Formula, FormulaFile]:
-        t.createTable(ifNotExists=True)
+    for t in [Fractal, Formula, FormulaFile,
+              User, Group, Permission, Visit, VisitIdentity]:
+        t.dropTable(ifExists=True)
+        t.createTable(ifNotExists=False)
 
 def addTestData():
+    
+    for user in User.selectBy(email_address=u"fred@elephantvalley.net"):
+        print user
+        user.destroySelf()
+
+    uid = u"fred@elephantvalley.net"
+    user = User(
+        user_name=u"fred",
+        email_address=uid,
+        display_name=u"Freddikins",
+        password=u"spigot")
+
+    uid2 = u"bert@evil.com"
+    user = User(
+        user_name=u"bert",
+        email_address=uid2,
+        display_name=u"Evil Bert",
+        password=u"malice")
+    
     formulafiles = [
-        FormulaFile(file_name = "gf4d.frm"),
-        FormulaFile(file_name = "gf4d.cfrm"),
-        FormulaFile(file_name = "gf4d.uxf")
+        FormulaFile(file_name = "gf4d.frm", ownerID=uid),
+        FormulaFile(file_name = "gf4d.cfrm", ownerID=uid),
+        FormulaFile(file_name = "gf4d.uxf", ownerID=uid),
+        FormulaFile(file_name = "bert.frm", ownerID=uid2)
     ]
 
     ff = formulafiles[0]
     formulas = [
         Formula(formulaFile=ff,formula_name="Mandelbrot"),
-        Formula(formulaFile=ff,formula_name="Julia")
+        Formula(formulaFile=ff,formula_name="Julia"),
+        Formula(formulaFile=formulafiles[3],formula_name="Bert's Formula")
     ]
 
-    f1 = Fractal(title="a",description="wibble")
+    f1 = Fractal(title="a",description="wibble",ownerID=uid)
     f1.addFormula(formulas[0])
-    f2 = Fractal(title="b",description="wibble2")
+    f2 = Fractal(title="b",description="wibble2",ownerID=uid)
     f2.addFormula(formulas[1])
-
+    f3 = Fractal(title="bert's fractal",description="A fractal by bert", ownerID=uid2)

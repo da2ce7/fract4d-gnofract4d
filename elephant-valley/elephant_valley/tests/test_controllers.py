@@ -24,7 +24,7 @@ cherrypy.root = Root()
 def test_get_fractals():
     fractals = cherrypy.root.get_fractals()
     val = [x.title for x in fractals]
-    assert ['a', 'b'] == val
+    assert ['a', 'b', "bert's fractal" ] == val, "unexpected list of fractals %s" % val
     
 def test_index_method():
     "the index method should return a string called now"
