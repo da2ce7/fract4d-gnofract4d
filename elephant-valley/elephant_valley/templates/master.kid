@@ -30,7 +30,7 @@
             <a href="/logout">Logout</a>
         </span>
     </div>
-    <div id="header"><img src="${image}"></img></div>
+    <div id="header"><img py:if="image" src="${image}"></img></div>
       <div id="main_content">
         <div py:if="tg_flash" class="flash" py:content="tg_flash"></div>
 

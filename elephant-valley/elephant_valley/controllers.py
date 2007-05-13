@@ -9,16 +9,17 @@ import logging
 log = logging.getLogger("elephant_valley.controllers")
 
 class Fractals(controllers.Controller):
+    
     @expose(template="elephant_valley.templates.fractal_list")
-
     def default(self, uid, **kwds):
-        log.debug("fractals for %s" % uid)
         log.debug("users: %s" % list(model.User.selectBy()))
-        users = list(model.User.selectBy(user_name=u"fred"))
+        users = list(model.User.selectBy(user_name=uid))
         log.debug("found %s for %s" % (users,uid))
         if users == []:
             return "no such user: %s" % uid
-        return users[0].user_name
+        email = users[0].email_address
+        fractals = model.Fractal.selectBy(ownerID=email)
+        return dict(user=uid,fractals=fractals,image=None)
     
 class Root(controllers.RootController):
     @expose(template="elephant_valley.templates.welcome")

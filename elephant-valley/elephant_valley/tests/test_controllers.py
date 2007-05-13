@@ -58,8 +58,13 @@ def test_logintitle():
 test_logintitle = with_setup(teardown=teardown_func)(test_logintitle)
 
 def test_fractals():
-    f = Fractals()
-    print f.default("fred")
-    
+    testutil.createRequest("/fractals/bert")
+    assert cherrypy.response.status == "200 OK", cherrypy.response.status
+    assert "<title>Fractals by bert</title>" in cherrypy.response.body[0]
+    assert "bert's fractal" in cherrypy.response.body[0]
+
     testutil.createRequest("/fractals/fred")
     assert cherrypy.response.status == "200 OK", cherrypy.response.status
+    assert "<title>Fractals by fred</title>" in cherrypy.response.body[0]
+    assert "a" in cherrypy.response.body[0]
+    

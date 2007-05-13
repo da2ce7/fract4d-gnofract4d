@@ -59,12 +59,11 @@ class TestFormula(testutil.DBTest):
 
         assert f.fractals == []
 
-        f1 = Fractal(title="a",description="wibble", ownerID=uid)
+        f1 = Fractal(file_name="foo", title="a",description="wibble", ownerID=uid)
         f1.addFormula(f)
-        f2 = Fractal(title="b",description="wibble2", ownerID=uid)
+        f2 = Fractal(file_name="bar", title="b",description="wibble2", ownerID=uid)
         f2.addFormula(f)
         
-        print f.fractals
         assert f.fractals.count(f1) != 0
         assert f.fractals.count(f2) != 0
         
@@ -75,7 +74,8 @@ class TestFractal(testutil.DBTest):
     def test_creation(self):
         ff = FormulaFile(file_name = "x",ownerID=uid)        
         f = Formula(formulaFile=ff,formula_name = "Mandelbrot")
-        fractal = Fractal(title="My Fractal",description="Boring",ownerID=uid)
+        fractal = Fractal(
+            file_name = "fct.fct", title="My Fractal",description="Boring",ownerID=uid)
         fractal.addFormula(f)
         assert fractal.formulas[0] == f
     

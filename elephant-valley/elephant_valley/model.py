@@ -114,11 +114,22 @@ class Formula(SQLObject):
     fractals = RelatedJoin('Fractal')
     
 class Fractal(SQLObject):
+    file_name = StringCol(alternateID=True)
+    thumb_file_name = StringCol(default=None)
+    full_file_name = StringCol(default=None)
     title = StringCol()
     description = StringCol()
     formulas = RelatedJoin('Formula')
     owner = ForeignKey('User')
 
+    def full_name(self):
+        return "/static/" + self.file_name
+
+    def full_thumb_file_name(self):
+        if self.thumb_file_name:            
+            return "/static/images/" + self.thumb_file_name
+        return "/static/images/no_thumb.jpg"
+    
 def ensureTables():
     for t in [Fractal, Formula, FormulaFile,
               User, Group, Permission, Visit, VisitIdentity]:
@@ -126,10 +137,6 @@ def ensureTables():
         t.createTable(ifNotExists=False)
 
 def addTestData():    
-    for user in User.selectBy(email_address=u"fred@elephantvalley.net"):
-        print user
-        user.destroySelf()
-
     uid = u"fred@elephantvalley.net"
     user = User(
         user_name=u"fred",
@@ -158,8 +165,8 @@ def addTestData():
         Formula(formulaFile=formulafiles[3],formula_name="Bert's Formula")
     ]
 
-    f1 = Fractal(title="a",description="wibble",ownerID=uid)
+    f1 = Fractal(file_name="wibble.fct",title="a",description="wibble",ownerID=uid)
     f1.addFormula(formulas[0])
-    f2 = Fractal(title="b",description="wibble2",ownerID=uid)
+    f2 = Fractal(file_name="wibble2.fct",title="b",description="wibble2",ownerID=uid)
     f2.addFormula(formulas[1])
-    f3 = Fractal(title="bert's fractal",description="A fractal by bert", ownerID=uid2)
+    f3 = Fractal(file_name="bert.fct", title="bert's fractal",description="A fractal by bert", ownerID=uid2)
