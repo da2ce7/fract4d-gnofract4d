@@ -4,8 +4,9 @@ import model
 from turbogears import identity, redirect
 from cherrypy import request, response
 # from elephant_valley import json
-# import logging
-# log = logging.getLogger("elephant_valley.controllers")
+
+import logging
+log = logging.getLogger("elephant_valley.controllers")
 
 class Root(controllers.RootController):
     @expose(template="elephant_valley.templates.welcome")
@@ -13,14 +14,19 @@ class Root(controllers.RootController):
     def index(self):
         import time
         # log.debug("Happy TurboGears Controller Responding For Duty")
+        fractal_titles=[x.title for x in self.get_fractals()] + ["fish"]
+        log.debug("titles: %s" % fractal_titles)
         return dict(
             now=time.ctime(),
             image="/static/images/front.jpg",
-            fractal_titles=[x.title for x in model.Fractal.select()] + ["fish"])
+            fractal_titles=fractal_titles)
 
+    def get_fractals(self):
+        return model.Fractal.select()
+    
     @expose(template="elephant_valley.templates.login")
     def login(self, forward_url=None, previous_url=None, *args, **kw):
-
+        
         if not identity.current.anonymous \
             and identity.was_login_attempted() \
             and not identity.get_identity_errors():

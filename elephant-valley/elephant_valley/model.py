@@ -19,7 +19,7 @@ class Fractal(SQLObject):
     title = StringCol()
     description = StringCol()
     formulas = RelatedJoin('Formula')
-    
+
 # identity models.
 class Visit(SQLObject):
     class sqlmeta:
@@ -116,4 +116,26 @@ class Permission(SQLObject):
                          joinColumn="permission_id", 
                          otherColumn="group_id")
 
+
+def ensureTables():
+    for t in [Fractal, Formula, FormulaFile]:
+        t.createTable(ifNotExists=True)
+
+def addTestData():
+    formulafiles = [
+        FormulaFile(file_name = "gf4d.frm"),
+        FormulaFile(file_name = "gf4d.cfrm"),
+        FormulaFile(file_name = "gf4d.uxf")
+    ]
+
+    ff = formulafiles[0]
+    formulas = [
+        Formula(formulaFile=ff,formula_name="Mandelbrot"),
+        Formula(formulaFile=ff,formula_name="Julia")
+    ]
+
+    f1 = Fractal(title="a",description="wibble")
+    f1.addFormula(formulas[0])
+    f2 = Fractal(title="b",description="wibble2")
+    f2.addFormula(formulas[1])
 
