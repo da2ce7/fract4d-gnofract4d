@@ -79,6 +79,9 @@ class Test(testbase.TestBase):
 
         self.assertNoErrors(t)
 
+        # check type of default
+        self.assertEqual(0,t.symbols.default_params()[-1])
+        
     def testBadImageFunc(self):
         t = self.translate('''cf {
         init:

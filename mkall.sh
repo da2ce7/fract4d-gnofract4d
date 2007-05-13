@@ -9,30 +9,30 @@
 # ABI again (groan) and hardly any of the distributions targeted have it
 
 export ARCH=`uname -i`
-export CC=/usr/local/bin/gcc33
-export CXX=/usr/local/bin/g++33
-
-# python 2.2 version
-export BUILD_PYTHON_VERSION=2.2
-export BUILD_PYTHON=/usr/bin/python2.2
-export MIN=2.2
-export MAX=2.3
- 
-./mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-3.4-1.$ARCH.rpm dist/gnofract4d-python22-3.4-1.$ARCH.rpm 
-
-# Python 2.3 version
-export BUILD_PYTHON_VERSION=2.3
-export BUILD_PYTHON=/usr/bin/python2.3
-export MIN=2.3
-export MAX=2.4
-
-./mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-3.4-1.$ARCH.rpm dist/gnofract4d-python23-3.4-1.$ARCH.rpm 
-
-# use local gcc for Python 2.4, since that's the best match on my dev machine (FC4)
-export CC=/usr/bin/gcc
-export CXX=/usr/bin/g++
+#export CC=/usr/local/bin/gcc33
+#export CXX=/usr/local/bin/g++33
+#
+## python 2.2 version
+#export BUILD_PYTHON_VERSION=2.2
+#export BUILD_PYTHON=/usr/bin/python2.2
+#export MIN=2.2
+#export MAX=2.3
+# 
+#./mkrpm.sh $BUILD_PYTHON $MIN $MAX
+#mv dist/gnofract4d-3.4-1.$ARCH.rpm dist/gnofract4d-python22-3.4-1.$ARCH.rpm 
+#
+## Python 2.3 version
+#export BUILD_PYTHON_VERSION=2.3
+#export BUILD_PYTHON=/usr/bin/python2.3
+#export MIN=2.3
+#export MAX=2.4
+#
+#./mkrpm.sh $BUILD_PYTHON $MIN $MAX
+#mv dist/gnofract4d-3.4-1.$ARCH.rpm dist/gnofract4d-python23-3.4-1.$ARCH.rpm 
+#
+## use local gcc for Python 2.4, since that's the best match on my dev machine (FC4)
+#export CC=/usr/bin/gcc
+#export CXX=/usr/bin/g++
 
 # Python 2.4 version
 export BUILD_PYTHON_VERSION=2.4

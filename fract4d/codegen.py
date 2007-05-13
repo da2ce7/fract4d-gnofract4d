@@ -389,7 +389,7 @@ typedef enum
     INT = 0,
     FLOAT = 1,
     GRADIENT = 2,
-    IMAGE = 3
+    PARAM_IMAGE = 3
 } e_paramtype;
 
 struct s_param
@@ -768,7 +768,6 @@ extern pf_obj *pf_new(void);
 
     def findOp(self,t):
         ' find the most appropriate overload for this op'
-        print t
         overloadList = self.symbols[t.op]
         typelist = map(lambda n : n.datatype , t.children)
         try:

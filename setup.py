@@ -10,8 +10,8 @@ import sys
 
 gnofract4d_version = "3.4"
 
-if float(sys.version[:3]) < 2.2:
-    print "Sorry, you need python 2.2 or higher to run Gnofract 4D."
+if float(sys.version[:3]) < 2.4:
+    print "Sorry, you need python 2.4 or higher to run Gnofract 4D."
     print "You have version %s. Please upgrade." % sys.version
     sys.exit(1)
 
@@ -113,7 +113,8 @@ module1 = Extension(
 module_cmap = Extension(
     'fract4d.fract4d_stdlib',
     sources = [
-    'fract4d/c/cmap.cpp'
+    'fract4d/c/cmap.cpp',
+    'fract4d/c/image.cpp'
     ],
     include_dirs = [
     'fract4d/c'

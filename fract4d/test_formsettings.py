@@ -13,7 +13,7 @@ import fctutils
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
-g_comp.add_func_path.append("../formulas")
+g_comp.add_func_path("../formulas")
 g_comp.load_formula_file("gf4d.frm")
 g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")
@@ -73,6 +73,9 @@ class Test(unittest.TestCase):
 
         params = fs.params_of_type(fracttypes.Complex)
         self.assertEqual(params, ['t__a_c'])
+
+        params = fs.params_of_type(fracttypes.Image)
+        self.assertEqual(params, ['t__a_im'])
         
     def testFuncValue(self):
         fs = formsettings.T(g_comp)
@@ -148,6 +151,13 @@ class Test(unittest.TestCase):
         self.assertEqual(a + 4 * 0.025, fs1.params[1])
         self.assertEqual(b + 2 * 0.025, fs1.params[2])
 
+    def testDefaults(self):
+        fs1 = formsettings.T(g_comp)
+        fs1.set_formula("test.frm","test_all_types",g_grad)
+
+        print fs1.params
+        print fs1.paramtypes
+        
     def testInitValue(self):
         fs1 = formsettings.T(g_comp)
         fs1.set_formula("test.frm","test_all_types",g_grad)
@@ -160,6 +170,8 @@ class Test(unittest.TestCase):
                          fs1.initvalue("@h"))
 
         self.assertEqual("warp",fs1.initvalue("@c","@c"))
+        self.assertEqual(None, fs1.initvalue("@im"))
+
         
     def testSetNamedParam(self):
         fs1 = formsettings.T(g_comp)
@@ -188,7 +200,7 @@ Name: burning_coals
 0.000000 0.002500 0.005000 0.871094 0.429688 0.156250 1.000000 0.894531 0.484375 0.035156 1.000000 0 0
 0.005000 0.006250 0.007500 0.894531 0.484375 0.035156 1.000000 0.750000 0.546875 0.015625 1.000000 0 0
 """)
-
+        
     def testSetNamedItem(self):
         fs1 = formsettings.T(g_comp)
         fs1.set_formula("gf4d.frm","Mandelbrot",g_grad)

@@ -849,6 +849,8 @@ class T(UserDict):
                 tp[i] = Bool
             elif t == Gradient:
                 tp[i] = Gradient
+            elif t == Image:
+                tp[i] = Image
             else:
                 raise ValueError("Unknown param type %s for %s" % (t, k))
         #assert not None in tp
@@ -861,13 +863,17 @@ class T(UserDict):
             param = self.get(k)
             if not param: continue
             defval = getattr(param,"default",None)
-            if not defval: continue
-            if param.type == Complex:
+            if not defval:
+                defaults[i] = default_value(param.type)                
+            elif param.type == Complex:
                 defaults[i] = defval.value[0].value
                 defaults[i+1] = defval.value[1].value
             elif param.type == Hyper or param.type == Color:
                 for j in xrange(len(defval.value)):
                     defaults[i+j] = defval.value[j].value
+            elif param.type == Image:
+                print "image type for %s" % k
+                defaults[i] = None
             else:
                 defaults[i] = defval.value
         return defaults

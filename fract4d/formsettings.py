@@ -70,7 +70,8 @@ class T:
                 return "(%.17f,%.17f)"%(self.params[ord],self.params[ord+1])
         elif type == fracttypes.Hyper or type == fracttypes.Color:
             return "(%.17f,%.17f,%.17f,%.17f)"% \
-                   (self.params[ord],self.params[ord+1],self.params[ord+2],self.params[ord+3])
+                   (self.params[ord],self.params[ord+1],
+                    self.params[ord+2],self.params[ord+3])
         elif type == fracttypes.Float:
             return "%.17f" % self.params[ord]
         elif type == fracttypes.Int:
@@ -78,6 +79,8 @@ class T:
         elif type == fracttypes.Bool:
             return "%s" % int(self.params[ord])
         elif type == fracttypes.Gradient:
+            return "[\n" + self.params[ord].serialize() + "]"
+        elif type == fracttypes.Image:
             return "[\n" + self.params[ord].serialize() + "]"
         else:
             raise ValueError("Unknown type %s for param %s" % (type,name))
@@ -211,6 +214,10 @@ class T:
             grad = gradient.Gradient()
             grad.load(StringIO.StringIO(val))
             self.params[ord] = grad
+            self.changed()
+        elif t == fracttypes.Image:
+            im = image.T(2,2)
+            self.params[ord] = im
             self.changed()
         else:
             raise ValueError("Unknown param type %s for %s" % (t,name))

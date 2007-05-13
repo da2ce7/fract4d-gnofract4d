@@ -238,7 +238,7 @@ class TBase:
         # if we created new var, write it back
         if set_v:
             self.symbols[name] = v
-
+        
         if node.datatype:
             if(hasattr(v,"full_default")):
                 e = self.coerce(v.full_default,node.datatype)
@@ -707,7 +707,6 @@ class TBase:
         else:
             children = op.implicit_args + children
             name = "_image"
-            print children
                 
         children = self.coerceList(op.args,children)
         return ir.Call(name, children, node, op.ret)

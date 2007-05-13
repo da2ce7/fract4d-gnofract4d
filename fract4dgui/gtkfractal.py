@@ -1007,8 +1007,7 @@ class Preview(T):
         pass
 
     def error(self,msg,exn):
-        # suppress errors from subfracts, if they ever happened
-        # it would be too confusing
+        # suppress errors from previews
         pass
     
 class SubFract(T):

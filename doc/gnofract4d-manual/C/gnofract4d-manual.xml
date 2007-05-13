@@ -233,6 +233,7 @@ Gradient File
 <entry>
 <filename class="extension">.map</filename>,
 <filename class="extension">.ggr</filename>
+<filename class="extension">.ugr</filename>
 </entry>
 <entry>
 
@@ -240,7 +241,8 @@ A gradient file is a list of colors which is used to translate the
 purely numerical output of the formula into something pretty to look
 at. Gradients are currently saved only inside the fractal itself, not
 as separate files. The GIMP uses the extension .ggr for its gradient
-files; &fractint; uses .map for its own, simpler files.
+files; &fractint; uses .map for its own, simpler files. &ultrafractal;
+uses .ugr - these files contain multiple gradients.
 
 </entry>
 </row>
@@ -300,7 +302,7 @@ same. Similarly if Color's 100, each mutant is a different color, and
 <para>
 
 The <emphasis>Formula Browser</emphasis> allows you to look at all the
-fractal formulas and coloring functions which are in the currently-loaded
+fractal formulas, coloring functions and gradients which are currently loaded
 formula files. When you select a formula (from the Formula list in the
 middle), the source window shows you the contents of that formula. You
 can then use <guibutton>Apply</guibutton> to change the current
@@ -333,21 +335,23 @@ are. </para></listitem>
 <para>
 
 The <emphasis>Director</emphasis> allows you to create fractal movies.
-You first define keyframes (including base keyframes) which are stops in video.
-Then, for each of them, you define for how long they last (<guilabel>duration</guilabel> - in frames),
-how long still image of keyframe will stay in video (<guilabel>stopped for</guilabel>) and interpolation
-type between several possibilities. When you hit <guibutton>Render</guibutton> button,
-Director will render all frames and put them in directory you selected and then it
-will try to create video using
-<ulink url="http://www.transcoding.org/"><emphasis>transcode</emphasis></ulink> tool.
-</para>
+You first define keyframes (including base keyframes) which are stops
+in video.  Then, for each of them, you define for how long they last
+(<guilabel>duration</guilabel> - in frames), how long still image of
+keyframe will stay in video (<guilabel>stopped for</guilabel>) and
+interpolation type between several possibilities. When you hit
+<guibutton>Render</guibutton> button, Director will render all frames
+and put them in directory you selected and then it will try to create
+video using <ulink
+url="http://www.transcoding.org/"><emphasis>transcode</emphasis></ulink>
+tool.  </para>
 
 <para>
 Tips:
 <itemizedlist>
 
 <listitem><para>
-For end up with video file, not just a bunch of images, you need to have
+In order to end up with video file, not just a bunch of images, you need to have
 <emphasis>transcode</emphasis> tool compiled with support for ImageMagick.
 </para></listitem>
 
@@ -477,22 +481,22 @@ controls the function used for points which are part of the set.
 The <emphasis>Location</emphasis> entryboxes allow you to
 change the coordinates of the screen center and the image size. 
 
-The <emphasis>Angles</emphasis> tab allows you to set the rotation
+The <emphasis>Angles</emphasis> entryboxes allows you to set the rotation
 angles. Only values between 0 and 2 * pi are different; values outside
 this range "wrap" to points inside that range.
 </para>
 
-</sect3>
-
-<sect3 id="gradientsdialog">
-<title>Gradients</title>
 <para>
 
-The gradient editor allows you to edit the list of colors used to
-display your fractal. You can choose a canned one from the list on the
-left, then <guibutton>Apply</guibutton> it to the fractal, or edit it
-first. For more complex gradient editing, you can also use the GIMP's
-gradient editor.
+The <emphasis>Transforms</emphasis> page allows you to control a list
+of transformations applied to the image, and any parameters those transforms have.
+</para>
+
+<para>
+
+The <emphasis>Colors<emphasis> tab allows you to edit the list of
+colors used to display your fractal. For more complex gradient
+editing, you can also use the GIMP's gradient editor.
 
 </para>
 </sect3>

@@ -190,12 +190,18 @@ int main()
         pMap->set(0,0.0,255,0,0,0);
         pMap->set(1,1.0,0,255,0,0);
 
+        image *im = new image();
+        im->set_resolution(1,1,-1,-1);
+        rgba_t blue;
+        blue.r = 0; blue.g = 0; blue.b = 255;
+        im->put(0,0,blue);
+        
         for(i = 0; i < 20; ++i) {
             params[i].t = FLOAT;
             params[i].intval = 773;
             params[i].doubleval = 0.0;
             params[i].gradient = pMap;
-            params[i].image = NULL;
+            params[i].image = im;
         };
 
         pf_fake t__f;
@@ -1264,7 +1270,7 @@ endparam
         src = '''t_image {
         init:
         complex zz
-        color black = @foo(zz)
+        color imcolor = @foo(zz)
         default:
         image param foo
         endparam
@@ -1273,8 +1279,8 @@ endparam
         self.assertCSays(
             src,
             "init",
-            self.inspect_color("black"),
-            "black = (0,0,0,1)")
+            self.inspect_color("imcolor"),
+            "imcolor = (0,0,1,1)")
         
     def testCHyper(self):
         'test arithmetic in hypercomplex numbers'

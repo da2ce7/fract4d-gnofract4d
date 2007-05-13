@@ -2155,6 +2155,30 @@ ff_look_vector(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+pyimage_lookup(PyObject *self, PyObject *args)
+{
+    PyObject *pyimage=NULL;
+    double x,y;
+    double r,g,b;
+
+    if(!PyArg_ParseTuple(
+	   args,
+	   "Odd",
+	   &pyimage, &x, &y))
+    {
+	return NULL;
+    }    
+
+    image *i = (image *)PyCObject_AsVoidPtr(pyimage);
+    
+    image_lookup(i,x,y,&r,&g,&b);
+
+    return Py_BuildValue(
+	"(dddd)",
+	r,g,b,1.0);
+}
+
+static PyObject *
 pyrgb_to_hsv(PyObject *self, PyObject *args)
 {
     double r,g,b,a=1.0,h,s,v;
@@ -2273,6 +2297,9 @@ static PyMethodDef PfMethods[] = {
       "Get the color index data from a point on the image"},
     { "image_get_fate", image_get_fate, METH_VARARGS,
       "Get the (solid, fate) info for a point on the image"},
+
+    { "image_lookup", pyimage_lookup, METH_VARARGS,
+      "Get the color of a point on an image"},
 
     { "site_create", pysite_create, METH_VARARGS,
       "Create a new site"},

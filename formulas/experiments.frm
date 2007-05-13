@@ -453,3 +453,26 @@ k=real(p3)+1, l=imag(p3)+100, c=fn1(pixel):
 z=k*((a*(z^b))+(d*(z^f)))+c,
 |z| < l 
 }
+
+T02-01-experiment {
+
+; Dynamic (Euler method)
+;
+; T(n+1) = 2xT(n)-T(n-1)
+; T(0)  = 1
+; T(1)  = x
+;
+; = 2zT01-T00
+
+  float t=real(p1), bailout=4, z=pixel:
+  float x=real(z), float y=imag(z)
+  float Tx=(x+x)*x-@relax
+  float Ty=(y+y)*y-@relax
+  x=x-t*Ty, y=y+t*Tx
+  z=(x,y)
+  |z|<=bailout
+default:
+float param relax
+	default = 1.0
+endparam
+}

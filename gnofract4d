@@ -122,6 +122,14 @@ def suppress_gtk_warnings():
         print exn
         pass
 
+def test_version(major,minor,patch):
+    if major < 2:
+        return False
+    elif major == 2:
+        if minor < 6:
+            return False
+    return True
+
 def gtkmain(options):
     # gtk
     try:
@@ -130,13 +138,11 @@ def gtkmain(options):
         print _("Can't find PyGTK. You need to install it before you can run Gnofract 4D.")
         sys.exit(1)
 
-    # check for pygtk >=1.99
+    # check for pygtk >= 2.6
     pygtk_ok = True
     try:
         (major,minor,patch) = gtk.pygtk_version
-        if major < 2:
-            if minor < 99:
-                pygtk_ok = False
+        pygtk_ok = test_version(major,minor,patch)
         import gobject
 
     except Exception:

@@ -55,6 +55,17 @@ class Test(unittest.TestCase):
         self.failUnless(m,"Desktop file doesn't specify version")
         self.assertEqual(gnofract4d.version,m.group(1), "Version mismatch")
 
+    def testWebsiteVersionMatches(self):
+        if not os.path.exists("website"):
+            # not included in source dist
+            return
+        mkweb = open("website/mkweb.py").read()
+        ver_re = re.compile(r'text="Version (\S+) released.')
+
+        m = ver_re.search(mkweb)
+        self.failUnless(m,"doc doesn't specify version")
+        self.assertEqual(gnofract4d.version,m.group(1), "Version mismatch")
+
     def testGenerateMandelbrot(self):
         if os.path.exists("test.png"):
             os.remove("test.png")
@@ -65,7 +76,16 @@ class Test(unittest.TestCase):
             if os.path.exists("test.png"):
                 os.remove("test.png")
             
+
+    def testVersionChecks(self):
+        self.assertEqual(True, gnofract4d.test_version(2,6,0))
+        self.assertEqual(True, gnofract4d.test_version(2,7,0))
+        self.assertEqual(True, gnofract4d.test_version(3,0,0))
         
+        self.assertEqual(False, gnofract4d.test_version(1,99,0))
+        self.assertEqual(False, gnofract4d.test_version(2,0,0))
+        self.assertEqual(False, gnofract4d.test_version(2,5,0))
+    
 def suite():
     return unittest.makeSuite(Test,'test')
 

@@ -64,7 +64,11 @@ class T:
         available_types = ", ".join(k).upper()
         suggest_string = "Please use one of: " + available_types
         return suggest_string
+
+    def lookup(self,x,y):
+        return fract4dc.image_lookup(self._img,x,y)
     
+
     def file_type(self,name):
         ext = os.path.splitext(name)[1]
         if ext == "":

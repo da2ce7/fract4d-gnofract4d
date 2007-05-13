@@ -63,6 +63,12 @@ class SymbolTest(unittest.TestCase):
         self.assertNotEqual(True,hasattr(f,"param_slot"))
         self.assertEqual(7,t.nextParamSlot)
 
+        v5 = Var(Image,None)
+        self.assertEqual(-1,v5.param_slot)
+        t["@image"] = v5
+        self.assertEqual(7,v5.param_slot)
+        self.assertEqual(8,t.nextParamSlot)
+        
     def testOrderOfParams(self):
         "Are parameters returned in the right order?"
         t = fsymbol.T("f")
@@ -93,6 +99,7 @@ class SymbolTest(unittest.TestCase):
         t["@e"] = Var(Hyper,[1.0,1.0,1.0,1.0])
         t["@f"] = Var(Gradient,None)
         t["@g"] = Var(Color,[0.0,1.0,2.0,3.0])
+        t["@h"] = Var(Image, None)
         
         self.assertEqual(
             [Int,
@@ -101,7 +108,8 @@ class SymbolTest(unittest.TestCase):
              Float,Float,
              Float,Float,Float,Float,
              Gradient,
-             Float,Float,Float,Float],
+             Float,Float,Float,Float,
+             Image],
             t.type_of_params())
     
     def testOrderOfParamsMerges(self):

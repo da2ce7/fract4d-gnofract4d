@@ -1,20 +1,15 @@
 todo:
 
-changes in 3.4:
-* W	support .ugr files
-* W	added blatte*.ugr
-* W	separated color editor and gradient browser
-* B	deepen check was leaving odd pixels set
-* B	clear_in_fates not working properly
-* B	weird lines after deepening
-* BB	browser doesn't always update with current formula
+changes in 3.5:
+* BB	'list index out of range' loading pre-2.0 .fct files
+* W	cut support for Python older than 2.4 and pygtk older than 2.6
+* W	use images in coloring methods
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
 	until antialias, seems to run single-threaded more often than not
 
 * BB	animation colors are screwed
-* BB	animation hangs on FC3?
 * BB	func with a bailout of 1 will never quit and can't be interrupted
 * B	interrupt takes too long on deep-zoomed fractals
 * BB	infinite loops are possible in while loops
@@ -99,7 +94,6 @@ features (the more W's, the more work involved):
 * W	bookmarks
 * WW	import .par files
 * WW	import .upr files
-* W	import ultrafractal gradient (.ugr) files
 * W	tooltips for custom widgets in toolbar
 * W	last-chance exception handler
 * W	formula browser:manage search path (user prefs)
@@ -212,6 +206,15 @@ in return for a look at what I'm generating, (like ElectricSheep).
 
 Requires: above, +able to deal with ad-hoc networks of thousands of peers,
 economic incentive, security, works with NAT
+
+changes in 3.4:
+* W	support .ugr files
+* W	added blatte*.ugr
+* W	separated color editor and gradient browser
+* B	deepen check was leaving odd pixels set
+* B	clear_in_fates not working properly
+* B	weird lines after deepening
+* BB	browser doesn't always update with current formula
 
 changes in 3.3:
 * B 	better error message when no func name to --formula

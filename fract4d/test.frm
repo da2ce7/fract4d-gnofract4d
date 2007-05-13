@@ -96,6 +96,8 @@ endparam
 hyper param h
 	default = (1.0,2.0,3.0,4.0)
 endparam
+image param im
+endparam
 }
 
 test_simpleshape {

@@ -9,11 +9,7 @@ import select
 import errno
 import time
 
-try:
-    import subprocess
-except ImportError:
-    # this python too old - use our backported copy of stdlib file
-    import gf4d_subprocess as subprocess
+import subprocess
 
 def makeNonBlocking(fd):
     fl = fcntl.fcntl(fd, fcntl.F_GETFL)

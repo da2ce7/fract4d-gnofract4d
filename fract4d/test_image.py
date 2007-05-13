@@ -236,7 +236,81 @@ class Test(testbase.TestBase):
         
         buf = im.fate_buffer(5,10)
         self.assertEqual(len(buf),80*60*im.FATE_SIZE - (10*80+5)*im.FATE_SIZE)
-        
+
+    def testLookupOnePixel(self):
+        im = image.T(1,1)
+        rgba = im.lookup(0,0)
+        self.assertEqual((0,0,0,1.0), rgba)
+
+        buf = im.image_buffer()
+        buf[0] = chr(20)
+        buf[1] = chr(80)
+        buf[2] = chr(160)
+
+        rgba = im.lookup(0,0)
+        self.assertEqual((20.0/255.0,80.0/255.0,160.0/255.0,1.0), rgba)
+
+        rgba = im.lookup(0.5,0.5)
+        self.assertEqual((20.0/255.0,80.0/255.0,160.0/255.0,1.0), rgba)
+
+        rgba = im.lookup(-0.5,-0.5)
+        self.assertEqual((20.0/255.0,80.0/255.0,160.0/255.0,1.0), rgba)
+
+        rgba = im.lookup(10.5,-10.5)
+        self.assertEqual((20.0/255.0,80.0/255.0,160.0/255.0,1.0), rgba)
+
+
+    def grey_pixel(self,amount):
+        return (amount,amount,amount,1.0)
+    
+    def testLookupTwoPixels(self):
+        im = image.T(2,1)
+        rgba = im.lookup(0,0)
+        self.assertEqual((0,0,0,1.0), rgba)
+
+        buf = im.image_buffer()
+        buf[0] = chr(0)
+        buf[1] = chr(0)
+        buf[2] = chr(0)
+        buf[3] = chr(255)
+        buf[4] = chr(255)
+        buf[5] = chr(255)
+
+        self.assertEqual(self.grey_pixel(0.5), im.lookup(0,0))
+        self.assertEqual(self.grey_pixel(0.0), im.lookup(0.25,0.25))
+        self.assertEqual(self.grey_pixel(1.0), im.lookup(0.75,0.75))
+
+    def testLookupFourPixels(self):
+        im = image.T(2,2)
+        buf = im.image_buffer()
+        buf[0] = chr(0) # top left = black
+        buf[1] = chr(0)
+        buf[2] = chr(0)
+        buf[3] = chr(255) # top right = red
+        buf[4] = chr(0)
+        buf[5] = chr(0)
+        buf[6] = chr(0) # bottom left = green
+        buf[7] = chr(255)
+        buf[8] = chr(0)
+        buf[9] = chr(255) # bottom right = white
+        buf[10] = chr(255)
+        buf[11] = chr(255)
+
+        # halfway across middle of top pixel = half red
+        self.assertEqual((0.5,0.0,0.0,1.0), im.lookup(0.5,0.25))
+
+        # halfway down left-hand side = half green
+        self.assertEqual((0.0,0.5,0.0,1.0), im.lookup(0.25,0.5))
+
+        # halfway down right-hand side = red/white
+        self.assertEqual((1.0,0.5,0.5,1.0), im.lookup(0.75,0.5))
+
+        # halfway across bottom = green/white
+        self.assertEqual((0.5,1.0,0.5,1.0), im.lookup(0.5,0.75))
+
+        # center = blend of half-red and green/white
+        self.assertEqual((0.5,0.5,0.25,1.0), im.lookup(0.5,0.5))
+
 def suite():
     return unittest.makeSuite(Test,'test')
 
