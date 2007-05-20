@@ -131,6 +131,40 @@ class Test(testbase.TestBase):
         self.assertEqual(fields[0],name)
         self.assertEqual(fields[1],format)
         self.assertEqual(fields[2],"640x400")
+
+    def createTestImage(self):
+        # image is [ black, white, green, red]
+        im = image.T(2,2)
+        buf = im.image_buffer()
+        buf[3] = buf[4] = buf[5] = chr(255) # white
+        buf[7] = chr(255) # green
+        buf[9] = chr(255) # red
+        return im
+
+    def saveTestImage(self,filename):
+        im = self.createTestImage()
+        im.save(filename)
+        
+    def testLoadPNG(self):
+        try:
+            f = "test.png"
+            self.saveTestImage(f)
+            self.doTestLoad(f)
+        finally:
+            pass #if os.path.exists(f): os.remove(f)
+            
+    def testLoadBadType(self):
+        self.assertRaises(ValueError,self.doTestLoad,"foo.xxx")
+
+    def testLoadMissing(self):
+        self.assertRaises(
+            IOError, self.doTestLoad,"nonexistent.tga")
+                
+    def doTestLoad(self,file):
+        im = image.T(1,1)
+        im.load(file)
+        cmp_image = self.createTestImage()
+        self.assertImagesEqual(im, cmp_image)
         
     def doTestSave(self,ext,format):
         f1 = "save1.%s" % ext
@@ -311,6 +345,9 @@ class Test(testbase.TestBase):
         # center = blend of half-red and green/white
         self.assertEqual((0.5,0.5,0.25,1.0), im.lookup(0.5,0.5))
 
+    def assertImagesEqual(self,im1,im2):
+        self.assertEqual(im1.xsize, im2.xsize)
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 

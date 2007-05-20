@@ -88,6 +88,11 @@ class T:
         self.save_tile()
         self.finish_save()
 
+    def load(self,name):
+        type = self.file_type(name)
+        fp = open(name,"rb")
+        fract4dc.image_read(self._img, fp,type)
+        
     def start_save(self,name):
         try:
             self.fp = open(name, "wb")

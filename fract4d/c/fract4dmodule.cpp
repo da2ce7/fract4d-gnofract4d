@@ -1824,6 +1824,52 @@ image_writer_create(PyObject *self,PyObject *args)
 }
 
 static PyObject *
+image_read(PyObject *self,PyObject *args)
+{
+    PyObject *pyim;
+    PyObject *pyFP;
+    int file_type;
+    if(!PyArg_ParseTuple(args,"OOi",&pyim,&pyFP,&file_type))
+    {
+	return NULL;
+    }
+
+    if(!PyFile_Check(pyFP))
+    {
+	return NULL;
+    }
+
+    image *i = (image *)PyCObject_AsVoidPtr(pyim);
+
+    FILE *fp = PyFile_AsFile(pyFP);
+
+    if(!fp || !i)
+    {
+	PyErr_SetString(PyExc_ValueError, "Bad arguments");
+	return NULL;
+    }
+    
+    ImageReader *reader = ImageReader::create((image_file_t)file_type, fp, i);
+    //if(!reader->ok())
+    //{
+    //	PyErr_SetString(PyExc_IOError, "Couldn't create image reader");
+    //	delete reader;
+    //	return NULL;
+    //}
+
+    if(!reader->read())
+    {
+	PyErr_SetString(PyExc_IOError, "Couldn't read image contents");
+	delete reader;
+	return NULL;
+    }
+    delete reader;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 image_save_header(PyObject *self,PyObject *args)
 {
     PyObject *pyimwriter;
@@ -2295,6 +2341,9 @@ static PyMethodDef PfMethods[] = {
       "save an image fragment ('tile') - useful for render-to-disk"},
     { "image_save_footer", image_save_footer, METH_VARARGS,
       "save the final footer info for an image - useful for render-to-disk"},
+
+    { "image_read", image_read, METH_VARARGS,
+      "read an image in from disk"},
 
     { "image_buffer", image_buffer, METH_VARARGS,
       "get the rgb data from the image"},

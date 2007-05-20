@@ -124,5 +124,36 @@ public:
     };
 };
 
+class ImageReader
+{
+public:
+    virtual ~ImageReader() {};
+    static ImageReader *create(
+	image_file_t type, FILE *fp, IImage *image);
+
+    virtual bool read_header() = 0;
+    virtual bool read_tile() = 0;
+    virtual bool read_footer() = 0;
+
+    bool read() 
+    {
+	if(!read_header())
+	{
+	    return false;
+	}
+	if(!read_tile())
+	{
+	    return false;
+	}
+	
+	if(!read_footer())
+	{
+	    return false;
+	}
+	
+	return true;       	
+    };
+};
+
 #endif /* IMAGE_PUBLIC_H_ */
 

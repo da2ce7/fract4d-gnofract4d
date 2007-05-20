@@ -17,6 +17,20 @@ protected:
     IImage *im;
 };
 
+class image_reader : public ImageReader
+{
+public:
+    virtual ~image_reader() {};
+protected:
+    image_reader(FILE *fp_, IImage *image_) {
+	fp = fp_;
+	im = image_;
+    }
+
+    FILE *fp;
+    IImage *im;
+};
+
 class tga_writer : public image_writer 
 {
 public:
@@ -258,6 +272,132 @@ ImageWriter::create(image_file_t file_type, FILE *fp, IImage *image)
     case FILE_TYPE_JPG:
 	return new jpg_writer(fp, image);
 #endif	
+    }
+    return NULL; // unknown file type
+}
+
+#ifdef PNG_ENABLED
+extern "C" {
+#include "png.h"
+}
+
+
+void 
+user_error_fn(png_structp png_ptr, png_const_charp error_msg)
+{
+    printf("Error %s reading PNG file", error_msg);
+}
+
+void 
+user_warning_fn(png_structp png_ptr, png_const_charp warning_msg)
+{
+    printf("Warning %s reading PNG file", warning_msg);
+}
+
+class png_reader : public image_reader 
+{
+public:
+    png_reader(FILE *fp, IImage *image) : image_reader(fp,image) {
+	ok = false;
+
+	png_ptr = png_create_read_struct(
+	    PNG_LIBPNG_VER_STRING,
+	    NULL, user_error_fn, user_warning_fn);
+	
+	if(png_ptr == NULL)
+	{
+	    return;
+	}
+	
+	info_ptr = png_create_info_struct(png_ptr);
+	if (info_ptr == NULL)
+	{
+	    png_destroy_read_struct(&png_ptr, png_infopp_NULL, png_infopp_NULL);
+	    return;
+	}
+
+	png_init_io(png_ptr, fp);
+
+	printf("Init went OK\n");
+	ok = true;
+    };
+    ~png_reader() {
+	printf("shutdown\n");
+	if(ok)
+	{
+	    png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
+	}
+    }
+
+    bool read_header();
+    bool read_tile();
+    bool read_footer();
+
+private:
+    bool ok;
+    png_structp png_ptr;
+    png_infop info_ptr;
+};
+
+
+bool
+png_reader::read_header()
+{
+    png_uint_32 width, height;
+    int bit_depth, color_type, interlace_type;
+    
+    printf("read PNG info\n");
+    png_read_info(png_ptr, info_ptr);
+    
+    printf("get IHDR\n");
+    png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
+		 &interlace_type, int_p_NULL, int_p_NULL);
+
+    printf("set res(%d,%d)\n",width,height);
+    if(!im->set_resolution(width, height, -1, -1))
+    {
+	return false;
+    }
+
+    return true;
+}
+
+bool 
+png_reader::read_tile()
+{
+    int number_passes = png_set_interlace_handling(png_ptr);
+
+    for (int pass = 0; pass < number_passes; pass++)
+    {
+	for (int y = 0; y < im->Yres(); y++)
+	{
+	    png_bytep row = (png_bytep)(im->getBuffer() + im->row_length() * y); 
+	    png_read_rows(png_ptr, &row, png_bytepp_NULL, 1);
+	}
+    }
+    return true;
+}
+
+bool
+png_reader::read_footer()
+{
+    printf("read end\n");
+    png_read_end(png_ptr, info_ptr);
+    printf("finished reading\n");
+    return true;
+}
+#endif
+
+ImageReader *
+ImageReader::create(image_file_t file_type, FILE *fp, IImage *image)
+{
+    printf("Creating reader for type %d\n", file_type);
+    switch(file_type)
+    {
+#ifdef PNG_ENABLED
+    case FILE_TYPE_PNG:
+	return new png_reader(fp, image);
+#endif
     }
     return NULL; // unknown file type
 }
