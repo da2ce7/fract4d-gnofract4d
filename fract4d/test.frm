@@ -404,3 +404,10 @@ init:
 	float l = 0 * f
 	float r = f * 1
 }
+
+ident {
+init:
+	#z = #pixel
+bailout:
+	0
+}

@@ -1057,3 +1057,11 @@ loop:
 	plot(#z)
 }
 	
+Image {
+final:
+	#color = @image(#z)
+default:
+image param @image
+endparam
+}
+

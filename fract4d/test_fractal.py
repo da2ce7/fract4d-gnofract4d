@@ -1392,6 +1392,15 @@ solids=[
         f = fractal.T(self.compiler)
         f.set_compiler_option("optimize", 1)
         self.assertEqual({"optimize" : 1 } , f.compiler_options)
+
+    def testImage(self):
+        f = fractal.T(self.compiler)
+        f.set_formula("test.frm", "ident")
+        f.set_inner("test.cfrm", "image")
+        f.compile()
+        im = image.T(30,30)
+        f.draw(im)
+        im.save("foo.tga")
         
     def testDetermineDirection(self):
         f = fractal.T(self.compiler)
@@ -1402,7 +1411,7 @@ solids=[
         self.tryDirections(f,fractal.BLEND_CCW, [False]*5)
 
         self.assertRaises(ValueError,f.determine_direction,0,math.pi,77)
-        
+
     def tryDirections(self, f, mode, expected):        
         self.assertEqual(
             expected[0],

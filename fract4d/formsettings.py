@@ -8,6 +8,7 @@ import StringIO
 
 import fracttypes
 import gradient
+import image
 
 # matches a complex number
 cmplx_re = re.compile(r'\((.*?),(.*?)\)')
@@ -45,7 +46,15 @@ class T:
         for i in xrange(len(self.paramtypes)):
             if self.paramtypes[i] == fracttypes.Gradient:
                 self.params[i] = copy.copy(g)
-
+            elif self.paramtypes[i] == fracttypes.Image:
+                im = image.T(2,2)
+                b = im.image_buffer()
+                b[0] = chr(216)
+                b[3] = chr(88)
+                b[4] = chr(192)
+                b[11] = chr(255)
+                self.params[i] = im 
+                
     def reset_params(self):
         self.params = self.formula.symbols.default_params()
         self.paramtypes = self.formula.symbols.type_of_params()

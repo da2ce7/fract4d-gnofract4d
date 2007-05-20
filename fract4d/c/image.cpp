@@ -325,7 +325,7 @@ image_lookup(void *vim, double x, double y, double *pr, double *pg, double *pb)
     {
 	*pr = 0.0;
 	*pb = 0.0;
-	*pg = 0.0;
+	*pg = 1.0;
 	return;
     }
 

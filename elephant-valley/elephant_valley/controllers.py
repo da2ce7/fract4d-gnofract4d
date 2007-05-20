@@ -19,7 +19,7 @@ class Fractals(controllers.Controller):
             return "no such user: %s" % uid
         email = users[0].email_address
         fractals = model.Fractal.selectBy(ownerID=email)
-        return dict(user=uid,fractals=fractals,image=None)
+        return dict(user=uid,fractals=list(fractals),image=None)
     
 class Root(controllers.RootController):
     @expose(template="elephant_valley.templates.welcome")

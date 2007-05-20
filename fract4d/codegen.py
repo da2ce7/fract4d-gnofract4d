@@ -685,6 +685,8 @@ extern pf_obj *pf_new(void);
     
     def output_section(self,t,section):
         self.out = []
+        #print "output: %s => %s" % ( \
+        #    section,[x.pretty() for x in t.canon_sections[section]])
         self.generate_all_code(t.canon_sections[section])
         self.emit_label("t__end_%s%s" % (t.symbols.prefix, section))
         t.output_sections[section] = self.out

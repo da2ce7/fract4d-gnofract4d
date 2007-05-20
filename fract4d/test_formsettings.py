@@ -151,12 +151,9 @@ class Test(unittest.TestCase):
         self.assertEqual(a + 4 * 0.025, fs1.params[1])
         self.assertEqual(b + 2 * 0.025, fs1.params[2])
 
-    def testDefaults(self):
+    def testAllTypesBasic(self):
         fs1 = formsettings.T(g_comp)
         fs1.set_formula("test.frm","test_all_types",g_grad)
-
-        print fs1.params
-        print fs1.paramtypes
         
     def testInitValue(self):
         fs1 = formsettings.T(g_comp)
@@ -170,7 +167,7 @@ class Test(unittest.TestCase):
                          fs1.initvalue("@h"))
 
         self.assertEqual("warp",fs1.initvalue("@c","@c"))
-        self.assertEqual(None, fs1.initvalue("@im"))
+        self.assertEqual("[\n]", fs1.initvalue("@im"))
 
         
     def testSetNamedParam(self):

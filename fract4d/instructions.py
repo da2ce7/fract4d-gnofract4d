@@ -2,7 +2,7 @@
 
 import string
 
-from fracttypes import Bool, Int, Float, Complex, Hyper, Color
+from fracttypes import Bool, Int, Float, Complex, Hyper, Color, Gradient, Image
 from fracttypes import TranslationError, typeObjectList
 
 class ComplexArg:
@@ -64,7 +64,7 @@ class ConstIntArg(ConstArg):
         return self.value == 1
     def is_zero(self):
         return self.value == 0
-    
+
 class TempArg:
     def __init__(self,value,type):
         self.value = value
@@ -77,7 +77,7 @@ class TempArg:
         return "Temp(%s)" % self.format()
     
 def create_arg_from_val(type,val):
-    if type == Int or type == Bool:
+    if type == Int or type == Bool or type == Image:
         return ConstIntArg(val)
     elif type == Float:
         return ConstFloatArg(val)

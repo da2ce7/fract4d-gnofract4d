@@ -454,6 +454,14 @@ parse_params(PyObject *pyarray, int *plen)
 		//printf("%d = gradient(%p)\n",i,params[i].gradient);
 		Py_DECREF(pycob);
 	    }
+	    else if(
+		PyObject_HasAttrString(pyitem,"_img"))
+	    {
+		PyObject *pycob = PyObject_GetAttrString(pyitem,"_img");
+		params[i].t = PARAM_IMAGE;
+		params[i].image = PyCObject_AsVoidPtr(pycob);
+		Py_DECREF(pycob);
+	    }
 	    else
 	    {
 		Py_XDECREF(pyitem);

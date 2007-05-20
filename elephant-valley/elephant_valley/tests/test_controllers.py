@@ -21,50 +21,26 @@ def teardown_func():
 
 cherrypy.root = Root()
 
-def test_get_fractals():
-    fractals = cherrypy.root.get_fractals()
-    val = [x.title for x in fractals]
-    assert ['a', 'b', "bert's fractal" ] == val, "unexpected list of fractals %s" % val
+class TestBaseDicts(object):
+    def test_get_fractals(self):
+        fractals = cherrypy.root.get_fractals()
+        val = [x.title for x in fractals]
+        assert ['a', 'b', "bert's fractal" ] == val, \
+               "unexpected list of fractals %s" % val
     
-def test_index_method():
-    "the index method should return a string called now"
-    import types
-    result = testutil.call(cherrypy.root.index)
-    assert type(result["now"]) == types.StringType
-    assert result.get("fractal_titles") != None
+    def test_index_method(self):
+        "the index method should return a string called now"
 
-    titles = result.get("fractal_titles")
-    assert titles.count("a") == 1, "wibble not found in %s" % titles
-    
-test_index_method = with_setup(teardown=teardown_func)(test_index_method)
+        result = testutil.call(cherrypy.root.index)
+        assert result.get("now") != None
+        assert result.get("fractal_titles") != None
 
-def test_indextitle():
-    "The indexpage should have the right title"
-    testutil.createRequest("/")
-    assert cherrypy.response.status == "200 OK", cherrypy.response.status
-    assert "<title>Elephant Valley: A Fractal Gallery</title>" in cherrypy.response.body[0]
-test_indextitle = with_setup(teardown=teardown_func)(test_indextitle)
+        titles = result.get("fractal_titles")
+        assert titles.count("a") == 1, "wibble not found in %s" % titles
 
-def test_more():
-    testutil.createRequest("/more")
-    assert cherrypy.response.status == "200 OK", cherrypy.response.status
-    assert "<title>About Elephant Valley</title>" in cherrypy.response.body[0]
-test_more = with_setup(teardown=teardown_func)(test_more)
+    def test_fractals_bert(self):
+        result = testutil.call(cherrypy.root.fractals.default,uid="bert")
 
-def test_logintitle():
-    "login page should have the right title"
-    testutil.createRequest("/login")
-    assert "<title>Login</title>" in cherrypy.response.body[0]
-test_logintitle = with_setup(teardown=teardown_func)(test_logintitle)
-
-def test_fractals():
-    testutil.createRequest("/fractals/bert")
-    assert cherrypy.response.status == "200 OK", cherrypy.response.status
-    assert "<title>Fractals by bert</title>" in cherrypy.response.body[0]
-    assert "bert's fractal" in cherrypy.response.body[0]
-
-    testutil.createRequest("/fractals/fred")
-    assert cherrypy.response.status == "200 OK", cherrypy.response.status
-    assert "<title>Fractals by fred</title>" in cherrypy.response.body[0]
-    assert "a" in cherrypy.response.body[0]
+        assert result["user"]=="bert"
+        
     

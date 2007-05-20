@@ -177,4 +177,5 @@ class T:
     def get_color_index(self,x,y,sub=0):
         return fract4dc.image_get_color_index(self._img,x,y,sub)
     
-    
+    def serialize(self):
+        return ""

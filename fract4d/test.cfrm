@@ -103,3 +103,10 @@ default:
   endparam
 }
 
+image {
+final:
+	#color = @image(#z)
+default:
+image param @image
+endparam
+}
