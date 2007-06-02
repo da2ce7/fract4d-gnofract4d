@@ -4,6 +4,7 @@ changes in 3.5:
 * BB	'list index out of range' loading pre-2.0 .fct files
 * W	cut support for Python older than 2.4 and pygtk older than 2.6
 * W	use images in coloring methods
+* B	fix default compiler options for mac os x
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

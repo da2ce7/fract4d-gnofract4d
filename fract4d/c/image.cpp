@@ -321,7 +321,7 @@ blend(
 void
 image_lookup(void *vim, double x, double y, double *pr, double *pg, double *pb)
 {
-    if(NULL == vim || x != x || y != y) // check for no image or NaN
+    if(NULL == vim || !finite(x) || !finite(y)) // check for no image or NaN
     {
 	*pr = 0.0;
 	*pb = 0.0;

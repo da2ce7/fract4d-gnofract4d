@@ -347,7 +347,15 @@ class Test(testbase.TestBase):
 
     def assertImagesEqual(self,im1,im2):
         self.assertEqual(im1.xsize, im2.xsize)
-        
+        self.assertEqual(im1.ysize, im2.ysize)
+
+        buf1 = im1.image_buffer()
+        buf2 = im2.image_buffer()
+
+        for i in xrange(len(buf1)):
+            self.assertEqual(
+                buf1[i], buf2[i], "Difference at %d: %d != %d" % \
+                (i, ord(buf1[i]), ord(buf2[i])))
 def suite():
     return unittest.makeSuite(Test,'test')
 

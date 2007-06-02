@@ -1065,3 +1065,67 @@ image param @image
 endparam
 }
 
+ColorTrail {
+init:
+color c = rgb(0,0,0)
+loop:
+	c = (c + @image(#z))/2.0
+final:
+	#color = c
+default:
+image param @image
+endparam
+}
+
+ColorJulia {
+init:
+color c = rgb(0,0,0)
+cz = #pixel
+loop:
+	cz = cz * cz + #zwpixel
+final:
+	#color = @image(cz)
+default:
+image param @image
+endparam
+}
+
+SlowTrail {
+; color point follows the orbit point, but more and more slowly
+init:
+cz = #zwpixel
+lastz = #zwpixel
+loop:
+	dz = z - lastz
+	cz = cz + dz * @factor * (#numiter/#maxiter)
+	lastz = z
+final:
+	#color = @image(cz)
+default:
+image param @image
+endparam
+float param @factor
+	default = 100.0
+endparam
+}  
+
+SmoothImage {
+; color point follows the orbit point, but more and more slowly
+init:
+cz = #zwpixel
+lastz = (0,0)
+color lastcolor = rgb(0,0,0)
+loop:
+	lastcolor = @image(lastz)
+	lastz = z
+final:
+	float ed = @bailout/(|z| + 1.0e-9) 
+	#color = blend(@image(z),lastcolor,ed)
+default:
+image param @image
+endparam
+float param bailout
+	default = 4.0
+endparam
+
+}  

@@ -8,11 +8,11 @@ class T(ConfigParser.ConfigParser):
         _shared_formula_dir = os.path.join(
             sys.exec_prefix, "share/gnofract4d/formulas")
         _shared_map_dir = os.path.join(
-            sys.exec_prefix, "share/gnofract4d/maps")
+            sys.exec_prefix, "share/gnofract4d/maps")        
         _defaults = {
             "compiler" : {
               "name" : "gcc",
-              "options" : "-fPIC -DPIC -D_REENTRANT -O2 -shared -ffast-math",
+              "options" : self.get_default_compiler_options()
             },
             "optimize" : {
               "peephole" : "1"
@@ -94,7 +94,15 @@ class T(ConfigParser.ConfigParser):
 
     def get_default_browser(self):
         return "mozilla %s"
-    
+
+    def get_default_compiler_options(self):
+        if sys.platform[:6] == "darwin":
+            # Mac OS X, as suggested by JB Langston
+            return "-fPIC -DPIC -D_REENTRANT -O2 -dynamiclib -flat_namespace -undefined suppress -ffast-math"
+        else:
+            # appears to work for most unixes
+            return "-fPIC -DPIC -D_REENTRANT -O2 -shared -ffast-math"
+        
     def set(self,section,key,val):
         if self.has_section(section) and \
            self.has_option(section,key) and \

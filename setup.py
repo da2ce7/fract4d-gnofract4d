@@ -11,7 +11,7 @@ import sys
 gnofract4d_version = "3.4"
 
 if float(sys.version[:3]) < 2.4:
-    print "Sorry, you need python 2.4 or higher to run Gnofract 4D."
+    print "Sorry, you need Python 2.4 or higher to run Gnofract 4D."
     print "You have version %s. Please upgrade." % sys.version
     sys.exit(1)
 
@@ -89,7 +89,7 @@ module1 = Extension(
     'fract4d/c/STFractWorker.cpp',
     'fract4d/c/MTFractWorker.cpp',
     'fract4d/c/image.cpp',
-    'fract4d/c/imageWriter.cpp'
+    'fract4d/c/imageIO.cpp'
     ],
     include_dirs = [
     'fract4d/c'
