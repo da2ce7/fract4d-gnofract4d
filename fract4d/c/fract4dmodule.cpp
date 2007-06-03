@@ -31,6 +31,13 @@
 
 #define CMAP_NAME "/fract4d_stdlib.so"
 
+#ifdef USE_GMP
+#define MODULE_NAME "fract4dcgmp"
+#include "gmp.h"
+#else
+#define MODULE_NAME "fract4dc"
+#endif
+
 /* 
  * pointfuncs
  */
@@ -2395,10 +2402,18 @@ static PyMethodDef PfMethods[] = {
 };
 
 extern "C" PyMODINIT_FUNC
+#ifdef USE_GMP
+initfract4dcgmp(void)
+#else
 initfract4dc(void)
+#endif
 {
-    pymod = Py_InitModule("fract4dc", PfMethods);
+    pymod = Py_InitModule(MODULE_NAME, PfMethods);
 
+#ifdef USE_GMP
+    mpf_t x;
+    mpf_init(x);
+#endif
     /* expose some constants */
     PyModule_AddIntConstant(pymod, "CALC_DONE", GF4D_FRACTAL_DONE);
     PyModule_AddIntConstant(pymod, "CALC_CALCULATING", GF4D_FRACTAL_CALCULATING);

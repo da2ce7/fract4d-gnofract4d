@@ -13,7 +13,8 @@ class my_build_ext (build_ext):
     user_options = build_ext.user_options
     def __init__(self, dict):
         build_ext.__init__(self,dict)
-
+        self._build_temp = None
+        
     def build_extensions(self):
         # python2.2 doesn't honor these, so we have to sneak them in
         cxx = os.environ.get("CXX")

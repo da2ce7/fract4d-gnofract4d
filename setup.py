@@ -74,14 +74,14 @@ else:
     print "NO JPEG HEADERS FOUND"
     jpg_libs = []
 
+have_gmp = os.path.isfile("/usr/include/gmp.h")
+
 # use currently specified compilers, not ones from when Python was compiled
 # this is necessary for cross-compilation
 compiler = os.environ.get("CC","gcc")
 cxxcompiler = os.environ.get("CXX","g++")
 
-module1 = Extension(
-    'fract4d.fract4dc',
-    sources = [
+fract4d_sources = [
     'fract4d/c/fract4dmodule.cpp',
     'fract4d/c/cmap.cpp',
     'fract4d/c/pointFunc.cpp',
@@ -90,7 +90,50 @@ module1 = Extension(
     'fract4d/c/MTFractWorker.cpp',
     'fract4d/c/image.cpp',
     'fract4d/c/imageIO.cpp'
+    ]
+
+# this is a hack to build 2 versions of the same extension.
+# we want to create a standard fract4dc which doesn't depend on gmp
+# and a second fract4dcgmp which does. These are both built from the
+# same source files but in the latter case with USE_GMP defined
+# This is so I can ship a single binary for gnofract4d which supports
+# both users with GMP and users without it, by conditionally loading
+# the appropriate extension
+fract4d_gmp_sources = []
+if(have_gmp):
+    for sourcefile in fract4d_sources:
+        # this particular part of the hack is so that each file gets
+        # compiled twice
+        gmp_sourcefile = sourcefile.replace(".cpp","_gmp.cpp")
+        os.system("cp %s %s" % (sourcefile, gmp_sourcefile))
+        fract4d_gmp_sources.append(gmp_sourcefile)
+
+module_gmp = Extension(
+    'fract4d.fract4dcgmp',
+    sources = fract4d_gmp_sources,
+    include_dirs = [
+    'fract4d/c'
     ],
+    libraries = [
+    'stdc++', 'gmp'
+    ] + jpg_libs,
+    extra_compile_args = [
+    '-O0',
+    '-Wall',
+    ] + png_flags,
+    extra_link_args = png_libs,
+    define_macros = [ ('_REENTRANT',1),
+                      #('NO_CALC', 1),
+                      #('DEBUG_CREATION',1),
+                      ('USE_GMP',1)
+                      ] + extra_macros,
+    undef_macros = [ 'NDEBUG']
+    
+    )
+
+module_fract4dc = Extension(
+    'fract4d.fract4dc',
+    sources = fract4d_sources,
     include_dirs = [
     'fract4d/c'
     ],
@@ -125,7 +168,7 @@ module_cmap = Extension(
     define_macros = [ ('_REENTRANT', 1)]
     )
 
-module2 = Extension(
+module_gui = Extension(
     'fract4dgui.fract4dguic',
     sources = [
     'fract4dgui/c/guicmodule.cpp',
@@ -144,7 +187,11 @@ module2 = Extension(
                       ] + extra_macros,
     undef_macros = [ 'NDEBUG']    
     )
-
+    
+modules = [module_fract4dc, module_cmap, module_gui]
+if have_gmp:
+    modules.append(module_gmp)
+    
 def get_files(dir,ext):
     return [ os.path.join(dir,x) for x in os.listdir(dir) if x.endswith(ext)] 
 
@@ -162,7 +209,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
        keywords = "fractal Mandelbrot Julia fractint chaos",
        url = 'http://gnofract4d.sourceforge.net/',
        packages = ['fract4d', 'fract4dgui', 'fractutils', 'buildtools'],
-       ext_modules = [module1, module_cmap, module2],
+       ext_modules = modules,
        scripts = ['gnofract4d'],
        data_files = [
            # color maps
@@ -219,7 +266,8 @@ so_extension = distutils.sysconfig.get_config_var("SO")
 lib_targets = {
     "fract4dguic" + so_extension : "fract4dgui",
     "fract4dc" + so_extension : "fract4d",
-    "fract4d_stdlib" + so_extension : "fract4d"
+    "fract4d_stdlib" + so_extension : "fract4d",
+    "fract4dcgmp" + so_extension : "fract4d"
     }
 
 def copy_libs(dummy,dirpath,namelist):
