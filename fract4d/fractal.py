@@ -10,7 +10,11 @@ import math
 import copy
 import random
 
-import fract4dc
+try:
+    import fract4dcgmp as fract4dc
+except ImportError, err:
+    import fract4dc
+
 import fracttypes
 import gradient
 import image
@@ -928,10 +932,6 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
         self.saved = True
         
 if __name__ == '__main__':
-    import sys
-    import fc
-    import fract4dc
-
     g_comp = fc.Compiler()
     g_comp.add_func_path("formulas")
     g_comp.add_func_path("../formulas")

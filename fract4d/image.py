@@ -3,7 +3,10 @@
 
 import os
 
-import fract4dc
+try:
+    import fract4dcgmp as fract4dc
+except ImportError, err:
+    import fract4dc
 
 file_types = {
     ".jpg" : fract4dc.FILE_TYPE_JPG,
