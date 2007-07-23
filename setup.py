@@ -74,7 +74,8 @@ else:
     print "NO JPEG HEADERS FOUND"
     jpg_libs = []
 
-have_gmp = os.path.isfile("/usr/include/gmp.h")
+#not ready yet. 
+have_gmp = False # os.path.isfile("/usr/include/gmp.h")
 
 # use currently specified compilers, not ones from when Python was compiled
 # this is necessary for cross-compilation
@@ -109,6 +110,14 @@ if(have_gmp):
         fract4d_gmp_sources.append(gmp_sourcefile)
 
 module_gmp = Extension(
+    'fract4d.gmpy',
+    sources = [
+    'fract4d/gmpy/gmpy.c'
+    ],
+    libraries = ['gmp']
+    )
+
+module_fract4dgmp = Extension(
     'fract4d.fract4dcgmp',
     sources = fract4d_gmp_sources,
     include_dirs = [
@@ -118,7 +127,6 @@ module_gmp = Extension(
     'stdc++', 'gmp'
     ] + jpg_libs,
     extra_compile_args = [
-    '-O0',
     '-Wall',
     ] + png_flags,
     extra_link_args = png_libs,
@@ -141,7 +149,6 @@ module_fract4dc = Extension(
     'stdc++' 
     ] + jpg_libs,
     extra_compile_args = [
-    '-O0',
     '-Wall',
     ] + png_flags,
     extra_link_args = png_libs,
@@ -190,6 +197,7 @@ module_gui = Extension(
     
 modules = [module_fract4dc, module_cmap, module_gui]
 if have_gmp:
+    modules.append(module_fract4dgmp)
     modules.append(module_gmp)
     
 def get_files(dir,ext):
@@ -267,7 +275,8 @@ lib_targets = {
     "fract4dguic" + so_extension : "fract4dgui",
     "fract4dc" + so_extension : "fract4d",
     "fract4d_stdlib" + so_extension : "fract4d",
-    "fract4dcgmp" + so_extension : "fract4d"
+    "fract4dcgmp" + so_extension : "fract4d",
+    "gmpy" + so_extension: "fract4d"
     }
 
 def copy_libs(dummy,dirpath,namelist):

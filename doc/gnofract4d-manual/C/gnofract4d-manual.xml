@@ -268,7 +268,7 @@ and see what it's found when you return, or guide it by clicking on
 parts you like as it goes. It'll stop when the image reaches the
 minimum size, which is set by default to stop just before you get to
 the limits of the precision &gf4d; offers.
-  </para>
+</para>
 
 </sect3>
 
@@ -1211,7 +1211,7 @@ http://gnofract4d.sourceforge.net/</ulink>.
 <title>Credits and copyright</title>
 
 <para>
-&gf4d; is Copyright 1999-2006 Tim Whidbey <ulink
+&gf4d; is Copyright 1999-2007 Tim Whidbey <ulink
 url="mailto:catenary@users.sourceforge.net">(catenary@users.sourceforge.net)
 </ulink>, and is distributed under the <emphasis>BSD
 license</emphasis>.  See the file "COPYING" for details. 
@@ -1251,14 +1251,19 @@ permission of Frederik Slijkerman, Damien Jones, and Kerry Mitchell.
 <ulink url="http://exoteric.roach.org/">'Blatte'</ulink>.
 </para>
 
+
 <para>
-<filename>subprocess.py</filename> is taken unchanged from the Python
-2.4 standard library (I didn't want to rely altogether on 2.4) and
-distributed under the same terms as Python.  </para>
+<filename>gmpy.c</filename> and <filename>gmpy.h</filename> are from
+the GMPY package (http://gmpy.sf.net), and are distributed under the
+LGPL license.  </para>
 
 <para>
 <filename>lex.py</filename> and <filename>yacc.py</filename> come from
 the PLY package, and are distributed under the LGPL license. </para>
+
+<para>
+The man page was contributed by Aleksander Adamowski.
+</para>
 
 </sect2>
 

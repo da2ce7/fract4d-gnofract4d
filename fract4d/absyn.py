@@ -6,6 +6,8 @@ import string
 import fracttypes
 import re
 
+from ffloat import Float
+
 class Node:
     def __init__(self,type,pos,children=None,leaf=None,datatype=None):
          self.type = type
@@ -126,15 +128,10 @@ def SetType(id,t,pos):
 def Number(n,pos):
     if re.search('[.eE]',n):
         t = fracttypes.Float
-        n = string.atof(n)
+        n = Float(n)
     else:
-        try: 	 
-            t = fracttypes.Int
-            n = string.atoi(n)
-        except ValueError: 	 
-            # too large for an int	 
-            t = fracttypes.Float 	 
-            n = string.atof(n)
+        t = fracttypes.Int
+        n = string.atoi(n)
 
     return Node("const", pos, None, n, t)
 

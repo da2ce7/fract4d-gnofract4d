@@ -26,7 +26,7 @@ import test_options
 import test_cache
 import test_browser_model
 import test_formsettings
-import test_f
+import test_ffloat
 #import test_stdlib
 
 def suite():
@@ -56,7 +56,7 @@ def suite():
     test_cache.suite(),
     test_browser_model.suite(),
     test_formsettings.suite(),
-    test_f.suite()
+    test_ffloat.suite()
 	#test_stdlib.suite()
     ))
 

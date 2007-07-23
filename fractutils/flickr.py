@@ -281,7 +281,8 @@ def encode_multipart_formdata(fields, files):
         print "unicode error", str(err)
         for x in L:
             print x.__class__
-            print "%x" % ord(x[0])
+            if len(x) > 0:
+                print "%x" % ord(x[0])
             print x[:100]
         raise 
     content_type = 'multipart/form-data; boundary=%s' % BOUNDARY

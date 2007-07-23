@@ -318,11 +318,11 @@ public:
 
 	png_init_io(png_ptr, fp);
 
-	printf("Init went OK\n");
+	//printf("Init went OK\n");
 	ok = true;
     };
     ~png_reader() {
-	printf("shutdown\n");
+	//printf("shutdown\n");
 	if(ok)
 	{
 	    png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
@@ -346,14 +346,14 @@ png_reader::read_header()
     png_uint_32 width, height;
     int bit_depth, color_type, interlace_type;
     
-    printf("read PNG info\n");
+    //printf("read PNG info\n");
     png_read_info(png_ptr, info_ptr);
     
-    printf("get IHDR\n");
+    //printf("get IHDR\n");
     png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
 		 &interlace_type, int_p_NULL, int_p_NULL);
 
-    printf("set res(%d,%d)\n",width,height);
+    //printf("set res(%d,%d)\n",width,height);
     if(!im->set_resolution(width, height, -1, -1))
     {
 	return false;
@@ -381,9 +381,9 @@ png_reader::read_tile()
 bool
 png_reader::read_footer()
 {
-    printf("read end\n");
+    //printf("read end\n");
     png_read_end(png_ptr, info_ptr);
-    printf("finished reading\n");
+    //printf("finished reading\n");
     return true;
 }
 #endif
@@ -391,7 +391,7 @@ png_reader::read_footer()
 ImageReader *
 ImageReader::create(image_file_t file_type, FILE *fp, IImage *image)
 {
-    printf("Creating reader for type %d\n", file_type);
+    //printf("Creating reader for type %d\n", file_type);
     switch(file_type)
     {
 #ifdef PNG_ENABLED
