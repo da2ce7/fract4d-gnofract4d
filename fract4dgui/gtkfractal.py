@@ -651,6 +651,9 @@ class T(Hidden):
         elif param.type == fracttypes.Color:
             widget = self.make_color_widget(
                 table,i,form,name,param,order)
+        elif param.type == fracttypes.Image:
+            # skip image params for now
+            return
         else:
             raise "Unsupported parameter type"
 

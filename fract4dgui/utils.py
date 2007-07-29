@@ -68,14 +68,6 @@ def input_add(fd,cb):
         return gtk.input_add(fd, gtk.gdk.INPUT_READ, cb)
 
     
-def find_resource(name, local_dir, installed_dir):
-    'try and find a file either locally or installed'
-    local_name = os.path.join(local_dir,name)
-    if os.path.exists(local_name):
-        return local_name
-
-    return os.path.join(sys.exec_prefix, installed_dir, name)
-
 def find_in_path(exe):
     # find an executable along PATH env var
     pathstring = os.environ["PATH"]

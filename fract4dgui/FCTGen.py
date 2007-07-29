@@ -29,7 +29,7 @@ import math
 import sys
 import os
 import math
-from fract4d import animation, fractal, fc
+from fract4d import animation, fractal, fc, fractconfig
 
 class FCTGeneration:    
     def __init__(self,dir_bean,parent):
@@ -59,7 +59,7 @@ class FCTGeneration:
             self.compiler.add_func_path("formulas")
             self.compiler.add_func_path("../formulas")
             self.compiler.add_func_path(
-                os.path.join(sys.exec_prefix, "share/gnofract4d/formulas"))
+                fractconfig.instance.get_data_path("formulas"))
         except:
             self.show_error("Gnofract4d libs could not be found")
             yield False

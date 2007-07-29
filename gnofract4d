@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # the main GUI program. Relies on fract4d libs to do the real work
-version = '3.4'
+version = '3.5'
 
 # python stdlib
 import sys

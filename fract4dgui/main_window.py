@@ -11,7 +11,7 @@ import urllib
 import gtk, gobject
 
 sys.path.append("..")
-from fract4d import fractal,fc,fract4dc,image, fracttypes
+from fract4d import fractal,fc,fract4dc,image, fracttypes, fractconfig
 from fractutils import flickr
 
 import gtkfractal, model, preferences, autozoom, settings, toolbar
@@ -72,11 +72,12 @@ class MainWindow:
         
         try:
             # try to make default image more interesting
-            self.f.set_cmap(utils.find_resource(
+            self.f.set_cmap(fractconfig.instance.find_resource(
                 "basic.map",
                 "maps",
-                "share/gnofract4d/maps"))
-        except:
+                "maps"))
+        except Exception, ex:
+            #print ex
             pass
             
         self.model = model.Model(self.f)
@@ -1230,7 +1231,7 @@ class MainWindow:
         local_dir = "doc/gnofract4d-manual/%s/" % loc
         install_dir = "share/gnome/help/gnofract4d/%s/" % loc
 
-        helpfile = utils.find_resource(base_help_file, local_dir, install_dir)
+        helpfile = fractconfig.instance.find_resource(base_help_file, local_dir, install_dir)
         abs_file = os.path.abspath(helpfile)
         
         if not os.path.isfile(abs_file):

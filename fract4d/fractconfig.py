@@ -5,10 +5,8 @@ import sys
 class T(ConfigParser.ConfigParser):    
     "Holds preference data"
     def __init__(self, file):
-        _shared_formula_dir = os.path.join(
-            sys.exec_prefix, "share/gnofract4d/formulas")
-        _shared_map_dir = os.path.join(
-            sys.exec_prefix, "share/gnofract4d/maps")        
+        _shared_formula_dir = self.get_data_path("formulas")
+        _shared_map_dir = self.get_data_path("maps")
         _defaults = {
             "compiler" : {
               "name" : "gcc",
@@ -24,7 +22,7 @@ class T(ConfigParser.ConfigParser):
               "autodeepen" : "1"
             },
             "helpers" : {
-              "editor" : "emacs",
+              "editor" : self.get_default_editor(),
               "mailer" : self.get_default_mailer(),
               "browser" : self.get_default_browser()
             },
@@ -89,6 +87,25 @@ class T(ConfigParser.ConfigParser):
             l.append(required_item)
             self.set_list(section,l)
     
+    def get_data_path(self,subpath=""):
+        # find where data files are present. 
+        # use share path one level up from gnofract4d script location
+        # e.g., if invoked as /usr/bin/gnofract4d, use /usr/share/gnofract4d
+        path = os.path.normpath(os.path.join(
+            sys.path[0], "../share/gnofract4d", subpath))
+        return path
+
+    def find_resource(self, name, local_dir, installed_dir):
+        'try and find a file either locally or installed'
+        local_name = os.path.join(local_dir,name)
+        if os.path.exists(local_name):
+            return local_name
+
+        return os.path.join(self.get_data_path(installed_dir), name)
+
+    def get_default_editor(self):
+        return "emacs"
+
     def get_default_mailer(self):
         return "evolution %s"
 
@@ -96,12 +113,8 @@ class T(ConfigParser.ConfigParser):
         return "mozilla %s"
 
     def get_default_compiler_options(self):
-        if sys.platform[:6] == "darwin":
-            # Mac OS X, as suggested by JB Langston
-            return "-fPIC -DPIC -D_REENTRANT -O2 -dynamiclib -flat_namespace -undefined suppress -ffast-math"
-        else:
-            # appears to work for most unixes
-            return "-fPIC -DPIC -D_REENTRANT -O2 -shared -ffast-math"
+        # appears to work for most unixes
+        return "-fPIC -DPIC -D_REENTRANT -O2 -shared -ffast-math"
         
     def set(self,section,key,val):
         if self.has_section(section) and \
@@ -164,5 +177,27 @@ class T(ConfigParser.ConfigParser):
             
     def save(self):
         self.write(open(self.file,"w"))        
-    
-instance = T("~/.gnofract4d")
+
+def DarwinConfig(T):
+    def __init__(self,file):
+        T.__init__(self,file)
+
+    def get_default_editor(self):
+        # edit file in TextPad
+        return "open -e"
+
+    def get_default_mailer(self):
+        # create message in default mail app
+        return "open %s"
+
+    def get_default_browser(self):
+        return "open %s"
+
+    def get_default_compiler_options(self):
+        return "-fPIC -DPIC -D_REENTRANT -O2 -dynamiclib -flat_namespace -undefined suppress -ffast-math"
+        
+config_file = "~/.gnofract4d"
+if sys.platform[:6] == "darwin":
+    instance = DarwinConfig(config_file)
+else:
+    instance = T(config_file)

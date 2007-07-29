@@ -4,6 +4,8 @@ import gobject
 import gtk
 import utils
 
+from fract4d import fractconfig
+
 _iconfactory = gtk.IconFactory()
 _iconfactory.add_default()
     
@@ -14,9 +16,10 @@ class StockThing:
         self.title = title
         try:
             self.pixbuf = gtk.gdk.pixbuf_new_from_file(
-                utils.find_resource(file,
-                                    'pixmaps',
-                                    'share/pixmaps/gnofract4d'))
+                fractconfig.instance.find_resource(
+                    file,
+                    'pixmaps',
+                    'pixmaps/gnofract4d'))
             
             self.iconset = gtk.IconSet(self.pixbuf)
             _iconfactory.add(stock_name, self.iconset)
