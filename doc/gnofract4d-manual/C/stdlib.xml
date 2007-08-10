@@ -544,6 +544,19 @@ Complex</entry>
 <row><entry>&nbsp;</entry></row>
 </row>
 <row>
+<entry valign="top" align="left" morerows="0">
+_image</entry>
+<entry valign="top" align="left" morerows="0">
+Look up a color from a 2D array of colors.
+</entry>
+<entry valign="top" align="left" morerows="0">
+Image, Complex
+</entry>
+<entry valign="top" align="left" morerows="0">
+Color</entry>
+<row><entry>&nbsp;</entry></row>
+</row>
+<row>
 <entry valign="top" align="left" morerows="2">
 abs</entry>
 <entry valign="top" align="left" morerows="2">
@@ -1237,7 +1250,7 @@ Color</entry>
 <entry valign="top" align="left" morerows="0">
 hsv</entry>
 <entry valign="top" align="left" morerows="0">
-Creste a color from hue, saturation and value components. HSV is a similar color model to HSL but has a different valid range for brightness.
+Create a color from hue, saturation and value components. HSV is a similar color model to HSL but has a different valid range for brightness.
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float, Float, Float
