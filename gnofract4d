@@ -15,10 +15,6 @@ if os.path.isdir('po'):
 else:
     gettext.install('gnofract4d')
 
-# we install our libs privately instead of to site-packages
-libdir = '/usr/lib'
-sys.path.append(os.path.join(libdir, 'gnofract4d-%s' % version))
-
 # Threads are optional because RedHat seem to compile pygtk
 # without thread support. Grrr.
 try:

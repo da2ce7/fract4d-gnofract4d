@@ -1224,14 +1224,21 @@ class MainWindow:
             self.window)
         
     def display_help(self,section=None):
-        base_help_file = "gnofract4d-manual.xml"
+        # if yelp is available use docbook XML; otherwise fall back to HTML
+        yelp_path = utils.find_in_path("yelp")
+        if yelp_path:
+            base_help_file = "gnofract4d-manual.xml"
+        else:
+            base_help_file = "gnofract4d-manual.html"
+            
         loc = "C" # FIXME
 
         # look locally first to support run-before-install
         local_dir = "doc/gnofract4d-manual/%s/" % loc
         install_dir = "share/gnome/help/gnofract4d/%s/" % loc
 
-        helpfile = fractconfig.instance.find_resource(base_help_file, local_dir, install_dir)
+        helpfile = fractconfig.instance.find_resource(
+            base_help_file, local_dir, install_dir)
         abs_file = os.path.abspath(helpfile)
         
         if not os.path.isfile(abs_file):
@@ -1244,12 +1251,16 @@ class MainWindow:
             anchor = ""
         else:
             anchor = "#" + section
-
-        yelp_path = utils.find_in_path("yelp")
-        if not yelp_path:
-            return
         
-        os.system("yelp ghelp://%s%s >/dev/null 2>&1 &" % (abs_file, anchor))
+        if yelp_path:
+            os.system("yelp ghelp://%s%s >/dev/null 2>&1 &" % (abs_file, anchor))
+        else:
+            url="file://%s%s" % (abs_file, anchor)
+            utils.launch_browser(
+                preferences.userPrefs,
+                url,
+                self.window)
+            
         
     def open_formula(self,action,widget):
         """Open a formula (.frm) or coloring algorithm (.cfrm) file."""

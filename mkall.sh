@@ -34,6 +34,8 @@ export ARCH=`uname -i`
 #export CC=/usr/bin/gcc
 #export CXX=/usr/bin/g++
 
+python createdocs.py
+
 # Python 2.4 version
 export BUILD_PYTHON_VERSION=2.4
 export BUILD_PYTHON=/usr/bin/python2.4

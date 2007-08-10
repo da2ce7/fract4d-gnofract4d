@@ -11,6 +11,9 @@ include formulas/fractint.cfrm
 include formulas/standard.ucl
 include formulas/tutorial.frm
 include doc/gnofract4d-manual/C/*.xml
+include doc/gnofract4d-manual/C/*.xsl
+include doc/gnofract4d-manual/C/*.html
+include doc/gnofract4d-manual/C/*.css
 include doc/gnofract4d-manual/C/figures/*.png
 include pixmaps/*.png
 include gnofract4d.desktop

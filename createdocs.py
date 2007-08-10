@@ -9,6 +9,7 @@
 # so were reporting errors.
 
 import sys
+import os
 
 def create_stdlib_docs():
     'Autogenerate docs'
@@ -20,7 +21,10 @@ def create_stdlib_docs():
         # create list of mouse and GUI commands
         import fract4dgui.createdocs
         fract4dgui.createdocs.main("doc/gnofract4d-manual/C/commands.xml")
-        
+
+        # create HTML version of docs for them as don't have yelp
+        os.chdir("doc/gnofract4d-manual/C")
+        os.system("xsltproc --output gnofract4d-manual.html --stringparam html.stylesheet docbook.css gnofract4d.xsl gnofract4d-manual.xml")
     except Exception, err:
         print >>sys.stderr,\
               "Problem creating docs. Online help will be incomplete."

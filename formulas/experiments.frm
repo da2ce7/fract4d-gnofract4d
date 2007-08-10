@@ -476,3 +476,19 @@ float param relax
 	default = 1.0
 endparam
 }
+
+mandelfn {
+init:
+	z = #zwpixel
+loop:
+	z = @fn1(z * z * #pixel) + z + #pixel
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default = cmag
+endfunc
+}
