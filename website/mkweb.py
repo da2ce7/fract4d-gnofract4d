@@ -56,8 +56,10 @@ manual_pages = [
 pages = [
     Bag(name="Home",
         file="index.html",
-        comments=[ "It warms my heart to see such a fine open source fractal program. A really great job!",
-                   "After my opinion it is the best open source fractal editor/browser available on the web..."],
+        comments=[
+             "It warms my heart to see such a fine open source fractal program. A really great job!",
+            "After my opinion it is the best open source fractal editor/browser available on the web...",
+             "Thanks for producing the best piece of fractal software for Linux!",],
         image="front.jpg",
         announce=announce),
 
@@ -87,28 +89,13 @@ pages = [
         ]
         ),
     
-    Bag(name="Download",
-        file="download.html",
-        image="buffalo002.jpg",
-        comments=[
-    "Well, this pretty much rocks...",
-    "Thanks for creating Gnofract 4D, I've found it a real pleasure to use so far..."]
-        ),
-
     Bag(name="Help Wanted",
         file="contributing.html",
         image="bg_parts.jpg",
-        comments=["I wanted to thank you for gnofract4d, it's a beautiful application, generates some true work of arts."
-                  ]
-        ),
-
-    Bag(name="FAQ",
-        file="faq.html",
-        image="faq.jpg",
-        comments = [
-    "Thanks for producing the best piece of fractal software for Linux!",
-    "Gnofract4d is one of my all time favorite programs."
-    ]
+        comments=[
+           "I wanted to thank you for gnofract4d, it's a beautiful application, generates some true work of arts.",
+           "Well, this pretty much rocks...",
+           "Gnofract4d is one of my all time favorite programs."]
         ),
 
     Bag(name="Manual",
@@ -122,8 +109,16 @@ pages = [
         image="jm.jpg",
         comments=[
     "Thanks for a cool site and amazing app/creations!",
-    "Really a nice tool."        
-    ])
+    "Really a nice tool.",
+    "Thanks for creating Gnofract 4D, I've found it a real pleasure to use so far..."
+    ]),
+
+    Bag(name="FAQ",
+        file="http://gnofract4d.wiki.sourceforge.net/",
+        stub=True
+        ),
+
+
     ]
 
 def create_manual():

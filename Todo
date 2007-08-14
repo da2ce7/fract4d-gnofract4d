@@ -1,10 +1,13 @@
 todo:
 
+
 changes in 3.5:
 * BB	'list index out of range' loading pre-2.0 .fct files
 * W	cut support for Python older than 2.4 and pygtk older than 2.6
 * W	use images in coloring methods
 * B	fix default compiler options for mac os x
+* W	fixes to make things work better on Mac OS X
+* BB	params for MandelbrotMix4 formula contain embedded lists
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -14,6 +17,7 @@ bugs (the more B's, the worse the bug):
 * BB	func with a bailout of 1 will never quit and can't be interrupted
 * B	interrupt takes too long on deep-zoomed fractals
 * BB	infinite loops are possible in while loops
+* BB	'list index out of range' nudging MandelbrotMix4 params
 
 * BB	Renderqueue should antialias even if main window doesn't
 * BB	better image-sizing widgets for render queue

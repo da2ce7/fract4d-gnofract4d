@@ -17,17 +17,6 @@ finally:
 print "Running all unit tests. This may take several minutes."
 
 class Test(unittest.TestCase):
-    def testSetupCfgVersionMatches(self):
-        "Check that the version number in the main script matches the one in the setup.cfg file"
-        cfg = open("setup.cfg").read()
-        lib_re = re.compile(r'install_lib\s*=\s*(\S+)')
-        m = lib_re.search(cfg)
-        self.failUnless(m,"Config file doesn't specify install_lib")
-        libdir = m.group(1)
-
-        v = gnofract4d.version
-        self.assertEqual("/usr/lib/gnofract4d-%s" % gnofract4d.version, libdir, "Version mismatch")
-
     def testSetupPyVersionMatches(self):
         setup = open("setup.py").read()
         setup_re = re.compile(r'gnofract4d_version\s*=\s*"(\S+)"')

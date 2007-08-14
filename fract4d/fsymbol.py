@@ -863,19 +863,24 @@ class T(UserDict):
             param = self.get(k)
             if not param: continue
             defval = getattr(param,"default",None)
-            if not defval:
-                defaults[i] = default_value(param.type)                
-            elif param.type == Complex:
-                defaults[i] = defval.value[0].value
-                defaults[i+1] = defval.value[1].value
+            
+            if param.type == Complex:
+                if not defval:
+                    defaults[i:i+1] = default_value(param.type)
+                else:
+                    defaults[i] = defval.value[0].value
+                    defaults[i+1] = defval.value[1].value
             elif param.type == Hyper or param.type == Color:
                 for j in xrange(len(defval.value)):
                     defaults[i+j] = defval.value[j].value
             elif param.type == Image:
-                print "image type for %s" % k
-                defaults[i] = None
+                defaults[i] = 0
             else:
-                defaults[i] = defval.value
+                if not defval:                    
+                    defaults[i] = default_value(param.type)
+                else:
+                    defaults[i] = defval.value
+                
         return defaults
 
     def set_std_func(self,func,fname):

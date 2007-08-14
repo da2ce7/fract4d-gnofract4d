@@ -474,7 +474,7 @@ parse_params(PyObject *pyarray, int *plen)
 		Py_XDECREF(pyitem);
 		PyErr_SetString(
 		    PyExc_ValueError,
-		    "All params must be floats, ints, or gradients");
+		    "All params must be floats, ints, images or gradients");
 		free(params);
 		return NULL;
 	    }

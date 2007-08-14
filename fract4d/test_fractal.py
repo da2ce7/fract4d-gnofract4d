@@ -1433,6 +1433,21 @@ solids=[
             expected[4],
             f.determine_direction(0, -math.pi * 1.5,mode))
 
+    def assertValidType(self,val):
+        self.assertNotEqual(val.__class__, types.ListType, "%s shouldn't be a list" % val)
+        
+    def testMandelbrotMix4(self):
+        # regression test
+        f = fractal.T(self.compiler)
+        f.set_formula("test.frm","MandelbrotMix4")
+        s = f.forms[0].formula.symbols
+        print s["t__a_p1"]
+        print s["t__a_p99"]
+
+        
+        for val in f.forms[0].formula.symbols.default_params():
+            self.assertValidType(val)
+
     def disabled_testDump(self):
         # produces distracting output
         f = fractal.T(self.compiler)

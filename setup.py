@@ -236,7 +236,11 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
             get_files("doc/gnofract4d-manual/C", "xml")),
            ('share/gnome/help/gnofract4d/C/figures',
             get_files("doc/gnofract4d-manual/C/figures",".png")),
-
+           ('share/gnome/help/gnofract4d/C',
+            get_files("doc/gnofract4d-manual/C", "html")),
+           ('share/gnome/help/gnofract4d/C/figures',
+            get_files("doc/gnofract4d-manual/C/figures",".css")),
+           
            #internal pixmaps
            ('share/pixmaps/gnofract4d',
             ['pixmaps/deepen_now.png',

@@ -28,6 +28,7 @@
 	<a href="http://sourceforge.net/projects/gnofract4d">SourceForge Page</a>
 </li>
 </ul>
+<h3 class="downloadbar"><a href="http://sourceforge.net/project/platformdownload.php?group_id=785">Download<small>&nbsp;</small></a></h3>
 
 <div class="announce" py:if="hasattr(page,'announce')">
 <h3>Latest news:</h3>

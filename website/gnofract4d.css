@@ -221,7 +221,13 @@ font-weight: bold;
 display: none;
 }
 
-.downloadbar {position: relative; border-top: 1px solid #008000; background: #0a0 url("http://images.sourceforge.net/sfx/sfx_dl_bg2.png") repeat-x bottom left; font-size: 82.3%; color: #456; padding: .3em 4.5em 1.7em .5em !important; margin: 0 0 -.5em 1em; width: 17em;}
+.downloadbar {
+position: relative; border-top: 1px solid #008000; 
+background: #0a0 url("http://images.sourceforge.net/sfx/sfx_dl_bg2.png") repeat-x bottom left; 
+font-size: 100%; color: #456; 
+padding: .3em 4.5em 1.7em .5em !important; 
+margin: 0 0 -.5em 1em; width: 80px;}
+
 .downloadbar a {color: #fff !important; margin: 0 3.5em 0 0 !important}
 .downloadbar a:hover {color: #efe !important;}
 .downloadbar small
