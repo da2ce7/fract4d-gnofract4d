@@ -73,7 +73,8 @@ class CommandPrinter:
         self.output_table([self.commands[k] for k in keys],"Keyboard Shortcuts","Key") 
         
     def output_table(self,commands,name,type):
-        print >>self.f, '<sect2 id="%s">' % name
+        nospacename = name.replace(' ', '')
+        print >>self.f, '<sect2 id="%s">' % nospacename
         print >>self.f, '<title>%s</title>' % name
         print >>self.f, '<para><informaltable>'
         print >>self.f, '<tgroup cols="2">'

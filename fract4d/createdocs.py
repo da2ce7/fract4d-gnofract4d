@@ -57,9 +57,9 @@ class SymbolPrinter:
              self.output_overload(func)
         
     def output_refentry_footer(self):
-        print >>self.f, '<row><entry>&nbsp;</entry></row>'
         print >>self.f,  '</row>'
-
+        #print >>self.f, '<row><entry>&nbsp;</entry></row>'
+        
     def output_refentry_body(self,val,nrows=1):
         self.output_entry(nrows)
         text = val.__doc__ or "No documentation yet."
