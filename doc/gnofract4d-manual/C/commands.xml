@@ -1,4 +1,4 @@
-<sect2 id="Mouse Commands">
+<sect2 id="MouseCommands">
 <title>Mouse Commands</title>
 <para><informaltable>
 <tgroup cols="2">
@@ -36,7 +36,7 @@
 </informaltable>
 </para>
 </sect2>
-<sect2 id="Keyboard Shortcuts">
+<sect2 id="KeyboardShortcuts">
 <title>Keyboard Shortcuts</title>
 <para><informaltable>
 <tgroup cols="2">

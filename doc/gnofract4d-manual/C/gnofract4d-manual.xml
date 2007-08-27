@@ -141,7 +141,7 @@ purposes as listed in the table below.
 <entry>
 Parameter File
 </entry>
-<entry><filename class="extension">.fct</filename></entry>
+<entry><filename>.fct</filename></entry>
 <entry>
 
 A parameter file is a small text file which contains all the settings
@@ -151,9 +151,9 @@ file lists the formula used, but doesn't contain the entire formula,
 so if you invent a new formula and want to share parameter files which
 use it, you need to distribute the formula file as well.
 
-&fractint; uses <filename class="extension">.par</filename> files for
-this purpose and &ultrafractal; uses <filename
-class="extension">.upr</filename>. Unfortunately &gf4d; can't read
+&fractint; uses <filename>.par</filename> files for
+this purpose and &ultrafractal; uses <filename>.upr</filename>. 
+Unfortunately &gf4d; can't read
 those formats (yet).
 </entry>
 </row>
@@ -162,8 +162,8 @@ those formats (yet).
 Image File
 </entry>
 <entry>
-<filename class="extension">.jpg</filename>,
-<filename class="extension">.png</filename>
+<filename>.jpg</filename>,
+<filename>.png</filename>
 </entry>
 
 <entry>
@@ -187,8 +187,8 @@ fine details of your fractal.
 Formula File
 </entry>
 <entry>
-<filename class="extension">.frm</filename>,
-<filename class="extension">.ufm</filename>
+<filename>.frm</filename>,
+<filename>.ufm</filename>
 </entry>
 <entry>
 
@@ -196,8 +196,8 @@ A formula file is a collection of formulas, each of which is a
 description of the algorithm used to draw a particular kind of
 fractal, expressed in a simple programming language (see <xref
 linkend="formref"></xref> for language details). Both &gf4d; and &fractint;
-use <filename class="extension">.frm</filename> as the extension, and
-&ultrafractal; uses <filename class="extension">.ufm</filename>. In
+use <filename>.frm</filename> as the extension, and
+&ultrafractal; uses <filename>.ufm</filename>. In
 general, any formula which works in &fractint; should work in &gf4d;
 and any which works in &gf4d; should work in &ultrafractal;, but the
 reverse is not true. 
@@ -210,8 +210,8 @@ reverse is not true.
 Coloring Algorithm File
 </entry>
 <entry>
-<filename class="extension">.cfrm</filename>,
-<filename class="extension">.ucl</filename>
+<filename>.cfrm</filename>,
+<filename>.ucl</filename>
 </entry>
 <entry>
 
@@ -231,9 +231,9 @@ so far not very many.
 Gradient File
 </entry>
 <entry>
-<filename class="extension">.map</filename>,
-<filename class="extension">.ggr</filename>
-<filename class="extension">.ugr</filename>
+<filename>.map</filename>,
+<filename>.ggr</filename>
+<filename>.ugr</filename>
 </entry>
 <entry>
 
@@ -652,8 +652,7 @@ rise to the familiar Mandelbrot set:
 </para>
 
 <para>
-<graphic align="center" format="PNG"
-fileref="figures/mandelbrot_standard.png"> </graphic>
+<graphic align="center" format="PNG" fileref="figures/mandelbrot_standard.png"/>
 </para>
 <para>
 All the points inside the set are (as is traditional) coloured
@@ -678,7 +677,7 @@ are known as <emphasis>perturbed</emphasis> sets:
 </para>
 <para>
 <graphic align="center" format="PNG"
-fileref="figures/mandelbrot_perturbed.png"> </graphic>
+fileref="figures/mandelbrot_perturbed.png"/>
 
 </para> </sect2>
 
@@ -695,7 +694,7 @@ Julia set for each value of <emphasis>c</emphasis>; here's the one for
 </para>
 <para>
 <graphic align="center" format="PNG"
-fileref="figures/julia_standard.png"> </graphic>
+fileref="figures/julia_standard.png"/>
 
 </para>
 
@@ -710,7 +709,7 @@ interesting:
 </para>
 <para>
 <graphic align="center" format="PNG"
-fileref="figures/julia_perturbed.png"> </graphic>
+fileref="figures/julia_perturbed.png"/>
 
 </para>
 </sect2>
@@ -750,7 +749,7 @@ also look at other planes: here's an image of the
 </para>
 <para>
 <graphic align="center" format="PNG"
-fileref="figures/xw_plane.png"> </graphic>
+fileref="figures/xw_plane.png"/>
 
 </para>
 </sect2>
@@ -785,8 +784,7 @@ only part of the way, we get a "hybrid" between the two sets, which
 looks decidedly odd:
 </para>
 <para>
-<graphic align="center" format="PNG" fileref="figures/hybrid.png">
-</graphic>
+<graphic align="center" format="PNG" fileref="figures/hybrid.png"/>
 </para>
 <para>
 In fact, we can rotate to any angle in each of the planes,
@@ -880,7 +878,7 @@ should see an image like this:
 </para>
 <para>
 <graphic format="PNG"
-fileref="figures/tutorial001.png"> </graphic>
+fileref="figures/tutorial001.png"/> 
 </para>
 
 <para>
@@ -926,7 +924,7 @@ draggable 4-way widget and 2 edit boxes. If you set myfunc to
 
 <para>
 <graphic format="PNG"
-fileref="figures/tutorial002.png"> </graphic>
+fileref="figures/tutorial002.png"/>
 </para>
 
 <para> 
@@ -998,7 +996,7 @@ compiler (see below). The main class which represents a fractal is in
 <filename>fractal.py</filename>. This holds references to the compiled
 code, the formula and colorfunc definitions, the parameters and the
 colormap. It also handles loading and saving information from a
-<filename class="extension">.fct</filename> file, and provides
+<filename>.fct</filename> file, and provides
 wrappers for some of the gnarlier C++ extension functions. </para>
 </entry>
 

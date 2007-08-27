@@ -45,7 +45,6 @@ Bool, Bool
 </entry>
 <entry valign="top" align="left" morerows="0">
 Bool</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="1">
@@ -65,7 +64,6 @@ Float, Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -78,7 +76,6 @@ Bool, Bool
 </entry>
 <entry valign="top" align="left" morerows="0">
 Bool</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="5">
@@ -126,7 +123,6 @@ Color, Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="4">
@@ -167,7 +163,6 @@ Color, Color
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="4">
@@ -208,7 +203,6 @@ Color, Color
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="4">
@@ -249,7 +243,6 @@ Color, Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -276,7 +269,6 @@ Complex, Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Bool</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -303,7 +295,6 @@ Complex, Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Bool</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="3">
@@ -338,7 +329,6 @@ Bool, Bool
 </entry>
 <entry valign="top" align="left" morerows="0">
 Bool</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -365,7 +355,6 @@ Complex, Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Bool</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -392,7 +381,6 @@ Complex, Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Bool</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -419,7 +407,6 @@ Complex, Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -432,7 +419,6 @@ Bool
 </entry>
 <entry valign="top" align="left" morerows="0">
 Bool</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -445,7 +431,6 @@ Bool, Bool
 </entry>
 <entry valign="top" align="left" morerows="0">
 Bool</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 </tbody>
 </tgroup>
@@ -476,7 +461,6 @@ Each time this is accessed, it returns a new pseudo-random complex number. This 
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -489,7 +473,6 @@ Each time this is accessed, it returns a new pseudo-random complex number. This 
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -502,7 +485,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -515,7 +497,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -528,7 +509,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -541,7 +521,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -554,7 +533,6 @@ Image, Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -584,7 +562,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -611,7 +588,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -638,7 +614,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -651,7 +626,6 @@ Color
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -678,7 +652,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -705,7 +678,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -732,7 +704,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -746,7 +717,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -773,7 +743,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -786,7 +755,6 @@ Color, Color, Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -799,7 +767,6 @@ Color
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -812,7 +779,6 @@ Bool
 </entry>
 <entry valign="top" align="left" morerows="0">
 Bool</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -827,7 +793,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="1">
@@ -847,7 +812,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="1">
@@ -868,7 +832,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -882,7 +845,6 @@ Float, Float, Float, Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -896,7 +858,6 @@ Float, Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -910,7 +871,6 @@ Color, Color, Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="1">
@@ -930,7 +890,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -957,7 +916,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -984,7 +942,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="1">
@@ -1005,7 +962,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -1032,7 +988,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -1059,7 +1014,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -1086,7 +1040,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="1">
@@ -1107,7 +1060,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1120,7 +1072,6 @@ Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="1">
@@ -1140,7 +1091,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1153,7 +1103,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1166,7 +1115,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1179,7 +1127,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1192,7 +1139,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1205,7 +1151,6 @@ Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1218,7 +1163,6 @@ Color
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1231,7 +1175,6 @@ Float, Float, Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1244,7 +1187,6 @@ Float, Float, Float, Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1257,7 +1199,6 @@ Float, Float, Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1270,7 +1211,6 @@ Color
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="1">
@@ -1292,7 +1232,6 @@ Complex, Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1306,7 +1245,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1320,7 +1258,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1334,7 +1271,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1348,7 +1284,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="4">
@@ -1394,7 +1329,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="1">
@@ -1417,7 +1351,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1433,7 +1366,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1446,7 +1378,6 @@ Int
 </entry>
 <entry valign="top" align="left" morerows="0">
 Int</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -1473,7 +1404,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1486,7 +1416,6 @@ Color
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1500,7 +1429,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1514,7 +1442,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1528,7 +1455,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1542,7 +1468,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1555,7 +1480,6 @@ Color, Color
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1568,7 +1492,6 @@ Color, Color
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1582,7 +1505,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="3">
@@ -1616,7 +1538,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1629,7 +1550,6 @@ Each time this is accessed, it returns a new pseudo-random complex number. This 
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="1">
@@ -1652,7 +1572,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1668,7 +1587,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -1696,7 +1614,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1709,7 +1626,6 @@ Color
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1722,7 +1638,6 @@ Float, Float, Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1735,7 +1650,6 @@ Float, Float, Float, Float
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="1">
@@ -1755,7 +1669,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -1768,7 +1681,6 @@ Color
 </entry>
 <entry valign="top" align="left" morerows="0">
 Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -1795,7 +1707,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -1822,7 +1733,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="3">
@@ -1856,7 +1766,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -1885,7 +1794,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -1912,7 +1820,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -1939,7 +1846,6 @@ Hyper
 </entry>
 <entry valign="top" align="left" morerows="0">
 Hyper</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="1">
@@ -1959,7 +1865,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="2">
@@ -1986,7 +1891,6 @@ Complex
 </entry>
 <entry valign="top" align="left" morerows="0">
 Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 </tbody>
 </tgroup>
@@ -2013,7 +1917,6 @@ Complex</entry>
 Where the center of the image is located on the complex plane
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2022,7 +1925,6 @@ Where the center of the image is located on the complex plane
 Set this from a coloring function to directly set the color instead of using a gradient
 </entry>
 <entry>Color</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2031,7 +1933,6 @@ Set this from a coloring function to directly set the color instead of using a g
 The fate of a point can be used to distinguish between different basins of attraction or whatever you like. Set this to a number from 2 to 128 to indicate that a different 'fate' has befallen this point. 0 indicates the point has diverged, 1 that it has been trapped, &gt;1 whatever you like. Can only be usefully updated in the #final section.
 </entry>
 <entry>Int</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2040,7 +1941,6 @@ The fate of a point can be used to distinguish between different basins of attra
 The point in the gradient to use for the color of this point.
 </entry>
 <entry>Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2049,7 +1949,6 @@ The point in the gradient to use for the color of this point.
 Set this in the final section of a formula to override whether a point is colored with the inside or outside coloring algorithm. This is mainly useful in conjuction with #fate.
 </entry>
 <entry>Bool</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2058,7 +1957,6 @@ Set this in the final section of a formula to override whether a point is colore
 The magnification factor of the image. This is the number of times the image size has doubled, or ln(4.0/size)
 </entry>
 <entry>Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2067,7 +1965,6 @@ The magnification factor of the image. This is the number of times the image siz
 No documentation yet.
 </entry>
 <entry>Int</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2076,7 +1973,6 @@ No documentation yet.
 No documentation yet.
 </entry>
 <entry>Int</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2085,7 +1981,6 @@ No documentation yet.
 The number of iterations performed.
 </entry>
 <entry>Int</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2094,7 +1989,6 @@ The number of iterations performed.
 The constant pi, 3.14159...
 </entry>
 <entry>Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2103,7 +1997,6 @@ The constant pi, 3.14159...
 The (X,Y) coordinates of the current point. When viewing the Mandelbrot set, this has a different value for each pixel. When viewing the Julia set, it remains constant for each pixel.
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2112,7 +2005,6 @@ The (X,Y) coordinates of the current point. When viewing the Mandelbrot set, thi
 Set this to true in a coloring function to use the solid color rather than the color map.
 </entry>
 <entry>Bool</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2121,7 +2013,6 @@ Set this to true in a coloring function to use the solid color rather than the c
 10% of the distance between adjacent pixels.
 </entry>
 <entry>Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2130,7 +2021,6 @@ Set this to true in a coloring function to use the solid color rather than the c
 The (X,Y) coordinates of the current point. When viewing the Mandelbrot set, this has a different value for each pixel. When viewing the Julia set, it remains constant for each pixel.
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2139,7 +2029,6 @@ The (X,Y) coordinates of the current point. When viewing the Mandelbrot set, thi
 No documentation yet.
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2148,7 +2037,6 @@ No documentation yet.
 The (Z,W) coordinates of the current point. (See #pixel for the other two coordinates.) When viewing the Mandelbrot set, this remains constant for each pixel on the screen; when viewing the Julia set, it's different for each pixel. Initialize z to some function of this to take advantage of 4D drawing.
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2157,7 +2045,6 @@ The (Z,W) coordinates of the current point. (See #pixel for the other two coordi
 Predefined parameter used by Fractint formulas
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2166,7 +2053,6 @@ Predefined parameter used by Fractint formulas
 Predefined parameter used by Fractint formulas
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2175,7 +2061,6 @@ Predefined parameter used by Fractint formulas
 Predefined parameter used by Fractint formulas
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2184,7 +2069,6 @@ Predefined parameter used by Fractint formulas
 Predefined parameter used by Fractint formulas
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2193,7 +2077,6 @@ Predefined parameter used by Fractint formulas
 Predefined parameter used by Fractint formulas
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2202,7 +2085,6 @@ Predefined parameter used by Fractint formulas
 Predefined parameter used by Fractint formulas
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2211,7 +2093,6 @@ maxit</entry>
 No documentation yet.
 </entry>
 <entry>Int</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2220,7 +2101,6 @@ maxiter</entry>
 No documentation yet.
 </entry>
 <entry>Int</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2229,7 +2109,6 @@ p1</entry>
 Predefined parameter used by Fractint formulas
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2238,7 +2117,6 @@ p2</entry>
 Predefined parameter used by Fractint formulas
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2247,7 +2125,6 @@ p3</entry>
 Predefined parameter used by Fractint formulas
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2256,7 +2133,6 @@ p4</entry>
 Predefined parameter used by Fractint formulas
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2265,7 +2141,6 @@ p5</entry>
 Predefined parameter used by Fractint formulas
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2274,7 +2149,6 @@ p6</entry>
 Predefined parameter used by Fractint formulas
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2283,7 +2157,6 @@ pi</entry>
 The constant pi, 3.14159...
 </entry>
 <entry>Float</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2292,7 +2165,6 @@ pixel</entry>
 The (X,Y) coordinates of the current point. When viewing the Mandelbrot set, this has a different value for each pixel. When viewing the Julia set, it remains constant for each pixel.
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
@@ -2301,7 +2173,6 @@ z</entry>
 No documentation yet.
 </entry>
 <entry>Complex</entry>
-<row><entry>&nbsp;</entry></row>
 </row>
 </tbody>
 </tgroup>
