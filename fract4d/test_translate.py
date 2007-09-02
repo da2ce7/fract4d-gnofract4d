@@ -1411,7 +1411,16 @@ default:
         self.assertEqual(
             [2,7],
             [child.value for child in decl.children[1].children[0].children])
-                
+
+    def test3Dand4DArrays(self):
+        t = self.translate('''t {
+        init:
+        float x[2,7,3]
+        complex smee[1,2,3,4]
+        }''')
+
+        self.assertNoErrors(t)
+        
     def testArrayBadIndexType(self):
         t = self.translate('''t {
         init:

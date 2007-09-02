@@ -116,7 +116,7 @@ def p_parm_empty(t):
      'parm : empty'
      t[0] = t[1]
 
-# the extras are allow params which clash with types & reserved words
+# the extras are to allow params which clash with types & reserved words
 def p_parm_exp(t):
      '''parm : ID ASSIGN exp
         parm : TYPE ASSIGN exp
@@ -191,17 +191,9 @@ def p_empty(t):
     t[0] = absyn.Empty(t.lineno(0))
 
 def p_stm_decl_array(t):
-    'stm : TYPE ID LARRAY explist RARRAY'
+    'stm : TYPE ID LARRAY arglist RARRAY'
     t[0] = absyn.DeclArray(t[1], t[2], t[4], t.lineno(0))
 
-def p_explist(t):
-     'explist : exp'
-     t[0] = [ t[1] ]
-
-def p_explist_2(t):
-     'explist : exp COMMA explist'
-     t[0] = [ t[1] ] + t[3]
-     
 def p_stm_decl(t):
     'stm : TYPE ID'
     t[0] = absyn.Decl(t[1], t[2], t.lineno(2))
@@ -260,6 +252,10 @@ def p_exp_assign(t):
     'exp : lval ASSIGN exp'
     t[0] = absyn.Assign(t[1],t[3], t.lineno(2))
 
+def p_lval_id_array(t):
+    'lval : ID LARRAY arglist RARRAY'
+    t[0] = absyn.ArrayLookup(t[1],t[3],t.lineno(1))
+    
 def p_lval_id(t):
     'lval : ID'
     t[0] = absyn.ID(t[1],t.lineno(1))
@@ -305,13 +301,9 @@ def p_stringlist_empty(t):
      'stringlist : empty'
      t[0] = []
 
-def p_exp_id(t):
-    'exp : ID'
-    t[0] = absyn.ID(t[1],t.lineno(1))
-
-def p_exp_funcall(t):
-    'exp : ID LPAREN arglist RPAREN'
-    t[0] = absyn.Funcall(t[1],t[3],t.lineno(1))
+def p_exp_lval(t):
+    'exp : lval'
+    t[0] = t[1]
 
 def p_exp_complex(t):
      'exp : LPAREN exp COMMA exp RPAREN'

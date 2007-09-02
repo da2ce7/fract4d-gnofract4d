@@ -174,6 +174,9 @@ def Decl(type, id, pos, exp=None):
 def DeclArray(type, id, indexes, pos):
     return Node("declarray", pos, indexes, id, fracttypes.typeOfStr(type))
 
+def ArrayLookup(id, indexes, pos):
+    return Node("arraylookup", pos, indexes, id)
+
 def Stmlist(id, list,pos):
     return Node("stmlist", pos,list, string.lower(id))
 

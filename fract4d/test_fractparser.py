@@ -991,6 +991,15 @@ default:
         }'''
         t = self.parse(src)
         self.assertIsValidParse(t)
+
+    def testParseArray(self):
+        src = '''ary {
+        init:
+        int myarray[10]
+        myarray[0] = 23 + myarray[1]
+        }'''
+        t = self.parse(src)
+        self.assertIsValidParse(t)
         
     def assertListTypesMatch(self,nodes,types):
         self.assertEqual(len(nodes),len(types))
