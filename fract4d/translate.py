@@ -474,6 +474,8 @@ class TBase:
             r = self.if_(node)
         elif node.type == "while":
             r = self.while_(node)
+        elif node.type == "declarray":
+            r = self.declarray(node)
         else:
             r = self.exp(node)
         return r
@@ -653,6 +655,43 @@ class TBase:
         except KeyError, e:
             self.error("Invalid declaration on line %d: %s" % (node.pos,e))
 
+    def declarray(self,node):
+        indexes = [
+            self.coerce(self.exp(x),fracttypes.Int) for x in node.children]
+        
+        try:
+            self.symbols[node.leaf] = Var(
+                fracttypes.arrayTypeOf(node.datatype,node), None, node.pos)
+
+            # for each index, coerce it to an int
+            # build a multiplication out of them all
+            # return a move(var, funcall(thatnum))
+            
+        except KeyError, e:
+            self.error("Invalid declaration on line %d: %s" % (node.pos,e))
+         
+        
+        return ir.Const(fracttypes.Int, -1, node.pos)
+    
+        #
+        #
+        ## FIXME: convert the indexes into a multiplication
+        #indexExp = ir.Const(fracttypes.Int, 10, node.pos)
+        #    
+        #try:
+        #    self.symbols[node.leaf] = Var(
+        #        node.datatype | fracttypes.Array, None, node.pos)
+        #    return ir.Move(
+        #        ir.Var(node.leaf, node, node.datatype | fracttypes.Array),
+        #        
+        #        self.coerce(exp, node.datatype),
+        #        node, node.datatype)
+        #
+        #except KeyError, e:
+        #    self.error("Invalid declaration on line %d: %s" % (node.pos,e))
+        # 
+        #return indexes
+        
     def exp(self,node):
         if node.type == "const":
             r = self.const(node)
@@ -885,11 +924,13 @@ class TBase:
 
     def badCast(self, exp, expectedType):
         raise TranslationError(
-           ("invalid type %s for %s on line %s, expecting %s" %
-            (strOfType(exp.datatype), exp.node.leaf, exp.node.pos, strOfType(expectedType))))
+           ("%s: invalid type %s for %s, expecting %s" %
+            (exp.node.pos, strOfType(exp.datatype),
+             exp.node.leaf, strOfType(expectedType))))
+    
     def warnCast(self,exp,expectedType):
-        msg = "Warning: conversion from %s to %s on line %s" % \
-        (strOfType(exp.datatype), strOfType(expectedType), exp.node.pos)
+        msg = "%s: Warning: conversion from %s to %s" % \
+        (exp.node.pos, strOfType(exp.datatype), strOfType(expectedType))
         self.warnings.append(msg)
 
 class T(TBase):

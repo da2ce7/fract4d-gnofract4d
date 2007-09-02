@@ -749,8 +749,16 @@ gradient:
             
     def testArrays(self):
         # arrays aren't supported yet - make sure errors are nice
-        self.assertIsBadFormula(self.makeMinimalFormula("float array[10]"),
-                                "arrays are not supported",3)
+        t1 = self.parse(self.makeMinimalFormula("float array[10]"))
+        self.assertIsValidParse(t1)
+
+        t1 = self.parse(self.makeMinimalFormula(
+            "float array[1,3+7,@fish * #blong]"))
+
+        indexes = t1.children[0].children[0].children[0].children
+        self.assertEqual(1, indexes[0].leaf)
+        self.assertEqual(3, len(indexes))
+        self.assertIsValidParse(t1)
         
     def testStrings(self):
         t1 = self.parse('''

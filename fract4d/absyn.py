@@ -171,6 +171,9 @@ def Decl(type, id, pos, exp=None):
         l = [exp]
     return Node("decl", pos, l , id, fracttypes.typeOfStr(type))
 
+def DeclArray(type, id, indexes, pos):
+    return Node("declarray", pos, indexes, id, fracttypes.typeOfStr(type))
+
 def Stmlist(id, list,pos):
     return Node("stmlist", pos,list, string.lower(id))
 

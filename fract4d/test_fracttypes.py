@@ -56,6 +56,18 @@ class Test(unittest.TestCase):
             "image",
             fracttypes.typeObjectList[fracttypes.Image].typename)
 
+        self.assertEqual(
+            "intarray",
+            fracttypes.typeObjectList[fracttypes.IntArray].typename)
+
+    def testArrayTypeOf(self):
+        self.assertEqual(
+            fracttypes.IntArray, fracttypes.arrayTypeOf(fracttypes.Int))
+
+        self.assertRaises(
+            fracttypes.TranslationError,
+            fracttypes.arrayTypeOf, fracttypes.Image)
+        
     def testTypeIDs(self):
         for i in xrange(len(fracttypes.typeObjectList)):
             self.assertEqual(i,fracttypes.typeObjectList[i].typeid)

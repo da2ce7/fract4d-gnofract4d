@@ -778,8 +778,8 @@ default:
         f = 1 ; upcast - warning
         i = 1.0 ; downcast - error
         }''')
-        self.assertWarning(t10,"conversion from int to float on line 4")
-        self.assertError(t10, "invalid type float for 1.0 on line 5, expecting int")
+        self.assertWarning(t10,"4: Warning: conversion from int to float")
+        self.assertError(t10, "5: invalid type float for 1.0, expecting int")
 
         # basic warnings and errors
         t11 = self.translate('''t11 {
@@ -788,10 +788,10 @@ default:
         h = c ; upcast - warning
         c = h ; downcast - error
         }''')
-        self.assertWarning(t11,"conversion from complex to hyper on line 4")
+        self.assertWarning(t11,"4: Warning: conversion from complex to hyper")
         self.assertError(
             t11,
-            "invalid type hyper for h on line 5, expecting complex")
+            "5: invalid type hyper for h, expecting complex")
 
     def testBadTypeForParam(self):
         t = self.translate('''t_badparam {
@@ -1295,9 +1295,9 @@ default:
         self.assertVar(t1, "a", fracttypes.Float)
         self.assertVar(t1, "c", fracttypes.Complex)
         self.assertVar(t1, "x", fracttypes.Complex)
-        self.assertWarning(t1, "conversion from bool to float on line 4")
-        self.assertWarning(t1, "conversion from float to complex on line 4")
-        self.assertWarning(t1, "conversion from int to complex on line 5")
+        self.assertWarning(t1, "4: Warning: conversion from bool to float")
+        self.assertWarning(t1, "4: Warning: conversion from float to complex")
+        self.assertWarning(t1, "5: Warning: conversion from int to complex")
 
     def testMultiDecls(self):
         t1 = self.translate("t6 {\ninit:int a = int b = 2}")
@@ -1366,6 +1366,38 @@ default:
             }''')
 
         self.assertNoErrors(t)
+
+    def testArray(self):
+        t = self.translate('''t {
+        init:
+        int x[2]
+        }''')
+
+        self.assertNoErrors(t)
+
+        x = t.symbols["x"]
+        self.assertEqual(fracttypes.IntArray, x.type)
+        self.assertEqual(0,x.value)
+
+        decl = t.sections["init"].children[0]
+        
+    def testArrayBadIndexType(self):
+        t = self.translate('''t {
+        init:
+        int wibble[2.5]
+        }''')
+
+        self.assertError(
+            t, "3: invalid type float for 2.5, expecting int")
+
+    def testBadArrayType(self):
+        t = self.translate('''t {
+        init:
+        image wibble[5]
+        }''')
+
+        self.assertError(
+            t, "3: Arrays of type image are not supported")
         
 def suite():
     return unittest.makeSuite(Test,'test')

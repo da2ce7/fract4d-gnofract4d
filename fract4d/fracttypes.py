@@ -15,6 +15,10 @@ Hyper = 6
 Gradient = 7
 Image = 8
 
+IntArray = 9
+FloatArray = 10
+ComplexArray = 11
+
 class Type(object):
     def __init__(self,**kwds):
         self.suffix = kwds["suffix"]
@@ -98,7 +102,7 @@ class ImageType(Type):
             return [ "t__pfo->p[%d].image" % var.param_slot]
 
         return []
-    
+
 # these have to be in the indexes given by the constants above
 typeObjectList = [
     IntType(id=Bool, suffix="b",printf="%d",typename="bool",
@@ -128,10 +132,23 @@ typeObjectList = [
          default=0,cname="void *"),
 
     ImageType(id=Image,suffix="I", typename="image",
-              default=0, cname="void *")
+              default=0, cname="void *"),
+
+    Type(id=IntArray,suffix="ai", typename="intarray",
+             default=0, cname="int *")
     ]
 
-typeList = [ Bool, Int, Float, Complex, Color, String, Hyper, Gradient, Image]
+typeList = [
+    Bool,
+    Int,
+    Float,
+    Complex,
+    Color,
+    String,
+    Hyper,
+    Gradient,
+    Image,
+    IntArray]
 
 suffixOfType = {
     Int : "i",
@@ -181,6 +198,16 @@ _slotsForType = {
     Gradient: 1,
     Image: 1
     }
+
+def arrayTypeOf(t,node=None):
+    if t == Int:
+        return IntArray
+    if not node:
+        pos = ""
+    else:
+        pos = "%d: " % node.pos
+    raise TranslationError(        
+        "%sArrays of type %s are not supported" % (pos, strOfType(t)))
 
 def typeOfStr(tname):
     if not tname: return None

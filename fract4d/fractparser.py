@@ -189,11 +189,23 @@ def p_stm_empty(t):
 def p_empty(t):
     'empty :'
     t[0] = absyn.Empty(t.lineno(0))
-    
+
+def p_stm_decl_array(t):
+    'stm : TYPE ID LARRAY explist RARRAY'
+    t[0] = absyn.DeclArray(t[1], t[2], t[4], t.lineno(0))
+
+def p_explist(t):
+     'explist : exp'
+     t[0] = [ t[1] ]
+
+def p_explist_2(t):
+     'explist : exp COMMA explist'
+     t[0] = [ t[1] ] + t[3]
+     
 def p_stm_decl(t):
     'stm : TYPE ID'
     t[0] = absyn.Decl(t[1], t[2], t.lineno(2))
-    
+
 def p_stm_assign(t):
     'stm : TYPE ID ASSIGN stm'
     t[0] = absyn.Decl(t[1],t[2], t.lineno(2), t[4])
