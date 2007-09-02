@@ -145,6 +145,12 @@ typeObjectList = [
     Type(id=IntArray,suffix="ai", typename="intarray",
              default=0, cname="int *"),
 
+    Type(id=FloatArray,suffix="af", typename="floatarray",
+             default=0, cname="float *"),
+    
+    Type(id=ComplexArray,suffix="ac", typename="complexarray",
+             default=0, cname="float *"),
+
     ]
 
 typeList = [
@@ -158,7 +164,9 @@ typeList = [
     Gradient,
     Image,
     VoidArray,
-    IntArray]
+    IntArray,
+    FloatArray,
+    ComplexArray]
 
 suffixOfType = {
     Int : "i",
@@ -171,7 +179,9 @@ suffixOfType = {
     Gradient : "G",
     Image : "I",
     VoidArray : "av",
-    IntArray : "ai"
+    IntArray : "ai",
+    FloatArray : "af",
+    ComplexArray : "ac"
     }
 
 _typeOfStr = {
@@ -183,7 +193,11 @@ _typeOfStr = {
     "string" : String,
     "hyper" : Hyper,
     "grad" : Gradient,
-    "image" : Image
+    "image" : Image,
+    "array" : VoidArray,
+    "int array" : IntArray,
+    "float array" : FloatArray,
+    "complex array" : ComplexArray
     }
 
 _strOfType = {
@@ -198,7 +212,9 @@ _strOfType = {
     Gradient : "grad",
     Image : "image",
     VoidArray: "array",
-    IntArray: "int array"
+    IntArray: "int array",
+    FloatArray: "float array",
+    ComplexArray: "complex array"
    }
 
 _slotsForType = {
@@ -211,11 +227,18 @@ _slotsForType = {
     Hyper: 4,
     Gradient: 1,
     Image: 1
+    # arrays not supported as args
     }
 
 def arrayTypeOf(t,node=None):
     if t == Int:
         return IntArray
+    if t == Float:
+        return FloatArray
+    if t == Complex:
+        return ComplexArray
+    
+    # there is no array type, make a friendly error
     if not node:
         pos = ""
     else:
@@ -238,18 +261,20 @@ def slotsForType(t):
 
 _canBeCast = [
     # rows are from, columns are to
-    # Bool Int Float Complex Color String Hyper Gradient Image VoidArray, IntArray 
-    [ 1,   1,  1,    1,      0,    0,     1,    0,       0,    0,         0,       ], # Bool
-    [ 1,   1,  1,    1,      0,    0,     1,    0,       0,    0,         0,       ], # Int
-    [ 1,   0,  1,    1,      0,    0,     1,    0,       0,    0,         0,       ], # Float
-    [ 1,   0,  0,    1,      0,    0,     1,    0,       0,    0,         0,       ], # Complex
-    [ 0,   0,  0,    0,      1,    0,     0,    0,       0,    0,         0,       ], # Color
-    [ 0,   0,  0,    0,      0,    1,     0,    0,       0,    0,         0,       ], # String
-    [ 1,   0,  0,    0,      0,    0,     1,    0,       0,    0,         0,       ], # Hyper
-    [ 0,   0,  0,    0,      0,    0,     0,    1,       0,    0,         0,       ], # Gradient
-    [ 0,   0,  0,    0,      0,    0,     0,    0,       1,    0,         0,       ], # Image
-    [ 0,   0,  0,    0,      0,    0,     0,    0,       0,    1,         1,       ], # VoidArray
-    [ 0,   0,  0,    0,      0,    0,     0,    0,       0,    0,         1,       ]  # IntArray
+    # Bool Int Float Complex Color String Hyper Gradient Image VoidArray, IntArray FloatArray ComplexArray
+    [ 1,   1,  1,    1,      0,    0,     1,    0,       0,    0,         0,       0,         0,          ], # Bool
+    [ 1,   1,  1,    1,      0,    0,     1,    0,       0,    0,         0,       0,         0,          ], # Int
+    [ 1,   0,  1,    1,      0,    0,     1,    0,       0,    0,         0,       0,         0,          ], # Float
+    [ 1,   0,  0,    1,      0,    0,     1,    0,       0,    0,         0,       0,         0,          ], # Complex
+    [ 0,   0,  0,    0,      1,    0,     0,    0,       0,    0,         0,       0,         0,          ], # Color
+    [ 0,   0,  0,    0,      0,    1,     0,    0,       0,    0,         0,       0,         0,          ], # String
+    [ 1,   0,  0,    0,      0,    0,     1,    0,       0,    0,         0,       0,         0,          ], # Hyper
+    [ 0,   0,  0,    0,      0,    0,     0,    1,       0,    0,         0,       0,         0,          ], # Gradient
+    [ 0,   0,  0,    0,      0,    0,     0,    0,       1,    0,         0,       0,         0,          ], # Image
+    [ 0,   0,  0,    0,      0,    0,     0,    0,       0,    1,         1,       1,         1,          ], # VoidArray
+    [ 0,   0,  0,    0,      0,    0,     0,    0,       0,    0,         1,       0,         0,          ], # IntArray
+    [ 0,   0,  0,    0,      0,    0,     0,    0,       0,    0,         0,       1,         0,          ], # FloatArray
+    [ 0,   0,  0,    0,      0,    0,     0,    0,       0,    0,         0,       0,         1,          ]  # ComplexArray
     ]
 
 def canBeCast(t1,t2):

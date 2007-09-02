@@ -2142,6 +2142,7 @@ Newton4(XYAXIS) {; Mark Peterson
         src = '''t_array1 {
         init:
         int array[100]
+        int a2[10,10]
         }'''
         self.assertCSays(src,"init","","")
         

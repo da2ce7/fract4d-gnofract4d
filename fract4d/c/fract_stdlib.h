@@ -7,7 +7,10 @@ extern "C" {
 
     void fract_rand(double *re, double *im);
 
-    void *alloc_array(int size);
+    void *alloc_array1D(int element_size, int size);
+    void *alloc_array2D(int element_size, int xsize, int ysize);
+    void *alloc_array3D(int element_size, int xsize, int ysize, int zsize);
+    void *alloc_array4D(int element_size, int xsize, int ysize, int zsize, int wsize);
 
 #ifdef __cplusplus
 }

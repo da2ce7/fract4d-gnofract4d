@@ -64,6 +64,12 @@ class Test(unittest.TestCase):
         self.assertEqual(
             fracttypes.IntArray, fracttypes.arrayTypeOf(fracttypes.Int))
 
+        self.assertEqual(
+            fracttypes.FloatArray, fracttypes.arrayTypeOf(fracttypes.Float))
+
+        self.assertEqual(
+            fracttypes.ComplexArray, fracttypes.arrayTypeOf(fracttypes.Complex))
+
         self.assertRaises(
             fracttypes.TranslationError,
             fracttypes.arrayTypeOf, fracttypes.Image)

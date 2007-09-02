@@ -1371,19 +1371,27 @@ default:
         t = self.translate('''t {
         init:
         int x[2]
+        float f[700]
+        complex carray[88]
         }''')
 
         self.assertNoErrors(t)
 
-        x = t.symbols["x"]
-        self.assertEqual(fracttypes.IntArray, x.type)
+        self.checkArrayProperties(t,"x",fracttypes.IntArray, 2, 0)
+        self.checkArrayProperties(t,"f",fracttypes.FloatArray, 700, 1)
+        self.checkArrayProperties(t,"carray",fracttypes.ComplexArray, 88, 2)
+        
+    def checkArrayProperties(self,t,sym,type, size, pos):
+        x = t.symbols[sym]
+        self.assertEqual(type, x.type)
         self.assertEqual(0,x.value)
 
-        decl = t.sections["init"].children[0]
+        decl = t.sections["init"].children[pos]
         self.assertEqual(ir.Move, decl.__class__)
 
         amount_to_alloc = decl.children[1].children[0].children[0]
-        self.assertEqual(2,amount_to_alloc.value)
+        self.assertEqual(size,amount_to_alloc.value)
+
 
     def test2DArray(self):
         t = self.translate('''t {
@@ -1421,7 +1429,25 @@ default:
 
         self.assertError(
             t, "3: Arrays of type image are not supported")
-        
+
+    def testTooManyIndexes(self):
+        t = self.translate('''t {
+        init:
+        int wibble[1,2,3,4,5]
+        }''')
+
+        self.assertError(
+            t, "3: Arrays can only have up to 4 indexes")
+
+    def testNotEnoughIndexes(self):
+        t = self.translate('''t {
+        init:
+        int wibble[]
+        }''')
+
+        self.assertError(
+            t, "3: Syntax error: unexpected rarray ']'")
+
 def suite():
     return unittest.makeSuite(Test,'test')
 

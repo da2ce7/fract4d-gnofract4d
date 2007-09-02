@@ -456,7 +456,7 @@ by the 3rd parameter.''')
       doc='''Look up a color from a 2D array of colors.''')
 
     f("_alloc",
-      [ [Int], VoidArray],
+      [ [ [Int], VoidArray], [ [Int, Int], VoidArray], [ [Int, Int, Int], VoidArray], [[Int, Int, Int, Int], VoidArray]],
       doc='''Allocate an array with N members''')
     
     # operators

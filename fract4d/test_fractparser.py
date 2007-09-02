@@ -49,7 +49,7 @@ class ParserTest(unittest.TestCase):
         self.failUnless(formula.type == "formula")
         err = formula.children[0]
         self.failUnless(err.type == "error")
-        self.assertNotEqual(re.search("line 2",err.leaf),None,
+        self.assertNotEqual(re.search("^2:",err.leaf),None,
                             "bad error message line number") 
 
     def testErrorBeforeAndInFormula(self):
@@ -60,7 +60,7 @@ class ParserTest(unittest.TestCase):
         self.failUnless(formula.type == "formula")
         err = formula.children[0]
         self.failUnless(err.type == "error")
-        self.assertNotEqual(re.search("line 3",err.leaf),None,
+        self.assertNotEqual(re.search("^3:",err.leaf),None,
                             "bad error message line number") 
 
     def testErrorAfterFormula(self):
@@ -1008,7 +1008,7 @@ default:
         #print err.leaf
         self.assertNotEqual(re.search(message,err.leaf),None,
                             ("bad error message text '%s'", err.leaf))
-        self.assertNotEqual(re.search(("line %s" % line),err.leaf),None,
+        self.assertNotEqual(re.search(("^%s:" % line),err.leaf),None,
                             ("bad error message line number in '%s'", err.leaf)) 
         
     def assertIsValidParse(self,t1):

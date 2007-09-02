@@ -661,6 +661,9 @@ class TBase:
         indexes = [
             self.coerce(self.exp(x),fracttypes.Int) for x in node.children]
 
+        if len(indexes) > 4:
+            self.error("%d: Arrays can only have up to 4 indexes" % node.pos)
+            
         atype = fracttypes.arrayTypeOf(node.datatype,node)
 
         try:

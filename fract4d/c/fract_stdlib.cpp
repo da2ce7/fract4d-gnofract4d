@@ -31,7 +31,24 @@ void fract_rand(double *re, double *im)
 
 // end of copied code
 
-void *alloc_array(int element_size, int size)
+void *alloc_array1D(int element_size, int size)
 {
-    return calloc(element_size, size);
+    return NULL;
 }
+
+void *alloc_array2D(int element_size, int xsize, int ysize)
+{
+    return NULL;
+}
+
+void *alloc_array3D(int element_size, int xsize, int ysize, int zsize)
+{
+    return NULL;
+}
+
+void *alloc_array4D(int element_size, int xsize, int ysize, int zsize, int wsize)
+{
+    return NULL;
+}
+
+

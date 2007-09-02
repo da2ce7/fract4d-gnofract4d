@@ -782,7 +782,7 @@ extern pf_obj *pf_new(void);
             
         raise fracttypes.TranslationError(
             "Internal Compiler Error: Invalid argument types %s for %s" % \
-            (typelist, opnode.leaf))
+            (typelist, t.op))
 
     def newTemp(self,type):
         return TempArg(self.symbols.newTemp(type),type)

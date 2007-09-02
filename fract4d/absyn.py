@@ -221,24 +221,20 @@ def Error2(str, pos):
     if str == "$":
         return Node(
             "error", pos, None, 
-            "Error: unexpected preprocessor directive on line %d" % pos)
+            "%d: Error: unexpected preprocessor directive" % pos)
     return Node("error", pos, None,
-                "Syntax error: unexpected '%s' on line %d" % (str,pos))
+                "%d: Syntax error: unexpected '%s' " % (pos,str))
 
 def Error(type, value, pos):
     # get complaints about NEWLINE tokens on right line
     if type == "NEWLINE":
         pos -= 1
         return Node("error", pos, None,
-                    "Syntax error: unexpected newline on line %d" % pos)
+                    "%d: Syntax error: unexpected newline" % pos)
 
-    if type == "LARRAY" or type == "RARRAY":
-        return Node("error", pos, None,
-                    "Syntax error: arrays are not supported (line %d)" % pos)
-    
     return Node("error", pos, None,
-                "Syntax error: unexpected %s '%s' on line %d" %
-                (string.lower(type), value, pos))
+                "%d: Syntax error: unexpected %s '%s'" %
+                (pos, string.lower(type), value))
 
 def PreprocessorError(value,pos):
     return Node("error", pos, None, value)

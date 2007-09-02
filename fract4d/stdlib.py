@@ -983,5 +983,17 @@ def rand__c(gen,t,srcs):
     return ComplexArg(d1,d2)
 
 def _alloc_i_av(gen,t,srcs):
-    d = gen.emit_func2("alloc_array", [ConstIntArg(4)] + srcs, VoidArray)
+    d = gen.emit_func2("alloc_array1D", [ConstIntArg(4)] + srcs, VoidArray)
+    return d
+
+def _alloc_ii_av(gen,t,srcs):
+    d = gen.emit_func3("alloc_array2D", [ConstIntArg(4)] + srcs, VoidArray)
+    return d
+
+def _alloc_iii_av(gen,t,srcs):
+    d = gen.emit_func4("alloc_array3D", [ConstIntArg(4)] + srcs, VoidArray)
+    return d
+
+def _alloc_iiii_av(gen,t,srcs):
+    d = gen.emit_func5("alloc_array4D", [ConstIntArg(4)] + srcs, VoidArray)
     return d
