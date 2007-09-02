@@ -246,6 +246,23 @@ def arrayTypeOf(t,node=None):
     raise TranslationError(        
         "%sArrays of type %s are not supported" % (pos, strOfType(t)))
 
+def elementTypeOf(t,node=None):
+    if t == IntArray:
+        return Int
+    if t == FloatArray:
+        return Float
+    if t == ComplexArray:
+        return Complex
+    
+    # there is no array type, make a friendly error
+    if not node:
+        pos = ""
+    else:
+        pos = "%d: " % node.pos
+    raise TranslationError(        
+        "%sArrays of type %s are not supported" % (pos, strOfType(t)))
+
+
 def typeOfStr(tname):
     if not tname: return None
     return _typeOfStr[string.lower(tname)]

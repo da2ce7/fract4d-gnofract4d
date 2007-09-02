@@ -1457,6 +1457,42 @@ default:
         self.assertError(
             t, "3: Syntax error: unexpected rarray ']'")
 
+    def testArrayLookup(self):
+        t = self.translate('''t {
+        init:
+        int x[2]
+        x[1] = 4
+        int n = x[1]
+        }''')
+
+        self.assertNoErrors(t)
+
+        # check array write
+        target = t.sections["init"].children[1].children[0]
+        self.assertEqual(ir.Call, target.__class__)
+        self.assertEqual("_write_lookup", target.op)
+        
+        var= target.children[0]
+        self.assertEqual(ir.Var, var.__class__)
+        self.assertEqual("x", var.name)
+        
+        index = target.children[1]
+        self.assertEqual(ir.Const, index.__class__)
+        self.assertEqual(1, index.value) 
+
+        # check array read
+        dereference = t.sections["init"].children[2].children[1]
+        self.assertEqual(ir.Call, dereference.__class__)
+        self.assertEqual("_read_lookup", dereference.op)
+        
+        var= dereference.children[0]
+        self.assertEqual(ir.Var, var.__class__)
+        self.assertEqual("x", var.name)
+        
+        index = dereference.children[1]
+        self.assertEqual(ir.Const, index.__class__)
+        self.assertEqual(1, index.value) 
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 

@@ -571,12 +571,21 @@ class TBase:
         # overall code
         ifstm = ir.Seq([test,trueBlock,falseBlock,doneDest],node)
         return ifstm
+
+    def arraylookup(self, node):
+        name = node.leaf
+        expectedType = self.symbols[name].type
+        expectedType = fracttypes.elementTypeOf(expectedType)                
+        var = ir.Var(name, node, expectedType)
         
-    def assign(self, node):
-        '''assign a new value to a variable, creating it if required'''
-        lvalue = node.children[0]
+        indexes = self.indexes(node)
+        r = ir.Call("_read_lookup", [var] + indexes, node, expectedType)
+        return r
+        
+    def lval(self,node):
+        lvalue = node
         lhs = expectedType = None
-        if lvalue.type == "id":
+        if lvalue.type == "id" or lvalue.type == "arraylookup":
             name = lvalue.leaf
             if not self.symbols.has_key(name):
                 # implicitly create a new var - a warning?
@@ -588,15 +597,31 @@ class TBase:
             else:
                 msg = "%d: %s is not a variable, assignment to it is not allowed" % (node.pos, name)
                 raise TranslationError(msg)
-            
-            lhs = ir.Var(name, node, expectedType)
-            
+
+            if lvalue.type == "id":
+                lhs = ir.Var(name, node, expectedType)
+            else:
+                # array lookup
+                expectedType = fracttypes.elementTypeOf(expectedType)                
+                var = ir.Var(name, node, expectedType)
+
+                indexes = self.indexes(node)
+                lhs = ir.Call("_write_lookup", [var] + indexes, node, expectedType)
+                
         elif lvalue.type == "funcall":
             lhs = self.funcall(lvalue)
             expectedType = lhs.datatype
         else:
             self.error("Internal Compiler Error: bad lvalue %s for assign on %d:"\
                        % (lvalue.type, node.pos))
+
+        return lhs
+    
+    def assign(self, node):
+        '''assign a new value to a variable, creating it if required'''
+        lhs = self.lval(node.children[0])
+        expectedType = lhs.datatype
+        
         rhs = self.exp(node.children[1])
 
         return ir.Move(lhs,self.coerce(rhs,expectedType),node,expectedType)
@@ -655,14 +680,18 @@ class TBase:
         except KeyError, e:
             self.error("Invalid declaration on line %d: %s" % (node.pos,e))
 
-    def declarray(self,node):
-
+    def indexes(self,node):
         # for each index, coerce it to an int
         indexes = [
             self.coerce(self.exp(x),fracttypes.Int) for x in node.children]
 
         if len(indexes) > 4:
             self.error("%d: Arrays can only have up to 4 indexes" % node.pos)
+
+        return indexes
+    
+    def declarray(self,node):
+        indexes = self.indexes(node)
             
         atype = fracttypes.arrayTypeOf(node.datatype,node)
 
@@ -697,6 +726,8 @@ class TBase:
             r = self.assign(node)
         elif node.type == "string":
             r = self.enum_lookup(node)
+        elif node.type == "arraylookup":
+            r = self.arraylookup(node)
         else:
             self.badNode(node,"exp")
 

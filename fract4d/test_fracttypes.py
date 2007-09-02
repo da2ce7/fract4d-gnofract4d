@@ -61,18 +61,21 @@ class Test(unittest.TestCase):
             fracttypes.typeObjectList[fracttypes.IntArray].typename)
 
     def testArrayTypeOf(self):
-        self.assertEqual(
-            fracttypes.IntArray, fracttypes.arrayTypeOf(fracttypes.Int))
+        pairs = [
+            (fracttypes.Int, fracttypes.IntArray),
+            (fracttypes.Float, fracttypes.FloatArray),
+            (fracttypes.Complex, fracttypes.ComplexArray)]
 
-        self.assertEqual(
-            fracttypes.FloatArray, fracttypes.arrayTypeOf(fracttypes.Float))
-
-        self.assertEqual(
-            fracttypes.ComplexArray, fracttypes.arrayTypeOf(fracttypes.Complex))
+        for (element, array) in pairs:            
+            self.assertEqual(
+                array, fracttypes.arrayTypeOf(element))
+            self.assertEqual(
+                element, fracttypes.elementTypeOf(array))
 
         self.assertRaises(
             fracttypes.TranslationError,
             fracttypes.arrayTypeOf, fracttypes.Image)
+
         
     def testTypeIDs(self):
         for i in xrange(len(fracttypes.typeObjectList)):
