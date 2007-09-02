@@ -174,6 +174,7 @@ int main()
 
         #include "cmap.cpp"
         #include "image.cpp"
+        #include "fract_stdlib.cpp"
         #include "pf.h"
         
         typedef struct {
@@ -2136,6 +2137,13 @@ Newton4(XYAXIS) {; Mark Peterson
         complex c = #center
         }'''
         self.assertCSays(src,"init",self.inspect_complex("c"),"c = (0,0)")
+
+    def testArray(self):
+        src = '''t_array1 {
+        init:
+        int array[100]
+        }'''
+        self.assertCSays(src,"init","","")
         
     # assertions
     def assertCSays(self,source,section,check,result,options={}):

@@ -982,3 +982,6 @@ def rand__c(gen,t,srcs):
     [d1,d2] = gen.emit_func0_2("fract_rand", srcs, Float)
     return ComplexArg(d1,d2)
 
+def _alloc_i_av(gen,t,srcs):
+    d = gen.emit_func2("alloc_array", [ConstIntArg(4)] + srcs, VoidArray)
+    return d

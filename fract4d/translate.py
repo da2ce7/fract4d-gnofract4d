@@ -656,42 +656,29 @@ class TBase:
             self.error("Invalid declaration on line %d: %s" % (node.pos,e))
 
     def declarray(self,node):
+
+        # for each index, coerce it to an int
         indexes = [
             self.coerce(self.exp(x),fracttypes.Int) for x in node.children]
-        
-        try:
-            self.symbols[node.leaf] = Var(
-                fracttypes.arrayTypeOf(node.datatype,node), None, node.pos)
 
-            # for each index, coerce it to an int
-            # build a multiplication out of them all
-            # return a move(var, funcall(thatnum))
+        atype = fracttypes.arrayTypeOf(node.datatype,node)
+
+        try:
+            self.symbols[node.leaf] = Var(atype, None, node.pos)
             
         except KeyError, e:
             self.error("Invalid declaration on line %d: %s" % (node.pos,e))
-         
-        
-        return ir.Const(fracttypes.Int, -1, node.pos)
-    
-        #
-        #
-        ## FIXME: convert the indexes into a multiplication
-        #indexExp = ir.Const(fracttypes.Int, 10, node.pos)
-        #    
-        #try:
-        #    self.symbols[node.leaf] = Var(
-        #        node.datatype | fracttypes.Array, None, node.pos)
-        #    return ir.Move(
-        #        ir.Var(node.leaf, node, node.datatype | fracttypes.Array),
-        #        
-        #        self.coerce(exp, node.datatype),
-        #        node, node.datatype)
-        #
-        #except KeyError, e:
-        #    self.error("Invalid declaration on line %d: %s" % (node.pos,e))
-        # 
-        #return indexes
-        
+
+        # initialize array by calling _alloc() and casting to correct type
+        init_exp = self.coerce(ir.Call("_alloc", indexes, node, fracttypes.VoidArray), atype)
+
+        # return a move(var, alloc(thatnum))
+        return ir.Move(
+            ir.Var(node.leaf, node, node.datatype),
+            init_exp,
+            node,
+            atype)            
+                
     def exp(self,node):
         if node.type == "const":
             r = self.const(node)

@@ -1380,7 +1380,30 @@ default:
         self.assertEqual(0,x.value)
 
         decl = t.sections["init"].children[0]
-        
+        self.assertEqual(ir.Move, decl.__class__)
+
+        amount_to_alloc = decl.children[1].children[0].children[0]
+        self.assertEqual(2,amount_to_alloc.value)
+
+    def test2DArray(self):
+        t = self.translate('''t {
+        init:
+        int x[2,7]
+        }''')
+
+        self.assertNoErrors(t)
+
+        x = t.symbols["x"]
+        self.assertEqual(fracttypes.IntArray, x.type)
+        self.assertEqual(0,x.value)
+
+        decl = t.sections["init"].children[0]
+        self.assertEqual(ir.Move, decl.__class__)
+
+        self.assertEqual(
+            [2,7],
+            [child.value for child in decl.children[1].children[0].children])
+                
     def testArrayBadIndexType(self):
         t = self.translate('''t {
         init:

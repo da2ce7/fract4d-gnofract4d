@@ -82,6 +82,17 @@ class Test(unittest.TestCase):
         self.assertEqual(
             None, fracttypes.typeObjectList[fracttypes.String].printf)
 
+    def testCastsToSelf(self):
+        for type in fracttypes.typeList:
+            self.assertEqual(True, fracttypes.canBeCast(type, type))
+
+    def testArrayCasts(self):
+        arraytypes = [ fracttypes.IntArray ]
+        for t in arraytypes:
+            self.assertEqual(True, fracttypes.canBeCast(fracttypes.VoidArray, t))
+            self.assertEqual(False, fracttypes.canBeCast(t, fracttypes.VoidArray))
+
+            
     def testCType(self):
         expected =  {
             fracttypes.Int : "int",
@@ -91,7 +102,9 @@ class Test(unittest.TestCase):
             fracttypes.Bool : "int",
             fracttypes.Color : "double",
             fracttypes.String : "<Error>",
-            fracttypes.Gradient : "void *"
+            fracttypes.Gradient : "void *",
+            fracttypes.VoidArray : "void *",
+            fracttypes.IntArray : "int *"
             }
 
         for (k,v) in expected.items():            

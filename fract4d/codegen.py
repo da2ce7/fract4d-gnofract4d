@@ -15,7 +15,7 @@ import types
 import optimize
 import fracttypes
 
-from fracttypes import Bool, Int, Float, Complex, Hyper, Color
+from fracttypes import Bool, Int, Float, Complex, Hyper, Color, IntArray, FloatArray, ComplexArray, VoidArray
 from instructions import *
     
 class Formatter:
@@ -853,6 +853,11 @@ extern pf_obj *pf_new(void);
                 self.out.append(Oper(assem,[src], [dst.parts[3]]))
             else:
                 dst = None
+        elif t.datatype == IntArray or t.datatype == FloatArray or t.datatype == ComplexArray:
+            if child.datatype == VoidArray:
+                assem = "%(d0)s = ((int *)%(s0)s);"
+                dst = self.newTemp(t.datatype)
+                self.out.append(Oper(assem, [src], [dst]))
                 
         if dst == None:
             msg = "%d: Invalid Cast from %s to %s" % \

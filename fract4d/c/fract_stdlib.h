@@ -5,6 +5,9 @@
 extern "C" {
 #endif
 
+    void fract_rand(double *re, double *im);
+
+    void *alloc_array(int size);
 
 #ifdef __cplusplus
 }

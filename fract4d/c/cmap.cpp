@@ -785,30 +785,3 @@ void gradient(void *grad_object, double index, double *r, double *g, double *b)
     *b = ((double)col.b)/255.0;
 }
 
-// Code adapted from Fractint. I'm a bit suspicious of the RNG here, but compatibility is God.
-#define rand15() (rand() & 0x7FFF)
-
-static unsigned long RandNum; // FIXME: not thread-safe
-
-unsigned long NewRandNum(void)
-{
-   return(RandNum = ((RandNum << 15) + rand15()) ^ RandNum);
-}
-
-void fract_rand(double *re, double *im)
-{
-   long x, y;
-
-   /* Use the same algorithm as for fixed math so that they will generate
-	  the same fractals when the srand() function is used. */
-   // FIXME :can't (be bothered to) work out how Fractint sets the bitshift, so hard-coding 29
-#define bitshift 29
-
-   x = NewRandNum() >> (32 - bitshift);
-   y = NewRandNum() >> (32 - bitshift);
-   *re = ((double)x / (1L << bitshift));
-   *im = ((double)y / (1L << bitshift));
-    
-}
-
-// end of copied code

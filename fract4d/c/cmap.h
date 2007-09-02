@@ -135,7 +135,6 @@ extern "C" {
 	void *grad_object, double index, 
 	double *r, double *g, double *b);
 
-    void fract_rand(double *re, double *im);
 }
 
 #endif /* CMAP_H_ */

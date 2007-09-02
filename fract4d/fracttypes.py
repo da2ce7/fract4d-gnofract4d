@@ -15,9 +15,11 @@ Hyper = 6
 Gradient = 7
 Image = 8
 
-IntArray = 9
-FloatArray = 10
-ComplexArray = 11
+VoidArray = 9
+IntArray = 10
+FloatArray = 11
+ComplexArray = 12
+
 
 class Type(object):
     def __init__(self,**kwds):
@@ -29,7 +31,10 @@ class Type(object):
         self.cname = kwds["cname"]
         self.typeid = kwds["id"]
         self.part_names = kwds.get("parts",[""])
-        
+
+    def init_val(self,var):
+        return "0"
+    
 class FloatType(Type):
     def __init__(self,**kwds):
         Type.__init__(self,**kwds)
@@ -134,8 +139,12 @@ typeObjectList = [
     ImageType(id=Image,suffix="I", typename="image",
               default=0, cname="void *"),
 
+    Type(id=VoidArray,suffix="av", typename="voidarray",
+         default=0, cname="void *"),
+
     Type(id=IntArray,suffix="ai", typename="intarray",
-             default=0, cname="int *")
+             default=0, cname="int *"),
+
     ]
 
 typeList = [
@@ -148,6 +157,7 @@ typeList = [
     Hyper,
     Gradient,
     Image,
+    VoidArray,
     IntArray]
 
 suffixOfType = {
@@ -159,7 +169,9 @@ suffixOfType = {
     String : "S",
     Hyper : "h",
     Gradient : "G",
-    Image : "I"
+    Image : "I",
+    VoidArray : "av",
+    IntArray : "ai"
     }
 
 _typeOfStr = {
@@ -184,7 +196,9 @@ _strOfType = {
     String : "string",
     Hyper : "hyper",
     Gradient : "grad",
-    Image : "image"
+    Image : "image",
+    VoidArray: "array",
+    IntArray: "int array"
    }
 
 _slotsForType = {
@@ -224,16 +238,18 @@ def slotsForType(t):
 
 _canBeCast = [
     # rows are from, columns are to
-    # Bool Int Float Complex Color String Hyper Gradient Image
-    [ 1,   1,  1,    1,      0,    0,     1,    0,       0 ], # Bool
-    [ 1,   1,  1,    1,      0,    0,     1,    0,       0 ], # Int
-    [ 1,   0,  1,    1,      0,    0,     1,    0,       0 ], # Float
-    [ 1,   0,  0,    1,      0,    0,     1,    0,       0 ], # Complex
-    [ 0,   0,  0,    0,      1,    0,     0,    0,       0 ], # Color
-    [ 0,   0,  0,    0,      0,    1,     0,    0,       0 ], # String
-    [ 1,   0,  0,    0,      0,    0,     1,    0,       0 ], # Hyper
-    [ 0,   0,  0,    0,      0,    0,     0,    1,       0 ], # Gradient
-    [ 0,   0,  0,    0,      0,    0,     0,    0,       1 ]  # Image
+    # Bool Int Float Complex Color String Hyper Gradient Image VoidArray, IntArray 
+    [ 1,   1,  1,    1,      0,    0,     1,    0,       0,    0,         0,       ], # Bool
+    [ 1,   1,  1,    1,      0,    0,     1,    0,       0,    0,         0,       ], # Int
+    [ 1,   0,  1,    1,      0,    0,     1,    0,       0,    0,         0,       ], # Float
+    [ 1,   0,  0,    1,      0,    0,     1,    0,       0,    0,         0,       ], # Complex
+    [ 0,   0,  0,    0,      1,    0,     0,    0,       0,    0,         0,       ], # Color
+    [ 0,   0,  0,    0,      0,    1,     0,    0,       0,    0,         0,       ], # String
+    [ 1,   0,  0,    0,      0,    0,     1,    0,       0,    0,         0,       ], # Hyper
+    [ 0,   0,  0,    0,      0,    0,     0,    1,       0,    0,         0,       ], # Gradient
+    [ 0,   0,  0,    0,      0,    0,     0,    0,       1,    0,         0,       ], # Image
+    [ 0,   0,  0,    0,      0,    0,     0,    0,       0,    1,         1,       ], # VoidArray
+    [ 0,   0,  0,    0,      0,    0,     0,    0,       0,    0,         1,       ]  # IntArray
     ]
 
 def canBeCast(t1,t2):
@@ -283,7 +299,6 @@ class Func:
                 typed_fname = typed_fname + suffixOfType[arg]
             typed_fname = typed_fname + "_" + suffixOfType[self.ret]
         
-            #print typed_fname
             self.genFunc = stdlib.__dict__.get(typed_fname,typed_fname)
 
         self.cname = fname

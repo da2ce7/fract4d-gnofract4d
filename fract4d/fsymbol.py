@@ -454,6 +454,10 @@ by the 3rd parameter.''')
     f("_image",
       [ [Image, Complex], Color],
       doc='''Look up a color from a 2D array of colors.''')
+
+    f("_alloc",
+      [ [Int], VoidArray],
+      doc='''Allocate an array with N members''')
     
     # operators
     
