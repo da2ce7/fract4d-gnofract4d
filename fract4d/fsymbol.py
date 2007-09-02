@@ -458,6 +458,24 @@ by the 3rd parameter.''')
     f("_alloc",
       [ [ [Int], VoidArray], [ [Int, Int], VoidArray], [ [Int, Int, Int], VoidArray], [[Int, Int, Int, Int], VoidArray]],
       doc='''Allocate an array with N members''')
+
+    f("_write_lookup",
+      # args are array, indexes, value. returns false if index is out of bounds
+      [ [ [IntArray, Int, Int], Bool],
+        [ [IntArray, Int, Int, Int], Bool],
+        [ [IntArray, Int, Int, Int, Int], Bool],
+        [ [IntArray, Int, Int, Int, Int, Int], Bool],
+        ],
+      doc='''Write a value into an array''')
+
+    f("_read_lookup",
+      # args are array, indexes, value
+      [ [ [IntArray, Int], Int],
+        [ [IntArray, Int, Int], Int],
+        [ [IntArray, Int, Int, Int], Int],
+        [ [IntArray, Int, Int, Int, Int], Int]
+        ],
+      doc='''Read a value out of an array''')
     
     # operators
     

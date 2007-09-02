@@ -12,6 +12,8 @@ extern "C" {
     void *alloc_array3D(int element_size, int xsize, int ysize, int zsize);
     void *alloc_array4D(int element_size, int xsize, int ysize, int zsize, int wsize);
 
+    int read_int_array_1D(void *array, int x);
+
 #ifdef __cplusplus
 }
 #endif

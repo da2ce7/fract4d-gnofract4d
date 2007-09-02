@@ -2143,8 +2143,10 @@ Newton4(XYAXIS) {; Mark Peterson
         init:
         int array[100]
         int a2[10,10]
+        array[0] = -77
+        int x = array[0]
         }'''
-        self.assertCSays(src,"init","","")
+        self.assertCSays(src,"init",self.inspect_int("x"),"x = -77")
         
     # assertions
     def assertCSays(self,source,section,check,result,options={}):

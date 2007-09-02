@@ -51,4 +51,9 @@ void *alloc_array4D(int element_size, int xsize, int ysize, int zsize, int wsize
     return NULL;
 }
 
+int read_int_array_1D(void *array, int x)
+{
+    return 0;
+}
+
 

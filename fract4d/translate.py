@@ -574,17 +574,19 @@ class TBase:
 
     def arraylookup(self, node):
         name = node.leaf
-        expectedType = self.symbols[name].type
-        expectedType = fracttypes.elementTypeOf(expectedType)                
-        var = ir.Var(name, node, expectedType)
+        atype = self.symbols[name].type
+        elementType = fracttypes.elementTypeOf(atype)                
         
         indexes = self.indexes(node)
-        r = ir.Call("_read_lookup", [var] + indexes, node, expectedType)
+        r = ir.Call("_read_lookup", [ir.Var(name,node,atype)] + indexes, node, elementType)
         return r
         
-    def lval(self,node):
-        lvalue = node
+    def assign(self, node):
+        '''assign a new value to a variable, creating it if required'''
+        lvalue = node.children[0]
         lhs = expectedType = None
+        rhs = self.exp(node.children[1])
+        
         if lvalue.type == "id" or lvalue.type == "arraylookup":
             name = lvalue.leaf
             if not self.symbols.has_key(name):
@@ -602,11 +604,12 @@ class TBase:
                 lhs = ir.Var(name, node, expectedType)
             else:
                 # array lookup
-                expectedType = fracttypes.elementTypeOf(expectedType)                
                 var = ir.Var(name, node, expectedType)
 
-                indexes = self.indexes(node)
-                lhs = ir.Call("_write_lookup", [var] + indexes, node, expectedType)
+                indexes = self.indexes(node.children[0])
+                elementType = fracttypes.elementTypeOf(expectedType)
+                rhs = self.coerce(rhs,elementType)
+                return ir.Call("_write_lookup", [var] + indexes + [rhs], node, elementType)                
                 
         elif lvalue.type == "funcall":
             lhs = self.funcall(lvalue)
@@ -614,15 +617,6 @@ class TBase:
         else:
             self.error("Internal Compiler Error: bad lvalue %s for assign on %d:"\
                        % (lvalue.type, node.pos))
-
-        return lhs
-    
-    def assign(self, node):
-        '''assign a new value to a variable, creating it if required'''
-        lhs = self.lval(node.children[0])
-        expectedType = lhs.datatype
-        
-        rhs = self.exp(node.children[1])
 
         return ir.Move(lhs,self.coerce(rhs,expectedType),node,expectedType)
 

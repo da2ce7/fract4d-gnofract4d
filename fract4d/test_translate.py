@@ -1468,7 +1468,7 @@ default:
         self.assertNoErrors(t)
 
         # check array write
-        target = t.sections["init"].children[1].children[0]
+        target = t.sections["init"].children[1]
         self.assertEqual(ir.Call, target.__class__)
         self.assertEqual("_write_lookup", target.op)
         
@@ -1479,6 +1479,10 @@ default:
         index = target.children[1]
         self.assertEqual(ir.Const, index.__class__)
         self.assertEqual(1, index.value) 
+
+        val = target.children[2]
+        self.assertEqual(ir.Const, val.__class__)
+        self.assertEqual(4, val.value) 
 
         # check array read
         dereference = t.sections["init"].children[2].children[1]
@@ -1491,7 +1495,17 @@ default:
         
         index = dereference.children[1]
         self.assertEqual(ir.Const, index.__class__)
-        self.assertEqual(1, index.value) 
+        self.assertEqual(1, index.value)
+
+    def testMoreComplexArrays(self):
+        t = self.translate('''t {
+        init:
+        float x[2,4,8,16]
+        x[1,round(2.5),3*1*1-0,4] = 4
+        }''')
+
+        self.assertNoErrors(t)
+        
         
 def suite():
     return unittest.makeSuite(Test,'test')
