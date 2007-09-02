@@ -572,12 +572,27 @@ class TBase:
         ifstm = ir.Seq([test,trueBlock,falseBlock,doneDest],node)
         return ifstm
 
+    def checkArrayArity(self, name, indexes, pos):
+        try:
+            arity = self.symbols[name].arity
+            
+            if len(indexes) != arity:                   
+                raise TranslationError("%d: wrong number of indexes for %s" % (pos, name))
+                
+        except AttributeError, err:
+            # not an array
+            raise TranslationError("%d: %s is not an array" % (pos, name))
+                               
+                
     def arraylookup(self, node):
         name = node.leaf
-        atype = self.symbols[name].type
-        elementType = fracttypes.elementTypeOf(atype)                
-        
         indexes = self.indexes(node)
+        self.checkArrayArity(name, indexes, node.pos)
+
+        array = self.symbols[name]
+        atype = array.type
+        elementType = fracttypes.elementTypeOf(atype)
+        
         r = ir.Call("_read_lookup", [ir.Var(name,node,atype)] + indexes, node, elementType)
         return r
         
@@ -603,10 +618,12 @@ class TBase:
             if lvalue.type == "id":
                 lhs = ir.Var(name, node, expectedType)
             else:
-                # array lookup
+                # array lookup                
                 var = ir.Var(name, node, expectedType)
-
+                
                 indexes = self.indexes(node.children[0])
+
+                self.checkArrayArity(name, indexes, node.pos)
                 elementType = fracttypes.elementTypeOf(expectedType)
                 rhs = self.coerce(rhs,elementType)
                 return ir.Call("_write_lookup", [var] + indexes + [rhs], node, elementType)                
@@ -690,7 +707,9 @@ class TBase:
         atype = fracttypes.arrayTypeOf(node.datatype,node)
 
         try:
-            self.symbols[node.leaf] = Var(atype, None, node.pos)
+            var = Var(atype, None, node.pos)
+            var.arity = len(indexes)
+            self.symbols[node.leaf] = var
             
         except KeyError, e:
             self.error("Invalid declaration on line %d: %s" % (node.pos,e))

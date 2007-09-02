@@ -1506,6 +1506,45 @@ default:
 
         self.assertNoErrors(t)
         
+    def testArrayTypeMismatch(self):
+        t = self.translate('''t {
+        init:
+        int i[3]
+        float f[2]
+        f[0] = #z
+        i[1] = f[2]
+        }''')
+
+        self.assertError(t, "5: invalid type complex for #z, expecting float")
+
+    def testWrongIndexes(self):
+        t = self.translate('''t {
+        init:
+        float f[1,2]
+        f[0] = 1
+        }''')
+
+        self.assertError(t, "4: wrong number of indexes for f")
+
+    def testLookupOnNonArray(self):
+        t = self.translate('''t {
+        init:
+        int f
+        int g
+        f[0] = 1
+        }''')
+
+        self.assertError(t, "5: f is not an array")
+
+        t = self.translate('''t {
+        init:
+        int f
+        int g
+        g = f[0]
+        }''')
+        
+        self.assertError(t, "5: f is not an array")
+        
         
 def suite():
     return unittest.makeSuite(Test,'test')
