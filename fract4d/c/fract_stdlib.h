@@ -7,6 +7,13 @@ extern "C" {
 
     void fract_rand(double *re, double *im);
 
+    typedef struct s_arena *arena_t;
+    arena_t arena_create(int size);
+    void *arena_alloc(arena_t arena, int element_size, int n_elements);
+    void arena_delete(arena_t arena);
+
+    void array_get_int(void *allocation, int i, int *pRetVal, int *pInBounds);
+
     void *alloc_array1D(int element_size, int size);
     void *alloc_array2D(int element_size, int xsize, int ysize);
     void *alloc_array3D(int element_size, int xsize, int ysize, int zsize);

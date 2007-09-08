@@ -90,7 +90,8 @@ fract4d_sources = [
     'fract4d/c/STFractWorker.cpp',
     'fract4d/c/MTFractWorker.cpp',
     'fract4d/c/image.cpp',
-    'fract4d/c/imageIO.cpp'
+    'fract4d/c/imageIO.cpp',
+    'fract4d/c/fract_stdlib.cpp'
     ]
 
 # this is a hack to build 2 versions of the same extension.
@@ -117,6 +118,11 @@ module_gmp = Extension(
     libraries = ['gmp']
     )
 
+defines = [ ('_REENTRANT',1),
+            #('NO_CALC', 1),  # set this to not calculate the fractal
+            #('DEBUG_CREATION',1), # debug spew for allocation objects
+            ('DEBUG_ALLOCATION',1), # debug spew for array handling
+            ]
 module_fract4dgmp = Extension(
     'fract4d.fract4dcgmp',
     sources = fract4d_gmp_sources,
@@ -130,13 +136,8 @@ module_fract4dgmp = Extension(
     '-Wall',
     ] + png_flags,
     extra_link_args = png_libs,
-    define_macros = [ ('_REENTRANT',1),
-                      #('NO_CALC', 1),
-                      #('DEBUG_CREATION',1),
-                      ('USE_GMP',1)
-                      ] + extra_macros,
-    undef_macros = [ 'NDEBUG']
-    
+    define_macros = defines + [('USE_GMP',1)] + extra_macros,
+    undef_macros = [ 'NDEBUG']    
     )
 
 module_fract4dc = Extension(
@@ -152,19 +153,16 @@ module_fract4dc = Extension(
     '-Wall',
     ] + png_flags,
     extra_link_args = png_libs,
-    define_macros = [ ('_REENTRANT',1),
-                      #('NO_CALC', 1),
-                      #('DEBUG_CREATION',1)
-                      ] + extra_macros,
-    undef_macros = [ 'NDEBUG']
-    
+    define_macros = defines + extra_macros,
+    undef_macros = [ 'NDEBUG']    
     )
 
 module_cmap = Extension(
     'fract4d.fract4d_stdlib',
     sources = [
     'fract4d/c/cmap.cpp',
-    'fract4d/c/image.cpp'
+    'fract4d/c/image.cpp',
+    'fract4d/c/fract_stdlib.cpp'
     ],
     include_dirs = [
     'fract4d/c'

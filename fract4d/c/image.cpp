@@ -115,7 +115,7 @@ image::get(int x, int y) const
     pixel.r = start[RED];
     pixel.g = start[GREEN];
     pixel.b = start[BLUE];
-    
+    pixel.a = 0;
     return pixel;
 }
 

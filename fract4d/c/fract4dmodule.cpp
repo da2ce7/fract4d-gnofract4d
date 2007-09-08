@@ -16,13 +16,15 @@
 #include <dlfcn.h>
 #include <pthread.h>
 
+#include "assert.h"
+
+#include <new>
+
 #include "pf.h"
 #include "cmap.h"
 #include "fractFunc.h"
 #include "image.h"
-#include "assert.h"
-
-#include <new>
+#include "fract_stdlib.h"
 
 /* not sure why this isn't defined already */
 #ifndef PyMODINIT_FUNC 
@@ -2296,6 +2298,95 @@ pyhsl_to_rgb(PyObject *self, PyObject *args)
 	r,g,b,a);
 }
 
+static PyObject *
+pyarena_create(PyObject *self, PyObject *args)
+{
+    int size;
+    if(!PyArg_ParseTuple(
+	   args,
+	   "i",
+	   &size))
+    {
+	return NULL;
+    }
+    
+    arena_t arena = arena_create(size);
+
+    if(NULL == arena)
+    {
+	PyErr_SetString(PyExc_MemoryError,"Cannot allocate arena");
+	return NULL;
+    }
+
+    PyObject *pyarena = PyCObject_FromVoidPtr(
+	arena,(void (*)(void *))arena_delete);
+
+    return pyarena;
+}
+
+static PyObject *
+pyarena_alloc(PyObject *self, PyObject *args)
+{
+    PyObject *pyArena;
+    int element_size;
+    int n_elements;
+
+    if(!PyArg_ParseTuple(
+	   args,
+	   "Oii",
+	   &pyArena, &element_size, &n_elements))
+    {
+	return NULL;
+    }
+
+    arena_t arena = (arena_t)PyCObject_AsVoidPtr(pyArena);
+    if(arena == NULL)
+    {
+	return NULL;
+    }
+
+    void *allocation = arena_alloc(arena, element_size, n_elements);
+    if(allocation == NULL)
+    {
+	PyErr_SetString(PyExc_MemoryError, "Can't allocate array");
+	return NULL;
+    }
+
+    PyObject *pyAlloc = PyCObject_FromVoidPtr(allocation, NULL);
+
+    return pyAlloc;
+}
+
+static PyObject *
+pyarray_get(PyObject *self, PyObject *args)
+{
+    PyObject *pyAllocation;
+    int i;
+
+    if(!PyArg_ParseTuple(
+	   args,
+	   "Oi",
+	   &pyAllocation, &i))
+    {
+	return NULL;
+    }
+
+    void *allocation = PyCObject_AsVoidPtr(pyAllocation);
+    if(allocation == NULL)
+    {
+	return NULL;
+    }
+ 
+    int retval, inbounds;
+    array_get_int(allocation, i, &retval, &inbounds);
+    
+    PyObject *pyRet = Py_BuildValue(
+	"(ii)",
+	retval,inbounds);
+
+    return pyRet;
+}
+
 static PyMethodDef PfMethods[] = {
     {"pf_load",  pf_load, METH_VARARGS, 
      "Load a new point function shared library"},
@@ -2397,6 +2488,14 @@ static PyMethodDef PfMethods[] = {
 
     { "eye_vector", eye_vector, METH_VARARGS,
       "Return the line between the user's eye and the center of the screen"},
+
+    { "arena_create", pyarena_create, METH_VARARGS,
+      "Create a new arena allocator" },
+    { "arena_alloc", pyarena_alloc, METH_VARARGS,
+      "Allocate a chunk of memory from the arena" },
+
+    { "array_get_int", pyarray_get, METH_VARARGS,
+      "Get an element from an array allocated in an arena" },
 
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
