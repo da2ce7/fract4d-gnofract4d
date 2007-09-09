@@ -3,6 +3,7 @@
 #endif
 
 
+#include "fract_stdlib.h"
 #include "pf.h"
 #include "cmap.h"
 #include "pointFunc_public.h"

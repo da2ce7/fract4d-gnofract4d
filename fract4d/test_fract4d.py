@@ -915,19 +915,20 @@ class Test(testbase.TestBase):
             0.0,0.0,0.5)
 
     def testArenaAlloc(self):
-        arena = fract4dc.arena_create(100)
+        arena = fract4dc.arena_create(100,1)
         alloc = fract4dc.arena_alloc(arena, 1,10)
         alloc = fract4dc.arena_alloc(arena, 10,1)
         
     def testTooSmallArena(self):
-        self.assertRaises(MemoryError, fract4dc.arena_create,0)
-
+        self.assertRaises(MemoryError, fract4dc.arena_create,0,10)
+        self.assertRaises(MemoryError, fract4dc.arena_create,10,0)
+        
     def testTooBigAlloc(self):
-        arena = fract4dc.arena_create(10)
+        arena = fract4dc.arena_create(10,1)
         self.assertRaises(MemoryError, fract4dc.arena_alloc,arena,8,10)
         
     def testMultipleAllocs(self):
-        arena = fract4dc.arena_create(10)
+        arena = fract4dc.arena_create(10,1)
         for i in xrange(5):
             fract4dc.arena_alloc(arena,8,1)
 
@@ -935,7 +936,7 @@ class Test(testbase.TestBase):
         self.assertRaises(MemoryError, fract4dc.arena_alloc,arena,8,1)
 
     def testReadArrayVal(self):
-        arena = fract4dc.arena_create(10)
+        arena = fract4dc.arena_create(10,1)
         alloc = fract4dc.arena_alloc(arena, 4, 10)
 
         for i in xrange(10):
@@ -946,7 +947,27 @@ class Test(testbase.TestBase):
 
         self.assertEqual((-1,0), fract4dc.array_get_int(alloc,10))
         self.assertEqual((-1,0), fract4dc.array_get_int(alloc,-1))
-        
+
+    def testReadAndWriteArray(self):
+        arena = fract4dc.arena_create(10,1)
+        alloc = fract4dc.arena_alloc(arena, 4, 10)
+
+        for i in xrange(10):
+            val = i
+            result = fract4dc.array_set_int(alloc,i,val)
+
+        for i in xrange(10):
+            result = fract4dc.array_get_int(alloc,i)
+            self.assertEqual(
+                (i,1), result,
+                "bad result %s for %d"  % (result, i))
+
+        self.assertEqual((-1,0), fract4dc.array_get_int(alloc,10))
+        self.assertEqual((-1,0), fract4dc.array_get_int(alloc,-1))
+
+        self.assertEqual(0, fract4dc.array_set_int(alloc,10,99))
+        self.assertEqual(0, fract4dc.array_set_int(alloc,-1,99))
+
 def suite():
     return unittest.makeSuite(Test,'test')
 

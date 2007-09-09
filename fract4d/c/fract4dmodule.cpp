@@ -20,11 +20,12 @@
 
 #include <new>
 
+#include "fract_stdlib.h"
 #include "pf.h"
 #include "cmap.h"
 #include "fractFunc.h"
 #include "image.h"
-#include "fract_stdlib.h"
+
 
 /* not sure why this isn't defined already */
 #ifndef PyMODINIT_FUNC 
@@ -2301,16 +2302,16 @@ pyhsl_to_rgb(PyObject *self, PyObject *args)
 static PyObject *
 pyarena_create(PyObject *self, PyObject *args)
 {
-    int size;
+    int page_size, max_pages;
     if(!PyArg_ParseTuple(
 	   args,
-	   "i",
-	   &size))
+	   "ii",
+	   &page_size,&max_pages))
     {
 	return NULL;
     }
     
-    arena_t arena = arena_create(size);
+    arena_t arena = arena_create(page_size,max_pages);
 
     if(NULL == arena)
     {
@@ -2383,6 +2384,33 @@ pyarray_get(PyObject *self, PyObject *args)
     PyObject *pyRet = Py_BuildValue(
 	"(ii)",
 	retval,inbounds);
+
+    return pyRet;
+}
+
+static PyObject *
+pyarray_set(PyObject *self, PyObject *args)
+{
+    PyObject *pyAllocation;
+    int i, val;
+
+    if(!PyArg_ParseTuple(
+	   args,
+	   "Oii",
+	   &pyAllocation, &i, &val))
+    {
+	return NULL;
+    }
+
+    void *allocation = PyCObject_AsVoidPtr(pyAllocation);
+    if(allocation == NULL)
+    {
+	return NULL;
+    }
+ 
+    int retval = array_set_int(allocation, i, val);
+    
+    PyObject *pyRet = Py_BuildValue("i",retval);
 
     return pyRet;
 }
@@ -2497,6 +2525,9 @@ static PyMethodDef PfMethods[] = {
     { "array_get_int", pyarray_get, METH_VARARGS,
       "Get an element from an array allocated in an arena" },
 
+    { "array_set_int", pyarray_set, METH_VARARGS,
+      "Set an element in an array allocated in an arena" },
+    
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

@@ -33,7 +33,7 @@ class Test(testbase.TestBase):
         self.parser = fractparser.parser
         self.main_stub = '''
 
-
+#include "fract_stdlib.cpp"
 int main()
 {
     double pparams[] = { 1.5, 0.0, 0.0, 0.0};
@@ -278,7 +278,12 @@ int main()
         'Check inline copy of pf.h is up-to-date'
         pfh = open('c/pf.h').read()
         self.assertEqual(pfh,self.codegen.pf_header)
-        
+
+    def testStdlibHeader(self):
+        'Check inline copy of fract_stdlib.h is up-to-date'
+        pfh = open('c/fract_stdlib.h').read()
+        self.assertEqual(pfh,self.codegen.fract_stdlib_header)
+
     def testMatching(self):
         'test tree matching works'
         template = "[Binop, Const, Const]"

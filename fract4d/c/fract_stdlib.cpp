@@ -51,8 +51,10 @@ typedef union {
 
 // an arena
 struct s_arena {
-    arena_t prev_arena;
     int free_slots;
+    int page_size;
+    int pages_left;
+    allocation_t *prev_arena;
     allocation_t *base_allocation;
     allocation_t *next_allocation;
 };
@@ -94,9 +96,9 @@ int read_int_array_1D(void *array, int x)
 }
 
 arena_t 
-arena_create(int size)
+arena_create(int page_size, int max_pages)
 {
-    if(size <= 0)
+    if(page_size <= 0 || max_pages <= 0)
     {
 	return NULL;
     }
@@ -107,22 +109,27 @@ arena_create(int size)
 	return NULL;
     }
 
-    arena->base_allocation = new(std::nothrow) allocation_t[size];
+    arena->base_allocation = new(std::nothrow) allocation_t[page_size];
     if(NULL == arena->base_allocation)
     {
 	delete arena;
 	return NULL;
     }
-    for(int i = 0; i < size; ++i)
+
+    arena->free_slots = page_size;
+    arena->pages_left = max_pages;    
+    arena->page_size = page_size;
+    arena->prev_arena = NULL;
+
+    for(int i = 0; i < page_size; ++i)
     {
 	arena->base_allocation[i].d = 0.0;
     }
 
     arena->next_allocation = arena->base_allocation;
-    arena->free_slots = size;
 
 #ifdef DEBUG_ALLOCATION
-    printf("%p: ARENA : CTOR(%d)\n", arena, size);
+    printf("%p: ARENA : CTOR(%d,%d)\n", arena, page_size, max_pages);
 #endif
     return arena;
 }
@@ -157,6 +164,10 @@ arena_delete(arena_t arena)
 {
     delete[] arena->base_allocation;
     delete arena;
+
+#ifdef DEBUG_ALLOCATION
+    printf("%p: ARENA : DTOR()\n", arena);
+#endif
 }
 
 void 
@@ -174,4 +185,19 @@ array_get_int(void *vallocation, int i, int *pRetVal, int *pInBounds)
     int *array = (int *)(&allocation[1]);
     *pRetVal = array[i+1];
     *pInBounds = 1;
+}
+
+int
+array_set_int(void *vallocation, int i, int val)
+{
+    allocation_t *allocation = (allocation_t *)vallocation;
+    if(i < 0 || i >= allocation[0].i)
+    {
+	// out of bounds	
+	return 0;
+    }
+
+    int *array = (int *)(&allocation[1]);
+    array[i+1] = val;
+    return 1;
 }

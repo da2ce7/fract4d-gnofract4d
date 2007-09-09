@@ -562,7 +562,7 @@ class T(fctutils.T):
             if self.outputfile != outputfile:
                 self.outputfile = outputfile
                 self.handle = fract4dc.pf_load(self.outputfile)
-                self.pfunc = fract4dc.pf_create(self.handle)
+                #self.pfunc = fract4dc.pf_create(self.handle)
 
         self.dirtyFormula = False
         return self.outputfile
