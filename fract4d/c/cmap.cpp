@@ -24,7 +24,7 @@ ColorMap::ColorMap()
     transfers[1] = TRANSFER_LINEAR; // inner
 
 #ifdef DEBUG_CREATION
-    printf("%p : CM : CTOR\n", this);
+    fprintf(stderr,"%p : CM : CTOR\n", this);
 #endif
 }
 
@@ -92,7 +92,7 @@ cmap_delete(ColorMap *cmap)
 ColorMap::~ColorMap()
 {
 #ifdef DEBUG_CREATION
-    printf("%p : CM : DTOR\n", this);
+    fprintf(stderr,"%p : CM : DTOR\n", this);
 #endif 
 
     canary = 0xbaadf00d;
@@ -240,7 +240,7 @@ GradientColorMap::set(
     items[i].cmode = cmode;
 	
 /*
-    printf("left: %g [%g,%g,%g,%g]\nright: %g [%g,%g,%g,%g]\n%d %d\n",
+    fprintf(stderr,"left: %g [%g,%g,%g,%g]\nright: %g [%g,%g,%g,%g]\n%d %d\n",
 	   left, left_col[0], left_col[1], left_col[2], left_col[3],
 	   right, right_col[0], right_col[1], right_col[2], right_col[3], 
 	   (int)bmode, (int)cmode);
@@ -251,10 +251,10 @@ GradientColorMap::set(
 static void
 grad_dump(gradient_item_t *items, int ncolors)
 {
-    printf("gradient dump: %d\n", ncolors);
+    fprintf(stderr,"gradient dump: %d\n", ncolors);
     for(int i = 0; i < ncolors; ++i)
     {
-	printf("%d: %g\n", i, items[i].right);
+	fprintf(stderr,"%d: %g\n", i, items[i].right);
     }
 }
 
@@ -268,7 +268,7 @@ grad_find(double index, gradient_item_t *items, int ncolors)
 	    return i;
 	} 
     }
-    printf("No gradient for %g\n", index);
+    fprintf(stderr,"No gradient for %g\n", index);
     grad_dump(items, ncolors);
     assert(0 && "Didn't find an entry");
     return -1;
@@ -515,7 +515,7 @@ ListColorMap::lookup(double index) const
     i = find(index, items, ncolors); 
     assert(i >= 0 && i < ncolors);
 
-    /* printf("%g->%d\n",index,i); */
+    /* fprintf(stderr,"%g->%d\n",index,i); */
     if(index <= items[i].index || i == ncolors-1) 
     {
 	return items[i].color;
@@ -526,14 +526,14 @@ ListColorMap::lookup(double index) const
     /* mix colors i & j in proportion to the distance between them */
     dist = items[j].index - items[i].index;
 
-    /* printf("dist: %g\n",dist); */
+    /* fprintf(stderr,"dist: %g\n",dist); */
     if(dist == 0.0)
     {
 	return items[i].color;
     }
     
     r = (index - items[i].index)/dist;
-    /* printf("r:%g\n",r); */
+    /* fprintf(stderr,"r:%g\n",r); */
 
     left = items[i].color;
     right = items[j].color;
@@ -691,7 +691,7 @@ hsl_to_rgb(
 	*b = rgb_component(n1, n2, h - 2.0);
     }
 
-    //printf("hsl(%g,%g,%g) -> rgb(%g,%g,%g)\n", h,s,l,*r,*g,*b);
+    //fprintf(stderr,"hsl(%g,%g,%g) -> rgb(%g,%g,%g)\n", h,s,l,*r,*g,*b);
 }
 
 void 
@@ -778,7 +778,7 @@ void gradient(void *grad_object, double index, double *r, double *g, double *b)
 {
     ColorMap *pmap = (ColorMap *)grad_object;
 
-    //printf("gradient %p\n", grad_object);
+    //fprintf(stderr,"gradient %p\n", grad_object);
     rgba_t col = pmap->lookup(index);
     *r = ((double)col.r)/255.0;
     *g = ((double)col.g)/255.0;

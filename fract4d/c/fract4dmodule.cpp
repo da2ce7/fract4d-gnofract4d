@@ -59,7 +59,7 @@ static void
 pf_unload(void *p)
 {
 #ifdef DEBUG_CREATION
-    printf("%p : SO : DTOR\n",p);
+    fprintf(stderr,"%p : SO : DEREF\n",p);
 #endif
     dlclose(p);
 }
@@ -76,7 +76,7 @@ ensure_cmap_loaded()
     }
 
     char *filename = PyModule_GetFilename(pymod);
-    //printf("base name: %s\n",filename);
+    //fprintf(stderr,"base name: %s\n",filename);
     char *path_end = strrchr(filename,'/');
     if(path_end == NULL)
     {
@@ -91,7 +91,7 @@ ensure_cmap_loaded()
     strncpy(new_filename, filename, path_len);
     new_filename[path_len] = '\0';
     strcat(new_filename, CMAP_NAME);
-    //printf("Filename: %s\n", new_filename);
+    //fprintf(stderr,"Filename: %s\n", new_filename);
 
     cmap_module_handle = dlopen(new_filename, RTLD_GLOBAL | RTLD_NOW);
     if(NULL == cmap_module_handle)
@@ -119,7 +119,7 @@ pf_load(PyObject *self, PyObject *args)
 
     void *dlHandle = dlopen(so_filename, RTLD_NOW);
 #ifdef DEBUG_CREATION
-    printf("%p : SO :CTOR\n",dlHandle);
+    fprintf(stderr,"%p : SO : REF\n",dlHandle);
 #endif
     if(NULL == dlHandle)
     {
@@ -141,7 +141,7 @@ pf_delete(void *p)
 {
     struct pfHandle *pfh = (struct pfHandle *)p;
 #ifdef DEBUG_CREATION
-    printf("%p : PF : DTOR\n",pfh);
+    fprintf(stderr,"%p : PF : DTOR\n",pfh);
 #endif
     pfh->pfo->vtbl->kill(pfh->pfo);
     Py_DECREF(pfh->pyhandle);
@@ -176,7 +176,7 @@ pf_create(PyObject *self, PyObject *args)
     pfh->pfo = p;
     pfh->pyhandle = pyobj;
 #ifdef DEBUG_CREATION
-    printf("%p : PF : CTOR (%p)\n",pfh,pfh->pfo);
+    fprintf(stderr,"%p : PF : CTOR (%p)\n",pfh,pfh->pfo);
 #endif
     // refcount module so it can't be unloaded before all funcs are gone
     Py_INCREF(pyobj); 
@@ -421,13 +421,13 @@ parse_params(PyObject *pyarray, int *plen)
 	    {
 		params[i].t = FLOAT;
 		params[i].doubleval = PyFloat_AsDouble(pyitem);
-		//printf("%d = float(%g)\n",i,params[i].doubleval);
+		//fprintf(stderr,"%d = float(%g)\n",i,params[i].doubleval);
 	    }
 	    else if(PyInt_Check(pyitem))
 	    {
 		params[i].t = INT;
 		params[i].intval = PyInt_AS_LONG(pyitem);
-		//printf("%d = int(%d)\n",i,params[i].intval);
+		//fprintf(stderr,"%d = int(%d)\n",i,params[i].intval);
 	    }
 	    else if(
 		PyObject_HasAttrString(pyitem,"cobject") &&
@@ -461,7 +461,7 @@ parse_params(PyObject *pyarray, int *plen)
 		}
 		params[i].t = GRADIENT;
 		params[i].gradient = PyCObject_AsVoidPtr(pycob);
-		//printf("%d = gradient(%p)\n",i,params[i].gradient);
+		//fprintf(stderr,"%d = gradient(%p)\n",i,params[i].gradient);
 		Py_DECREF(pycob);
 	    }
 	    else if(
@@ -642,7 +642,7 @@ pf_calc(PyObject *self, PyObject *args)
 
     pfh = (struct pfHandle *)PyCObject_AsVoidPtr(pyobj);
 #ifdef DEBUG_THREADS
-    printf("%p : PF : CALC\n",pfh);
+    fprintf(stderr,"%p : PF : CALC\n",pfh);
 #endif
     pfh->pfo->vtbl->calc(pfh->pfo,params,
 			 nIters, -1,
@@ -837,6 +837,10 @@ public:
 	    has_pixel_changed_method = 
 		PyObject_HasAttrString(site,"pixel_changed");
 
+#ifdef DEBUG_CREATION
+	    fprintf(stderr,"%p : SITE : CTOR\n",this);
+#endif
+
 	    Py_INCREF(site);
 	}
 
@@ -880,7 +884,7 @@ public:
     virtual void status_changed(int status_val)
 	{
 	    assert(this != NULL && site != NULL);
-	    //printf("sc: %p %p\n",this,this->status_changed_cb);
+	    //fprintf(stderr,"sc: %p %p\n",this,this->status_changed_cb);
 
 	    GET_LOCK;
 	    PyObject *ret = PyObject_CallMethod(
@@ -890,7 +894,7 @@ public:
 
 	    if(PyErr_Occurred())
 	    {
-		printf("bad status 2\n");
+		fprintf(stderr,"bad status 2\n");
 		PyErr_Print();
 	    }
 	    Py_XDECREF(ret);
@@ -909,7 +913,7 @@ public:
 	    if(PyInt_Check(pyret))
 	    {
 		long i = PyInt_AsLong(pyret);
-		//printf("ret: %ld\n",i);
+		//fprintf(stderr,"ret: %ld\n",i);
 		ret = (i != 0);
 	    }
 
@@ -959,7 +963,9 @@ public:
 
     ~PySite()
 	{
-	    //printf("dtor %p\n",this);
+#ifdef DEBUG_CREATION
+	    fprintf(stderr,"%p : SITE : DTOR\n",this);
+#endif
 	    Py_DECREF(site);
 	}
 
@@ -1001,7 +1007,7 @@ struct calc_args
     calc_args()
 	{
 #ifdef DEBUG_CREATION
-	    printf("%p : CA : CTOR\n",this);
+	    fprintf(stderr,"%p : CA : CTOR\n",this);
 #endif
 	    pycmap = NULL;
 	    pypfo = NULL;
@@ -1050,7 +1056,7 @@ struct calc_args
     ~calc_args()
 	{
 #ifdef DEBUG_CREATION
-	    printf("%p : CA : DTOR\n",this);
+	    fprintf(stderr,"%p : CA : DTOR\n",this);
 #endif
 	    Py_XDECREF(pycmap);
 	    Py_XDECREF(pypfo);
@@ -1067,7 +1073,7 @@ public:
 		      interrupted(false), params(NULL) 
 	{
 #ifdef DEBUG_CREATION
-	    printf("%p : FD : CTOR\n",this);
+	    fprintf(stderr,"%p : FD : CTOR\n",this);
 #endif
 	    pthread_mutex_init(&write_lock,NULL);
 	}
@@ -1122,7 +1128,7 @@ public:
     // return true if we've been interrupted and are supposed to stop
     virtual bool is_interrupted()
 	{
-	    //printf("int: %d\n",interrupted);
+	    //fprintf(stderr,"int: %d\n",interrupted);
 	    return interrupted;
 	}
 
@@ -1134,7 +1140,7 @@ public:
 	int r, int g, int b, int a) 
 	{
 	    /*
-	    printf("pixel: <%g,%g,%g,%g>(%d,%d,%d) = (%g,%d,%d)\n",
+	    fprintf(stderr,"pixel: <%g,%g,%g,%g>(%d,%d,%d) = (%g,%d,%d)\n",
 		   params[0],params[1],params[2],params[3],
 		   x,y,aa,dist,fate,nIters);
 	    */
@@ -1144,7 +1150,7 @@ public:
     virtual void interrupt() 
 	{
 #ifdef DEBUG_THREADS
-	    printf("%p : CA : INT(%p)\n", this, tid);
+	    fprintf(stderr,"%p : CA : INT(%p)\n", this, tid);
 #endif
 	    interrupted = true;
 	}
@@ -1152,20 +1158,16 @@ public:
     virtual void start(calc_args *params_) 
 	{
 #ifdef DEBUG_THREADS
-	    printf("clear interruption\n");
+	    fprintf(stderr,"clear interruption\n");
 #endif
 	    interrupted = false;
-	    if(params != NULL)
-	    {
-		delete params;
-	    }
 	    params = params_;
 	}
 
     virtual void set_tid(pthread_t tid_) 
 	{
 #ifdef DEBUG_THREADS
-	    printf("%p : CA : SET(%p)\n", this,tid_);
+	    fprintf(stderr,"%p : CA : SET(%p)\n", this,tid_);
 #endif
 	    tid = tid_;
 	}
@@ -1175,7 +1177,7 @@ public:
 	    if(tid != 0)
 	    {
 #ifdef DEBUG_THREADS
-		printf("%p : CA : WAIT(%p)\n", this,tid);
+		fprintf(stderr,"%p : CA : WAIT(%p)\n", this,tid);
 #endif
 		pthread_join(tid,NULL);
 	    }
@@ -1183,7 +1185,7 @@ public:
     ~FDSite()
 	{
 #ifdef DEBUG_CREATION
-	    printf("%p : FD : DTOR\n",this);
+	    fprintf(stderr,"%p : FD : DTOR\n",this);
 #endif
 	    close(fd);
 	}
@@ -1217,7 +1219,7 @@ static void
 ff_delete(struct ffHandle *ffh)
 {
 #ifdef DEBUG_CREATION
-    printf("%p : FF : DTOR\n",ffh);
+    fprintf(stderr,"%p : FF : DTOR\n",ffh);
 #endif
     delete ffh->ff;
     Py_DECREF(ffh->pyhandle);
@@ -1238,7 +1240,7 @@ pysite_create(PyObject *self, PyObject *args)
 
     IFractalSite *site = new PySite(pysite);
 
-    //printf("pysite_create: %p\n",site);
+    //fprintf(stderr,"pysite_create: %p\n",site);
     PyObject *pyret = PyCObject_FromVoidPtr(site,(void (*)(void *))site_delete);
 
     return pyret;
@@ -1460,6 +1462,10 @@ ff_create(PyObject *self, PyObject *args)
     ffh->ff = ff;
     ffh->pyhandle = pyworker;
 
+#ifdef DEBUG_CREATION
+    fprintf(stderr,"%p : FF : CTOR\n",ffh);
+#endif
+
     PyObject *pyret = PyCObject_FromVoidPtr(
 	ffh,(void (*)(void *))ff_delete);
 
@@ -1475,7 +1481,7 @@ calculation_thread(void *vdata)
     calc_args *args = (calc_args *)vdata;
 
 #ifdef DEBUG_THREADS
-    printf("%p : CA : CALC(%d)\n",args,pthread_self());
+    fprintf(stderr,"%p : CA : CALC(%d)\n",args,pthread_self());
 #endif
 
     calc(args->params,args->eaa,args->maxiter,
@@ -1487,9 +1493,10 @@ calculation_thread(void *vdata)
 	 args->im,args->site);
 
 #ifdef DEBUG_THREADS 
-    printf("%p : CA : ENDCALC(%d)\n",args,pthread_self());
+    fprintf(stderr,"%p : CA : ENDCALC(%d)\n",args,pthread_self());
 #endif
 
+    delete args;
     return NULL;
 }
 
@@ -1546,8 +1553,7 @@ parse_calc_args(PyObject *args, PyObject *kwds)
     if(!PyList_Check(pyparams) || PyList_Size(pyparams) != N_PARAMS)
     {
 	PyErr_SetString(PyExc_ValueError, "bad parameter list");
-	delete cargs;
-	return NULL;
+	goto error;
     }
 
     for(int i = 0; i < N_PARAMS; ++i)
@@ -1647,7 +1653,7 @@ static void
 image_delete(IImage *image)
 {
 #ifdef DEBUG_CREATION
-    printf("%p : IM : DTOR\n",image);
+    fprintf(stderr,"%p : IM : DTOR\n",image);
 #endif
     delete image;
 }
@@ -1664,7 +1670,7 @@ image_create(PyObject *self, PyObject *args)
 
     IImage *i = new image();
 #ifdef DEBUG_CREATION
-    printf("%p : IM : CTOR\n",i);
+    fprintf(stderr,"%p : IM : CTOR\n",i);
 #endif
     i->set_resolution(x,y,totalx, totaly);
 
@@ -1957,7 +1963,7 @@ image_buffer(PyObject *self, PyObject *args)
     image *i = (image *)PyCObject_AsVoidPtr(pyim);
 
 #ifdef DEBUG_CREATION
-    printf("%p : IM : BUF\n",i);
+    fprintf(stderr,"%p : IM : BUF\n",i);
 #endif
 
     if(! i->ok())
@@ -1995,7 +2001,7 @@ image_fate_buffer(PyObject *self, PyObject *args)
     image *i = (image *)PyCObject_AsVoidPtr(pyim);
 
 #ifdef DEBUG_CREATION
-    printf("%p : IM : BUF\n",i);
+    fprintf(stderr,"%p : IM : BUF\n",i);
 #endif
 
     if(x < 0 || x >= i->Xres() || y < 0 || y >= i->Yres())

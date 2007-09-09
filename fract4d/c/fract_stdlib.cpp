@@ -47,6 +47,7 @@ void fract_rand(double *re, double *im)
 typedef union {
     int i;
     double d;
+    void *prev; // an allocation_t
 } allocation_t;
 
 // an arena
@@ -95,6 +96,40 @@ int read_int_array_1D(void *array, int x)
     return 0;
 }
 
+bool
+arena_add_page(arena_t arena)
+{
+    if(arena->pages_left <= 0)
+    {
+	return false;
+    }
+
+    allocation_t *newalloc = new(std::nothrow) allocation_t[arena->page_size+1];
+    if(NULL == newalloc)
+    {
+	return false;
+    }
+
+    // first slot holds a pointer to previous page
+    newalloc[0].prev = arena->base_allocation;
+    
+    for(int i = 1; i < arena->page_size+1; ++i)
+    {
+	newalloc[i].d = 0.0;
+    }
+    
+    arena->pages_left--;
+    arena->base_allocation = newalloc;
+    arena->free_slots = arena->page_size;
+    arena->next_allocation = &(arena->base_allocation[1]);
+
+#ifdef DEBUG_ALLOCATION
+    fprintf(stderr,"%p: ARENA PAGE : CTOR\n", newalloc);
+#endif
+
+    return true;
+}
+
 arena_t 
 arena_create(int page_size, int max_pages)
 {
@@ -109,27 +144,13 @@ arena_create(int page_size, int max_pages)
 	return NULL;
     }
 
-    arena->base_allocation = new(std::nothrow) allocation_t[page_size];
-    if(NULL == arena->base_allocation)
-    {
-	delete arena;
-	return NULL;
-    }
-
-    arena->free_slots = page_size;
+    arena->free_slots = 0;
     arena->pages_left = max_pages;    
     arena->page_size = page_size;
-    arena->prev_arena = NULL;
-
-    for(int i = 0; i < page_size; ++i)
-    {
-	arena->base_allocation[i].d = 0.0;
-    }
-
-    arena->next_allocation = arena->base_allocation;
+    arena->base_allocation = NULL;
 
 #ifdef DEBUG_ALLOCATION
-    printf("%p: ARENA : CTOR(%d,%d)\n", arena, page_size, max_pages);
+    fprintf(stderr,"%p: ARENA : CTOR(%d,%d)\n", arena, page_size, max_pages);
 #endif
     return arena;
 }
@@ -142,31 +163,60 @@ arena_alloc(arena_t arena, int element_size, int n_elements)
 	std::max(n_elements * element_size/sizeof(allocation_t),
 		 (unsigned long)1) + 1;
 
-    if(arena->free_slots < slots_required)
+    if(slots_required > arena->page_size)
     {
+	// we can never allocate this
 	return NULL;
     }
+
+    if(arena->free_slots < slots_required)
+    {
+	//try to make a new page
+	if(! arena_add_page(arena))
+	{
+	    return NULL;
+	}
+    }
+
     allocation_t *newchunk = (allocation_t *)arena->next_allocation;
     newchunk[0].i = n_elements;
     arena->next_allocation+= slots_required;
     arena->free_slots -= slots_required;
 
 #ifdef DEBUG_ALLOCATION
-    printf("%p: ALLOC : (req=%d,esize=%d,nelem=%d)\n", 
+    fprintf(stderr,"%p: ALLOC : (req=%d,esize=%d,nelem=%d)\n", 
 	   newchunk, slots_required, element_size, n_elements);
 
 #endif
     return newchunk;
 }
 
+static void
+arena_delete_page(allocation_t *alloc)
+{
+    if(NULL != alloc[0].prev)
+    {
+	// recursively delete previous page
+	arena_delete_page((allocation_t *)alloc[0].prev);
+    }
+#ifdef DEBUG_ALLOCATION
+    fprintf(stderr,"%p: ARENA PAGE : DTOR\n", alloc);
+#endif
+    delete[] alloc;
+}
+
 void 
 arena_delete(arena_t arena)
 {
-    delete[] arena->base_allocation;
+    if(NULL != arena->base_allocation)
+    {
+	arena_delete_page(arena->base_allocation);
+    }
+    
     delete arena;
 
 #ifdef DEBUG_ALLOCATION
-    printf("%p: ARENA : DTOR()\n", arena);
+    fprintf(stderr,"%p: ARENA : DTOR()\n", arena);
 #endif
 }
 

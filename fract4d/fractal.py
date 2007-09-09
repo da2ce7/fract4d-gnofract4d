@@ -222,9 +222,9 @@ class T(fctutils.T):
         self.transforms[which_transform].load_param_bag(params)
         
     def __del__(self):
+        print "deleting fractal %s" % self
         if self.outputfile:
             os.remove(self.outputfile)
-            pass
 
     def __copy__(self):
         # override shallow-copy to do a deeper copy than normal,
@@ -562,7 +562,7 @@ class T(fctutils.T):
             if self.outputfile != outputfile:
                 self.outputfile = outputfile
                 self.handle = fract4dc.pf_load(self.outputfile)
-                #self.pfunc = fract4dc.pf_create(self.handle)
+                self.pfunc = fract4dc.pf_create(self.handle)
 
         self.dirtyFormula = False
         return self.outputfile
@@ -701,8 +701,8 @@ class T(fctutils.T):
         return p
 
     def draw(self,image):
-        handle = fract4dc.pf_load(self.outputfile)
-        pfunc = fract4dc.pf_create(handle)
+        #handle = fract4dc.pf_load(self.outputfile)
+        #pfunc = fract4dc.pf_create(handle)
         cmap = fract4dc.cmap_create_gradient(self.get_gradient().segments)
         (r,g,b,a) = self.solids[0]
         fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
@@ -710,7 +710,7 @@ class T(fctutils.T):
         fract4dc.cmap_set_solid(cmap,1,r,g,b,a)
         
         initparams = self.all_params()
-        fract4dc.pf_init(pfunc,1.0E-9,self.params,initparams)
+        fract4dc.pf_init(self.pfunc,1.0E-9,self.params,initparams)
 
         if self.warp_param:
             warp = self.forms[0].order_of_name(self.warp_param)
@@ -727,7 +727,7 @@ class T(fctutils.T):
                 maxiter=self.maxiter,
                 yflip=self.yflip,
                 periodicity=self.periodicity,
-                pfo=pfunc,
+                pfo=self.pfunc,
                 cmap=cmap,
                 auto_deepen=self.auto_deepen,
                 nthreads=1,

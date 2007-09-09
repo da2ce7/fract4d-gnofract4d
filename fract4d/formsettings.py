@@ -5,6 +5,7 @@ import math
 import random
 import re
 import StringIO
+import weakref
 
 import fracttypes
 import gradient
@@ -25,8 +26,11 @@ class T:
         self.paramtypes = []
         self.dirty = False
         self.set_prefix(prefix)
-        self.parent = parent
-
+        if parent:
+            self.parent = weakref.ref(parent)
+        else:
+            self.parent = None
+            
     def set_prefix(self,prefix):
         self.prefix = prefix
         if prefix == None:
@@ -188,7 +192,7 @@ class T:
                     self.params[ord+1] = im
                     self.changed()
             elif val == "warp":
-                self.parent.set_warp_param(name)
+                self.parent().set_warp_param(name)
         elif t == fracttypes.Hyper or t == fracttypes.Color:
             m = hyper_re.match(val)
             if m!= None:
@@ -291,7 +295,7 @@ class T:
     def changed(self):
         self.dirty = True
         if self.parent:
-            self.parent.changed()
+            self.parent().changed()
 
     def is_direct(self):
         return self.formula.is_direct()

@@ -65,7 +65,7 @@ class ListColorMap: public ColorMap
 {
  public:
     ListColorMap();
-    ~ListColorMap();
+    virtual ~ListColorMap();
 
     bool init(int n_colors);
     void set(int i, double d, int r, int g, int b, int a);
@@ -90,7 +90,7 @@ class GradientColorMap: public ColorMap
 {
  public:
     GradientColorMap();
-    ~GradientColorMap();
+    virtual ~GradientColorMap();
 
     bool init(int n_colors);
     void set(int i,

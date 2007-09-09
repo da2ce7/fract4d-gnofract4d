@@ -529,7 +529,7 @@ class Test(testbase.TestBase):
 
         file = self.compileColorMandel()
 
-        for x in xrange(10):
+        for x in xrange(2):
             handle = fract4dc.pf_load(file)
             pfunc = fract4dc.pf_create(handle)
             fract4dc.pf_init(pfunc,0.001,pos_params,self.color_mandel_params)
@@ -576,7 +576,7 @@ class Test(testbase.TestBase):
                     break
                 
                 nrecved += 1
-                    
+            
     def testDirtyFlagFullRender(self):
         '''Render the same image 2x with different colormaps.
 
@@ -968,6 +968,14 @@ class Test(testbase.TestBase):
         self.assertEqual(0, fract4dc.array_set_int(alloc,10,99))
         self.assertEqual(0, fract4dc.array_set_int(alloc,-1,99))
 
+    def testTwoPages(self):
+        arena = fract4dc.arena_create(10,2)
+        alloc = fract4dc.arena_alloc(arena, 8, 9) # fills first page
+        alloc = fract4dc.arena_alloc(arena, 8, 9) # forces second page
+
+        # shouldn't work
+        self.assertRaises(MemoryError, fract4dc.arena_alloc,arena, 8, 10)
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 

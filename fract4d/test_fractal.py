@@ -138,6 +138,10 @@ class Test(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def testCreation(self):
+        f = fractal.T(self.compiler)
+        f.compile()
+        
     def testRead(self):
         file = g_testfile
         
