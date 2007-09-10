@@ -456,7 +456,7 @@ parse_params(PyObject *pyarray, int *plen)
 			PyObject_SetAttrString(pyitem,"cobject",pycob);
 			// not quite correct, we are leaking some
 			// cmap objects 
-			Py_XINCREF(pycob);
+			//Py_XINCREF(pycob);
 		    }
 		}
 		params[i].t = GRADIENT;
@@ -841,7 +841,8 @@ public:
 	    fprintf(stderr,"%p : SITE : CTOR\n",this);
 #endif
 
-	    Py_INCREF(site);
+	    // Don't incref, that causes a loop with parent fractal
+	    //Py_INCREF(site);
 	}
 
     virtual void iters_changed(int numiters)
@@ -966,7 +967,7 @@ public:
 #ifdef DEBUG_CREATION
 	    fprintf(stderr,"%p : SITE : DTOR\n",this);
 #endif
-	    Py_DECREF(site);
+	    //Py_DECREF(site);
 	}
 
     //PyThreadState *state;

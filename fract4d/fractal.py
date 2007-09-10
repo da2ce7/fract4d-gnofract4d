@@ -223,8 +223,6 @@ class T(fctutils.T):
         
     def __del__(self):
         print "deleting fractal %s" % self
-        if self.outputfile:
-            os.remove(self.outputfile)
 
     def __copy__(self):
         # override shallow-copy to do a deeper copy than normal,
@@ -704,11 +702,12 @@ class T(fctutils.T):
         #handle = fract4dc.pf_load(self.outputfile)
         #pfunc = fract4dc.pf_create(handle)
         cmap = fract4dc.cmap_create_gradient(self.get_gradient().segments)
+
         (r,g,b,a) = self.solids[0]
         fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
         (r,g,b,a) = self.solids[1]
         fract4dc.cmap_set_solid(cmap,1,r,g,b,a)
-        
+
         initparams = self.all_params()
         fract4dc.pf_init(self.pfunc,1.0E-9,self.params,initparams)
 

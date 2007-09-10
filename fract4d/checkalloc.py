@@ -11,7 +11,7 @@ import sys
 import os
 import re
 
-alloc_re = re.compile(r'(?P<test>.*?... )?(?P<ptr>0x[0-9a-f]+)\s*:\s*(?P<type>.*?)\s*:\s*(?P<op>[A-Z]+)')
+alloc_re = re.compile(r'(?P<test>.*?... )?\.?(?P<ptr>0x[0-9a-f]+)\s*:\s*(?P<type>.*?)\s*:\s*(?P<op>[A-Z]+)')
 
 if len(sys.argv) > 1:
     lines = open(sys.argv[1]).readlines()

@@ -48,9 +48,9 @@ class Test(testbase.TestBase):
 
         self.im = image.T(40,30)
         siteobj = FractalSite()
-        self.site = fract4dc.site_create(siteobj)
         
-        self.fw = fract4dc.fw_create(1,self.pfunc,self.cmap,self.im._img,self.site)
+        self.fw = fract4dc.fw_create(
+            1,self.pfunc,self.cmap,self.im._img,self.f.site)
 
         self.ff = fract4dc.ff_create(
             [0.0, 0.0, 0.0, 0.0,
@@ -66,7 +66,7 @@ class Test(testbase.TestBase):
             1,
             2, # 3D
             self.im._img,
-            self.site,
+            self.f.site,
             self.fw)
 
     def tearDown(self):
@@ -149,6 +149,7 @@ class Test(testbase.TestBase):
                     self.assertNearlyEqual(root, real_root,1e-10)
 
     def testDraw(self):
+        print "start calc"
         fract4dc.calc(
             params = self.f.params,
             antialias = self.f.antialias,
@@ -161,10 +162,10 @@ class Test(testbase.TestBase):
             nthreads=1,
             render_type=2, # 3D
             image=self.im._img,
-            site=self.site)
+            site=self.f.site)
 
         self.im.save("hs.tga")
-
+        
     def testDrawMBrot(self):
         self.f.set_formula("gf4d.frm", "Mandelbrot")
         self.f.compile()
