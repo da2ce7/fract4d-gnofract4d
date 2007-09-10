@@ -16,8 +16,8 @@ class Bag:
         self.__dict__.update(kwds)
         
 announce = Bag(
-    date="April 29th, 2007",
-    text="Version 3.4 released. This adds support for UltraFractal gradient files.")
+    date="xxx, 2007",
+    text="Version 3.5 released. This adds support for arrays in fractal formulas.")
 
 manual_pages = [
     Bag(name="Using Gnofract 4D",

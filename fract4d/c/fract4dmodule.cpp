@@ -1670,9 +1670,7 @@ image_create(PyObject *self, PyObject *args)
     }
 
     IImage *i = new image();
-#ifdef DEBUG_CREATION
-    fprintf(stderr,"%p : IM : CTOR\n",i);
-#endif
+
     i->set_resolution(x,y,totalx, totaly);
 
     if(! i->ok())
@@ -1681,6 +1679,10 @@ image_create(PyObject *self, PyObject *args)
 	delete i;
 	return NULL;
     }
+
+#ifdef DEBUG_CREATION
+    fprintf(stderr,"%p : IM : CTOR\n",i);
+#endif
 
     PyObject *pyret = PyCObject_FromVoidPtr(i,(void (*)(void *))image_delete);
 

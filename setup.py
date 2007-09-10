@@ -120,8 +120,8 @@ module_gmp = Extension(
 
 defines = [ ('_REENTRANT',1),
             #('NO_CALC', 1),  # set this to not calculate the fractal
-            #('DEBUG_CREATION',1), # debug spew for allocation objects
-            ('DEBUG_ALLOCATION',1), # debug spew for array handling
+            #('DEBUG_CREATION',1), # debug spew for allocation of objects
+            #('DEBUG_ALLOCATION',1), # debug spew for array handling
             ]
 module_fract4dgmp = Extension(
     'fract4d.fract4dcgmp',
