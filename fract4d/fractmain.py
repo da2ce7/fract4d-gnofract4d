@@ -17,7 +17,7 @@ class T:
     def run(self,options):
         for path in options.extra_paths:            
             self.compiler.add_func_path(path)
-
+        
         width = options.width or fractconfig.instance.getint("display","width")
         height = options.height or fractconfig.instance.getint("display","height")
         im = image.T(width,height)
@@ -26,6 +26,7 @@ class T:
             self.load(options.args[0])
 
         self.f.apply_options(options)
+        self.f.antialias = fractconfig.instance.getint("display","antialias")
         self.draw(im)
 
         if options.save_filename:

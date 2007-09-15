@@ -11,7 +11,7 @@ class Test(unittest.TestCase):
                   o.innername, o.innerfunc, o.outername, o.outerfunc, o.map]:
             self.assertEqual(None,x)
         
-        for flag in [o.trace, o.print_version,
+        for flag in [o.trace, o.tracez, o.print_version,
                      o.quit_now, o.quit_when_done,
                      o.explore, o.nogui]:
             self.assertEqual(False, flag)
@@ -70,7 +70,7 @@ class Test(unittest.TestCase):
 
         names = ["--" + x.rstrip("=") for x in options.T.longparams]
         for name in names:
-            self.assertEqual(1, help.count(name), "%s has no help" % name)
+            self.assertNotEqual(0, help.count(name), "%s has no help" % name)
             
 def suite():
     return unittest.makeSuite(Test,'test')

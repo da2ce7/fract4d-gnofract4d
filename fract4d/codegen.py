@@ -59,7 +59,8 @@ class T:
         self.generate_trace = False
 
         self.generate_trace = options.get("trace",False)
-            
+        self.log_z = options.get("tracez", False)
+        
         self.output_template = '''
 #include <stdio.h>
 #include <stdlib.h>
@@ -167,6 +168,8 @@ int t__h_numiter = 0;
 
 %(init)s
 
+%(init_inserts)s
+
 %(cf0_init)s
 
 %(cf1_init)s
@@ -259,6 +262,9 @@ int t__h_numiter = 0;
 %(t_transform)s
 
 %(init)s
+
+%(init_inserts)s
+
 %(cf0_init)s
 %(cf1_init)s
 
@@ -755,6 +761,11 @@ extern "C" {
             t__p_pColors[3] = t__h_color_k;
             '''
 
+        if self.log_z:
+            inserts["init_inserts"] = 'printf("%d,%d,%.17g,%.17g : ", t__p_x, t__p_y, pixel_re, pixel_im);'
+            inserts["loop_inserts"] = 'printf("%.17g,%.17g ",z_re, z_im);'
+            inserts["done_inserts"] = 'printf("\\n");'
+            
         # can only do periodicity if formula uses z
         if self.symbols.data.has_key("z"):
             inserts["decl_period"] = '''

@@ -1387,7 +1387,11 @@ class MainWindow:
         self.f.apply_options(opts)
 
         if opts.trace:
-            self.f.set_dump_option("trace", opts.trace)
+            self.f.set_compiler_option("trace", opts.trace)
+            self.f.compile()
+
+        if opts.tracez:
+            self.f.set_compiler_option("tracez", opts.tracez)
             self.f.compile()
 
         if opts.explore:

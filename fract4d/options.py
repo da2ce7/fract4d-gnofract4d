@@ -32,6 +32,7 @@ class T:
             "quit",
             "explorer",
             "trace",
+            "tracez",
             "nogui",
             "version"]
 
@@ -42,6 +43,7 @@ class T:
         self.transforms = []
         self.maxiter = -1
         self.trace = False
+        self.tracez = False
         self.print_version = False
         self.paramchanges = {}
         self.quit_now = False
@@ -95,6 +97,7 @@ Positional Parameters:
 
 Obscure settings:
    --trace\t\tProduce voluminous tracing output
+   --tracez\t\tPrint values of #z as loop runs
    --nogui\t\tRun with no UI (doesn't require X or GTK)
 
 """ % version
@@ -145,6 +148,8 @@ Obscure settings:
                 self.quit_now = True
             elif name=="--trace":
                 self.trace = True
+            elif name=="--tracez":
+                self.tracez = True
             elif name=="--nogui":
                 self.nogui = True
             else:
