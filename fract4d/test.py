@@ -27,6 +27,7 @@ import test_cache
 import test_browser_model
 import test_formsettings
 import test_ffloat
+import test_absyn
 #import test_stdlib
 
 def suite():
