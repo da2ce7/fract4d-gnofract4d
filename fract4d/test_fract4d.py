@@ -955,7 +955,8 @@ class Test(testbase.TestBase):
         for i in xrange(10):
             val = i
             result = fract4dc.array_set_int(alloc,1, i,val)
-
+            self.assertEqual(1,result)
+            
         for i in xrange(10):
             result = fract4dc.array_get_int(alloc,1, i)
             self.assertEqual(
@@ -980,9 +981,31 @@ class Test(testbase.TestBase):
         arena = fract4dc.arena_create(10,2)
         self.assertRaises(MemoryError, fract4dc.arena_alloc,arena, 8, 0, 1)
 
-    def testAllocTwoDimensions(self):
+    def testTwoDimensions(self):
         arena = fract4dc.arena_create(10,2)
         alloc = fract4dc.arena_alloc(arena, 8, 2, 2, 3)
+
+        i = 0
+        for y in xrange(2):
+            for x in xrange(3):
+                result = fract4dc.array_set_int(alloc,2, i, y, x)
+                self.assertEqual(
+                    1,result,
+                    "bad set for %d,%d" % (x,y))
+                #print "%d,%d => %d" % (x,y,i)
+                i += 1
+
+        i = 0
+        for y in xrange(2):
+            for x in xrange(3):
+                val = fract4dc.array_get_int(alloc,2, y, x)
+                #print "%d,%d <= %d" % (x,y,i)
+                self.assertEqual(
+                    (i,1), val,
+                    "bad result %s instead of %s for %d,%d" % (val,(i,1),x,y))
+                
+                i += 1
+        
         
 def suite():
     return unittest.makeSuite(Test,'test')

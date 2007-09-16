@@ -258,8 +258,7 @@ array_get_int(
     int *indexes, int *pRetVal, int *pInBounds)
 {
     allocation_t *allocation = (allocation_t *)vallocation;
-    int pos = 1;
-    int lastdim = 1;
+    int pos = 0;
     for(int i = 0; i < n_dimensions; ++i)
     {
 	int index = indexes[i];
@@ -272,8 +271,7 @@ array_get_int(
 	    *pInBounds = 0;
 	    return;
 	}
-	pos = (pos * lastdim) + index;
-	lastdim = dim;
+	pos = (pos * dim) + index;
     }
     int *array = (int *)(&allocation[n_dimensions]);
     *pRetVal = array[pos];
@@ -285,8 +283,7 @@ array_set_int(void *vallocation, int n_dimensions, int *indexes, int val)
 {
     allocation_t *allocation = (allocation_t *)vallocation;
 
-    int pos = 1;
-    int lastdim = 1;
+    int pos = 0;
     for(int i = 0; i < n_dimensions; ++i)
     {
 	int index = indexes[i];
@@ -297,8 +294,7 @@ array_set_int(void *vallocation, int n_dimensions, int *indexes, int val)
 	    // out of bounds
 	    return 0;
 	}
-	pos = (pos * lastdim) + index;
-	lastdim = dim;
+	pos = (pos * dim) + index;
     }
 
     int *array = (int *)(&allocation[n_dimensions]);
