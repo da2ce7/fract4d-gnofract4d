@@ -78,22 +78,24 @@ void *alloc_array1D(arena_t arena, int element_size, int size)
 
 void *alloc_array2D(arena_t arena, int element_size, int xsize, int ysize)
 {
-    return NULL;
+    int indexes[] = {xsize, ysize};
+    return arena_alloc(arena, element_size, 2, indexes);
 }
 
 void *alloc_array3D(arena_t arena, int element_size, int xsize, int ysize, int zsize)
 {
-    return NULL;
+    int indexes[] = {xsize, ysize, zsize};
+    return arena_alloc(arena, element_size, 3, indexes);
 }
 
 void *alloc_array4D(arena_t arena, int element_size, int xsize, int ysize, int zsize, int wsize)
 {
-    return NULL;
+    int indexes[] = {xsize, ysize, zsize, wsize};
+    return arena_alloc(arena, element_size, 4, indexes);
 }
 
 int read_int_array_1D(void *array, int x)
 {
-
     int retval;
     int inbounds = 0;
     array_get_int(array, 1, &x, &retval, &inbounds);
@@ -101,9 +103,25 @@ int read_int_array_1D(void *array, int x)
     return retval;
 }
 
+int read_int_array_2D(void *array, int x, int y)
+{
+    int retval;
+    int inbounds = 0;
+    int indexes[2] = { x, y };
+    array_get_int(array, 2, indexes, &retval, &inbounds);
+
+    return retval;
+}
+
 int write_int_array_1D(void *array, int i, int val)
 {
     return array_set_int(array, 1, &i, val);
+}
+
+int write_int_array_2D(void *array, int x, int y, int val)
+{
+    int indexes[2] = { x, y} ;
+    return array_set_int(array, 2, indexes, val);
 }
 
 bool
@@ -252,52 +270,70 @@ arena_delete(arena_t arena)
 #endif
 }
 
-void 
-array_get_int(
-    void *vallocation, int n_dimensions, 
-    int *indexes, int *pRetVal, int *pInBounds)
-{
-    allocation_t *allocation = (allocation_t *)vallocation;
-    int pos = 0;
-    for(int i = 0; i < n_dimensions; ++i)
-    {
-	int index = indexes[i];
-	int dim = allocation[i].i;
-
-	if(index < 0 || index >= dim)
-	{
-	    // out of bounds
-	    *pRetVal = -1;
-	    *pInBounds = 0;
-	    return;
-	}
-	pos = (pos * dim) + index;
-    }
-    int *array = (int *)(&allocation[n_dimensions]);
-    *pRetVal = array[pos];
-    *pInBounds = 1;
+#define ARRAY_GET_T(name,type)			\
+void						    \
+name(							    \
+    void *vallocation, int n_dimensions,		    \
+    int *indexes, type *pRetVal, int *pInBounds)	    \
+{							    \
+    allocation_t *allocation = (allocation_t *)vallocation; \
+    if(NULL == allocation)				    \
+    { \
+	*pRetVal = -2;				\
+	*pInBounds = 0;				\
+	return;					\
+    }						\
+    int pos = 0;				\
+    for(int i = 0; i < n_dimensions; ++i)	\
+    {						\
+	int index = indexes[i];			\
+	int dim = allocation[i].i;		\
+						\
+	if(index < 0 || index >= dim)		\
+	{					\
+	    /* out of bounds */			\
+	    *pRetVal = -1;			\
+	    *pInBounds = 0;			\
+	    return;				\
+	}					\
+	pos = (pos * dim) + index;		\
+    }							\
+    type *array = (type *)(&allocation[n_dimensions]);	\
+    *pRetVal = array[pos];				\
+    *pInBounds = 1;					\
 }
 
-int
-array_set_int(void *vallocation, int n_dimensions, int *indexes, int val)
-{
-    allocation_t *allocation = (allocation_t *)vallocation;
-
-    int pos = 0;
-    for(int i = 0; i < n_dimensions; ++i)
-    {
-	int index = indexes[i];
-	int dim = allocation[i].i;
-
-	if(index < 0 || index >= dim)
-	{
-	    // out of bounds
-	    return 0;
-	}
-	pos = (pos * dim) + index;
-    }
-
-    int *array = (int *)(&allocation[n_dimensions]);
-    array[pos] = val;
-    return 1;
+#define ARRAY_SET_T(name,type)\
+int \
+name(void *vallocation, int n_dimensions, int *indexes, type val) \
+{ \
+    allocation_t *allocation = (allocation_t *)vallocation; \
+ \
+    if(NULL == allocation)				    \
+    { \
+	return 0;					\
+    }						\
+    int pos = 0; \
+    for(int i = 0; i < n_dimensions; ++i) \
+    { \
+	int index = indexes[i]; \
+	int dim = allocation[i].i; \
+ \
+	if(index < 0 || index >= dim) \
+	{ \
+	    /* out of bounds */ \
+	    return 0; \
+	} \
+	pos = (pos * dim) + index; \
+    } \
+ \
+    type *array = (type *)(&allocation[n_dimensions]); \
+    array[pos] = val; \
+    return 1; \
 }
+
+ARRAY_GET_T(array_get_int,int)
+ARRAY_GET_T(array_get_double, double)
+ARRAY_SET_T(array_set_int,int)
+ARRAY_SET_T(array_set_double, double)
+

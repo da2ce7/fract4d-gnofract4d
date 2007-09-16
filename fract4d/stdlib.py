@@ -995,7 +995,9 @@ def _alloc_avii_av(gen,t,srcs):
     return d
 
 def _alloc_aviii_av(gen,t,srcs):
-    d = gen.emit_func4("alloc_array3D", [ConstIntArg(4)] + srcs, VoidArray)
+    args = [ srcs[0], ConstIntArg(4)] + srcs[1:]
+    d = gen.emit_func_n(
+        4, "alloc_array3D", args, VoidArray)
     return d
 
 def _alloc_aviiii_av(gen,t,srcs):
@@ -1007,7 +1009,8 @@ def _read_lookup_aii_i(gen,t,srcs):
     return d
 
 def _read_lookup_aiii_i(gen,t,srcs):
-    pass
+    d = gen.emit_func3("read_int_array_2D", srcs, Int)
+    return d
 
 def _read_lookup_aiiii_i(gen,t,srcs):
     pass
@@ -1019,10 +1022,10 @@ def _write_lookup_aiii_b(gen,t,srcs):
     d = gen.emit_func3("write_int_array_1D", srcs, Int)
     return d
 
-    pass
-
 def _write_lookup_aiiii_b(gen,t,srcs):
-    pass
+    d = gen.emit_func_n(4, "write_int_array_2D", srcs, Int)
+    return d
+
 def _write_lookup_aiiiii_b(gen,t,srcs):
     pass
 def _write_lookup_aiiiiii_b(gen,t,srcs):

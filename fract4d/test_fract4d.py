@@ -981,6 +981,11 @@ class Test(testbase.TestBase):
         arena = fract4dc.arena_create(10,2)
         self.assertRaises(MemoryError, fract4dc.arena_alloc,arena, 8, 0, 1)
 
+    def testBadDimensions(self):
+        arena = fract4dc.arena_create(10,2)
+        self.assertRaises(
+            MemoryError, fract4dc.arena_alloc,arena, 8, 0, -1, -1)
+
     def testTwoDimensions(self):
         arena = fract4dc.arena_create(10,2)
         alloc = fract4dc.arena_alloc(arena, 8, 2, 2, 3)

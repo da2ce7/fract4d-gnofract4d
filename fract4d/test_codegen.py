@@ -237,7 +237,7 @@ int main()
         cFileName = self.codegen.writeToTempFile(c_code,".cpp")
         oFileName = self.codegen.writeToTempFile("")
         #print c_code
-        cmd = "g++ -Wall %s -o %s -Ic -lm" % (cFileName, oFileName)
+        cmd = "g++ -g -Wall %s -o %s -Ic -lm" % (cFileName, oFileName)
         #print cmd
         (status,output) = commands.getstatusoutput(cmd)
         self.assertEqual(status,0,"C error:\n%s\nProgram:\n%s\n" % \
@@ -2154,13 +2154,14 @@ Newton4(XYAXIS) {; Mark Peterson
         int x = array[0]
         array[1] = 22
         int y = array[1]
+        a2[4,7] = 109
+        int moop = a2[4,7]
         }'''
 
-        t = self.translate(src)
         self.assertCSays(
             src,"init",
-            self.inspect_int("x") + self.inspect_int("y"),
-            "x = -77\ny = 22")
+            self.inspect_int("x") + self.inspect_int("y") + self.inspect_int("moop"),
+            "x = -77\ny = 22\nmoop = 109")
         
     # assertions
     def assertCSays(self,source,section,check,result,options={}):
