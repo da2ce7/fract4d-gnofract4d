@@ -231,6 +231,18 @@ _slotsForType = {
     # arrays not supported as args
     }
 
+def elementSizeOf(type):
+    if type == IntArray:
+        size = 4
+    elif type == FloatArray:
+        size = 8
+    elif type == ComplexArray:
+        size = 8
+    else:
+        raise TranslationError("invalid allocation type %s" % type)
+    
+    return size
+
 def arrayTypeOf(t,node=None):
     if t == Int:
         return IntArray

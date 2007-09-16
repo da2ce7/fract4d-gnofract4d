@@ -1377,11 +1377,12 @@ default:
 
         self.assertNoErrors(t)
 
-        self.checkArrayProperties(t,"x",fracttypes.IntArray, 2, 0)
-        self.checkArrayProperties(t,"f",fracttypes.FloatArray, 700, 1)
-        self.checkArrayProperties(t,"carray",fracttypes.ComplexArray, 88, 2)
+        self.checkArrayProperties(t,"x",fracttypes.IntArray, 4, 2, 0)
+        self.checkArrayProperties(t,"f",fracttypes.FloatArray, 8, 700, 1)
+        self.checkArrayProperties(
+            t,"carray",fracttypes.ComplexArray, 8, 88*2, 2)
         
-    def checkArrayProperties(self,t,sym,type, size, pos):
+    def checkArrayProperties(self,t,sym,type, esize, size, pos):
         x = t.symbols[sym]
         self.assertEqual(type, x.type)
         self.assertEqual(0,x.value)
@@ -1389,9 +1390,11 @@ default:
         decl = t.sections["init"].children[pos]
         self.assertEqual(ir.Move, decl.__class__)
 
-        amount_to_alloc = decl.children[1].children[0].children[1]
-        self.assertEqual(size,amount_to_alloc.value)
-
+        element_size = decl.children[1].children[0].children[1]
+        self.assertEqual(esize, element_size.value)
+        amount_to_alloc = decl.children[1].children[0].children[2]
+        if hasattr(amount_to_alloc,"value"):
+            self.assertEqual(size,amount_to_alloc.value)            
 
     def test2DArray(self):
         t = self.translate('''t {
@@ -1411,7 +1414,7 @@ default:
         args = decl.children[1].children[0].children
         self.assertEqual("t__pfo->arena",args[0].name)        
         self.assertEqual(
-            [2,7],
+            [4, 2,7], # element size, indexes
             [child.value for child in args[1:]])
 
     def test3Dand4DArrays(self):
@@ -1546,8 +1549,26 @@ default:
         }''')
         
         self.assertError(t, "5: f is not an array")
-        
-        
+
+    def testDeclArrayWithoutType(self):
+        t = self.translate('''t {
+        init:
+        a2[7]
+        }''')
+
+        self.assertError(t, "3: a2 not declared as an array")
+
+    def testComplexArray(self):
+        t = self.translate('''t {
+        init:
+        complex a1[3,7]
+        complex a2[7]
+        a2[0] = (1.8,3.0)
+        a1[1,1] = #z
+        }''')
+
+        self.assertNoErrors(t)
+    
 def suite():
     return unittest.makeSuite(Test,'test')
 

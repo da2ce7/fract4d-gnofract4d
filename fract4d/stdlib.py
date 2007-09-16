@@ -982,26 +982,20 @@ def rand__c(gen,t,srcs):
     [d1,d2] = gen.emit_func0_2("fract_rand", srcs, Float)
     return ComplexArg(d1,d2)
 
-def _alloc_avi_av(gen,t,srcs):
-    args = [ srcs[0], ConstIntArg(4)] + srcs[1:]
-    d = gen.emit_func3(
-        "alloc_array1D", args, VoidArray)
-    return d
-
 def _alloc_avii_av(gen,t,srcs):
-    args = [ srcs[0], ConstIntArg(4)] + srcs[1:]
-    d = gen.emit_func_n(
-        4,"alloc_array2D", args, VoidArray)
+    d = gen.emit_func3("alloc_array1D", srcs, VoidArray)
     return d
 
 def _alloc_aviii_av(gen,t,srcs):
-    args = [ srcs[0], ConstIntArg(4)] + srcs[1:]
-    d = gen.emit_func_n(
-        4, "alloc_array3D", args, VoidArray)
+    d = gen.emit_func_n(4,"alloc_array2D", srcs, VoidArray)
     return d
 
 def _alloc_aviiii_av(gen,t,srcs):
-    d = gen.emit_func5("alloc_array4D", [ConstIntArg(4)] + srcs, VoidArray)
+    d = gen.emit_func_n(5, "alloc_array3D", srcs, VoidArray)
+    return d
+
+def _alloc_aviiiii_av(gen,t,srcs):
+    d = gen.emit_func_n(6, "alloc_array4D", srcs, VoidArray)
     return d
 
 def _read_lookup_aii_i(gen,t,srcs):
@@ -1012,6 +1006,15 @@ def _read_lookup_afi_f(gen,t,srcs):
     d = gen.emit_func2("read_float_array_1D", srcs, Float)
     return d
 
+def _read_lookup_aci_c(gen,t,srcs):
+    # lookup pair of floats 
+    i1 = gen.emit_binop('*', [ConstIntArg(2), srcs[1]], Int)
+    i2 = gen.emit_binop('+', [ConstIntArg(1), i1], Int)
+    d1 = gen.emit_func2("read_float_array_1D", [srcs[0], i1], Float)
+    d2 = gen.emit_func2("read_float_array_1D", [srcs[0], i2], Float)
+    
+    return ComplexArg(d1,d2)
+
 def _read_lookup_aiii_i(gen,t,srcs):
     d = gen.emit_func3("read_int_array_2D", srcs, Int)
     return d
@@ -1019,6 +1022,16 @@ def _read_lookup_aiii_i(gen,t,srcs):
 def _read_lookup_afii_f(gen,t,srcs):
     d = gen.emit_func3("read_float_array_2D", srcs, Float)
     return d
+
+def _read_lookup_acii_c(gen,t,srcs):
+
+    # lookup pair of floats 
+    i1 = gen.emit_binop('*', [ConstIntArg(2), srcs[2]], Int)
+    i2 = gen.emit_binop('+', [ConstIntArg(1), i1], Int)
+    d1 = gen.emit_func3("read_float_array_2D", [srcs[0], srcs[1], i1], Float)
+    d2 = gen.emit_func3("read_float_array_2D", [srcs[0], srcs[1], i2], Float)
+
+    return ComplexArg(d1,d2)
 
 def _read_lookup_aiiii_i(gen,t,srcs):
     pass
@@ -1032,6 +1045,12 @@ def _read_lookup_afiii_f(gen,t,srcs):
 def _read_lookup_afiiii_f(gen,t,srcs):
     pass
 
+def _read_lookup_aciii_c(gen,t,srcs):
+    pass
+
+def _read_lookup_aciiii_c(gen,t,srcs):
+    pass
+
 def _write_lookup_aiii_b(gen,t,srcs):    
     d = gen.emit_func3("write_int_array_1D", srcs, Int)
     return d
@@ -1039,6 +1058,20 @@ def _write_lookup_aiii_b(gen,t,srcs):
 def _write_lookup_afif_b(gen,t,srcs):    
     d = gen.emit_func3("write_float_array_1D", srcs, Int)
     return d
+
+def _write_lookup_acic_b(gen,t,srcs):
+    # lookup pair of floats 
+    i1 = gen.emit_binop('*', [ConstIntArg(2), srcs[1]], Int)
+    i2 = gen.emit_binop('+', [ConstIntArg(1), i1], Int)
+    d1 = gen.emit_func3(
+        "write_float_array_1D", [ srcs[0], i1, srcs[2].re], Float)
+    d2 = gen.emit_func3(
+        "write_float_array_1D", [ srcs[0], i2, srcs[2].im], Float)
+
+    # CONSIDER: we ignore these anyway, but here we ignore
+    # one return value 'extra thoroughly' which may need fixing
+    # the proper return type would be a pair of bools
+    return d1
 
 def _write_lookup_aiiii_b(gen,t,srcs):
     d = gen.emit_func_n(4, "write_int_array_2D", srcs, Int)
@@ -1048,6 +1081,17 @@ def _write_lookup_afiif_b(gen,t,srcs):
     d = gen.emit_func_n(4, "write_float_array_2D", srcs, Int)
     return d
 
+def _write_lookup_aciic_b(gen,t,srcs):
+    # lookup pair of floats
+    i1 = gen.emit_binop('*', [ConstIntArg(2), srcs[2]], Int)
+    i2 = gen.emit_binop('+', [ConstIntArg(1), i1], Int)
+    d1 = gen.emit_func_n(
+        4, "write_float_array_2D", [ srcs[0], srcs[1], i1, srcs[3].re], Float)
+    d2 = gen.emit_func_n(
+        4, "write_float_array_2D", [ srcs[0], srcs[1], i2, srcs[3].im], Float)
+
+    return d1
+
 def _write_lookup_aiiiii_b(gen,t,srcs):
     pass
 def _write_lookup_aiiiiii_b(gen,t,srcs):
@@ -1056,4 +1100,9 @@ def _write_lookup_aiiiiii_b(gen,t,srcs):
 def _write_lookup_afiiif_b(gen,t,srcs):
     pass
 def _write_lookup_afiiiif_b(gen,t,srcs):
+    pass
+
+def _write_lookup_aciiic_b(gen,t,srcs):
+    pass
+def _write_lookup_aciiiic_b(gen,t,srcs):
     pass

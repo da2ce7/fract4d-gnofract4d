@@ -578,7 +578,9 @@ class TBase:
             
             if len(indexes) != arity:                   
                 raise TranslationError("%d: wrong number of indexes for %s" % (pos, name))
-                
+
+        except KeyError, err:
+            raise TranslationError("%d: %s not declared as an array" % (pos,name))
         except AttributeError, err:
             # not an array
             raise TranslationError("%d: %s is not an array" % (pos, name))
@@ -718,13 +720,22 @@ class TBase:
         arena = ir.Var("t__pfo->arena",node,fracttypes.VoidArray)
         
         # initialize array by calling _alloc() and casting to correct type
+        size = ir.Const(fracttypes.elementSizeOf(atype), node, fracttypes.Int)
+
+        # a bit of a hack. Complex arrays are just float arrays twice as big
+        if atype == fracttypes.ComplexArray:            
+            indexes[-1] = ir.Binop(
+                '*',
+                [ir.Const(2,node,fracttypes.Int), indexes[-1]],
+                node, fracttypes.Int)
+            
         init_exp = self.coerce(
-            ir.Call("_alloc", [arena] + indexes, node, fracttypes.VoidArray),
+            ir.Call("_alloc", [arena, size] + indexes, node, fracttypes.VoidArray),
             atype)
 
         # return a move(var, alloc(thatnum))
         return ir.Move(
-            ir.Var(node.leaf, node, node.datatype),
+            ir.Var(node.leaf, node, atype),
             init_exp,
             node,
             atype)            

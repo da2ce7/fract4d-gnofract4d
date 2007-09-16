@@ -462,11 +462,11 @@ by the 3rd parameter.''')
       doc='''Look up a color from a 2D array of colors.''')
 
     f("_alloc",
-      [ [ [VoidArray, Int], VoidArray],
-        [ [VoidArray, Int, Int], VoidArray],
+      [ [ [VoidArray, Int, Int], VoidArray],
         [ [VoidArray, Int, Int, Int], VoidArray],
-        [ [VoidArray, Int, Int, Int, Int], VoidArray]],
-      doc='''Allocate an array with N members''')
+        [ [VoidArray, Int, Int, Int, Int], VoidArray],
+        [ [VoidArray, Int, Int, Int, Int, Int], VoidArray]],
+      doc='''Allocate an array. First argument is element size in bytes, subsequent args are array sizes''')
 
     f("_write_lookup",
       # args are array, indexes, value. returns false if index is out of bounds
@@ -479,7 +479,12 @@ by the 3rd parameter.''')
         [ [FloatArray, Int, Int, Float], Bool],
         [ [FloatArray, Int, Int, Int, Float], Bool],
         [ [FloatArray, Int, Int, Int, Int, Float], Bool],
-        
+
+        [ [ComplexArray, Int, Complex], Bool],
+        [ [ComplexArray, Int, Int, Complex], Bool],
+        [ [ComplexArray, Int, Int, Int, Complex], Bool],
+        [ [ComplexArray, Int, Int, Int, Int, Complex], Bool],
+
         ],
       doc='''Write a value into an array''')
 
@@ -493,7 +498,12 @@ by the 3rd parameter.''')
         [ [FloatArray, Int], Float],
         [ [FloatArray, Int, Int], Float],
         [ [FloatArray, Int, Int, Int], Float],
-        [ [FloatArray, Int, Int, Int, Int], Float]
+        [ [FloatArray, Int, Int, Int, Int], Float],
+        
+        [ [ComplexArray, Int], Complex],
+        [ [ComplexArray, Int, Int], Complex],
+        [ [ComplexArray, Int, Int, Int], Complex],
+        [ [ComplexArray, Int, Int, Int, Int], Complex],
         
         ],
       doc='''Read a value out of an array''')
@@ -947,8 +957,7 @@ class T(UserDict):
 
         # bypass normal setitem because that checks for t__
         self.data[name] = Temp(type,name)
-        
-        
+                
         return name
 
     def newEnum(self,name,val,pos):

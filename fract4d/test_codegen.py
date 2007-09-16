@@ -2180,6 +2180,28 @@ Newton4(XYAXIS) {; Mark Peterson
             src,"init",
             self.inspect_float("x") + self.inspect_float("y") + self.inspect_float("moop"),
             "x = -77.1\ny = 22.9\nmoop = 109.3")
+
+    def testComplexArray(self):
+        src = '''t_array1 {
+        init:
+        complex array[100]
+        complex a2[10,10]
+        array[0] = (-77.1, 22.0)
+        complex x = array[0]
+        array[1] = (22.9,0.5)
+        complex y = array[1]
+        a2[4,7] = (77,10.0)
+        complex moop = a2[4,7]
+        }'''
+
+        self.assertCSays(
+            src,"init",
+            "".join([
+            self.inspect_complex("x"),
+            self.inspect_complex("y"),
+            self.inspect_complex("moop")
+            ]),
+            "x = (-77.1,22)\ny = (22.9,0.5)\nmoop = (77,10)")
         
     # assertions
     def assertCSays(self,source,section,check,result,options={}):
