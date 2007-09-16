@@ -44,6 +44,12 @@ extern "C" {
     int read_int_array_2D(void *array, int x, int y);
     int write_int_array_2D(void *array, int x, int y, int val);
 
+    double read_float_array_1D(void *array, int x);
+    int write_float_array_1D(void *array, int x, double val);
+
+    double read_float_array_2D(void *array, int x, int y);
+    int write_float_array_2D(void *array, int x, int y, double val);
+
 #ifdef __cplusplus
 }
 #endif

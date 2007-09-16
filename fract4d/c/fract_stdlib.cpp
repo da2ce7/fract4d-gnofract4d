@@ -124,6 +124,36 @@ int write_int_array_2D(void *array, int x, int y, int val)
     return array_set_int(array, 2, indexes, val);
 }
 
+double read_float_array_1D(void *array, int x)
+{
+    double retval;
+    int inbounds = 0;
+    array_get_double(array, 1, &x, &retval, &inbounds);
+
+    return retval;
+}
+
+double read_float_array_2D(void *array, int x, int y)
+{
+    double retval;
+    int inbounds = 0;
+    int indexes[2] = { x, y };
+    array_get_double(array, 2, indexes, &retval, &inbounds);
+
+    return retval;
+}
+
+int write_float_array_1D(void *array, int i, double val)
+{
+    return array_set_double(array, 1, &i, val);
+}
+
+int write_float_array_2D(void *array, int x, int y, double val)
+{
+    int indexes[2] = { x, y} ;
+    return array_set_double(array, 2, indexes, val);
+}
+
 bool
 arena_add_page(arena_t arena)
 {

@@ -147,10 +147,10 @@ typeObjectList = [
              default=0, cname="int *"),
 
     Type(id=FloatArray,suffix="af", typename="floatarray",
-             default=0, cname="float *"),
+             default=0, cname="double *"),
     
     Type(id=ComplexArray,suffix="ac", typename="complexarray",
-             default=0, cname="float *"),
+             default=0, cname="double *"),
 
     ]
 

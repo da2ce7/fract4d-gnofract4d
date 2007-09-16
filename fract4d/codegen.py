@@ -535,6 +535,12 @@ extern "C" {
     int read_int_array_2D(void *array, int x, int y);
     int write_int_array_2D(void *array, int x, int y, int val);
 
+    double read_float_array_1D(void *array, int x);
+    int write_float_array_1D(void *array, int x, double val);
+
+    double read_float_array_2D(void *array, int x, int y);
+    int write_float_array_2D(void *array, int x, int y, double val);
+
 #ifdef __cplusplus
 }
 #endif
@@ -934,7 +940,11 @@ extern "C" {
                 dst = None
         elif t.datatype == IntArray or t.datatype == FloatArray or t.datatype == ComplexArray:
             if child.datatype == VoidArray:
-                assem = "%(d0)s = ((int *)%(s0)s);"
+                if t.datatype == IntArray:
+                    cast = "(int *)"
+                else:
+                    cast = "(double *)"
+                assem = "%%(d0)s = (%s%%(s0)s);" % cast
                 dst = self.newTemp(t.datatype)
                 self.out.append(Oper(assem, [src], [dst]))
                 

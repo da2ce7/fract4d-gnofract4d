@@ -474,6 +474,12 @@ by the 3rd parameter.''')
         [ [IntArray, Int, Int, Int], Bool],
         [ [IntArray, Int, Int, Int, Int], Bool],
         [ [IntArray, Int, Int, Int, Int, Int], Bool],
+        
+        [ [FloatArray, Int, Float], Bool],
+        [ [FloatArray, Int, Int, Float], Bool],
+        [ [FloatArray, Int, Int, Int, Float], Bool],
+        [ [FloatArray, Int, Int, Int, Int, Float], Bool],
+        
         ],
       doc='''Write a value into an array''')
 
@@ -482,7 +488,13 @@ by the 3rd parameter.''')
       [ [ [IntArray, Int], Int],
         [ [IntArray, Int, Int], Int],
         [ [IntArray, Int, Int, Int], Int],
-        [ [IntArray, Int, Int, Int, Int], Int]
+        [ [IntArray, Int, Int, Int, Int], Int],
+
+        [ [FloatArray, Int], Float],
+        [ [FloatArray, Int, Int], Float],
+        [ [FloatArray, Int, Int, Int], Float],
+        [ [FloatArray, Int, Int, Int, Int], Float]
+        
         ],
       doc='''Read a value out of an array''')
     

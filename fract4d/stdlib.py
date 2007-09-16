@@ -1008,8 +1008,16 @@ def _read_lookup_aii_i(gen,t,srcs):
     d = gen.emit_func2("read_int_array_1D", srcs, Int)
     return d
 
+def _read_lookup_afi_f(gen,t,srcs):
+    d = gen.emit_func2("read_float_array_1D", srcs, Float)
+    return d
+
 def _read_lookup_aiii_i(gen,t,srcs):
     d = gen.emit_func3("read_int_array_2D", srcs, Int)
+    return d
+
+def _read_lookup_afii_f(gen,t,srcs):
+    d = gen.emit_func3("read_float_array_2D", srcs, Float)
     return d
 
 def _read_lookup_aiiii_i(gen,t,srcs):
@@ -1018,15 +1026,34 @@ def _read_lookup_aiiii_i(gen,t,srcs):
 def _read_lookup_aiiiii_i(gen,t,srcs):
     pass
 
+def _read_lookup_afiii_f(gen,t,srcs):
+    pass
+
+def _read_lookup_afiiii_f(gen,t,srcs):
+    pass
+
 def _write_lookup_aiii_b(gen,t,srcs):    
     d = gen.emit_func3("write_int_array_1D", srcs, Int)
+    return d
+
+def _write_lookup_afif_b(gen,t,srcs):    
+    d = gen.emit_func3("write_float_array_1D", srcs, Int)
     return d
 
 def _write_lookup_aiiii_b(gen,t,srcs):
     d = gen.emit_func_n(4, "write_int_array_2D", srcs, Int)
     return d
 
+def _write_lookup_afiif_b(gen,t,srcs):
+    d = gen.emit_func_n(4, "write_float_array_2D", srcs, Int)
+    return d
+
 def _write_lookup_aiiiii_b(gen,t,srcs):
     pass
 def _write_lookup_aiiiiii_b(gen,t,srcs):
+    pass
+
+def _write_lookup_afiiif_b(gen,t,srcs):
+    pass
+def _write_lookup_afiiiif_b(gen,t,srcs):
     pass

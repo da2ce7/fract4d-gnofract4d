@@ -2162,6 +2162,24 @@ Newton4(XYAXIS) {; Mark Peterson
             src,"init",
             self.inspect_int("x") + self.inspect_int("y") + self.inspect_int("moop"),
             "x = -77\ny = 22\nmoop = 109")
+
+    def testFloatArray(self):
+        src = '''t_array1 {
+        init:
+        float array[100]
+        float a2[10,10]
+        array[0] = -77.1
+        float x = array[0]
+        array[1] = 22.9
+        float y = array[1]
+        a2[4,7] = 109.3
+        float moop = a2[4,7]
+        }'''
+
+        self.assertCSays(
+            src,"init",
+            self.inspect_float("x") + self.inspect_float("y") + self.inspect_float("moop"),
+            "x = -77.1\ny = 22.9\nmoop = 109.3")
         
     # assertions
     def assertCSays(self,source,section,check,result,options={}):
