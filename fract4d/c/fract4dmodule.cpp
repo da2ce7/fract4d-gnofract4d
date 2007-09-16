@@ -2339,12 +2339,19 @@ pyarena_alloc(PyObject *self, PyObject *args)
 {
     PyObject *pyArena;
     int element_size;
-    int n_elements;
+    int n_dimensions;
+    int n_elements[4];
 
     if(!PyArg_ParseTuple(
 	   args,
-	   "Oii",
-	   &pyArena, &element_size, &n_elements))
+	   "Oiii|iii",
+	   &pyArena, &element_size, 
+	   &n_dimensions,
+	   &n_elements[0],
+	   &n_elements[1],
+	   &n_elements[2],
+	   &n_elements[3]
+	   ))
     {
 	return NULL;
     }
@@ -2355,7 +2362,10 @@ pyarena_alloc(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    void *allocation = arena_alloc(arena, element_size, n_elements);
+    void *allocation = arena_alloc(
+	arena, element_size, 
+	n_dimensions,
+	n_elements);
     if(allocation == NULL)
     {
 	PyErr_SetString(PyExc_MemoryError, "Can't allocate array");
@@ -2371,12 +2381,14 @@ static PyObject *
 pyarray_get(PyObject *self, PyObject *args)
 {
     PyObject *pyAllocation;
-    int i;
+    int indexes[4];
+    int n_indexes;
 
     if(!PyArg_ParseTuple(
 	   args,
-	   "Oi",
-	   &pyAllocation, &i))
+	   "Oii|iii",
+	   &pyAllocation, &n_indexes, 
+	   &indexes[0], &indexes[1], &indexes[2], &indexes[3]))
     {
 	return NULL;
     }
@@ -2388,7 +2400,7 @@ pyarray_get(PyObject *self, PyObject *args)
     }
  
     int retval, inbounds;
-    array_get_int(allocation, i, &retval, &inbounds);
+    array_get_int(allocation, n_indexes, indexes, &retval, &inbounds);
     
     PyObject *pyRet = Py_BuildValue(
 	"(ii)",
@@ -2401,12 +2413,16 @@ static PyObject *
 pyarray_set(PyObject *self, PyObject *args)
 {
     PyObject *pyAllocation;
-    int i, val;
-
+    int val;
+    int n_indexes;
+    int indexes[4];
     if(!PyArg_ParseTuple(
 	   args,
-	   "Oii",
-	   &pyAllocation, &i, &val))
+	   "Oiii|iii",
+	   &pyAllocation, 
+	   &n_indexes,
+	   &val, 
+	   &indexes[0], &indexes[1], &indexes[2], &indexes[3]))
     {
 	return NULL;
     }
@@ -2417,7 +2433,7 @@ pyarray_set(PyObject *self, PyObject *args)
 	return NULL;
     }
  
-    int retval = array_set_int(allocation, i, val);
+    int retval = array_set_int(allocation, n_indexes, indexes, val);
     
     PyObject *pyRet = Py_BuildValue("i",retval);
 

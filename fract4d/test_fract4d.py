@@ -916,8 +916,8 @@ class Test(testbase.TestBase):
 
     def testArenaAlloc(self):
         arena = fract4dc.arena_create(100,1)
-        alloc = fract4dc.arena_alloc(arena, 1,10)
-        alloc = fract4dc.arena_alloc(arena, 10,1)
+        alloc = fract4dc.arena_alloc(arena, 1,1,10)
+        alloc = fract4dc.arena_alloc(arena, 10,1,1)
         
     def testTooSmallArena(self):
         self.assertRaises(MemoryError, fract4dc.arena_create,0,10)
@@ -925,56 +925,64 @@ class Test(testbase.TestBase):
         
     def testTooBigAlloc(self):
         arena = fract4dc.arena_create(10,1)
-        self.assertRaises(MemoryError, fract4dc.arena_alloc,arena,8,10)
+        self.assertRaises(MemoryError, fract4dc.arena_alloc,arena,8,1,10)
         
     def testMultipleAllocs(self):
         arena = fract4dc.arena_create(10,1)
         for i in xrange(5):
-            fract4dc.arena_alloc(arena,8,1)
+            fract4dc.arena_alloc(arena,8,1,1)
 
         # should be full now        
-        self.assertRaises(MemoryError, fract4dc.arena_alloc,arena,8,1)
+        self.assertRaises(MemoryError, fract4dc.arena_alloc,arena,8,1,1)
 
     def testReadArrayVal(self):
         arena = fract4dc.arena_create(10,1)
-        alloc = fract4dc.arena_alloc(arena, 4, 10)
+        alloc = fract4dc.arena_alloc(arena, 4, 1, 10)
 
         for i in xrange(10):
-            result = fract4dc.array_get_int(alloc,i)
+            result = fract4dc.array_get_int(alloc,1,i)
             self.assertEqual(
                 (0,1), result,
                 "bad result %s for %d"  % (result, i))
 
-        self.assertEqual((-1,0), fract4dc.array_get_int(alloc,10))
-        self.assertEqual((-1,0), fract4dc.array_get_int(alloc,-1))
+        self.assertEqual((-1,0), fract4dc.array_get_int(alloc,1, 10))
+        self.assertEqual((-1,0), fract4dc.array_get_int(alloc,1, -1))
 
     def testReadAndWriteArray(self):
         arena = fract4dc.arena_create(10,1)
-        alloc = fract4dc.arena_alloc(arena, 4, 10)
+        alloc = fract4dc.arena_alloc(arena, 4, 1, 10)
 
         for i in xrange(10):
             val = i
-            result = fract4dc.array_set_int(alloc,i,val)
+            result = fract4dc.array_set_int(alloc,1, i,val)
 
         for i in xrange(10):
-            result = fract4dc.array_get_int(alloc,i)
+            result = fract4dc.array_get_int(alloc,1, i)
             self.assertEqual(
                 (i,1), result,
                 "bad result %s for %d"  % (result, i))
 
-        self.assertEqual((-1,0), fract4dc.array_get_int(alloc,10))
-        self.assertEqual((-1,0), fract4dc.array_get_int(alloc,-1))
+        self.assertEqual((-1,0), fract4dc.array_get_int(alloc,1,10))
+        self.assertEqual((-1,0), fract4dc.array_get_int(alloc,1,-1))
 
-        self.assertEqual(0, fract4dc.array_set_int(alloc,10,99))
-        self.assertEqual(0, fract4dc.array_set_int(alloc,-1,99))
+        self.assertEqual(0, fract4dc.array_set_int(alloc,1,10,99))
+        self.assertEqual(0, fract4dc.array_set_int(alloc,1,-1,99))
 
     def testTwoPages(self):
         arena = fract4dc.arena_create(10,2)
-        alloc = fract4dc.arena_alloc(arena, 8, 9) # fills first page
-        alloc = fract4dc.arena_alloc(arena, 8, 9) # forces second page
+        alloc = fract4dc.arena_alloc(arena, 8, 1, 9) # fills first page
+        alloc = fract4dc.arena_alloc(arena, 8, 1, 9) # forces second page
 
         # shouldn't work
-        self.assertRaises(MemoryError, fract4dc.arena_alloc,arena, 8, 10)
+        self.assertRaises(MemoryError, fract4dc.arena_alloc,arena, 8, 1, 10)
+
+    def testAllocZeroDimensions(self):
+        arena = fract4dc.arena_create(10,2)
+        self.assertRaises(MemoryError, fract4dc.arena_alloc,arena, 8, 0, 1)
+
+    def testAllocTwoDimensions(self):
+        arena = fract4dc.arena_create(10,2)
+        alloc = fract4dc.arena_alloc(arena, 8, 2, 2, 3)
         
 def suite():
     return unittest.makeSuite(Test,'test')

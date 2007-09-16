@@ -73,7 +73,7 @@ typedef struct {
 
 void *alloc_array1D(arena_t arena, int element_size, int size)
 {
-    return arena_alloc(arena, element_size, size);
+    return arena_alloc(arena, element_size, 1, &size);
 }
 
 void *alloc_array2D(arena_t arena, int element_size, int xsize, int ysize)
@@ -96,14 +96,14 @@ int read_int_array_1D(void *array, int x)
 
     int retval;
     int inbounds = 0;
-    array_get_int(array, x, &retval, &inbounds);
+    array_get_int(array, 1, &x, &retval, &inbounds);
 
     return retval;
 }
 
 int write_int_array_1D(void *array, int i, int val)
 {
-    return array_set_int(array, i, val);
+    return array_set_int(array, 1, &i, val);
 }
 
 bool
@@ -166,12 +166,31 @@ arena_create(int page_size, int max_pages)
 }
 
 void *
-arena_alloc(arena_t arena, int element_size, int n_elements)
+arena_alloc(
+    arena_t arena, int element_size, 
+    int n_dimensions,
+    int *n_elements)
 {
-    // add 1 for size record
+    if(n_dimensions <= 0)
+    {
+	return NULL;
+    }
+
+    if(NULL == n_elements)
+    {
+	return NULL;
+    }
+
+    int total_elements = 1;
+    for(int i = 0; i < n_dimensions; ++i)
+    {
+	total_elements *= n_elements[i];
+    }
+
+    // add 1 per dimension for size record
     int slots_required = \
-	std::max(n_elements * element_size/sizeof(allocation_t),
-		 (unsigned long)1) + 1;
+	std::max(total_elements * element_size/sizeof(allocation_t),
+		 (unsigned long)1) + n_dimensions;
 
     if(slots_required > arena->page_size)
     {
@@ -189,13 +208,16 @@ arena_alloc(arena_t arena, int element_size, int n_elements)
     }
 
     allocation_t *newchunk = (allocation_t *)arena->next_allocation;
-    newchunk[0].i = n_elements;
+    for(int i = 0; i < n_dimensions; ++i)
+    {
+	newchunk[i].i = n_elements[i];
+    }
     arena->next_allocation+= slots_required;
     arena->free_slots -= slots_required;
 
 #ifdef DEBUG_ALLOCATION
     fprintf(stderr,"%p: ALLOC : (req=%d,esize=%d,nelem=%d)\n", 
-	   newchunk, slots_required, element_size, n_elements);
+	   newchunk, slots_required, element_size, total_elements);
 
 #endif
     return newchunk;
@@ -231,33 +253,55 @@ arena_delete(arena_t arena)
 }
 
 void 
-array_get_int(void *vallocation, int i, int *pRetVal, int *pInBounds)
+array_get_int(
+    void *vallocation, int n_dimensions, 
+    int *indexes, int *pRetVal, int *pInBounds)
 {
     allocation_t *allocation = (allocation_t *)vallocation;
-    if(i < 0 || i >= allocation[0].i)
+    int pos = 1;
+    int lastdim = 1;
+    for(int i = 0; i < n_dimensions; ++i)
     {
-	// out of bounds
-	*pRetVal = -1;
-	*pInBounds = 0;
-	return;
-    }
+	int index = indexes[i];
+	int dim = allocation[i].i;
 
-    int *array = (int *)(&allocation[1]);
-    *pRetVal = array[i+1];
+	if(index < 0 || index >= dim)
+	{
+	    // out of bounds
+	    *pRetVal = -1;
+	    *pInBounds = 0;
+	    return;
+	}
+	pos = (pos * lastdim) + index;
+	lastdim = dim;
+    }
+    int *array = (int *)(&allocation[n_dimensions]);
+    *pRetVal = array[pos];
     *pInBounds = 1;
 }
 
 int
-array_set_int(void *vallocation, int i, int val)
+array_set_int(void *vallocation, int n_dimensions, int *indexes, int val)
 {
     allocation_t *allocation = (allocation_t *)vallocation;
-    if(i < 0 || i >= allocation[0].i)
+
+    int pos = 1;
+    int lastdim = 1;
+    for(int i = 0; i < n_dimensions; ++i)
     {
-	// out of bounds	
-	return 0;
+	int index = indexes[i];
+	int dim = allocation[i].i;
+
+	if(index < 0 || index >= dim)
+	{
+	    // out of bounds
+	    return 0;
+	}
+	pos = (pos * lastdim) + index;
+	lastdim = dim;
     }
 
-    int *array = (int *)(&allocation[1]);
-    array[i+1] = val;
+    int *array = (int *)(&allocation[n_dimensions]);
+    array[pos] = val;
     return 1;
 }
