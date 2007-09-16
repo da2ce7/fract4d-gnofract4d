@@ -55,6 +55,7 @@ struct s_arena {
     int free_slots;
     int page_size;
     int pages_left;
+    int max_pages;
     allocation_t *prev_arena;
     allocation_t *base_allocation;
     allocation_t *next_allocation;
@@ -203,7 +204,7 @@ arena_create(int page_size, int max_pages)
     }
 
     arena->free_slots = 0;
-    arena->pages_left = max_pages;    
+    arena->pages_left = arena->max_pages = max_pages;    
     arena->page_size = page_size;
     arena->base_allocation = NULL;
 
@@ -298,6 +299,20 @@ arena_delete(arena_t arena)
 #ifdef DEBUG_ALLOCATION
     fprintf(stderr,"%p: ARENA : DTOR()\n", arena);
 #endif
+}
+
+void
+arena_clear(arena_t arena)
+{
+    // delete all pages and get things read for new allocations
+    if(NULL != arena->base_allocation)
+    {
+	arena_delete_page(arena->base_allocation);
+    }
+
+    arena->free_slots = 0;
+    arena->pages_left = arena->max_pages;    
+    arena->base_allocation = NULL;
 }
 
 #define ARRAY_GET_T(name,type)			\

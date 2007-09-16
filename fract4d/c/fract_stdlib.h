@@ -11,6 +11,7 @@ extern "C" {
     typedef struct s_arena *arena_t;
     arena_t arena_create(int page_size, int max_pages);
 
+    void arena_clear(arena_t arena);
     void arena_delete(arena_t arena);
 
     void *arena_alloc(
