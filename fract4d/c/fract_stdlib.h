@@ -16,12 +16,13 @@ extern "C" {
     void array_get_int(void *allocation, int i, int *pRetVal, int *pInBounds);
     int array_set_int(void *allocation, int i, int val);
 
-    void *alloc_array1D(int element_size, int size);
-    void *alloc_array2D(int element_size, int xsize, int ysize);
-    void *alloc_array3D(int element_size, int xsize, int ysize, int zsize);
-    void *alloc_array4D(int element_size, int xsize, int ysize, int zsize, int wsize);
+    void *alloc_array1D(arena_t arena, int element_size, int size);
+    void *alloc_array2D(arena_t arena, int element_size, int xsize, int ysize);
+    void *alloc_array3D(arena_t arena, int element_size, int xsize, int ysize, int zsize);
+    void *alloc_array4D(arena_t arena, int element_size, int xsize, int ysize, int zsize, int wsize);
 
     int read_int_array_1D(void *array, int x);
+    int write_int_array_1D(void *array, int i, int val);
 
 #ifdef __cplusplus
 }

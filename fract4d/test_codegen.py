@@ -180,6 +180,7 @@ int main()
         typedef struct {
             struct s_param *p;
             double pos_params[N_PARAMS];
+            arena_t arena;
         } pf_fake;
         
         int main(){
@@ -213,6 +214,7 @@ int main()
         t__f.pos_params[4]=4.0;
 
         t__f.p = params;
+        t__f.arena = arena_create(10000,1);
         pf_fake *t__pfo = &t__f;
         double pixel_re = 0.0, pixel_im = 0.0;
         double t__h_zwpixel_re = 0.0, t__h_zwpixel_im = 0.0;
@@ -2150,8 +2152,15 @@ Newton4(XYAXIS) {; Mark Peterson
         int a2[10,10]
         array[0] = -77
         int x = array[0]
+        array[1] = 22
+        int y = array[1]
         }'''
-        self.assertCSays(src,"init",self.inspect_int("x"),"x = -77")
+
+        t = self.translate(src)
+        self.assertCSays(
+            src,"init",
+            self.inspect_int("x") + self.inspect_int("y"),
+            "x = -77\ny = 22")
         
     # assertions
     def assertCSays(self,source,section,check,result,options={}):

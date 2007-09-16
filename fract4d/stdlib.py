@@ -982,19 +982,23 @@ def rand__c(gen,t,srcs):
     [d1,d2] = gen.emit_func0_2("fract_rand", srcs, Float)
     return ComplexArg(d1,d2)
 
-def _alloc_i_av(gen,t,srcs):
-    d = gen.emit_func2("alloc_array1D", [ConstIntArg(4)] + srcs, VoidArray)
+def _alloc_avi_av(gen,t,srcs):
+    args = [ srcs[0], ConstIntArg(4)] + srcs[1:]
+    d = gen.emit_func3(
+        "alloc_array1D", args, VoidArray)
     return d
 
-def _alloc_ii_av(gen,t,srcs):
-    d = gen.emit_func3("alloc_array2D", [ConstIntArg(4)] + srcs, VoidArray)
+def _alloc_avii_av(gen,t,srcs):
+    args = [ srcs[0], ConstIntArg(4)] + srcs[1:]
+    d = gen.emit_func_n(
+        4,"alloc_array2D", args, VoidArray)
     return d
 
-def _alloc_iii_av(gen,t,srcs):
+def _alloc_aviii_av(gen,t,srcs):
     d = gen.emit_func4("alloc_array3D", [ConstIntArg(4)] + srcs, VoidArray)
     return d
 
-def _alloc_iiii_av(gen,t,srcs):
+def _alloc_aviiii_av(gen,t,srcs):
     d = gen.emit_func5("alloc_array4D", [ConstIntArg(4)] + srcs, VoidArray)
     return d
 
@@ -1011,7 +1015,10 @@ def _read_lookup_aiiii_i(gen,t,srcs):
 def _read_lookup_aiiiii_i(gen,t,srcs):
     pass
 
-def _write_lookup_aiii_b(gen,t,srcs):
+def _write_lookup_aiii_b(gen,t,srcs):    
+    d = gen.emit_func3("write_int_array_1D", srcs, Int)
+    return d
+
     pass
 
 def _write_lookup_aiiii_b(gen,t,srcs):

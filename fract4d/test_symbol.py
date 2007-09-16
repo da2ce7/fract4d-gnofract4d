@@ -266,7 +266,7 @@ class SymbolTest(unittest.TestCase):
     def testTemps(self):
         name = self.t.newTemp(Float)
         self.failUnless(self.t[name].is_temp == True)
-        
+
     def assertIsValidVar(self, val):
         if isinstance(val,Var):
             # ok

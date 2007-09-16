@@ -507,12 +507,13 @@ extern "C" {
     void array_get_int(void *allocation, int i, int *pRetVal, int *pInBounds);
     int array_set_int(void *allocation, int i, int val);
 
-    void *alloc_array1D(int element_size, int size);
-    void *alloc_array2D(int element_size, int xsize, int ysize);
-    void *alloc_array3D(int element_size, int xsize, int ysize, int zsize);
-    void *alloc_array4D(int element_size, int xsize, int ysize, int zsize, int wsize);
+    void *alloc_array1D(arena_t arena, int element_size, int size);
+    void *alloc_array2D(arena_t arena, int element_size, int xsize, int ysize);
+    void *alloc_array3D(arena_t arena, int element_size, int xsize, int ysize, int zsize);
+    void *alloc_array4D(arena_t arena, int element_size, int xsize, int ysize, int zsize, int wsize);
 
     int read_int_array_1D(void *array, int x);
+    int write_int_array_1D(void *array, int i, int val);
 
 #ifdef __cplusplus
 }
@@ -549,6 +550,16 @@ extern "C" {
         self.out.append(Oper(assem,srcs, [dst]))
         return dst
 
+    def emit_func_n(self,n,op,srcs,type):
+        dst = self.newTemp(type)
+        srcstrings = []
+        for i in xrange(n):
+            srcstrings.append("%%(s%d)s" % i)
+            
+        assem = "%(d0)s = " + op + "(" + ",".join(srcstrings) + ");"
+        self.out.append(Oper(assem,srcs, [dst]))
+        return dst
+        
     def emit_func3_3(self,op,srcs,type):
         # emit a call to a C func which takes 3 args and returns 3 out params
         # This rather specialized feature is to call hls2rgb or image lookup

@@ -65,6 +65,12 @@ def mkfl(dict, name, list, **kwds):
     if not isinstance(list[0][0],types.ListType):
         list = [list]
     funclist = map(lambda x : mkf(x[0],x[1],fname), list)
+
+    implicit = kwds.get("implicit",None)
+    if implicit:
+        for f in funclist:
+            f.set_implicit_arg(implicit)
+            
     dict[name] = OverloadList(funclist,**kwds)
         
 class Alias:
@@ -456,7 +462,10 @@ by the 3rd parameter.''')
       doc='''Look up a color from a 2D array of colors.''')
 
     f("_alloc",
-      [ [ [Int], VoidArray], [ [Int, Int], VoidArray], [ [Int, Int, Int], VoidArray], [[Int, Int, Int, Int], VoidArray]],
+      [ [ [VoidArray, Int], VoidArray],
+        [ [VoidArray, Int, Int], VoidArray],
+        [ [VoidArray, Int, Int, Int], VoidArray],
+        [ [VoidArray, Int, Int, Int, Int], VoidArray]],
       doc='''Allocate an array with N members''')
 
     f("_write_lookup",

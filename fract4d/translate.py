@@ -642,7 +642,8 @@ class TBase:
         # gradient param
         if var.type == fracttypes.Image:
             f = Func([Image,Complex], Color, "image")
-            f.set_implicit_arg(ir.Var(name, None, fracttypes.Image))
+            f.set_implicit_arg(name)
+            f.set_override_name("_image")
             return f
         else:
             raise TranslationError(
@@ -714,8 +715,12 @@ class TBase:
         except KeyError, e:
             self.error("Invalid declaration on line %d: %s" % (node.pos,e))
 
+        arena = ir.Var("t__pfo->arena",node,fracttypes.VoidArray)
+        
         # initialize array by calling _alloc() and casting to correct type
-        init_exp = self.coerce(ir.Call("_alloc", indexes, node, fracttypes.VoidArray), atype)
+        init_exp = self.coerce(
+            ir.Call("_alloc", [arena] + indexes, node, fracttypes.VoidArray),
+            atype)
 
         # return a move(var, alloc(thatnum))
         return ir.Move(
@@ -775,13 +780,17 @@ class TBase:
             raise TranslationError(
                     "Unknown function %s on line %d" % (node.leaf,node.pos))
 
-        if op.implicit_args == []:
-            name = node.leaf
-        else:
-            children = op.implicit_args + children
-            name = "_image"
-                
+        if op.implicit_args != []:
+            type = op.args[0]
+            implicit_children = [
+                ir.Var(name, None, type) for name in op.implicit_args]
+            children = implicit_children + children
+            
         children = self.coerceList(op.args,children)
+
+        # use the leaf's name unless the function specifies otherwise
+        name = getattr(op, "override_name", node.leaf)
+        
         return ir.Call(name, children, node, op.ret)
     
     def shortcut(self, node):

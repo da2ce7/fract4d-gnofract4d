@@ -65,6 +65,7 @@ class Test(testbase.TestBase):
 
         typedef struct {
             struct s_param *p;
+            void *arena;
         } pf_fake;
         
         int main(){

@@ -197,7 +197,21 @@ class Test(unittest.TestCase):
              "t__pfo->p[6].doubleval"
              ],
             v.init_val())
+
+    def testFunc(self):
+        f = fracttypes.Func(
+            [fracttypes.Int,fracttypes.Int], fracttypes.Int, "wibble", pos = 7)
+        self.assertEqual([fracttypes.Int,fracttypes.Int], f.args)
+        self.assertEqual(fracttypes.Int,f.ret)
+        self.assertEqual(7, f.pos)
+        self.assertEqual("wibble", f.cname)
+        self.assertEqual("wibble_ii_i", f.genFunc)
+        self.assertEqual([],f.implicit_args)
         
+        f.set_implicit_arg("fish")
+        f.set_implicit_arg("blouse")
+        self.assertEqual(["fish","blouse"],f.implicit_args)
+
 def suite():
     return unittest.makeSuite(Test,'test')
 

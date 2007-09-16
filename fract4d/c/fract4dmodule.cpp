@@ -456,7 +456,7 @@ parse_params(PyObject *pyarray, int *plen)
 			PyObject_SetAttrString(pyitem,"cobject",pycob);
 			// not quite correct, we are leaking some
 			// cmap objects 
-			//Py_XINCREF(pycob);
+			Py_XINCREF(pycob);
 		    }
 		}
 		params[i].t = GRADIENT;

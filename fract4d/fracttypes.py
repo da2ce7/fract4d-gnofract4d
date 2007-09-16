@@ -3,6 +3,7 @@
 import string
 import exceptions
 import types
+import copy
 
 # order is significant - we use X > Y on types
 Bool = 0
@@ -322,6 +323,10 @@ class Func:
         
     def __copy__(self):
         c = Func(self.args,self.ret,self.fname,self.pos)
+        c.implicit_args = copy.copy(self.implicit_args)
+        if hasattr(self,"override_name"):
+            c.set_override_name(self.override_name)
+            
         return c
     
     def first(self):
@@ -329,6 +334,9 @@ class Func:
 
     def set_implicit_arg(self,arg):
         self.implicit_args.append(arg)
+
+    def set_override_name(self,name):
+        self.override_name = name
         
     def set_func(self,fname):
         # compute the name of the stdlib function to call

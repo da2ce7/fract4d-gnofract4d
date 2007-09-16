@@ -71,29 +71,39 @@ typedef struct {
     } first_element;
 } allocation;
 
-void *alloc_array1D(int element_size, int size)
+void *alloc_array1D(arena_t arena, int element_size, int size)
+{
+    return arena_alloc(arena, element_size, size);
+}
+
+void *alloc_array2D(arena_t arena, int element_size, int xsize, int ysize)
 {
     return NULL;
 }
 
-void *alloc_array2D(int element_size, int xsize, int ysize)
+void *alloc_array3D(arena_t arena, int element_size, int xsize, int ysize, int zsize)
 {
     return NULL;
 }
 
-void *alloc_array3D(int element_size, int xsize, int ysize, int zsize)
-{
-    return NULL;
-}
-
-void *alloc_array4D(int element_size, int xsize, int ysize, int zsize, int wsize)
+void *alloc_array4D(arena_t arena, int element_size, int xsize, int ysize, int zsize, int wsize)
 {
     return NULL;
 }
 
 int read_int_array_1D(void *array, int x)
 {
-    return 0;
+
+    int retval;
+    int inbounds = 0;
+    array_get_int(array, x, &retval, &inbounds);
+
+    return retval;
+}
+
+int write_int_array_1D(void *array, int i, int val)
+{
+    return array_set_int(array, i, val);
 }
 
 bool

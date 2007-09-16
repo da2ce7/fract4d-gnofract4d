@@ -1389,7 +1389,7 @@ default:
         decl = t.sections["init"].children[pos]
         self.assertEqual(ir.Move, decl.__class__)
 
-        amount_to_alloc = decl.children[1].children[0].children[0]
+        amount_to_alloc = decl.children[1].children[0].children[1]
         self.assertEqual(size,amount_to_alloc.value)
 
 
@@ -1408,9 +1408,11 @@ default:
         decl = t.sections["init"].children[0]
         self.assertEqual(ir.Move, decl.__class__)
 
+        args = decl.children[1].children[0].children
+        self.assertEqual("t__pfo->arena",args[0].name)        
         self.assertEqual(
             [2,7],
-            [child.value for child in decl.children[1].children[0].children])
+            [child.value for child in args[1:]])
 
     def test3Dand4DArrays(self):
         t = self.translate('''t {

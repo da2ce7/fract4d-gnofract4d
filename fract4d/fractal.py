@@ -222,7 +222,7 @@ class T(fctutils.T):
         self.transforms[which_transform].load_param_bag(params)
         
     def __del__(self):
-        print "deleting fractal %s" % self
+        pass #print "deleting fractal %s" % self
 
     def __copy__(self):
         # override shallow-copy to do a deeper copy than normal,
