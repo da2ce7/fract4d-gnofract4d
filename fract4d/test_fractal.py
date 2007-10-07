@@ -1405,6 +1405,13 @@ solids=[
         im = image.T(30,30)
         f.draw(im)
         im.save("foo.tga")
+
+    def testPeriodColorfunc(self):
+        f = fractal.T(self.compiler)
+        f.set_inner("gf4d.cfrm", "Periodicity")
+        f.compile()
+        im = image.T(30,30)
+        f.draw(im)
         
     def testDetermineDirection(self):
         f = fractal.T(self.compiler)
@@ -1445,8 +1452,8 @@ solids=[
         f = fractal.T(self.compiler)
         f.set_formula("test.frm","MandelbrotMix4")
         s = f.forms[0].formula.symbols
-        print s["t__a_p1"]
-        print s["t__a_p99"]
+        #print s["t__a_p1"]
+        #print s["t__a_p99"]
 
         
         for val in f.forms[0].formula.symbols.default_params():
@@ -1460,7 +1467,14 @@ solids=[
         im = image.T(4,3)
         f.draw(im)               
 
-        
+    def testJm25(self):
+        # regression test for a problem accidentally introduced in
+        # private builds of gf4d 3.5
+        f = fractal.T(self.compiler)
+        f.set_formula("fractint-g4.frm", "Jm_25")        
+        f.compile()
+        self.assertEqual(len(f.forms[0].params), len(f.forms[0].paramtypes))
+
 def suite():
     return unittest.makeSuite(Test,'test')
 

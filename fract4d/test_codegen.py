@@ -207,7 +207,8 @@ int main()
         };
 
         pf_fake t__f;
-
+        pf_fake *t__p_stub = &t__f;
+        
         for(i = 0; i < N_PARAMS; ++i) {
            t__f.pos_params[i] = 0.0;
         }

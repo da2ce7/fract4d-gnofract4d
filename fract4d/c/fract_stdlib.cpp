@@ -304,15 +304,19 @@ arena_delete(arena_t arena)
 void
 arena_clear(arena_t arena)
 {
-    // delete all pages and get things read for new allocations
+    // delete all pages except the 1st and get things read for new allocations
     if(NULL != arena->base_allocation)
     {
-	arena_delete_page(arena->base_allocation);
-    }
+	if(NULL != arena->base_allocation->prev)
+	{
+	    arena_delete_page((allocation_t *)arena->base_allocation->prev);
+	    arena->base_allocation->prev = NULL;
+	}
 
-    arena->free_slots = 0;
-    arena->pages_left = arena->max_pages;    
-    arena->base_allocation = NULL;
+	arena->free_slots = arena->page_size;
+	arena->next_allocation = &(arena->base_allocation[1]);
+	arena->pages_left = arena->max_pages-1;    
+    }
 }
 
 #define ARRAY_GET_T(name,type)			\

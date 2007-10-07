@@ -335,7 +335,7 @@ pf_obj *pf_new()
     pf_real *p = (pf_real *)malloc(sizeof(pf_real));
     if(!p) return NULL;
     p->parent.vtbl = &vtbl;
-    p->parent.arena = arena_create(10000000,1);
+    p->parent.arena = arena_create(100000,1);
     return (pf_obj*)p;
 }
 

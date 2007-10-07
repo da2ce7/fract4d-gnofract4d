@@ -717,7 +717,7 @@ class TBase:
         except KeyError, e:
             self.error("Invalid declaration on line %d: %s" % (node.pos,e))
 
-        arena = ir.Var("t__pfo->arena",node,fracttypes.VoidArray)
+        arena = ir.Var("t__p_stub->arena",node,fracttypes.VoidArray)
         
         # initialize array by calling _alloc() and casting to correct type
         size = ir.Const(fracttypes.elementSizeOf(atype), node, fracttypes.Int)

@@ -1010,7 +1010,7 @@ class Test(testbase.TestBase):
                     "bad result %s instead of %s for %d,%d" % (val,(i,1),x,y))
                 
                 i += 1
-        
+
         
 def suite():
     return unittest.makeSuite(Test,'test')

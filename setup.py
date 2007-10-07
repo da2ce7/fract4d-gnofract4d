@@ -150,7 +150,7 @@ module_fract4dc = Extension(
     'stdc++' 
     ] + jpg_libs,
     extra_compile_args = [
-    '-Wall',
+    '-Wall', '-O0'
     ] + png_flags,
     extra_link_args = png_libs,
     define_macros = defines + extra_macros,

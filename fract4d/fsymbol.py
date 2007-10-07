@@ -912,14 +912,15 @@ class T(UserDict):
     def default_params(self):
         op = self.order_of_params()
         defaults = [0.0] * op["__SIZE__"]
+
         for (k,i) in op.items():
             param = self.get(k)
             if not param: continue
             defval = getattr(param,"default",None)
-            
             if param.type == Complex:
                 if not defval:
-                    defaults[i:i+1] = default_value(param.type)
+                    dv = default_value(param.type)
+                    defaults[i:i+2] = dv
                 else:
                     defaults[i] = defval.value[0].value
                     defaults[i+1] = defval.value[1].value
@@ -933,7 +934,6 @@ class T(UserDict):
                     defaults[i] = default_value(param.type)
                 else:
                     defaults[i] = defval.value
-                
         return defaults
 
     def set_std_func(self,func,fname):

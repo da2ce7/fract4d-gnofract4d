@@ -260,3 +260,65 @@ param mergeopacity
 endparam
 
 }
+
+Periodicity {
+; various options based on finding the period of the point's orbit
+init:
+complex orbit[#maxiter]
+
+loop:
+	orbit[#numiter] = #z
+final:
+	int loop_end = 1
+	int loop_begin
+	bool outer_loop_flag = True
+	while outer_loop_flag
+		loop_begin = 0
+		endz = orbit[loop_end]
+		bool carry_on = True
+		bool found_orbit = False
+		while carry_on
+			float dist = |endz - orbit[loop_begin]|
+			if dist < @epsilon ; found a loop
+			    carry_on = False
+			    found_orbit = True
+			else
+			    loop_begin = loop_begin + 1
+			    if loop_begin >= loop_end - 1
+				carry_on = False
+			    endif
+			endif
+		endwhile
+		if found_orbit
+		    outer_loop_flag = False
+		else
+		    if loop_end >= #numiter
+		        outer_loop_flag = False
+		    else
+                        loop_end = loop_end + 1
+		    endif
+                endif
+	endwhile
+	if found_orbit
+	    if @mode == "loop start"
+	        #index = loop_begin/256.0
+            elseif @mode == "loop length"
+	        #index = (loop_end - loop_begin) / 16.0
+            elseif @mode == "loop start mag"
+                #index = |orbit[loop_begin]|
+	    elseif @mode == "loop dist"
+                #index = |orbit[loop_begin] - orbit[0]|
+            endif
+	else
+	    #index = 0.0
+	endif
+default:
+float param epsilon
+	default = 0.0000001
+endparam
+param mode
+	default = 0
+	enum = "loop start" "loop length" "loop start mag" "loop dist"
+endparam
+	
+}

@@ -11,11 +11,16 @@ changes in 3.5:
 * B	--trace wasn't working
 * B	antialiasing setting not honored with --nogui
 * W	added --tracez option
+* BB	.cs files missing from gradient browser
+* BBB	balefire.fct doesn't load
 
 bugs (the more B's, the worse the bug):
+* B	'both a Fractint-style default section'... on every fractal
+
 * BBB	too slow!
 	until antialias, seems to run single-threaded more often than not
 
+* BB	floating point exception on load of aho.ucl#Stripes_any
 * BB	animation colors are screwed
 * BB	func with a bailout of 1 will never quit and can't be interrupted
 * B	interrupt takes too long on deep-zoomed fractals

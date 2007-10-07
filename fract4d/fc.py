@@ -53,7 +53,7 @@ class FormulaTypes:
         re.compile(r'(\.frm\Z)|(\.ufm\Z)', re.IGNORECASE),
         re.compile(r'(\.cfrm\Z)|(\.ucl\Z)', re.IGNORECASE),
         re.compile(r'\.uxf\Z', re.IGNORECASE),
-        re.compile(r'(\.ugr\Z)|(\.map\Z)|(\.ggr\Z)', re.IGNORECASE)
+        re.compile(r'(\.ugr\Z)|(\.map\Z)|(\.ggr\Z)|(\.cs\Z)', re.IGNORECASE)
         ]
     
     def guess_type_from_filename(filename):
