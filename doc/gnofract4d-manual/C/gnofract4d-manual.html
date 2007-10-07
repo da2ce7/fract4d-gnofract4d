@@ -833,13 +833,106 @@ Predefined function parameter used by Fractint formulas
 </td><td align="left" valign="top">
 Complex
 </td><td align="left" valign="top">
-Complex</td></tr><tr><td align="left" valign="top">
+Complex</td></tr><tr><td rowspan="4" align="left" valign="top">
+_alloc</td><td rowspan="4" align="left" valign="top">
+Allocate an array. First argument is element size in bytes, subsequent args are array sizes
+</td><td align="left" valign="top">
+Array, Int, Int
+</td><td align="left" valign="top">
+Array</td></tr><tr><td align="left" valign="top">
+Array, Int, Int, Int
+</td><td align="left" valign="top">
+Array</td></tr><tr><td align="left" valign="top">
+Array, Int, Int, Int, Int
+</td><td align="left" valign="top">
+Array</td></tr><tr><td align="left" valign="top">
+Array, Int, Int, Int, Int, Int
+</td><td align="left" valign="top">
+Array</td></tr><tr><td align="left" valign="top">
 _image</td><td align="left" valign="top">
 Look up a color from a 2D array of colors.
 </td><td align="left" valign="top">
 Image, Complex
 </td><td align="left" valign="top">
-Color</td></tr><tr><td rowspan="3" align="left" valign="top">
+Color</td></tr><tr><td rowspan="12" align="left" valign="top">
+_read_lookup</td><td rowspan="12" align="left" valign="top">
+Read a value out of an array
+</td><td align="left" valign="top">
+Int array, Int
+</td><td align="left" valign="top">
+Int</td></tr><tr><td align="left" valign="top">
+Int array, Int, Int
+</td><td align="left" valign="top">
+Int</td></tr><tr><td align="left" valign="top">
+Int array, Int, Int, Int
+</td><td align="left" valign="top">
+Int</td></tr><tr><td align="left" valign="top">
+Int array, Int, Int, Int, Int
+</td><td align="left" valign="top">
+Int</td></tr><tr><td align="left" valign="top">
+Float array, Int
+</td><td align="left" valign="top">
+Float</td></tr><tr><td align="left" valign="top">
+Float array, Int, Int
+</td><td align="left" valign="top">
+Float</td></tr><tr><td align="left" valign="top">
+Float array, Int, Int, Int
+</td><td align="left" valign="top">
+Float</td></tr><tr><td align="left" valign="top">
+Float array, Int, Int, Int, Int
+</td><td align="left" valign="top">
+Float</td></tr><tr><td align="left" valign="top">
+Complex array, Int
+</td><td align="left" valign="top">
+Complex</td></tr><tr><td align="left" valign="top">
+Complex array, Int, Int
+</td><td align="left" valign="top">
+Complex</td></tr><tr><td align="left" valign="top">
+Complex array, Int, Int, Int
+</td><td align="left" valign="top">
+Complex</td></tr><tr><td align="left" valign="top">
+Complex array, Int, Int, Int, Int
+</td><td align="left" valign="top">
+Complex</td></tr><tr><td rowspan="12" align="left" valign="top">
+_write_lookup</td><td rowspan="12" align="left" valign="top">
+Write a value into an array
+</td><td align="left" valign="top">
+Int array, Int, Int
+</td><td align="left" valign="top">
+Bool</td></tr><tr><td align="left" valign="top">
+Int array, Int, Int, Int
+</td><td align="left" valign="top">
+Bool</td></tr><tr><td align="left" valign="top">
+Int array, Int, Int, Int, Int
+</td><td align="left" valign="top">
+Bool</td></tr><tr><td align="left" valign="top">
+Int array, Int, Int, Int, Int, Int
+</td><td align="left" valign="top">
+Bool</td></tr><tr><td align="left" valign="top">
+Float array, Int, Float
+</td><td align="left" valign="top">
+Bool</td></tr><tr><td align="left" valign="top">
+Float array, Int, Int, Float
+</td><td align="left" valign="top">
+Bool</td></tr><tr><td align="left" valign="top">
+Float array, Int, Int, Int, Float
+</td><td align="left" valign="top">
+Bool</td></tr><tr><td align="left" valign="top">
+Float array, Int, Int, Int, Int, Float
+</td><td align="left" valign="top">
+Bool</td></tr><tr><td align="left" valign="top">
+Complex array, Int, Complex
+</td><td align="left" valign="top">
+Bool</td></tr><tr><td align="left" valign="top">
+Complex array, Int, Int, Complex
+</td><td align="left" valign="top">
+Bool</td></tr><tr><td align="left" valign="top">
+Complex array, Int, Int, Int, Complex
+</td><td align="left" valign="top">
+Bool</td></tr><tr><td align="left" valign="top">
+Complex array, Int, Int, Int, Int, Complex
+</td><td align="left" valign="top">
+Bool</td></tr><tr><td rowspan="3" align="left" valign="top">
 abs</td><td rowspan="3" align="left" valign="top">
 The absolute value of a number. abs(3) = abs(-3) = 3.
       abs() of a complex number is a complex number consisting of

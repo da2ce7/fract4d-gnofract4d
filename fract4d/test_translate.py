@@ -1412,7 +1412,7 @@ default:
         self.assertEqual(ir.Move, decl.__class__)
 
         args = decl.children[1].children[0].children
-        self.assertEqual("t__pfo->arena",args[0].name)        
+        self.assertEqual("t__p_stub->arena",args[0].name)        
         self.assertEqual(
             [4, 2,7], # element size, indexes
             [child.value for child in args[1:]])

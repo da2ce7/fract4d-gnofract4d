@@ -110,7 +110,7 @@ class AVIGeneration:
         for d in env.split(':'):
             if found:
                 break
-            if 'transcode' in os.listdir(d):
+            if os.path.isdir(d) and 'transcode' in os.listdir(d):
                 found=True
         if not found:
             gtk.threads_enter()

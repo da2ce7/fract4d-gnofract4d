@@ -621,8 +621,13 @@ class T(fctutils.T):
             f.mutate(weirdness, size)
 
         if random.random() < color_weirdness:
-            (file, formula) = self.compiler.get_random_gradient()
-            self.set_gradient_from_file(file,formula)
+            try:
+                (file, formula) = self.compiler.get_random_gradient()
+                self.set_gradient_from_file(file,formula)
+            except IndexError:
+                # can occur if no gradients available or occasionally
+                # because random.choice is horked
+                pass
         
     def nudge(self,x,y,axis=0):
         # move a little way in x or y

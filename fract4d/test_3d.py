@@ -149,7 +149,6 @@ class Test(testbase.TestBase):
                     self.assertNearlyEqual(root, real_root,1e-10)
 
     def testDraw(self):
-        print "start calc"
         fract4dc.calc(
             params = self.f.params,
             antialias = self.f.antialias,

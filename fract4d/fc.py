@@ -350,10 +350,13 @@ class Compiler:
         return self.get_random_formula(3) # FIXME
 
     def get_random_formula(self,type):
-        file = random.choice(self.find_files_of_type(type))
+        files = self.find_files_of_type(type)
+        file = random.choice(files)
+        
         if gradient.FileType.guess(file) == gradient.FileType.UGR:
             ff = self.get_file(file)
-            formula = random.choice(ff.formulas.keys())
+            formulas = ff.formulas.keys()
+            formula = random.choice(formulas)
         else:
             formula = None
         return (file,formula)

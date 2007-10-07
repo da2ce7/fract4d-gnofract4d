@@ -238,7 +238,7 @@ arena_alloc(
 
     // add 1 per dimension for size record
     int slots_required = \
-	std::max(total_elements * element_size/sizeof(allocation_t),
+	std::max<unsigned long>(total_elements * element_size/sizeof(allocation_t),
 		 (unsigned long)1) + n_dimensions;
 
     if(slots_required > arena->page_size)
