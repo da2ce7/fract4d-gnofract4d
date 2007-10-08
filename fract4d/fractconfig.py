@@ -101,7 +101,12 @@ class T(ConfigParser.ConfigParser):
         if os.path.exists(local_name):
             return local_name
 
-        return os.path.join(self.get_data_path(installed_dir), name)
+        full_name = os.path.join(self.get_data_path(installed_dir), name)
+        if os.path.exists(full_name):
+            return full_name
+
+        #print "missing resource %s" % full_name
+        return full_name
 
     def get_default_editor(self):
         return "emacs"

@@ -1417,7 +1417,7 @@ default:
             [4, 2,7], # element size, indexes
             [child.value for child in args[1:]])
 
-    def test3Dand4DArrays(self):
+    def disabled_test3Dand4DArrays(self):
         t = self.translate('''t {
         init:
         float x[2,7,3]
@@ -1447,11 +1447,11 @@ default:
     def testTooManyIndexes(self):
         t = self.translate('''t {
         init:
-        int wibble[1,2,3,4,5]
+        int wibble[1,2,3]
         }''')
 
         self.assertError(
-            t, "3: Arrays can only have up to 4 indexes")
+            t, "3: Arrays can only have up to 2 indexes")
 
     def testNotEnoughIndexes(self):
         t = self.translate('''t {
@@ -1502,7 +1502,7 @@ default:
         self.assertEqual(ir.Const, index.__class__)
         self.assertEqual(1, index.value)
 
-    def testMoreComplexArrays(self):
+    def disabled_testMoreComplexArrays(self):
         t = self.translate('''t {
         init:
         float x[2,4,8,16]

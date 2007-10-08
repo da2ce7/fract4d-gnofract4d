@@ -19,7 +19,7 @@ class StockThing:
                 fractconfig.instance.find_resource(
                     file,
                     'pixmaps',
-                    'pixmaps/gnofract4d'))
+                    '../pixmaps/gnofract4d'))
             
             self.iconset = gtk.IconSet(self.pixbuf)
             _iconfactory.add(stock_name, self.iconset)
@@ -37,6 +37,6 @@ explorer = StockThing('explorer_mode.png', 'explore', _('Explorer'), ord('e'))
 
 deepen_now = StockThing('deepen_now.png', 'deepen', _('Deepen'), ord('d'))
 
-logo = StockThing('gnofract4d-logo.png', 'logo', _('Logo'), 0)
+#logo = StockThing('gnofract4d-logo.png', 'logo', _('Logo'), 0)
 
 

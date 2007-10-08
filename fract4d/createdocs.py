@@ -19,7 +19,7 @@ class SymbolPrinter:
         self.vars = {}
 
     def add_symbol(self,key,val):
-        if key.startswith("@_"):
+        if key.startswith("@_") or key.startswith("_"):
             # skip internal symbols
             return
         if isinstance(val,fracttypes.Var):

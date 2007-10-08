@@ -221,7 +221,8 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
            # color maps
            ('share/gnofract4d/maps',
             get_files("maps",".map") +
-            get_files("maps",".cs")),
+            get_files("maps",".cs") +
+            get_files("maps", ".ugr")),
 
            # formulas
            ('share/gnofract4d/formulas',

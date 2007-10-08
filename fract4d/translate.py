@@ -699,8 +699,8 @@ class TBase:
         indexes = [
             self.coerce(self.exp(x),fracttypes.Int) for x in node.children]
 
-        if len(indexes) > 4:
-            self.error("%d: Arrays can only have up to 4 indexes" % node.pos)
+        if len(indexes) > 2:
+            self.error("%d: Arrays can only have up to 2 indexes" % node.pos)
 
         return indexes
     

@@ -207,9 +207,11 @@ class MainWindow:
         return self.open_fs
     
     def set_icon(self):
+        return # can't get this to work
         try:
             gtk.window_set_default_icon_list([icons.logo.pixbuf])
         except Exception,err:
+            print err
             # not supported in this pygtk. Oh well...
             pass
         
@@ -1235,7 +1237,7 @@ class MainWindow:
 
         # look locally first to support run-before-install
         local_dir = "doc/gnofract4d-manual/%s/" % loc
-        install_dir = "share/gnome/help/gnofract4d/%s/" % loc
+        install_dir = "../../share/gnome/help/gnofract4d/%s/" % loc
 
         helpfile = fractconfig.instance.find_resource(
             base_help_file, local_dir, install_dir)
