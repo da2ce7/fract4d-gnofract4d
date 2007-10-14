@@ -29,6 +29,7 @@ class T(ConfigParser.ConfigParser):
             "general" : {
               "threads" : "1",
               "compress_fct" : "1",
+              "data_dir" : os.path.expandvars("${HOME}/gnofract4d")
             },
             "user_info" : {
               "name" : "",
@@ -40,12 +41,12 @@ class T(ConfigParser.ConfigParser):
             "formula_path" : {
               "0" : "formulas",
               "1" : _shared_formula_dir,
-              "2" : os.path.expandvars("${HOME}/formulas")
+              "2" : os.path.expandvars("${HOME}/gnofract4d/formulas")
             },
             "map_path" : {
               "0" : "maps",
               "1" : _shared_map_dir,
-              "2" : os.path.expandvars("${HOME}/maps")
+              "2" : os.path.expandvars("${HOME}/gnofract4d/maps")
             },
             "recent_files" : {
             },

@@ -51,6 +51,12 @@ class Test(unittest.TestCase):
     def testInstance(self):
         dummy = fractconfig.instance
         self.assertEqual(".gnofract4d",os.path.basename(dummy.file))
+
+    def testDataDir(self):
+        c = fractconfig.T("testprefs")
+        datadir = c.get("general","data_dir")
+        self.assertEqual(
+            os.path.expandvars("${HOME}/gnofract4d"), datadir)
         
 def suite():
     return unittest.makeSuite(Test,'test')

@@ -214,7 +214,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
        maintainer_email = 'catenary@users.sourceforge.net',
        keywords = "fractal Mandelbrot Julia fractint chaos",
        url = 'http://gnofract4d.sourceforge.net/',
-       packages = ['fract4d', 'fract4dgui', 'fractutils', 'buildtools'],
+       packages = ['fract4d', 'fract4dgui', 'fractutils'], #, 'buildtools'],
        ext_modules = modules,
        scripts = ['gnofract4d'],
        data_files = [

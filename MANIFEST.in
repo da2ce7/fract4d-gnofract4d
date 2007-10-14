@@ -36,3 +36,4 @@ include testdata/tumor.fct
 include testdata/test.cs
 include testdata/animation.fcta
 include testdata/director*.fct
+include testdata/example_formula_db.txt

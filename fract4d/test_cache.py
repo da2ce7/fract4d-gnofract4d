@@ -90,7 +90,7 @@ class Test(testbase.TestBase):
         self.failUnless(
             self.readall_called, "Should have called readall")
 
-    def testPickleFile(self):
+    def disabled_testPickleFile(self):
         c = cache.T("experiment")
         c.init()
         f = open("experiment/file1.txt","w").write("fish")

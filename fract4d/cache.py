@@ -78,7 +78,7 @@ class T:
         val = parser(open(file))
 
         hashname = self.makePickleName(file)
-        self.createPickledFile(hashname,val)
+        #self.createPickledFile(hashname,val)
         self.files[file] = TimeStampedObject(val,mtime,hashname)
         
         return val
