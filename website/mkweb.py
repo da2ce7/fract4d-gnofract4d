@@ -16,7 +16,7 @@ class Bag:
         self.__dict__.update(kwds)
         
 announce = Bag(
-    date="xxx, 2007",
+    date="October 7, 2007",
     text="Version 3.5 released. This adds support for arrays in fractal formulas.")
 
 manual_pages = [
