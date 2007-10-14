@@ -18,10 +18,10 @@ def makeNonBlocking(fd):
     except AttributeError:
         import FCNTL
         fcntl.fcntl(fd, FCNTL.F_SETFL, fl | FCNTL.FNDELAY)
-        
+
 class Slave(object):
     def __init__(self, cmd, *args):
-        self.cmd = cmd
+        self.cmd = cmd        
         self.args = list(args)
         self.process = None
         self.input = ""

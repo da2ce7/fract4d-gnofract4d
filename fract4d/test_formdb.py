@@ -3,6 +3,9 @@
 # this is deliberately not included in test.py since it hits a live website
 # and I don't want to screw up their bandwidth allocation
 
+import sys
+sys.path.append("..")
+
 import unittest
 import StringIO
 import SocketServer
@@ -13,6 +16,7 @@ import httplib
 import os
 import threading
 import zipfile
+import fractutils.slave
 
 import formdb
 
@@ -60,7 +64,14 @@ class Test(unittest.TestCase):
         response = conn.getresponse()
         self.assertEqual(200, response.status)
 
-    def testFetchAndUnpack(self):
+    def testSlaveFetch(self):
+        s = fractutils.slave.PollingSlave("get.py", 'GET', 'http://localhost:8090/trigcentric.fct')
+        s.run()
+        while(not s.done):
+            pass
+        print s.output
+        
+    def testFetchAndUnpack(self):        
         conn = httplib.HTTPConnection('localhost',8090)
         conn.request("GET", "/test.zip")
         response = conn.getresponse()

@@ -106,6 +106,7 @@ class Test(unittest.TestCase):
     def testGet(self):
         s = GTKTestSlave("./get.py", "GET", "http://www.google.com/index.html" )
         s.run("")
+        print s.s.err_output
         self.failUnless(s.s.output.count("oogle") > 0)
 
     def testGetBadSite(self):
@@ -122,6 +123,12 @@ class Test(unittest.TestCase):
         self.assertEqual(s.s.process.returncode,1)
         self.failUnless(s.s.err_output.count('404: Not Found') > 0)
 
+    def testPollingSlave(self):
+        s = PollingSlave("./get.py", "GET", "http://www.google.com/index.html" )
+        s.run("")
+        while not s.done:
+            pass
+        
 def suite():
     return unittest.makeSuite(Test,'test')
 
