@@ -127,7 +127,7 @@ static void pf_calc(
     // "object" pointer
     struct s_pf_data *t__p_stub,
     // in params
-    const double *t__params, int maxiter, int t__warp_param,
+    const double *t__params, int maxiter, int t__warp_param, int min_period_iter,
     // only used for debugging
     int t__p_x, int t__p_y, int t__p_aa,
     // out params
@@ -137,181 +137,86 @@ static void pf_calc(
 {
     pf_real *t__pfo = (pf_real *)t__p_stub;
 
-double pixel_re = t__params[0];
-double pixel_im = t__params[1];
-double t__h_zwpixel_re = t__params[2];
-double t__h_zwpixel_im = t__params[3];
-
-double t__h_index = 0.0;
-int t__h_solid = 0;
-int t__h_fate = 0;
-int t__h_inside = 0;
-double t__h_color_re = 0.0;
-double t__h_color_i = 0.0;
-double t__h_color_j = 0.0;
-double t__h_color_k = 0.0;
-
-*t__p_pDirectColorFlag = %(dca_init)s;
-
-if(t__warp_param != -1)
-{
-    t__pfo->p[t__warp_param].doubleval = t__h_zwpixel_re;
-    t__pfo->p[t__warp_param+1].doubleval = t__h_zwpixel_im;
-    t__h_zwpixel_re = t__h_zwpixel_im = 0.0;
-}
-
-/* variable declarations */
-%(var_inits)s
-int t__h_numiter = 0;
-
-%(t_transform)s
-
-%(init)s
-
-%(init_inserts)s
-
-%(cf0_init)s
-
-%(cf1_init)s
-do
-{
-    %(loop)s
-
-    %(loop_inserts)s
-    %(bailout)s
-
-    %(bailout_inserts)s
-    if(!%(bailout_var)s) break;
-    %(cf0_loop)s
-
-    %(cf1_loop)s
-
-    t__h_numiter++;
-}while(t__h_numiter < maxiter);
-
-/* fate of 0 = escaped, 1 = trapped */
-t__h_inside = (t__h_numiter >= maxiter);
-
-%(pre_final_inserts)s
-%(final)s
-
-%(done_inserts)s
-
-*t__p_pnIters = t__h_numiter;
-if(t__h_inside == 0)
-{
-    %(cf0_final)s
-        ;
-}
-else
-{
-    %(cf1_final)s
-        ;
-}
-*t__p_pFate = t__h_fate | (t__h_inside ? FATE_INSIDE : 0);
-*t__p_pDist = t__h_index;
-*t__p_pSolid = t__h_solid;
-%(save_colors)s
-%(return_inserts)s
-arena_clear((arena_t)(t__p_stub->arena));
-return;
-}
-
-
-static void pf_calc_period(
-    // "object" pointer
-    struct s_pf_data *t__p_stub,
-    // in params
-    const double *t__params, int maxiter, int t__warp_param,
-    // only used for debugging
-    int t__p_x, int t__p_y, int t__p_aa,
-    // out params
-    int *t__p_pnIters, int *t__p_pFate, double *t__p_pDist, int *t__p_pSolid,
-    int *t__p_pDirectColorFlag, double *t__p_pColors
-    )
-{
-    pf_real *t__pfo = (pf_real *)t__p_stub;
-
-double pixel_re = t__params[0];
-double pixel_im = t__params[1];
-double t__h_zwpixel_re = t__params[2];
-double t__h_zwpixel_im = t__params[3];
-
-double t__h_index = 0.0;
-int t__h_solid = 0;
-int t__h_fate = 0;
-int t__h_inside = 0;
-double t__h_color_re = 0.0;
-double t__h_color_i = 0.0;
-double t__h_color_j = 0.0;
-double t__h_color_k = 0.0;
-
-*t__p_pDirectColorFlag = %(dca_init)s;
-
-if(t__warp_param != -1)
-{
-    t__pfo->p[t__warp_param].doubleval = t__h_zwpixel_re;
-    t__pfo->p[t__warp_param+1].doubleval = t__h_zwpixel_im;
-    t__h_zwpixel_re = t__h_zwpixel_im = 0.0;
-}
-
-/* variable declarations */
-%(var_inits)s
-%(decl_period)s
-int t__h_numiter = 0;
-
-%(t_transform)s
-
-%(init)s
-
-%(init_inserts)s
-
-%(cf0_init)s
-%(cf1_init)s
-
-%(init_period)s
-do
-{
-    %(loop)s
-
-    %(loop_inserts)s
-    %(bailout)s
-
-    %(bailout_inserts)s
-    if(!%(bailout_var)s) break;
-    %(check_period)s   
-    %(cf0_loop)s
-    %(cf1_loop)s
-
-    t__h_numiter++;
-}while(t__h_numiter < maxiter);
-
-/* fate of 0 = escaped, 1 = trapped */
-t__h_inside = (t__h_numiter >= maxiter);
-
-%(pre_final_inserts)s
-%(final)s
-%(done_inserts)s
-
-*t__p_pFate = (t__h_numiter >= maxiter);
-*t__p_pnIters = t__h_numiter;
-if(t__h_inside == 0)
-{
-    %(cf0_final)s
-        ;
-}
-else
-{
-    %(cf1_final)s
-        ;
-}
-*t__p_pFate = t__h_fate | (t__h_inside ? FATE_INSIDE : 0);
-*t__p_pDist = t__h_index;
-*t__p_pSolid = t__h_solid;
-%(save_colors)s
-%(return_inserts)s
-arena_clear((arena_t)(t__p_stub->arena));
-return;
+    double pixel_re = t__params[0];
+    double pixel_im = t__params[1];
+    double t__h_zwpixel_re = t__params[2];
+    double t__h_zwpixel_im = t__params[3];
+    
+    double t__h_index = 0.0;
+    int t__h_solid = 0;
+    int t__h_fate = 0;
+    int t__h_inside = 0;
+    double t__h_color_re = 0.0;
+    double t__h_color_i = 0.0;
+    double t__h_color_j = 0.0;
+    double t__h_color_k = 0.0;
+    
+    *t__p_pDirectColorFlag = %(dca_init)s;
+    
+    if(t__warp_param != -1)
+    {
+        t__pfo->p[t__warp_param].doubleval = t__h_zwpixel_re;
+        t__pfo->p[t__warp_param+1].doubleval = t__h_zwpixel_im;
+        t__h_zwpixel_re = t__h_zwpixel_im = 0.0;
+    }
+    
+    /* variable declarations */
+    %(var_inits)s
+    %(decl_period)s
+    int t__h_numiter = 0;
+    
+    %(t_transform)s
+    
+    %(init)s
+    
+    %(init_inserts)s
+    
+    %(cf0_init)s
+    %(cf1_init)s
+    
+    %(init_period)s
+    do
+    {
+        %(loop)s
+    
+        %(loop_inserts)s
+        %(bailout)s
+    
+        %(bailout_inserts)s
+        if(!%(bailout_var)s) break;
+        %(check_period)s
+        %(cf0_loop)s
+        %(cf1_loop)s
+    
+        t__h_numiter++;
+    }while(t__h_numiter < maxiter);
+    
+    /* fate of 0 = escaped, 1 = trapped */
+    t__h_inside = (t__h_numiter >= maxiter);
+    
+    %(pre_final_inserts)s
+    %(final)s
+    %(done_inserts)s
+    
+    *t__p_pFate = (t__h_numiter >= maxiter);
+    *t__p_pnIters = t__h_numiter;
+    if(t__h_inside == 0)
+    {
+        %(cf0_final)s
+            ;
+    }
+    else
+    {
+        %(cf1_final)s
+            ;
+    }
+    *t__p_pFate = t__h_fate | (t__h_inside ? FATE_INSIDE : 0);
+    *t__p_pDist = t__h_index;
+    *t__p_pSolid = t__h_solid;
+    %(save_colors)s
+    %(return_inserts)s
+    arena_clear((arena_t)(t__p_stub->arena));
+    return;
 }
 
 static void pf_kill(
@@ -326,7 +231,6 @@ static struct s_pf_vtable vtbl =
     pf_get_defaults,
     pf_init,
     pf_calc,
-    pf_calc_period,
     pf_kill
 };
 
@@ -443,18 +347,7 @@ struct s_pf_vtable {
     void (*calc)(
 	struct s_pf_data *p,
         // in params
-        const double *params, int nIters, int warp_param,
-	// only used for debugging
-	int x, int y, int aa,
-        // out params
-        int *pnIters, int *pFate, double *pDist, int *pSolid,
-	int *pDirectColorFlag, double *pColors
-	);
-    /* calculate one point, using periodicity checking */
-    void (*calc_period)(
-	struct s_pf_data *p,
-        // in params
-        const double *params, int nIters, int warp_param,
+        const double *params, int nIters, int warp_param, int min_period_iter,
 	// only used for debugging
 	int x, int y, int aa,
         // out params
@@ -812,25 +705,42 @@ extern "C" {
                 double old_z_re;
                 double old_z_im;
                 int period_iters = 0;
-                int k=1,m=1;'''
+                int save_mask = 9;
+                int save_incr = 1;
+                int next_save_incr = 4;
+                '''
             inserts["init_period"] = '''
                 old_z_re = z_re;
                 old_z_im = z_im;'''
 
             inserts["check_period"] = '''
-                if ( fabs(z_re - old_z_re) + fabs(z_im - old_z_im) <
-                     t__pfo->period_tolerance)
+                if ( t__h_numiter >= min_period_iter)
                 {
-                    period_iters = t__h_numiter;
-                    t__h_numiter = maxiter; break;
+                    if( (t__h_numiter & save_mask) == 0)
+                    {
+                        /* save a value */
+                        old_z_re = z_re;
+                        old_z_im = z_im;
+
+                        if(--save_incr == 0)
+                        {
+                            /* lengthen period check */
+                            save_mask = (save_mask << 1) + 1;
+                            save_incr = next_save_incr;
+                        }
+                    }
+                    else
+                    {
+                        /* compare to an older value */
+                        if ( (fabs(z_re - old_z_re) < t__pfo->period_tolerance)
+                           &&(fabs(z_im - old_z_im) < t__pfo->period_tolerance))
+                        {
+                            period_iters = t__h_numiter;
+                            t__h_numiter = maxiter; break;
+                        }
+                    }
                 }
-                if(--k == 0)
-                {
-                    old_z_re = z_re;
-                    old_z_im = z_im;
-                    m *= 2;
-                    k = m;
-                }'''
+                '''
         else:
             inserts["decl_period"]=""
             inserts["init_period"]=""

@@ -104,15 +104,36 @@ STFractWorker::row_aa(int x, int y, int w)
     }
 }
 
-inline bool 
+inline int
 STFractWorker::periodGuess()
 { 
-    return (ff->periodicity && lastIter == -1 && ff->maxiter > 4096);
+    if(!ff->periodicity)
+    {
+	return ff->maxiter;
+    }
+    if(lastIter == -1)
+    {
+	// we were captured last time so probably will be again
+	return 0;
+    }
+    // we escaped, so don't try so hard this time
+    return lastIter + 10;
 }
 
-inline bool 
+inline int
 STFractWorker::periodGuess(int last) {
-    return ff->periodicity && last == -1;
+
+    if(!ff->periodicity)
+    {
+	return ff->maxiter;
+    }
+    if(last == -1)
+    {
+	// we were captured last time so probably will be again
+	return 0;
+    }
+    // we escaped, so don't try so hard this time
+    return lastIter + 10;
 }
 
 inline void 

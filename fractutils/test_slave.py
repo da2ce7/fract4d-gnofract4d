@@ -123,11 +123,6 @@ class Test(unittest.TestCase):
         self.assertEqual(s.s.process.returncode,1)
         self.failUnless(s.s.err_output.count('404: Not Found') > 0)
 
-    def testPollingSlave(self):
-        s = PollingSlave("./get.py", "GET", "http://www.google.com/index.html" )
-        s.run("")
-        while not s.done:
-            pass
         
 def suite():
     return unittest.makeSuite(Test,'test')

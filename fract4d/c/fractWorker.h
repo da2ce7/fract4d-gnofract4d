@@ -40,11 +40,11 @@ class STFractWorker : public IFractWorker {
     }
 
     // heuristic to see if we should use periodicity checking for next point
-    inline bool periodGuess();
+    inline int periodGuess();
 
     // periodicity guesser for when we have the last count to hand 
     // (as for antialias pass)
-    inline bool periodGuess(int last);
+    inline int periodGuess(int last);
 
     // update whether last pixel bailed
     inline void periodSet(int *ppos);

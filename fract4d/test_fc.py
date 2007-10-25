@@ -22,7 +22,7 @@ g_comp.load_formula_file("test.frm")
 g_comp.load_formula_file("gf4d.cfrm")
 g_comp.load_formula_file("gf4d.uxf")
 
-class FCTest(testbase.TestBase):
+class Test(testbase.TestBase):
     def setUp(self):
         global g_comp
         self.compiler = g_comp
@@ -142,9 +142,8 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         (status,output) = commands.getstatusoutput('nm test-out.so')
         self.assertEqual(status,0)
         self.assertEqual(string.count(output,"pf_new"),1)
-        self.assertEqual(string.count(output,"pf_calc"),2)
+        self.assertEqual(string.count(output,"pf_calc"),1)
         self.assertEqual(string.count(output,"pf_init"),1)
-        self.assertEqual(string.count(output,"pf_calc_period"),1)
         self.assertEqual(string.count(output,"pf_kill"),1)
 
     def testErrors(self):
@@ -260,7 +259,7 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
                     self.assertNoErrors(f, "%s:%s" % (filename, fname))
                 
 def suite():
-    return unittest.makeSuite(FCTest,'test')
+    return unittest.makeSuite(Test,'test')
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

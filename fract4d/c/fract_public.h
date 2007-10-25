@@ -88,7 +88,7 @@ class IFractalSite
 
     // per-pixel callback for debugging
     virtual void pixel_changed(
-	const double *params, int maxIters, bool checkPeriod,
+	const double *params, int maxIters, int min_period_iter,
 	int x, int y, int aa,
 	double dist, int fate, int nIters,
 	int r, int g, int b, int a) {};

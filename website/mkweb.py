@@ -113,12 +113,6 @@ pages = [
     "Thanks for creating Gnofract 4D, I've found it a real pleasure to use so far..."
     ]),
 
-    Bag(name="FAQ",
-        file="http://gnofract4d.wiki.sourceforge.net/",
-        stub=True
-        ),
-
-
     ]
 
 def create_manual():

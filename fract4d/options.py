@@ -17,6 +17,7 @@ class T:
             "maxiter=",
             "width=",
             "height=",
+            "antialias=",
             "save=",
             "help",
             "path=",
@@ -54,6 +55,7 @@ class T:
         self.extra_paths = []
         self.map = None
         self.nogui = False
+        self.antialias = None
         (self.width, self.height) = (0,0)
 
     def help(self):
@@ -71,9 +73,6 @@ General Flags:
 
 Fractal Settings:
 -p --params FILE\tUse FILE as a parameter file
--s --save IMAGEFILE\tSave image to IMAGEFILE after calculation
--i --width N\t\tMake image N pixels wide
--j --height N\t\tMake image N pixels tall
 -P --path P\t\tAdd P to the formula search path
 -f --formula F#func\tUse formula 'func' from file F
    --inner F#func\tUse coloring algorithm 'func' from file F
@@ -81,6 +80,12 @@ Fractal Settings:
    --transforms F#func1,F2#func2\tApply transforms 'func1' and 'func2'
 -m --maxiter N\t\tUse N as maximum number of iterations
    --map FILE\t\tLoad map file FILE
+
+Output Settings:
+-s --save IMAGEFILE\tSave image to IMAGEFILE after calculation
+-i --width N\t\tMake image N pixels wide
+-j --height N\t\tMake image N pixels tall
+-a --antialias MODE\tAntialiasing mode (one of none|fast|best)
 
 Positional Parameters:
    --xcenter N
@@ -107,7 +112,7 @@ Obscure settings:
         try:
             (opts, self.args) = getopt.getopt(
                 args,
-                "p:m:i:j:s:f:qhP:Xv", T.longparams)
+                "p:m:i:j:a:s:f:qhP:Xv", T.longparams)
         except getopt.GetoptError, err:
             raise OptionError(err)
         
@@ -124,6 +129,8 @@ Obscure settings:
                 self.width = int(val)
             elif name=="-j" or name=="--height":
                 self.height = int(val)
+            elif name=="-a" or name=="--antialias":
+                self.antialias = self.parse_aa(val)
             elif name=="-h" or name=="--help":
                 self.output += self.help()
                 self.quit_now = True
@@ -175,4 +182,15 @@ Obscure settings:
         basename = os.path.basename(file)
         return (basename,func)
 
+    def parse_aa(self,val):
+        val = val.lower()
+        if val == "none":
+            return 0
+        if val == "fast":
+            return 1
+        if val == "best":
+            return 2
+        raise OptionError(
+            "antialias option must be one of: 'none', 'fast', 'best', not '%s'" % val)
+            
 

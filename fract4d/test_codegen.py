@@ -65,7 +65,7 @@ int main()
     pf->vtbl->calc(
          pf,
          pparams,
-         100, -1,
+         100, -1, ((100)),
          0,0,0,
          &nItersDone, &nFate, &dist,&solid,&fDirectUsed, &colors[0]);
     
@@ -82,7 +82,7 @@ int main()
     pf->vtbl->calc(
         pf,
         pparams,
-        20, -1,
+        20, -1, ((100)),
         0,0,0,
         &nItersDone, &nFate, &dist,&solid,&fDirectUsed, &colors[0]);
 
@@ -97,7 +97,6 @@ int main()
 }
 '''
 
-        self.period_stub = self.main_stub.replace('->calc','->calc_period')
         
     def tearDown(self):
         pass
@@ -1973,13 +1972,13 @@ bailout:
         
         inserts = {
             "done_inserts": 'printf(\"%g\\n\",fk);',
-            "main_inserts": self.period_stub
+            "main_inserts": self.main_stub.replace("((100))", "0")
             }
         c_code = self.codegen.output_c(t,inserts)
         output = self.compileAndRun(c_code)
         lines = string.split(output,"\n")
 
-        self.assertEqual(lines[0],'16')
+        self.assertEqual(lines[0],'10')
         self.assertEqual(lines[1],'(100,32,0)')
 
     def complexFromLine(self,str):

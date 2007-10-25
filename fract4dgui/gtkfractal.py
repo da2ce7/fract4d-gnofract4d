@@ -285,6 +285,7 @@ class Hidden(gobject.GObject):
         initparams = self.all_params()
 
         try:
+            t = 1.0e-9
             fract4dc.pf_init(self.f.pfunc,t,self.f.params,initparams)
         except ValueError:
             print initparams

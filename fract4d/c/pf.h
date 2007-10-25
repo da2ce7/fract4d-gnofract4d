@@ -97,18 +97,7 @@ struct s_pf_vtable {
     void (*calc)(
 	struct s_pf_data *p,
         // in params
-        const double *params, int nIters, int warp_param,
-	// only used for debugging
-	int x, int y, int aa,
-        // out params
-        int *pnIters, int *pFate, double *pDist, int *pSolid,
-	int *pDirectColorFlag, double *pColors
-	);
-    /* calculate one point, using periodicity checking */
-    void (*calc_period)(
-	struct s_pf_data *p,
-        // in params
-        const double *params, int nIters, int warp_param,
+        const double *params, int nIters, int warp_param, int min_period_iter,
 	// only used for debugging
 	int x, int y, int aa,
         // out params

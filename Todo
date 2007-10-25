@@ -1,27 +1,15 @@
 todo:
-
-
-changes in 3.5:
-* BB	'list index out of range' loading pre-2.0 .fct files
-* W	cut support for Python older than 2.4 and pygtk older than 2.6
-* W	not fully working: use images in coloring methods
-* B	fix default compiler options for mac os x
-* W	fixes to make things work better on Mac OS X
-* BB	params for MandelbrotMix4 formula contain embedded lists
-* B	--trace wasn't working
-* B	antialiasing setting not honored with --nogui
-* W	added --tracez option
-* BB	.cs files missing from gradient browser
-* BBB	balefire.fct doesn't load
-* B	error in avigen when PATH contains a missing dir
-* B	error in explorer when gradients can't be found
-* BB	UGR files not included in RPMs
-* B	help display when not run locally messed up
-* B	internal functions shown in docs
-* B	3D and 4D arrays busted (now disabled)
+changes in 3.6:
+* B	don't install buildtools to site-packages
+* B	run calc threads at normal priority - low prio unpredictably runs 2x slower sometimes
+* W	change periodicity logic to apply more often & hopefully go faster
+* W	--antialias command-line arg
 
 bugs (the more B's, the worse the bug):
 * B	'both a Fractint-style default section'... on every fractal
+* B	NoneType object has no attribute children on BehrQuiltedRed.cs
+* B	Sometimes see this in colormap browsing: /home/catenary/gnofract4d/fract4dgui/browser.py:374: GtkWarning: gtk_text_buffer_emit_insert: assertion `g_utf8_validate (text, len, NULL)' failed
+  self.sourcetext.get_buffer().set_text(latin_text.encode('utf-8'),-1)
 
 
 * BBB	too slow!
@@ -226,6 +214,25 @@ in return for a look at what I'm generating, (like ElectricSheep).
 
 Requires: above, +able to deal with ad-hoc networks of thousands of peers,
 economic incentive, security, works with NAT
+
+changes in 3.5:
+* BB	'list index out of range' loading pre-2.0 .fct files
+* W	cut support for Python older than 2.4 and pygtk older than 2.6
+* W	not fully working: use images in coloring methods
+* B	fix default compiler options for mac os x
+* W	fixes to make things work better on Mac OS X
+* BB	params for MandelbrotMix4 formula contain embedded lists
+* B	--trace wasn't working
+* B	antialiasing setting not honored with --nogui
+* W	added --tracez option
+* BB	.cs files missing from gradient browser
+* BBB	balefire.fct doesn't load
+* B	error in avigen when PATH contains a missing dir
+* B	error in explorer when gradients can't be found
+* BB	UGR files not included in RPMs
+* B	help display when not run locally messed up
+* B	internal functions shown in docs
+* B	3D and 4D arrays busted (now disabled)
 
 changes in 3.4:
 * W	support .ugr files

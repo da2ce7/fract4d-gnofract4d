@@ -42,7 +42,7 @@ public:
 	}
     virtual void calc(
         // in params
-        const double *params, int nIters, bool checkPeriod, int warp_param,
+        const double *params, int nIters, int min_period_iters, int warp_param,
 	// only used for debugging
 	int x, int y, int aa,
         // out params
@@ -55,22 +55,12 @@ public:
 	    double colors[4] = {0.0};
 	    int inside = 0;
 
-	    if (checkPeriod)
-	    {
-		m_pfo->vtbl->calc_period(
-		    m_pfo, params, nIters, warp_param,
-		    x, y, aa,
-		    pnIters, &fate, &dist, &solid,
-		    &fUseColors, &colors[0]);
-	    }
-	    else
-	    {
-		m_pfo->vtbl->calc(
-		    m_pfo, params, nIters, warp_param,
-		    x, y, aa,
-		    pnIters, &fate, &dist, &solid,
-		    &fUseColors, &colors[0]);
-	    }
+	    m_pfo->vtbl->calc(
+		m_pfo, params, 
+		nIters, warp_param, min_period_iters,
+		x, y, aa,
+		pnIters, &fate, &dist, &solid,
+		&fUseColors, &colors[0]);
 
 	    if(fate & FATE_INSIDE)
 	    {
@@ -97,7 +87,7 @@ public:
 	    *pIndex = (float) dist;
 
 	    m_site->pixel_changed(
-		params,nIters, checkPeriod,
+		params,nIters, min_period_iters,
 		x,y,aa,
 		dist,fate,*pnIters,
 		color->r, color->g, color->b, color->a);

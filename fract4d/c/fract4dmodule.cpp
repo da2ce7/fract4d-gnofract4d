@@ -645,7 +645,7 @@ pf_calc(PyObject *self, PyObject *args)
     fprintf(stderr,"%p : PF : CALC\n",pfh);
 #endif
     pfh->pfo->vtbl->calc(pfh->pfo,params,
-			 nIters, -1,
+			 nIters, -1, nIters,
 			 x,y,aa,
 			 &outIters,&outFate,&outDist,&outSolid,
 			 &fDirectColorFlag, &colors[0]);
@@ -1615,8 +1615,8 @@ pycalc(PyObject *self, PyObject *args, PyObject *kwds)
 	pthread_attr_t lowprio_attr;
 	struct sched_param lowprio_param;
 	pthread_attr_init(&lowprio_attr);
-	lowprio_param.sched_priority = sched_get_priority_min(SCHED_OTHER);
-	pthread_attr_setschedparam(&lowprio_attr, &lowprio_param);
+	//lowprio_param.sched_priority = sched_get_priority_min(SCHED_OTHER);
+	//pthread_attr_setschedparam(&lowprio_attr, &lowprio_param);
 
 	/* start the calculation thread */
 	pthread_create(&tid,&lowprio_attr,calculation_thread,(void *)cargs);

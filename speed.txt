@@ -216,6 +216,25 @@ some periodicity:
 5.5524 testdata/zpower.fct
 19.8303520679
 
+3.5:
+0.5257 testdata/std.fct
+2.5547 testdata/param.fct
+2.9928 testdata/valley_test.fct
+14.3698 testdata/trigcentric.fct
+5.9294 testdata/zpower.fct
+26.3723649979
+23.892553091
+22.5007739067
+
 v.sh @ 1600x1200 with Floyd's algorithm
 53.83user 0.39system 0:29.65elapsed 182%CPU (0text+0data 0max)k
 53.93user 0.37system 0:29.50elapsed 184%CPU (0text+0data 0max)k
+
+fractint muth.par
+calc time 28.58 seconds (24.48 with guessing)
+with periodicity=0 87.46 seconds
+periodicity=1 looks horrid
+periodicity=50 52.26 seconds
+gf4d MandAutoCritInZ 46.91 seconds (ouch!)
+with new period code (1) 38.45 seconds
+with new period + loose tolerance of 0.0009 26.42 (woot!) or 46 seconds (baffling)

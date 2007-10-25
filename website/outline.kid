@@ -5,8 +5,13 @@
 <link rel="stylesheet" type="text/css" href="${page.url_prefix}gnofract4d.css" media="screen"/>
 <link rel="stylesheet" type="text/css" href="${page.url_prefix}print.css" media="print" />
 <title>Gnofract 4D: Superior Fractal Software : ${page.name}</title>
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-2808912-1";
+urchinTracker();
+</script>
 </head>
-
 <body>
 <div id="wrap">
 
@@ -23,6 +28,9 @@
 <li py:for="refpage in pages">
 	<a py:if="refpage.file != page.file" href="${page.url_prefix}${refpage.file}">${refpage.name}</a>
 	<span py:if="refpage.file == page.file">${refpage.name}</span>
+</li>
+<li>
+	<a href="http://gnofract4d.wiki.sourceforge.net/">FAQ</a>
 </li>
 <li>
 	<a href="http://sourceforge.net/projects/gnofract4d">SourceForge Page</a>

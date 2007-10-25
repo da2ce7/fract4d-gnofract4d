@@ -21,7 +21,7 @@ import fractutils.slave
 import formdb
 
 
-formdb.target_base = "http://localhost:8090/formdb"
+formdb.target_base = "http://localhost:8090/"
 
 class MyRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     # same as a simplehttprequesthandler, but with a different base dir
@@ -64,12 +64,9 @@ class Test(unittest.TestCase):
         response = conn.getresponse()
         self.assertEqual(200, response.status)
 
-    def testSlaveFetch(self):
-        s = fractutils.slave.PollingSlave("get.py", 'GET', 'http://localhost:8090/trigcentric.fct')
-        s.run()
-        while(not s.done):
-            pass
-        print s.output
+    def testFetchWithFormDB(self):
+        data = formdb.fetchzip("test.zip")
+        self.assertNotEqual(None, data)
         
     def testFetchAndUnpack(self):        
         conn = httplib.HTTPConnection('localhost',8090)

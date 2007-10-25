@@ -492,3 +492,112 @@ float func bailfunc
 	default = cmag
 endfunc
 }
+
+FnPartsPower {
+; A generalization of Burning Ship - apply separate functions to the 
+; X and Y parts of Z, then another to Z itself
+init:
+	z = #zwpixel
+loop:
+	z = (@fnReal(real(z)), @fnImag(imag(z)))^@pow + #pixel
+bailout:
+	@bailfunc(z) < @bailout
+default:
+complex param pow
+	default = (2.0, 0.0)
+endparam
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default =cmag
+endfunc
+float func fnReal
+	argtype = float
+	default = abs
+endfunc
+float func fnImag
+	argtype = float
+	default = abs
+endfunc
+}
+
+
+Chebyshev {
+; a generalization of a number of Fractint Chebyshev functions
+init:
+  float s=sqrt(2)
+  float a=0, float b=0, float c=0
+  if @functype == "04-01"
+    a = 8*s+7
+  elseif @functype == "05-01"
+    a = 8*s+7
+  elseif @functype == "06-01"
+    a = 33*s+12
+  elseif @functype == "07-01"
+    a=87*s+18, b=8*s-57
+  elseif @functype == "08-01"
+    a=185*s+25, b=41*s-141
+  elseif @functype == "09-01"
+    a=345*s+33, b=136*s-285
+  elseif @functype == "10-01"
+    a=588*s+42, b=321*s-510, c=41*s-1830
+  endif
+  float Tx, float Ty, float xx, float yy
+  complex t=#zwpixel
+  z=#pixel
+loop:
+  float x=real(z), float y=imag(z)
+if @functype == "02-01"
+  Tx=s*x*x-1
+  Ty=s*y*y-1
+elseif @functype == "03-01"
+  Tx=x*(s*(x*x-2)-1)
+  Ty=y*(s*(y*y-2)-1)
+elseif @functype == "04-01"
+  xx=x*x, yy=y*y
+  Tx=xx*(s*(xx-5)-1)+3
+  Ty=yy*(s*(yy-5)-1)+3
+elseif @functype == "05-01"
+  xx=x*x, yy=y*y
+  Tx=x*(xx*(s*(xx-9)-1)+a)
+  Ty=y*(yy*(s*(yy-9)-1)+a)
+elseif @functype == "06-01"
+  xx=x*x, yy=y*y
+  Tx=xx*(xx*(s*(xx-14)-1)+a)-15
+  Ty=yy*(yy*(s*(yy-14)-1)+a)-15
+elseif @functype == "07-01"
+  xx=x*x, yy=y*y
+  Tx=x*(xx*(xx*(s*(xx-20)-1)+a)+b)
+  Ty=y*(yy*(yy*(s*(yy-20)-1)+a)+b)
+elseif @functype == "08-01"
+  xx=x*x, yy=y*y
+  Tx=xx*(xx*(xx*(s*(xx-27)-1)+a)+b)+105
+  Ty=yy*(yy*(yy*(s*(yy-27)-1)+a)+b)+105
+elseif @functype == "09-01"
+  xx=x*x, yy=y*y
+  Tx=x*(xx*(xx*(xx*(s*(xx-35)-1)+a)+b)+561)
+  Ty=y*(yy*(yy*(yy*(s*(yy-35)-1)+a)+b)+561)
+elseif @functype == "10-01"
+  xx=x*x, yy=y*y
+  Tx=xx*(xx*(xx*(xx*(s*(xx-44)-1)+a)+b)+c)-945
+  Ty=yy*(yy*(yy*(yy*(s*(yy-44)-1)+a)+b)+c)-945
+endif
+  z= abs(x-t*Ty + flip(y+t*Tx))
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4000.0
+endparam
+float func bailfunc
+	default =cmag
+endfunc
+int param functype
+	enum = "02-01" "03-01" "04-01" "05-01" "06-01" "07-01" "08-01" "09-01" "10-01"
+endparam
+zcenter=1.0
+wcenter=0.1
+magnitude=8.0
+maxiter=256
+}
