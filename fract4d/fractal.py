@@ -67,7 +67,8 @@ class T(fctutils.T):
         self.compiler_options = { "optimize" : 1 }
         self.yflip = False
         self.periodicity = True
-        self.auto_tolerance = False
+        self.period_tolerance = 1.0E-9
+        self.auto_epsilon = False
         self.antialias = 1
         self.compiler = compiler
         self.outputfile = None
@@ -138,6 +139,7 @@ class T(fctutils.T):
         print >>file, "maxiter=%d" % self.maxiter
         print >>file, "yflip=%s" % self.yflip
         print >>file, "periodicity=%s" % int(self.periodicity)
+        print >>file, "period_tolerance=%.17f" % self.period_tolerance
         
         self.forms[0].save_formula_params(file,self.warp_param)
         self.forms[1].save_formula_params(file)
@@ -198,7 +200,10 @@ class T(fctutils.T):
         except ValueError:
             # might be a bool in 'True'/'False' format
             self.set_periodicity(bool(val))
-            
+
+    def parse_period_tolerance(self,val,f):
+        self.period_tolerance = float(val)
+        
     def parse__inner_(self,val,f):
         params = fctutils.ParamBag()
         params.load(f)
@@ -246,6 +251,7 @@ class T(fctutils.T):
         c.solids = copy.copy(self.solids)
         c.yflip = self.yflip
         c.periodicity = self.periodicity
+        c.period_tolerance = self.period_tolerance
         c.saved = self.saved
         c.clear_image = self.clear_image
         c.warp_param = self.warp_param
@@ -329,8 +335,9 @@ class T(fctutils.T):
         self.rot_by = math.pi/2
         self.title = self.forms[0].funcName
         self.yflip = False
-        self.auto_tolerance = False
-
+        self.auto_epsilon = False
+        self.period_tolerance = 1.0E-9
+        
         g = self.get_gradient()
         self.set_formula_defaults(g)
 
@@ -691,7 +698,7 @@ class T(fctutils.T):
         print "pixel: (%g,%g,%g,%g) %d %d %d %d %d %g %d %d (%d %d %d %d)" % \
               (params[0],params[1],params[2],params[3],x,y,aa,maxIters,nNoPeriodIters,dist,fate,nIters,r,g,b,a)
 
-    def tolerance(self,w,h):
+    def epsilon_tolerance(self,w,h):
         #5% of the size of a pixel
         return self.params[self.MAGNITUDE]/(20.0 * max(w,h))
 
@@ -714,7 +721,7 @@ class T(fctutils.T):
         fract4dc.cmap_set_solid(cmap,1,r,g,b,a)
 
         initparams = self.all_params()
-        fract4dc.pf_init(self.pfunc,1.0E-9,self.params,initparams)
+        fract4dc.pf_init(self.pfunc,self.period_tolerance,self.params,initparams)
 
         if self.warp_param:
             warp = self.forms[0].order_of_name(self.warp_param)
@@ -775,7 +782,7 @@ class T(fctutils.T):
             self.yflip = True
         if 1700.0 < self.format_version < 2000.0:
             # a version that used auto-tolerance for Nova and Newton
-            self.auto_tolerance = True
+            self.auto_epsilon = True
             
         if self.format_version > this_format_version:
             warning = \

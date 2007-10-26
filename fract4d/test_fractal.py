@@ -195,6 +195,8 @@ class Test(unittest.TestCase):
         self.assertEqual(f.solids[0],(0,0,0,255))
         self.assertEqual(f.yflip,False)
 
+        self.assertEqual(True, f.periodicity)
+        self.assertEqual(1.0E-9, f.period_tolerance)
         
         sofile = f.compile()
         im = image.T(40,30)
@@ -252,7 +254,7 @@ endparam
     def testLoadMaliciousFile(self):
         'Try to inject code into a file in a way which worked on 2.0 and 2.1'
         bad_testfile = '''gnofract4d parameter file
-version(2.0,None)+open("foo.txt","w")=2.0
+version(2.0,None)+open("evil.txt","w")=2.0
 [function]
 formulafile=test.frm
 function=parse_error
@@ -285,7 +287,7 @@ colorlist=[
         self.assertRaises(ValueError,f.loadFctFile,
                           (StringIO.StringIO(bad_testfile)))
 
-        self.assertEqual(os.path.exists('foo.txt'),False)
+        self.assertEqual(os.path.exists('evil.txt'),False)
 
     def testLoadBadColorizerType(self):
         bad_testfile = '''gnofract4d parameter file
@@ -695,6 +697,9 @@ blue=0.3
 
         self.assertEqual(f1.get_gradient(), f2.get_gradient())
         self.assertEqual(f1.warp_param, f2.warp_param)
+
+        self.assertEqual(f1.periodicity, f2.periodicity)
+        self.assertEqual(f1.period_tolerance, f2.period_tolerance)
         
     def testSave(self):
         self.runSaveTest(False)
@@ -911,7 +916,6 @@ blue=0.3
             self.default_flat_params,
             f.forms[2].params)
 
-
     def testResetAngles(self):
         f = fractal.T(self.compiler)
         f.params[f.XYANGLE]=0.1
@@ -926,7 +930,7 @@ blue=0.3
     def testFutureWarning(self):
         'load a file from the future and check we complain'
         file='''gnofract4d parameter file
-version=3.4
+version=99.9
 '''
         warning_catcher = WarningCatcher()
         f = fractal.T(self.compiler);
@@ -937,15 +941,23 @@ version=3.4
         self.assertEqual(len(warning_catcher.warnings),1)
         self.assertEqual(warning_catcher.warnings[0],
             '''This file was created by a newer version of Gnofract 4D.
-The image may not display correctly. Please upgrade to version 3.4 or higher.''')
+The image may not display correctly. Please upgrade to version 99.9 or higher.''')
 
     def testNoPeriodIfNoZ(self):
         'if z isn\'t used in the fractal, disable periodicity'
         f = fractal.T(self.compiler)
 
         f.set_formula("test.frm","test_noz")
-        f.compile()
+        f.compile() # previously, failed to compile
+
+    def testEpsilonTolerance(self):
+        f = fractal.T(self.compiler)
+        self.assertNearlyEqual(
+            [(4.0/640.0) * 0.05] , [f.epsilon_tolerance(640,480)])
         
+        self.assertNearlyEqual(
+            [(4.0/640.0) * 0.05] , [f.epsilon_tolerance(480,640)])
+
     def testWarpParameter(self):
         # test using a specific parameter for warping
         f = fractal.T(self.compiler)
@@ -967,6 +979,20 @@ The image may not display correctly. Please upgrade to version 3.4 or higher.'''
 
         f.draw(im)
         im.save("yes_warp.png") # should look like a circle
+
+    def round_trip(self,f):
+        f2 = fractal.T(self.compiler)
+        s = f.serialize()
+        f2.deserialize(s)
+        return f2
+    
+    def testPeriodRoundTrip(self):
+        f = fractal.T(self.compiler)
+        f.periodicity = False
+        f.period_tolerance = 3.14159282828282828
+
+        f2 = self.round_trip(f)
+        self.assertFractalsEqual(f,f2)
         
     def testCircle(self):
         f = fractal.T(self.compiler)
@@ -1266,6 +1292,8 @@ solids=[
         f.forms[1].set_named_item("@i", 789)
         f.forms[1].set_named_item("@_transfer","sqrt")
         f.set_warp_param(2)
+        f.periodicity = False
+        f.period_tolerance = 1.0e-5
         c = copy.copy(f)
 
         self.assertFractalsEqual(f,c)

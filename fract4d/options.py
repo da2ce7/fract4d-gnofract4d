@@ -4,7 +4,7 @@ import string
 
 import fractal
 
-# unfortunately duplicated from main program
+# version of Gnofract 4D
 version = '3.6'
 
 class OptionError(Exception):
