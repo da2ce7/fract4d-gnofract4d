@@ -710,9 +710,7 @@ class T(fctutils.T):
             p += transform.params
         return p
 
-    def draw(self,image):
-        #handle = fract4dc.pf_load(self.outputfile)
-        #pfunc = fract4dc.pf_create(handle)
+    def get_colormap(self):
         cmap = fract4dc.cmap_create_gradient(self.get_gradient().segments)
 
         (r,g,b,a) = self.solids[0]
@@ -720,33 +718,46 @@ class T(fctutils.T):
         (r,g,b,a) = self.solids[1]
         fract4dc.cmap_set_solid(cmap,1,r,g,b,a)
 
+        return cmap
+
+    def init_pfunc(self):
         initparams = self.all_params()
         fract4dc.pf_init(self.pfunc,self.period_tolerance,self.params,initparams)
 
+    def get_warp(self):
         if self.warp_param:
             warp = self.forms[0].order_of_name(self.warp_param)
         else:
             warp = -1
-            
+        return warp
+
+    def calc(self,image,colormap,nthreads,site,async):
+        fract4dc.calc(
+            params=self.params,
+            antialias=self.antialias,
+            maxiter=self.maxiter,
+            yflip=self.yflip,
+            periodicity=self.periodicity,
+            nthreads=nthreads,
+            pfo=self.pfunc,
+            cmap=colormap,
+            auto_deepen=self.auto_deepen,
+            render_type=self.render_type,
+            warp_param=self.get_warp(),
+            image=image._img,
+            site=site,
+            dirty=self.clear_image,
+            async=async)
+        
+    def draw(self,image):
+        self.init_pfunc()
+
+        colormap = self.get_colormap()
         for (xoff,yoff,xres,yres) in image.get_tile_list():
             image.resize_tile(xres,yres)
             image.set_offset(xoff,yoff)
-            
-            fract4dc.calc(
-                params=self.params,
-                antialias=self.antialias,
-                maxiter=self.maxiter,
-                yflip=self.yflip,
-                periodicity=self.periodicity,
-                pfo=self.pfunc,
-                cmap=cmap,
-                auto_deepen=self.auto_deepen,
-                nthreads=1,
-                render_type=self.render_type,
-                image=image._img,
-                site=self.site,
-                warp_param=warp,
-                dirty=self.clear_image)
+
+            self.calc(image,colormap,1,self.site,False)
 
             image.save_tile()
         

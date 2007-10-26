@@ -271,50 +271,16 @@ class Hidden(gobject.GObject):
         pass 
 
     def draw(self,image,width,height,nthreads):
-        cmap = fract4dc.cmap_create_gradient(self.get_gradient().segments)
-        (r,g,b,a) = self.f.solids[0]
-        fract4dc.cmap_set_solid(cmap,0,r,g,b,a)
-        (r,g,b,a) = self.f.solids[1]
-        fract4dc.cmap_set_solid(cmap,1,r,g,b,a)
-
-        t = self.f.tolerance(width,height)
-        if self.f.auto_tolerance:
+        t = self.f.epsilon_tolerance(width,height)
+        if self.f.auto_epsilon:
             self.f.set_named_param("@epsilon",t,
                                    self.f.formula, self.f.initparams)
 
-        initparams = self.all_params()
-
-        try:
-            t = 1.0e-9
-            fract4dc.pf_init(self.f.pfunc,t,self.f.params,initparams)
-        except ValueError:
-            print initparams
-            raise
-
-        if self.warp_param:
-            warp = self.forms[0].order_of_name(self.warp_param)
-        else:
-            warp = -1
-
+        self.f.init_pfunc()
+        cmap = self.f.get_colormap()
         self.running = True
         try:
-            fract4dc.calc(
-                params=self.f.params,
-                antialias=self.f.antialias,
-                maxiter=self.f.maxiter,
-                yflip=self.f.yflip,
-                nthreads=nthreads,
-                pfo=self.f.pfunc,
-                cmap=cmap,
-                auto_deepen=self.f.auto_deepen,
-                periodicity=self.f.periodicity,
-                render_type=self.f.render_type,
-                warp_param=warp,
-                image=image._img,
-                site=self.site,
-                dirty=self.f.clear_image,
-                async=True)
-            
+            self.f.calc(image,cmap, nthreads, self.site, True)            
         except MemoryError:
             pass
         

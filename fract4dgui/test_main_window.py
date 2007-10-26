@@ -17,6 +17,8 @@ sys.path.append("..")
 
 from fract4d import fractal
 
+print fractal.__file__
+
 import main_window
 
 class WrapMainWindow(main_window.MainWindow):
