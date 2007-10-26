@@ -236,13 +236,13 @@ void fractFunc::draw_all()
     // NO_CALC is used to stub out the actual fractal stuff so we can
     // profile & optimize the rest of the code without it confusing matters
 
-    float minp = 0.0, maxp= (eaa == AA_NONE ? 1.0 : 0.5);
+    float minp = 0.0, maxp= (eaa == AA_NONE ? 0.9 : 0.5);
     draw(8,8,minp,maxp);    
     
     int deepen;
     while((deepen = updateiters()) > 0)
     {
-	float delta = (maxp-minp)/3.0;
+	float delta = (1.0-maxp)/3.0;
 	minp = maxp;
 	maxp = maxp + delta;
 

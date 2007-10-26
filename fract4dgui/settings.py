@@ -345,6 +345,41 @@ class SettingsDialog(dialog.T):
         table.attach(periodicity_widget,0,2,1,2,
                      gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
+        period_tolerance_widget = self.create_tolerance_entry(
+            table, 2, _("_Tolerance"))
+
+    def create_tolerance_entry(self, table, row, text):
+        label = gtk.Label(text)
+        label.set_use_underline(True)
+        
+        label.set_justify(gtk.JUSTIFY_RIGHT)
+        table.attach(label,0,1,row,row+1,0,0,2,2)
+        
+        entry = gtk.Entry()
+        entry.set_activates_default(True)
+        table.attach(entry,1,2,row,row+1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        label.set_mnemonic_widget(entry)
+        
+        def set_entry(f):
+            try:
+                current = float(entry.get_text())
+                if current != f.period_tolerance:
+                    entry.set_text("%.17f" % f.period_tolerance)
+            except ValueError, err:
+                # current was set to something that isn't a float
+                entry.set_text("%.17f" % f.period_tolerance)
+
+        def set_fractal(*args):
+            try:
+                self.f.set_period_tolerance(float(entry.get_text()))
+            except Exception, exn:
+                print exn
+            return False
+        
+        set_entry(self.f)
+        self.f.connect('parameters-changed', set_entry)
+        entry.connect('focus-out-event', set_fractal)
+
     def create_yflip_widget(self):
         widget = gtk.CheckButton(_("Flip Y Axis"))
         widget.set_use_underline(True)

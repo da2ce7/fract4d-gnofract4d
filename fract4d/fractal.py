@@ -203,7 +203,12 @@ class T(fctutils.T):
 
     def parse_period_tolerance(self,val,f):
         self.period_tolerance = float(val)
-        
+
+    def set_period_tolerance(self,val):
+        if val != self.period_tolerance:
+            self.period_tolerance = val
+            self.changed(True)
+            
     def parse__inner_(self,val,f):
         params = fctutils.ParamBag()
         params.load(f)
@@ -722,6 +727,7 @@ class T(fctutils.T):
 
     def init_pfunc(self):
         initparams = self.all_params()
+        print self.period_tolerance
         fract4dc.pf_init(self.pfunc,self.period_tolerance,self.params,initparams)
 
     def get_warp(self):
