@@ -5,7 +5,7 @@ import string
 import fractal
 
 # unfortunately duplicated from main program
-version = '3.5'
+version = '3.6'
 
 class OptionError(Exception):
     pass

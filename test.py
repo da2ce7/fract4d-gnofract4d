@@ -7,6 +7,8 @@ import unittest
 import re
 import getopt
 
+from fract4d import options
+
 try:
     # a hack, but seems easy enough
     os.system("cp gnofract4d gnofract4d.py")    
@@ -22,7 +24,7 @@ class Test(unittest.TestCase):
         setup_re = re.compile(r'gnofract4d_version\s*=\s*"(\S+)"')
         m = setup_re.search(setup)
         self.failUnless(m,"setup.py doesn't specify version")
-        self.assertEqual(gnofract4d.version,m.group(1), "Version mismatch")
+        self.assertEqual(options.version,m.group(1), "Version mismatch")
 
     def testDocVersionMatches(self):        
         # check the docs
@@ -31,18 +33,14 @@ class Test(unittest.TestCase):
 
         m = doc_re.search(doc)
         self.failUnless(m,"doc doesn't specify version")
-        self.assertEqual(gnofract4d.version,m.group(1), "Version mismatch")
-
-    def testOptionsVersionMatches(self):
-        from fract4d import options
-        self.assertEqual(gnofract4d.version,options.version)
+        self.assertEqual(options.version,m.group(1), "Version mismatch")
 
     def testDesktopFileVersionMatches(self):
         dtop = open("gnofract4d.desktop").read()
         dtop_re  = re.compile("Version=(\S+)")
         m = dtop_re.search(dtop)
         self.failUnless(m,"Desktop file doesn't specify version")
-        self.assertEqual(gnofract4d.version,m.group(1), "Version mismatch")
+        self.assertEqual(options.version,m.group(1), "Version mismatch")
 
     def testWebsiteVersionMatches(self):
         if not os.path.exists("website"):
@@ -53,7 +51,7 @@ class Test(unittest.TestCase):
 
         m = ver_re.search(mkweb)
         self.failUnless(m,"doc doesn't specify version")
-        self.assertEqual(gnofract4d.version,m.group(1), "Version mismatch")
+        self.assertEqual(options.version,m.group(1), "Version mismatch")
 
     def testGenerateMandelbrot(self):
         if os.path.exists("test.png"):

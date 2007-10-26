@@ -24,7 +24,7 @@ import formsettings
 
 # the version of the earliest gf4d release which can parse all the files
 # this version can output
-THIS_FORMAT_VERSION="3.3"
+THIS_FORMAT_VERSION="3.6"
 
 BLEND_NEAREST=0
 BLEND_FURTHEST=1
