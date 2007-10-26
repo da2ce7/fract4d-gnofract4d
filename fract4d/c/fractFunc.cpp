@@ -332,10 +332,9 @@ fractFunc::draw(
     set_progress_range(mid_progress, max_progress);
 
     // fill in gaps in the rsize-blocks
-    for ( y = 0; y < h - rsize; y += rsize) {
-        for(x = 0; x < w - rsize ; x += rsize) {
-            worker->box(x,y,rsize);
-        }
+    for ( y = 0; y < h - rsize; y += rsize) 
+    {
+	worker->box_row(w,y,rsize);
         if(update_image(y))
         {
             goto done;

@@ -226,6 +226,14 @@ some periodicity:
 23.892553091
 22.5007739067
 
+3.6:
+0.4518 testdata/std.fct
+2.4885 testdata/param.fct
+1.4297 testdata/valley_test.fct
+9.9458 testdata/trigcentric.fct
+4.6175 testdata/zpower.fct
+18.9333150387
+
 v.sh @ 1600x1200 with Floyd's algorithm
 53.83user 0.39system 0:29.65elapsed 182%CPU (0text+0data 0max)k
 53.93user 0.37system 0:29.50elapsed 184%CPU (0text+0data 0max)k

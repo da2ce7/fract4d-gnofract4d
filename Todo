@@ -4,8 +4,12 @@ changes in 3.6:
 * B	run calc threads at normal priority - low prio unpredictably runs 2x slower sometimes
 * W	change periodicity logic to apply more often & hopefully go faster
 * W	--antialias command-line arg
+* B	until antialias, seems to run single-threaded more often than not
+
 
 bugs (the more B's, the worse the bug):
+* B	/home/catenary/gnofract4d/fract4dgui/main_window.py:432: GtkWarning: gtk_progress_set_percentage: assertion `percentage >= 0 && percentage <= 1.0' failed
+  self.bar.set_fraction(progress/100.0) when antialias is off
 * B	'both a Fractint-style default section'... on every fractal
 * B	NoneType object has no attribute children on BehrQuiltedRed.cs
 * B	Sometimes see this in colormap browsing: /home/catenary/gnofract4d/fract4dgui/browser.py:374: GtkWarning: gtk_text_buffer_emit_insert: assertion `g_utf8_validate (text, len, NULL)' failed
@@ -13,7 +17,6 @@ bugs (the more B's, the worse the bug):
 
 
 * BBB	too slow!
-	until antialias, seems to run single-threaded more often than not
 
 * BB	floating point exception on load of aho.ucl#Stripes_any
 * BB	animation colors are screwed

@@ -1376,7 +1376,8 @@ class MainWindow:
         "Deal with opts gathered from cmd-line"
         width = opts.width or preferences.userPrefs.getint("display","width")
         height = opts.height or preferences.userPrefs.getint("display","height")
-        aa = opts.antialias or preferences.userPrefs.getint("display","antialias")
+        if opts.antialias != None:
+            preferences.userPrefs.set("display","antialias",str(opts.antialias))
         
         self.quit_when_done = opts.quit_when_done
         self.save_filename = opts.save_filename
@@ -1399,8 +1400,7 @@ class MainWindow:
 
         if opts.explore:
             self.set_explorer_state(True)
-
-        self.f.antialias = aa
+        
         self.f.set_size(width,height)
     
     
