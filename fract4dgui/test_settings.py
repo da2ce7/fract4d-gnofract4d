@@ -12,7 +12,8 @@ import gtk
 import gettext
 os.environ.setdefault('LANG', 'en')
 gettext.install('gnofract4d')
-sys.path.append("..")
+
+sys.path.insert(0, "..")
 
 from fract4d import fc, fractal
 import settings

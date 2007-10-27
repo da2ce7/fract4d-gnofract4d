@@ -10,7 +10,7 @@ import urllib
 
 import gtk, gobject
 
-sys.path.append("..")
+sys.path.insert(0, "..")
 from fract4d import fractal,fc,fract4dc,image, fracttypes, fractconfig
 from fractutils import flickr
 

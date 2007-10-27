@@ -8,6 +8,7 @@ changes in 3.6:
 * B	% complete > 100 when deepening with antialias off
 * B	try to display the text of .cs files, which are binary
 * B	Errors trying to parse .cs files
+* W	period tolerance option
 
 bugs (the more B's, the worse the bug):
 * B	'both a Fractint-style default section'... on every fractal

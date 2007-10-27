@@ -263,7 +263,6 @@ class Compiler:
             pp = preprocessor.T(s)
             result = self.parser.parse(pp.out())
         except preprocessor.Error, err:
-            print "preproc error"
             # create an Error formula listing the problem
             result = self.parser.parse('error {\n}\n')
 

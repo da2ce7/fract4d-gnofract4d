@@ -13,7 +13,7 @@ os.environ.setdefault('LANG', 'en')
 gettext.install('gnofract4d')
 import renderqueue
 
-sys.path.append("..")
+sys.path.insert(0, "..")
 
 from fract4d import fractal, image, fc
 
