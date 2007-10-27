@@ -49,6 +49,11 @@ class FormulaTypes:
     TRANSFORM = 2
     GRADIENT = 3
     NTYPES = 4
+
+    GRAD_UGR=0
+    GRAD_MAP=1
+    GRAD_GGR=2
+    GRAD_CS=3
     matches = [
         re.compile(r'(\.frm\Z)|(\.ufm\Z)', re.IGNORECASE),
         re.compile(r'(\.cfrm\Z)|(\.ucl\Z)', re.IGNORECASE),
@@ -65,15 +70,32 @@ class FormulaTypes:
             return translate.Transform
         elif FormulaTypes.matches[FormulaTypes.GRADIENT].search(filename):
             return translate.GradientFunc
+
     guess_type_from_filename = staticmethod(guess_type_from_filename)
 
     def guess_formula_type_from_filename(filename):
         for i in xrange(FormulaTypes.NTYPES):
             if FormulaTypes.matches[i].search(filename):
                 return i
-        raise ValueError("Unknown file type for '%s'", filename)
+        raise ValueError("Unknown file type for '%s'" % filename)
+
     guess_formula_type_from_filename = staticmethod(guess_formula_type_from_filename)
-        
+
+    def guess_gradient_subtype_from_filename(filename):
+        filename = filename.lower()
+        if filename.endswith(".ugr"):
+            return FormulaTypes.GRAD_UGR
+        if filename.endswith(".map"):
+            return FormulaTypes.GRAD_MAP
+        if filename.endswith(".ggr"):
+            return FormulaTypes.GRAD_GGR
+        if filename.endswith(".cs"):
+            return FormulaTypes.GRAD_CS
+        raise ValueError("Unknown gradient type for '%s'" % filename)
+
+    guess_gradient_subtype_from_filename = staticmethod(
+        guess_gradient_subtype_from_filename)
+
     def isFormula(filename):
         for matcher in FormulaTypes.matches:
             if matcher.search(filename):
@@ -241,6 +263,7 @@ class Compiler:
             pp = preprocessor.T(s)
             result = self.parser.parse(pp.out())
         except preprocessor.Error, err:
+            print "preproc error"
             # create an Error formula listing the problem
             result = self.parser.parse('error {\n}\n')
 
@@ -254,13 +277,22 @@ class Compiler:
     
     def load_formula_file(self, filename):
         try:
-            type = FormulaTypes.guess_formula_type_from_filename(filename)
+            type = FormulaTypes.guess_formula_type_from_filename(filename)            
             filename = self.find_file(filename,type)
             s = open(filename,"r").read() # read in a whole file
-            formulas = self.parse_file(s)
-
             basefile = os.path.basename(filename)
             mtime = os.stat(filename)[stat.ST_MTIME]
+
+            if type == FormulaTypes.GRADIENT:
+                # don't try and parse gradient files apart from UGRs
+                subtype = FormulaTypes.guess_gradient_subtype_from_filename(filename)
+                if subtype == FormulaTypes.GRAD_UGR:
+                    formulas = self.parse_file(s)
+                else:
+                    formulas = {}
+            else:
+                formulas = self.parse_file(s)
+
             ff = FormulaFile(formulas,s,mtime,filename)
             self.files[basefile] = ff 
 

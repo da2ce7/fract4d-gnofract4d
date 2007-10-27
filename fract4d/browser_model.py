@@ -131,4 +131,16 @@ class T:
     def apply(self,f):
         self.current.apply(f,self.current_type)
 
+    def get_contents(self):
+        fname = self.current.fname
+        if not fname:
+            return ""
+
+        if self.current_type == GRADIENT:
+            # don't bother displaying contents of gradients
+            return ""
+
+        r = self.compiler.get_text(fname)
+        return r
+        
 instance = T(fc.instance)

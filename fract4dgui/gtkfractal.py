@@ -284,18 +284,18 @@ class Hidden(gobject.GObject):
         except MemoryError:
             pass
         
-    def draw_image(self,aa,auto_deepen):
+    def draw_image(self,aa=None,auto_deepen=None):
         if self.f == None:
             return
         self.interrupt()
 
         self.f.compile()
-        
-        self.f.antialias = aa
-        self.f.auto_deepen = auto_deepen
-        self.draw(self.image,self.width,self.height,self.nthreads)
-        return False
 
+        if aa != None and auto_deepen != None:
+            self.f.antialias = aa
+            self.f.auto_deepen = auto_deepen
+
+        self.draw(self.image,self.width,self.height,self.nthreads)
 
     def set_plane(self,angle1,angle2):
         self.freeze()
@@ -809,7 +809,7 @@ class T(Hidden):
         except MemoryError, err:
             utils.idle_add(self.warn,str(err))
                     
-    def draw_image(self,aa,auto_deepen):
+    def draw_image(self,aa=None,auto_deepen=None):
         try:
             Hidden.draw_image(self,aa,auto_deepen)
         except fracttypes.TranslationError, err:

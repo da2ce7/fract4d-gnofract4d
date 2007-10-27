@@ -311,10 +311,8 @@ class MainWindow:
         hbox.pack_start(self.control_box,False,False)
         self.vbox.pack_start(hbox)
 
-    def draw(self):
-        aa = preferences.userPrefs.getint("display","antialias")
-        auto_deepen = preferences.userPrefs.getboolean("display","autodeepen")
-        self.f.draw_image(aa,auto_deepen)
+    def draw(self):        
+        self.f.draw_image()
         
     def update_compiler_prefs(self,prefs):
         # update compiler
@@ -333,7 +331,9 @@ class MainWindow:
             w += 2; h += 2
         self.f.set_size(w,h)
         self.f.set_nthreads(prefs.getint("general","threads"))
-                            
+        self.f.set_antialias(preferences.userPrefs.getint("display","antialias"))
+        self.f.set_auto_deepen(preferences.userPrefs.getboolean("display","autodeepen"))
+        
     def on_prefs_changed(self,prefs):
         self.f.freeze()
         self.update_compiler_prefs(prefs)
@@ -1376,8 +1376,6 @@ class MainWindow:
         "Deal with opts gathered from cmd-line"
         width = opts.width or preferences.userPrefs.getint("display","width")
         height = opts.height or preferences.userPrefs.getint("display","height")
-        if opts.antialias != None:
-            preferences.userPrefs.set("display","antialias",str(opts.antialias))
         
         self.quit_when_done = opts.quit_when_done
         self.save_filename = opts.save_filename

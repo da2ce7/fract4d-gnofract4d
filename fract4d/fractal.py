@@ -553,7 +553,9 @@ class T(fctutils.T):
             
         if options.map:
             self.set_cmap(options.map)
-            
+
+        if options.antialias != None:
+            self.antialias = options.antialias
 
     def compile(self):
         if self.forms[0].formula == None:
@@ -727,7 +729,7 @@ class T(fctutils.T):
 
     def init_pfunc(self):
         initparams = self.all_params()
-        print self.period_tolerance
+        #print self.period_tolerance
         fract4dc.pf_init(self.pfunc,self.period_tolerance,self.params,initparams)
 
     def get_warp(self):
@@ -737,6 +739,16 @@ class T(fctutils.T):
             warp = -1
         return warp
 
+    def set_antialias(self,aa):
+        if aa != self.antialias:
+            self.antialias = aa
+            self.changed(True)
+
+    def set_auto_deepen(self,auto_deepen):
+        if auto_deepen != self.auto_deepen:
+            self.auto_deepen = auto_deepen
+            self.changed(True)
+            
     def calc(self,image,colormap,nthreads,site,async):
         fract4dc.calc(
             params=self.params,

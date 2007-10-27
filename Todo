@@ -6,14 +6,11 @@ changes in 3.6:
 * W	--antialias command-line arg
 * B	until antialias, seems to run single-threaded more often than not
 * B	% complete > 100 when deepening with antialias off
-
+* B	try to display the text of .cs files, which are binary
+* B	Errors trying to parse .cs files
 
 bugs (the more B's, the worse the bug):
 * B	'both a Fractint-style default section'... on every fractal
-* B	NoneType object has no attribute children on BehrQuiltedRed.cs
-* B	Sometimes see this in colormap browsing: /home/catenary/gnofract4d/fract4dgui/browser.py:374: GtkWarning: gtk_text_buffer_emit_insert: assertion `g_utf8_validate (text, len, NULL)' failed
-  self.sourcetext.get_buffer().set_text(latin_text.encode('utf-8'),-1)
-
 
 * BBB	too slow!
 

@@ -65,7 +65,7 @@ class tpool {
 
             /* create low-priority attribute block */
             pthread_attr_t lowprio_attr;
-            struct sched_param lowprio_param;
+            //struct sched_param lowprio_param;
             pthread_attr_init(&lowprio_attr);
             //lowprio_param.sched_priority = sched_get_priority_min(SCHED_OTHER);
             //pthread_attr_setschedparam(&lowprio_attr, &lowprio_param);

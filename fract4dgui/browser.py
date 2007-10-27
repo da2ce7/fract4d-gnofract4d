@@ -67,7 +67,8 @@ class BrowserDialog(dialog.T):
         self.preview = gtkfractal.Preview(self.compiler)
 
         self.create_panes()
-
+        self.on_file_changed()
+        
     def show(parent, f, type):
         _browser = dialog.T.reveal(BrowserDialog,True, parent, None, f)
         _browser.set_type(type)
@@ -295,14 +296,10 @@ class BrowserDialog(dialog.T):
         self.model.set_file(fname)
 
     def on_file_changed(self):
-        fname = self.model.current.fname
-        if fname:
-            text = self.compiler.get_text(fname)
-        else:
-            text = ""
-
+        text = self.model.get_contents()
+        
         self.display_text(text)
-        self.populate_formula_list(fname)
+        self.populate_formula_list(self.model.current.fname)
         self.set_apply_sensitivity()
         
     def clear_selection(self):
@@ -371,5 +368,6 @@ class BrowserDialog(dialog.T):
         # convert from latin-1 (encoding is undefined, but that seems closish)
         # to utf-8 to keep pango happy
         latin_text = unicode(text,'latin-1')
-        self.sourcetext.get_buffer().set_text(latin_text.encode('utf-8'),-1)
+        utf8_text = latin_text.encode('utf-8')
+        self.sourcetext.get_buffer().set_text(utf8_text,-1)
         

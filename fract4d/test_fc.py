@@ -182,6 +182,10 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
         f = self.compiler.get_formula("test_bad_pp.frm","error")
         self.assertEqual(len(f.errors),1)        
         self.compiler.files["test_bad_pp.frm"] = None
+
+    def testBehr(self):
+        ff = self.compiler.get_file("Bujumbura.cs")
+        ff = self.compiler.get_file("BehrQuiltedRed.cs")
         
     def testColorFunc(self):
         'Compile inner + outer colorfuncs and merge'

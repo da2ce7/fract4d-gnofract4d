@@ -257,7 +257,12 @@ void fractFunc::draw_all()
         status_changed(GF4D_FRACTAL_ANTIALIASING);
         draw_aa(maxp,1.0);
     }
-    
+    else
+    {
+	set_progress_range(0.0,1.0);
+	progress_changed(1.0);
+    }
+
     // we do this after antialiasing because otherwise sometimes the
     // aa pass makes the image shallower, which is distracting
     if(deepen < 0)
@@ -267,7 +272,6 @@ void fractFunc::draw_all()
     }
 #endif
 
-    set_progress_range(0.0,1.0);
     progress_changed(0.0);
     status_changed(GF4D_FRACTAL_DONE);
 }
