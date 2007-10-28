@@ -9,9 +9,12 @@ changes in 3.6:
 * B	try to display the text of .cs files, which are binary
 * B	Errors trying to parse .cs files
 * W	period tolerance option
+* B	Ubuntu 7.10 - gtk.ComboBox has no attribute menu_list when updating warp param
+* B	Ubuntu 7.10 - "T instance has no attribute 'button'" in onMotionNotify
 
 bugs (the more B's, the worse the bug):
 * B	'both a Fractint-style default section'... on every fractal
+
 
 * BBB	too slow!
 

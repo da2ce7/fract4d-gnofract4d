@@ -236,6 +236,8 @@ def get_selected_value(menu):
     try:
         _throwback()
         iter = menu.get_active_iter()
+        if not iter:
+            return None
         val = menu.get_model().get_value(iter,0)
         return val
     except:

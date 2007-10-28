@@ -433,6 +433,8 @@ class T(Hidden):
                                 gtk.gdk.KEY_PRESS_MASK |
                                 gtk.gdk.KEY_RELEASE_MASK
                                 )
+
+        self.button = -1
         
         drawing_area.connect('motion_notify_event', self.onMotionNotify)
         drawing_area.connect('button_release_event', self.onButtonRelease)
