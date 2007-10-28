@@ -36,14 +36,17 @@ class T(gobject.GObject):
         self.widget = gtk.DrawingArea()
         self.widget.set_size_request(40,40)
 
-        self.widget.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
-                               gtk.gdk.BUTTON1_MOTION_MASK |
-                               gtk.gdk.POINTER_MOTION_HINT_MASK |
-                               gtk.gdk.ENTER_NOTIFY_MASK |
-                               gtk.gdk.LEAVE_NOTIFY_MASK |                               
-                               gtk.gdk.BUTTON_PRESS_MASK
-                               )
+        self.widget.set_events(
+            gtk.gdk.BUTTON_RELEASE_MASK |
+            gtk.gdk.BUTTON1_MOTION_MASK |
+            gtk.gdk.POINTER_MOTION_HINT_MASK |
+            gtk.gdk.ENTER_NOTIFY_MASK |
+            gtk.gdk.LEAVE_NOTIFY_MASK |                               
+            gtk.gdk.BUTTON_PRESS_MASK |
+            gtk.gdk.EXPOSURE_MASK
+            )
 
+        self.notice_mouse = False
         self.widget.connect('motion_notify_event', self.onMotionNotify)
         self.widget.connect('button_release_event', self.onButtonRelease)
         self.widget.connect('button_press_event', self.onButtonPress)
@@ -54,7 +57,7 @@ class T(gobject.GObject):
         self.adjustment.set_value(val)
         self.widget.queue_draw()
         
-    def update_from_mouse(self,x,y):
+    def update_from_mouse(self,x,y):        
         (w,h) = (self.widget.allocation.width, self.widget.allocation.height)
         
         xc = w//2
@@ -75,11 +78,14 @@ class T(gobject.GObject):
             self.emit('value-slightly-changed', val)
             
     def onMotionNotify(self,widget,event):
+        if not self.notice_mouse:
+            return
         dummy = widget.window.get_pointer()
         self.update_from_mouse(event.x, event.y)
 
     def onButtonRelease(self,widget,event):
         if event.button==1:
+            self.notice_mouse = False
             (xc,yc) = (widget.allocation.width//2, widget.allocation.height//2)
             current_value = self.adjustment.get_value()
             if self.old_value != current_value:
@@ -87,12 +93,15 @@ class T(gobject.GObject):
                 self.emit('value-changed',current_value)
 
         self.widget.set_state(gtk.STATE_NORMAL)
-                              
+
+        
     def onButtonPress(self,widget,event):
         if event.button == 1:
+            self.notice_mouse = True
             self.update_from_mouse(event.x, event.y)
             self.widget.set_state(gtk.STATE_ACTIVE)
-            
+
+        
     def __del__(self):
         #This is truly weird. If I don't have this method, when you use
         # one fourway widget, it fucks up the other. Having this fixes it.

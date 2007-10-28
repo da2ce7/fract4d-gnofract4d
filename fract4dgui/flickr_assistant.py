@@ -42,11 +42,11 @@ def get_user(window, f):
     return preferences.userPrefs.get("user_info", "nsid")
 
 def show_flickr_assistant(parent,alt_parent, f,dialog_mode):
-    if not is_authorized():
-        FlickrAssistantDialog.show(parent,alt_parent, f,True)
-
     if is_authorized():
         FlickrUploadDialog.show(parent,alt_parent,f,dialog_mode)            
+    else:
+        FlickrAssistantDialog.show(parent,alt_parent, f,True)
+        
 
 def display_flickr_error(err):
     d = hig.ErrorAlert(
@@ -309,7 +309,8 @@ Click Finish to save your credentials and proceed.""")
         self.runRequest(req,self.onFrobReceived)
 
         self.set_size_request(500,400)
-
+        self.f = f
+        
     def runRequest(self,req,on_done,*args):
         self.slave = FlickrGTKSlave(req.cmd,*req.args)
         self.slave.connect('progress-changed',self.onProgress)
@@ -409,3 +410,4 @@ Click Finish to save your credentials and proceed.""")
         preferences.userPrefs.set("user_info", "flickr_token",self.token.token)
         preferences.userPrefs.set("user_info", "nsid", self.token.user.nsid)
         self.hide()
+        FlickrUploadDialog.show(self.parent,self.parent,self.f,True)

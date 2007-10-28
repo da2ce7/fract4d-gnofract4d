@@ -116,7 +116,7 @@ class T(ConfigParser.ConfigParser):
         return "evolution %s"
 
     def get_default_browser(self):
-        return "mozilla %s"
+        return "firefox %s"
 
     def get_default_compiler_options(self):
         # appears to work for most unixes

@@ -7,7 +7,7 @@ import os
 import gettext
 import sys
 
-sys.path.insert(0, "..")
+sys.path.insert(1, "..")
 from fract4d import fc, fractal
 
 import gtkfractal

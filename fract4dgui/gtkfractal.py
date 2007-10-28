@@ -426,15 +426,17 @@ class T(Hidden):
         self.paint_mode = False
                 
         drawing_area = gtk.DrawingArea()
-        drawing_area.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
-                                gtk.gdk.BUTTON1_MOTION_MASK |
-                                gtk.gdk.POINTER_MOTION_HINT_MASK |
-                                gtk.gdk.BUTTON_PRESS_MASK |
-                                gtk.gdk.KEY_PRESS_MASK |
-                                gtk.gdk.KEY_RELEASE_MASK
-                                )
+        drawing_area.set_events(
+            gtk.gdk.BUTTON_RELEASE_MASK |
+            gtk.gdk.BUTTON1_MOTION_MASK |
+            gtk.gdk.POINTER_MOTION_HINT_MASK |
+            gtk.gdk.BUTTON_PRESS_MASK |
+            gtk.gdk.KEY_PRESS_MASK |
+            gtk.gdk.KEY_RELEASE_MASK |
+            gtk.gdk.EXPOSURE_MASK
+            )
 
-        self.button = -1
+        self.notice_mouse = False
         
         drawing_area.connect('motion_notify_event', self.onMotionNotify)
         drawing_area.connect('button_release_event', self.onButtonRelease)
@@ -826,6 +828,8 @@ class T(Hidden):
         self.redraw_rect(r.x,r.y,r.width,r.height)
 
     def onMotionNotify(self,widget,event):
+        if not self.notice_mouse:
+            return
         self.redraw_rect(0,0,self.width,self.height)
         (self.newx,self.newy) = (event.x, event.y)
 
@@ -853,7 +857,8 @@ class T(Hidden):
         self.newx = self.x
         self.newy = self.y
         self.button = event.button
-
+        self.notice_mouse = True
+        
     def set_paint_mode(self,isEnabled, colorsel):
         self.paint_mode = isEnabled
         self.paint_color_sel = colorsel
@@ -935,6 +940,7 @@ class T(Hidden):
             (x,y) = (event.x, event.y)
             self.recenter(x,y,zoom)
 
+        self.notice_mouse = False
         if self.thaw():
             self.changed()
 

@@ -29,14 +29,17 @@ class T(gobject.GObject):
         self.widget = gtk.DrawingArea()
         self.widget.set_size_request(40,40)
 
-        self.widget.add_events(gtk.gdk.BUTTON_RELEASE_MASK |
-                               gtk.gdk.BUTTON1_MOTION_MASK |
-                               gtk.gdk.POINTER_MOTION_HINT_MASK |
-                               gtk.gdk.ENTER_NOTIFY_MASK |
-                               gtk.gdk.LEAVE_NOTIFY_MASK |
-                               gtk.gdk.BUTTON_PRESS_MASK
-                               )
-        
+        self.widget.set_events(
+            gtk.gdk.BUTTON_RELEASE_MASK |
+            gtk.gdk.BUTTON1_MOTION_MASK |
+            gtk.gdk.POINTER_MOTION_HINT_MASK |
+            gtk.gdk.ENTER_NOTIFY_MASK |
+            gtk.gdk.LEAVE_NOTIFY_MASK |
+            gtk.gdk.BUTTON_PRESS_MASK |
+            gtk.gdk.EXPOSURE_MASK
+            )
+
+        self.notice_mouse = False
         self.widget.connect('motion_notify_event', self.onMotionNotify)
         self.widget.connect('button_release_event', self.onButtonRelease)
         self.widget.connect('button_press_event', self.onButtonPress)
@@ -51,11 +54,14 @@ class T(gobject.GObject):
             self.last_y = y
         
     def onMotionNotify(self,widget,event):
+        if not self.notice_mouse:
+            return
         dummy = widget.window.get_pointer()
         self.update_from_mouse(event.x, event.y)
 
     def onButtonRelease(self,widget,event):
         if event.button==1:
+            self.notice_mouse = False
             (xc,yc) = (widget.allocation.width//2, widget.allocation.height//2)
             dx = xc - self.last_x
             dy = yc - self.last_y
@@ -64,6 +70,7 @@ class T(gobject.GObject):
         
     def onButtonPress(self,widget,event):
         if event.button == 1:
+            self.notice_mouse = True
             self.last_x = widget.allocation.width/2
             self.last_y = widget.allocation.height/2
             self.update_from_mouse(event.x, event.y)

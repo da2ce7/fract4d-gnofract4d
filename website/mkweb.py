@@ -67,9 +67,9 @@ pages = [
         file="features.html",
         image="cheby.jpg",
         comments=[
-    "I'm always surprised how fast it runs...",
-    "I'm still dribbling out of my slack-jawed mouth...",
-    "What a great program..."]
+        "What a great program..."
+        "Thanks for the great fractal program...",
+        ]
         ),
 
     Bag(name="Screenshots",
@@ -84,7 +84,8 @@ pages = [
         image="front_buffalo.jpg",
         file="gallery.html",
         comments=[
-        "Thanks for the great fractal program...",
+        "I'm always surprised how fast it runs...",
+        "I'm still dribbling out of my slack-jawed mouth...",
         "I'm an enthusiastic user of your program gnofract4d. It's really great..."
         ]
         ),

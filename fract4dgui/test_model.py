@@ -10,7 +10,7 @@ import StringIO
 import gtk
 import model
 
-sys.path.insert(0, "..")
+sys.path.insert(1, "..")
 
 from fract4d import fractal,fc,fract4dc
 

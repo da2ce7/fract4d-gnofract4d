@@ -11,10 +11,13 @@ changes in 3.6:
 * W	period tolerance option
 * B	Ubuntu 7.10 - gtk.ComboBox has no attribute menu_list when updating warp param
 * B	Ubuntu 7.10 - "T instance has no attribute 'button'" in onMotionNotify
+* B	firefox a more reliable default browser than mozilla
+* B	Ubuntu 7.10 - 4way and angle widgets activate as soon as you mouseover, not on click
+* B	after Flickr auth the upload dialog should show up immediately
+* B	sys.path messed up - can't load basic.map on startup
 
 bugs (the more B's, the worse the bug):
 * B	'both a Fractint-style default section'... on every fractal
-
 
 * BBB	too slow!
 

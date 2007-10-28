@@ -6,7 +6,7 @@ import unittest
 import sys
 import os
 
-sys.path.insert(0, "..")
+sys.path.insert(1, "..")
 import preferences
 from fract4d import fractconfig
 
