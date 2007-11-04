@@ -16,8 +16,8 @@ class Bag:
         self.__dict__.update(kwds)
         
 announce = Bag(
-    date="xxx",
-    text="Version 3.6 released. This adds support for arrays in fractal formulas.")
+    date="October 28th, 2007",
+    text="Version 3.6 released. This is around 30% faster and fixes some bugs.")
 
 manual_pages = [
     Bag(name="Using Gnofract 4D",

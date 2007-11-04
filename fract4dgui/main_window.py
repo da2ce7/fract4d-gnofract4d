@@ -10,6 +10,9 @@ import urllib
 
 import gtk, gobject
 
+# If we haven't been installed (we're running from the dir we 
+# were unpacked in) this is where fract4d is.
+
 sys.path.insert(1, "..")
 from fract4d import fractal,fc,fract4dc,image, fracttypes, fractconfig
 from fractutils import flickr
@@ -18,7 +21,6 @@ import gtkfractal, model, preferences, autozoom, settings, toolbar
 import undo, browser, fourway, angle, utils, hig, ignore_info, painter
 import icons, flickr_assistant, renderqueue, director
 import fract4dguic
-
 
 re_ends_with_num = re.compile(r'\d+\Z')
 re_cleanup = re.compile(r'[\s\(\)]+')
@@ -87,7 +89,8 @@ class MainWindow:
 
         browser.update(self.f.forms[0].funcFile, self.f.forms[0].funcName)
             
-        self.create_menu()
+        self.create_menu_uimanager()
+        #self.create_menu()
         self.create_toolbar()
         self.create_fractal(self.f)
         self.create_status_bar()
@@ -454,7 +457,7 @@ class MainWindow:
         height = int(table.height.get_text())
         return (width, height)
     
-    def save_hires_image(self, action, widget):
+    def save_hires_image(self, action):
         """Add the current fractal to the render queue."""
         save_filename = self.default_image_filename(".png")
 
@@ -476,6 +479,11 @@ class MainWindow:
                 break
         fs.hide()
     
+    def get_ui_definition(self):
+        uidef ='''
+'''
+        return uidef
+
     def get_menu_items(self):
         menu_items = (
             (_('/_File'), None, None, 0, '<Branch>' ),
@@ -588,6 +596,120 @@ class MainWindow:
             )
         return menu_items
     
+    def create_menu_uimanager(self):
+        self.manager = gtk.UIManager()
+        accelgroup = self.manager.get_accel_group()
+        self.window.add_accel_group(accelgroup)
+
+        actiongroup = gtk.ActionGroup('Gnofract4D')
+        self.actiongroup = actiongroup
+
+        actiongroup.add_toggle_actions([
+                ('ToolsExplorerAction', None, _('_Explorer'),
+                 '<control>E', _('Create random fractals similar to this one'), 
+                 self.toggle_explorer)
+                ])
+
+        actiongroup.add_actions([
+                ('FileMenuAction', None, _('_File')),
+                ('FileOpenParameterAction', gtk.STOCK_OPEN, _('_Open Parameter File...'), 
+                 None, _('Open a Parameter File'), self.open),
+                ('FileOpenFormulaAction', None, _('Open _Formula File...'), 
+                 '<control><shift>O', _('Open a formula file'), self.open_formula),
+                ('FileSaveAction', gtk.STOCK_SAVE, None, 
+                 None, _("Save current parameters"), self.save),
+                ('FileSaveAsAction', gtk.STOCK_SAVE_AS, None,
+                 '<control><shift>S', _("Save current parameters in a new location"), self.saveas),
+                ('FileSaveImageAction', None, _('Save Current _Image'),
+                 '<control>I', _('Save the current image'), self.save_image),
+                ('FileSaveHighResImageAction', None, _('Save _High-Res Image...'),
+                 '<control><shift>I', _('Save a higher-resolution version of the current image'), 
+                 self.save_hires_image),
+                ('FileQuitAction', gtk.STOCK_QUIT, None, 
+                 None, _('Quit'), self.quit),
+
+                ('EditMenuAction', None, _('_Edit')),                
+                ('EditFractalSettingsAction', None, _('_Fractal Settings...'),
+                 '<control>F', _('Edit the fractal\'s settings'), self.settings),
+                ('EditPreferencesAction', gtk.STOCK_PREFERENCES, None,
+                 None, _('Edit user preferences'), self.preferences),
+                ('EditUndoAction', gtk.STOCK_UNDO, None,
+                 '<control>Z', _('Undo the last command'), self.undo),
+                ('EditRedoAction', gtk.STOCK_REDO, None,
+                 '<control><shift>Z', _('Redo the last undone command'), self.redo),
+                ('EditResetAction', gtk.STOCK_HOME,_('_Reset'),
+                 'Home', _('Reset all parameters to defaults'), self.reset),
+                ('EditResetZoomAction', None, _('Re_set Zoom'),
+                 '<control>Home', _('Reset magnification'), self.reset_zoom),
+
+                ('ViewMenuAction', None, _('_View')),
+                ('ViewFullScreenAction', None, _('_Full Screen'),
+                 'F11', _('Full Screen (press Esc to finish)'), self.full_screen),
+                ('PlanesMenuAction', None, _('Planes')),
+                ('PlanesXYAction', None, _('_XY (Mandelbrot)'),
+                 '<control>1', None, self.set_xy_plane),
+                ('PlanesZWAction', None, _('_ZW (Julia)'),
+                 '<control>2', None, self.set_zw_plane),
+                ('PlanesXZAction', None, _('_XZ (Oblate)'),
+                 '<control>3', None, self.set_xz_plane),
+                ('PlanesXWAction', None, _('_XY (Parabolic)'),
+                 '<control>4', None, self.set_xw_plane),
+                ('PlanesYZAction', None, _('_XY (Elliptic)'),
+                 '<control>5', None, self.set_yz_plane),
+                ('PlanesYWAction', None, _('_YW (Rectangular)'),
+                 '<control>6', None, self.set_yw_plane),
+
+                ('ShareMenuAction', None, _('_Share')),
+                ('ShareMailToAction', None, _('_Mail To...'),
+                 '<control>M', _('Send parameters by mail'), self.send_to),
+                ('ShareUploadAction', None, _('_Upload to Flickr...'),
+                 '<control>U', _('Upload current image to Flickr'), self.upload),
+                ('ShareViewMyFractalsAction', None, _('_View My Online Fractals'),
+                 None, _('View fractals I\'ve uploaded (if any'), self.view_my_fractals),
+                ('ShareViewGroupFractalsAction', None, _('View _Group Fractals'),
+                 None, _('View fractals I\'ve uploaded (if any)'), self.view_group_fractals),
+
+                ('ToolsMenuAction', None, _('_Tools')),
+                ('ToolsAutozoomAction', None, _('_Autozoom'),
+                 '<control>A', _('Automatically zoom in to interesting regions'), self.autozoom),
+                # explorer is a toggle, see above
+                ('ToolsBrowserAction', None, _('Formula _Browser'),
+                 '<control>B', _('Browse available formulas'), self.browser),
+                ('ToolsDirectorAction', None, _('_Director'),
+                 '<control>D', _('Create animations'), self.director),
+                ('ToolsRandomizeAction', None, _('_Randomize Colors'),
+                 '<control>R', _('Apply a new random color scheme'), self.randomize_colors),
+                ('ToolsPainterAction', None, _('_Painter'),
+                 None, _('Change colors interactively'), self.painter),
+
+                ('HelpMenuAction', None, _('_Help')),
+                ('HelpContentsAction', gtk.STOCK_HELP, _('_Contents'),
+                 'F1', _('Display manual'), self.contents),
+                ('HelpCommandReferenceAction', None, _('Command _Reference'),
+                 None, _('A list of keyboard and mouse shortcuts'), self.command_reference),
+                ('HelpFormulaReferenceAction', None, _('_Formula Reference'),
+                 None, _('Reference for functions and objects in the formula compiler'), 
+                 self.formula_reference),
+                ('HelpReportBugAction', None, _('_Report a Bug'),
+                 None, _('Report a bug you\'ve found'), self.report_bug),
+                ('HelpAboutAction', gtk.STOCK_ABOUT, _('_About'), 
+                 None, _('About Gnofract 4D'), self.about)
+                ])
+
+        self.manager.insert_action_group(actiongroup, 0)
+
+        self.manager.add_ui_from_file("fract4dgui/ui.xml")
+
+        self.menubar = self.manager.get_widget('/MenuBar')
+        self.vbox.pack_start(self.menubar, False, True, 0)
+        
+        undo = self.manager.get_widget(_("/MenuBar/EditMenu/EditUndo"))
+        self.model.seq.make_undo_sensitive(undo)
+        redo = self.manager.get_widget(_("/MenuBar/EditMenu/EditRedo"))
+        self.model.seq.make_redo_sensitive(redo)
+
+        self.recent_menuitems = []
+
     def create_menu(self):
         menu_items = self.get_menu_items()
         
@@ -618,33 +740,30 @@ class MainWindow:
         self.vbox.pack_start(menubar, False, True, 0)
         self.menubar = menubar
 
-    def director(self,action,menuitem):
+    def director(self,*args):
         director.show(self.window,self.control_box, self.f, True)
         
-    def browser(self,action,menuitem):
+    def browser(self,*args):
         """Display formula browser."""
         browser.show(self.window,self.f,browser.FRACTAL)
 
-    def randomize_colors(self,action,menuitem):
+    def randomize_colors(self,*args):
         """Create a new random color scheme."""
         self.f.make_random_colors(8)
 
-    def painter(self,action,menuitem):
+    def painter(self,*args):
         painter.show(self.window,self.f)
 
-    def renderqueue(self,action,menuitem):
-        renderqueue.show(self.window,None,self.f)
-        
     def add_to_queue(self,name,w,h):
         renderqueue.show(self.window,None,self.f)
         renderqueue.instance.add(self.f.f,name,w,h)
         renderqueue.instance.start()
         
-    def toggle_explorer(self, action, menuitem):
+    def toggle_explorer(self, action):
         """Enter (or leave) Explorer mode."""
-        self.set_explorer_state(menuitem.get_active())
+        self.set_explorer_state(action.get_active())
 
-    def menu_full_screen(self, action, menuitem):
+    def full_screen(self, *args):
         """Show main window full-screen."""
         self.set_full_screen(True)
 
@@ -1015,14 +1134,14 @@ class MainWindow:
                 _("Error saving to file %s") % file, err)
             return False
 
-    def save(self,action,widget):
+    def save(self,action):
         """Save the current parameters."""
         if self.filename == None:
-            self.saveas(action,widget)
+            self.saveas(action)
         else:
             self.save_file(self.filename)
         
-    def saveas(self,action,widget):
+    def saveas(self,action):
         """Save the current parameters into a new file."""
         fs = self.get_save_as_fs()
         save_filename = self.default_save_filename()
@@ -1082,7 +1201,7 @@ class MainWindow:
         d.run()
         d.destroy()
 
-    def send_to(self,action,widget):
+    def send_to(self,*args):
         """Launch an email editor with current image attached."""
         mailer = preferences.userPrefs.get("helpers","mailer")
 
@@ -1101,22 +1220,22 @@ class MainWindow:
 
         os.system("%s &" % (mailer % url))
 
-    def upload(self,action,widget):
+    def upload(self,*args):
         """Upload the current image to Flickr.com."""
         flickr_assistant.show_flickr_assistant(self.window,self.control_box, self.f, True)
 
-    def view_my_fractals(self,action, widget):
+    def view_my_fractals(self, *args):
         nsid = flickr_assistant.get_user(self.window, self.f)
         if nsid != "":
             url = "http://flickr.com/photos/%s/" % nsid
             utils.launch_browser(preferences.userPrefs, url, self.window)
 
-    def view_group_fractals(self,action, widget):
+    def view_group_fractals(self, *args):
         utils.launch_browser(preferences.userPrefs,
                        "http://flickr.com/groups/gnofract4d/pool/",
                        self.window)
 
-    def save_image(self,action,widget):
+    def save_image(self,*args):
         """Save the current image to a file."""
         save_filename = self.default_image_filename(".png")
 
@@ -1154,7 +1273,7 @@ class MainWindow:
         """Show fractal settings controls."""
         settings.show_settings(self.window, self.control_box, self.f, False)
         
-    def preferences(self,action,widget):
+    def preferences(self,action):
         """Change current preferences."""
         preferences.show_preferences(self.window, self.f)
         
@@ -1166,59 +1285,59 @@ class MainWindow:
         """Redo an operation after undoing it."""
         self.model.redo()
         
-    def reset(self,action,widget):
+    def reset(self,*args):
         """Reset all numeric parameters to their defaults."""
         self.f.reset()
 
-    def reset_zoom(self,action,widget):
+    def reset_zoom(self,*args):
         """Reset zoom to default level."""
         self.f.reset_zoom()
 
-    def set_xy_plane(self,action,widget):
+    def set_xy_plane(self,*args):
         """Reset rotation to show the XY (Mandelbrot) plane."""
         # left = +x, down = +y
         self.f.set_plane(None,None)
 
-    def set_xz_plane(self,action,widget):
+    def set_xz_plane(self,*args):
         """Reset rotation to show the XZ (Oblate) plane."""
         # left = +x, down = +z
         self.f.set_plane(None, self.f.YZANGLE)
 
-    def set_xw_plane(self,action,widget):
+    def set_xw_plane(self,*args):
         """Reset rotation to show the XW (Parabolic) plane."""
         # left =+x, down = +w
         self.f.set_plane(None,self.f.YWANGLE)
 
-    def set_zw_plane(self,action,widget):
+    def set_zw_plane(self,*args):
         """Reset rotation to show the ZW (Julia) plane."""
         # left = +z, down = +w
         self.f.set_plane(self.f.XZANGLE, self.f.YWANGLE)
         
-    def set_yz_plane(self,action,widget):
+    def set_yz_plane(self,*args):
         """Reset rotation to show the YZ (Elliptic) plane."""
         # left = +z, down = +y
         self.f.set_plane(self.f.XZANGLE, None)
 	    
-    def set_yw_plane(self,action,widget):
+    def set_yw_plane(self,*args):
         """Reset rotation to show the YW (Rectangular) plane."""
         # left =+w, down = +y
         self.f.set_plane(self.f.XWANGLE, None)
 	
-    def autozoom(self,action,widget):
+    def autozoom(self,*args):
         """Display AutoZoom dialog."""
         autozoom.show_autozoom(self.window, self.f)
         
-    def contents(self,action,widget):
+    def contents(self,*args):
         """Show help file contents page."""
         self.display_help()
 
-    def command_reference(self,action,widget):
+    def command_reference(self, *args):
         self.display_help("cmdref")
 
-    def formula_reference(self,action,widget):
+    def formula_reference(self, *args):
         self.display_help("formref")
 
-    def report_bug(self,action,widget):
+    def report_bug(self, *args):
         url="http://sourceforge.net/tracker/?func=add&group_id=785&atid=100785"
         utils.launch_browser(
             preferences.userPrefs,
@@ -1264,7 +1383,7 @@ class MainWindow:
                 self.window)
             
         
-    def open_formula(self,action,widget):
+    def open_formula(self,action):
         """Open a formula (.frm) or coloring algorithm (.cfrm) file."""
         fs =self.get_open_formula_fs()
         fs.show_all()
@@ -1282,7 +1401,7 @@ class MainWindow:
             
         fs.hide()
         
-    def open(self,action,widget):
+    def open(self,action):
         """Open a parameter (.fct) file."""
         fs = self.get_open_fs()
         fs.show_all()
@@ -1354,7 +1473,7 @@ class MainWindow:
                 break
         return True
     
-    def about(self,action,widget):
+    def about(self,*args):
         self.display_help("about")
 
     def quit(self,action,widget=None):

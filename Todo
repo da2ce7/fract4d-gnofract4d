@@ -1,23 +1,12 @@
 todo:
-changes in 3.6:
-* B	don't install buildtools to site-packages
-* B	run calc threads at normal priority - low prio unpredictably runs 2x slower sometimes
-* W	change periodicity logic to apply more often & hopefully go faster
-* W	--antialias command-line arg
-* B	until antialias, seems to run single-threaded more often than not
-* B	% complete > 100 when deepening with antialias off
-* B	try to display the text of .cs files, which are binary
-* B	Errors trying to parse .cs files
-* W	period tolerance option
-* B	Ubuntu 7.10 - gtk.ComboBox has no attribute menu_list when updating warp param
-* B	Ubuntu 7.10 - "T instance has no attribute 'button'" in onMotionNotify
-* B	firefox a more reliable default browser than mozilla
-* B	Ubuntu 7.10 - 4way and angle widgets activate as soon as you mouseover, not on click
-* B	after Flickr auth the upload dialog should show up immediately
-* B	sys.path messed up - can't load basic.map on startup
+
+changes in 3.7:
+
 
 bugs (the more B's, the worse the bug):
 * B	'both a Fractint-style default section'... on every fractal
+* B	upload doesn't work immediately after authentication (creds not saved?)
+* B	dismissing autozoom doesn't stop zooming
 
 * BBB	too slow!
 
@@ -220,6 +209,23 @@ in return for a look at what I'm generating, (like ElectricSheep).
 
 Requires: above, +able to deal with ad-hoc networks of thousands of peers,
 economic incentive, security, works with NAT
+
+changes in 3.6:
+* B	don't install buildtools to site-packages
+* B	run calc threads at normal priority - low prio unpredictably runs 2x slower sometimes
+* W	change periodicity logic to apply more often & hopefully go faster
+* W	--antialias command-line arg
+* B	until antialias, seems to run single-threaded more often than not
+* B	% complete > 100 when deepening with antialias off
+* B	try to display the text of .cs files, which are binary
+* B	Errors trying to parse .cs files
+* W	period tolerance option
+* B	Ubuntu 7.10 - gtk.ComboBox has no attribute menu_list when updating warp param
+* B	Ubuntu 7.10 - "T instance has no attribute 'button'" in onMotionNotify
+* B	firefox a more reliable default browser than mozilla
+* B	Ubuntu 7.10 - 4way and angle widgets activate as soon as you mouseover, not on click
+* B	after Flickr auth the upload dialog should show up immediately
+* B	sys.path messed up - can't load basic.map on startup
 
 changes in 3.5:
 * BB	'list index out of range' loading pre-2.0 .fct files

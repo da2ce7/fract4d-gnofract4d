@@ -10,6 +10,7 @@
     <glob pattern="*.ufm"/>
     <glob pattern="*.cfrm"/>
     <glob pattern="*.ucl"/>
+    <glob pattern="*.uxf"/>
   </mime-type>
   <mime-type type="text/x-gnofract4d-fractal-animation">
     <comment>Fractal animation parameter file</comment>

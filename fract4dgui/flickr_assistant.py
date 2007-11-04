@@ -410,4 +410,5 @@ Click Finish to save your credentials and proceed.""")
         preferences.userPrefs.set("user_info", "flickr_token",self.token.token)
         preferences.userPrefs.set("user_info", "nsid", self.token.user.nsid)
         self.hide()
-        FlickrUploadDialog.show(self.parent,self.parent,self.f,True)
+        if(is_authorized()):
+            FlickrUploadDialog.show(self.parent,self.parent,self.f,True)

@@ -18,6 +18,7 @@ include fract4d/c/*.h
 include fract4d/test.cfrm
 include fract4d/test.frm
 include fract4d/test_bad_pp.frm
+include fract4dgui/ui.xml
 include gnofract4d
 include gnofract4d-mime.xml
 include gnofract4d.desktop
