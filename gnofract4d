@@ -82,40 +82,6 @@ def main(args):
     except Exception, err:
         print "A fatal error occurred:\n\t%s\n\n" % str(err)
         raise
-    
-def suppress_gtk_warnings():
-    try:
-        # newer pygtk's are incompatible with older ones. In most cases I 
-        # try the new version and fall back to the older if it's missing.
-        # See utils.py for details.
-        # In these cases I can't, so hiding the DeprecationWarnings so users
-        # don't have to suffer
-        import warnings
-
-        # we use ItemFactory because I want this to carry on working
-        # with older PyGTK's, so UIManager is out, and the differences
-        # between the 2 are too large to hide
-
-        #warnings.filterwarnings(
-        #    "ignore",
-        #    ".*UIManager.*",
-        #    DeprecationWarning,
-        #    ".*",
-        #    0)
-
-        # newer pygtk's don't need us to call gobject.type_register,
-        # but older ones most certainly do.
-        
-        #warnings.filterwarnings(
-        #    "ignore",
-        #    ".*GObject-registered.*",
-        #    DeprecationWarning,
-        #    ".*",
-        #    0)
-
-    except Exception, exn :
-        print exn
-        pass
 
 def test_version(major,minor,patch):
     if major < 2:
@@ -148,8 +114,6 @@ def gtkmain(options):
                 gtk.pygtk_version)
         sys.exit(1)
 
-    suppress_gtk_warnings()
-    
     try:
         # gui modules
         from fract4dgui import main_window, preferences, utils

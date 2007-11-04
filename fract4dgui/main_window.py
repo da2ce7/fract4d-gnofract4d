@@ -89,8 +89,7 @@ class MainWindow:
 
         browser.update(self.f.forms[0].funcFile, self.f.forms[0].funcName)
             
-        self.create_menu_uimanager()
-        #self.create_menu()
+        self.create_ui()
         self.create_toolbar()
         self.create_fractal(self.f)
         self.create_status_bar()
@@ -267,7 +266,8 @@ class MainWindow:
         is4d = f.is4D()
         for widget in self.four_d_sensitives:
             widget.set_sensitive(is4d)
-        
+        self.fourd_actiongroup.set_sensitive(is4d)
+
     def create_fractal(self,f):
         self.swindow = gtk.ScrolledWindow()
         self.swindow.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
@@ -479,138 +479,21 @@ class MainWindow:
                 break
         fs.hide()
     
-    def get_ui_definition(self):
-        uidef ='''
-'''
-        return uidef
-
-    def get_menu_items(self):
-        menu_items = (
-            (_('/_File'), None, None, 0, '<Branch>' ),
-            (_('/File/_Open Parameter File...'), '<control>O',
-             self.open, 0, '<StockItem>', gtk.STOCK_OPEN),
-            (_('/File/Open _Formula File...'), '<control><shift>O',
-             self.open_formula, 0, ''),
-            (_('/File/_Save'), '<control>S',
-             self.save, 0, '<StockItem>', gtk.STOCK_SAVE),
-            (_('/File/Save _As...'), '<control><shift>S',
-             self.saveas, 0, '<StockItem>', gtk.STOCK_SAVE_AS),
-            (_('/File/Save Current _Image'), '<control>I',
-             self.save_image, 0, ''),
-            (_('/File/Save _High-Res Image'), '<control><shift>I',
-             self.save_hires_image, 0, ''),
-            
-            (_('/File/sep1'), None,
-             None, 0, '<Separator>'),
-            (_('/File/_1'), None,
-             self.load_recent_file, 1, ''),
-            (_('/File/_2'), None,
-             self.load_recent_file, 2, ''),
-            (_('/File/_3'), None,
-             self.load_recent_file, 3, ''),
-            (_('/File/_4'), None,
-             self.load_recent_file, 4, ''),
-            (_('/File/sep2'), None,
-             None, 0, '<Separator>'),            
-            (_('/File/_Quit'), '<control>Q',
-             self.quit, 0, '<StockItem>', gtk.STOCK_QUIT),   
-
-            (_('/_Edit'), None,
-             None, 0, '<Branch>'),
-            (_('/Edit/_Fractal Settings...'),'<control>F',
-             self.settings, 0, ''),
-            (_('/Edit/_Preferences...'), '<control>P',
-             self.preferences, 0, '<StockItem>', gtk.STOCK_PREFERENCES),
-            (_('/Edit/sep1'), None,
-             None, 0, '<Separator>'),
-            (_('/Edit/_Undo'), '<control>Z',
-             self.undo, 0, ''),
-            (_('/Edit/_Redo'), '<control><shift>Z',
-             self.redo, 0, ''),
-            (_('/Edit/sep2'), None,
-             None, 0, '<Separator>'),
-            (_('/Edit/R_eset'), 'Home',
-             self.reset, 0, '<StockItem>', gtk.STOCK_HOME),
-            (_('/Edit/Re_set Zoom'), '<control>Home',
-             self.reset_zoom, 0, ''),
-
-            (_('/_View'), None,
-             None, 0, '<Branch>'),
-            (_('/_View/_Full Screen'), 'F11',
-             self.menu_full_screen, 0, ''),
-            (_('/_View/_Planes'), None,
-             None, 0, '<Branch>'),
-
-            (_('/_View/_Planes/_XY (Mandelbrot)'), '<control>1',
-             self.set_xy_plane, 0, ''),
-            (_('/_View/_Planes/_ZW (Julia)'), '<control>2',
-             self.set_zw_plane, 0, ''),
-            (_('/_View/_Planes/_XZ (Oblate)'), '<control>3',
-             self.set_xz_plane, 0, ''),
-            (_('/_View/_Planes/_XW (Parabolic)'), '<control>4',
-             self.set_xw_plane, 0, ''),
-            (_('/_View/_Planes/_YZ (Elliptic)'), '<control>5',
-             self.set_yz_plane, 0, ''),
-            (_('/_View/_Planes/_YW (Rectangular)'), '<control>6',
-             self.set_yw_plane, 0, ''),
-            
-            (_('/_Share'), None,
-             None, 0, '<Branch>'),
-            (_('/Share/_Mail To...'), '<control>M',
-             self.send_to, 0, ''),
-            (_('/Share/_Upload To Flickr...'), '<control>U',
-             self.upload, 0, ''),
-            (_('/Share/_View My Online Fractals'), '',
-             self.view_my_fractals, 0, ''),
-            (_('/Share/_View Group Fractals'), '',
-             self.view_group_fractals),
-            
-            (_('/_Tools'), None,
-             None, 0, '<Branch>'),
-            (_('/_Tools/_Autozoom...'), '<control>A',
-             self.autozoom, 0, ''),
-            (_('/_Tools/_Explorer'), '<control>E',
-             self.toggle_explorer, 0, '<ToggleItem>'),
-            (_('/_Tools/Formula _Browser...'), '<control>B',
-             self.browser, 0, ''),
-            (_('/_Tools/_Director...'), '<control>D',
-             self.director, 0, ''),
-            (_('/_Tools/_Randomize Colors'), '<control>R',
-             self.randomize_colors, 0, ''),
-            
-            (_('/_Tools/_Painter...'), None,
-             self.painter, 0, ''),
-            
-            (_('/_Help'), None,
-             None, 0, '<Branch>'),
-            (_('/_Help/_Contents'), 'F1',
-             self.contents, 0, ''),
-            (_('/_Help/Command _Reference'), '',
-             self.command_reference, 0, ''),
-            (_('/_Help/_Formula Reference'), '',
-             self.formula_reference, 0, ''),
-            (_('/_Help/_Report Bug'), '',
-             self.report_bug, 0, ''),
-            (_('/Help/_About'), None,
-             self.about, 0, ''),
-            )
-        return menu_items
-    
-    def create_menu_uimanager(self):
+    def create_ui(self):
         self.manager = gtk.UIManager()
         accelgroup = self.manager.get_accel_group()
         self.window.add_accel_group(accelgroup)
 
-        actiongroup = gtk.ActionGroup('Gnofract4D')
-        self.actiongroup = actiongroup
+        main_actiongroup = gtk.ActionGroup('Gnofract4D')
+        self.main_actiongroup = main_actiongroup
 
-        actiongroup.add_toggle_actions([
+        main_actiongroup.add_toggle_actions([
                 ('ToolsExplorerAction', None, _('_Explorer'),
                  '<control>E', _('Create random fractals similar to this one'), 
                  self.toggle_explorer)
                 ])
 
-        actiongroup.add_actions([
+        main_actiongroup.add_actions([
                 ('FileMenuAction', None, _('_File')),
                 ('FileOpenParameterAction', gtk.STOCK_OPEN, _('_Open Parameter File...'), 
                  None, _('Open a Parameter File'), self.open),
@@ -625,6 +508,19 @@ class MainWindow:
                 ('FileSaveHighResImageAction', None, _('Save _High-Res Image...'),
                  '<control><shift>I', _('Save a higher-resolution version of the current image'), 
                  self.save_hires_image),
+
+                # FIXME: UI merging would seem to be better, but it's a bit bloody complicated
+                # There's a special widget in pygtk 2.10 for this but that's too new, not all
+                # interesting distributions have it
+                ('FileRecent1Action', None, _('_1'), None, None, 
+                 lambda *args : self.load_recent_file(1)),
+                ('FileRecent2Action', None, _('_2'), None, None, 
+                 lambda *args : self.load_recent_file(2)),
+                ('FileRecent3Action', None, _('_3'), None, None, 
+                 lambda *args : self.load_recent_file(3)),
+                ('FileRecent4Action', None, _('_4'), None, None, 
+                 lambda *args : self.load_recent_file(4)),
+
                 ('FileQuitAction', gtk.STOCK_QUIT, None, 
                  None, _('Quit'), self.quit),
 
@@ -645,19 +541,6 @@ class MainWindow:
                 ('ViewMenuAction', None, _('_View')),
                 ('ViewFullScreenAction', None, _('_Full Screen'),
                  'F11', _('Full Screen (press Esc to finish)'), self.full_screen),
-                ('PlanesMenuAction', None, _('Planes')),
-                ('PlanesXYAction', None, _('_XY (Mandelbrot)'),
-                 '<control>1', None, self.set_xy_plane),
-                ('PlanesZWAction', None, _('_ZW (Julia)'),
-                 '<control>2', None, self.set_zw_plane),
-                ('PlanesXZAction', None, _('_XZ (Oblate)'),
-                 '<control>3', None, self.set_xz_plane),
-                ('PlanesXWAction', None, _('_XY (Parabolic)'),
-                 '<control>4', None, self.set_xw_plane),
-                ('PlanesYZAction', None, _('_XY (Elliptic)'),
-                 '<control>5', None, self.set_yz_plane),
-                ('PlanesYWAction', None, _('_YW (Rectangular)'),
-                 '<control>6', None, self.set_yw_plane),
 
                 ('ShareMenuAction', None, _('_Share')),
                 ('ShareMailToAction', None, _('_Mail To...'),
@@ -696,49 +579,46 @@ class MainWindow:
                  None, _('About Gnofract 4D'), self.about)
                 ])
 
-        self.manager.insert_action_group(actiongroup, 0)
+        self.manager.insert_action_group(main_actiongroup, 0)
+
+        # actions which are only available if we're in 4D mode
+        self.fourd_actiongroup = gtk.ActionGroup('4D-sensitive widgets')
+
+        self.fourd_actiongroup.add_actions([
+                ('PlanesMenuAction', None, _('Planes')),
+                ('PlanesXYAction', None, _('_XY (Mandelbrot)'),
+                 '<control>1', None, self.set_xy_plane),
+                ('PlanesZWAction', None, _('_ZW (Julia)'),
+                 '<control>2', None, self.set_zw_plane),
+                ('PlanesXZAction', None, _('_XZ (Oblate)'),
+                 '<control>3', None, self.set_xz_plane),
+                ('PlanesXWAction', None, _('_XY (Parabolic)'),
+                 '<control>4', None, self.set_xw_plane),
+                ('PlanesYZAction', None, _('_XY (Elliptic)'),
+                 '<control>5', None, self.set_yz_plane),
+                ('PlanesYWAction', None, _('_YW (Rectangular)'),
+                 '<control>6', None, self.set_yw_plane)
+                ])
+
+        self.manager.insert_action_group(self.fourd_actiongroup, 1)
 
         self.manager.add_ui_from_file("fract4dgui/ui.xml")
 
         self.menubar = self.manager.get_widget('/MenuBar')
         self.vbox.pack_start(self.menubar, False, True, 0)
         
+        # this could be done with an actiongroup, but since it already works...
         undo = self.manager.get_widget(_("/MenuBar/EditMenu/EditUndo"))
         self.model.seq.make_undo_sensitive(undo)
         redo = self.manager.get_widget(_("/MenuBar/EditMenu/EditRedo"))
         self.model.seq.make_redo_sensitive(redo)
 
-        self.recent_menuitems = []
-
-    def create_menu(self):
-        menu_items = self.get_menu_items()
-        
-        item_factory = gtk.ItemFactory(gtk.MenuBar, '<main>', self.accelgroup)
-        item_factory.create_items(menu_items)
-
-        menubar = item_factory.get_widget('<main>')
-
-        undo = item_factory.get_item(_("/Edit/Undo"))
-        self.model.seq.make_undo_sensitive(undo)
-        redo = item_factory.get_item(_("/Edit/Redo"))
-        self.model.seq.make_redo_sensitive(redo)
-
-        self.explore_menu = item_factory.get_item(_("/Tools/Explorer"))
-
-        self.plane_menu = item_factory.get_item(_("/View/Planes"))
-        self.four_d_sensitives.append(self.plane_menu)
-
         self.recent_menuitems = [
-            item_factory.get_item(_("/File/1")),
-            item_factory.get_item(_("/File/2")),
-            item_factory.get_item(_("/File/3")),
-            item_factory.get_item(_("/File/4"))]
-        
-        # need to reference the item factory or the menus
-        # later disappear randomly - some sort of bug in pygtk, python, or gtk
-        self.save_factory = item_factory
-        self.vbox.pack_start(menubar, False, True, 0)
-        self.menubar = menubar
+            self.manager.get_widget("/MenuBar/FileMenu/Recent1"),
+            self.manager.get_widget("/MenuBar/FileMenu/Recent2"),
+            self.manager.get_widget("/MenuBar/FileMenu/Recent3"),
+            self.manager.get_widget("/MenuBar/FileMenu/Recent4")]
+
 
     def director(self,*args):
         director.show(self.window,self.control_box, self.f, True)
@@ -1119,7 +999,7 @@ class MainWindow:
                 menuitem.show()
             i += 1
 
-    def load_recent_file(self, file_num, menuitem):
+    def load_recent_file(self, file_num, *args):
         self.load(self.recent_files[file_num-1])
         
     def save_file(self,file):
