@@ -462,20 +462,46 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
         #main VBox
         self.box_main=gtk.VBox(False,0)
         #--------------------menu-------------------------------
-        self.menu_items = (
-            ( "/_Director",                    None,            None, 0, "<Branch>" ),
-            ( "/Director/_New animation",     "<control>N",    self.new_configuration_clicked,    0, None),
-            ( "/Director/_Load animation",    "<control>O",    self.load_configuration_clicked,0, None ),
-            ( "/Director/_Save animation",    "<control>S",    self.save_configuration_clicked,0, None ),
-            ( "/_Edit",                        None,            None,                            0, "<Branch>"),
-            ( "/Edit/_Preferences...",        "<control>P",    self.preferences_clicked,        0, None)
-        )
-        accel_group = gtk.AccelGroup()
-        self.item_factory = gtk.ItemFactory(gtk.MenuBar, "<main>", accel_group)
-        self.item_factory.create_items(self.menu_items)
-        #self.window.add_accel_group(accel_group)
-        self.menubar=self.item_factory.get_widget("<main>")
-        self.box_main.pack_start(self.menubar,False,False,0)
+        self.manager = gtk.UIManager()
+        accelgroup = self.manager.get_accel_group()
+        self.add_accel_group(accelgroup)
+
+        actiongroup = gtk.ActionGroup("Director")
+        actiongroup.add_actions([
+                ('DirectorMenuAction', None, _('_Director')),
+                ('DirectorEditAction', None, _('_Edit')),
+
+                ('DirectorNewAction', gtk.STOCK_NEW, _('_New Animation'),
+                 '<control>N', None, self.new_configuration_clicked),
+                ('DirectorOpenAction', gtk.STOCK_OPEN, _('_Open Animation'),
+                 '<control>O', None, self.load_configuration_clicked),
+                ('DirectorSaveAction', gtk.STOCK_SAVE, _('_Save Animation'),
+                 '<control>S', None, self.save_configuration_clicked),
+                ('DirectorEditPrefsAction', gtk.STOCK_PREFERENCES, _('_Preferences'),
+                 '<control>P', None, self.preferences_clicked),
+                ])
+
+        self.manager.insert_action_group(actiongroup, 0)
+
+        menu = '''
+<ui>
+<menubar>
+<menu name="Director" action="DirectorMenuAction">
+    <menuitem action="DirectorNewAction"/>
+    <menuitem action="DirectorOpenAction"/>
+    <menuitem action="DirectorSaveAction"/>
+</menu>
+<menu name="Edit" action="DirectorEditAction">
+    <menuitem action="DirectorEditPrefsAction"/>
+</menu>
+</menubar>
+</ui>
+'''
+        self.manager.add_ui_from_string(menu)
+
+        self.menubar = self.manager.get_widget('/menubar')
+        self.box_main.pack_start(self.menubar, False, True, 0)
+
 
         #-----------creating popup menu-------------------------------
         #popup menu for keyframes
