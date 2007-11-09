@@ -100,12 +100,13 @@ def main(outfile):
 
     mw = main_window.MainWindow(["../formulas"])
 
-    menu_items = mw.get_menu_items()
+    menu_items = mw.get_all_actions()
     for item in menu_items:
-        key = item[1]
+        if len(item) < 4: continue
+        key = item[3]
         if not key:
             continue
-        func = item[2]
+        func = item[5]
         printer.add_command(key,func.__doc__)
 
     # hard-code ones which are too hard to extract from main code

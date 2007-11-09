@@ -95,7 +95,7 @@
 </row>
 <row>
 <entry>Ctrl+D</entry>
-<entry></entry>
+<entry>Display the Director (animation) window.</entry>
 </row>
 <row>
 <entry>Ctrl+E</entry>
@@ -130,28 +130,12 @@
 <entry>Launch an email editor with current image attached.</entry>
 </row>
 <row>
-<entry>Ctrl+O</entry>
-<entry>Open a parameter (.fct) file.</entry>
-</row>
-<row>
 <entry>Ctrl+Shift+O</entry>
 <entry>Open a formula (.frm) or coloring algorithm (.cfrm) file.</entry>
 </row>
 <row>
-<entry>Ctrl+P</entry>
-<entry>Change current preferences.</entry>
-</row>
-<row>
-<entry>Ctrl+Q</entry>
-<entry>Quit Gnofract 4D.</entry>
-</row>
-<row>
 <entry>Ctrl+R</entry>
 <entry>Create a new random color scheme.</entry>
-</row>
-<row>
-<entry>Ctrl+S</entry>
-<entry>Save the current parameters.</entry>
 </row>
 <row>
 <entry>Ctrl+Shift+S</entry>

@@ -479,6 +479,122 @@ class MainWindow:
                 break
         fs.hide()
     
+    def get_all_actions(self):
+        return self.get_toggle_actions() + \
+            self.get_main_actions() + \
+            self.get_fourd_actions()
+
+    def get_toggle_actions(self):
+        return [
+            ('ToolsExplorerAction', None, _('_Explorer'),
+             '<control>E', _('Create random fractals similar to this one'), 
+             self.toggle_explorer)
+            ]
+            
+    def get_main_actions(self):
+        return [
+            ('FileMenuAction', None, _('_File')),
+            ('FileOpenParameterAction', gtk.STOCK_OPEN, _('_Open Parameter File...'), 
+             None, _('Open a Parameter File'), self.open),
+            ('FileOpenFormulaAction', None, _('Open _Formula File...'), 
+             '<control><shift>O', _('Open a formula file'), self.open_formula),
+            ('FileSaveAction', gtk.STOCK_SAVE, None, 
+             None, _("Save current parameters"), self.save),
+            ('FileSaveAsAction', gtk.STOCK_SAVE_AS, None,
+             '<control><shift>S', _("Save current parameters in a new location"), self.saveas),
+            ('FileSaveImageAction', None, _('Save Current _Image'),
+             '<control>I', _('Save the current image'), self.save_image),
+            ('FileSaveHighResImageAction', None, _('Save _High-Res Image...'),
+             '<control><shift>I', _('Save a higher-resolution version of the current image'), 
+             self.save_hires_image),
+
+            # FIXME: UI merging would seem to be better, but it's a bit bloody complicated
+            # There's a special widget in pygtk 2.10 for this but that's too new, not all
+            # interesting distributions have it
+            ('FileRecent1Action', None, _('_1'), None, None, 
+             lambda *args : self.load_recent_file(1)),
+            ('FileRecent2Action', None, _('_2'), None, None, 
+             lambda *args : self.load_recent_file(2)),
+            ('FileRecent3Action', None, _('_3'), None, None, 
+             lambda *args : self.load_recent_file(3)),
+            ('FileRecent4Action', None, _('_4'), None, None, 
+             lambda *args : self.load_recent_file(4)),
+
+            ('FileQuitAction', gtk.STOCK_QUIT, None, 
+             None, _('Quit'), self.quit),
+
+            ('EditMenuAction', None, _('_Edit')),                
+            ('EditFractalSettingsAction', None, _('_Fractal Settings...'),
+             '<control>F', _('Edit the fractal\'s settings'), self.settings),
+            ('EditPreferencesAction', gtk.STOCK_PREFERENCES, None,
+             None, _('Edit user preferences'), self.preferences),
+            ('EditUndoAction', gtk.STOCK_UNDO, None,
+             '<control>Z', _('Undo the last command'), self.undo),
+            ('EditRedoAction', gtk.STOCK_REDO, None,
+             '<control><shift>Z', _('Redo the last undone command'), self.redo),
+            ('EditResetAction', gtk.STOCK_HOME,_('_Reset'),
+             'Home', _('Reset all parameters to defaults'), self.reset),
+            ('EditResetZoomAction', None, _('Re_set Zoom'),
+             '<control>Home', _('Reset magnification'), self.reset_zoom),
+
+            ('ViewMenuAction', None, _('_View')),
+            ('ViewFullScreenAction', None, _('_Full Screen'),
+             'F11', _('Full Screen (press Esc to finish)'), self.full_screen),
+
+            ('ShareMenuAction', None, _('_Share')),
+            ('ShareMailToAction', None, _('_Mail To...'),
+             '<control>M', _('Send parameters by mail'), self.send_to),
+            ('ShareUploadAction', None, _('_Upload to Flickr...'),
+             '<control>U', _('Upload current image to Flickr'), self.upload),
+            ('ShareViewMyFractalsAction', None, _('_View My Online Fractals'),
+             None, _('View fractals I\'ve uploaded (if any'), self.view_my_fractals),
+            ('ShareViewGroupFractalsAction', None, _('View _Group Fractals'),
+             None, _('View fractals I\'ve uploaded (if any)'), self.view_group_fractals),
+
+            ('ToolsMenuAction', None, _('_Tools')),
+            ('ToolsAutozoomAction', None, _('_Autozoom'),
+             '<control>A', _('Automatically zoom in to interesting regions'), self.autozoom),
+            # explorer is a toggle, see above
+            ('ToolsBrowserAction', None, _('Formula _Browser'),
+             '<control>B', _('Browse available formulas'), self.browser),
+            ('ToolsDirectorAction', None, _('_Director'),
+             '<control>D', _('Create animations'), self.director),
+            ('ToolsRandomizeAction', None, _('_Randomize Colors'),
+             '<control>R', _('Apply a new random color scheme'), self.randomize_colors),
+            ('ToolsPainterAction', None, _('_Painter'),
+             None, _('Change colors interactively'), self.painter),
+
+            ('HelpMenuAction', None, _('_Help')),
+            ('HelpContentsAction', gtk.STOCK_HELP, _('_Contents'),
+             'F1', _('Display manual'), self.contents),
+            ('HelpCommandReferenceAction', None, _('Command _Reference'),
+             None, _('A list of keyboard and mouse shortcuts'), self.command_reference),
+            ('HelpFormulaReferenceAction', None, _('_Formula Reference'),
+             None, _('Reference for functions and objects in the formula compiler'), 
+             self.formula_reference),
+            ('HelpReportBugAction', None, _('_Report a Bug'),
+             None, _('Report a bug you\'ve found'), self.report_bug),
+            ('HelpAboutAction', gtk.STOCK_ABOUT, _('_About'), 
+             None, _('About Gnofract 4D'), self.about)
+            ]
+
+    def get_fourd_actions(self):
+        return [
+            ('PlanesMenuAction', None, _('Planes')),
+            ('PlanesXYAction', None, _('_XY (Mandelbrot)'),
+             '<control>1', None, self.set_xy_plane),
+            ('PlanesZWAction', None, _('_ZW (Julia)'),
+             '<control>2', None, self.set_zw_plane),
+            ('PlanesXZAction', None, _('_XZ (Oblate)'),
+             '<control>3', None, self.set_xz_plane),
+            ('PlanesXWAction', None, _('_XY (Parabolic)'),
+             '<control>4', None, self.set_xw_plane),
+            ('PlanesYZAction', None, _('_XY (Elliptic)'),
+             '<control>5', None, self.set_yz_plane),
+            ('PlanesYWAction', None, _('_YW (Rectangular)'),
+             '<control>6', None, self.set_yw_plane)
+            ]
+
     def create_ui(self):
         self.manager = gtk.UIManager()
         accelgroup = self.manager.get_accel_group()
@@ -487,118 +603,16 @@ class MainWindow:
         main_actiongroup = gtk.ActionGroup('Gnofract4D')
         self.main_actiongroup = main_actiongroup
 
-        main_actiongroup.add_toggle_actions([
-                ('ToolsExplorerAction', None, _('_Explorer'),
-                 '<control>E', _('Create random fractals similar to this one'), 
-                 self.toggle_explorer)
-                ])
+        main_actiongroup.add_toggle_actions(self.get_toggle_actions())
 
-        main_actiongroup.add_actions([
-                ('FileMenuAction', None, _('_File')),
-                ('FileOpenParameterAction', gtk.STOCK_OPEN, _('_Open Parameter File...'), 
-                 None, _('Open a Parameter File'), self.open),
-                ('FileOpenFormulaAction', None, _('Open _Formula File...'), 
-                 '<control><shift>O', _('Open a formula file'), self.open_formula),
-                ('FileSaveAction', gtk.STOCK_SAVE, None, 
-                 None, _("Save current parameters"), self.save),
-                ('FileSaveAsAction', gtk.STOCK_SAVE_AS, None,
-                 '<control><shift>S', _("Save current parameters in a new location"), self.saveas),
-                ('FileSaveImageAction', None, _('Save Current _Image'),
-                 '<control>I', _('Save the current image'), self.save_image),
-                ('FileSaveHighResImageAction', None, _('Save _High-Res Image...'),
-                 '<control><shift>I', _('Save a higher-resolution version of the current image'), 
-                 self.save_hires_image),
-
-                # FIXME: UI merging would seem to be better, but it's a bit bloody complicated
-                # There's a special widget in pygtk 2.10 for this but that's too new, not all
-                # interesting distributions have it
-                ('FileRecent1Action', None, _('_1'), None, None, 
-                 lambda *args : self.load_recent_file(1)),
-                ('FileRecent2Action', None, _('_2'), None, None, 
-                 lambda *args : self.load_recent_file(2)),
-                ('FileRecent3Action', None, _('_3'), None, None, 
-                 lambda *args : self.load_recent_file(3)),
-                ('FileRecent4Action', None, _('_4'), None, None, 
-                 lambda *args : self.load_recent_file(4)),
-
-                ('FileQuitAction', gtk.STOCK_QUIT, None, 
-                 None, _('Quit'), self.quit),
-
-                ('EditMenuAction', None, _('_Edit')),                
-                ('EditFractalSettingsAction', None, _('_Fractal Settings...'),
-                 '<control>F', _('Edit the fractal\'s settings'), self.settings),
-                ('EditPreferencesAction', gtk.STOCK_PREFERENCES, None,
-                 None, _('Edit user preferences'), self.preferences),
-                ('EditUndoAction', gtk.STOCK_UNDO, None,
-                 '<control>Z', _('Undo the last command'), self.undo),
-                ('EditRedoAction', gtk.STOCK_REDO, None,
-                 '<control><shift>Z', _('Redo the last undone command'), self.redo),
-                ('EditResetAction', gtk.STOCK_HOME,_('_Reset'),
-                 'Home', _('Reset all parameters to defaults'), self.reset),
-                ('EditResetZoomAction', None, _('Re_set Zoom'),
-                 '<control>Home', _('Reset magnification'), self.reset_zoom),
-
-                ('ViewMenuAction', None, _('_View')),
-                ('ViewFullScreenAction', None, _('_Full Screen'),
-                 'F11', _('Full Screen (press Esc to finish)'), self.full_screen),
-
-                ('ShareMenuAction', None, _('_Share')),
-                ('ShareMailToAction', None, _('_Mail To...'),
-                 '<control>M', _('Send parameters by mail'), self.send_to),
-                ('ShareUploadAction', None, _('_Upload to Flickr...'),
-                 '<control>U', _('Upload current image to Flickr'), self.upload),
-                ('ShareViewMyFractalsAction', None, _('_View My Online Fractals'),
-                 None, _('View fractals I\'ve uploaded (if any'), self.view_my_fractals),
-                ('ShareViewGroupFractalsAction', None, _('View _Group Fractals'),
-                 None, _('View fractals I\'ve uploaded (if any)'), self.view_group_fractals),
-
-                ('ToolsMenuAction', None, _('_Tools')),
-                ('ToolsAutozoomAction', None, _('_Autozoom'),
-                 '<control>A', _('Automatically zoom in to interesting regions'), self.autozoom),
-                # explorer is a toggle, see above
-                ('ToolsBrowserAction', None, _('Formula _Browser'),
-                 '<control>B', _('Browse available formulas'), self.browser),
-                ('ToolsDirectorAction', None, _('_Director'),
-                 '<control>D', _('Create animations'), self.director),
-                ('ToolsRandomizeAction', None, _('_Randomize Colors'),
-                 '<control>R', _('Apply a new random color scheme'), self.randomize_colors),
-                ('ToolsPainterAction', None, _('_Painter'),
-                 None, _('Change colors interactively'), self.painter),
-
-                ('HelpMenuAction', None, _('_Help')),
-                ('HelpContentsAction', gtk.STOCK_HELP, _('_Contents'),
-                 'F1', _('Display manual'), self.contents),
-                ('HelpCommandReferenceAction', None, _('Command _Reference'),
-                 None, _('A list of keyboard and mouse shortcuts'), self.command_reference),
-                ('HelpFormulaReferenceAction', None, _('_Formula Reference'),
-                 None, _('Reference for functions and objects in the formula compiler'), 
-                 self.formula_reference),
-                ('HelpReportBugAction', None, _('_Report a Bug'),
-                 None, _('Report a bug you\'ve found'), self.report_bug),
-                ('HelpAboutAction', gtk.STOCK_ABOUT, _('_About'), 
-                 None, _('About Gnofract 4D'), self.about)
-                ])
+        main_actiongroup.add_actions(self.get_main_actions())
 
         self.manager.insert_action_group(main_actiongroup, 0)
 
         # actions which are only available if we're in 4D mode
         self.fourd_actiongroup = gtk.ActionGroup('4D-sensitive widgets')
 
-        self.fourd_actiongroup.add_actions([
-                ('PlanesMenuAction', None, _('Planes')),
-                ('PlanesXYAction', None, _('_XY (Mandelbrot)'),
-                 '<control>1', None, self.set_xy_plane),
-                ('PlanesZWAction', None, _('_ZW (Julia)'),
-                 '<control>2', None, self.set_zw_plane),
-                ('PlanesXZAction', None, _('_XZ (Oblate)'),
-                 '<control>3', None, self.set_xz_plane),
-                ('PlanesXWAction', None, _('_XY (Parabolic)'),
-                 '<control>4', None, self.set_xw_plane),
-                ('PlanesYZAction', None, _('_XY (Elliptic)'),
-                 '<control>5', None, self.set_yz_plane),
-                ('PlanesYWAction', None, _('_YW (Rectangular)'),
-                 '<control>6', None, self.set_yw_plane)
-                ])
+        self.fourd_actiongroup.add_actions(self.get_fourd_actions())
 
         self.manager.insert_action_group(self.fourd_actiongroup, 1)
 
@@ -622,6 +636,7 @@ class MainWindow:
 
 
     def director(self,*args):
+        """Display the Director (animation) window."""
         director.show(self.window,self.control_box, self.f, True)
         
     def browser(self,*args):
