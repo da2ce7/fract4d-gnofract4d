@@ -602,7 +602,8 @@ class MainWindow:
 
         self.manager.insert_action_group(self.fourd_actiongroup, 1)
 
-        self.manager.add_ui_from_file("fract4dgui/ui.xml")
+        self.manager.add_ui_from_file(
+            fractconfig.instance.find_resource("ui.xml","fract4dgui","../../fract4dgui"))
 
         self.menubar = self.manager.get_widget('/MenuBar')
         self.vbox.pack_start(self.menubar, False, True, 0)
@@ -668,7 +669,10 @@ class MainWindow:
             preferences.userPrefs.set_size(
                 screen.get_width(),
                 screen.get_height())
-
+            
+            # TODO: may be useful for 'desktop mode' one day
+            #self.window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_DESKTOP)
+            #self.window.set_keep_below(True)
         else:
             self.window.set_decorated(True)
             self.swindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
@@ -1149,11 +1153,11 @@ class MainWindow:
                 _("Error saving image to file %s") % filename, err)
             return False
         
-    def settings(self,action,widget):
+    def settings(self,*args):
         """Show fractal settings controls."""
         settings.show_settings(self.window, self.control_box, self.f, False)
         
-    def preferences(self,action):
+    def preferences(self,*args):
         """Change current preferences."""
         preferences.show_preferences(self.window, self.f)
         

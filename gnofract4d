@@ -110,7 +110,7 @@ def gtkmain(options):
         pygtk_ok = False
 
     if not pygtk_ok:
-        print _("Sorry, your PyGTK version (%d.%d.%d) is too old. You need at least 1.99" % \
+        print _("Sorry, your PyGTK version (%d.%d.%d) is too old. You need at least 2.6" % \
                 gtk.pygtk_version)
         sys.exit(1)
 

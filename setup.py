@@ -8,7 +8,9 @@ import stat
 import commands
 import sys
 
-gnofract4d_version = "3.6"
+from fract4d import options
+
+gnofract4d_version = options.version
 
 if float(sys.version[:3]) < 2.4:
     print "Sorry, you need Python 2.4 or higher to run Gnofract 4D."
@@ -215,6 +217,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
        keywords = "fractal Mandelbrot Julia fractint chaos",
        url = 'http://gnofract4d.sourceforge.net/',
        packages = ['fract4d', 'fract4dgui', 'fractutils'], 
+       package_data = { 'fract4dgui' : [ 'ui.xml'] },
        ext_modules = modules,
        scripts = ['gnofract4d'],
        data_files = [

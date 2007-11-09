@@ -19,13 +19,6 @@ finally:
 print "Running all unit tests. This may take several minutes."
 
 class Test(unittest.TestCase):
-    def testSetupPyVersionMatches(self):
-        setup = open("setup.py").read()
-        setup_re = re.compile(r'gnofract4d_version\s*=\s*"(\S+)"')
-        m = setup_re.search(setup)
-        self.failUnless(m,"setup.py doesn't specify version")
-        self.assertEqual(options.version,m.group(1), "Version mismatch")
-
     def testDocVersionMatches(self):        
         # check the docs
         doc = open("doc/gnofract4d-manual/C/gnofract4d-manual.xml").read()
