@@ -113,28 +113,6 @@ def get_directory_chooser(title,parent):
     except:
         return gtk.FileSelection(title)
     
-def get_file_save_chooser(title, parent, patterns=[], extra_widget=None):
-    try:
-        _throwback()
-        chooser = gtk.FileChooserDialog(
-            title, parent, gtk.FILE_CHOOSER_ACTION_SAVE,
-            (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-
-        filter = gtk.FileFilter()
-        for pattern in patterns:
-            filter.add_pattern(pattern)
-
-        chooser.set_filter(filter)
-
-        if extra_widget != None:
-            chooser.set_extra_widget(extra_widget)
-        return chooser
-    except:
-        fs = gtk.FileSelection(title)
-        if extra_widget != None:
-            fs.action_area.pack_start(extra_widget)
-        return fs
-
 def get_file_chooser_extra_widget(chooser):
     try:
         _throwback()
@@ -151,32 +129,6 @@ def set_file_chooser_filename(chooser,name):
     except:
         pass
     
-def get_file_open_chooser(title, parent, patterns=[]):
-    try:
-        _throwback()
-        chooser = gtk.FileChooserDialog(
-            title, parent, gtk.FILE_CHOOSER_ACTION_OPEN,
-            (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-
-        filter = gtk.FileFilter()
-        for pattern in patterns:
-            filter.add_pattern(pattern)
-
-        chooser.set_filter(filter)
-
-        return chooser
-    except:
-        return gtk.FileSelection(title)
-
-def file_chooser_set_preview(chooser, preview, preview_cb):
-    try:
-        _throwback()
-        chooser.set_preview_widget(preview.widget)
-        chooser.connect('update-preview', preview_cb, preview)
-    except AttributeError, err:
-        # not supported, skip
-        pass
-
 def create_option_menu(items):
     try:
         _throwback()

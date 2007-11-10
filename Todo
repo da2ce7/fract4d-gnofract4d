@@ -1,7 +1,8 @@
 todo:
 
 changes in 3.7:
-
+* W	removed Gtk.ItemFactory and replaced with uimanager
+* W	some other cleanup of old GTK+ backcompat code which is no longer required
 
 bugs (the more B's, the worse the bug):
 * B	'both a Fractint-style default section'... on every fractal

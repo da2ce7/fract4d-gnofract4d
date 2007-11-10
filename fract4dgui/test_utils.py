@@ -53,23 +53,6 @@ class Test(unittest.TestCase):
         self.assertEqual(cyan.green,65535)
         self.assertEqual(cyan.blue,65535)
 
-    def testFileSaveChooser(self):
-        extra = gtk.Label("hello")
-        chooser = utils.get_file_save_chooser(
-            "Foo",None,["*.py"], extra)
-
-        self.assertEqual(utils.get_file_chooser_extra_widget(chooser), extra)
-        self.runAndDismiss(chooser)
-
-    def testFileOpenChooser(self):
-        preview = gtkfractal.SubFract(g_comp, 120, 90)
-        chooser = utils.get_file_open_chooser(
-            "Bar", None, ["*.fct"])
-        
-        utils.file_chooser_set_preview(chooser, preview, self.on_update_preview)
-
-        self.runAndDismiss(chooser)
-
     def on_update_preview(self, chooser, preview):
         filename = chooser.get_preview_filename()
         try:

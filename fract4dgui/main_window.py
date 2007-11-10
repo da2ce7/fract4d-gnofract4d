@@ -151,9 +151,35 @@ class MainWindow:
             1,1)        
         return table
     
+    def get_file_save_chooser(self, title, parent, patterns=[]):
+        chooser = gtk.FileChooserDialog(
+            title, parent, gtk.FILE_CHOOSER_ACTION_SAVE,
+            (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+
+        filter = gtk.FileFilter()
+        for pattern in patterns:
+            filter.add_pattern(pattern)
+
+        chooser.set_filter(filter)
+
+        return chooser
+
+    def get_file_open_chooser(self, title, parent, patterns=[]):
+        chooser = gtk.FileChooserDialog(
+            title, parent, gtk.FILE_CHOOSER_ACTION_OPEN,
+            (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+
+        filter = gtk.FileFilter()
+        for pattern in patterns:
+            filter.add_pattern(pattern)
+
+        chooser.set_filter(filter)
+
+        return chooser
+
     def get_save_as_fs(self):
         if self.saveas_fs == None:
-            self.saveas_fs = utils.get_file_save_chooser(
+            self.saveas_fs = self.get_file_save_chooser(
                 _("Save Parameters"),
                 self.window,
                 ["*.fct"])
@@ -161,7 +187,7 @@ class MainWindow:
     
     def get_save_image_as_fs(self):
         if self.saveimage_fs == None:
-            self.saveimage_fs = utils.get_file_save_chooser(
+            self.saveimage_fs = self.get_file_save_chooser(
                 _("Save Image"),
                 self.window,
                 image.file_matches())
@@ -169,42 +195,47 @@ class MainWindow:
 
     def get_save_hires_image_as_fs(self):
         if self.hires_image_fs == None:
-            rtd_widgets = self.create_rtd_widgets()
-            self.saveimage_fs = utils.get_file_save_chooser(
+            self.saveimage_fs = self.get_file_save_chooser(
                 _("Save High Resolution Image"),
                 self.window,
-                image.file_matches(),
-                rtd_widgets)
+                image.file_matches())
+
+            rtd_widgets = self.create_rtd_widgets()
+            self.saveimage_fs.set_extra_widget(rtd_widgets)
+
         return self.saveimage_fs
         
     def get_open_formula_fs(self):
         if self.open_formula_fs == None:
-            self.open_formula_fs = utils.get_file_open_chooser(
+            self.open_formula_fs = self.get_file_open_chooser(
                 _("Open Formula File"),
                 self.window,
                 ["*.frm", "*.cfrm", "*.ucl", "*.ufm"])
         return self.open_formula_fs
 
     def get_open_fs(self):
-        if self.open_fs == None:
-            self.open_fs = utils.get_file_open_chooser(
-                _("Open Parameter File"),
-                self.window,
-                ["*.fct"])
-            self.open_preview = gtkfractal.Preview(self.compiler)
+        if self.open_fs != None:
+            return self.open_fs
 
-            def on_update_preview(chooser, preview):
-                filename = chooser.get_preview_filename()
-                try:
-                    preview.loadFctFile(open(filename))
-                    preview.draw_image(False, False)
-                    active=True
-                except Exception,err:
-                    active=False
+        self.open_fs = self.get_file_open_chooser(
+            _("Open Parameter File"),
+            self.window,
+            ["*.fct"])
+        self.open_preview = gtkfractal.Preview(self.compiler)
+
+        def on_update_preview(chooser, preview):
+            filename = chooser.get_preview_filename()
+            try:
+                preview.loadFctFile(open(filename))
+                preview.draw_image(False, False)
+                active=True
+            except Exception,err:
+                active=False
                 chooser.set_preview_widget_active(active)
                 
-            utils.file_chooser_set_preview(
-                self.open_fs, self.open_preview, on_update_preview)
+        self.open_fs.set_preview_widget(self.open_preview.widget)
+        self.open_fs.connect(
+            'update-preview', on_update_preview, self.open_preview)
 
         return self.open_fs
     
@@ -452,7 +483,7 @@ class MainWindow:
         self.bar.set_text(text)
 
     def get_hires_dimensions(self,fs):
-        table = utils.get_file_chooser_extra_widget(fs)
+        table = fs.get_extra_widget()
         width = int(table.width.get_text())
         height = int(table.height.get_text())
         return (width, height)

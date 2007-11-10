@@ -752,14 +752,8 @@ extern "C" {
         return output_template % f
 
     def writeToTempFile(self,data=None,suffix=""):
-        'try mkstemp or mktemp if missing'
-        try:
-            (fileno,cFileName) = tempfile.mkstemp(suffix,"gf4d")
-            cFile = os.fdopen(fileno,"w")
-        except AttributeError, err:
-            # this python is too antique for mkstemp
-            cFileName = tempfile.mktemp(suffix)
-            cFile = open(cFileName,"w+b")
+        (fileno,cFileName) = tempfile.mkstemp(suffix,"gf4d")
+        cFile = os.fdopen(fileno,"w")
 
         if data != None:
             cFile.write(data)
