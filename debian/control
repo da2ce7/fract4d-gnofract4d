@@ -1,0 +1,19 @@
+Source: gnofract4d
+Section: graphics
+Priority: extra
+Maintainer: Tim Whidbey <catenary@users.sourceforge.net>
+Build-Depends: debhelper (>= 5), cdbs, python, python-dev, python-support (>= 0.5.3), imagemagick, libpng12-dev, libgconf2-dev, libjpeg62-dev
+Standards-Version: 3.7.2
+XSBC-Original-Maintainer: Francesco Namuri <francesco@namuri.it>
+
+Package: gnofract4d
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Description: a fractal images creator
+ Gnofract 4D is a program which allows anyone to create beautiful images 
+ called fractals. The images are automatically created by the computer
+ based on mathematical principles. These include the Mandelbrot and 
+ Julia sets and many more. You don't need to do any math: you can
+ explore a universe of images just using a mouse.
+ .
+ Project Homepage: http://gnofract4d.sourceforge.net/

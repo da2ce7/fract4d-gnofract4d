@@ -8,9 +8,7 @@ import stat
 import commands
 import sys
 
-from fract4d import options
-
-gnofract4d_version = options.version
+gnofract4d_version = '3.7'
 
 if float(sys.version[:3]) < 2.4:
     print "Sorry, you need Python 2.4 or higher to run Gnofract 4D."
@@ -156,7 +154,7 @@ module_fract4dc = Extension(
     ] + png_flags,
     extra_link_args = png_libs,
     define_macros = defines + extra_macros,
-    undef_macros = [ 'NDEBUG']    
+    undef_macros = [ 'NDEBUG'],
     )
 
 module_cmap = Extension(
@@ -259,7 +257,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
            ('share/mime/packages', ['gnofract4d-mime.xml']),
            
            # doc files
-           ('share/doc/gnofract4d-%s/' % gnofract4d_version,
+           ('share/doc/gnofract4d/',
             ['COPYING', 'README']),
            ],
        cmdclass={
@@ -289,7 +287,9 @@ def copy_libs(dummy,dirpath,namelist):
      for name in namelist:
          target = lib_targets.get(name)
          if target != None:
-             shutil.copy(os.path.join(dirpath, name), target)
+             name = os.path.join(dirpath, name)
+             print "copying %s" % name
+             shutil.copy(name, target)
             
 os.path.walk("build",copy_libs,None)
 

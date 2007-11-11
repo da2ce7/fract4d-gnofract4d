@@ -647,8 +647,9 @@ class MainWindow:
 
         self.manager.insert_action_group(self.fourd_actiongroup, 1)
 
-        self.manager.add_ui_from_file(
-            fractconfig.instance.find_resource("ui.xml","fract4dgui","../../fract4dgui"))
+        this_path = os.path.dirname(sys.modules[__name__].__file__)
+        ui_location = os.path.join(this_path,"ui.xml")
+        self.manager.add_ui_from_file(ui_location)
 
         self.menubar = self.manager.get_widget('/MenuBar')
         self.vbox.pack_start(self.menubar, False, True, 0)

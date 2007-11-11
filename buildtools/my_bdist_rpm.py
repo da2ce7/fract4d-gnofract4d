@@ -1,4 +1,4 @@
-#!/usr/bin.env python
+#!/usr/bin/env python
 
 # Override the default bdist_rpm distutils command to do what I want
 
