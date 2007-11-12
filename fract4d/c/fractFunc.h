@@ -24,6 +24,8 @@ class fractFunc {
 	int maxiter,
 	int nThreads_,
 	bool auto_deepen,
+	bool auto_tolerance,
+	double period_tolerance,
 	bool yflip,
 	bool periodicity,
 	render_type_t render_type,
@@ -93,7 +95,9 @@ class fractFunc {
     int maxiter;
     int nThreads;
     bool auto_deepen;
+    bool auto_tolerance;
     bool periodicity;
+    double period_tolerance;
     int debug_flags;
     render_type_t render_type;
     int warp_param;
@@ -162,6 +166,8 @@ extern void calc(
     pf_obj *pfo, 
     ColorMap *cmap, 
     bool auto_deepen,
+    bool auto_tolerance,
+    double tolerance,
     bool yflip,
     bool periodicity,
     bool dirty,

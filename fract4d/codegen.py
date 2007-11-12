@@ -73,13 +73,11 @@ typedef struct {
     pf_obj parent;
     struct s_param p[PF_MAXPARAMS];
     double pos_params[N_PARAMS];
-    double period_tolerance;
     %(struct_members)s
 } pf_real ;
 
 static void pf_init(
     struct s_pf_data *p_stub,
-    double period_tolerance,
     double *pos_params,
     struct s_param *params,
     int nparams)
@@ -99,16 +97,13 @@ static void pf_init(
     for(i = 0; i < N_PARAMS; ++i)
     {
         pfo->pos_params[i] = pos_params[i];
-    }
-    
-    pfo->period_tolerance = period_tolerance;
+    }    
 }
 
 static void pf_get_defaults(
       // "object" pointer
       struct s_pf_data *t__p_stub,
       // in params
-      double period_tolerance,
       double *pos_params,
       // out params
       struct s_param *params,
@@ -127,7 +122,9 @@ static void pf_calc(
     // "object" pointer
     struct s_pf_data *t__p_stub,
     // in params
-    const double *t__params, int maxiter, int t__warp_param, int min_period_iter,
+    const double *t__params, int maxiter, int t__warp_param, 
+    // periodicity params
+    int min_period_iter, double period_tolerance,
     // only used for debugging
     int t__p_x, int t__p_y, int t__p_aa,
     // out params
@@ -321,7 +318,6 @@ struct s_pf_vtable {
     /* fill in params with the default values for this formula */
     void (*get_defaults)(
 	struct s_pf_data *p,
-        double period_tolerance,
 	double *pos_params,
         struct s_param *params,
 	int nparams
@@ -330,7 +326,6 @@ struct s_pf_vtable {
     /* fill in fields in pf_data with appropriate stuff */
     void (*init)(
 	struct s_pf_data *p,
-        double period_tolerance,
 	double *pos_params,
         struct s_param *params,
 	int nparams
@@ -347,7 +342,9 @@ struct s_pf_vtable {
     void (*calc)(
 	struct s_pf_data *p,
         // in params
-        const double *params, int nIters, int warp_param, int min_period_iter,
+        const double *params, int nIters, int warp_param, 
+	// tolerance params
+	int min_period_iter, double period_tolerance,
 	// only used for debugging
 	int x, int y, int aa,
         // out params
@@ -623,7 +620,7 @@ extern "C" {
             "t__h_index" : "",
             "maxiter" : "",
             "t__h_tolerance" :
-            "double t__h_tolerance = t__pfo->period_tolerance;",
+            "double t__h_tolerance = period_tolerance;",
             "t__h_solid" : "",
             "t__h_color" : "",
             "t__h_fate" : "",
@@ -732,8 +729,8 @@ extern "C" {
                     else
                     {
                         /* compare to an older value */
-                        if ( (fabs(z_re - old_z_re) < t__pfo->period_tolerance)
-                           &&(fabs(z_im - old_z_im) < t__pfo->period_tolerance))
+                        if ( (fabs(z_re - old_z_re) < period_tolerance)
+                           &&(fabs(z_im - old_z_im) < period_tolerance))
                         {
                             period_iters = t__h_numiter;
                             t__h_numiter = maxiter; break;

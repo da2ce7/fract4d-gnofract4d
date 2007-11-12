@@ -35,6 +35,8 @@ fractFunc::fractFunc(
 	int maxiter_,
 	int nThreads_,
 	bool auto_deepen_,
+	bool auto_tolerance_,
+	double period_tolerance_,
 	bool yflip,
 	bool periodicity_,
 	render_type_t render_type_,
@@ -56,6 +58,8 @@ fractFunc::fractFunc(
     maxiter = maxiter_;
     nThreads = nThreads_;
     auto_deepen = auto_deepen_;
+    auto_tolerance = auto_tolerance_;
+    period_tolerance = period_tolerance_;
     periodicity = periodicity_;
     warp_param = warp_param_;
 
@@ -374,6 +378,8 @@ calc(
     pf_obj *pfo, 
     ColorMap *cmap, 
     bool auto_deepen,
+    bool auto_tolerance,
+    double tolerance,
     bool yflip,
     bool periodicity,
     bool dirty,
@@ -395,6 +401,8 @@ calc(
 	    maxiter,
 	    nThreads,
 	    auto_deepen,
+	    auto_tolerance,
+	    tolerance,
 	    yflip,
 	    periodicity,
 	    render_type,

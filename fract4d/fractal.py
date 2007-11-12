@@ -729,8 +729,7 @@ class T(fctutils.T):
 
     def init_pfunc(self):
         initparams = self.all_params()
-        #print self.period_tolerance
-        fract4dc.pf_init(self.pfunc,self.period_tolerance,self.params,initparams)
+        fract4dc.pf_init(self.pfunc,self.params,initparams)
 
     def get_warp(self):
         if self.warp_param:
@@ -760,6 +759,8 @@ class T(fctutils.T):
             pfo=self.pfunc,
             cmap=colormap,
             auto_deepen=self.auto_deepen,
+            auto_tolerance=False,
+            tolerance=self.period_tolerance,
             render_type=self.render_type,
             warp_param=self.get_warp(),
             image=image._img,

@@ -17,7 +17,6 @@
 typedef struct {
     pf_obj parent;
     struct s_param p[PF_MAXPARAMS];
-    double period_tolerance;
 } pf_real;
 
 class pf_wrapper : public pointFunc
@@ -42,7 +41,11 @@ public:
 	}
     virtual void calc(
         // in params
-        const double *params, int nIters, int min_period_iters, int warp_param,
+        const double *params, int nIters, 
+	// periodicity
+	int min_period_iters, double period_tolerance,
+	// warping
+	int warp_param,
 	// only used for debugging
 	int x, int y, int aa,
         // out params
@@ -57,7 +60,8 @@ public:
 
 	    m_pfo->vtbl->calc(
 		m_pfo, params, 
-		nIters, warp_param, min_period_iters,
+		nIters, warp_param, 
+		min_period_iters, period_tolerance,
 		x, y, aa,
 		pnIters, &fate, &dist, &solid,
 		&fUseColors, &colors[0]);

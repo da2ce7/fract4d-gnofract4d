@@ -60,12 +60,13 @@ int main()
     double colors[4] = {0.0};
     
     pf_obj *pf = pf_new();
-    pf->vtbl->init(pf,0.001,pos_params,initparams,7);
+    pf->vtbl->init(pf,pos_params,initparams,7);
     
     pf->vtbl->calc(
          pf,
          pparams,
-         100, -1, ((100)),
+         100, -1, 
+         ((100)), ((1.0E-9)),
          0,0,0,
          &nItersDone, &nFate, &dist,&solid,&fDirectUsed, &colors[0]);
     
@@ -82,7 +83,8 @@ int main()
     pf->vtbl->calc(
         pf,
         pparams,
-        20, -1, ((100)),
+        20, -1, 
+        ((100)), ((1.0E-9)),
         0,0,0,
         &nItersDone, &nFate, &dist,&solid,&fDirectUsed, &colors[0]);
 
@@ -1978,6 +1980,34 @@ bailout:
         output = self.compileAndRun(c_code)
         lines = string.split(output,"\n")
 
+        self.assertEqual(lines[0],'34')
+        self.assertEqual(lines[1],'(100,32,0)')
+
+    def testTolerance(self):
+        'test that period_tolerance var changes periodicity behavior'
+
+        src = '''t_mandel{
+init:
+z = 0
+float k = 0
+loop:
+z = z + 1.0/2^(k+1)
+k = k+1
+bailout:
+|z| < 1e100
+}'''
+        t = self.translate(src)
+        self.codegen.output_all(t)
+        self.codegen.output_decls(t)
+        
+        inserts = {
+            "done_inserts": 'printf(\"%g\\n\",fk);',
+            "main_inserts": self.main_stub.replace("((100))", "0").replace("((1.0E-9))", "0.001")
+            }
+        c_code = self.codegen.output_c(t,inserts)
+        output = self.compileAndRun(c_code)
+        lines = string.split(output,"\n")
+
         self.assertEqual(lines[0],'10')
         self.assertEqual(lines[1],'(100,32,0)')
 
@@ -2086,8 +2116,8 @@ float t = #tolerance
         #print c_code
         output = self.compileAndRun(c_code)
         lines = string.split(output,"\n")
-        self.assertEqual(lines[1],"(-77,9,0.001)")
-        self.assertEqual(lines[4],"(-77,9,0.001)")
+        self.assertEqual(lines[1],"(-77,9,1e-09)")
+        self.assertEqual(lines[4],"(-77,9,1e-09)")
 
     def testDumpParams(self):
         cg = codegen.T(fsymbol.T(),{ "trace" : True})

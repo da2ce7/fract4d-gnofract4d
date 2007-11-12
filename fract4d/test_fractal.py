@@ -831,6 +831,29 @@ blue=0.3
 
         self.assertNearlyEqual(f.forms[0].params, oldparams)
         
+    def testPeriodTolerance(self):
+        f = fractal.T(self.compiler)
+        f.compile()
+
+        (w,h) = (40,30)
+        im = image.T(w,h)
+        f.draw(im)
+
+        f.set_period_tolerance(1.0E10) # really big!
+        im2 = image.T(w,h)
+        f.draw(im2)
+
+        # the image with loose tolerance should be inside everywhere the 
+        # tight one is, and some more places too
+
+        for y in xrange(h):
+            for x in xrange(w):
+                (is_solid,fate) = im.get_fate(x,y)
+                if fate == 32:
+                    (is_solid2, fate2) = im2.get_fate(x,y)
+                    self.assertEqual(
+                        fate,fate2, "tolerance lost a pixel @ %d, %d" % (x,y))
+
     def testDefaultFractal(self):
         try:
             f = fractal.T(self.compiler)

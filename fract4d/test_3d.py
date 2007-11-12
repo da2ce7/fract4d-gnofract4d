@@ -44,7 +44,7 @@ class Test(testbase.TestBase):
         fract4dc.cmap_set_solid(self.cmap,1,r,g,b,a)
 
         initparams = self.f.all_params()
-        fract4dc.pf_init(self.pfunc,1.0E-9,self.f.params,initparams)
+        fract4dc.pf_init(self.pfunc,self.f.params,initparams)
 
         self.im = image.T(40,30)
         siteobj = FractalSite()
@@ -67,7 +67,9 @@ class Test(testbase.TestBase):
             2, # 3D
             self.im._img,
             self.f.site,
-            self.fw)
+            self.fw,
+            False,
+            1.0E-9)
 
     def tearDown(self):
         pass

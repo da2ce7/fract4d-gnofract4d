@@ -492,13 +492,12 @@ static PyObject *
 pf_init(PyObject *self, PyObject *args)
 {
     PyObject *pyobj, *pyarray, *py_posparams;
-    double period_tolerance;
     struct s_param *params;
     struct pfHandle *pfh;
     double pos_params[N_PARAMS];
 
     if(!PyArg_ParseTuple(
-	   args,"OdOO",&pyobj,&period_tolerance,&py_posparams, &pyarray))
+	   args,"OOO",&pyobj,&py_posparams, &pyarray))
     {
 	return NULL;
     }
@@ -523,7 +522,7 @@ pf_init(PyObject *self, PyObject *args)
     }
 
     /*finally all args are assembled */
-    pfh->pfo->vtbl->init(pfh->pfo,period_tolerance,pos_params,params,len);
+    pfh->pfo->vtbl->init(pfh->pfo,pos_params,params,len);
     free(params);
 
     Py_INCREF(Py_None);
@@ -569,13 +568,12 @@ static PyObject *
 pf_defaults(PyObject *self, PyObject *args)
 {
     PyObject *pyobj, *pyarray, *py_posparams;
-    double period_tolerance;
     struct s_param *params;
     struct pfHandle *pfh;
     double pos_params[N_PARAMS];
 
     if(!PyArg_ParseTuple(
-	   args,"OdOO",&pyobj,&period_tolerance,&py_posparams, &pyarray))
+	   args,"OOO",&pyobj,&py_posparams, &pyarray))
     {
 	return NULL;
     }
@@ -602,7 +600,6 @@ pf_defaults(PyObject *self, PyObject *args)
     /*finally all args are assembled */
     pfh->pfo->vtbl->get_defaults(
 	pfh->pfo,
-	period_tolerance,
 	pos_params,
 	params,
 	len);
@@ -645,7 +642,8 @@ pf_calc(PyObject *self, PyObject *args)
     fprintf(stderr,"%p : PF : CALC\n",pfh);
 #endif
     pfh->pfo->vtbl->calc(pfh->pfo,params,
-			 nIters, -1, nIters,
+			 nIters, -1, 
+			 nIters, 1.0E-9,
 			 x,y,aa,
 			 &outIters,&outFate,&outDist,&outSolid,
 			 &fDirectColorFlag, &colors[0]);
@@ -997,6 +995,8 @@ struct calc_args
     double params[N_PARAMS];
     int eaa, maxiter, nThreads;
     int auto_deepen, yflip, periodicity, dirty;
+    int auto_tolerance;
+    double tolerance;
     int async, warp_param;
     render_type_t render_type;
     pf_obj *pfo;
@@ -1018,6 +1018,8 @@ struct calc_args
 	    periodicity = true;
 	    yflip = false;
 	    auto_deepen = false;
+	    auto_tolerance = false;
+	    tolerance = 1.0E-9;
 	    eaa = AA_NONE;
 	    maxiter = 1024;
 	    nThreads = 1;
@@ -1410,10 +1412,12 @@ ff_create(PyObject *self, PyObject *args)
     IImage *im;
     IFractalSite *site;
     IFractWorker *worker;
+    int auto_tolerance;
+    double tolerance;
 
     if(!PyArg_ParseTuple(
 	   args,
-	   "(ddddddddddd)iiiiOOiiiOOO",
+	   "(ddddddddddd)iiiiOOiiiOOOid",
 	   &params[0],&params[1],&params[2],&params[3],
 	   &params[4],&params[5],&params[6],&params[7],
 	   &params[8],&params[9],&params[10],
@@ -1423,7 +1427,8 @@ ff_create(PyObject *self, PyObject *args)
 	   &periodicity,
 	   &render_type,
 	   &pyim, &pysite,
-	   &pyworker
+	   &pyworker,
+	   &auto_tolerance, &tolerance
 	   ))
     {
 	return NULL;
@@ -1446,6 +1451,8 @@ ff_create(PyObject *self, PyObject *args)
 	maxiter,
 	nThreads,
 	auto_deepen,
+	auto_tolerance,
+	tolerance,
 	yflip,
 	periodicity,
 	render_type,
@@ -1487,7 +1494,10 @@ calculation_thread(void *vdata)
 
     calc(args->params,args->eaa,args->maxiter,
 	 args->nThreads,args->pfo,args->cmap,
-	 args->auto_deepen,args->yflip, args->periodicity, args->dirty,
+	 args->auto_deepen,
+	 args->auto_tolerance,
+	 args->tolerance,
+	 args->yflip, args->periodicity, args->dirty,
 	 0, // debug_flags
 	 args->render_type,
 	 args->warp_param,
@@ -1524,12 +1534,14 @@ parse_calc_args(PyObject *args, PyObject *kwds)
 	"dirty", 
 	"async",
 	"warp_param",
+	"tolerance",
+	"auto_tolerance",
 	NULL};
 
     if(!PyArg_ParseTupleAndKeywords(
 	   args,
 	   kwds,
-	   "OOOOO|iiiiiiiiii",
+	   "OOOOO|iiiiiiiiiidi",
 	   kwlist,
 
 	   &pyim, &pysite,
@@ -1544,7 +1556,9 @@ parse_calc_args(PyObject *args, PyObject *kwds)
 	   &cargs->render_type,
 	   &cargs->dirty,
 	   &cargs->async,
-	   &cargs->warp_param
+	   &cargs->warp_param,
+	   &cargs->tolerance,
+	   &cargs->auto_tolerance
 	   ))
     {
 	goto error;
@@ -1634,6 +1648,8 @@ pycalc(PyObject *self, PyObject *args, PyObject *kwds)
 	     cargs->pfo,
 	     cargs->cmap,
 	     cargs->auto_deepen,
+	     cargs->auto_tolerance,
+	     cargs->tolerance,
 	     cargs->yflip, 
 	     cargs->periodicity, 
 	     cargs->dirty,
