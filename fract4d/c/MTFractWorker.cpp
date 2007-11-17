@@ -119,20 +119,16 @@ MTFractWorker::reset_counts()
     }
 }
 
-void
-MTFractWorker::stats(int *pnDoubleIters, int *pnHalfIters, int *pk)
+pixel_stat_t
+MTFractWorker::stats(stat_type_t type)
 { 
-    *pnDoubleIters = 0;
-    *pnHalfIters = 0;
-    *pk = 0;
+    pixel_stat_t stats;
+
     for(int i = 0; i < nWorkers; ++i)
     {
-	int nd, nh, k;
-	ptf[i].stats(&nd,&nh,&k);
-        *pnDoubleIters += nd;
-        *pnHalfIters += nh;
-        *pk += k;
+	stats.add(ptf[i].stats(type));
     }
+    return stats;
 }
 
 void

@@ -90,7 +90,7 @@ class STFractWorker : public IFractWorker {
     rgba_t antialias(int x, int y);
 
     void reset_counts();
-    void stats(int *pnDoubleIters, int *pnHalfIters, int *pk);
+    pixel_stat_t stats(stat_type_t type);
 
     void flush() {};
     bool ok() { return m_ok; }
@@ -99,6 +99,10 @@ class STFractWorker : public IFractWorker {
     bool find_root(const dvec4& eye, const dvec4& look, dvec4& root);
 
  private:
+
+    void compute_auto_deepen_stats(const dvec4& pos, int iter, int x, int y);
+    void compute_auto_tolerance_stats(const dvec4& pos, int iter, int x, int y);
+
     fractFunc *ff;
 
     // function object which calculates the colors of points 
@@ -106,14 +110,12 @@ class STFractWorker : public IFractWorker {
     // and can have member vars
     pointFunc *pf; 
 
-    // n pixels correctly classified that would be wrong 
-    // if we halved iterations
-    int nhalfiters;
-    // n pixels misclassified that would be correct 
-    // if we doubled the iterations
-    int ndoubleiters; 
-    int k;	// number of pixels calculated    
+    pixel_stat_t auto_deepen_stats;
+    pixel_stat_t auto_tolerance_stats;
+
+    // period guessing
     int lastIter; // how many iterations did last pixel take?
+
 
     // return true if this pixel needs recalc in AA pass
     bool needs_aa_calc(int x, int y);
@@ -149,7 +151,7 @@ class MTFractWorker : public IFractWorker
 
     // auto-deepening record keeping
     virtual void reset_counts();
-    virtual void stats(int *pnDoubleIters, int *pnHalfIters, int *pk);
+    pixel_stat_t stats(stat_type_t type);
 
     virtual void flush();
 

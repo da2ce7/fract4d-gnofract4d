@@ -759,7 +759,7 @@ class T(fctutils.T):
             pfo=self.pfunc,
             cmap=colormap,
             auto_deepen=self.auto_deepen,
-            auto_tolerance=False,
+            auto_tolerance=True,
             tolerance=self.period_tolerance,
             render_type=self.render_type,
             warp_param=self.get_warp(),

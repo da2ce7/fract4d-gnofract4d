@@ -88,7 +88,20 @@ class fractFunc {
 
     // do every nth pixel twice as deep as the others to
     // see if we need to auto-deepen
-    enum { AUTO_DEEPEN_FREQUENCY = 30 };
+    enum { 
+	AUTO_DEEPEN_FREQUENCY = 30,
+	AUTO_TOLERANCE_FREQUENCY = 30
+    };
+
+    // flags for controlling auto-improvement
+    enum {
+	SHOULD_DEEPEN = 1,
+	SHOULD_SHALLOWEN = 2, // yes, I know this isn't a word
+	SHOULD_LOOSEN = 4,
+	SHOULD_TIGHTEN = 8,
+	SHOULD_IMPROVE = (SHOULD_DEEPEN | SHOULD_TIGHTEN),
+	SHOULD_RELAX = (SHOULD_SHALLOWEN | SHOULD_LOOSEN)
+    };
 
     // params from ctor
     int eaa;
@@ -107,16 +120,6 @@ class fractFunc {
     IFractWorker *worker;
     // for callbacks
     IFractalSite *site;
-
-    // auto-deepening support
-
-    // n pixels correctly classified that would be wrong 
-    // if we halved iterations
-    int nTotalHalfIters;
-    // n pixels misclassified that would be correct 
-    // if we doubled the iterations
-    int nTotalDoubleIters; 
-    int nTotalK;	// number of pixels calculated    
 
     // last time we redrew the image to this line
     int last_update_y; 

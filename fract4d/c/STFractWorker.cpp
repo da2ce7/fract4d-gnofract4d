@@ -153,17 +153,21 @@ STFractWorker::row(int x, int y, int n)
 void
 STFractWorker::reset_counts()
 {
-    ndoubleiters=0;
-    nhalfiters=0;
-    k=0;
+    auto_deepen_stats.reset();
+    auto_tolerance_stats.reset();
 }
 
-void 
-STFractWorker::stats(int *pnDoubleIters, int *pnHalfIters, int *pk)
+pixel_stat_t
+STFractWorker::stats(stat_type_t type)
 {
-    *pnDoubleIters = ndoubleiters;
-    *pnHalfIters = nhalfiters;
-    *pk = k;
+    if(type == DEEPEN_STATS)
+    {
+	return auto_deepen_stats;
+    }
+    else
+    {
+	return auto_tolerance_stats;
+    }
 }
 
 inline int 
@@ -310,6 +314,100 @@ STFractWorker::antialias(int x, int y)
 }
 
 
+void
+STFractWorker::compute_auto_tolerance_stats(const dvec4& pos, int iter, int x, int y)
+{
+    if(ff->periodicity && ff->auto_tolerance && 
+       auto_tolerance_stats.k++ % ff->AUTO_TOLERANCE_FREQUENCY == 0)
+    {
+	if(iter == -1)
+	{
+	    // currently inside
+	    
+	    // Possibly we incorrectly classified this as inside due to
+	    // loose period tolerance. Try with a tighter bound and see if it helps
+	    rgba_t temp_pixel;
+	    float temp_index;
+	    fate_t temp_fate;
+	    int temp_iter;
+	    /* try again with 10x tighter tolerance */
+	    pf->calc(
+		pos.n, ff->maxiter,
+		0, ff->period_tolerance / 10.0,
+		ff->warp_param,
+		x,y,-1,
+		&temp_pixel,&temp_iter, &temp_index, &temp_fate);
+	    
+	    if(temp_iter != -1)
+	    {
+		// current tolerance is too loose, we would get 1 more
+		// pixel correct if we tightened it
+		auto_tolerance_stats.nbetterpixels++;
+	    }
+	}
+	else
+	{
+	    // currently outside
+
+	    // Possibly we're trying too hard, and we'd still get this right with a 
+	    // looser period tolerance. Try it and see
+	    rgba_t temp_pixel;
+	    float temp_index;
+	    fate_t temp_fate;
+	    int temp_iter;
+	    /* try again with 10x looser tolerance */
+	    pf->calc(
+		pos.n, ff->maxiter,
+		0, ff->period_tolerance * 10.0,
+		ff->warp_param,
+		x,y,-1,
+		&temp_pixel,&temp_iter, &temp_index, &temp_fate);
+	    
+	    if(temp_iter == -1)
+	    {
+		// if we loosened, we'd get this pixel wrong
+		auto_tolerance_stats.nworsepixels++;
+	    }
+	}
+    }
+}
+
+void
+STFractWorker::compute_auto_deepen_stats(const dvec4& pos, int iter, int x, int y)
+{
+    // test for iteration depth
+    if(ff->auto_deepen && auto_deepen_stats.k++ % ff->AUTO_DEEPEN_FREQUENCY == 0)
+    {
+	if( iter > ff->maxiter/2)
+	{
+	    /* we would have got this wrong if we used 
+	     * half as many iterations */
+	    auto_deepen_stats.nworsepixels++;
+	}
+	else if(iter == -1)
+	{
+	    rgba_t temp_pixel;
+	    float temp_index;
+	    fate_t temp_fate;
+	    int temp_iter;
+	    /* didn't bail out, try again with 2x as many iterations */
+	    pf->calc(
+		pos.n, ff->maxiter*2,
+		periodGuess(), ff->period_tolerance,
+		ff->warp_param,
+		x,y,-1,
+		&temp_pixel,&temp_iter, &temp_index, &temp_fate);
+	    
+	    if(temp_iter != -1)
+	    {
+		/* we would have got this right if we used
+		 * twice as many iterations */
+		auto_deepen_stats.nbetterpixels++;
+	    }
+	}
+    }
+}
+
 void 
 STFractWorker::pixel(int x, int y,int w, int h)
 {
@@ -340,39 +438,10 @@ STFractWorker::pixel(int x, int y,int w, int h)
 		x,y,0,
 		&pixel,&iter,&index,&fate);
 
-	    // test for iteration depth
-	    if(ff->auto_deepen && k++ % ff->AUTO_DEEPEN_FREQUENCY == 0)
-	    {
-		if( iter > ff->maxiter/2)
-		{
-		    /* we would have got this wrong if we used 
-		     * half as many iterations */
-		    nhalfiters++;
-		}
-		else if(iter == -1)
-		{
-		    rgba_t temp_pixel;
-		    float temp_index;
-		    fate_t temp_fate;
-		    int temp_iter;
-		    /* didn't bail out, try again with 2x as many iterations */
-		    pf->calc(
-			pos.n, ff->maxiter*2,
-			periodGuess(), ff->period_tolerance,
-			ff->warp_param,
-			x,y,-1,
-			&temp_pixel,&temp_iter, &temp_index, &temp_fate);
-		    
-		    if(temp_iter != -1)
-		    {
-			/* we would have got this right if we used
-			 * twice as many iterations */
-			ndoubleiters++;
-		    }
-		}
-	    }
+	    compute_auto_deepen_stats(pos, iter, x, y);
+	    compute_auto_tolerance_stats(pos, iter, x, y);
 	}
-	    break;
+	break;
 	case RENDER_LANDSCAPE:
 	    assert(0 && "not supported");
 	    break;

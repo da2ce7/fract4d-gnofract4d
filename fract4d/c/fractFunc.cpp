@@ -102,8 +102,6 @@ fractFunc::fractFunc(
     // antialias: offset to middle of top left quadrant of pixel
     aa_topleft = topleft - (delta_aa_y + delta_aa_x) / 2.0;
     
-    nTotalHalfIters = nTotalDoubleIters = nTotalK = 0;
-
     worker->set_fractFunc(this);
 
     last_update_y = 0;
@@ -127,35 +125,52 @@ fractFunc::update_image(int i)
     return done; 
 }
 
-// see if the image needs more (or less) iterations to display
-// properly returns +ve if more are required, -ve if less are
-// required, 0 if it's correct. This is a very poor heuristic - a
-// histogram approach would be better
+// see if the image needs more (or less) iterations & tolerance to display properly
 
 int
 fractFunc::updateiters()
 {
+    int flags = 0;
     // add up all the subtotals
-    worker->stats(&nTotalDoubleIters,&nTotalHalfIters,&nTotalK);
+    pixel_stat_t stats = worker->stats(DEEPEN_STATS);
 
-    double doublepercent = ((double)nTotalDoubleIters*AUTO_DEEPEN_FREQUENCY*100)/nTotalK;
-    double halfpercent = ((double)nTotalHalfIters*AUTO_DEEPEN_FREQUENCY*100)/nTotalK;
+    double doublepercent = ((double)stats.nbetterpixels*AUTO_DEEPEN_FREQUENCY*100)/stats.k;
+    double halfpercent = ((double)stats.nworsepixels*AUTO_DEEPEN_FREQUENCY*100)/stats.k;
 		
     if(doublepercent > 1.0) 
     {
         // more than 1% of pixels are the wrong colour! 
         // quelle horreur!
-        return 1;
+	flags |= SHOULD_DEEPEN;
     }
-
-    if(doublepercent == 0.0 && halfpercent < 0.5 && 
+    else if(doublepercent == 0.0 && halfpercent < 0.5 && 
        maxiter > 32)
     {
         // less than .5% would be wrong if we used half as many iters
         // therefore we are working too hard!
-        return -1;
+        flags |= SHOULD_SHALLOWEN;
     }
-    return 0;
+
+    stats = worker->stats(TOLERANCE_STATS);
+    printf(
+	"tolerance stats: better %d worse %d total %d\n", 
+	stats.nbetterpixels, stats.nworsepixels, stats.k);
+
+    double tightenpercent = ((double)stats.nbetterpixels*AUTO_DEEPEN_FREQUENCY*100)/stats.k;
+    double loosenpercent = ((double)stats.nworsepixels*AUTO_DEEPEN_FREQUENCY*100)/stats.k;
+
+    if(tightenpercent > 1.0)
+    {
+	printf("tightening\n");
+	flags |= SHOULD_TIGHTEN;
+    }
+    else if(tightenpercent == 0.0 && loosenpercent < 0.5 &&
+	    period_tolerance < 1.0E-2)
+    {
+	printf("relaxing\n");
+	flags |= SHOULD_RELAX;
+    }
+    return flags;
 }
 
 void fractFunc::draw_aa(float min_progress, float max_progress)
@@ -196,9 +211,7 @@ void fractFunc::draw_aa(float min_progress, float max_progress)
 
 void fractFunc::reset_counts()
 {
-    worker->reset_counts();
-    
-    nTotalHalfIters = nTotalDoubleIters = nTotalK = 0;
+    worker->reset_counts();    
 }
 
 void fractFunc::reset_progress(float progress)
@@ -243,17 +256,26 @@ void fractFunc::draw_all()
     float minp = 0.0, maxp= (eaa == AA_NONE ? 0.9 : 0.5);
     draw(8,8,minp,maxp);    
     
-    int deepen;
-    while((deepen = updateiters()) > 0)
+    int improvement_flags;
+    while((improvement_flags = updateiters()) & SHOULD_IMPROVE)
     {
 	float delta = (1.0-maxp)/3.0;
 	minp = maxp;
 	maxp = maxp + delta;
 
-        maxiter *= 2;
-	iters_changed(maxiter);
-        status_changed(GF4D_FRACTAL_DEEPENING);
-	clear_in_fates();
+	if(improvement_flags & SHOULD_DEEPEN)
+	{
+	    maxiter *= 2;
+	    iters_changed(maxiter);
+	    status_changed(GF4D_FRACTAL_DEEPENING);
+	    clear_in_fates();
+	}
+	if(improvement_flags & SHOULD_TIGHTEN)
+	{
+	    period_tolerance /= 10.0;
+	    printf("tightening to %g\n", period_tolerance);
+	    clear_in_fates();
+	}
         draw(8,1,minp,maxp);
     }
     
@@ -269,10 +291,18 @@ void fractFunc::draw_all()
 
     // we do this after antialiasing because otherwise sometimes the
     // aa pass makes the image shallower, which is distracting
-    if(deepen < 0)
+    if(improvement_flags & SHOULD_RELAX)
     {
-        maxiter /= 2;
-	iters_changed(maxiter);
+	if(improvement_flags & SHOULD_SHALLOWEN)
+	{
+	    maxiter /= 2;
+	    iters_changed(maxiter);
+	}
+	if(improvement_flags & SHOULD_LOOSEN)
+	{
+	    period_tolerance *= 10.0;
+	    printf("loosening to %g\n", period_tolerance);
+	}
     }
 #endif
 
