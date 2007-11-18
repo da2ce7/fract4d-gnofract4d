@@ -79,7 +79,8 @@ class Test(testbase.TestBase):
             "IMAGE",
             "PROGRESS",
             "STATUS",
-            "PIXEL"
+            "PIXEL",
+            "TOLERANCE"
             ]
         self.gradient = gradient.Gradient()
         

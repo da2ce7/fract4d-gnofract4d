@@ -722,6 +722,7 @@ blue=0.3
         f2 = fractal.T(self.compiler)
         f2.loadFctFile(file3)
         f2.auto_deepen = False
+        f2.auto_tolerance = False
 
         self.assertExpectedValues(f2)
 
@@ -876,6 +877,7 @@ blue=0.3
             (w,h) = (40,30)
             im = image.T(w,h)
             f.auto_deepen = False
+            f.auto_tolerance = False
             f.draw(im)
             im.save("def.tga")
 

@@ -53,6 +53,10 @@ class fractFunc {
 	{
 	    site->iters_changed(iters);
 	}
+    inline void tolerance_changed(double tolerance)
+        {
+	    site->tolerance_changed(tolerance);
+	}
     inline void image_changed(int x1, int x2, int y1, int y2)
 	{
 	    site->image_changed(x1,x2,y1,y2);

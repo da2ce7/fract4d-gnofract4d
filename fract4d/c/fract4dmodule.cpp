@@ -855,6 +855,17 @@ public:
 	    RELEASE_LOCK;
 	}
     
+    virtual void tolerance_changed(double tolerance)
+	{
+	    GET_LOCK;
+	    PyObject *ret = PyObject_CallMethod(
+		site,
+		"tolerance_changed",
+		"d",
+		tolerance);
+	    Py_XDECREF(ret);
+	    RELEASE_LOCK;
+	}
     // we've drawn a rectangle of image
     virtual void image_changed(int x1, int y1, int x2, int y2)
 	{
@@ -981,13 +992,14 @@ typedef enum
     IMAGE,
     PROGRESS,
     STATUS,
-    PIXEL
+    PIXEL,
+    TOLERANCE
 } msg_type_t;
     
 typedef struct
 {
     msg_type_t type;
-    int p1,p2,p3,p4;
+    int params[4];
 } msg_t;
 
 struct calc_args
@@ -1089,19 +1101,26 @@ public:
 	}
     virtual void iters_changed(int numiters)
 	{
-	    msg_t m = { ITERS, 0, 0, 0, 0};
-	    m.p1 = numiters;
+	    msg_t m = { ITERS, { 0, 0, 0, 0} };
+	    m.params[0] = numiters;
 
 	    send(&m);
 	}
-    
+    virtual void tolerance_changed(double numiters)
+	{
+	    msg_t m = { TOLERANCE, {0, 0, 0, 0 }};
+	    // ick
+	    memcpy(&(m.params[0]),&numiters,sizeof(numiters));
+	    send(&m);
+	}
+
     // we've drawn a rectangle of image
     virtual void image_changed(int x1, int y1, int x2, int y2)
 	{
 	    if(!interrupted)
 	    {
 		msg_t m = { IMAGE };
-		m.p1 = x1; m.p2 = y1; m.p3 = x2; m.p4 = y2;
+		m.params[0] = x1; m.params[1] = y1; m.params[2] = x2; m.params[3] = y2;
 
 		send(&m);
 	    }
@@ -1112,8 +1131,8 @@ public:
 	    if(!interrupted)
 	    {
 		msg_t m = { PROGRESS };
-		m.p1 = (int) (100.0 * progress);
-		m.p2 = m.p3 = m.p4 = 0;
+		m.params[0] = (int) (100.0 * progress);
+		m.params[1] = m.params[2] = m.params[3] = 0;
 
 		send(&m);
 	    }
@@ -1122,8 +1141,8 @@ public:
     virtual void status_changed(int status_val)
 	{
 	    msg_t m = { STATUS };
-	    m.p1 = status_val;
-	    m.p2 = m.p3 = m.p4 = 0;
+	    m.params[0] = status_val;
+	    m.params[1] = m.params[2] = m.params[3] = 0;
 
 	    send(&m);
 	}

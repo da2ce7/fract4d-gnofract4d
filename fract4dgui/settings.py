@@ -360,10 +360,11 @@ class SettingsDialog(dialog.T):
         table.attach(entry,1,2,row,row+1,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         label.set_mnemonic_widget(entry)
         
-        def set_entry(f):
+        def set_entry(f,*args):
             try:
                 current = float(entry.get_text())
                 if current != f.period_tolerance:
+                    print "update entry to %.17f" % f.period_tolerance
                     entry.set_text("%.17f" % f.period_tolerance)
             except ValueError, err:
                 # current was set to something that isn't a float
@@ -378,6 +379,7 @@ class SettingsDialog(dialog.T):
         
         set_entry(self.f)
         self.f.connect('parameters-changed', set_entry)
+        self.f.connect('tolerance-changed', set_entry)
         entry.connect('focus-out-event', set_fractal)
 
     def create_yflip_widget(self):

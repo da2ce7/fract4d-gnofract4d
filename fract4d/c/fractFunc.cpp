@@ -151,6 +151,11 @@ fractFunc::updateiters()
         flags |= SHOULD_SHALLOWEN;
     }
 
+    if(!auto_tolerance)
+    {
+	// otherwise we might loosen without having gathered any stats
+	return flags;
+    }
     stats = worker->stats(TOLERANCE_STATS);
     printf(
 	"tolerance stats: better %d worse %d total %d\n", 
@@ -273,6 +278,8 @@ void fractFunc::draw_all()
 	if(improvement_flags & SHOULD_TIGHTEN)
 	{
 	    period_tolerance /= 10.0;
+	    tolerance_changed(period_tolerance);
+	    status_changed(GF4D_FRACTAL_TIGHTENING);
 	    printf("tightening to %g\n", period_tolerance);
 	    clear_in_fates();
 	}
@@ -301,6 +308,7 @@ void fractFunc::draw_all()
 	if(improvement_flags & SHOULD_LOOSEN)
 	{
 	    period_tolerance *= 10.0;
+	    tolerance_changed(period_tolerance);
 	    printf("loosening to %g\n", period_tolerance);
 	}
     }

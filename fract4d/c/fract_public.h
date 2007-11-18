@@ -9,7 +9,8 @@ typedef enum {
     GF4D_FRACTAL_CALCULATING,
     GF4D_FRACTAL_DEEPENING,
     GF4D_FRACTAL_ANTIALIASING,
-    GF4D_FRACTAL_PAUSED
+    GF4D_FRACTAL_PAUSED,
+    GF4D_FRACTAL_TIGHTENING
 } calc_state_t;
 
 // kind of antialiasing to do
@@ -79,6 +80,8 @@ class IFractalSite
 
     // the parameters have changed (usually due to auto-deepening)
     virtual void iters_changed(int numiters) {};
+    // tolerance has changed due to auto-tolerance
+    virtual void tolerance_changed(double tolerance) {};
     // we've drawn a rectangle of image
     virtual void image_changed(int x1, int y1, int x2, int y2) {};
     // estimate of how far through current pass we are

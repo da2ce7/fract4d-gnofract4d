@@ -113,7 +113,8 @@ class MainWindow:
                           _("Calculating"),
                           _("Deepening (%d iterations)"),
                           _("Antialiasing"),
-                          _("Paused") ]
+                          _("Paused"),
+                          _("Reducing Periodicity Tolerance")]
 
         self.f.set_saved(True)
 

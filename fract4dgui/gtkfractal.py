@@ -27,6 +27,9 @@ class Hidden(gobject.GObject):
         'iters-changed' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
         gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+        'tolerance-changed' : (
+        (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
+        gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),    
         'formula-changed' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
         gobject.TYPE_NONE, ()),
@@ -58,7 +61,8 @@ class Hidden(gobject.GObject):
             "IMAGE",
             "PROGRESS",
             "STATUS",
-            "PIXEL"
+            "PIXEL",
+            "TOLERANCE"
             ]
 
         self.x = self.y = 0
@@ -195,6 +199,11 @@ class Hidden(gobject.GObject):
         elif t == 4:
             # FIXME pixel_changed
             pass
+        elif t == 5:
+            # tolerance changed
+            # binary format is different for this message
+            (t, tolerance,dummy,dummy) = struct.unpack("idii", bytes)            
+            if not self.skip_updates: self.tolerance_changed(tolerance);
         else:
             print "Unknown message from fractal thread; %s" % list(bytes)
 
@@ -267,6 +276,11 @@ class Hidden(gobject.GObject):
         # don't emit a parameters-changed here to avoid deadlock
         self.emit('iters-changed',n)
         
+    def tolerance_changed(self,tolerance):
+        self.f.period_tolerance = tolerance
+        print "Changed period tolerance to ", tolerance
+        self.emit('tolerance-changed', tolerance)
+
     def image_changed(self,x1,y1,x2,y2):
         pass 
 

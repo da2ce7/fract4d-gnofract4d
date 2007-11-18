@@ -696,7 +696,11 @@ class T(fctutils.T):
     def iters_changed(self,iters):
         #print "iters changed to %d" % iters
         self.maxiter = iters
-    
+
+    def tolerance_changed(self,tolerance):
+        #print "tolerance changed to %g" % tolerance
+        self.period_tolerance = tolerance
+
     def image_changed(self,x1,y1,x2,y2):
         pass
 
