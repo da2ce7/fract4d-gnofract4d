@@ -65,6 +65,7 @@ class BrowserDialog(dialog.T):
         self.main_window = main_window
         self.set_size_request(600,500)
         self.preview = gtkfractal.Preview(self.compiler)
+        self.preview.f.auto_tolerance = False
 
         self.create_panes()
         self.on_file_changed()

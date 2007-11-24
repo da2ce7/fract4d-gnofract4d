@@ -68,7 +68,9 @@ class T(fctutils.T):
         self.yflip = False
         self.periodicity = True
         self.period_tolerance = 1.0E-9
-        self.auto_epsilon = False
+        self.auto_epsilon = False # automatically set @epsilon param, if found
+        self.auto_deepen = True # automatically adjust maxiter
+        self.auto_tolerance = True # automatically adjust periodicity
         self.antialias = 1
         self.compiler = compiler
         self.outputfile = None
@@ -91,7 +93,6 @@ class T(fctutils.T):
         self.set_outer("gf4d.cfrm","continuous_potential")
         self.dirtyFormula = True # formula needs recompiling
         self.dirty = True # parameters have changed
-        self.auto_deepen = True
         self.clear_image = True
         
         self.reset()
@@ -207,7 +208,7 @@ class T(fctutils.T):
     def set_period_tolerance(self,val):
         if val != self.period_tolerance:
             self.period_tolerance = val
-            self.changed(True)
+            self.changed(False)
             
     def parse__inner_(self,val,f):
         params = fctutils.ParamBag()
@@ -257,6 +258,8 @@ class T(fctutils.T):
         c.yflip = self.yflip
         c.periodicity = self.periodicity
         c.period_tolerance = self.period_tolerance
+        c.auto_deepen = self.auto_deepen
+        c.auto_tolerance = self.auto_tolerance
         c.saved = self.saved
         c.clear_image = self.clear_image
         c.warp_param = self.warp_param
@@ -742,6 +745,11 @@ class T(fctutils.T):
             warp = -1
         return warp
 
+    def set_maxiter(self,new_iter):
+        if self.maxiter != new_iter:
+            self.maxiter = new_iter
+            self.changed(False)
+
     def set_antialias(self,aa):
         if aa != self.antialias:
             self.antialias = aa
@@ -750,6 +758,11 @@ class T(fctutils.T):
     def set_auto_deepen(self,auto_deepen):
         if auto_deepen != self.auto_deepen:
             self.auto_deepen = auto_deepen
+            self.changed(True)
+
+    def set_auto_tolerance(self,auto_tolerance):
+        if auto_tolerance != self.auto_tolerance:
+            self.auto_tolerance = auto_tolerance
             self.changed(True)
             
     def calc(self,image,colormap,nthreads,site,async):
@@ -763,7 +776,7 @@ class T(fctutils.T):
             pfo=self.pfunc,
             cmap=colormap,
             auto_deepen=self.auto_deepen,
-            auto_tolerance=True,
+            auto_tolerance=self.auto_tolerance,
             tolerance=self.period_tolerance,
             render_type=self.render_type,
             warp_param=self.get_warp(),

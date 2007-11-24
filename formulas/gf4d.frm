@@ -743,6 +743,35 @@ func fnComplex
 endfunc
 }
 
+FnPartsPower {
+; A generalization of Burning Ship - apply separate functions to the 
+; X and Y parts of Z, then another to Z itself. Now with added power!
+init:
+	z = #zwpixel
+loop:
+	z = (@fnReal(real(z)), @fnImag(imag(z)))^@pow + #pixel
+bailout:
+	@bailfunc(z) < @bailout
+default:
+complex param pow
+	default = (2.0, 0.0)
+endparam
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default =cmag
+endfunc
+float func fnReal
+	argtype = float
+	default = abs
+endfunc
+float func fnImag
+	argtype = float
+	default = abs
+endfunc
+}
+
 Chebyshev {
 ; a generalization of a number of Fractint Chebyshev functions
 init:

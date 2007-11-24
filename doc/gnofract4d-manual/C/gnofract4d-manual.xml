@@ -10,7 +10,7 @@
 <!ENTITY gf4d "<application>Gnofract 4D</application>">
 <!ENTITY fractint "<application>Fractint</application>">
 <!ENTITY ultrafractal "<application>UltraFractal</application>">
-<!ENTITY version "3.6">
+<!ENTITY version "3.7">
 
 ]>
 <article id="gnofract4d">
@@ -430,9 +430,11 @@ well, it'll be ignored.
 </para>
 
 <para>
-The weird black and white button (OK, so I can't draw) allows you to
-increase the current iteration count, for those occasions when the
-auto-deepening doesn't get it right. The image size list should be
+The <emphasis>Deepen</emphasis> button allows you to increase the current iteration count
+and tighten the periodicity checking, for those occasions when the
+auto-deepening and/or auto-tolerance doesn't get it right. This will
+generally convert some 'inside' pixels to outside and make the image
+look better, at the cost of longer rendering time. The image size list should be
 self-explanatory. If you want a size not listed here, use the
 Preferences dialog. </para> <para> The <emphasis>Undo</emphasis> and
 <emphasis>Redo</emphasis> buttons should be fairly obvious. You can
@@ -493,6 +495,23 @@ of transformations applied to the image, and any parameters those transforms hav
 </para>
 
 <para>
+The <emphasis>General</emphasis> page gives a few options which don't
+fit anywhere else. <emphasis>Flip Y Axis</emphasis> causes Y to
+increase top-to-bottom, rather than
+bottom-to-top. <emphasis>Periodicity Checking</emphasis> is a method
+to speed up generation of the fractal. Points inside the fractal
+eventually settle into a loop, where they repeatedly jump around
+between the same points (they become 'periodic'). By noticing this, we
+can skip calculating the point any further. You will generally want to
+disable this if you are coloring the inside of the fractal, since it
+will look rather weird otherwise. <emphasis>Tolerance</emphasis> is
+the distance between points which we'll accept as being 'the same' for
+the purposes of periodicity detection. This is automatically adjusted
+if the 'auto tolerance' setting in the preferences is enabled.
+
+</para>
+
+<para>
 
 The <emphasis>Colors</emphasis> tab allows you to edit the list of
 colors used to display your fractal. For more complex gradient
@@ -506,14 +525,21 @@ editing, you can also use the GIMP's gradient editor.
 
 <sect4 id="prefs_image">
 <title>Image</title>
+
 <para> <emphasis>Width</emphasis> and <emphasis>Height</emphasis> set
 the size of the image in pixels. If <emphasis>Maintain Aspect
 Ratio</emphasis> is checked when you change either the width or
 height, the other automatically changes to keep the image the same
 shape. If <emphasis>Auto Deepen</emphasis> is enabled, &gf4d; will try
 to automatically guess how many iterations are required to display the
-image correctly. <emphasis>Antialiasing</emphasis> makes the image
-look smoother but takes extra time to do.  </para>
+image correctly. Similarly, <emphasis>Auto Tolerance</emphasis>
+adjusts the periodicity tolerance setting to try and calculate the
+image quickly but correctly. <emphasis>Antialiasing</emphasis> makes
+the image look smoother but takes extra time to do. The difference
+between 'fast' and 'best' is that fast antialiasing doesn't bother to
+recalculate points which are the same color as their neighbors. This
+speeds things up a lot but can miss a few details sometimes. </para>
+
 </sect4>
 
 <sect4 id="prefs_compiler">

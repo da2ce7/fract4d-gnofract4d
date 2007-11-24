@@ -436,6 +436,23 @@ class PrefsDialog(dialog.T):
 
         return widget
 
+    def create_auto_tolerance_widget(self):
+        widget = gtk.CheckButton("Auto _Tolerance")
+        self.tips.set_tip(widget,"Adjust periodicity tolerance automatically")
+        widget.set_use_underline(True)
+        
+        def set_widget(*args):
+            widget.set_active(self.prefs.getboolean("display","autotolerance"))
+
+        def set_prefs(*args):
+            self.prefs.set("display","autotolerance",str(widget.get_active()))
+
+        set_widget()
+        self.prefs.connect('preferences-changed',set_widget)
+        widget.connect('toggled',set_prefs)
+
+        return widget
+
     def create_antialias_menu(self):
         optMenu = utils.create_option_menu(["None", "Fast", "Best"])
 
@@ -484,12 +501,16 @@ class PrefsDialog(dialog.T):
         self.auto_deepen = self.create_auto_deepen_widget()
         table.attach(self.auto_deepen,0,2,3,4,gtk.EXPAND | gtk.FILL, 0, 2, 2)
         
+        # auto tolerance
+        self.auto_tolerance = self.create_auto_tolerance_widget()
+        table.attach(self.auto_tolerance,0,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+
         # antialiasing
         optMenu = self.create_antialias_menu()
-        table.attach(optMenu,1,2,4,5,gtk.EXPAND | gtk.FILL, 0, 2, 2)
+        table.attach(optMenu,1,2,5,6,gtk.EXPAND | gtk.FILL, 0, 2, 2)
 
         aalabel = gtk.Label("_Antialiasing : ")
         aalabel.set_use_underline(True)
         aalabel.set_mnemonic_widget(optMenu)
-        table.attach(aalabel,0,1,4,5,0,0,2,2)
+        table.attach(aalabel,0,1,5,6,0,0,2,2)
         

@@ -64,6 +64,9 @@ class AutozoomDialog(dialog.T):
 
     show = staticmethod(show)
 
+    def onResponse(self,widget,id):
+        self.zoombutton.set_active(False)
+        self.hide()
 
     def onZoomToggle(self,*args):
         if self.zoombutton.get_active():

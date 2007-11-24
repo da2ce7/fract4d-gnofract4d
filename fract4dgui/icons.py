@@ -35,7 +35,7 @@ class StockThing:
             
 explorer = StockThing('explorer_mode.png', 'explore', _('Explorer'), ord('e'))
 
-deepen_now = StockThing('deepen_now.png', 'deepen', _('Deepen'), ord('d'))
+improve_now = StockThing('improve_now.png', 'improve', _('Deepen'), ord('.'))
 
 #logo = StockThing('gnofract4d-logo.png', 'logo', _('Logo'), 0)
 

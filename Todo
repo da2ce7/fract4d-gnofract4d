@@ -3,14 +3,15 @@ todo:
 changes in 3.7:
 * W	removed Gtk.ItemFactory and replaced with uimanager
 * W	some other cleanup of old GTK+ backcompat code which is no longer required
+* B	upload doesn't work immediately after authentication (creds not saved?)
+* B	dismissing autozoom doesn't stop zooming
+* WW	auto-tolerance
+* W	new deepen icon
+* BB	color preview loses tolerance until it's illegible
 
 bugs (the more B's, the worse the bug):
 * B	'both a Fractint-style default section'... on every fractal
-* B	upload doesn't work immediately after authentication (creds not saved?)
-* B	dismissing autozoom doesn't stop zooming
-
 * BBB	too slow!
-
 * BB	floating point exception on load of aho.ucl#Stripes_any
 * BB	animation colors are screwed
 * BB	func with a bailout of 1 will never quit and can't be interrupted

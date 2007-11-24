@@ -238,13 +238,12 @@ class Hidden(gobject.GObject):
     def set_func(self,func,fname,formula):
         self.f.set_func(func,fname,formula)
         
-    def double_maxiter(self):
+    def improve_quality(self):
+        self.freeze()
         self.set_maxiter(self.f.maxiter*2)
-        
-    def set_maxiter(self,new_iter):
-        if self.f.maxiter != new_iter:
-            self.f.maxiter = new_iter
-            self.changed()
+        self.set_period_tolerance(self.f.period_tolerance / 10.0)
+        self.thaw()
+        self.changed()
 
     def reset(self):
         self.f.reset()
@@ -994,7 +993,7 @@ class T(Hidden):
 class Preview(T):
     def __init__(self,comp,width=120,height=90):
         T.__init__(self,comp,None,width,height)
-        
+
     def onButtonRelease(self,widget,event):
         pass
 

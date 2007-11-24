@@ -19,7 +19,8 @@ class T(ConfigParser.ConfigParser):
               "width" : "640",
               "height" : "480",
               "antialias" : "1",
-              "autodeepen" : "1"
+              "autodeepen" : "1",
+              "autotolerance" : "1"
             },
             "helpers" : {
               "editor" : self.get_default_editor(),

@@ -243,7 +243,7 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
            
            #internal pixmaps
            ('share/pixmaps/gnofract4d',
-            ['pixmaps/deepen_now.png',
+            ['pixmaps/improve_now.png',
              'pixmaps/explorer_mode.png']),
 
            # icon

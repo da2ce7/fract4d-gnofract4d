@@ -368,7 +368,8 @@ class MainWindow:
         self.f.set_nthreads(prefs.getint("general","threads"))
         self.f.set_antialias(preferences.userPrefs.getint("display","antialias"))
         self.f.set_auto_deepen(preferences.userPrefs.getboolean("display","autodeepen"))
-        
+        self.f.set_auto_tolerance(preferences.userPrefs.getboolean("display","autotolerance"))
+
     def on_prefs_changed(self,prefs):
         self.f.freeze()
         self.update_compiler_prefs(prefs)
@@ -748,9 +749,9 @@ class MainWindow:
         auto_deepen = preferences.userPrefs.getboolean("display","autodeepen")
         self.preview.draw_image(False,auto_deepen)
 
-    def deepen_now(self, widget):
-        self.f.double_maxiter()
-    
+    def improve_now(self, widget):
+        self.f.improve_quality()
+
     def create_toolbar(self):
         self.toolbar = toolbar.T()
         self.vbox.pack_start(self.toolbar,expand=False)
@@ -806,9 +807,9 @@ class MainWindow:
         self.toolbar.add_space()
         
         self.toolbar.add_stock(
-            icons.deepen_now.stock_name,
-            _("Double the maximum number of iterations"),
-            self.deepen_now)
+            icons.improve_now.stock_name,
+            _("Double the maximum number of iterations and tighten periodicity. This will fill in some black areas but increase drawing time"),
+            self.improve_now)
 
         res_menu = self.create_resolution_menu()
 
