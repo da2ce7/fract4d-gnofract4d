@@ -157,22 +157,22 @@ fractFunc::updateiters()
 	return flags;
     }
     stats = worker->stats(TOLERANCE_STATS);
-    printf(
-	"tolerance stats: better %d worse %d total %d\n", 
-	stats.nbetterpixels, stats.nworsepixels, stats.k);
+    //printf(
+    //"tolerance stats: better %d worse %d total %d\n", 
+    //stats.nbetterpixels, stats.nworsepixels, stats.k);
 
     double tightenpercent = ((double)stats.nbetterpixels*AUTO_DEEPEN_FREQUENCY*100)/stats.k;
     double loosenpercent = ((double)stats.nworsepixels*AUTO_DEEPEN_FREQUENCY*100)/stats.k;
 
     if(tightenpercent > 1.0)
     {
-	printf("tightening\n");
+	//printf("tightening\n");
 	flags |= SHOULD_TIGHTEN;
     }
     else if(tightenpercent == 0.0 && loosenpercent < 0.5 &&
-	    period_tolerance < 1.0E-2)
+	    period_tolerance < 1.0E-4)
     {
-	printf("relaxing\n");
+	//printf("relaxing\n");
 	flags |= SHOULD_RELAX;
     }
     return flags;
@@ -309,7 +309,6 @@ void fractFunc::draw_all()
 	{
 	    period_tolerance *= 10.0;
 	    tolerance_changed(period_tolerance);
-	    printf("loosening to %g\n", period_tolerance);
 	}
     }
 #endif

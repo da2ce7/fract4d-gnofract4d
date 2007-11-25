@@ -277,7 +277,6 @@ class Hidden(gobject.GObject):
         
     def tolerance_changed(self,tolerance):
         self.f.period_tolerance = tolerance
-        print "Changed period tolerance to ", tolerance
         self.emit('tolerance-changed', tolerance)
 
     def image_changed(self,x1,y1,x2,y2):
