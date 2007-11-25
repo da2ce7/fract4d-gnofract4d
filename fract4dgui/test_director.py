@@ -59,7 +59,9 @@ class Test(unittest.TestCase):
             
         self.assertEqual(True,os.path.exists("./image_0000000.png"))
         self.assertEqual(True,os.path.exists("./image_0000001.png"))
-        self.assertEqual(True,os.path.exists("video.avi"))
+        if dd.transpath != None:
+            # only check for video if transcode is installed
+            self.assertEqual(True,os.path.exists("video.avi"))
 
         dd.destroy()
 

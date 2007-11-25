@@ -13,7 +13,7 @@ import os
 import re
 from threading import *
 
-from fract4d import animation
+from fract4d import animation, fractconfig
 
 class AVIGeneration:
     def __init__(self,animation):
@@ -45,7 +45,7 @@ class AVIGeneration:
                 return
 
             if not(os.path.exists(folder_png+"list")):#check if image listing already exist
-                gtk.threads_enter()
+                gtk.gdk.threads_enter()
                 error_dlg = gtk.MessageDialog(
                     self.dialog,
                     gtk.DIALOG_MODAL  | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -53,7 +53,7 @@ class AVIGeneration:
                     "In directory: %s there is no listing file. Cannot continue" %(folder_png))
                 response=error_dlg.run()
                 error_dlg.destroy()
-                gtk.threads_leave()
+                gtk.gdk.threads_leave()
                 event = gtk.gdk.Event(gtk.gdk.DELETE)
                 self.dialog.emit('delete_event', event)
                 yield False
@@ -84,13 +84,13 @@ class AVIGeneration:
         except Exception, err:
             self.running=False
             self.error=True
-            gtk.threads_enter()
+            gtk.gdk.threads_enter()
             error_dlg = gtk.MessageDialog(self.dialog,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                     gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
                     _("Error during generation of avi file: %s" % err))
             error_dlg.run()
             error_dlg.destroy()
-            gtk.threads_leave()
+            gtk.gdk.threads_leave()
             event = gtk.gdk.Event(gtk.gdk.DELETE)
             self.dialog.emit('delete_event', event)
             yield False
@@ -104,24 +104,6 @@ class AVIGeneration:
 
 
     def show(self):
-        #---------checking if there are transcode in PATH------------
-        found=False
-        env=os.environ['PATH']
-        for d in env.split(':'):
-            if found:
-                break
-            if os.path.isdir(d) and 'transcode' in os.listdir(d):
-                found=True
-        if not found:
-            gtk.threads_enter()
-            error_dlg = gtk.MessageDialog(self.dialog,gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                    gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-                    "transcode not found in PATH. Make sure you installed it. I will not continue")
-            error_dlg.run()
-            error_dlg.destroy()
-            gtk.threads_leave()
-            self.dialog.destroy()
-            return -1
         #------------------------------------------------------------
         self.dialog.show_all()
         self.running=True

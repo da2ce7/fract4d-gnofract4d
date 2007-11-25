@@ -25,7 +25,8 @@ class T(ConfigParser.ConfigParser):
             "helpers" : {
               "editor" : self.get_default_editor(),
               "mailer" : self.get_default_mailer(),
-              "browser" : self.get_default_browser()
+              "browser" : self.get_default_browser(),
+              "video_encoder" : "transcode"
             },
             "general" : {
               "threads" : "1",
@@ -96,6 +97,13 @@ class T(ConfigParser.ConfigParser):
         path = os.path.normpath(os.path.join(
             sys.path[0], "../share/gnofract4d", subpath))
         return path
+
+    def find_on_path(self, executable):
+        for path in os.environ["PATH"].split(":"):
+            fullname = os.path.join(path,executable)
+            if os.path.exists(fullname):
+                return fullname
+        return None
 
     def find_resource(self, name, local_dir, installed_dir):
         'try and find a file either locally or installed'

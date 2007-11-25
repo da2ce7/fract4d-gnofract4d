@@ -36,13 +36,6 @@ class Test(unittest.TestCase):
         self.failUnless(m,"doc doesn't specify version")
         self.assertEqual(options.version,m.group(1), "Version mismatch")
 
-    def testDesktopFileVersionMatches(self):
-        dtop = open("gnofract4d.desktop").read()
-        dtop_re  = re.compile("Version=(\S+)")
-        m = dtop_re.search(dtop)
-        self.failUnless(m,"Desktop file doesn't specify version")
-        self.assertEqual(options.version,m.group(1), "Version mismatch")
-
     def testWebsiteVersionMatches(self):
         if not os.path.exists("website"):
             # not included in source dist

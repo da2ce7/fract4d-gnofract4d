@@ -1,10 +1,5 @@
 #!/usr/bin/python
 
-# Copyright (C) 2006  Branko Kokanovic
-#
-#   DirectorBean.py: class which stores an animation
-#
-
 import os, sys, copy, math
 
 from xml.sax import make_parser
@@ -33,7 +28,8 @@ def getAttrOrElse(attrs, name):
 
 class KeyFrame:
     def __init__(self,filename,duration,stop,int_type,flags=(0,0,0,0,0,0)):
-        self.filename = filename
+        self.filename = filename.encode()
+        print self.filename
         self.duration = duration
         self.stop = stop
         self.int_type = int_type

@@ -109,14 +109,14 @@ class PNGGeneration(gtk.Dialog,hig.MessagePopper):
     def show_error(self,message,secondary):
         running=False
         self.error=True
-        gtk.threads_enter()
+        gtk.gdk.threads_enter()
         error_dlg = hig.ErrorAlert(
             parent=self,
             primary=message,
             secondary=secondary)
         error_dlg.run()
         error_dlg.destroy()
-        gtk.threads_leave()
+        gtk.gdk.threads_leave()
         event = gtk.gdk.Event(gtk.gdk.DELETE)
         self.emit('delete_event', event)
 

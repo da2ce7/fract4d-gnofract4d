@@ -13,7 +13,7 @@ import sys
 import tempfile
 
 import dialog, hig
-from fract4d import animation
+from fract4d import animation, fractconfig
 
 import PNGGen,AVIGen,DlgAdvOpt,director_prefs
 
@@ -678,6 +678,24 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
         self.frm_output.add(self.box_output_main)
         self.box_main.pack_start(self.frm_output,False,False,0)
 
+
+        # check if transcode can be found
+        self.transpath = fractconfig.instance.find_on_path("transcode")
+        if not self.transpath:
+            # put a message at the bottom to warn user
+            warning_box = gtk.HBox()
+            image = gtk.image_new_from_stock(
+                gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_BUTTON)
+
+            warning_box.pack_start(image)
+            
+            message = gtk.Label(
+                _("Transcode utility not found. Without it we can't generate any video but can still save sequences of still images."))
+
+            message.set_line_wrap(True)
+            warning_box.pack_start(message)
+            self.box_main.pack_end(warning_box)
+
         #--------------showing all-------------------------------
         self.vbox.add(self.box_main)
         self.controls = self.vbox
@@ -690,7 +708,7 @@ class DirectorDialog(dialog.T,hig.MessagePopper):
                id == gtk.RESPONSE_DELETE_EVENT:
             self.hide()
         elif id == DirectorDialog.RESPONSE_RENDER:
-            self.generate()
+            self.generate(self.transpath != None)
 
     def main(self):
         gtk.main()
