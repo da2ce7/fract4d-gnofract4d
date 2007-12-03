@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Weird hack to build separate RPMs for different Python versions, due to
 # incompatible Python API formats. (Fsckers).
@@ -8,7 +8,7 @@
 # use an pre-g++-3.5 compiler to build binary distributions - 3.5 changes the 
 # ABI again (groan) and hardly any of the distributions targeted have it
 
-export ARCH=`uname -i`
+export ARCH=i386
 #export CC=/usr/local/bin/gcc33
 #export CXX=/usr/local/bin/g++33
 #
@@ -43,7 +43,7 @@ export MIN=2.5
 export MAX=2.6
 
 ./mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-3.6-1.$ARCH.rpm dist/gnofract4d-python25-3.6-1.$ARCH.rpm 
+mv dist/gnofract4d-3.7-1.$ARCH.rpm dist/gnofract4d-python25-3.7-1.$ARCH.rpm 
 
 # Python 2.4 version
 export BUILD_PYTHON_VERSION=2.4
@@ -52,21 +52,22 @@ export MIN=2.4
 export MAX=2.5
 
 ./mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-3.6-1.$ARCH.rpm dist/gnofract4d-python24-3.6-1.$ARCH.rpm 
-
+mv dist/gnofract4d-3.7-1.$ARCH.rpm dist/gnofract4d-python24-3.7-1.$ARCH.rpm 
 
 
 unset BUILD_PYTHON_VERSION
 unset BUILD_PYTHON
-unset CC
-unset CXX
 
 # source version
 ./setup.py sdist
 
+# .deb package
+make -f debian/rules binary
+mv ../*.deb dist
+
 # make ISO image for testing on different OSes
 pushd dist
-mkisofs -J -R -o gf4d.iso *3.6*.gz *3.6*.rpm
+mkisofs -J -R -o gf4d.iso *3.7*.gz *3.7*.rpm *3.7*.deb
 popd dist
 
 

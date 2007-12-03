@@ -364,7 +364,7 @@ class SettingsDialog(dialog.T):
             try:
                 current = float(entry.get_text())
                 if current != f.period_tolerance:
-                    print "update entry to %.17f" % f.period_tolerance
+                    #print "update entry to %.17f" % f.period_tolerance
                     entry.set_text("%.17f" % f.period_tolerance)
             except ValueError, err:
                 # current was set to something that isn't a float

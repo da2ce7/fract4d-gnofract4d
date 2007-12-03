@@ -150,7 +150,7 @@ module_fract4dc = Extension(
     'stdc++' 
     ] + jpg_libs,
     extra_compile_args = [
-    '-Wall', '-O0'
+    '-Wall',
     ] + png_flags,
     extra_link_args = png_libs,
     define_macros = defines + extra_macros,
@@ -288,7 +288,6 @@ def copy_libs(dummy,dirpath,namelist):
          target = lib_targets.get(name)
          if target != None:
              name = os.path.join(dirpath, name)
-             print "copying %s" % name
              shutil.copy(name, target)
             
 os.path.walk("build",copy_libs,None)

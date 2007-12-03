@@ -248,9 +248,11 @@ for each pixel. Basically what this means is that the parameter you choose
 becomes the fourth dimension. NB: If you set an explicit value for the parameter as
 well, it'll be ignored.
 </p><p>
-The weird black and white button (OK, so I can't draw) allows you to
-increase the current iteration count, for those occasions when the
-auto-deepening doesn't get it right. The image size list should be
+The <span class="emphasis"><em>Deepen</em></span> button allows you to increase the current iteration count
+and tighten the periodicity checking, for those occasions when the
+auto-deepening and/or auto-tolerance doesn't get it right. This will
+generally convert some 'inside' pixels to outside and make the image
+look better, at the cost of longer rendering time. The image size list should be
 self-explanatory. If you want a size not listed here, use the
 Preferences dialog. </p><p> The <span class="emphasis"><em>Undo</em></span> and
 <span class="emphasis"><em>Redo</em></span> buttons should be fairly obvious. You can
@@ -291,6 +293,21 @@ this range "wrap" to points inside that range.
 The <span class="emphasis"><em>Transforms</em></span> page allows you to control a list
 of transformations applied to the image, and any parameters those transforms have.
 </p><p>
+The <span class="emphasis"><em>General</em></span> page gives a few options which don't
+fit anywhere else. <span class="emphasis"><em>Flip Y Axis</em></span> causes Y to
+increase top-to-bottom, rather than
+bottom-to-top. <span class="emphasis"><em>Periodicity Checking</em></span> is a method
+to speed up generation of the fractal. Points inside the fractal
+eventually settle into a loop, where they repeatedly jump around
+between the same points (they become 'periodic'). By noticing this, we
+can skip calculating the point any further. You will generally want to
+disable this if you are coloring the inside of the fractal, since it
+will look rather weird otherwise. <span class="emphasis"><em>Tolerance</em></span> is
+the distance between points which we'll accept as being 'the same' for
+the purposes of periodicity detection. This is automatically adjusted
+if the 'auto tolerance' setting in the preferences is enabled.
+
+</p><p>
 
 The <span class="emphasis"><em>Colors</em></span> tab allows you to edit the list of
 colors used to display your fractal. For more complex gradient
@@ -302,8 +319,13 @@ Ratio</em></span> is checked when you change either the width or
 height, the other automatically changes to keep the image the same
 shape. If <span class="emphasis"><em>Auto Deepen</em></span> is enabled, <span class="application">Gnofract 4D</span> will try
 to automatically guess how many iterations are required to display the
-image correctly. <span class="emphasis"><em>Antialiasing</em></span> makes the image
-look smoother but takes extra time to do.  </p></div><div class="sect4" lang="en" xml:lang="en"><div class="titlepage"><div><div><h5 class="title"><a id="prefs_compiler"></a>Compiler</h5></div></div></div><p>
+image correctly. Similarly, <span class="emphasis"><em>Auto Tolerance</em></span>
+adjusts the periodicity tolerance setting to try and calculate the
+image quickly but correctly. <span class="emphasis"><em>Antialiasing</em></span> makes
+the image look smoother but takes extra time to do. The difference
+between 'fast' and 'best' is that fast antialiasing doesn't bother to
+recalculate points which are the same color as their neighbors. This
+speeds things up a lot but can miss a few details sometimes. </p></div><div class="sect4" lang="en" xml:lang="en"><div class="titlepage"><div><div><h5 class="title"><a id="prefs_compiler"></a>Compiler</h5></div></div></div><p>
 <span class="application">Gnofract 4D</span> needs a C compiler to be available at runtime in order to
 work (it dynamically creates the code to compute a particular formula
 when you select it). The <span class="emphasis"><em>Compiler</em></span> page allows you
@@ -1742,7 +1764,7 @@ one). Inner colormaps are ignored. </p></li></ul></div><p>
 
 </p></div></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="about"></a>About <span class="application">Gnofract 4D</span></h2></div></div></div><p>
 
-This is <span class="application">Gnofract 4D</span> version 3.6. You can find the most recent version of
+This is <span class="application">Gnofract 4D</span> version 3.7. You can find the most recent version of
 <span class="application">Gnofract 4D</span> from <a href="http://gnofract4d.sourceforge.net" target="_top">
 http://gnofract4d.sourceforge.net/</a>. 
 </p><div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="credits"></a>Credits and copyright</h3></div></div></div><p>

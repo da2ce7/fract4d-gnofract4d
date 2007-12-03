@@ -202,7 +202,8 @@ class Hidden(gobject.GObject):
         elif t == 5:
             # tolerance changed
             # binary format is different for this message
-            (t, tolerance,dummy,dummy) = struct.unpack("idii", bytes)            
+            (tolerance,) = struct.unpack("d", bytes[4:12])
+
             if not self.skip_updates: self.tolerance_changed(tolerance);
         else:
             print "Unknown message from fractal thread; %s" % list(bytes)

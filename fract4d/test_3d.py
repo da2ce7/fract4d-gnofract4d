@@ -122,7 +122,7 @@ class Test(testbase.TestBase):
         big_look = [(-19.5/40) * 4.0, (14.5/30)*3.0, 40.0, 0.0]
         mag = math.sqrt(sum([x*x for x in big_look]))
         exp_look = tuple([x/mag for x in big_look])
-        self.assertEqual(look, exp_look)
+        self.assertNearlyEqual(look, exp_look)
 
         # center of the screen (betwen pixels)
         look = fract4dc.ff_look_vector(self.ff,19.5,14.5)

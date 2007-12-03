@@ -29,4 +29,5 @@ core
 dist
 build
 *.fct
+*.pyc
 MANIFEST

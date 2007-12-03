@@ -8,6 +8,9 @@ changes in 3.7:
 * WW	auto-tolerance
 * W	new deepen icon
 * BB	color preview loses tolerance until it's illegible
+* B	fix .desktop file (Stewart Adams)
+* B	behave better when no transcode installed
+* B	add debian files to MANIFEST.in
 
 bugs (the more B's, the worse the bug):
 * B	'both a Fractint-style default section'... on every fractal
