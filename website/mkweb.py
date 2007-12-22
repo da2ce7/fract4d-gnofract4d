@@ -16,7 +16,7 @@ class Bag:
         self.__dict__.update(kwds)
         
 announce = Bag(
-    date="XXX",
+    date="22nd December 2007",
     text="Version 3.7 released. This automatically adjusts periodicity tolerance and fixes some bugs.")
 
 manual_pages = [
@@ -77,7 +77,9 @@ pages = [
         file="screenshots.html",
         comments=[
     "Thanks for a really cool program...",
-    "Gnofract4D, c'est &#224; mon avis, le meilleur logiciel de fractales sous Linux." ]
+    "Gnofract4D, c'est &#224; mon avis, le meilleur logiciel de fractales sous Linux.",
+    "...recht schnell und sehr sch&#246;n..." 
+    ]
     ),
     
     Bag(name="Galleries",

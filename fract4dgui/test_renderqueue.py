@@ -11,9 +11,10 @@ import gtk
 import gettext
 os.environ.setdefault('LANG', 'en')
 gettext.install('gnofract4d')
-import renderqueue
 
 sys.path.insert(1, "..")
+
+import renderqueue
 
 from fract4d import fractal, image, fc
 

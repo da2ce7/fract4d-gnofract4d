@@ -10,6 +10,8 @@ import warnings
 
 import gtk
 
+sys.path.insert(1, "..")
+
 import utils
 import gtkfractal
 

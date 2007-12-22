@@ -7,6 +7,7 @@ import copy
 import math
 
 import gtk
+
 import undo
 
 class Status:

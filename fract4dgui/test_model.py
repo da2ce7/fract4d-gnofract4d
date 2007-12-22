@@ -8,9 +8,10 @@ import sys
 import StringIO
 
 import gtk
-import model
 
 sys.path.insert(1, "..")
+
+import model
 
 from fract4d import fractal,fc,fract4dc
 
