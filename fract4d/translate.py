@@ -1180,12 +1180,7 @@ class ColorFunc(TBase):
     def __init__(self,f,name,dump=None):
         TBase.__init__(self,name,dump)
 
-        # magic vars always included in colorfuncs
-        density = Var(Float, 0.0, -1)
-        density.default = ir.Const(1.0,-1,fracttypes.Float)
-        
-        self.symbols["@_offset"] = Var(Float, 0.0, -1)
-        self.symbols["@_density"] = density
+        self.create_standard_vars()
 
         try:
             self.main(f)
@@ -1196,6 +1191,21 @@ class ColorFunc(TBase):
             self.errors.append(e.msg)
 
         self.post_init()
+
+    def create_standard_vars(self):
+        # magic vars always included in colorfuncs
+        density = Var(Float, 0.0, -1)
+        density.default = ir.Const(1.0,-1,fracttypes.Float)
+        density.caption = ir.Const("Color Density", -1, fracttypes.String)
+        self.symbols["@_density"] = density        
+        
+        offset = Var(Float, 0.0, -1)
+        offset.min = ir.Const(0.0, -1, fracttypes.Float)
+        offset.max = ir.Const(1.0, -1, fracttypes.Float)
+        offset.caption = ir.Const("Color Offset", -1, fracttypes.String)
+
+        self.symbols["@_offset"] = offset
+        
 
     def index_calc(self, var):
         # @transfer(var) * @density + @offset

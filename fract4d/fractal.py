@@ -973,6 +973,8 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
     def param_display_name(self,name,param):
         if hasattr(param,"title"):
             return param.title.value
+        if hasattr(param,"caption"):
+            return param.caption.value
         if name[:5] == "t__a_":
             return name[5:]
         return name

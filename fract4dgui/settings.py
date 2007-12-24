@@ -597,17 +597,9 @@ class SettingsDialog(dialog.T):
                     
         self.update_transform_parameters(parent)
 
-        def update_all_widgets(*args):
-            if not self.tables[3]:
-                return
-            for widget in self.tables[3].get_children():
-                update_function = widget.get_data("update_function")
-                if update_function != None:
-                    update_function()
-                    
         self.f.connect(
             'formula-changed', self.update_transform_parameters, parent)
-        self.f.connect('parameters-changed', update_all_widgets)
+        self.f.connect('parameters-changed', self.update_all_widgets, lambda: self.tables[3])
         
     def create_formula_widget_table(self,parent,param_type): 
         self.tables[param_type] = None
@@ -625,21 +617,35 @@ class SettingsDialog(dialog.T):
             
         update_formula_parameters()
 
+        self.f.connect('formula-changed', update_formula_parameters)
+        self.f.connect(
+            'parameters-changed', 
+            self.update_all_widgets, lambda: self.tables[param_type])
+
+    def update_all_widgets(self, fractal, container):
         # weird hack. We need to change the set of widgets when
         # the formula changes and change the values of the widgets
         # when the parameters change. When I connected the widgets
         # directly to the fractal's parameters-changed signal they
         # would still get signalled even after they were obsolete.
         # This works around that problem
-        def update_all_widgets(*args):
-            for widget in self.tables[param_type].get_children():
-                update_function = widget.get_data("update_function")
-                if update_function != None:
-                    update_function()
-                    
-        self.f.connect('formula-changed', update_formula_parameters)
-        self.f.connect('parameters-changed', update_all_widgets)
-        
+        print "update all widgets for %s" % container
+
+        if hasattr(container, "__call__"):
+            container = container()
+        else:
+            container = container
+
+        if None == container:
+            return
+
+        for widget in container.get_children():
+            update_function = widget.get_data("update_function")
+            if update_function != None:
+                update_function()
+            if isinstance(widget, gtk.Container):
+                self.update_all_widgets(fractal,widget) # recurse
+
     def show_browser(self,button,type):
         browser.show(self.main_window, self.f, type)
         

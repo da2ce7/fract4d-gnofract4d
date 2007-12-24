@@ -1040,6 +1040,23 @@ default:
             self.assertEqual(op[key],exp_ord[key])
 
 
+    def testCFParams(self):
+        t = self.translatecf('''t {
+        final:
+        #index = |#z|
+        }''')
+
+        offset = t.symbols["@_offset"]
+        self.assertEqual(0.0, offset.min.value)
+        self.assertEqual(1.0, offset.max.value)
+        self.assertEqual("Color Offset", offset.caption.value)
+
+        density = t.symbols["@_density"]
+        self.assertEqual(1.0, density.default.value)
+        self.assertEqual("Color Density", density.caption.value)
+
+        gradient = t.symbols["@_gradient"]
+
     def testFuncParam(self):
         t =self.translate('''test_func {
         loop:
@@ -1568,7 +1585,24 @@ default:
         }''')
 
         self.assertNoErrors(t)
-    
+
+    def testMinMaxParamProperties(self):
+        t = self.translate('''t {
+        default:
+        float param bailout
+          caption="Bailout"
+          default=1e10
+          min=1
+          max=1e20
+        endparam
+        }''')
+
+        self.assertNoErrors(t)
+
+        bailout = t.symbols["@bailout"]
+        self.assertEqual(bailout.min.value, 1.0)
+        self.assertEqual(bailout.max.value, 1.0e20)
+
 def suite():
     return unittest.makeSuite(Test,'test')
 

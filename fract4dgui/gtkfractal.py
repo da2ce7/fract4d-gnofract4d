@@ -468,7 +468,7 @@ class T(Hidden):
 
     def make_numeric_entry(self, form, param, order):
         param_type = form.paramtypes[order]
-        
+
         if param.type == fracttypes.Int:
             fmt = "%d"
         else:
@@ -477,7 +477,7 @@ class T(Hidden):
         widget = gtk.Entry()
         widget.set_activates_default(True)
 
-        def set_entry(*args):
+        def set_entry():
             new_value = fmt % form.params[order]
             if widget.get_text() != new_value:
                 widget.set_text(new_value)
@@ -494,13 +494,40 @@ class T(Hidden):
                 #utils.idle_add(f.warn,msg)
             return False
 
-        set_entry(self)
+        set_entry()
 
         widget.set_data("update_function", set_entry)
 
         widget.f = self
         widget.connect('focus-out-event',
                        set_fractal,form,order)
+        
+        if hasattr(param, "min") and hasattr(param, "max"):
+            # add a slider
+            adj = gtk.Adjustment(
+                0.0,param.min.value, param.max.value,
+                0.001, 
+                0.01)
+
+            def set_adj():
+                if adj.value != form.params[order]:
+                    adj.set_value(form.params[order])
+
+            set_adj()
+            def adj_changed(adjustment,form,order):
+                utils.idle_add(
+                    form.set_param, order, adjustment.value)
+
+            adj.connect('value-changed', adj_changed, form, order)
+
+            hscale = gtk.HScale(adj)
+            hscale.set_draw_value(False)
+            hscale.set_update_policy(gtk.UPDATE_DELAYED)
+            hscale.set_data("update_function",set_adj)
+            vbox = gtk.VBox()
+            vbox.pack_start(widget)
+            vbox.pack_start(hscale)
+            return vbox
 
         return widget
 
