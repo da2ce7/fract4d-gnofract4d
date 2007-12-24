@@ -629,7 +629,6 @@ class SettingsDialog(dialog.T):
         # directly to the fractal's parameters-changed signal they
         # would still get signalled even after they were obsolete.
         # This works around that problem
-        print "update all widgets for %s" % container
 
         if hasattr(container, "__call__"):
             container = container()

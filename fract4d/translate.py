@@ -1194,19 +1194,17 @@ class ColorFunc(TBase):
 
     def create_standard_vars(self):
         # magic vars always included in colorfuncs
+        offset = Var(Float, 0.0, -1)
+        offset.min = ir.Const(0.0, -1, fracttypes.Float)
+        offset.max = ir.Const(1.0, -1, fracttypes.Float)
+        offset.caption = ir.Const("Color Offset", -1, fracttypes.String)
+        self.symbols["@_offset"] = offset
+
         density = Var(Float, 0.0, -1)
         density.default = ir.Const(1.0,-1,fracttypes.Float)
         density.caption = ir.Const("Color Density", -1, fracttypes.String)
         self.symbols["@_density"] = density        
         
-        offset = Var(Float, 0.0, -1)
-        offset.min = ir.Const(0.0, -1, fracttypes.Float)
-        offset.max = ir.Const(1.0, -1, fracttypes.Float)
-        offset.caption = ir.Const("Color Offset", -1, fracttypes.String)
-
-        self.symbols["@_offset"] = offset
-        
-
     def index_calc(self, var):
         # @transfer(var) * @density + @offset
         return \

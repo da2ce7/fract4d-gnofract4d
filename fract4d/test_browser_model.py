@@ -80,7 +80,6 @@ class Test(testbase.TestBase):
         bm = browser_model.T(g_comp)
         self.assertNotEqual(bm.current.files, [])
         self.assertListSorted(bm.current.files)
-
         
     def testSetTypeTwice(self):
         bm = Wrapper()

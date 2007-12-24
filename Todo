@@ -1,16 +1,8 @@
 todo:
 
-changes in 3.7:
-* W	removed Gtk.ItemFactory and replaced with uimanager
-* W	some other cleanup of old GTK+ backcompat code which is no longer required
-* B	upload doesn't work immediately after authentication (creds not saved?)
-* B	dismissing autozoom doesn't stop zooming
-* WW	auto-tolerance
-* W	new deepen icon
-* BB	color preview loses tolerance until it's illegible
-* B	fix .desktop file (Stewart Adams)
-* B	behave better when no transcode installed
-* B	add debian files to MANIFEST.in
+changes in 3.8:
+* W	sliders for params with min/max
+* BB	browse to .frm file doesn't appear to work
 
 bugs (the more B's, the worse the bug):
 * B	'both a Fractint-style default section'... on every fractal
@@ -214,6 +206,18 @@ in return for a look at what I'm generating, (like ElectricSheep).
 
 Requires: above, +able to deal with ad-hoc networks of thousands of peers,
 economic incentive, security, works with NAT
+
+changes in 3.7:
+* W	removed Gtk.ItemFactory and replaced with uimanager
+* W	some other cleanup of old GTK+ backcompat code which is no longer required
+* B	upload doesn't work immediately after authentication (creds not saved?)
+* B	dismissing autozoom doesn't stop zooming
+* WW	auto-tolerance
+* W	new deepen icon
+* BB	color preview loses tolerance until it's illegible
+* B	fix .desktop file (Stewart Adams)
+* B	behave better when no transcode installed
+* B	add debian files to MANIFEST.in
 
 changes in 3.6:
 * B	don't install buildtools to site-packages

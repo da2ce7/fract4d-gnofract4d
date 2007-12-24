@@ -153,7 +153,8 @@ class Test(unittest.TestCase):
         self.assertEqual(names[0],"Max Iterations :")
         self.assertEqual(names[1],"bailfunc")
         self.assertEqual(names[2],"bailout")
-        self.assertEqual(names[3],"myfunc")
+        self.assertEqual(names[3],"Param with min and max")
+        self.assertEqual(names[4],"myfunc")
         
         table = self.f.populate_formula_settings(1,gtk.Tooltips())
 
@@ -164,7 +165,7 @@ class Test(unittest.TestCase):
 
         self.assertEqual(
             names,
-            [ "_density", "_offset", "_transfer",
+            [ "Color Density", "Color Offset", "_transfer",
               "col", "ep", "i", "mycolorfunc", "myfunc", "val",
               "val2 (re)", "val2 (i)", "val2 (j)", "val2 (k)"])
 

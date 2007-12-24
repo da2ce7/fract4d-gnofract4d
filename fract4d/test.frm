@@ -179,6 +179,12 @@ endfunc
 float func bailfunc
 	default = cabs
 endfunc
+int param minmax
+    default = 5
+    min = 0
+    max = 10
+    caption = "Param with min and max"
+endparam
 }
 
 ; a new-year's eve fractal - looks like a good torture test...
