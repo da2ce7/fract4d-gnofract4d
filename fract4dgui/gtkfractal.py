@@ -799,15 +799,13 @@ class T(Hidden):
         table.attach(widget,1,2,i,i+1,0,0,2,2)
         return i+1
 
-    def populate_formula_settings(self, param_type, tips):
+    def populate_formula_settings(self, table, param_type, tips,row=0):
         # create widget to fiddle with this fractal's settings
         form = self.f.get_form(param_type)
         formula = form.formula
         
-        table = gtk.Table(5,2,False)
-        i = 0
         if param_type == 0:
-            i = self.create_maxiter_widget(table,i)
+            row = self.create_maxiter_widget(table,row)
             
         params = formula.symbols.parameters()
         op = formula.symbols.order_of_params()
@@ -817,33 +815,33 @@ class T(Hidden):
         for name in keys:
             param = params[name]
             if isinstance(param,fracttypes.Func):
-                self.add_formula_function(table,i,name,param,form)
+                self.add_formula_function(table,row,name,param,form)
             else:
                 if param.type == fracttypes.Complex:
                     self.add_complex_formula_setting(
-                        table,i,form,name,param,
+                        table,row,form,name,param,
                         op[name],tips,
                         param_type)
-                    i+= 1
+                    row+= 1
                 elif param.type == fracttypes.Hyper:
                     suffixes = [" (re)", " (i)", " (j)", " (k)"]
                     for j in xrange(4):
                         self.add_formula_setting(
-                            table,i+j,form,name,suffixes[j],
+                            table,row+j,form,name,suffixes[j],
                             param,op[name]+j)
-                    i += 3
+                    row += 3
                 elif param.type == fracttypes.Color:
                     self.add_formula_setting(
-                        table,i, form, name,"",
+                        table,row, form, name,"",
                         param,op[name])
-                    i += 3
+                    row += 3
                 elif param.type == fracttypes.Gradient:
                     # FIXME
                     pass
                 else:
                     self.add_formula_setting(
-                        table,i,form,name,"",param,op[name])
-            i += 1
+                        table,row,form,name,"",param,op[name])
+            row += 1
         return table
 
     def set_size(self, new_width, new_height):

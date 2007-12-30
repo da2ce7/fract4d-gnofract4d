@@ -2232,7 +2232,18 @@ Newton4(XYAXIS) {; Mark Peterson
             self.inspect_complex("moop")
             ]),
             "x = (-77.1,22)\ny = (22.9,0.5)\nmoop = (77,10)")
-        
+
+    def testDivisionByZero(self):
+        src = '''zero {
+        init:
+        int x = -1 % 0
+        }'''
+
+        self.assertCSays(
+            src, "init",
+            self.inspect_int("x"),            
+            "x = -inf")
+
     # assertions
     def assertCSays(self,source,section,check,result,options={}):
         asm = self.sourceToAsm(source,section,options)

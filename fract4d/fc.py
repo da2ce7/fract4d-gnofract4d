@@ -242,7 +242,6 @@ class Compiler:
         return outputfile
     
     def find_file(self,filename,type):
-        print "finding %s %s" % (filename, type)
         if os.path.exists(filename):
             dir = os.path.dirname(filename)
             if self.path_lists[type].count(dir) == 0:

@@ -24,7 +24,6 @@ def show(parent, f,type):
     BrowserDialog.show(parent,f,type)
 
 def update(file=None, formula=None):
-    print "update: %s %s" % (file, formula)
     browser_model.instance.update(file,formula)
     
 class BrowserDialog(dialog.T):

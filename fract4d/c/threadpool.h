@@ -11,6 +11,7 @@
 #define _THREADPOOL_H_
 
 #include "pthread.h"
+#include <signal.h>
 #include <cassert>
 #include <limits.h>
 
@@ -108,10 +109,10 @@ class tpool {
 
     static void threadFunc(tpool_threadInfo<threadInfo> *pinfo)
         {
-	  tpool<work_t,threadInfo> *p = 
-	    (tpool<work_t,threadInfo> *) pinfo->pool;
+	    tpool<work_t,threadInfo> *p = 
+		(tpool<work_t,threadInfo> *) pinfo->pool;
 
-	  p->work(pinfo->info);
+	    p->work(pinfo->info);
         }
 
     int add_work(void (*routine)(work_t&, threadInfo *), const work_t& arg)

@@ -6,6 +6,7 @@ import dialog
 import browser
 import utils
 import copy
+from table import Table
 
 def show_settings(parent,alt_parent, f,dialog_mode):
     SettingsDialog.show(parent,alt_parent, f,dialog_mode)
@@ -423,61 +424,11 @@ class SettingsDialog(dialog.T):
     def add_notebook_page(self,page,text):
         label = gtk.Label(text)
         label.set_use_underline(True)
-        self.notebook.append_page(page,label)
+        frame = gtk.Frame()
+        frame.set_shadow_type(gtk.SHADOW_ETCHED_IN)        
+        frame.add(page)
+        self.notebook.append_page(frame,label)
         
-    def create_outer_page(self):
-        vbox = gtk.VBox()
-        table = gtk.Table(5,2,False)
-        vbox.pack_start(table)
-
-        self.create_formula_widget_table(vbox,1)
-
-        self.add_notebook_page(vbox,_("_Outer"))
-
-        cflabel = gtk.Label(_("Colorfunc :"))
-        table.attach(cflabel, 0,1,0,1,0,0,2,2)
-        label = gtk.Label(self.f.forms[1].funcName)
-
-        def set_label(*args):
-            label.set_text(self.f.forms[1].funcName)
-            
-        self.f.connect('parameters-changed',set_label)
-
-        hbox = gtk.HBox(False,1)
-        hbox.pack_start(label)
-        button = gtk.Button(_("_Browse..."))
-        self.tooltips.set_tip(button,_("Browse available coloring functions"))
-        button.set_use_underline(True)
-        button.connect('clicked', self.show_browser, browser.OUTER)
-        hbox.pack_start(button)
-        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)
-        
-    def create_inner_page(self):
-        vbox = gtk.VBox()
-        table = gtk.Table(5,2,False)
-        vbox.pack_start(table)
-
-        self.create_formula_widget_table(vbox,2)
-
-        self.add_notebook_page(vbox, _("_Inner"))
-
-        table.attach(gtk.Label(_("Colorfunc :")), 0,1,0,1,0,0,2,2)
-        label = gtk.Label(self.f.forms[2].funcName)
-
-        def set_label(*args):
-            label.set_text(self.f.forms[2].funcName)
-            
-        self.f.connect('parameters-changed',set_label)
-
-        hbox = gtk.HBox(False,1)
-        hbox.pack_start(label)
-        button = gtk.Button(_("_Browse..."))
-        button.set_use_underline(True)
-        self.tooltips.set_tip(button,_("Browse available coloring functions"))
-        button.connect('clicked', self.show_browser, browser.INNER)
-        hbox.pack_start(button)
-        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2) 
-
     def remove_transform(self,*args):
         if self.selected_transform == None:
             return
@@ -486,7 +437,7 @@ class SettingsDialog(dialog.T):
         
     def create_transforms_page(self):
         vbox = gtk.VBox()
-        table = gtk.Table(5,2,False)
+        table = Table(5,2,False)
         vbox.pack_start(table)
 
         self.transform_store = gtk.ListStore(gobject.TYPE_STRING, object)
@@ -552,32 +503,56 @@ class SettingsDialog(dialog.T):
                 i += 1
 
         self.update_transform_parameters(parent)
-            
-    def create_formula_parameters_page(self):
-        vbox = gtk.VBox()
-        table = gtk.Table(5,2,False)
-        vbox.pack_start(table)
 
-        self.create_formula_widget_table(vbox,0)
-
-        self.add_notebook_page(vbox, _("_Formula"))
-
-        table.attach(gtk.Label(_("Formula :")), 0,1,0,1,0,0,2,2)
-        hbox = gtk.HBox(False,1)
-        label = gtk.Label(self.f.forms[0].funcName)
+    def create_browsable_name(self, table, param_type, typename, tip):
+        label = gtk.Label(self.f.forms[param_type].funcName)
 
         def set_label(*args):
-            label.set_text(self.f.forms[0].funcName)
+            label.set_text(self.f.forms[param_type].funcName)
             
         self.f.connect('parameters-changed',set_label)
-        
+
+        hbox = gtk.HBox(False,1)
         hbox.pack_start(label)
+
         button = gtk.Button(_("_Browse..."))
         button.set_use_underline(True)
-        self.tooltips.set_tip(button,_("Browse available fractal functions"))
+        self.tooltips.set_tip(button,tip)
         button.connect('clicked', self.show_browser, browser.FRACTAL)
         hbox.pack_start(button)
-        table.attach(hbox, 1,2,0,1,gtk.EXPAND | gtk.FILL ,0,2,2)
+
+        table.add(gtk.Label(typename),0,0,0,2,2)
+        table.add(hbox, 1, gtk.EXPAND | gtk.FILL ,0,2,2)
+
+    def create_outer_page(self):
+        vbox = gtk.VBox()
+        self.create_formula_widget_table(
+            vbox,
+            1,
+            _("Colorfunc :"),
+            _("Browse available coloring functions"))
+
+        self.add_notebook_page(vbox,_("Outer"))
+        
+    def create_inner_page(self):
+        vbox = gtk.VBox()
+        self.create_formula_widget_table(
+            vbox,
+            2,
+            _("Colorfunc :"),
+            _("Browse available coloring functions"))
+
+        self.add_notebook_page(vbox, _("Inner"))
+
+    def create_formula_parameters_page(self):
+        vbox = gtk.VBox()
+        self.create_formula_widget_table(
+            vbox,
+            0,
+            _("Formula :"), 
+            _("Browse available fractal functions"))
+        
+        self.add_notebook_page(vbox, _("Formula"))
 
     def update_transform_parameters(self, parent, *args):
         widget = self.tables[3] 
@@ -585,9 +560,10 @@ class SettingsDialog(dialog.T):
             parent.remove(self.tables[3])
 
         if self.selected_transform != None:
-            self.tables[3] = \
-                self.f.populate_formula_settings(
-                    self.selected_transform+3,self.tooltips)
+            self.tables[3] = Table(5,2,False)
+            self.f.populate_formula_settings(
+                self.tables[3],
+                self.selected_transform+3,self.tooltips)
 
             self.tables[3].show_all()
             parent.pack_start(self.tables[3])
@@ -601,7 +577,7 @@ class SettingsDialog(dialog.T):
             'formula-changed', self.update_transform_parameters, parent)
         self.f.connect('parameters-changed', self.update_all_widgets, lambda: self.tables[3])
         
-    def create_formula_widget_table(self,parent,param_type): 
+    def create_formula_widget_table(self,parent,param_type,typename,tip): 
         self.tables[param_type] = None
         
         def update_formula_parameters(*args):
@@ -609,12 +585,16 @@ class SettingsDialog(dialog.T):
             if widget != None and widget.parent != None:
                 parent.remove(self.tables[param_type])
 
-            self.tables[param_type] = \
-                self.f.populate_formula_settings(param_type,self.tooltips)
+            table = Table(5,2,False)
+            self.create_browsable_name(table, param_type, typename, tip)
             
-            self.tables[param_type].show_all()
-            parent.pack_start(self.tables[param_type])
+            self.f.populate_formula_settings(
+                table,
+                param_type,self.tooltips, 1)
             
+            table.show_all()
+            parent.pack_start(table)
+            self.tables[param_type] = table
         update_formula_parameters()
 
         self.f.connect('formula-changed', update_formula_parameters)

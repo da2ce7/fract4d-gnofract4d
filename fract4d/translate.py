@@ -13,6 +13,15 @@ import canon
 
 from fracttypes import *
     
+allowed_param_names = [
+    "default",
+    "caption",
+    "min",
+    "max",
+    "enum",
+    "hint"
+]
+
 class TBase:
     def __init__(self,prefix,dump=None):
         #print "translating"
@@ -155,20 +164,27 @@ class TBase:
         return seq
 
     def paramsetting(self,node,var):
-        name = node.children[0]
-        if name.leaf == "visible" or name.leaf == "enabled":
+        name = node.children[0].leaf
+
+        if not name in allowed_param_names:
+            self.warning(
+                "%d: Unrecognized parameter setting '%s' ignored" % \
+                (node.pos, name))
+            return
+
+        if name == "visible" or name == "enabled":
             #FIXME ignore visibility for now, parser can't deal with it
             return
         
-        if name.leaf == "default":
+        if name == "default":
             e = self.exp(node.children[1])
             var.full_default = e
 
-        if name.leaf == "enum":
+        if name == "enum":
             self.enum(node.children[1])
-        
+                
         val = self.const_exp(node.children[1])
-        setattr(var,name.leaf,val)
+        setattr(var,name,val)
 
     def expand_enum(self, node, v, name):
         if hasattr(v, "enum"):

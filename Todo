@@ -3,11 +3,13 @@ todo:
 changes in 3.8:
 * W	sliders for params with min/max
 * BB	browse to .frm file doesn't appear to work
+* W	more robust handling of unknown parameter settings
 
 bugs (the more B's, the worse the bug):
 * B	'both a Fractint-style default section'... on every fractal
 * BBB	too slow!
-* BB	floating point exception on load of aho.ucl#Stripes_any
+* BB	sometimes get "Fatal Python error: GC object already tracked" during fract4d/test.py
+* BB	floating point exception on load of aho.ucl#Stripes_any (-1 % 0)
 * BB	animation colors are screwed
 * BB	func with a bailout of 1 will never quit and can't be interrupted
 * B	interrupt takes too long on deep-zoomed fractals

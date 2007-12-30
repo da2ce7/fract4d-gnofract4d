@@ -1603,6 +1603,22 @@ default:
         self.assertEqual(bailout.min.value, 1.0)
         self.assertEqual(bailout.max.value, 1.0e20)
 
+    def testDubiousProperties(self):
+        t = self.translate('''t {
+        default:
+        float param bailout
+          value = 20
+          caption="Bailout"
+          default=1e10
+          min=1
+          max=1e20
+        endparam
+        }''')
+        
+        self.assertWarning(t, "4: Unrecognized parameter setting 'value' ignored")
+        bailout = t.symbols["@bailout"]
+        self.assertFalse(hasattr(bailout.value, "value"))
+
 def suite():
     return unittest.makeSuite(Test,'test')
 
