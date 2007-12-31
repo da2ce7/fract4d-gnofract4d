@@ -385,15 +385,16 @@ color param out
 endparam
 }
 
-Taylor Series {
+Taylor1 {
 init:
-target = exp(#pixel)
+complex x = #pixel
+target = exp(x)
 float denominator = 1
 int count = 0
 z = 0
-start = exp(#zwpixel)
+c = #zwpixel
 loop:
-	z = z + exp(start) * ((#pixel - start)^count) / denominator
+	z = z + exp(c) * ((x - c)^count) / denominator
 	if count > 0
 		denominator = denominator * (count + 1)
 	endif
@@ -405,6 +406,104 @@ float param tolerance
 	default = 0.00000001
 endparam
 }
+
+Taylor2 {
+init:
+      ; The value we wish to approximate
+
+      complex zvalue = exp(#pixel)
+
+      float xavg = 0;    
+      float yavg = 0;    
+      float mavg = 0;    
+
+      float xmax = 0;    
+      float ymax = 0;    
+      float mmax = 0;    
+
+      float xtot = 0;    
+      float ytot = 0;    
+      float mtot = 0;    
+ 
+      float tolerance     = 1e-6
+
+      complex zSum           = 0
+      float denominator   = 1
+
+      ; The point around which we'll create our expansion.  We use
+      ; exp(current) here but we could just as well have used:
+      
+      ; point = [2, 3]
+      ; point = sin(current)
+      ; etc.
+      
+      ; There is no special significance to the fact that we're using
+      ; exp(current) and we're attempting to approximate exp.
+
+      complex point = (0,0) ;exp(#pixel)
+
+      ; Loop until we've been through the loop '$maxIterations' times
+      ; or we deem that zSum is close enough to zvalue
+
+      int count = 0
+loop:
+    zSum = zSum + exp(point) * ((#z - point) ^ (count,0)) / denominator
+
+    
+    if(count > 0)
+        denominator = denominator * (count + 1)
+    endif
+    count = count + 1
+
+    ;value = cotan(zSum)
+    
+    ;float x = cabs(value ^ .1)
+    ;float y = cabs(value ^ .2)
+    ;float m = cabs(value ^ .4)
+    ;
+    ;float xavg = (x + xavg * count) / (count + 1)
+    ;float yavg = (y + yavg * count) / (count + 1)
+    ;float mavg = (m + mavg * count) / (count + 1)
+    ;
+    ;float xdev = sqrt((x - xavg) * (x - xavg))
+    ;float ydev = sqrt((y - yavg) * (y - yavg))
+    ;float mdev = sqrt((m - mavg) * (m - mavg))
+    ;
+    ;float xmax = max(xmax, xdev)
+    ;float ymax = max(ymax, ydev)
+    ;float mmax = max(mmax, mdev)
+    ;
+    ;float xtot = xtot + xdev
+    ;float ytot = ytot + ydev
+    ;float mtot = mtot + mdev
+
+
+bailout:
+	; bail out when they are close together
+	| zvalue - zSum | > tolerance
+
+}
+
+
+;foo {
+;      r = 0
+;      g = 0
+;      b = 0
+;
+;      if(count > 0)
+;      {
+;         r = (xtot/count) / xmax
+;         g = (ytot/count) / ymax
+;         b = (mtot/count) / mmax
+;
+;         r = get_sin_color(r, 255, 1)
+;         g = get_sin_color(g, 255, 1)
+;         b = get_sin_color(b, 255, 1)
+;      }
+;
+;      set_color(r, g, b)
+;   }
+;}
 
 EvenOddAbs {
 init:
@@ -629,4 +728,34 @@ zcenter=1.0
 wcenter=0.1
 magnitude=8.0
 maxiter=256
+}
+
+
+Newton_exp {
+; the Newton-Raphson method applied to f(z) = z^a - b^z 
+; df/dz = a z^(a-1) - z b^(z-1)
+
+init:
+	z = z0 = #zwpixel
+	nm1 = @a - 1.0
+	zm1 = z0 - 1.0
+loop:
+	last = z
+	z = z - ((z ^ @a - @base ^ z0) - @root)/ (@a * z ^ nm1 - z0 * @base ^ zm1)
+bailout:
+	|z - last| > #tolerance
+default:
+
+xzangle=1.5707963267948966
+ywangle=1.5707963267948966
+xcenter=1.0
+param a
+	default = (3.0, 0.0)
+endparam
+param root
+	default = (1.0, 0.0)
+endparam
+param base
+      default = (2.0,0.0)
+endparam
 }

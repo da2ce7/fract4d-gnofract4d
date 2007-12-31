@@ -12,8 +12,8 @@ from fract4d import fc, gradient, browser_model
 import preferences, dialog, utils, gtkfractal
 
 FRACTAL = 0
-INNER = 1
-OUTER = 2
+OUTER = 1
+INNER = 2
 TRANSFORM = 3
 GRADIENT = 4
 
@@ -219,8 +219,8 @@ class BrowserDialog(dialog.T):
         # option menu for choosing Inner/Outer/Fractal
         self.funcTypeMenu = utils.create_option_menu(
             [_("Fractal Function"),
-             _("Inner Coloring Function"),
              _("Outer Coloring Function"),
+             _("Inner Coloring Function"),
              _("Transform Function"),
              _("Gradient")])
 

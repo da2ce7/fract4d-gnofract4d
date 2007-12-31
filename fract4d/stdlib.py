@@ -564,6 +564,38 @@ def min2_c_f(gen,t,srcs):
 
     return dst
 
+def min_ff_f(gen,t,srcs):
+    l = srcs[0]
+    r = srcs[1]
+    right_larger = gen.symbols.newLabel()
+    done = gen.symbols.newLabel()
+    dst = gen.newTemp(Float)
+    right_greater = gen.emit_binop('>', [r,l], Float)
+    gen.emit_cjump(right_greater, right_larger)
+    # l is larger
+    gen.emit_move(r,dst)
+    gen.emit_jump(done)
+    gen.emit_label(right_larger)
+    gen.emit_move(l,dst)
+    gen.emit_label(done)
+    return dst
+
+def max_ff_f(gen,t,srcs):
+    l = srcs[0]
+    r = srcs[1]
+    right_larger = gen.symbols.newLabel()
+    done = gen.symbols.newLabel()
+    dst = gen.newTemp(Float)
+    right_greater = gen.emit_binop('>', [r,l], Float)
+    gen.emit_cjump(right_greater, right_larger)
+    # l is larger
+    gen.emit_move(l,dst)
+    gen.emit_jump(done)
+    gen.emit_label(right_larger)
+    gen.emit_move(r,dst)
+    gen.emit_label(done)
+    return dst
+
 def max2_c_f(gen,t,srcs):
     r2 = real2_c_f(gen,t,srcs)
     i2 = imag2_c_f(gen,t,srcs)

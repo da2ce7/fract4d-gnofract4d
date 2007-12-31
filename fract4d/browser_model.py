@@ -3,8 +3,8 @@ import os
 import fc, event, gradient
 
 FRACTAL = 0
-INNER = 1
-OUTER = 2
+OUTER = 1
+INNER = 2
 TRANSFORM = 3
 GRADIENT = 4
 
@@ -97,8 +97,8 @@ class T:
         self.compiler = compiler
         self.typeinfo = [
             TypeInfo(self, compiler, fc.FormulaTypes.FRACTAL),
-            TypeInfo(self, compiler, fc.FormulaTypes.COLORFUNC, "OUTSIDE"),
             TypeInfo(self, compiler, fc.FormulaTypes.COLORFUNC, "INSIDE"),
+            TypeInfo(self, compiler, fc.FormulaTypes.COLORFUNC, "OUTSIDE"),
             TypeInfo(self, compiler, fc.FormulaTypes.TRANSFORM),
             TypeInfo(self, compiler, fc.FormulaTypes.GRADIENT)
             ]

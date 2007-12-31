@@ -143,7 +143,8 @@ class Test(unittest.TestCase):
         self.f.set_formula("test.frm","test_func")
         self.f.set_outer("test.cfrm","flat")
         
-        table = self.f.populate_formula_settings(0,gtk.Tooltips())
+        table = gtk.Table()
+        self.f.populate_formula_settings(table, 0,gtk.Tooltips())
 
         children = table.get_children()
         list.reverse(children)
@@ -156,7 +157,8 @@ class Test(unittest.TestCase):
         self.assertEqual(names[3],"Param with min and max")
         self.assertEqual(names[4],"myfunc")
         
-        table = self.f.populate_formula_settings(1,gtk.Tooltips())
+        table = gtk.Table()
+        self.f.populate_formula_settings(table, 1,gtk.Tooltips())
 
         children = table.get_children()
         list.reverse(children)
@@ -172,12 +174,14 @@ class Test(unittest.TestCase):
     def testIntParamSetting(self):
         self.f.set_formula("test.frm","fn_with_intparam")
 
-        table = self.f.populate_formula_settings(0,gtk.Tooltips())
+        table = gtk.Table()
+        self.f.populate_formula_settings(table, 0,gtk.Tooltips())
 
     def testAllSettingsTypes(self):
         self.f.set_formula("test.frm","test_all_types")
         
-        table = self.f.populate_formula_settings(0,gtk.Tooltips())
+        table = gtk.Table()
+        self.f.populate_formula_settings(table, 0,gtk.Tooltips())
         
     def testButton1(self):
         f = self.f

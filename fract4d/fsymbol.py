@@ -343,6 +343,14 @@ def createDefaultDict():
       doc='''A variant on Manhattan distance provided for backwards
       compatibility. manhattanish2(a,b) is equivalent to (a*a + b*b)^2.''')
 
+    f("min",
+      [[Float, Float], Float],
+      doc='''Returns the smaller of its two arguments.''')
+      
+    f("max",
+      [[Float, Float], Float],
+      doc='''Returns the larger of its two arguments.''')
+
     f("max2",
       [[Complex], Float],
       doc='''max2(a,b) returns the larger of a*a or b*b. Provided for

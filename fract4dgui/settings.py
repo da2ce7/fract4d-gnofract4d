@@ -518,7 +518,7 @@ class SettingsDialog(dialog.T):
         button = gtk.Button(_("_Browse..."))
         button.set_use_underline(True)
         self.tooltips.set_tip(button,tip)
-        button.connect('clicked', self.show_browser, browser.FRACTAL)
+        button.connect('clicked', self.show_browser, param_type)
         hbox.pack_start(button)
 
         table.add(gtk.Label(typename),0,0,0,2,2)
@@ -575,7 +575,8 @@ class SettingsDialog(dialog.T):
 
         self.f.connect(
             'formula-changed', self.update_transform_parameters, parent)
-        self.f.connect('parameters-changed', self.update_all_widgets, lambda: self.tables[3])
+        self.f.connect(
+            'parameters-changed', self.update_all_widgets, lambda: self.tables[3])
         
     def create_formula_widget_table(self,parent,param_type,typename,tip): 
         self.tables[param_type] = None
@@ -626,6 +627,7 @@ class SettingsDialog(dialog.T):
                 self.update_all_widgets(fractal,widget) # recurse
 
     def show_browser(self,button,type):
+        print "browsing type %s" % type
         browser.show(self.main_window, self.f, type)
         
     def create_param_entry(self,table, row, text, param):

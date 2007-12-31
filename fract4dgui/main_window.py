@@ -232,7 +232,7 @@ class MainWindow:
                 active=True
             except Exception,err:
                 active=False
-                chooser.set_preview_widget_active(active)
+            chooser.set_preview_widget_active(active)
                 
         self.open_fs.set_preview_widget(self.open_preview.widget)
         self.open_fs.connect(
@@ -895,7 +895,10 @@ class MainWindow:
         self.resolutions = [
             (320,240), (640,480),
             (800,600), (1024, 768),
-            (1280,1024), (1600,1200)]
+            (1280, 800), (1280, 960), (1280,1024), 
+            (1400, 1050), (1440, 900),
+            (1600,1200), (1680, 1050), 
+            (1920, 1200), (2560, 1600)]
 
         res_names= [ "%dx%d" % (w,h) for (w,h) in self.resolutions]
         

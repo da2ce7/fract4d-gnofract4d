@@ -1459,7 +1459,7 @@ solids=[
         f.draw(im)
         im.save("foo.tga")
 
-    def testPeriodColorfunc(self):
+    def disabled_testPeriodColorfunc(self):
         f = fractal.T(self.compiler)
         f.set_inner("gf4d.cfrm", "Periodicity")
         f.compile()

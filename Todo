@@ -4,11 +4,18 @@ changes in 3.8:
 * W	sliders for params with min/max
 * BB	browse to .frm file doesn't appear to work
 * W	more robust handling of unknown parameter settings
+* BB	previews missing from 'open parameter file' dialog
+* W	min, max functions
+* W	added signs, direct signs coloring methods
+* B	removed non-functional periodicity coloring method
+* W	widescreen resolutions in drop-down
 
 bugs (the more B's, the worse the bug):
 * B	'both a Fractint-style default section'... on every fractal
+* BB	(0,0)^1 == nan (pow_cf_c code wrong for this case)
 * BBB	too slow!
 * BB	sometimes get "Fatal Python error: GC object already tracked" during fract4d/test.py
+
 * BB	floating point exception on load of aho.ucl#Stripes_any (-1 % 0)
 * BB	animation colors are screwed
 * BB	func with a bailout of 1 will never quit and can't be interrupted
@@ -28,6 +35,7 @@ bugs (the more B's, the worse the bug):
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * BB	stops drawing after new gradient applied to DCA fractal (sometimes)
 
+* B	MandAutoCritInZ doesn't work if optimization off in g++?
 * B	hth.ufm#StrangeKindOfMandelbrot gives 'cmag_c_c not found'
 * B	can't have a DCA and a non-DCA formula for inner and outer
 * B	painter doesn't work on purple background of gfp2lob003.fct

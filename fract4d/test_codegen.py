@@ -1886,6 +1886,8 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
             [ "ffloor1 = (floor(0.5), floor(0.4))", "ffloor1", "(0,0)"],
             [ "ffloor2 = (floor(-0.5), floor(-0.4))", "ffloor2", "(-1,-1)"],
             [ "fzero = (zero(77),zero(-41.2))", "fzero", "(0,0)"],
+            [ "fmin = (min(-2,-3), min(2,3))", "fmin", "(-3,2)"],
+            [ "fmax = (max(-2,-3), max(2,3))", "fmax", "(-2,3)"],
             
             # trig functions
             [ "t_sin = (sin(0),sin(1))","t_sin", self.predict(math.sin)],

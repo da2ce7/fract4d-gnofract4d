@@ -280,7 +280,6 @@ void fractFunc::draw_all()
 	    period_tolerance /= 10.0;
 	    tolerance_changed(period_tolerance);
 	    status_changed(GF4D_FRACTAL_TIGHTENING);
-	    printf("tightening to %g\n", period_tolerance);
 	    clear_in_fates();
 	}
         draw(8,1,minp,maxp);

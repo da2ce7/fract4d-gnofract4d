@@ -32,6 +32,22 @@ float param bailout
 endparam
 }
 
+direct_basins_2 {
+final:
+float ratio = log(#numiter+1)/log(#maxiter+1)
+color c = gradient(#fate/float(@nbasins))
+#color = blend(c,@background,ratio)
+
+default:
+color param background
+	default = rgb(1.0,1.0,1.0)
+endparam
+int param nbasins
+    default = 3
+endparam
+}
+
+
 direct_basins {
 final:
 float ratio = log(#numiter+1)/log(#maxiter+1)
@@ -223,6 +239,42 @@ param angle_type
 endparam
 }  
 
+Hot And Cold {
+; 2 colors - on each orbit, the closer we are to 0, the more hot,
+; the closer we are to bailout, the more cold. Compute an average over
+; all iterations 
+
+init:
+float dist=0.0
+int closecalls=0
+int farcalls=0
+loop:
+dist = |z|
+if dist < @closedist
+   closecalls = closecalls + 1
+elseif @bailout - dist < @fardist
+   farcalls = farcalls + 1
+endif
+final:
+#color = @hotcolor * (closecalls/#numiter) + @coldcolor * (farcalls/#numiter)
+default:
+float param fardist
+	default = 1.0
+endparam
+float param closedist
+	default = 0.2
+endparam
+float param bailout
+	default = 4.0
+endparam
+color param hotcolor
+	default = rgb(0.97, 0.43, 0.01)
+endparam
+color param coldcolor
+	default = rgb(0.49, 0.79, 0.96)
+endparam
+}
+
 Hot And Cold Gradient {
 ; On each orbit, the closer we are to 0, the lower in the gradient we are.
 ; the closer we are to bailout, the higher. 
@@ -261,64 +313,136 @@ endparam
 
 }
 
-Periodicity {
-; various options based on finding the period of the point's orbit
+Direct Signs {
+; based on when sign changes occur for x or y parts of z
 init:
-complex orbit[#maxiter]
+color thecolor = @startcolor
+color thiscolor
+complex lastz = (-1,-1)
 
 loop:
-	orbit[#numiter] = #z
-final:
-	int loop_end = 1
-	int loop_begin
-	bool outer_loop_flag = True
-	while outer_loop_flag
-		loop_begin = 0
-		endz = orbit[loop_end]
-		bool carry_on = True
-		bool found_orbit = False
-		while carry_on
-			float dist = |endz - orbit[loop_begin]|
-			if dist < @epsilon ; found a loop
-			    carry_on = False
-			    found_orbit = True
-			else
-			    loop_begin = loop_begin + 1
-			    if loop_begin >= loop_end - 1
-				carry_on = False
-			    endif
-			endif
-		endwhile
-		if found_orbit
-		    outer_loop_flag = False
-		else
-		    if loop_end >= #numiter
-		        outer_loop_flag = False
-		    else
-                        loop_end = loop_end + 1
-		    endif
-                endif
-	endwhile
-	if found_orbit
-	    if @mode == "loop start"
-	        #index = loop_begin/256.0
-            elseif @mode == "loop length"
-	        #index = (loop_end - loop_begin) / 16.0
-            elseif @mode == "loop start mag"
-                #index = |orbit[loop_begin]|
-	    elseif @mode == "loop dist"
-                #index = |orbit[loop_begin] - orbit[0]|
-            endif
-	else
-	    #index = 0.0
-	endif
+bool update_color = false
+float offset = 0.0
+float dist = 0.0
+if @xpos && real(z) > 0 && real(lastz) < 0
+   dist = | real(z) - real(lastz)|
+   update_color = true
+endif
+if @xneg && real(z) < 0 && real(lastz) > 0
+   dist = | real(z) - real(lastz)|
+   offset = 0.25
+   update_color = true
+endif
+if @ypos && imag(z) > 0 && imag(lastz) < 0
+   dist = | imag(z) - imag(lastz)|
+   thiscolor = gradient(#numiter/#maxiter)
+   offset = 0.5
+   update_color = true
+endif
+if @yneg && imag(z) < 0 && imag(lastz) > 0
+   dist = | imag(z) - imag(lastz)|
+   thiscolor = gradient(#numiter/#maxiter)
+   offset = 0.75
+   update_color = true
+endif
+
+if ! @offset 
+	offset = 0.0
+endif
+if update_color
+   float pos
+   if @colortype == "iter"
+	pos = (#numiter/#maxiter + offset) % 1.0
+   elseif @colortype == "distance"
+        pos = (dist/@bailout * 2.0 + offset) % 1.0
+   endif
+   thiscolor = gradient(pos)
+   thecolor = compose(thecolor, blend(thiscolor, @mergemode(thecolor, thiscolor), 1.0), @mergeopacity)   
+endif
+lastz = z
+
+final: 
+#color = thecolor
 default:
-float param epsilon
-	default = 0.0000001
+color param startcolor
+	default = rgb(1.0, 1.0, 1.0)
 endparam
-param mode
-	default = 0
-	enum = "loop start" "loop length" "loop start mag" "loop dist"
+
+param colortype
+	enum = "iter" "distance"
 endparam
-	
+
+float param bailout
+	default = 4.0
+endparam
+
+bool param xpos
+	default = true
+	hint = "Capture color when x becomes positive"
+endparam
+
+bool param xneg
+	default = true
+	hint = "Capture color when x becomes negative"
+endparam
+
+bool param ypos
+	default = true
+	hint = "Capture color when y becomes positive"
+endparam
+
+bool param yneg
+	default = true
+	hint = "Capture color when y becomes negative"
+endparam
+
+bool param offset
+	default = false
+endparam
+
+color func mergemode
+  caption = "Color Merge"
+  default = mergenormal()
+  hint = "This chooses the merge mode used to blend colors at each iteration."
+endfunc
+
+param mergeopacity
+  caption = "Trap Merge Opacity"
+  default = 0.2
+  hint = "Sets the opacity of each trap shape. Even if you set this value to 1 \
+        (forcing all traps to be fully opaque) you can still control opacity \
+        using the alpha channel in the gradient."
+endparam
 }
+
+Signs {
+; based on when sign changes occur for x or y parts of z
+init:
+complex lastz = (-1,-1)
+
+int min_iter_x = 0
+int max_iter_x = 0
+int min_iter_y = 0
+int max_iter_y = 0
+
+loop:
+if real(z) * real(lastz) < 0 
+   max_iter_x = #numiter
+endif
+if imag(z) * imag(lastz) < 0 
+   max_iter_y = #numiter
+endif
+lastz = z
+final: 
+if @sign_type == "x iter" 
+    #index = max_iter_x/256.0
+elseif @sign_type == "y iter"
+    #index = max_iter_y/256.0
+endif 
+default:
+param sign_type
+	default = 0
+	enum = "x iter" "y iter"
+endparam
+}
+
