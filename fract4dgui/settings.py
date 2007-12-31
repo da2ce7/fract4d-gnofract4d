@@ -506,7 +506,6 @@ class SettingsDialog(dialog.T):
 
     def create_browsable_name(self, table, param_type, typename, tip):
         label = gtk.Label(self.f.forms[param_type].funcName)
-
         def set_label(*args):
             label.set_text(self.f.forms[param_type].funcName)
             
@@ -521,7 +520,9 @@ class SettingsDialog(dialog.T):
         button.connect('clicked', self.show_browser, param_type)
         hbox.pack_start(button)
 
-        table.add(gtk.Label(typename),0,0,0,2,2)
+        typelabel = gtk.Label(typename) 
+        typelabel.set_alignment(1.0,0.0)
+        table.add(typelabel,0, gtk.EXPAND|gtk.FILL,0,2,2)
         table.add(hbox, 1, gtk.EXPAND | gtk.FILL ,0,2,2)
 
     def create_outer_page(self):
@@ -529,7 +530,7 @@ class SettingsDialog(dialog.T):
         self.create_formula_widget_table(
             vbox,
             1,
-            _("Colorfunc :"),
+            _("Coloring Method"),
             _("Browse available coloring functions"))
 
         self.add_notebook_page(vbox,_("Outer"))
@@ -539,7 +540,7 @@ class SettingsDialog(dialog.T):
         self.create_formula_widget_table(
             vbox,
             2,
-            _("Colorfunc :"),
+            _("Coloring Method"),
             _("Browse available coloring functions"))
 
         self.add_notebook_page(vbox, _("Inner"))
@@ -549,7 +550,7 @@ class SettingsDialog(dialog.T):
         self.create_formula_widget_table(
             vbox,
             0,
-            _("Formula :"), 
+            _("Formula"), 
             _("Browse available fractal functions"))
         
         self.add_notebook_page(vbox, _("Formula"))

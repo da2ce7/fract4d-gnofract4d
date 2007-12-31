@@ -13,6 +13,7 @@ import copy
 import inspect
 
 from fracttypes import *
+import ir
 import stdlib
 
 class OverloadList(UserList):
@@ -614,7 +615,12 @@ by the 3rd parameter.''')
             [Func([Complex],Complex, "ident") ],
             doc="Predefined function parameter used by Fractint formulas")
 
-    d["t__a__transfer"] = OverloadList([Func([Float],Float, "ident") ])
+    # predefined gradient-related vars and functions
+    tfunc = Func([Float],Float, "ident")
+    tfunc.caption = ir.Const("Transfer Function", None, String)
+    transfer = OverloadList([tfunc])
+    d["t__a__transfer"] = transfer
+
     d["t__a__gradient"] = Var(Gradient)
     
     for (k,v) in d.items():

@@ -338,7 +338,8 @@ class Func:
         c.implicit_args = copy.copy(self.implicit_args)
         if hasattr(self,"override_name"):
             c.set_override_name(self.override_name)
-            
+        if hasattr(self,"caption"):
+            c.caption = self.caption
         return c
     
     def first(self):
@@ -352,7 +353,7 @@ class Func:
         
     def set_func(self,fname):
         # compute the name of the stdlib function to call
-        # this is sort of equivalent to C++ overload resolution
+        # this is similar in purpose to C++ name mangling
         if fname == None:
             self.genFunc = None
         else:

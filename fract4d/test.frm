@@ -92,12 +92,17 @@ float param f
 endparam
 complex param c
 	default = (3.0,4.0)
+	caption = "haggis"
 endparam
 hyper param h
 	default = (1.0,2.0,3.0,4.0)
+	caption = "wimble"
 endparam
 image param im
 endparam
+func myfunc
+     caption = "MYFUNC"
+endfunc
 }
 
 test_simpleshape {

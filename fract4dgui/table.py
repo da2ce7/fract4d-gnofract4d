@@ -6,6 +6,7 @@ class Table(gtk.Table):
         self.__gobject_init__()
         gtk.Table.__init__(self,rows,cols,homogeneous)
         self.nextrow=0
+        self.set_col_spacing(0,10)
 
     def add(
         self,

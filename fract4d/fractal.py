@@ -976,8 +976,8 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
         if hasattr(param,"caption"):
             return param.caption.value
         if name[:5] == "t__a_":
-            return name[5:]
-        return name
+            name = name[5:]
+        return name.title()
 
     def loadFctFile(self,f):
         old_gradient = self.get_gradient()

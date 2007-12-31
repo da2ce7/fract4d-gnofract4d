@@ -867,6 +867,20 @@ default:
         print t.symbols.parameters(True)
         print t.symbols.default_params()
         
+    def testFuncWithCaption(self):
+        t = self.translate('''t {
+        default:
+        func foo
+           caption = "fishwich"
+        endfunc
+        }''')
+
+        self.assertNoErrors(t)
+        print t.symbols["@foo"].first().caption
+        self.assertEqual("fishwich", t.symbols["@foo"].first().caption.value)
+        self.assertEqual(
+            "Transfer Function", t.symbols["@_transfer"].first().caption.value)
+
     def testDefaultSection(self):
         t = self.translate('''t_d1 {
         default:

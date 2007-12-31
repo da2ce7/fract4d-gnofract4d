@@ -535,8 +535,8 @@ class T(Hidden):
         self, table, i, form, name, part, param, order):
     
         label = gtk.Label(self.param_display_name(name,param)+part)
-        label.set_justify(gtk.JUSTIFY_RIGHT)
-        table.attach(label,0,1,i,i+1,0,0,2,2)
+        label.set_alignment(1.0, 0.0)
+        table.attach(label,0,1,i,i+1,gtk.EXPAND | gtk.FILL,0,0,0)
 
         widget = self.make_numeric_entry(
             form, param, order)
@@ -575,8 +575,8 @@ class T(Hidden):
         self, table, i, form, name, param, order):
 
         label = gtk.Label(self.param_display_name(name,param))
-        label.set_justify(gtk.JUSTIFY_RIGHT)
-        table.attach(label,0,1,i,i+1,0,0,2,2)
+        label.set_alignment(1.0, 0.0)
+        table.attach(label,0,1,i,i+1,gtk.EXPAND | gtk.FILL,0,0,0)
 
         def set_fractal(r, g, b, is_left):
             self.freeze()
@@ -610,8 +610,8 @@ class T(Hidden):
         self, table, i, form, name, part, param, order):
 
         label = gtk.Label(self.param_display_name(name,param))
-        label.set_justify(gtk.JUSTIFY_RIGHT)
-        table.attach(label,0,1,i,i+1,0,0,2,2)
+        label.set_alignment(1.0, 0.0)
+        table.attach(label,0,1,i,i+1,gtk.EXPAND | gtk.FILL,0,0,0)
 
         widget = utils.create_option_menu(param.enum.value)
 
@@ -668,7 +668,7 @@ class T(Hidden):
         else:
             raise "Unsupported parameter type"
 
-        table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL ,0,2,2)
+        table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL ,0,0,0)
 
 
     def add_complex_formula_setting(
@@ -677,12 +677,12 @@ class T(Hidden):
         widget = self.make_numeric_entry(
                 form,param,order)
 
-        table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL ,0,2,2)
+        table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL ,0,0,0)
 
         widget = self.make_numeric_entry(
                 form,param,order+1)
 
-        table.attach(widget,1,2,i+1,i+2,gtk.EXPAND | gtk.FILL ,0,2,2)
+        table.attach(widget,1,2,i+1,i+2,gtk.EXPAND | gtk.FILL ,0,0,0)
 
         name = self.param_display_name(name,param)
         fway = fourway.T(name)
@@ -695,7 +695,7 @@ class T(Hidden):
                 'value-slightly-changed',
                 self.parent.on_drag_param_fourway, order, param_type)
         
-        table.attach(fway.widget,0,1,i,i+2, 0,0, 2,2)
+        table.attach(fway.widget,0,1,i,i+2, gtk.EXPAND|gtk.FILL,0, 0,0)
 
     def fourway_released(self,widget,x,y,order,form):
         form.nudge_param(order, x,y)
@@ -726,8 +726,8 @@ class T(Hidden):
 
     def add_formula_function(self,table,i,name,param,form):
         label = gtk.Label(self.param_display_name(name,param))
-        label.set_justify(gtk.JUSTIFY_RIGHT)
-        table.attach(label,0,1,i,i+1,0,0,2,2)
+        label.set_alignment(1.0, 0.0)
+        table.attach(label,0,1,i,i+1,gtk.EXPAND | gtk.FILL,0,0,0)
 
         funclist = self.construct_function_menu(param,form)
         widget = utils.create_option_menu(funclist)
@@ -762,13 +762,13 @@ class T(Hidden):
 
         widget.connect('changed',set_fractal_function,self,param,formula)
         
-        table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL,0,2,2)
+        table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL,0,0,0)
 
     def create_maxiter_widget(self,table,i):
-        label = gtk.Label("_Max Iterations :")
-        label.set_justify(gtk.JUSTIFY_RIGHT)
+        label = gtk.Label("_Max Iterations")
+        label.set_alignment(1.0, 0.0)
         label.set_use_underline(True)
-        table.attach(label,0,1,i,i+1,0,0,2,2)
+        table.attach(label,0,1,i,i+1,gtk.EXPAND | gtk.FILL,0,0,0)
 
         widget = gtk.Entry()
         widget.set_activates_default(True)
@@ -796,7 +796,7 @@ class T(Hidden):
         widget.connect('focus-out-event',set_fractal)
 
         label.set_mnemonic_widget(widget)
-        table.attach(widget,1,2,i,i+1,0,0,2,2)
+        table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL,0,0,0)
         return i+1
 
     def populate_formula_settings(self, table, param_type, tips,row=0):

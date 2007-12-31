@@ -27,7 +27,7 @@ class T(gobject.GObject):
         gobject.GObject.__init__(self)
         
         self.widget = gtk.DrawingArea()
-        self.widget.set_size_request(40,40)
+        self.widget.set_size_request(53,53)
 
         self.widget.set_events(
             gtk.gdk.BUTTON_RELEASE_MASK |
@@ -88,7 +88,7 @@ class T(gobject.GObject):
     def redraw_rect(self,widget,r):
         style = widget.get_style()
         (w,h) = (widget.allocation.width, widget.allocation.height)
-        
+        print w,h
         style.paint_box(widget.window, widget.state,
                         gtk.SHADOW_IN, r, widget, "",
                         0, 0, w-1, h-1)
@@ -117,35 +117,38 @@ class T(gobject.GObject):
             xc - text_width//2,
             yc - text_height//2,
             layout)
-        
+
+        th = 8
+        tw = 6
         gc = style.fg_gc[widget.state]
         # Triangle pointing left        
         points = [
-            (xc - radius+1, yc),
-            (xc - radius+7, yc-5),
-            (xc - radius+7, yc+5)]
-                
+            (1, yc),
+            (1+th, yc-tw),
+            (1+th, yc+tw)]
+        
+        
         widget.window.draw_polygon(gc, True, points)
 
         # pointing right
         points = [
-            (xc + radius-2, yc),
-            (xc + radius-7, yc-5),
-            (xc + radius-7, yc+5)]
+            (w -2, yc),
+            (w -2 -th, yc-tw),
+            (w -2 -th, yc+tw)]
         widget.window.draw_polygon(gc, True, points)
 
         # pointing up
         points = [
-            (xc, yc - radius + 1),
-            (xc - 5, yc - radius + 7),
-            (xc + 5, yc - radius + 7)]
+            (xc, 1),
+            (xc - tw, th),
+            (xc + tw, th)]
         widget.window.draw_polygon(gc, True, points)
         
         # pointing down
         points = [
-            (xc, yc + radius - 2),
-            (xc - 5, yc + radius - 7),
-            (xc + 5, yc + radius - 7)]
+            (xc, h - 2),
+            (xc - tw, h - 2 - th),
+            (xc + tw, h - 2 - th)]
         widget.window.draw_polygon(gc, True, points)
 
         
