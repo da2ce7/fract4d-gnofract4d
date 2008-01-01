@@ -92,7 +92,7 @@ float param f
 endparam
 complex param c
 	default = (3.0,4.0)
-	caption = "haggis"
+	caption = "by god this is a terribly long name it will surely need to be truncated"
 endparam
 hyper param h
 	default = (1.0,2.0,3.0,4.0)

@@ -23,7 +23,7 @@ class T(gobject.GObject):
         self.radius = 0
         self.last_x = 0
         self.last_y = 0        
-        self.text=text[:3]
+        self.text=text
         gobject.GObject.__init__(self)
         
         self.widget = gtk.DrawingArea()
@@ -88,7 +88,6 @@ class T(gobject.GObject):
     def redraw_rect(self,widget,r):
         style = widget.get_style()
         (w,h) = (widget.allocation.width, widget.allocation.height)
-        print w,h
         style.paint_box(widget.window, widget.state,
                         gtk.SHADOW_IN, r, widget, "",
                         0, 0, w-1, h-1)
@@ -97,26 +96,6 @@ class T(gobject.GObject):
         yc = h//2
         radius = min(w,h)//2 -1
 
-        context = widget.get_pango_context()
-        layout = pango.Layout(context)
-
-        # some pygtk versions want 2 args, some want 1. sigh
-        try:
-            layout.set_text(self.text)
-        except TypeError:
-            layout.set_text(self.text,len(self.text))
-            
-        (text_width, text_height) = layout.get_pixel_size()
-        style.paint_layout(
-            widget.window,
-            widget.state,
-            True,
-            r,
-            widget,
-            "",
-            xc - text_width//2,
-            yc - text_height//2,
-            layout)
 
         th = 8
         tw = 6
@@ -150,6 +129,30 @@ class T(gobject.GObject):
             (xc - tw, h - 2 - th),
             (xc + tw, h - 2 - th)]
         widget.window.draw_polygon(gc, True, points)
+
+        context = widget.get_pango_context()
+        layout = pango.Layout(context)
+
+        drawtext = self.text
+        while True:
+            layout.set_text(drawtext)
+            
+            (text_width, text_height) = layout.get_pixel_size()
+            # truncate text if it's too long
+            if text_width < (w - th *2) or len(drawtext) < 3:
+                break
+            drawtext = drawtext[:-1]
+
+        style.paint_layout(
+            widget.window,
+            widget.state,
+            True,
+            r,
+            widget,
+            "",
+            xc - text_width//2,
+            yc - text_height//2,
+            layout)
 
         
 # explain our existence to GTK's object system

@@ -798,7 +798,7 @@ class MainWindow:
             _("pan"),
             _("Pan around the image"), 0, False)
         self.add_fourway(
-            _("wrp"),
+            _("warp"),
             _("Mutate the image by moving along the other 2 axes"), 2, True)
 
         self.add_warpmenu(_("Which parameter is being warped"))
