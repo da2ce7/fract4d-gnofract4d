@@ -686,7 +686,8 @@ class T(Hidden):
 
         name = self.param_display_name(name,param)
         fway = fourway.T(name)
-        tips.set_tip(fway.widget, name)
+        tip = self.param_tip(name,param)
+        tips.set_tip(fway.widget, tip)
         
         fway.connect('value-changed',self.fourway_released, order, form)
 

@@ -98,7 +98,6 @@ class MainWindow:
         self.saveas_fs = None
         self.saveimage_fs = None
         self.hires_image_fs = None
-        self.open_formula_fs = None
         self.open_fs = None        
         
         self.window.show_all()
@@ -165,16 +164,45 @@ class MainWindow:
 
         return chooser
 
-    def get_file_open_chooser(self, title, parent, patterns=[]):
-        chooser = gtk.FileChooserDialog(
-            title, parent, gtk.FILE_CHOOSER_ACTION_OPEN,
-            (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-
+    def get_filter(self,name,patterns):
         filter = gtk.FileFilter()
+        filter.set_name(name)
         for pattern in patterns:
             filter.add_pattern(pattern)
+        return filter
 
-        chooser.set_filter(filter)
+    def add_filters(self,chooser):
+        param_patterns = [ "*.fct" ]
+        param_filter = self.get_filter(
+            _("Parameter Files"), param_patterns)
+
+        chooser.add_filter(param_filter)
+
+        formula_patterns = ["*.frm", "*.ufm", "*.ucl", "*.cfrm", "*.uxf"]
+        formula_filter = self.get_filter(            
+            _("Formula Files"), formula_patterns)
+        chooser.add_filter(formula_filter)
+
+        gradient_patterns = ["*.map", "*.ggr", "*.ugr", "*.cs"]
+        gradient_filter = self.get_filter(
+            _("Gradient Files"), gradient_patterns)
+        chooser.add_filter(gradient_filter)
+
+        all_filter = self.get_filter(
+            _("All Gnofract 4D Files"), 
+            param_patterns + formula_patterns + gradient_patterns)
+
+        chooser.add_filter(all_filter)
+
+        chooser.set_filter(all_filter)
+
+    def get_file_open_chooser(self, parent):
+        chooser = gtk.FileChooserDialog(
+            title, parent, gtk.FILE_CHOOSER_ACTION_OPEN,
+            (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+             gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+
+        self.add_filters(chooser)
 
         return chooser
 
@@ -206,22 +234,18 @@ class MainWindow:
 
         return self.saveimage_fs
         
-    def get_open_formula_fs(self):
-        if self.open_formula_fs == None:
-            self.open_formula_fs = self.get_file_open_chooser(
-                _("Open Formula File"),
-                self.window,
-                ["*.frm", "*.cfrm", "*.ucl", "*.ufm"])
-        return self.open_formula_fs
-
     def get_open_fs(self):
         if self.open_fs != None:
             return self.open_fs
 
-        self.open_fs = self.get_file_open_chooser(
-            _("Open Parameter File"),
-            self.window,
-            ["*.fct"])
+        self.open_fs = gtk.FileChooserDialog(
+            _("Open File"), self.window, 
+            gtk.FILE_CHOOSER_ACTION_OPEN,
+            (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+             gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+
+        self.add_filters(self.open_fs)
+
         self.open_preview = gtkfractal.Preview(self.compiler)
 
         def on_update_preview(chooser, preview):
@@ -527,10 +551,8 @@ class MainWindow:
     def get_main_actions(self):
         return [
             ('FileMenuAction', None, _('_File')),
-            ('FileOpenParameterAction', gtk.STOCK_OPEN, _('_Open Parameter File...'), 
-             None, _('Open a Parameter File'), self.open),
-            ('FileOpenFormulaAction', None, _('Open _Formula File...'), 
-             '<control><shift>O', _('Open a formula file'), self.open_formula),
+            ('FileOpenAction', gtk.STOCK_OPEN, _('_Open...'), 
+             None, _('Open a Parameter or Formula File'), self.open),
             ('FileSaveAction', gtk.STOCK_SAVE, None, 
              None, _("Save current parameters"), self.save),
             ('FileSaveAsAction', gtk.STOCK_SAVE_AS, None,
@@ -1321,7 +1343,7 @@ class MainWindow:
         
     def open_formula(self,action):
         """Open a formula (.frm) or coloring algorithm (.cfrm) file."""
-        fs =self.get_open_formula_fs()
+        fs =self.get_open_fs()
         fs.show_all()
         filename = ""
         
@@ -1356,7 +1378,7 @@ class MainWindow:
         try:
             if fc.FormulaTypes.isFormula(file):
                 self.load_formula(file)
-                return
+                return True
             self.f.loadFctFile(open(file))
             self.update_recent_files(file)
             self.set_filename(file)
@@ -1369,8 +1391,10 @@ class MainWindow:
     def load_formula(self,file):
         try:
             self.compiler.load_formula_file(file)
+            type = browser.guess_type(file)
+            browser.set_type(type)
             browser.update(file)
-            browser.show(self.window, self.f, browser.FRACTAL)
+            browser.show(self.window, self.f, type)
 
             return True
         except Exception, err:
@@ -1440,8 +1464,9 @@ class MainWindow:
 
         if len(opts.args) > 0:
             self.load(opts.args[0])
-
+            
         self.f.apply_options(opts)
+        self.update_preview(self.f)
 
         if opts.trace:
             self.f.set_compiler_option("trace", opts.trace)
@@ -1455,5 +1480,5 @@ class MainWindow:
             self.set_explorer_state(True)
         
         self.f.set_size(width,height)
-    
+        
     

@@ -226,7 +226,7 @@ class Test(unittest.TestCase):
 
     def testRealImage(self):
         mm = makemap.T()
-        mm.load(open("67650162_7847d7bccb.jpg"))
+        mm.load(open("1453558084_8bb56e8b82_t.jpg"))
         mm.build(100)
 
         mm.reduceColors(10)

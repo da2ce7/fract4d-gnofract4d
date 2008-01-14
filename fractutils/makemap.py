@@ -134,7 +134,7 @@ class T:
         node.r = maxchild.r
         node.g = maxchild.g
         node.b = maxchild.b
-        
+
     def getBranch(self,r,g,b,nr,ng,nb):
         branch = 0
         if r > nr:
@@ -225,13 +225,14 @@ class T:
     def reduceColors(self,n):
         while self.numColors() > n:
             candidates = self.find_collapse_candidates(self.root,[])
-            self.collapse(candidates[0][1])
+            node_to_collapse = candidates[0][1]
+            self.collapse(node_to_collapse)
 
     
 def main(args):
     mm = T()
     mm.load(open(args[0]))
-    mm.build(100)
+    mm.build(4)
     
     mm.reduceColors(int(args[1]))
     

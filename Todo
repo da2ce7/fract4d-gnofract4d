@@ -9,20 +9,17 @@ changes in 3.8:
 * W	added signs, direct signs coloring methods
 * B	removed non-functional periodicity coloring method
 * W	widescreen resolutions in drop-down
+* W	show hints on formula parameters
+* BB	'list index out of range' nudging MandelbrotMix4 params (preview not updated)
 
 bugs (the more B's, the worse the bug):
-* B	'both a Fractint-style default section'... on every fractal
-* BB	(0,0)^1 == nan (pow_cf_c code wrong for this case)
 * BBB	too slow!
+* BB	(0,0)^1 == nan (pow_cf_c code wrong for this case)
 * BB	sometimes get "Fatal Python error: GC object already tracked" during fract4d/test.py
-
 * BB	floating point exception on load of aho.ucl#Stripes_any (-1 % 0)
 * BB	animation colors are screwed
 * BB	func with a bailout of 1 will never quit and can't be interrupted
-* B	interrupt takes too long on deep-zoomed fractals
 * BB	infinite loops are possible in while loops
-* BB	'list index out of range' nudging MandelbrotMix4 params
-
 * BB	Renderqueue should antialias even if main window doesn't
 * BB	better image-sizing widgets for render queue
 * BB	gnd.ufm#4D Julia - behaves very oddly
@@ -34,7 +31,7 @@ bugs (the more B's, the worse the bug):
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * BB	stops drawing after new gradient applied to DCA fractal (sometimes)
-
+* B	interrupt takes too long on deep-zoomed fractals
 * B	MandAutoCritInZ doesn't work if optimization off in g++?
 * B	hth.ufm#StrangeKindOfMandelbrot gives 'cmag_c_c not found'
 * B	can't have a DCA and a non-DCA formula for inner and outer

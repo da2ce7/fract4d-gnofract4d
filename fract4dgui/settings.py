@@ -628,7 +628,6 @@ class SettingsDialog(dialog.T):
                 self.update_all_widgets(fractal,widget) # recurse
 
     def show_browser(self,button,type):
-        print "browsing type %s" % type
         browser.show(self.main_window, self.f, type)
         
     def create_param_entry(self,table, row, text, param):

@@ -151,11 +151,11 @@ class Test(unittest.TestCase):
 
         names = [x.get_text() for x in children if isinstance(x,gtk.Label)]
 
-        self.assertEqual(names[0],"Max Iterations :")
-        self.assertEqual(names[1],"bailfunc")
-        self.assertEqual(names[2],"bailout")
+        self.assertEqual(names[0],"Max Iterations")
+        self.assertEqual(names[1],"Bailfunc")
+        self.assertEqual(names[2],"Bailout")
         self.assertEqual(names[3],"Param with min and max")
-        self.assertEqual(names[4],"myfunc")
+        self.assertEqual(names[4],"Myfunc")
         
         table = gtk.Table()
         self.f.populate_formula_settings(table, 1,gtk.Tooltips())

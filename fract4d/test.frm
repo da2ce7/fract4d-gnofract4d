@@ -93,6 +93,7 @@ endparam
 complex param c
 	default = (3.0,4.0)
 	caption = "by god this is a terribly long name it will surely need to be truncated"
+	hint = "Hello there hinty muppet"
 endparam
 hyper param h
 	default = (1.0,2.0,3.0,4.0)

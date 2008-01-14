@@ -108,7 +108,21 @@ class T:
         self.formula_changed = event.T()
         self.set_type(FRACTAL)
         
-        
+    def formula_type_to_browser_type(self,t):
+        if t == fc.FormulaTypes.FRACTAL:
+            return FRACTAL
+        if t == fc.FormulaTypes.COLORFUNC:
+            return OUTER
+        if t == fc.FormulaTypes.TRANSFORM:
+            return TRANSFORM
+        if t == fc.FormulaTypes.GRADIENT:
+            return GRADIENT
+        raise ValueError("unknown formula type %s" % t)
+
+    def guess_type(self,file):
+        t = fc.FormulaTypes.guess_formula_type_from_filename(file)
+        return self.formula_type_to_browser_type(t)
+
     def set_type(self,t):
         if self.current_type == t:
             return

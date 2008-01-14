@@ -1,8 +1,7 @@
 <ui>
   <menubar name="MenuBar">
     <menu name="FileMenu" action = "FileMenuAction">
-       <menuitem name="OpenParameterFile" action="FileOpenParameterAction"/>
-       <menuitem name="OpenFormulaFile" action="FileOpenFormulaAction"/>
+       <menuitem name="OpenFile" action="FileOpenAction"/>
        <menuitem name="Save" action="FileSaveAction"/>
        <menuitem name="SaveAs" action="FileSaveAsAction"/>
        <menuitem name="SaveImage" action="FileSaveImageAction"/>

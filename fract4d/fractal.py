@@ -979,6 +979,11 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
             name = name[5:]
         return name.title()
 
+    def param_tip(self,name,param):
+        if hasattr(param,"hint"):
+            return param.hint.value
+        return self.param_display_name(name,param)
+
     def loadFctFile(self,f):
         old_gradient = self.get_gradient()
         line = f.readline()

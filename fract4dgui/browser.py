@@ -20,12 +20,18 @@ GRADIENT = 4
 def stricmp(a,b):
     return cmp(a.lower(),b.lower())
 
-def show(parent, f,type):
+def show(parent, f, type):
     BrowserDialog.show(parent,f,type)
 
 def update(file=None, formula=None):
     browser_model.instance.update(file,formula)
-    
+
+def set_type(type):
+    browser_model.instance.set_type(type)
+
+def guess_type(file):
+    return browser_model.instance.guess_type(file)
+
 class BrowserDialog(dialog.T):
     RESPONSE_EDIT = 1
     RESPONSE_REFRESH = 2
@@ -224,7 +230,7 @@ class BrowserDialog(dialog.T):
              _("Transform Function"),
              _("Gradient")])
 
-        utils.set_selected(self.funcTypeMenu,0)
+        utils.set_selected(self.funcTypeMenu,self.model.current_type)
         
         self.tooltips.set_tip(
             self.funcTypeMenu,

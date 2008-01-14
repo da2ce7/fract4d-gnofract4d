@@ -88,7 +88,7 @@ class Test(unittest.TestCase):
         self.assertEqual(
             self.f.forms[0].get_named_param_value("@bailout"), 578.0)
         
-        widget = self.get_param_entry(_("Formula"), _("bailout"))
+        widget = self.get_param_entry(_("Formula"), _("Bailout"))
         self.assertEqual(widget.get_text(),"578.00000000000000000")
 
         self.assertEqual(None, self.get_first_transform())
