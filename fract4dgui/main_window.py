@@ -697,7 +697,7 @@ class MainWindow:
         
     def browser(self,*args):
         """Display formula browser."""
-        browser.show(self.window,self.f,browser.FRACTAL)
+        browser.show(self.window,self.f)
 
     def randomize_colors(self,*args):
         """Create a new random color scheme."""
@@ -1341,26 +1341,8 @@ class MainWindow:
                 self.window)
             
         
-    def open_formula(self,action):
-        """Open a formula (.frm) or coloring algorithm (.cfrm) file."""
-        fs =self.get_open_fs()
-        fs.show_all()
-        filename = ""
-        
-        while True:
-            result = fs.run()            
-            if result == gtk.RESPONSE_OK:
-                filename = fs.get_filename()
-                if self.load_formula(filename):
-                    break
-            else:
-                fs.hide()
-                return
-            
-        fs.hide()
-        
     def open(self,action):
-        """Open a parameter (.fct) file."""
+        """Open a parameter or formula file."""
         fs = self.get_open_fs()
         fs.show_all()
         

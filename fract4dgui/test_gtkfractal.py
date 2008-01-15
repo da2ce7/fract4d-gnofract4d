@@ -167,9 +167,9 @@ class Test(unittest.TestCase):
 
         self.assertEqual(
             names,
-            [ "Color Density", "Color Offset", "_transfer",
-              "col", "ep", "i", "mycolorfunc", "myfunc", "val",
-              "val2 (re)", "val2 (i)", "val2 (j)", "val2 (k)"])
+            [ "Color Density", "Color Offset", "Transfer Function",
+              "Col", "Ep", "I", "Mycolorfunc", "Myfunc", "Val",
+              "Val2 (re)", "Val2 (i)", "Val2 (j)", "Val2 (k)"])
 
     def testIntParamSetting(self):
         self.f.set_formula("test.frm","fn_with_intparam")

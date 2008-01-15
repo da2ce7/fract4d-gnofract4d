@@ -8,6 +8,8 @@ import utils
 import copy
 from table import Table
 
+from fract4d import browser_model
+
 def show_settings(parent,alt_parent, f,dialog_mode):
     SettingsDialog.show(parent,alt_parent, f,dialog_mode)
 
@@ -142,7 +144,8 @@ class SettingsDialog(dialog.T):
 
         browse_button = gtk.Button(_("_Browse..."))
 
-        browse_button.connect("clicked", self.show_browser, browser.GRADIENT)
+        browse_button.connect(
+            "clicked", self.show_browser, browser_model.GRADIENT)
             
         gradbox.pack_start(browse_button, False, False, 1)
         
@@ -468,7 +471,7 @@ class SettingsDialog(dialog.T):
 
         add_button = gtk.Button(None,gtk.STOCK_ADD)
         add_button.connect(
-            'clicked', self.show_browser, browser.TRANSFORM)
+            'clicked', self.show_browser, browser_model.TRANSFORM)
 
         table.attach(
             add_button, 1,2,0,1, gtk.EXPAND | gtk.FILL, 0, 2, 2)

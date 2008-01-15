@@ -11,16 +11,10 @@ from fract4d import fc, gradient, browser_model
 
 import preferences, dialog, utils, gtkfractal
 
-FRACTAL = 0
-OUTER = 1
-INNER = 2
-TRANSFORM = 3
-GRADIENT = 4
-
 def stricmp(a,b):
     return cmp(a.lower(),b.lower())
 
-def show(parent, f, type):
+def show(parent, f, type=browser_model.FRACTAL):
     BrowserDialog.show(parent,f,type)
 
 def update(file=None, formula=None):

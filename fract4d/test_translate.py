@@ -876,7 +876,6 @@ default:
         }''')
 
         self.assertNoErrors(t)
-        print t.symbols["@foo"].first().caption
         self.assertEqual("fishwich", t.symbols["@foo"].first().caption.value)
         self.assertEqual(
             "Transfer Function", t.symbols["@_transfer"].first().caption.value)

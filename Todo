@@ -9,8 +9,9 @@ changes in 3.8:
 * W	added signs, direct signs coloring methods
 * B	removed non-functional periodicity coloring method
 * W	widescreen resolutions in drop-down
-* W	show hints on formula parameters
+* W	show hints & captions on formula parameters
 * BB	'list index out of range' nudging MandelbrotMix4 params (preview not updated)
+* W	combined open dialogs
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

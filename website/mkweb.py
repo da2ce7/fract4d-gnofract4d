@@ -16,8 +16,8 @@ class Bag:
         self.__dict__.update(kwds)
         
 announce = Bag(
-    date="22nd December 2007",
-    text="Version 3.7 released. This automatically adjusts periodicity tolerance and fixes some bugs.")
+    date="",
+    text="Version 3.8 released. This includes some minor UI improvements and bug fixes.")
 
 manual_pages = [
     Bag(name="Using Gnofract 4D",
