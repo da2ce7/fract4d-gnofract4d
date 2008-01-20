@@ -2,10 +2,7 @@
 
 import os
 
-os.environ["LD_LIBRARY_PATH"] = "/usr/lib/vmware-vix/lib:" + os.environ.get("LD_LIBRARY_PATH","")
-
 from pyvix import vix
-
 
 def guest_file(fname):
     return "/home/catenary/" + os.path.basename(fname)
@@ -93,4 +90,4 @@ def build_binary_on_vm(vminfo):
         host.close()
 
 
-build_binary_on_vm(vms[1])
+build_binary_on_vm(vms[0])

@@ -1446,6 +1446,18 @@ Float</entry>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">
+max</entry>
+<entry valign="top" align="left" morerows="0">
+Returns the larger of its two arguments.
+</entry>
+<entry valign="top" align="left" morerows="0">
+Float, Float
+</entry>
+<entry valign="top" align="left" morerows="0">
+Float</entry>
+</row>
+<row>
+<entry valign="top" align="left" morerows="0">
 max2</entry>
 <entry valign="top" align="left" morerows="0">
 max2(a,b) returns the larger of a*a or b*b. Provided for
@@ -1480,6 +1492,18 @@ Color, Color
 </entry>
 <entry valign="top" align="left" morerows="0">
 Color</entry>
+</row>
+<row>
+<entry valign="top" align="left" morerows="0">
+min</entry>
+<entry valign="top" align="left" morerows="0">
+Returns the smaller of its two arguments.
+</entry>
+<entry valign="top" align="left" morerows="0">
+Float, Float
+</entry>
+<entry valign="top" align="left" morerows="0">
+Float</entry>
 </row>
 <row>
 <entry valign="top" align="left" morerows="0">

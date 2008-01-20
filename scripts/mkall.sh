@@ -42,7 +42,7 @@ export BUILD_PYTHON=/usr/bin/python2.5
 export MIN=2.5
 export MAX=2.6
 
-./mkrpm.sh $BUILD_PYTHON $MIN $MAX
+scripts/mkrpm.sh $BUILD_PYTHON $MIN $MAX
 mv dist/gnofract4d-3.8-1.$ARCH.rpm dist/gnofract4d-python25-3.8-1.$ARCH.rpm 
 
 # Python 2.4 version
@@ -51,7 +51,7 @@ export BUILD_PYTHON=/usr/bin/python2.4
 export MIN=2.4
 export MAX=2.5
 
-./mkrpm.sh $BUILD_PYTHON $MIN $MAX
+scripts/mkrpm.sh $BUILD_PYTHON $MIN $MAX
 mv dist/gnofract4d-3.8-1.$ARCH.rpm dist/gnofract4d-python24-3.8-1.$ARCH.rpm 
 
 
@@ -62,8 +62,8 @@ unset BUILD_PYTHON
 ./setup.py sdist
 
 # .deb package
-make -f debian/rules binary
-mv ../*.deb dist
+#make -f debian/rules binary
+#mv ../*.deb dist
 
 # make ISO image for testing on different OSes
 pushd dist

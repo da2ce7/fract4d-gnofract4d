@@ -16,7 +16,7 @@ class Bag:
         self.__dict__.update(kwds)
         
 announce = Bag(
-    date="",
+    date="January 19th, 2008",
     text="Version 3.8 released. This includes some minor UI improvements and bug fixes.")
 
 manual_pages = [

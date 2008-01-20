@@ -130,10 +130,6 @@
 <entry>Launch an email editor with current image attached.</entry>
 </row>
 <row>
-<entry>Ctrl+Shift+O</entry>
-<entry>Open a formula (.frm) or coloring algorithm (.cfrm) file.</entry>
-</row>
-<row>
 <entry>Ctrl+R</entry>
 <entry>Create a new random color scheme.</entry>
 </row>
