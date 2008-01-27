@@ -1,17 +1,10 @@
 todo:
 
-changes in 3.8:
-* W	sliders for params with min/max
-* BB	browse to .frm file doesn't appear to work
-* W	more robust handling of unknown parameter settings
-* BB	previews missing from 'open parameter file' dialog
-* W	min, max functions
-* W	added signs, direct signs coloring methods
-* B	removed non-functional periodicity coloring method
-* W	widescreen resolutions in drop-down
-* W	show hints & captions on formula parameters
-* BB	'list index out of range' nudging MandelbrotMix4 params (preview not updated)
-* W	combined open dialogs
+changes in 3.9:
+* B	load old (v1.5) files with moved .map files
+* B	--nogui doesn't set map_path from prefs
+* W	added --threads cmd-line option
+* BB	./gnofract4d --nogui -q with multiple threads crashes	
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -214,6 +207,19 @@ in return for a look at what I'm generating, (like ElectricSheep).
 
 Requires: above, +able to deal with ad-hoc networks of thousands of peers,
 economic incentive, security, works with NAT
+
+changes in 3.8:
+* W	sliders for params with min/max
+* BB	browse to .frm file doesn't appear to work
+* W	more robust handling of unknown parameter settings
+* BB	previews missing from 'open parameter file' dialog
+* W	min, max functions
+* W	added signs, direct signs coloring methods
+* B	removed non-functional periodicity coloring method
+* W	widescreen resolutions in drop-down
+* W	show hints & captions on formula parameters
+* BB	'list index out of range' nudging MandelbrotMix4 params (preview not updated)
+* W	combined open dialogs
 
 changes in 3.7:
 * W	removed Gtk.ItemFactory and replaced with uimanager

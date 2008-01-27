@@ -66,6 +66,7 @@ class Hidden(gobject.GObject):
             ]
 
         self.x = self.y = 0
+        self.button = 0
         self.last_progress = 0.0
         self.skip_updates = False
         self.running = False
@@ -442,6 +443,7 @@ class T(Hidden):
         drawing_area.set_events(
             gtk.gdk.BUTTON_RELEASE_MASK |
             gtk.gdk.BUTTON1_MOTION_MASK |
+            gtk.gdk.POINTER_MOTION_MASK |
             gtk.gdk.POINTER_MOTION_HINT_MASK |
             gtk.gdk.BUTTON_PRESS_MASK |
             gtk.gdk.KEY_PRESS_MASK |
@@ -867,8 +869,12 @@ class T(Hidden):
         self.redraw_rect(r.x,r.y,r.width,r.height)
 
     def onMotionNotify(self,widget,event):
+        (x,y) = self.float_coords(event.x, event.y)
+        self.emit('pointer-moved', self.button, x, y)
+
         if not self.notice_mouse:
             return
+
         self.redraw_rect(0,0,self.width,self.height)
         (self.newx,self.newy) = (event.x, event.y)
 
@@ -887,16 +893,14 @@ class T(Hidden):
             int(abs(self.newx-self.x)),
             int(abs(self.newy-self.y)));
 
-        (x,y) = self.float_coords(self.newx,self.newy)
-        self.emit('pointer-moved', self.button, x, y)
-
     def onButtonPress(self,widget,event):
         self.x = event.x
         self.y = event.y
         self.newx = self.x
         self.newy = self.y
         self.button = event.button
-        self.notice_mouse = True
+        if self.button == 1:
+            self.notice_mouse = True
         
     def set_paint_mode(self,isEnabled, colorsel):
         self.paint_mode = isEnabled

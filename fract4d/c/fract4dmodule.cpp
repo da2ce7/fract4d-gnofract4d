@@ -818,8 +818,8 @@ cmap_pylookup_with_flags(PyObject *self, PyObject *args)
 }
 
 #ifdef THREADS
-#define GET_LOCK PyEval_RestoreThread(state)
-#define RELEASE_LOCK state = PyEval_SaveThread()
+#define GET_LOCK PyGILState_STATE gstate; gstate = PyGILState_Ensure()
+#define RELEASE_LOCK PyGILState_Release(gstate)
 #else
 #define GET_LOCK
 #define RELEASE_LOCK
@@ -1659,6 +1659,7 @@ pycalc(PyObject *self, PyObject *args, PyObject *kwds)
     }
     else
     {
+	Py_BEGIN_ALLOW_THREADS
 	// synchronous
 	calc(cargs->params,
 	     cargs->eaa,
@@ -1679,9 +1680,11 @@ pycalc(PyObject *self, PyObject *args, PyObject *kwds)
 	     cargs->site);
 
 	delete cargs;
+	Py_END_ALLOW_THREADS
     }
 
     Py_INCREF(Py_None);
+    
     return Py_None;
 }
 
@@ -2599,6 +2602,10 @@ initfract4dc(void)
 #endif
 {
     pymod = Py_InitModule(MODULE_NAME, PfMethods);
+
+#ifdef THREADS
+    PyEval_InitThreads();
+#endif
 
 #ifdef USE_GMP
     mpf_t x;

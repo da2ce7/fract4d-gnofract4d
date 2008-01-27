@@ -249,6 +249,7 @@ class Compiler:
                 self.path_lists[type].append(dir)            
             return filename
 
+        filename = os.path.basename(filename)
         for path in self.path_lists[type]:
             f = os.path.join(path,filename)
             if os.path.exists(f):

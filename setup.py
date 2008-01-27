@@ -119,6 +119,7 @@ module_gmp = Extension(
     )
 
 defines = [ ('_REENTRANT',1),
+            ('THREADS',1),
             #('NO_CALC', 1),  # set this to not calculate the fractal
             #('DEBUG_CREATION',1), # debug spew for allocation of objects
             #('DEBUG_ALLOCATION',1), # debug spew for array handling

@@ -2,7 +2,7 @@ import re
 
 import fctutils 
 import gradient
-
+import fc
 
 class T(fctutils.T):
     '''Parses the various different kinds of color data we have'''
@@ -103,7 +103,14 @@ class T(fctutils.T):
         self.read_gradient = True
         
     def parse_file(self,val,f):
-        mapfile = open(val)
+        try:
+            mapfile = open(val)
+        except IOError:            
+            # maybe it's not in the right place
+            fname = self.parent.compiler.find_file(
+                val, fc.FormulaTypes.GRADIENT)
+            mapfile = open(fname)
+
         self.parse_map_file(mapfile)
 
     def parse_map_file(self,mapfile, maxdiff=0):

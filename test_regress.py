@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
-# compare output of fract4d with that of older version
-# complain about anything too different
+# compare output of fract4d with saved 'known good' files
+# complain about anything different
 
-# this requires the Python Imaging Library and gnofract4d 1.9
-# to run.
+# this requires the Python Imaging Library to run.
 
 import os
 import operator
@@ -36,34 +35,24 @@ bad_files = [
     "daisychain.fct",
 ]
 
-def render2_0(fctfile):
-    cmd = "fract4d/fractal.py %s" % fctfile
+def render(outfile, fctfile):
+    cmd = "./gnofract4d --nogui --threads 4 -i 64 -j 48 -s %s -q %s" % (outfile,fctfile)
     #print cmd
     ret = os.system(cmd)
     if ret != 0:
-        raise Exception("error running new version")
-
-    outfile = os.path.basename(fctfile) + ".tga"
-    return Image.open(outfile)
+        raise Exception("error generating image")
     
-def render1_9(fctfile):
-    outfile = os.path.basename(fctfile) + ".png"
-    cmd = "gnofract4d -p %s -i 64 -s %s -q" % (fctfile, outfile)
-    #print cmd
-    ret = os.system(cmd)
-    if ret != 0:
-        raise Exception("error running old version")
+def compare(fctfile):
+    outbase = os.path.basename(fctfile) + ".png"
+    outfile = "testdata/new_output/" + outbase
+    render(outfile, fctfile)
+    new_image = Image.open(outfile)
+    old_image = Image.open("testdata/saved_output/" + outbase)
 
-    return Image.open(outfile)
+    diff = ImageChops.difference(new_image,old_image)
 
-def render(fctfile):
-    a = render2_0(fctfile)
-    b = render1_9(fctfile)
-    sa = a.filter(ImageFilter.BLUR)
-    sb = b.filter(ImageFilter.BLUR)
-    diff = ImageChops.difference(sa,sb)
-
-    diff.save(os.path.basename(fctfile) + ".diff.png")
+    diff_file = "testdata/diffs/" + outbase
+    diff.save(diff_file)
     
     stats = ImageStat.Stat(diff)
     print "%f\t%d\t%f" % \
@@ -75,7 +64,7 @@ def total(l):
 def check_file(f):
     try:
         print "%s\t" % f,
-        render(f)
+        compare(f)
     except Exception, err:
         print "Error %s" % err
 

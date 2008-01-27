@@ -785,7 +785,7 @@ class T(fctutils.T):
             dirty=self.clear_image,
             async=async)
         
-    def draw(self,image):
+    def draw(self,image,nthreads=1):
         self.init_pfunc()
 
         colormap = self.get_colormap()
@@ -793,7 +793,7 @@ class T(fctutils.T):
             image.resize_tile(xres,yres)
             image.set_offset(xoff,yoff)
 
-            self.calc(image,colormap,1,self.site,False)
+            self.calc(image,colormap,nthreads,self.site,False)
 
             image.save_tile()
         

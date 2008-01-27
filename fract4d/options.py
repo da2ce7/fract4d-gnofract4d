@@ -1,4 +1,4 @@
-import getopt
+import getopt # FIXME now we've dropped 2.2 we can use optparse
 import os
 import string
 
@@ -35,7 +35,8 @@ class T:
             "trace",
             "tracez",
             "nogui",
-            "version"]
+            "version",
+            "threads="]
 
     def __init__(self):
         (self.basename,self.func) = (None,None)
@@ -56,6 +57,7 @@ class T:
         self.map = None
         self.nogui = False
         self.antialias = None
+        self.threads = None
         (self.width, self.height) = (0,0)
 
     def help(self):
@@ -104,6 +106,7 @@ Obscure settings:
    --trace\t\tProduce voluminous tracing output
    --tracez\t\tPrint values of #z as loop runs
    --nogui\t\tRun with no UI (doesn't require X or GTK)
+   --threads N\t\tUse N threads for calculations
 
 """ % version
 
@@ -159,6 +162,8 @@ Obscure settings:
                 self.tracez = True
             elif name=="--nogui":
                 self.nogui = True
+            elif name=="--threads":
+                self.threads = int(val)
             else:
                 # see if it's a positional param
                 pname = name[2:].upper()
