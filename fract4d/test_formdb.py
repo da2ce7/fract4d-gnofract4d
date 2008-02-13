@@ -4,7 +4,7 @@
 # and I don't want to screw up their bandwidth allocation
 
 import sys
-sys.path.append("..")
+sys.path.insert(1,"..")
 
 import unittest
 import StringIO
@@ -14,13 +14,15 @@ import posixpath
 import urllib
 import httplib
 import os
-import threading
+import threading, time
 import zipfile
 import fractutils.slave
 
 import formdb
 
 
+# Rather than hassle the real UF formula DB when running unit tests,
+# we run a temporary fake web server
 formdb.target_base = "http://localhost:8090/"
 
 class MyRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -56,6 +58,8 @@ def threadStart():
 thread = threading.Thread(target=threadStart)
 thread.setDaemon(True)
 thread.start()
+# hack - make sure local server has started before running tests
+time.sleep(0.5) 
 
 class Test(unittest.TestCase):
     def testFetch(self):
@@ -65,8 +69,8 @@ class Test(unittest.TestCase):
         self.assertEqual(200, response.status)
 
     def testFetchWithFormDB(self):
-        data = formdb.fetchzip("test.zip")
-        self.assertNotEqual(None, data)
+        slave = formdb.beginFetchZip("test.zip")
+        self.assertEqual("http://localhost:8090/test.zip", url)
         
     def testFetchAndUnpack(self):        
         conn = httplib.HTTPConnection('localhost',8090)
@@ -84,7 +88,8 @@ class Test(unittest.TestCase):
 
         self.assertEqual(5, len(formlinks))
 
-        self.assertEqual("/cgi-bin/formuladb?view;file=gwfa.ucl;type=.txt", formlinks[0])
+        self.assertEqual(
+            "/cgi-bin/formuladb?view;file=gwfa.ucl;type=.txt", formlinks[0])
         
 def suite():
     return unittest.makeSuite(Test,'test')

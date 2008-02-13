@@ -6,6 +6,8 @@ import xml.dom.minidom
 import md5
 import random
 
+from fetch import GET_CMD, Request
+
 API_KEY="f29c6d8fa5d950131c4ae13adc55700d"
 SECRET="037ec6eec0e91cab"
 
@@ -15,18 +17,10 @@ UPLOAD_URL="http://www.flickr.com/services/upload/"
 
 GF4D_GROUP="46555832@N00"
 
-GET_CMD=os.path.join(os.path.dirname(__file__),"get.py")
-
 class FlickrError(Exception):
     def __init__(self, msg,code=0):
         Exception.__init__(self, msg)
         self.code = int(code)
-
-class Request(object):
-    def __init__(self, cmd, args, input):
-        self.cmd = cmd
-        self.args = args
-        self.input = input
 
 def makeRequest(base_url,is_post,
                 is_signed=False, input="",

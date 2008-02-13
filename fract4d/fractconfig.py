@@ -196,7 +196,7 @@ class T(ConfigParser.ConfigParser):
     def save(self):
         self.write(open(self.file,"w"))        
 
-def DarwinConfig(T):
+class DarwinConfig(T):
     def __init__(self,file):
         T.__init__(self,file)
 

@@ -57,7 +57,11 @@ class Test(unittest.TestCase):
         datadir = c.get("general","data_dir")
         self.assertEqual(
             os.path.expandvars("${HOME}/gnofract4d"), datadir)
-        
+
+    def testDarwin(self):
+        c = fractconfig.DarwinConfig("testprefs")
+        self.assertEqual("open -e", c.get_default_editor())
+
 def suite():
     return unittest.makeSuite(Test,'test')
 

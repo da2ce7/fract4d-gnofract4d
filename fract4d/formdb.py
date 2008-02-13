@@ -2,6 +2,8 @@
 import re
 import httplib
 
+from fractutils import slave, fetch
+
 target_base = "http://formulas.ultrafractal.com/cgi-bin/"
 
 href_re = re.compile(r'<a href="(/cgi-bin/formuladb.*?)"', re.IGNORECASE)
@@ -15,6 +17,10 @@ def parse(file):
 
     return links
 
-def fetchzip(name):
+def beginFetchZip(name,slaveType=slave.Slave):
     url = target_base + name
-    
+    slave = slaveType(fetch.GET_CMD, "GET", url)
+    slave.run("")
+    while slave.read:
+        
+    return slave
