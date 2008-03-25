@@ -1,3 +1,4 @@
+
 todo:
 
 changes in 3.9:
@@ -5,6 +6,8 @@ changes in 3.9:
 * B	--nogui doesn't set map_path from prefs
 * W	added --threads cmd-line option
 * BB	./gnofract4d --nogui -q with multiple threads crashes	
+* B	wrong labels on planes menu (Artur G.)
+* B	setting number of threads should happen immediately (Artur G.)
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

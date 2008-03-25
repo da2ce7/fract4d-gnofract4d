@@ -32,7 +32,7 @@
 	<menuitem name="PlanesXZ" action="PlanesXZAction"/>
 	<menuitem name="PlanesXW" action="PlanesXWAction"/>
 	<menuitem name="PlanesYZ" action="PlanesYZAction"/>
-	<menuitem name="PlanesYW" action="PlanesYWAction"/>
+	<menuitem name="PlanesWY" action="PlanesWYAction"/>
       </menu>
     </menu>
     <menu name="ShareMenu" action="ShareMenuAction">

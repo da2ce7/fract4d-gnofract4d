@@ -84,8 +84,9 @@ class MainWindow:
             
         self.model = model.Model(self.f)
 
-        preferences.userPrefs.connect('image-preferences-changed',
-                                      self.on_prefs_changed)
+        preferences.userPrefs.connect(
+            'image-preferences-changed',
+            self.on_prefs_changed)
 
         browser.update(self.f.forms[0].funcFile, self.f.forms[0].funcName)
             
@@ -371,6 +372,9 @@ class MainWindow:
         self.vbox.pack_start(hbox)
 
     def draw(self):        
+        nt = preferences.userPrefs.getint("general","threads") 
+        self.f.set_nthreads(nt)
+
         self.f.draw_image()
         
     def update_compiler_prefs(self,prefs):
@@ -389,10 +393,13 @@ class MainWindow:
                 f.set_size(w//2, h//2)
             w += 2; h += 2
         self.f.set_size(w,h)
-        self.f.set_nthreads(prefs.getint("general","threads"))
-        self.f.set_antialias(preferences.userPrefs.getint("display","antialias"))
-        self.f.set_auto_deepen(preferences.userPrefs.getboolean("display","autodeepen"))
-        self.f.set_auto_tolerance(preferences.userPrefs.getboolean("display","autotolerance"))
+            
+        self.f.set_antialias(
+            prefs.getint("display","antialias"))
+        self.f.set_auto_deepen(
+            prefs.getboolean("display","autodeepen"))
+        self.f.set_auto_tolerance(
+            prefs.getboolean("display","autotolerance"))
 
     def on_prefs_changed(self,prefs):
         self.f.freeze()
@@ -642,12 +649,12 @@ class MainWindow:
              '<control>2', None, self.set_zw_plane),
             ('PlanesXZAction', None, _('_XZ (Oblate)'),
              '<control>3', None, self.set_xz_plane),
-            ('PlanesXWAction', None, _('_XY (Parabolic)'),
+            ('PlanesXWAction', None, _('_XW (Parabolic)'),
              '<control>4', None, self.set_xw_plane),
-            ('PlanesYZAction', None, _('_XY (Elliptic)'),
+            ('PlanesYZAction', None, _('_ZY (Elliptic)'),
              '<control>5', None, self.set_yz_plane),
-            ('PlanesYWAction', None, _('_YW (Rectangular)'),
-             '<control>6', None, self.set_yw_plane)
+            ('PlanesWYAction', None, _('_WY (Rectangular)'),
+             '<control>6', None, self.set_wy_plane)
             ]
 
     def create_ui(self):
@@ -1276,8 +1283,8 @@ class MainWindow:
         # left = +z, down = +y
         self.f.set_plane(self.f.XZANGLE, None)
 	    
-    def set_yw_plane(self,*args):
-        """Reset rotation to show the YW (Rectangular) plane."""
+    def set_wy_plane(self,*args):
+        """Reset rotation to show the WY (Rectangular) plane."""
         # left =+w, down = +y
         self.f.set_plane(self.f.XWANGLE, None)
 	
