@@ -66,7 +66,7 @@ class T:
             
         if meth:
             return meth(self,val,f)
-        else:
+        elif name != "":
             self.warn("ignoring unknown attribute '%s'" % name)
 
     def decompress(self,b64string):

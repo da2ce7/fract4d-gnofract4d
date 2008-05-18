@@ -10,7 +10,7 @@
 <!ENTITY gf4d "<application>Gnofract 4D</application>">
 <!ENTITY fractint "<application>Fractint</application>">
 <!ENTITY ultrafractal "<application>UltraFractal</application>">
-<!ENTITY version "3.8">
+<!ENTITY version "3.9">
 
 ]>
 <article id="gnofract4d">
@@ -988,8 +988,7 @@ encouraged to do).
 <para>
 
 &gf4d; is implemented primarily in Python, with some C++
-extensions. It works on Python 2.2 and above, which means some
-flashier language features like generators are not used. Extensive use
+extensions. Extensive use
 is made of Python unittest framework to keep everything working - each
 Python file <filename>foo.py</filename> is accompanied by
 <filename>test_foo.py</filename>, which contains unit tests for that
@@ -1079,7 +1078,7 @@ obtain gconf settings. </para> </entry> </row>
 <title>Compiler</title> 
 
 <para>The most complicated part of &gf4d; is the compiler. This takes
-as input an UltraFractal or Fractint formula files, and produces C
+as input an UltraFractal or Fractint formula file, and produces C
 code. We then invoke a C compiler (eg gcc) to produce a shared library
 containing code to generate the fractal which we dynamically load.
 </para>

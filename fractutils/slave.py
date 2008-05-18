@@ -35,7 +35,7 @@ class Slave(object):
     def run(self, input):
         self.input = input
         args = [self.cmd, str(len(input))] + self.args
-        print args
+        #print args
         self.process = subprocess.Popen(
             args,
             stdin=subprocess.PIPE,

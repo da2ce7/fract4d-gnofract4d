@@ -143,6 +143,7 @@ class Compiler:
         self.libs = "-lm"
         self.tree_cache = {}
         self.leave_dirty = False
+        self.next_inline_number = 0
 
     def _get_files(self):
         return self.cache.files
@@ -204,6 +205,19 @@ class Compiler:
         
         return self.files[fname].contents
 
+    def nextInlineFile(self):
+        self.next_inline_number += 1
+        return "__inline__%d.frm" % self.next_inline_number
+
+    def add_inline_formula(self,formbody):
+        # formbody contains a string containing the contents of a formula
+        formulas = self.parse_file(formbody)
+
+        fname = self.nextInlineFile()
+        ff = FormulaFile(formulas,formbody,0,fname)
+        ff.file_backed = False
+        self.files[fname] = ff
+        return (fname, "Mandelbrot")
 
     def last_chance(self,filename):
         '''does nothing here, but can be overridden by GUI to prompt user.'''
@@ -371,7 +385,7 @@ class Compiler:
     
     def get_formula(self, filename, formname,prefix=""):
         type = self.guess_type_from_filename(filename)
-        
+
         f = self.get_parsetree(filename,formname)
 
         if f != None:

@@ -24,7 +24,7 @@ import formsettings
 
 # the version of the earliest gf4d release which can parse all the files
 # this version can output
-THIS_FORMAT_VERSION="3.6"
+THIS_FORMAT_VERSION="3.9"
 
 BLEND_NEAREST=0
 BLEND_FURTHEST=1
@@ -157,6 +157,7 @@ class T(fctutils.T):
         for solid in self.solids:
             print >>file, "%02x%02x%02x%02x" % solid
         print >>file, "]"
+        print >>file, "[endsection]"
 
         if compress:
             file.close()
@@ -210,10 +211,22 @@ class T(fctutils.T):
             self.period_tolerance = val
             self.changed(False)
             
+    def normalize_formulafile(self,params):
+        formula = params.dict.get("formula")
+        if formula:
+            # we have an in-line formula, use that instead of formulafile/function
+            (formulafile, fname) = self.compiler.add_inline_formula(formula)
+        else:
+            formulafile = params.dict.get("formulafile",self.forms[0].funcFile)
+            fname = params.dict.get("function", self.forms[0].funcName)
+
+        return (formulafile, fname)
+
     def parse__inner_(self,val,f):
         params = fctutils.ParamBag()
         params.load(f)
-        self.set_inner(params.dict["formulafile"],params.dict["function"])
+        (file,func) = self.normalize_formulafile(params)
+        self.set_inner(file,func)
         self.forms[2].load_param_bag(params)
         
     def parse__outer_(self,val,f):
@@ -843,12 +856,11 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
     def parse__function_(self,val,f):
         params = fctutils.ParamBag()
         params.load(f)
-        file = params.dict.get("formulafile",self.forms[0].funcFile)
-        func = params.dict.get("function", self.forms[0].funcName)
+        (file,func) = self.normalize_formulafile(params)
         self.set_formula(file,func,0)
             
         for (name,val) in params.dict.items():
-            if name == "formulafile" or name == "function":
+            if name == "formulafile" or name == "function" or name == "formula" or name=="":
                 pass
             elif name == "a" or name =="b" or name == "c":
                 # back-compat for older versions

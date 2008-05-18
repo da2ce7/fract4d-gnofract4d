@@ -114,6 +114,79 @@ colorlist=[
 ]
 '''
 
+g_test3file='''gnofract4d parameter file
+version=3.9
+x=0.00000000000000000
+y=0.00000000000000000
+z=0.00000000000000000
+w=0.00000000000000000
+size=4.00000000000000000
+xy=0.00000000000000000
+xz=0.00000000000000000
+xw=0.00000000000000000
+yz=0.00000000000000000
+yw=0.00000000000000000
+zw=0.00000000000000000
+maxiter=64
+yflip=False
+periodicity=1
+period_tolerance=0.00000010000000000
+[function]
+formula=[
+Mandelbrot {
+; The classic Mandelbrot set
+init:
+	z = #zwpixel
+loop:
+	z = z * z + #pixel
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default = cmag
+endfunc
+}
+]
+@bailfunc=cmag
+@_gradient=[
+GIMP Gradient
+7
+0.000000 0.071429 0.142857 0.200000 0.133333 0.066667 1.000000 0.000000 0.266667 0.400000 1.000000 0 0
++0.214286 0.285714 0.133333 0.400000 0.400000 1.000000 0 0
++0.357143 0.428571 0.666667 0.533333 0.000000 1.000000 0 0
++0.500000 0.571429 0.533333 0.266667 0.266667 1.000000 0 0
++0.642857 0.714286 0.333333 0.400000 0.466667 1.000000 0 0
++0.785714 0.857143 0.466667 0.466667 0.400000 1.000000 0 0
++0.928571 1.000000 0.466667 0.466667 0.400000 1.000000 0 0
+]
+@bailout=4.00000000000000000
+[endsection]
+[outer]
+formulafile=gf4d.cfrm
+function=continuous_potential
+@_transfer=ident
+@_density=1.00000000000000000
+@_offset=0.00000000000000000
+@bailout=4.00000000000000000
+[endsection]
+[inner]
+formulafile=gf4d.cfrm
+function=zero
+@_transfer=ident
+@_density=1.00000000000000000
+@_offset=0.00000000000000000
+[endsection]
+[colors]
+colorizer=1
+solids=[
+000000ff
+000000ff
+]
+'''
+
 class WarningCatcher:
     def __init__(self):
         self.warnings = []
@@ -630,6 +703,11 @@ blue=0.3
         
         f.loadFctFile(rgb_file)
         self.assertEqual(f.forms[1].funcName,"rgb")
+
+    def testLoadWithInlineFormula(self):
+        f1 = fractal.T(self.compiler)
+        file1 = StringIO.StringIO(g_test3file)
+        f1.loadFctFile(file1)
 
     def testSaveWithCFParams(self):
         'load and save a file with a colorfunc which has parameters'
