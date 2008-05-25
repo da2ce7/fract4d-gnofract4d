@@ -49,7 +49,7 @@ class T(gtk.Dialog):
                 title = dialog.get_title()
                 container = make_container(title)
                 box.reparent(container)
-                alt_parent.pack_start(container,False,False,0)
+                alt_parent.pack_start(container,True,True,0)
                 alt_parent.dialogs[type] = container
 
             container.show_all()

@@ -32,8 +32,8 @@ class SettingsDialog(dialog.T):
         self.tooltips = gtk.Tooltips()
         self.notebook = gtk.Notebook()
         self.controls = gtk.VBox()
-        self.controls.add(self.notebook)
-        self.vbox.add(self.controls)
+        self.controls.pack_start(self.notebook,True,True)
+        self.vbox.pack_start(self.controls, True, True)
         self.tables = [None,None,None,None]
         self.selected_transform = None
         
@@ -549,7 +549,7 @@ class SettingsDialog(dialog.T):
         self.add_notebook_page(vbox, _("Inner"))
 
     def update_formula_text(self, f, textview):
-        text = "Hello from formula %s" % f.forms[0].funcFile
+        text = f.forms[0].text()
 
         latin_text = unicode(text,'latin-1')
         utf8_text = latin_text.encode('utf-8')
@@ -564,19 +564,23 @@ class SettingsDialog(dialog.T):
         #self.tooltips.set_tip(textview, tip)
         
         sw.add(textview)
-        parent.pack_start(sw)
+        parent.pack_start(sw, True, True, 2)
 
         self.f.connect(
             'formula-changed', self.update_formula_text, textview)
 
+        self.update_formula_text(self.f, textview)
+
     def create_formula_parameters_page(self):
         vbox = gtk.VBox()
+        formbox = gtk.VBox()
         self.create_formula_widget_table(
-            vbox,
+            formbox,
             0,
             _("Formula"), 
             _("Browse available fractal functions"))
         
+        vbox.pack_start(formbox, False, False, 0)
         self.create_formula_text_area(vbox)
         self.add_notebook_page(vbox, _("Formula"))
 

@@ -271,6 +271,15 @@ class Compiler:
 
         return self.last_chance(filename)        
 
+    def add_endlines(self,result,final_line):
+        "Add info on which is the final source line of each formula"
+        l = len(result.children)
+        for i in xrange(l):
+            if i == l - 1:
+                result.children[i].last_line = final_line
+            else:
+                result.children[i].last_line = result.children[i+1].pos-1
+            
     def parse_file(self,s):
         self.lexer.lineno = 1
         result = None
@@ -281,9 +290,12 @@ class Compiler:
             # create an Error formula listing the problem
             result = self.parser.parse('error {\n}\n')
 
-            result.children[0].children[0] = absyn.PreprocessorError(str(err), -1)
+            result.children[0].children[0] = \
+                absyn.PreprocessorError(str(err), -1)
             #print result.pretty()
-            
+
+        self.add_endlines(result,self.lexer.lineno-1)
+
         formulas = {}
         for formula in result.children:
             formulas[formula.leaf] = formula
@@ -333,7 +345,15 @@ class Compiler:
             self.load_formula_file(filename)
             ff = self.files.get(basefile)            
         return ff
-    
+
+    def get_formula_text(self,filename,formname):
+        ff = self.get_file(filename)
+        form = ff.get_formula(formname)
+        start_line = form.pos-1
+        last_line = form.last_line
+        lines = ff.contents.splitlines()
+        return "\n".join(lines[start_line:last_line])
+
     def compile(self,ir,options={}):
         cg = codegen.T(ir.symbols,options)
         cg.output_all(ir)

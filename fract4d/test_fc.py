@@ -261,7 +261,11 @@ bailout: abs(real(z)) > 2.0 || abs(imag(z)) > 2.0
                 if fname.count("error") == 0:
                     f = self.compiler.get_formula(ff.filename, fname)
                     self.assertNoErrors(f, "%s:%s" % (filename, fname))
-                
+
+    def testGetFormulaText(self):
+        t = self.compiler.get_formula_text("gf4d.frm","Mandelbrot")
+        self.failUnless(t.startswith("Mandelbrot {"))
+
 def suite():
     return unittest.makeSuite(Test,'test')
 

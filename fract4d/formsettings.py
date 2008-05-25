@@ -166,7 +166,12 @@ class T:
             self.set_named_item(name,val)
         except KeyError:
             pass
-        
+
+    def text(self):
+        "Return the text of this formula"
+        return self.compiler.get_formula_text(
+            self.funcFile, self.funcName)
+
     def set_named_item(self,name,val):
         sym = self.formula.symbols[name].first()
         if isinstance(sym, fracttypes.Func):
