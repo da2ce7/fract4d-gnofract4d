@@ -8,6 +8,7 @@ changes in 3.9:
 * BB	./gnofract4d --nogui -q with multiple threads crashes	
 * B	wrong labels on planes menu (Artur G.)
 * B	setting number of threads should happen immediately (Artur G.)
+* B	specify libc6-dev as dependency on Ubuntu (Elaine N.)
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

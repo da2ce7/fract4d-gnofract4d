@@ -709,6 +709,9 @@ blue=0.3
         file1 = StringIO.StringIO(g_test3file)
         f1.loadFctFile(file1)
 
+        self.assertEqual(f1.forms[0].funcFile, "__inline__1.frm")
+        self.assertEqual(f1.forms[0].funcName, "Mandelbrot")
+
     def testSaveWithCFParams(self):
         'load and save a file with a colorfunc which has parameters'
         f1 = fractal.T(self.compiler)

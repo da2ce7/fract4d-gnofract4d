@@ -548,6 +548,27 @@ class SettingsDialog(dialog.T):
 
         self.add_notebook_page(vbox, _("Inner"))
 
+    def update_formula_text(self, f, textview):
+        text = "Hello from formula %s" % f.forms[0].funcFile
+
+        latin_text = unicode(text,'latin-1')
+        utf8_text = latin_text.encode('utf-8')
+        textview.get_buffer().set_text(utf8_text,-1)
+
+    def create_formula_text_area(self,parent):
+        sw = gtk.ScrolledWindow ()
+        sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
+        sw.set_policy (gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        textview = gtk.TextView()
+        #self.tooltips.set_tip(textview, tip)
+        
+        sw.add(textview)
+        parent.pack_start(sw)
+
+        self.f.connect(
+            'formula-changed', self.update_formula_text, textview)
+
     def create_formula_parameters_page(self):
         vbox = gtk.VBox()
         self.create_formula_widget_table(
@@ -556,6 +577,7 @@ class SettingsDialog(dialog.T):
             _("Formula"), 
             _("Browse available fractal functions"))
         
+        self.create_formula_text_area(vbox)
         self.add_notebook_page(vbox, _("Formula"))
 
     def update_transform_parameters(self, parent, *args):

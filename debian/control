@@ -10,7 +10,7 @@ XS-Python-Version: current
 
 Package: gnofract4d
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, libc6-dev
 XB-Python-Version: ${python:Versions}
 Description: a fractal images creator
  Gnofract 4D is a program which allows anyone to create beautiful images 
