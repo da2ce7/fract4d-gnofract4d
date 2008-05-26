@@ -213,11 +213,17 @@ class Compiler:
         # formbody contains a string containing the contents of a formula
         formulas = self.parse_file(formbody)
 
+        print formulas.keys()
         fname = self.nextInlineFile()
         ff = FormulaFile(formulas,formbody,0,fname)
         ff.file_backed = False
         self.files[fname] = ff
-        return (fname, "Mandelbrot")
+        names = ff.get_formula_names()
+        if len(names) == 0:
+            formName = "error"
+        else:
+            formName = names[0]
+        return (fname, formName)
 
     def last_chance(self,filename):
         '''does nothing here, but can be overridden by GUI to prompt user.'''
@@ -273,6 +279,9 @@ class Compiler:
 
     def add_endlines(self,result,final_line):
         "Add info on which is the final source line of each formula"
+        if None == result:
+            return
+
         l = len(result.children)
         for i in xrange(l):
             if i == l - 1:
@@ -294,7 +303,7 @@ class Compiler:
                 absyn.PreprocessorError(str(err), -1)
             #print result.pretty()
 
-        self.add_endlines(result,self.lexer.lineno-1)
+        self.add_endlines(result,self.lexer.lineno)
 
         formulas = {}
         for formula in result.children:

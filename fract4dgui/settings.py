@@ -553,7 +553,25 @@ class SettingsDialog(dialog.T):
 
         latin_text = unicode(text,'latin-1')
         utf8_text = latin_text.encode('utf-8')
+
         textview.get_buffer().set_text(utf8_text,-1)
+
+    def change_formula(self,button,buffer):
+        buftext = buffer.get_text(
+            buffer.get_start_iter(), buffer.get_end_iter())
+
+        if buftext == '':
+            #print "no text"
+            return
+
+        if buftext == self.f.forms[0].text():
+            #print "not changed"
+            return
+        
+        #print "text is '%s'" % buftext
+        (fileName, formName) = self.f.compiler.add_inline_formula(buftext)
+        #print "%s#%s" % (fileName, formName)
+        self.f.set_formula(fileName, formName)
 
     def create_formula_text_area(self,parent):
         sw = gtk.ScrolledWindow ()
@@ -562,6 +580,10 @@ class SettingsDialog(dialog.T):
 
         textview = gtk.TextView()
         #self.tooltips.set_tip(textview, tip)
+
+        #textview.get_buffer().connect(
+        #    "changed",
+        #    self.change_formula)                               
         
         sw.add(textview)
         parent.pack_start(sw, True, True, 2)
@@ -569,6 +591,9 @@ class SettingsDialog(dialog.T):
         self.f.connect(
             'formula-changed', self.update_formula_text, textview)
 
+        apply = gtk.Button(_("Apply Formula Changes"))
+        apply.connect('clicked', self.change_formula, textview.get_buffer())
+        parent.pack_end(apply, False, False, 1)
         self.update_formula_text(self.f, textview)
 
     def create_formula_parameters_page(self):
