@@ -21,6 +21,7 @@ import image
 import fctutils
 import colorizer
 import formsettings
+import fc
 
 # the version of the earliest gf4d release which can parse all the files
 # this version can output
@@ -211,29 +212,52 @@ class T(fctutils.T):
             self.period_tolerance = val
             self.changed(False)
             
-    def normalize_formulafile(self,params):
+    def normalize_formulafile(self,params,formindex,formtype):
         formula = params.dict.get("formula")
         if formula:
             # we have an in-line formula, use that instead of formulafile/function
-            (formulafile, fname) = self.compiler.add_inline_formula(formula)
+            (formulafile, fname) = self.compiler.add_inline_formula(
+                formula,formtype)
         else:
-            formulafile = params.dict.get("formulafile",self.forms[0].funcFile)
-            fname = params.dict.get("function", self.forms[0].funcName)
+            formulafile = params.dict.get(
+                "formulafile",self.forms[formtype].funcFile)
+            fname = params.dict.get(
+                "function", self.forms[formtype].funcName)
 
         return (formulafile, fname)
 
     def parse__inner_(self,val,f):
         params = fctutils.ParamBag()
         params.load(f)
-        (file,func) = self.normalize_formulafile(params)
+        (file,func) = self.normalize_formulafile(
+            params,2,fc.FormulaTypes.COLORFUNC)
         self.set_inner(file,func)
         self.forms[2].load_param_bag(params)
         
     def parse__outer_(self,val,f):
         params = fctutils.ParamBag()
         params.load(f)
-        self.set_outer(params.dict["formulafile"],params.dict["function"])
+        (file, func) = self.normalize_formulafile(
+            params,1,fc.FormulaTypes.COLORFUNC)
+        self.set_outer(file,func)
         self.forms[1].load_param_bag(params)
+
+    def parse__function_(self,val,f):
+        params = fctutils.ParamBag()
+        params.load(f)
+        (file,func) = self.normalize_formulafile(
+            params,0,fc.FormulaTypes.FRACTAL)
+        self.set_formula(file,func,0)
+            
+        for (name,val) in params.dict.items():
+            if name == "formulafile" or name == "function" or name == "formula" or name=="":
+                pass
+            elif name == "a" or name =="b" or name == "c":
+                # back-compat for older versions
+                self.forms[0].set_named_param("@" + name, val)
+            else:
+                self.forms[0].set_named_item(name,val)
+        
 
     def parse__transform_(self,val,f):
         which_transform = int(val)
@@ -853,21 +877,6 @@ The image may not display correctly. Please upgrade to version %s or higher.'''
     def warn(self,msg):
         print msg
 
-    def parse__function_(self,val,f):
-        params = fctutils.ParamBag()
-        params.load(f)
-        (file,func) = self.normalize_formulafile(params)
-        self.set_formula(file,func,0)
-            
-        for (name,val) in params.dict.items():
-            if name == "formulafile" or name == "function" or name == "formula" or name=="":
-                pass
-            elif name == "a" or name =="b" or name == "c":
-                # back-compat for older versions
-                self.forms[0].set_named_param("@" + name, val)
-            else:
-                self.forms[0].set_named_item(name,val)
-        
     def parse_bailfunc(self,val,f):
         # can't set function directly because formula hasn't been parsed yet
         self.bailfunc = int(val)

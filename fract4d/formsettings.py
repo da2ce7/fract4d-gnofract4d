@@ -107,6 +107,11 @@ class T:
         print >>file, "formulafile=%s" % self.funcFile
         print >>file, "function=%s" % self.funcName
 
+        if(self.compiler.is_inline(self.funcFile, self.funcName)):
+            contents = self.compiler.get_formula_text(
+                self.funcFile, self.funcName)
+            print >>file, "formula=[\n%s\n]" % contents
+
         names = self.func_names()
         names.sort()
         for name in names:

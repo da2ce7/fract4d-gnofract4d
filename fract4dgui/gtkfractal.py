@@ -165,8 +165,8 @@ class Hidden(gobject.GObject):
     def copy_f(self):
         return copy.copy(self.f)
 
-    def set_formula(self, fname, formula):
-        self.f.set_formula(fname, formula)
+    def set_formula(self, fname, formula,index=0):
+        self.f.set_formula(fname, formula,index)
 
     def onData(self,fd,condition):
         bytes = os.read(fd,self.msgsize)
@@ -870,7 +870,7 @@ class T(Hidden):
 
     def onMotionNotify(self,widget,event):
         (x,y) = self.float_coords(event.x, event.y)
-        self.emit('pointer-moved', self.button, x, y)
+        #self.emit('pointer-moved', self.button, x, y)
 
         if not self.notice_mouse:
             return
@@ -949,6 +949,7 @@ class T(Hidden):
     
     def onButtonRelease(self,widget,event):
         self.redraw_rect(0,0,self.width,self.height)
+        self.button = 0
         if self.filterPaintModeRelease(event):
             return
         
@@ -1040,8 +1041,12 @@ class SubFract(T):
         self.master = master
         
     def onButtonRelease(self,widget,event):
+        self.button = 0
         if self.master:
             self.master.set_fractal(self.copy_f())
+
+    def onMotionNotify(self, widget, event):
+        pass
 
     def error(self,msg,exn):
         # suppress errors from subfracts, if they ever happened

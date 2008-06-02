@@ -9,6 +9,10 @@ changes in 3.9:
 * B	wrong labels on planes menu (Artur G.)
 * B	setting number of threads should happen immediately (Artur G.)
 * B	specify libc6-dev as dependency on Ubuntu (Elaine N.)
+* W	edit formula directly, including inner & outer
+* B	instant julia preview all the time is distracting
+* BB	inline formulas aren't saved
+* BB	draws white boxes in explorer
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -29,6 +33,7 @@ bugs (the more B's, the worse the bug):
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * BB	stops drawing after new gradient applied to DCA fractal (sometimes)
+* BB	no notification of compile errors when editing formulas
 * B	interrupt takes too long on deep-zoomed fractals
 * B	MandAutoCritInZ doesn't work if optimization off in g++?
 * B	hth.ufm#StrangeKindOfMandelbrot gives 'cmag_c_c not found'

@@ -132,6 +132,8 @@ yflip=False
 periodicity=1
 period_tolerance=0.00000010000000000
 [function]
+formulafile=__inline__1.frm
+function=Mandelbrot
 formula=[
 Mandelbrot {
 ; The classic Mandelbrot set
@@ -165,19 +167,36 @@ GIMP Gradient
 @bailout=4.00000000000000000
 [endsection]
 [outer]
-formulafile=gf4d.cfrm
+formulafile=__inline__2.cfrm
 function=continuous_potential
 @_transfer=ident
 @_density=1.00000000000000000
 @_offset=0.00000000000000000
 @bailout=4.00000000000000000
+formula=[
+continuous_potential {
+final:
+float ed = @bailout/(|z| + 1.0e-9) 
+#index = (#numiter + ed) / 256.0
+default:
+float param bailout
+	default = 4.0
+endparam
+}
+]
 [endsection]
 [inner]
-formulafile=gf4d.cfrm
+formulafile=__inline__3.cfrm
 function=zero
 @_transfer=ident
 @_density=1.00000000000000000
 @_offset=0.00000000000000000
+formula=[
+zero (BOTH) {
+final:
+#solid = true
+}
+]
 [endsection]
 [colors]
 colorizer=1
@@ -711,6 +730,17 @@ blue=0.3
 
         self.assertEqual(f1.forms[0].funcFile, "__inline__1.frm")
         self.assertEqual(f1.forms[0].funcName, "Mandelbrot")
+
+        self.assertEqual(f1.forms[1].funcFile, "__inline__2.cfrm")
+        self.assertEqual(f1.forms[1].funcName, "continuous_potential")
+
+        self.assertEqual(f1.forms[2].funcFile, "__inline__3.cfrm")
+        self.assertEqual(f1.forms[2].funcName, "zero")
+
+        outfile = StringIO.StringIO()
+        f1.save(outfile)
+
+        self.failUnless(outfile.getvalue().count("formula=[")==3)
 
     def testSaveWithCFParams(self):
         'load and save a file with a colorfunc which has parameters'

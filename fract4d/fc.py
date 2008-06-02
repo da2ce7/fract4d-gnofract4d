@@ -61,6 +61,14 @@ class FormulaTypes:
         re.compile(r'(\.ugr\Z)|(\.map\Z)|(\.ggr\Z)|(\.cs\Z)', re.IGNORECASE)
         ]
     
+    # indexed by FormulaTypes above
+    extensions = [ "frm", "cfrm", "uxf", "ggr"]
+
+    def extension_from_type(t):
+        return FormulaTypes.extensions[t]
+
+    extension_from_type = staticmethod(extension_from_type)
+
     def guess_type_from_filename(filename):
         if FormulaTypes.matches[FormulaTypes.FRACTAL].search(filename):
             return translate.T
@@ -205,16 +213,16 @@ class Compiler:
         
         return self.files[fname].contents
 
-    def nextInlineFile(self):
+    def nextInlineFile(self,type):
         self.next_inline_number += 1
-        return "__inline__%d.frm" % self.next_inline_number
+        ext = FormulaTypes.extension_from_type(type)
+        return "__inline__%d.%s" % (self.next_inline_number, ext)
 
-    def add_inline_formula(self,formbody):
+    def add_inline_formula(self,formbody, formtype):
         # formbody contains a string containing the contents of a formula
         formulas = self.parse_file(formbody)
 
-        print formulas.keys()
-        fname = self.nextInlineFile()
+        fname = self.nextInlineFile(formtype)
         ff = FormulaFile(formulas,formbody,0,fname)
         ff.file_backed = False
         self.files[fname] = ff
@@ -362,6 +370,9 @@ class Compiler:
         last_line = form.last_line
         lines = ff.contents.splitlines()
         return "\n".join(lines[start_line:last_line])
+
+    def is_inline(self,filename, formname):
+        return not self.files[filename].file_backed
 
     def compile(self,ir,options={}):
         cg = codegen.T(ir.symbols,options)

@@ -9,6 +9,7 @@ import copy
 from table import Table
 
 from fract4d import browser_model
+from fract4d.fc import FormulaTypes
 
 def show_settings(parent,alt_parent, f,dialog_mode):
     SettingsDialog.show(parent,alt_parent, f,dialog_mode)
@@ -528,35 +529,15 @@ class SettingsDialog(dialog.T):
         table.add(typelabel,0, gtk.EXPAND|gtk.FILL,0,2,2)
         table.add(hbox, 1, gtk.EXPAND | gtk.FILL ,0,2,2)
 
-    def create_outer_page(self):
-        vbox = gtk.VBox()
-        self.create_formula_widget_table(
-            vbox,
-            1,
-            _("Coloring Method"),
-            _("Browse available coloring functions"))
-
-        self.add_notebook_page(vbox,_("Outer"))
-        
-    def create_inner_page(self):
-        vbox = gtk.VBox()
-        self.create_formula_widget_table(
-            vbox,
-            2,
-            _("Coloring Method"),
-            _("Browse available coloring functions"))
-
-        self.add_notebook_page(vbox, _("Inner"))
-
-    def update_formula_text(self, f, textview):
-        text = f.forms[0].text()
+    def update_formula_text(self, f, textview,formindex):
+        text = f.forms[formindex].text()
 
         latin_text = unicode(text,'latin-1')
         utf8_text = latin_text.encode('utf-8')
 
         textview.get_buffer().set_text(utf8_text,-1)
 
-    def change_formula(self,button,buffer):
+    def change_formula(self,button,buffer,formindex,formtype):
         buftext = buffer.get_text(
             buffer.get_start_iter(), buffer.get_end_iter())
 
@@ -564,16 +545,17 @@ class SettingsDialog(dialog.T):
             #print "no text"
             return
 
-        if buftext == self.f.forms[0].text():
+        if buftext == self.f.forms[formtype].text():
             #print "not changed"
             return
         
         #print "text is '%s'" % buftext
-        (fileName, formName) = self.f.compiler.add_inline_formula(buftext)
+        (fileName, formName) = self.f.compiler.add_inline_formula(
+            buftext, formtype)
         #print "%s#%s" % (fileName, formName)
-        self.f.set_formula(fileName, formName)
+        self.f.set_formula(fileName, formName,formindex)
 
-    def create_formula_text_area(self,parent):
+    def create_formula_text_area(self,parent,formindex,formtype):
         sw = gtk.ScrolledWindow ()
         sw.set_shadow_type (gtk.SHADOW_ETCHED_IN)
         sw.set_policy (gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
@@ -581,20 +563,22 @@ class SettingsDialog(dialog.T):
         textview = gtk.TextView()
         #self.tooltips.set_tip(textview, tip)
 
-        #textview.get_buffer().connect(
-        #    "changed",
-        #    self.change_formula)                               
-        
         sw.add(textview)
         parent.pack_start(sw, True, True, 2)
 
         self.f.connect(
-            'formula-changed', self.update_formula_text, textview)
+            'formula-changed', self.update_formula_text, textview, formindex)
 
         apply = gtk.Button(_("Apply Formula Changes"))
-        apply.connect('clicked', self.change_formula, textview.get_buffer())
+        apply.connect(
+            'clicked', 
+            self.change_formula, 
+            textview.get_buffer(),
+            formindex, 
+            formtype)
+
         parent.pack_end(apply, False, False, 1)
-        self.update_formula_text(self.f, textview)
+        self.update_formula_text(self.f, textview, formindex)
 
     def create_formula_parameters_page(self):
         vbox = gtk.VBox()
@@ -606,8 +590,35 @@ class SettingsDialog(dialog.T):
             _("Browse available fractal functions"))
         
         vbox.pack_start(formbox, False, False, 0)
-        self.create_formula_text_area(vbox)
+        self.create_formula_text_area(vbox,0,FormulaTypes.FRACTAL)
         self.add_notebook_page(vbox, _("Formula"))
+
+    def create_outer_page(self):
+        vbox = gtk.VBox()
+        formbox = gtk.VBox()
+        self.create_formula_widget_table(
+            formbox,
+            1,
+            _("Coloring Method"),
+            _("Browse available coloring functions"))
+
+        vbox.pack_start(formbox, False, False, 0)
+        self.create_formula_text_area(vbox,1,FormulaTypes.COLORFUNC)
+        self.add_notebook_page(vbox,_("Outer"))
+        
+    def create_inner_page(self):
+        vbox = gtk.VBox()
+        formbox = gtk.VBox()
+        self.create_formula_widget_table(
+            formbox,
+            2,
+            _("Coloring Method"),
+            _("Browse available coloring functions"))
+
+        vbox.pack_start(formbox, False, False, 0)
+        self.create_formula_text_area(vbox,2,FormulaTypes.COLORFUNC)
+        self.add_notebook_page(vbox, _("Inner"))
+
 
     def update_transform_parameters(self, parent, *args):
         widget = self.tables[3] 
