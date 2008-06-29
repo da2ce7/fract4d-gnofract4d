@@ -111,7 +111,7 @@ class Hidden(gobject.GObject):
             self.emit('parameters-changed')
         
     def formula_changed(self):
-        print "formula changed"
+        #print "formula changed"
         self.f.dirtyFormula = True
         #if not self.frozen:
         self.emit('formula-changed')
@@ -951,6 +951,7 @@ class T(Hidden):
     def onButtonRelease(self,widget,event):
         self.redraw_rect(0,0,self.width,self.height)
         self.button = 0
+        self.notice_mouse = False
         if self.filterPaintModeRelease(event):
             return
         
@@ -985,7 +986,6 @@ class T(Hidden):
             (x,y) = (event.x, event.y)
             self.recenter(x,y,zoom)
 
-        self.notice_mouse = False
         if self.thaw():
             self.changed()
 

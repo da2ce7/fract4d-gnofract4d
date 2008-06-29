@@ -16,10 +16,10 @@ changes in 3.9:
 * BB	no notification of compile errors when editing formulas
 * BB	undo can lose warp param
 * BB	warp_param menu loses warp param on load
+* BB	painter doesn't work properly, draws rectangles
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
-* BB	painter doesn't work properly, draws rectangles
 * BB	(0,0)^1 == nan (pow_cf_c code wrong for this case)
 * BB	sometimes get "Fatal Python error: GC object already tracked" during fract4d/test.py
 * BB	floating point exception on load of aho.ucl#Stripes_any (-1 % 0)
