@@ -2,6 +2,7 @@
 
 import gtk, gobject
 
+import hig
 import dialog
 import browser
 import utils
@@ -553,7 +554,28 @@ class SettingsDialog(dialog.T):
         (fileName, formName) = self.f.compiler.add_inline_formula(
             buftext, formtype)
         #print "%s#%s" % (fileName, formName)
-        self.f.set_formula(fileName, formName,formindex)
+        try:
+            self.f.set_formula(fileName, formName,formindex)
+        except Exception, exn:
+            self.show_error_message(
+                _("Errors in formula"),
+                exn)
+
+    def show_error_message(self,message,exception=None):
+        if exception == None:
+            secondary_message = ""
+        else:
+            if isinstance(exception,EnvironmentError):
+                secondary_message = exception.strerror or str(exception) or ""
+            else:
+                secondary_message = str(exception)
+
+        d = hig.ErrorAlert(
+            primary=message,
+            secondary=secondary_message,
+            parent=self.main_window)
+        d.run()
+        d.destroy()
 
     def create_formula_text_area(self,parent,formindex,formtype):
         sw = gtk.ScrolledWindow ()

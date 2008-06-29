@@ -150,9 +150,10 @@ def create_option_menu(items):
 def set_menu_from_list(menu, items):
     try:
         _throwback()
-        model = menu.get_model().clear()
+        model = gtk.ListStore(gobject.TYPE_STRING)
         for item in items:
-            menu.append_text(item)
+            model.append((item,))
+        menu.set_model(model)
     except:
         menu.item_list = items
         submenu = menu.get_menu()

@@ -13,9 +13,13 @@ changes in 3.9:
 * B	instant julia preview all the time is distracting
 * BB	inline formulas aren't saved
 * BB	draws white boxes in explorer
+* BB	no notification of compile errors when editing formulas
+* BB	undo can lose warp param
+* BB	warp_param menu loses warp param on load
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
+* BB	painter doesn't work properly, draws rectangles
 * BB	(0,0)^1 == nan (pow_cf_c code wrong for this case)
 * BB	sometimes get "Fatal Python error: GC object already tracked" during fract4d/test.py
 * BB	floating point exception on load of aho.ucl#Stripes_any (-1 % 0)
@@ -33,7 +37,6 @@ bugs (the more B's, the worse the bug):
 * BB	sometimes copying subfract to main fract loses some data
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * BB	stops drawing after new gradient applied to DCA fractal (sometimes)
-* BB	no notification of compile errors when editing formulas
 * B	interrupt takes too long on deep-zoomed fractals
 * B	MandAutoCritInZ doesn't work if optimization off in g++?
 * B	hth.ufm#StrangeKindOfMandelbrot gives 'cmag_c_c not found'

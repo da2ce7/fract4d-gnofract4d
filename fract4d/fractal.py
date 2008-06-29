@@ -247,17 +247,17 @@ class T(fctutils.T):
         params.load(f)
         (file,func) = self.normalize_formulafile(
             params,0,fc.FormulaTypes.FRACTAL)
+
         self.set_formula(file,func,0)
             
         for (name,val) in params.dict.items():
             if name == "formulafile" or name == "function" or name == "formula" or name=="":
-                pass
+                continue
             elif name == "a" or name =="b" or name == "c":
                 # back-compat for older versions
                 self.forms[0].set_named_param("@" + name, val)
             else:
                 self.forms[0].set_named_item(name,val)
-        
 
     def parse__transform_(self,val,f):
         which_transform = int(val)

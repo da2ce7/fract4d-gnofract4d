@@ -111,6 +111,7 @@ class Hidden(gobject.GObject):
             self.emit('parameters-changed')
         
     def formula_changed(self):
+        print "formula changed"
         self.f.dirtyFormula = True
         #if not self.frozen:
         self.emit('formula-changed')
@@ -870,7 +871,7 @@ class T(Hidden):
 
     def onMotionNotify(self,widget,event):
         (x,y) = self.float_coords(event.x, event.y)
-        #self.emit('pointer-moved', self.button, x, y)
+        self.emit('pointer-moved', self.button, x, y)
 
         if not self.notice_mouse:
             return
