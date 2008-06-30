@@ -22,5 +22,5 @@ def beginFetchZip(name,slaveType=slave.Slave):
     slave = slaveType(fetch.GET_CMD, "GET", url)
     slave.run("")
     while slave.read:
-        
+        pass
     return slave

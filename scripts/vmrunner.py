@@ -17,19 +17,19 @@ vms = [
         arch="i386",
         file= '/home/catenary/vmware/ubuntu-7.04-x86/Ubuntu 7.04 x86.vmx',
         type = "DEB",
-        outfile='gnofract4d_3.8-1ubuntu1_i386.deb'),
+        outfile='gnofract4d_3.9-1ubuntu1_i386.deb'),
     vminfo(
         name="ubuntu_704_amd64",
         arch="amd64",
         file="/home/catenary/vmware/Ubuntu 7.04 amd64/Ubuntu 7.04 amd64.vmx",
         type= "DEB",
-        outfile='gnofract4d_3.8-1ubuntu1_amd64.deb'),
+        outfile='gnofract4d_3.9-1ubuntu1_amd64.deb'),
 
 ]
 
 fedora_6_i386 = '/home/catenary/vmware/fedora6/fedora6.vmx'
 
-host_tarfile = '/home/catenary/gnofract4d/dist/gnofract4d-3.8.tar.gz'
+host_tarfile = '/home/catenary/gnofract4d/dist/gnofract4d-3.9.tar.gz'
 assert os.path.exists(host_tarfile)
 host_script = 'scripts/guest_cmd.py'
 guest_script = guest_file(host_script)
@@ -90,4 +90,4 @@ def build_binary_on_vm(vminfo):
         host.close()
 
 
-build_binary_on_vm(vms[0])
+build_binary_on_vm(vms[1])
