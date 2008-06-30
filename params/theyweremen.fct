@@ -1,0 +1,91 @@
+gnofract4d parameter file
+version=3.9
+x=0.43328084960293806
+y=-0.92941824397717643
+z=0.00781250000000000
+w=-0.54687500000000000
+size=0.00000135640112509
+xy=0.62024948598282148
+xz=0.00000000000000000
+xw=0.00000000000000000
+yz=0.00000000000000000
+yw=0.00000000000000000
+zw=0.00000000000000000
+maxiter=2048
+yflip=False
+periodicity=1
+period_tolerance=0.00010000000000000
+[function]
+formulafile=__inline__7.frm
+function=Burning Ship
+formula=[
+Burning Ship {
+; From the web page http://www.theory.org/fracdyn/ 
+
+; The Burning Ship is essentially a Mandelbrot variant where the real
+; and imaginary parts of the current point are set to their absolute
+; values after each iteration, ie z <- (|x| + i |y|)^2 + c. The
+; Buffalo fractal uses the same method with the function z <- z^2 - z
+; + c, making it equivalent to the Quadratic type with the "absolute
+; value" modification.  
+
+
+init:
+	z = #zwpixel
+loop:
+        if #numiter % 2  == 0
+	   z = abs(z)
+        endif
+	z = z*z + #pixel
+bailout: 
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default = cmag
+endfunc
+xycenter = (-0.5,-0.5)
+}
+]
+@bailfunc=cmag
+@_gradient=[
+GIMP Gradient
+Name: blatte90
+10
+0.000000 0.061250 0.122500 0.000000 0.000000 0.000000 0.000000 0.457031 0.125000 0.074219 1.000000 0 0
++0.171250 0.220000 0.816406 0.437500 0.207031 1.000000 0 0
++0.253750 0.287500 0.972656 0.949219 0.824219 1.000000 0 0
++0.318750 0.350000 0.257812 0.257812 0.257812 1.000000 0 0
++0.452500 0.555000 0.378906 0.429688 0.449219 1.000000 0 0
++0.633750 0.712500 0.699219 0.753906 0.777344 1.000000 0 0
++0.735000 0.757500 0.820312 0.855469 0.914062 1.000000 0 0
++0.785000 0.812500 0.554688 0.617188 0.726562 1.000000 0 0
++0.866250 0.920000 0.000000 0.050781 0.203125 1.000000 0 0
++0.960000 1.000000 0.000000 0.050781 0.203125 1.000000 0 0
+]
+@bailout=4.00000000000000000
+[endsection]
+[outer]
+formulafile=gf4d.cfrm
+function=continuous_potential
+@_transfer=ident
+@_density=1.00000000000000000
+@_offset=0.00000000000000000
+@bailout=4.00000000000000000
+[endsection]
+[inner]
+formulafile=gf4d.cfrm
+function=zero
+@_transfer=ident
+@_density=1.00000000000000000
+@_offset=0.00000000000000000
+[endsection]
+[colors]
+colorizer=1
+solids=[
+000000ff
+000000ff
+]
+[endsection]
