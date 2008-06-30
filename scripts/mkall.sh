@@ -43,7 +43,7 @@ export MIN=2.5
 export MAX=2.6
 
 scripts/mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-3.8-1.$ARCH.rpm dist/gnofract4d-python25-3.8-1.$ARCH.rpm 
+mv dist/gnofract4d-3.9-1.$ARCH.rpm dist/gnofract4d-python25-3.9-1.$ARCH.rpm 
 
 # Python 2.4 version
 export BUILD_PYTHON_VERSION=2.4
@@ -52,7 +52,7 @@ export MIN=2.4
 export MAX=2.5
 
 scripts/mkrpm.sh $BUILD_PYTHON $MIN $MAX
-mv dist/gnofract4d-3.8-1.$ARCH.rpm dist/gnofract4d-python24-3.8-1.$ARCH.rpm 
+mv dist/gnofract4d-3.9-1.$ARCH.rpm dist/gnofract4d-python24-3.9-1.$ARCH.rpm 
 
 
 unset BUILD_PYTHON_VERSION
@@ -67,7 +67,7 @@ unset BUILD_PYTHON
 
 # make ISO image for testing on different OSes
 pushd dist
-mkisofs -J -R -o gf4d.iso *3.8*.gz *3.8*.rpm *3.8*.deb
+mkisofs -J -R -o gf4d.iso *3.9*.gz *3.9*.rpm *3.9*.deb
 popd dist
 
 
