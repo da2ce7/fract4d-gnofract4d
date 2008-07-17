@@ -328,6 +328,7 @@ Click Finish to save your credentials and proceed.""")
     def onFrobReceived(self,slave):
         try:
             self.frob = flickr.parseFrob(self.slave.response())
+            self.frob = self.frob.encode("ascii")
         except Exception,err:
             display_flickr_error(err)
             return

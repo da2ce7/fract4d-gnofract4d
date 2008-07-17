@@ -1,5 +1,10 @@
+changes in 3.10:
+* B	can't upload immediately after authorizing
+* BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 
 todo:
+
+changes 
 
 changes in 3.9:
 * B	load old (v1.5) files with moved .map files
@@ -35,7 +40,6 @@ bugs (the more B's, the worse the bug):
 * BB	should save enum params as strings, not indexes
 * BB	squares left behind when changing from a smooth colormap to a jagged one
 * BB	sometimes copying subfract to main fract loses some data
-* BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * BB	stops drawing after new gradient applied to DCA fractal (sometimes)
 * B	interrupt takes too long on deep-zoomed fractals
 * B	MandAutoCritInZ doesn't work if optimization off in g++?

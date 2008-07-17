@@ -221,7 +221,7 @@ class Blog:
         
 class Token:
     def __init__(self,resp):
-        self.token = resp.getElementsByTagName("token")[0].firstChild.nodeValue
+        self.token = resp.getElementsByTagName("token")[0].firstChild.nodeValue.encode("ascii")
         self.user = User(resp.getElementsByTagName("user")[0])
         
 class User:
