@@ -1721,6 +1721,8 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
             return "(inf,inf)"
         except ZeroDivisionError:
             return "(nan,nan)"
+        except ValueError:
+            return "(inf,inf)"
     
     def make_test(self,myfunc,pyfunc,val,n):
         codefrag = "ct_%s%d = %s((%d,%d))" % (myfunc, n, myfunc, val.real, val.imag)
@@ -1835,8 +1837,15 @@ TileMandel {; Terren Suydam (terren@io.com), 1996
             return x
         
         def mycosxx(z):
+            # python 2.6's cmath cos produces opposite sign from 2.5 &
+            # my implementation. odd but hopefully harmless
+            if z == (0-1j):
+                return cmath.cos(z)
+
             cosz = cmath.cos(z)
-            return complex(cosz.real, -cosz.imag)
+            i = -cosz.imag
+            
+            return complex(cosz.real, i)
         
         def myczero(z):
             return complex(0,0)

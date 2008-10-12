@@ -37,7 +37,7 @@ class OverloadList(UserList):
 
     def is_operator(self):
         return self._is_operator
-    
+
 def efl(fname, template, tlist,**kwds):
     'short-hand for expandFuncList - just reduces the amount of finger-typing'
     list = []
@@ -737,8 +737,16 @@ class T(UserDict):
             return val.cname
         return k
     
+    def get(self,key):
+        try:
+            return self[key]
+        except KeyError:
+            return None
+
     def __getitem__(self,key):
+        #print "called getitem with", key
         k = mangle(key)
+        #print "getting:%s" % k
         val = self.data.get(k,None)
         if val == None:
             val = self.default_dict[k]
@@ -773,9 +781,7 @@ class T(UserDict):
         
     def __setitem__(self,key,value):
         k = mangle(key)
-        #print "set",k
         if self.data.has_key(k):
-            #print "in this",k
             pre_type = self.data[k].type
             if  pre_type != value.type:                
                 l = self.data[k].pos

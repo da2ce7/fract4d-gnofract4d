@@ -223,9 +223,12 @@ class TBase:
         name = self.normalize_name(node.leaf)
 
         # create param if not already present
+        #print "call get with", name
         v = self.symbols.get(name)    
         set_v = False
+        #print "name:%s val:%s" % (name, v)
         if not v:
+            #print "not found:",name
             v = Var(datatype, None, node.pos)
             set_v = True
 

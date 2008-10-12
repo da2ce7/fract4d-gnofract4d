@@ -21,7 +21,6 @@ IntArray = 10
 FloatArray = 11
 ComplexArray = 12
 
-
 class Type(object):
     def __init__(self,**kwds):
         self.suffix = kwds["suffix"]
