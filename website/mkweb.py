@@ -69,6 +69,7 @@ pages = [
         comments=[
         "What a great program..."
         "Thanks for the great fractal program...",
+        "It all works great, it's a whole new world I'm discovering..."
         ]
         ),
 

@@ -1,27 +1,9 @@
 changes in 3.10:
 * B	can't upload immediately after authorizing
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
+* B	fixes to work with Python 2.6
 
 todo:
-
-changes 
-
-changes in 3.9:
-* B	load old (v1.5) files with moved .map files
-* B	--nogui doesn't set map_path from prefs
-* W	added --threads cmd-line option
-* BB	./gnofract4d --nogui -q with multiple threads crashes	
-* B	wrong labels on planes menu (Artur G.)
-* B	setting number of threads should happen immediately (Artur G.)
-* B	specify libc6-dev as dependency on Ubuntu (Elaine N.)
-* W	edit formula directly, including inner & outer
-* B	instant julia preview all the time is distracting
-* BB	inline formulas aren't saved
-* BB	draws white boxes in explorer
-* BB	no notification of compile errors when editing formulas
-* BB	undo can lose warp param
-* BB	warp_param menu loses warp param on load
-* BB	painter doesn't work properly, draws rectangles
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
@@ -223,6 +205,23 @@ in return for a look at what I'm generating, (like ElectricSheep).
 
 Requires: above, +able to deal with ad-hoc networks of thousands of peers,
 economic incentive, security, works with NAT
+
+changes in 3.9:
+* B	load old (v1.5) files with moved .map files
+* B	--nogui doesn't set map_path from prefs
+* W	added --threads cmd-line option
+* BB	./gnofract4d --nogui -q with multiple threads crashes	
+* B	wrong labels on planes menu (Artur G.)
+* B	setting number of threads should happen immediately (Artur G.)
+* B	specify libc6-dev as dependency on Ubuntu (Elaine N.)
+* W	edit formula directly, including inner & outer
+* B	instant julia preview all the time is distracting
+* BB	inline formulas aren't saved
+* BB	draws white boxes in explorer
+* BB	no notification of compile errors when editing formulas
+* BB	undo can lose warp param
+* BB	warp_param menu loses warp param on load
+* BB	painter doesn't work properly, draws rectangles
 
 changes in 3.8:
 * W	sliders for params with min/max

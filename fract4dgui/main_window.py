@@ -602,6 +602,8 @@ class MainWindow:
             ('ViewMenuAction', None, _('_View')),
             ('ViewFullScreenAction', None, _('_Full Screen'),
              'F11', _('Full Screen (press Esc to finish)'), self.full_screen),
+            ('ViewFitToFractalAction', None, _('Fit _Window To Fractal'),
+             '<shift>F11', _('Fit window around fractal image'), self.fit_window),
 
             ('ShareMenuAction', None, _('_Share')),
             ('ShareMailToAction', None, _('_Mail To...'),
@@ -725,6 +727,24 @@ class MainWindow:
     def full_screen(self, *args):
         """Show main window full-screen."""
         self.set_full_screen(True)
+
+    def fit_window(self, *args):
+        print "fit window"
+        allocation = self.swindow.child.allocation
+        (fractal_width,fractal_height) = (allocation.width, allocation.height)
+        print "fractal:", fractal_width, fractal_height
+
+        (win_width, win_height) = self.window.get_size()        
+        print "window:", win_width, win_height
+        ideal_width = preferences.userPrefs.getint("display","width")
+        ideal_height = preferences.userPrefs.getint("display","height")
+        print "ideal", ideal_width, ideal_height
+
+        win_width += (ideal_width - fractal_width)
+        win_height += (ideal_height - fractal_height)
+        print "new_width:", win_width, win_height
+
+        self.window.resize(win_width,win_height)
 
     def on_key_escape(self, state):
         self.set_full_screen(False)

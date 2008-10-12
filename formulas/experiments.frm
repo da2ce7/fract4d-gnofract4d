@@ -759,3 +759,22 @@ param base
       default = (2.0,0.0)
 endparam
 }
+
+warped {
+init:
+	z = #zwpixel
+loop:
+	float zr = abs(real(z))
+	float zi = abs(imag(z))
+
+	z = (zr * zr, zi*zi) + #pixel;
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default = cmag
+endfunc
+}

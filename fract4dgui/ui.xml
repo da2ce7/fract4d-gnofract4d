@@ -26,6 +26,7 @@
     </menu>
     <menu name="ViewMenu" action="ViewMenuAction">
       <menuitem name="ViewFullScreen" action="ViewFullScreenAction"/>
+      <menuitem name="ViewFitFractal" action="ViewFitToFractalAction"/>
       <menu name="PlanesMenu" action="PlanesMenuAction">
 	<menuitem name="PlanesXY" action="PlanesXYAction"/>
 	<menuitem name="PlanesZW" action="PlanesZWAction"/>
