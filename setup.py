@@ -31,8 +31,6 @@ from buildtools import my_bdist_rpm, my_build, my_build_ext, my_install_lib
 # Extensions need to link against appropriate libs
 # We use pkg-config to find the appropriate set of includes and libs
 
-pkgs = "gconf-2.0"
-
 def call_package_config(package,option,optional=False):
     '''invoke pkg-config, if it exists, to find the appropriate
     arguments for a library'''
@@ -51,12 +49,7 @@ def call_package_config(package,option,optional=False):
 
     return output.split()
 
-gconf_flags = call_package_config(pkgs,"--cflags",True)
-gconf_libs =  call_package_config(pkgs,"--libs",True)
-
 extra_macros = []
-if gconf_flags != []:
-    extra_macros.append(('GCONF_ENABLED',1))
 
 png_flags = call_package_config("libpng", "--cflags", True)
 if png_flags != []:
@@ -174,27 +167,7 @@ module_cmap = Extension(
     define_macros = [ ('_REENTRANT', 1)]
     )
 
-module_gui = Extension(
-    'fract4dgui.fract4dguic',
-    sources = [
-    'fract4dgui/c/guicmodule.cpp',
-    ],
-    include_dirs = [
-    'fract4dgui/c',
-    'fract4d/c/'
-    ],
-    libraries = [
-    'stdc++'
-    ],
-    extra_compile_args = gconf_flags,
-    extra_link_args = gconf_libs,    
-    define_macros = [ ('_REENTRANT',1),
-                      #('DEBUG_CREATION',1)
-                      ] + extra_macros,
-    undef_macros = [ 'NDEBUG']    
-    )
-    
-modules = [module_fract4dc, module_cmap, module_gui]
+modules = [module_fract4dc, module_cmap]
 if have_gmp:
     modules.append(module_fract4dgmp)
     modules.append(module_gmp)
@@ -277,7 +250,6 @@ and includes a Fractint-compatible parser for your own fractal formulas.''',
 so_extension = distutils.sysconfig.get_config_var("SO")
 
 lib_targets = {
-    "fract4dguic" + so_extension : "fract4dgui",
     "fract4dc" + so_extension : "fract4d",
     "fract4d_stdlib" + so_extension : "fract4d",
     "fract4dcgmp" + so_extension : "fract4d",

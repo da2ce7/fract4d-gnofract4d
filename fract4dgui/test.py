@@ -21,7 +21,6 @@ import test_browser
 import test_main_window
 import test_settings
 import test_painter
-import test_fract4dguic
 import test_utils
 import test_renderqueue
 import test_director
@@ -39,7 +38,6 @@ def suite():
         test_browser.suite(),
         test_settings.suite(),
         test_painter.suite(),
-        test_fract4dguic.suite(),
         test_utils.suite(),
         test_main_window.suite(),
         test_director.suite())

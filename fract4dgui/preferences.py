@@ -11,9 +11,6 @@ import utils
 
 from fract4d import fractconfig
 
-import fract4dguic
-
-
 class Preferences(gobject.GObject):
     # A wrapper for the preference data
     __gsignals__ = {
@@ -35,22 +32,6 @@ class Preferences(gobject.GObject):
         self.emit('preferences-changed')
         if self.config.image_changed_sections.get(section, False):
             self.emit('image-preferences-changed')
-
-    def get_default_mailer():
-        try:
-            mailer = fract4dguic.get_gconf_string("/desktop/gnome/url-handlers/mailto/command")
-        except:
-            # oh well, something went wrong
-            mailer = "evolution %s"
-        return mailer
-
-    def _get_default_browser():
-        try:
-            browser = fract4dguic.get_gconf_string("/desktop/gnome/url-handlers/http/command")
-        except:
-            # oh well, something went wrong
-            browser = "mozilla %s"
-        return browser
 
     def set(self,section,key,val):
         self.config.set(section,key,val)

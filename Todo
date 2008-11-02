@@ -2,6 +2,7 @@ changes in 3.10:
 * B	can't upload immediately after authorizing
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * B	fixes to work with Python 2.6
+* W	deleted gconf nonsense, fract4dguic extension
 
 todo:
 

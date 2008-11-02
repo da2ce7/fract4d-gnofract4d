@@ -13,7 +13,6 @@ import gtk
 import gobject
 
 from fract4d import fractal,fract4dc,fracttypes, image
-import fract4dguic
 
 import utils, fourway
 

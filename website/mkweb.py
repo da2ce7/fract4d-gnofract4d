@@ -73,6 +73,15 @@ pages = [
         ]
         ),
 
+    Bag(name="Screencast",
+        file="screencast.html",
+        image="screencast.jpg",
+        comments=[
+            "Thanks for creating Gnofract 4D, I've found it a real pleasure to use so far...",
+            "Well, this pretty much rocks...",
+        ]
+        ),
+
     Bag(name="Screenshots",
         image="newton.jpg",
         file="screenshots.html",
@@ -98,7 +107,6 @@ pages = [
         image="bg_parts.jpg",
         comments=[
            "I wanted to thank you for gnofract4d, it's a beautiful application, generates some true work of arts.",
-           "Well, this pretty much rocks...",
            "Gnofract4d is one of my all time favorite programs."]
         ),
 
@@ -113,8 +121,7 @@ pages = [
         image="jm.jpg",
         comments=[
     "Thanks for a cool site and amazing app/creations!",
-    "Really a nice tool.",
-    "Thanks for creating Gnofract 4D, I've found it a real pleasure to use so far..."
+    "Really a nice tool."
     ]),
 
     ]
