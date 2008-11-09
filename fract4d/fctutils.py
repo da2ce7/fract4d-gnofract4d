@@ -100,7 +100,14 @@ class ParamBag(T):
         self.dict = {}
 
     def parseVal(self,name,val,f,sect=""):
+        if name[0] == '[' and name[-1] == "]":
+            # start of a section
+            sectname = name[1:-1]
+            sub_bag = ParamBag()
+            sub_bag.load(f)
+            val = (val, sub_bag)
+
         self.dict[sect + name] = val
 
-
+        
             

@@ -16,6 +16,7 @@ import fractal
 import fracttypes
 import image
 import formsettings
+import keyframe
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
@@ -206,6 +207,105 @@ solids=[
 ]
 '''
 
+g_testfilemultiframes='''gnofract4d parameter file
+version=3.10
+x=0.00000000000000000
+y=0.00000000000000000
+z=0.00000000000000000
+w=0.00000000000000000
+size=4.00000000000000000
+xy=0.00000000000000000
+xz=0.00000000000000000
+xw=0.00000000000000000
+yz=0.00000000000000000
+yw=0.00000000000000000
+zw=0.00000000000000000
+maxiter=64
+yflip=False
+periodicity=1
+period_tolerance=0.00000010000000000
+[function]
+formulafile=__inline__1.frm
+function=Mandelbrot
+formula=[
+Mandelbrot {
+; The classic Mandelbrot set
+init:
+	z = #zwpixel
+loop:
+	z = z * z + #pixel
+bailout:
+	@bailfunc(z) < @bailout
+default:
+float param bailout
+	default = 4.0
+endparam
+float func bailfunc
+	default = cmag
+endfunc
+}
+]
+@bailfunc=cmag
+@_gradient=[
+GIMP Gradient
+7
+0.000000 0.071429 0.142857 0.200000 0.133333 0.066667 1.000000 0.000000 0.266667 0.400000 1.000000 0 0
++0.214286 0.285714 0.133333 0.400000 0.400000 1.000000 0 0
++0.357143 0.428571 0.666667 0.533333 0.000000 1.000000 0 0
++0.500000 0.571429 0.533333 0.266667 0.266667 1.000000 0 0
++0.642857 0.714286 0.333333 0.400000 0.466667 1.000000 0 0
++0.785714 0.857143 0.466667 0.466667 0.400000 1.000000 0 0
++0.928571 1.000000 0.466667 0.466667 0.400000 1.000000 0 0
+]
+@bailout=4.00000000000000000
+[endsection]
+[outer]
+formulafile=__inline__2.cfrm
+function=continuous_potential
+@_transfer=ident
+@_density=1.00000000000000000
+@_offset=0.00000000000000000
+@bailout=4.00000000000000000
+formula=[
+continuous_potential {
+final:
+float ed = @bailout/(|z| + 1.0e-9) 
+#index = (#numiter + ed) / 256.0
+default:
+float param bailout
+	default = 4.0
+endparam
+}
+]
+[endsection]
+[inner]
+formulafile=__inline__3.cfrm
+function=zero
+@_transfer=ident
+@_density=1.00000000000000000
+@_offset=0.00000000000000000
+formula=[
+zero (BOTH) {
+final:
+#solid = true
+}
+]
+[endsection]
+[colors]
+colorizer=1
+solids=[
+000000ff
+000000ff
+]
+[endsection]
+[frames]
+frames=20
+[frame]=10
+x=10.00000000000000000
+[endsection]
+[endsection]
+'''
+
 class WarningCatcher:
     def __init__(self):
         self.warnings = []
@@ -294,7 +394,79 @@ class Test(unittest.TestCase):
         im = image.T(40,30)
         f.draw(im)
         self.compiler.leave_dirty = True
-        
+
+    def testLoadHasNoFrames(self):
+        f = fractal.T(self.compiler)
+        f.loadFctFile(StringIO.StringIO(g_testfile))
+        self.assertEqual(1, f.nframes)
+        self.assertEqual(1, len(f.keyframes))
+        self.assertEqual(0, f.keyframes[0].index)
+        self.assertEqual({},f.keyframes[0].dict)
+
+    def testLoadWithFrames(self):
+        f = fractal.T(self.compiler)
+        f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
+        self.assertEqual(20, f.nframes)
+        self.assertEqual(2, len(f.keyframes))
+        kf = f.keyframes[1]
+        self.assertEqual(10, kf.index)
+        self.assertEqual(["x"], kf.dict.keys())
+        self.assertEqual(["10.00000000000000000"], kf.dict.values())
+
+    def testApplyDict(self):
+        f = fractal.T(self.compiler)
+        f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
+        kf = f.keyframes[1]
+        f.apply_params(kf.dict)
+        self.assertEqual(10.0, f.params[f.XCENTER])
+
+    def testFindFrameBefore(self):
+        f = fractal.T(self.compiler)
+        self.assertEqual(0, f.find_frame_before(0).index)
+
+        f.keyframes = [ keyframe.T(0, None), keyframe.T(10,None) ]
+        self.assertEqual(0, f.find_frame_before(5).index)
+        self.assertEqual(10, f.find_frame_before(10).index)
+        self.assertEqual(10, f.find_frame_before(15).index)
+
+        f.keyframes = [ keyframe.T(0,None), keyframe.T(10,None), keyframe.T(20,None)]
+        self.assertEqual(0, f.find_frame_before(0).index)
+        self.assertEqual(0, f.find_frame_before(1).index)
+        self.assertEqual(10, f.find_frame_before(10).index)
+        self.assertEqual(10, f.find_frame_before(19).index)
+        self.assertEqual(20, f.find_frame_before(20).index)
+        self.assertEqual(20, f.find_frame_before(25).index)
+
+    def testFindFrameAfter(self):
+        f = fractal.T(self.compiler)
+        self.assertEqual(0, f.find_frame_after(0).index)
+
+        f.keyframes = [ keyframe.T(10,None) ]
+        self.assertEqual(10, f.find_frame_after(5).index)
+        self.assertEqual(10, f.find_frame_after(10).index)
+        self.assertEqual(None, f.find_frame_after(15))
+
+        f.keyframes = [ keyframe.T(0,None), keyframe.T(10,None), keyframe.T(20,None)]
+        self.assertEqual(0, f.find_frame_after(0).index)
+        self.assertEqual(10, f.find_frame_after(1).index)
+        self.assertEqual(10, f.find_frame_after(10).index)
+        self.assertEqual(20, f.find_frame_after(19).index)
+        self.assertEqual(20, f.find_frame_after(20).index)
+        self.assertEqual(None, f.find_frame_after(25))
+
+    def testGetFrame(self):
+        f = fractal.T(self.compiler)
+        f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
+        f_at_zero = f.get_frame(0)
+        self.assertEqual(0.0, f_at_zero.params[f.XCENTER])
+
+        f_at_1 = f.get_frame(1)
+        self.assertEqual(1.0, f_at_1.params[f.XCENTER])
+
+        f_at_10 = f.get_frame(10)
+        self.assertEqual(10.0, f_at_10.params[f.XCENTER])
+
+
     def testLoadGradientFunc(self):
         f = fractal.T(self.compiler)
         f.loadFctFile(open("../testdata/gradient_func.fct"))
@@ -728,13 +900,13 @@ blue=0.3
         file1 = StringIO.StringIO(g_test3file)
         f1.loadFctFile(file1)
 
-        self.assertEqual(f1.forms[0].funcFile, "__inline__1.frm")
+        self.failUnless("__inline__" in f1.forms[0].funcFile)
         self.assertEqual(f1.forms[0].funcName, "Mandelbrot")
 
-        self.assertEqual(f1.forms[1].funcFile, "__inline__2.cfrm")
+        self.failUnless("__inline__" in f1.forms[1].funcFile)
         self.assertEqual(f1.forms[1].funcName, "continuous_potential")
 
-        self.assertEqual(f1.forms[2].funcFile, "__inline__3.cfrm")
+        self.failUnless("__inline__" in f1.forms[2].funcFile)
         self.assertEqual(f1.forms[2].funcName, "zero")
 
         outfile = StringIO.StringIO()
@@ -795,6 +967,12 @@ blue=0.3
         self.assertEqual(fs1.funcName, fs2.funcName)
         self.assertEqual(fs1.funcFile, fs2.funcFile)
         
+    def assertKeyframesEqual(self,kf1,kf2):
+        self.assertEqual(len(kf1),len(kf2))
+        for i in xrange(len(kf1)):
+            self.assertEqual(kf1[i].index, kf2[i].index)
+            self.assertEqual(kf2[i].dict, kf2[i].dict)
+
     def assertFractalsEqual(self,f1,f2):
         # check that they are equivalent
         self.assertEqual(f1.maxiter, f2.maxiter)
@@ -812,6 +990,8 @@ blue=0.3
         self.assertEqual(f1.periodicity, f2.periodicity)
         self.assertEqual(f1.period_tolerance, f2.period_tolerance)
         
+        self.assertKeyframesEqual(f1.keyframes,f2.keyframes)
+
     def testSave(self):
         self.runSaveTest(False)
         self.runSaveTest(True)
@@ -1130,6 +1310,13 @@ The image may not display correctly. Please upgrade to version 99.9 or higher.''
         f2 = self.round_trip(f)
         self.assertFractalsEqual(f,f2)
         
+    def testKeyframeRoundTrip(self):
+        f = fractal.T(self.compiler)
+        f.keyframes.append(keyframe.T(10,{"x" : "10.0"}))
+
+        f2 = self.round_trip(f)
+        self.assertFractalsEqual(f,f2)
+
     def testCircle(self):
         f = fractal.T(self.compiler)
 
@@ -1430,6 +1617,7 @@ solids=[
         f.set_warp_param(2)
         f.periodicity = False
         f.period_tolerance = 1.0e-5
+        f.keyframes.append(keyframe.T(10,{ "y": "20.0" }))
         c = copy.copy(f)
 
         self.assertFractalsEqual(f,c)
