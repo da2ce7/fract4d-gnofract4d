@@ -65,6 +65,7 @@ class T(fctutils.T):
             ]
 
         self.nframes = 1
+        self.current_frame = None
         self.keyframes = [ keyframe.T(0,{})]
         self.transforms = []
         self.next_transform_id = 0
@@ -145,6 +146,30 @@ class T(fctutils.T):
             if f.index >= index:
                 return f
         return None
+
+    def ensure_frame_at(self, index):
+        nframes = len(self.keyframes)
+        for i in xrange(0,nframes):
+            if self.keyframes[i].index == index:
+                return self.keyframes[i]
+
+            if self.keyframes[i].index > index:
+                newFrame = keyframe.T(index, {})
+                self.keyframes.insert(i, newFrame)
+                return newFrame
+        
+        # insert and return new item at end
+        newFrame = keyframe.T(index, {})
+        self.keyframes.append(newFrame)
+        
+        return newFrame
+
+
+    def set_current_frame(self,index):
+        if index == None:
+            self.current_frame = None
+        else:
+            self.current_frame = self.ensure_frame_at(index)
 
     def get_frame(self,index):
         f1 = copy.copy(self)        
@@ -901,11 +926,20 @@ class T(fctutils.T):
         
     def set_param(self,n,val):
         val = float(val)
-        if self.params[n] != val:
-            self.params[n] = val
-            self.changed()
+        if self.current_frame:
+            oldval = self.current_frame.dict.get(n)
+            if oldval != val:
+                self.current_frame.dict[n] = val
+                self.changed()
+        else:
+            if self.params[n] != val:
+                self.params[n] = val
+                self.changed()
 
     def get_param(self,n):
+        if self.current_frame:
+            return self.current_frame.dict.get(n,self.params[n])
+
         return self.params[n]
     
     def parse_gnofract4d_parameter_file(self,val,f):

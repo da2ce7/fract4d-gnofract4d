@@ -29,6 +29,7 @@ import test_formsettings
 import test_ffloat
 import test_absyn
 import test_encoder
+import test_fractsettings
 
 #import test_stdlib
 
@@ -60,7 +61,8 @@ def suite():
     test_browser_model.suite(),
     test_formsettings.suite(),
     test_ffloat.suite(),
-    test_encoder.suite()
+    test_encoder.suite(),
+    test_fractsettings.suite()
 	#test_stdlib.suite()
     ))
 

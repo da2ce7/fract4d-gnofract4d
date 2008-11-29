@@ -454,6 +454,34 @@ class Test(unittest.TestCase):
         self.assertEqual(20, f.find_frame_after(20).index)
         self.assertEqual(None, f.find_frame_after(25))
 
+    def testEnsureFrameAtZero(self):
+        f = fractal.T(self.compiler)
+
+        self.assertEqual(1, len(f.keyframes))
+        frame = f.ensure_frame_at(0)
+        self.assertEqual(1, len(f.keyframes))
+        self.assertEqual(0, frame.index)
+        self.assertEqual(frame, f.keyframes[0])
+        
+    def testEnsureFrameAt10(self):
+        f = fractal.T(self.compiler)
+
+        frame = f.ensure_frame_at(10)
+        self.assertEqual(2, len(f.keyframes))
+        self.assertEqual(10, frame.index)
+        self.assertEqual(frame, f.keyframes[1])
+        
+
+    def testEnsureFrameAt10then5(self):
+        f = fractal.T(self.compiler)
+
+        frame10 = f.ensure_frame_at(10)
+        frame5 = f.ensure_frame_at(5)
+        self.assertEqual(3, len(f.keyframes))
+        self.assertEqual(5, frame5.index)
+        self.assertEqual(frame5, f.keyframes[1])
+
+
     def testGetFrame(self):
         f = fractal.T(self.compiler)
         f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
@@ -466,6 +494,21 @@ class Test(unittest.TestCase):
         f_at_10 = f.get_frame(10)
         self.assertEqual(10.0, f_at_10.params[f.XCENTER])
 
+    def testSetCurrentFrame(self):
+        f = fractal.T(self.compiler)
+        f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
+        self.assertEqual(None, f.current_frame)
+
+        # changes should affect the current frame
+        f.set_current_frame(10)
+        f.set_param(f.XCENTER, "5.0")
+        xc = f.get_param(f.XCENTER)
+        self.assertEqual(5.0, xc)
+
+        # but not other frames
+        f.set_current_frame(None)
+        xc = f.get_param(f.XCENTER)
+        self.assertEqual(0.0, xc)
 
     def testLoadGradientFunc(self):
         f = fractal.T(self.compiler)
