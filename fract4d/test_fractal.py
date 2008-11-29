@@ -509,6 +509,22 @@ class Test(unittest.TestCase):
         f.set_current_frame(None)
         xc = f.get_param(f.XCENTER)
         self.assertEqual(0.0, xc)
+        
+        f.set_current_frame(0)
+        xc = f.get_param(f.XCENTER)
+        self.assertEqual(0.0, xc)
+
+    def testLoadSaveWithPerFrameChange(self):
+        f = fractal.T(self.compiler)
+        f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
+
+        f.set_current_frame(10)
+        f.set_param(f.XCENTER, 5.0)
+        
+        f2 = self.round_trip(f)
+        self.assertEqual(None, f2.current_frame)
+        f2.set_current_frame(10)
+        self.assertEqual(5.0, f2.get_param(f.XCENTER))
 
     def testLoadGradientFunc(self):
         f = fractal.T(self.compiler)

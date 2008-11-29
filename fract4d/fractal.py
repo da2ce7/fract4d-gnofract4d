@@ -51,6 +51,7 @@ class T(fctutils.T):
     INNER=2
     DEFAULT_FORMULA_FILE="gf4d.frm"
     DEFAULT_FORMULA_FUNC="Mandelbrot"
+    paramnames = ["x","y","z","w","size","xy","xz","xw","yz","yw","zw"]
     def __init__(self,compiler,site=None):
         fctutils.T.__init__(self)
         
@@ -198,8 +199,7 @@ class T(fctutils.T):
             main_file = file
             file = fctutils.Compressor()
 
-        paramnames = ["x","y","z","w","size","xy","xz","xw","yz","yw","zw"]
-        for pair in zip(paramnames,self.params):
+        for pair in zip(self.paramnames,self.params):
             print >>file, "%s=%.17f" % pair
 
         print >>file, "maxiter=%d" % self.maxiter
@@ -927,9 +927,10 @@ class T(fctutils.T):
     def set_param(self,n,val):
         val = float(val)
         if self.current_frame:
-            oldval = self.current_frame.dict.get(n)
+            pname = self.paramnames[n]
+            oldval = self.current_frame.dict.get(pname)
             if oldval != val:
-                self.current_frame.dict[n] = val
+                self.current_frame.dict[pname] = val
                 self.changed()
         else:
             if self.params[n] != val:
@@ -938,7 +939,8 @@ class T(fctutils.T):
 
     def get_param(self,n):
         if self.current_frame:
-            return self.current_frame.dict.get(n,self.params[n])
+            pname = self.paramnames[n]
+            return float(self.current_frame.dict.get(pname,self.params[n]))
 
         return self.params[n]
     
