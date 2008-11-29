@@ -526,6 +526,18 @@ class Test(unittest.TestCase):
         f2.set_current_frame(10)
         self.assertEqual(5.0, f2.get_param(f.XCENTER))
 
+
+    def testRenderAnimationFrames(self):
+        f = fractal.T(self.compiler)
+        f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
+        f.compile()
+
+        im = image.T(40,30)
+        for i in xrange(f.nframes):
+            frame_fractal = f.get_frame(i)
+            frame_fractal.draw(im)
+            #im.save("frame_%d.png" % i)
+
     def testLoadGradientFunc(self):
         f = fractal.T(self.compiler)
         f.loadFctFile(open("../testdata/gradient_func.fct"))

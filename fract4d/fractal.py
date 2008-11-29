@@ -65,7 +65,6 @@ class T(fctutils.T):
             formsettings.T(compiler,self,"cf1") # inner
             ]
 
-        self.nframes = 1
         self.current_frame = None
         self.keyframes = [ keyframe.T(0,{})]
         self.transforms = []
@@ -81,7 +80,8 @@ class T(fctutils.T):
         self.compiler = compiler
         self.outputfile = None
         self.render_type = 0
-        
+        self.pfunc = None
+
         self.warp_param = None
         # gradient
         
@@ -133,6 +133,10 @@ class T(fctutils.T):
         for (key,value) in dict.items():
             self.parseVal(key,value,None)
 
+    def get_nframes(self):
+        return self.keyframes[-1].index
+
+    nframes = property(get_nframes)
     def find_frame_before(self,index):
         nframes = len(self.keyframes)
         for i in xrange(1,nframes):
@@ -178,8 +182,9 @@ class T(fctutils.T):
         f1.apply_params(frame_before.dict)
 
         frame_after = self.find_frame_after(index)
-        if frame_after == frame_before:
+        if frame_after == frame_before or None == frame_after:
             # no need for blending
+            f1.compile()
             return f1
         
         f2 = copy.copy(self)
@@ -187,7 +192,9 @@ class T(fctutils.T):
         
         mu = float(index - frame_before.index) / (frame_after.index - frame_before.index)
         
-        return f1.blend(f2,mu)
+        result = f1.blend(f2,mu)
+        result.compile()
+        return result
 
     def save(self,file,update_saved_flag=True,**kwds):
         print >>file, "gnofract4d parameter file"
