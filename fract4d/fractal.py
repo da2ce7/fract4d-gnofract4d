@@ -437,10 +437,20 @@ class T(fctutils.T):
         """Create a new fractal which blends the this and other's parameter sets using ratio.
         'angle_options' can be used to override the default method of interpolating angles."""
         new = copy.copy(self)
-        # fixme, magnitude should be logarithmic
-        for i in xrange(self.XCENTER,self.MAGNITUDE+1):
+        for i in xrange(self.XCENTER,self.MAGNITUDE):
             (a,b) = (self.params[i], other.params[i])
             new.set_param(i, a*(1-ratio) + b* ratio)
+
+        # magnitude is exponential
+        (a,b) = (self.params[self.MAGNITUDE], other.params[self.MAGNITUDE])
+        if abs(a) > abs(b):
+            factor = (a-b)/(math.e-1)
+            val = factor * math.exp(1-ratio) + (b - factor)
+        else:
+            factor = (b-a)/(math.e-1)
+            val = factor * math.exp(ratio) + (a - factor)
+
+        new.set_param(self.MAGNITUDE, val)
 
         for i in xrange(self.XYANGLE, self.ZWANGLE+1):
             (a,b) = (self.params[i], other.params[i])

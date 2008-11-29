@@ -398,7 +398,7 @@ class Test(unittest.TestCase):
     def testLoadHasNoFrames(self):
         f = fractal.T(self.compiler)
         f.loadFctFile(StringIO.StringIO(g_testfile))
-        self.assertEqual(1, f.nframes)
+        self.assertEqual(0, f.nframes)
         self.assertEqual(1, len(f.keyframes))
         self.assertEqual(0, f.keyframes[0].index)
         self.assertEqual({},f.keyframes[0].dict)
@@ -526,17 +526,16 @@ class Test(unittest.TestCase):
         f2.set_current_frame(10)
         self.assertEqual(5.0, f2.get_param(f.XCENTER))
 
-
     def testRenderAnimationFrames(self):
         f = fractal.T(self.compiler)
-        f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
-        f.compile()
+        f.set_param(f.XCENTER, -0.75)
+        f.set_current_frame(10)
+        f.set_param(f.MAGNITUDE, 0.01)        
 
         im = image.T(40,30)
         for i in xrange(f.nframes):
             frame_fractal = f.get_frame(i)
             frame_fractal.draw(im)
-            #im.save("frame_%d.png" % i)
 
     def testLoadGradientFunc(self):
         f = fractal.T(self.compiler)
@@ -1790,6 +1789,7 @@ solids=[
         f = fractal.T(self.compiler)
         f2 = fractal.T(self.compiler)
         f2.set_param(f.XCENTER,4.0)
+        f2.set_param(f.MAGNITUDE,1.0)
         f2.forms[0].set_named_item("@bailout",4000.0)
 
         blend = f.blend(f2,0.0)
@@ -1797,7 +1797,8 @@ solids=[
         blend = f.blend(f2,1.0)
         self.assertFractalsEqual(blend,f2)
         blend = f.blend(f2,0.5)
-        self.assertEqual(2.0, blend.get_param(f.XCENTER))
+        self.assertEqual(2.0, blend.get_param(f.XCENTER)) # linear blend
+        self.failUnless(2.5 > blend.get_param(f.MAGNITUDE)) # exponential blend
         self.assertEqual(2002.0, blend.forms[0].get_named_param_value("@bailout"))
 
     def testBadBlend(self):
