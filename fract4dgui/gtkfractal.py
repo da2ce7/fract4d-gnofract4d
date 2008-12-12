@@ -400,6 +400,7 @@ class HighResolution(Hidden):
         self.f.compile()
         
         self.f.auto_deepen = False
+        self.f.auto_tolerance = False
         self.image.start_save(name)
         self.next_tile()
         return False

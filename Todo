@@ -3,7 +3,8 @@ changes in 3.10:
 * BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
 * B	fixes to work with Python 2.6
 * W	deleted gconf nonsense, fract4dguic extension
-
+* BB	auto_tolerance messes up Hi-Res saved images
+	
 todo:
 
 bugs (the more B's, the worse the bug):
