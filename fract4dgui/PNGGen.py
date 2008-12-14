@@ -273,7 +273,7 @@ class GenerationThread(Thread):
                 f_frame.save(open(self.anim.get_fractal_filename(sumBefore+i),"w"))
 
             #check if image already exist and user wants to leave it or not
-            if False and not(os.path.exists(self.anim.get_image_filename(sumBefore+i)) and self.create_all_images==False): #check if image already exist
+            if not(os.path.exists(self.anim.get_image_filename(sumBefore+i)) and self.create_all_images==False): #check if image already exist
                 self.current.set_fractal(f_frame)
 		self.current.reset_render()
                 self.current.draw_image(self.anim.get_image_filename(sumBefore+i))

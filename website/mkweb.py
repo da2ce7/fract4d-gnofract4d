@@ -17,7 +17,7 @@ class Bag:
         
 announce = Bag(
     date="June 29th, 2008",
-    text="Version 3.9 released. This includes the ability to edit the formula as you go, plus some bug fixes.")
+    text="Version 3.10 released. This is a bug fix release.")
 
 manual_pages = [
     Bag(name="Using Gnofract 4D",
