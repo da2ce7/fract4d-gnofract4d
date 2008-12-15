@@ -16,7 +16,6 @@ import fractal
 import fracttypes
 import image
 import formsettings
-import keyframe
 
 # centralized to speed up tests
 g_comp = fc.Compiler()
@@ -394,148 +393,6 @@ class Test(unittest.TestCase):
         im = image.T(40,30)
         f.draw(im)
         self.compiler.leave_dirty = True
-
-    def testLoadHasNoFrames(self):
-        f = fractal.T(self.compiler)
-        f.loadFctFile(StringIO.StringIO(g_testfile))
-        self.assertEqual(0, f.nframes)
-        self.assertEqual(1, len(f.keyframes))
-        self.assertEqual(0, f.keyframes[0].index)
-        self.assertEqual({},f.keyframes[0].dict)
-
-    def testLoadWithFrames(self):
-        f = fractal.T(self.compiler)
-        f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
-        self.assertEqual(20, f.nframes)
-        self.assertEqual(2, len(f.keyframes))
-        kf = f.keyframes[1]
-        self.assertEqual(10, kf.index)
-        self.assertEqual(["x"], kf.dict.keys())
-        self.assertEqual(["10.00000000000000000"], kf.dict.values())
-
-    def testApplyDict(self):
-        f = fractal.T(self.compiler)
-        f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
-        kf = f.keyframes[1]
-        f.apply_params(kf.dict)
-        self.assertEqual(10.0, f.params[f.XCENTER])
-
-    def testFindFrameBefore(self):
-        f = fractal.T(self.compiler)
-        self.assertEqual(0, f.find_frame_before(0).index)
-
-        f.keyframes = [ keyframe.T(0, None), keyframe.T(10,None) ]
-        self.assertEqual(0, f.find_frame_before(5).index)
-        self.assertEqual(10, f.find_frame_before(10).index)
-        self.assertEqual(10, f.find_frame_before(15).index)
-
-        f.keyframes = [ keyframe.T(0,None), keyframe.T(10,None), keyframe.T(20,None)]
-        self.assertEqual(0, f.find_frame_before(0).index)
-        self.assertEqual(0, f.find_frame_before(1).index)
-        self.assertEqual(10, f.find_frame_before(10).index)
-        self.assertEqual(10, f.find_frame_before(19).index)
-        self.assertEqual(20, f.find_frame_before(20).index)
-        self.assertEqual(20, f.find_frame_before(25).index)
-
-    def testFindFrameAfter(self):
-        f = fractal.T(self.compiler)
-        self.assertEqual(0, f.find_frame_after(0).index)
-
-        f.keyframes = [ keyframe.T(10,None) ]
-        self.assertEqual(10, f.find_frame_after(5).index)
-        self.assertEqual(10, f.find_frame_after(10).index)
-        self.assertEqual(None, f.find_frame_after(15))
-
-        f.keyframes = [ keyframe.T(0,None), keyframe.T(10,None), keyframe.T(20,None)]
-        self.assertEqual(0, f.find_frame_after(0).index)
-        self.assertEqual(10, f.find_frame_after(1).index)
-        self.assertEqual(10, f.find_frame_after(10).index)
-        self.assertEqual(20, f.find_frame_after(19).index)
-        self.assertEqual(20, f.find_frame_after(20).index)
-        self.assertEqual(None, f.find_frame_after(25))
-
-    def testEnsureFrameAtZero(self):
-        f = fractal.T(self.compiler)
-
-        self.assertEqual(1, len(f.keyframes))
-        frame = f.ensure_frame_at(0)
-        self.assertEqual(1, len(f.keyframes))
-        self.assertEqual(0, frame.index)
-        self.assertEqual(frame, f.keyframes[0])
-        
-    def testEnsureFrameAt10(self):
-        f = fractal.T(self.compiler)
-
-        frame = f.ensure_frame_at(10)
-        self.assertEqual(2, len(f.keyframes))
-        self.assertEqual(10, frame.index)
-        self.assertEqual(frame, f.keyframes[1])
-        
-
-    def testEnsureFrameAt10then5(self):
-        f = fractal.T(self.compiler)
-
-        frame10 = f.ensure_frame_at(10)
-        frame5 = f.ensure_frame_at(5)
-        self.assertEqual(3, len(f.keyframes))
-        self.assertEqual(5, frame5.index)
-        self.assertEqual(frame5, f.keyframes[1])
-
-
-    def testGetFrame(self):
-        f = fractal.T(self.compiler)
-        f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
-        f_at_zero = f.get_frame(0)
-        self.assertEqual(0.0, f_at_zero.params[f.XCENTER])
-
-        f_at_1 = f.get_frame(1)
-        self.assertEqual(1.0, f_at_1.params[f.XCENTER])
-
-        f_at_10 = f.get_frame(10)
-        self.assertEqual(10.0, f_at_10.params[f.XCENTER])
-
-    def testSetCurrentFrame(self):
-        f = fractal.T(self.compiler)
-        f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
-        self.assertEqual(None, f.current_frame)
-
-        # changes should affect the current frame
-        f.set_current_frame(10)
-        f.set_param(f.XCENTER, "5.0")
-        xc = f.get_param(f.XCENTER)
-        self.assertEqual(5.0, xc)
-
-        # but not other frames
-        f.set_current_frame(None)
-        xc = f.get_param(f.XCENTER)
-        self.assertEqual(0.0, xc)
-        
-        f.set_current_frame(0)
-        xc = f.get_param(f.XCENTER)
-        self.assertEqual(0.0, xc)
-
-    def testLoadSaveWithPerFrameChange(self):
-        f = fractal.T(self.compiler)
-        f.loadFctFile(StringIO.StringIO(g_testfilemultiframes))
-
-        f.set_current_frame(10)
-        f.set_param(f.XCENTER, 5.0)
-        
-        f2 = self.round_trip(f)
-        self.assertEqual(None, f2.current_frame)
-        f2.set_current_frame(10)
-        self.assertEqual(5.0, f2.get_param(f.XCENTER))
-
-    def testRenderAnimationFrames(self):
-        f = fractal.T(self.compiler)
-        f.set_param(f.XCENTER, -0.75)
-        f.set_current_frame(10)
-        f.set_param(f.MAGNITUDE, 0.01)        
-
-        im = image.T(40,30)
-        for i in xrange(f.nframes):
-            frame_fractal = f.get_frame(i)
-            frame_fractal.draw(im)
 
     def testLoadGradientFunc(self):
         f = fractal.T(self.compiler)
@@ -1037,12 +894,6 @@ blue=0.3
         self.assertEqual(fs1.funcName, fs2.funcName)
         self.assertEqual(fs1.funcFile, fs2.funcFile)
         
-    def assertKeyframesEqual(self,kf1,kf2):
-        self.assertEqual(len(kf1),len(kf2))
-        for i in xrange(len(kf1)):
-            self.assertEqual(kf1[i].index, kf2[i].index)
-            self.assertEqual(kf2[i].dict, kf2[i].dict)
-
     def assertFractalsEqual(self,f1,f2):
         # check that they are equivalent
         self.assertEqual(f1.maxiter, f2.maxiter)
@@ -1060,8 +911,6 @@ blue=0.3
         self.assertEqual(f1.periodicity, f2.periodicity)
         self.assertEqual(f1.period_tolerance, f2.period_tolerance)
         
-        self.assertKeyframesEqual(f1.keyframes,f2.keyframes)
-
     def testSave(self):
         self.runSaveTest(False)
         self.runSaveTest(True)
@@ -1372,21 +1221,6 @@ The image may not display correctly. Please upgrade to version 99.9 or higher.''
         f2.deserialize(s)
         return f2
     
-    def testPeriodRoundTrip(self):
-        f = fractal.T(self.compiler)
-        f.periodicity = False
-        f.period_tolerance = 3.14159282828282828
-
-        f2 = self.round_trip(f)
-        self.assertFractalsEqual(f,f2)
-        
-    def testKeyframeRoundTrip(self):
-        f = fractal.T(self.compiler)
-        f.keyframes.append(keyframe.T(10,{"x" : "10.0"}))
-
-        f2 = self.round_trip(f)
-        self.assertFractalsEqual(f,f2)
-
     def testCircle(self):
         f = fractal.T(self.compiler)
 
@@ -1687,7 +1521,6 @@ solids=[
         f.set_warp_param(2)
         f.periodicity = False
         f.period_tolerance = 1.0e-5
-        f.keyframes.append(keyframe.T(10,{ "y": "20.0" }))
         c = copy.copy(f)
 
         self.assertFractalsEqual(f,c)

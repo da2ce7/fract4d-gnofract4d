@@ -22,7 +22,6 @@ import fctutils
 import colorizer
 import formsettings
 import fc
-import keyframe
 
 # the version of the earliest gf4d release which can parse all the files
 # this version can output
@@ -65,8 +64,6 @@ class T(fctutils.T):
             formsettings.T(compiler,self,"cf1") # inner
             ]
 
-        self.current_frame = None
-        self.keyframes = [ keyframe.T(0,{})]
         self.transforms = []
         self.next_transform_id = 0
         self.compiler_options = { "optimize" : 1 }
@@ -133,69 +130,6 @@ class T(fctutils.T):
         for (key,value) in dict.items():
             self.parseVal(key,value,None)
 
-    def get_nframes(self):
-        return self.keyframes[-1].index
-
-    nframes = property(get_nframes)
-    def find_frame_before(self,index):
-        nframes = len(self.keyframes)
-        for i in xrange(1,nframes):
-            if self.keyframes[i].index > index:
-                return self.keyframes[i-1]
-        if nframes == 0:
-            return None
-        return self.keyframes[-1]
-
-    def find_frame_after(self,index):
-        for f in self.keyframes:
-            if f.index >= index:
-                return f
-        return None
-
-    def ensure_frame_at(self, index):
-        nframes = len(self.keyframes)
-        for i in xrange(0,nframes):
-            if self.keyframes[i].index == index:
-                return self.keyframes[i]
-
-            if self.keyframes[i].index > index:
-                newFrame = keyframe.T(index, {})
-                self.keyframes.insert(i, newFrame)
-                return newFrame
-        
-        # insert and return new item at end
-        newFrame = keyframe.T(index, {})
-        self.keyframes.append(newFrame)
-        
-        return newFrame
-
-
-    def set_current_frame(self,index):
-        if index == None:
-            self.current_frame = None
-        else:
-            self.current_frame = self.ensure_frame_at(index)
-
-    def get_frame(self,index):
-        f1 = copy.copy(self)        
-        frame_before = self.find_frame_before(index)
-        f1.apply_params(frame_before.dict)
-
-        frame_after = self.find_frame_after(index)
-        if frame_after == frame_before or None == frame_after:
-            # no need for blending
-            f1.compile()
-            return f1
-        
-        f2 = copy.copy(self)
-        f2.apply_params(frame_after.dict)
-        
-        mu = float(index - frame_before.index) / (frame_after.index - frame_before.index)
-        
-        result = f1.blend(f2,mu)
-        result.compile()
-        return result
-
     def save(self,file,update_saved_flag=True,**kwds):
         print >>file, "gnofract4d parameter file"
         print >>file, "version=%s" % THIS_FORMAT_VERSION
@@ -230,15 +164,6 @@ class T(fctutils.T):
             print >>file, "%02x%02x%02x%02x" % solid
         print >>file, "]"
         print >>file, "[endsection]"
-
-        if len(self.keyframes) > 1:
-            print >>file, "[frames]"
-            print >>file, "frames=%d" % self.nframes
-            for kf in self.keyframes[1:]:
-                print >> file, "[frame]=%d" % kf.index
-                for (k,v) in kf.dict.items():
-                    print >>file, "%s=%s" % (k,v)
-                print >> file, "[endsection]"
 
         if compress:
             file.close()
@@ -349,16 +274,6 @@ class T(fctutils.T):
             which_transform)
         self.transforms[which_transform].load_param_bag(params)
         
-    def parse__frames_(self,val,f):
-        params = fctutils.ParamBag()
-        params.load(f)
-        self.nframes = int(params.dict["frames"])
-        for (name,val) in params.dict.items():
-            if name == "[frame]":
-                (index, bag) = val
-                frame = keyframe.T(index,bag.dict)
-                self.keyframes.append(frame)
-
     def __del__(self):
         pass #print "deleting fractal %s" % self
 
@@ -390,10 +305,6 @@ class T(fctutils.T):
         c.saved = self.saved
         c.clear_image = self.clear_image
         c.warp_param = self.warp_param
-        c.nframes = self.nframes
-        
-        c.keyframes = copy.copy(self.keyframes)
-            
         return c
 
     def determine_direction(self,a,b,mode):
@@ -943,22 +854,11 @@ class T(fctutils.T):
         
     def set_param(self,n,val):
         val = float(val)
-        if self.current_frame:
-            pname = self.paramnames[n]
-            oldval = self.current_frame.dict.get(pname)
-            if oldval != val:
-                self.current_frame.dict[pname] = val
-                self.changed()
-        else:
-            if self.params[n] != val:
-                self.params[n] = val
-                self.changed()
+        if self.params[n] != val:
+            self.params[n] = val
+            self.changed()
 
     def get_param(self,n):
-        if self.current_frame:
-            pname = self.paramnames[n]
-            return float(self.current_frame.dict.get(pname,self.params[n]))
-
         return self.params[n]
     
     def parse_gnofract4d_parameter_file(self,val,f):
