@@ -187,7 +187,7 @@ void fractFunc::draw_aa(float min_progress, float max_progress)
 
     float delta = (max_progress - min_progress)/2.0;
 
-    // if we have multiple threads,make sure they don't modify
+    // if we have multiple threads, make sure they don't modify
     // pixels the other thread will look at - that wouldn't be 
     // an error per se but would make drawing nondeterministic,
     // which I'm trying to avoid
@@ -258,9 +258,10 @@ void fractFunc::draw_all()
     // NO_CALC is used to stub out the actual fractal stuff so we can
     // profile & optimize the rest of the code without it confusing matters
 
-    float minp = 0.0, maxp= (eaa == AA_NONE ? 0.9 : 0.5);
-    draw(8,8,minp,maxp);    
-    
+    float minp = 0.0, maxp= 0.3; 
+    draw(16,16,minp,maxp);    
+
+    minp = 0.5; maxp = (eaa == AA_NONE ? 0.9 : 0.5);
     int improvement_flags;
     while((improvement_flags = updateiters()) & SHOULD_IMPROVE)
     {
@@ -282,7 +283,7 @@ void fractFunc::draw_all()
 	    status_changed(GF4D_FRACTAL_TIGHTENING);
 	    clear_in_fates();
 	}
-        draw(8,1,minp,maxp);
+        draw(16,1,minp,maxp);
     }
     
     if(eaa > AA_NONE) {

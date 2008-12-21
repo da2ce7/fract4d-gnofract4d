@@ -1,10 +1,8 @@
-changes in 3.10:
-* B	can't upload immediately after authorizing
-* BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
-* B	fixes to work with Python 2.6
-* W	deleted gconf nonsense, fract4dguic extension
-* BB	auto_tolerance messes up Hi-Res saved images
-	
+changes in 3.11:
+* W	--buildonly, --usebuilt, --cflags flags, benchfct.py script
+* W	z*z -> sqr(z) in Mandelbrot
+* W	16x16 blocks
+
 todo:
 
 bugs (the more B's, the worse the bug):
@@ -207,6 +205,13 @@ in return for a look at what I'm generating, (like ElectricSheep).
 
 Requires: above, +able to deal with ad-hoc networks of thousands of peers,
 economic incentive, security, works with NAT
+
+changes in 3.10:
+* B	can't upload immediately after authorizing
+* BB	UnicodeDecodeError uploading picture: unknown character 89 at posn 0
+* B	fixes to work with Python 2.6
+* W	deleted gconf nonsense, fract4dguic extension
+* BB	auto_tolerance messes up Hi-Res saved images
 
 changes in 3.9:
 * B	load old (v1.5) files with moved .map files

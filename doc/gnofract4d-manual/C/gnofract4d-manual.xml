@@ -545,12 +545,17 @@ speeds things up a lot but can miss a few details sometimes. </para>
 <sect4 id="prefs_compiler">
 <title>Compiler</title>
 <para>
-&gf4d; needs a C compiler to be available at runtime in order to
-work (it dynamically creates the code to compute a particular formula
-when you select it). The <emphasis>Compiler</emphasis> page allows you
-to specify a location for the compiler and options to pass to
-it. <emphasis>If &gf4d; is working fine, I suggest you leave those
-settings alone.</emphasis> The <emphasis>Formula Search
+&gf4d; needs a C compiler to be available at runtime in order to work
+(it dynamically creates the code to compute a particular formula when
+you select it). The <emphasis>Compiler</emphasis> page allows you to
+specify a location for the compiler and options to pass to
+it. <emphasis>If &gf4d; is working fine, generally I suggest you leave
+those settings alone. However you <emphasis>may</emphasis> be able to
+get noticeable performance gains by specifying the specific kind of
+processor you have. For example, fairly modern AMD processors will
+benefit by adding "-mathlon -msse2 -m3dnow" to the compiler flags.
+
+</emphasis> The <emphasis>Formula Search
 Path</emphasis> lists the directories where &gf4d; will look for
 formulas when a parameter file is loaded.
 </para> 

@@ -244,6 +244,18 @@ some periodicity:
 13.9419879913
 13.8290600777
 
+3.10:
+0.8251 testdata/std.fct
+1.7368 testdata/param.fct
+2.1806 testdata/valley_test.fct
+7.3477 testdata/trigcentric.fct
+2.5105 testdata/zpower.fct
+14.6006448269
+14.1491141319
+14.1334190369
+14.0469760895
+14.1376690865
+14.1759769917
 
 v.sh @ 1600x1200 with Floyd's algorithm
 53.83user 0.39system 0:29.65elapsed 182%CPU (0text+0data 0max)k
@@ -257,3 +269,40 @@ periodicity=50 52.26 seconds
 gf4d MandAutoCritInZ 46.91 seconds (ouch!)
 with new period code (1) 38.45 seconds
 with new period + loose tolerance of 0.0009 26.42 (woot!) or 46 seconds (baffling)
+
+baseline valley test:
+./benchfct.py --repeat testdata/valley_test.fct
+21.9968588352
+21.9665300846
+22.0046010017
+22.0306479931
+21.985806942
+21.9687509537
+22.0362420082
+21.9481468201
+22.0591750145
+22.1914889812
+stats
+min:(21.9481), max(22.1915), average(22.0188)
+
+-m3dnow = min:(21.9588), max(23.1045), average(22.3425)
+-mathlon = min:(18.7973), max(18.9006), average(18.8462) :-)
+-mathlon -msse2 = min:(18.3319), max(18.4610), average(18.3806)
+-mathlon -msse2 -m3dnow = min:(18.2523), max(18.4153), average(18.3399)
+-O3 = no difference
+-mfpmath=sse or -mfpmath=sse,387 = worse
+without -ffast-math = min:(20.8038), max(22.0862), average(21.3920) (worse)
+
+z*z -> sqr(z) in mbrot:
+min:(18.2445), max(18.4242), average(18.3111)
+
+16-size blocks: 
+	min:(17.4803), max(17.9034), average(17.5822)
+	min:(17.0541), max(17.1163), average(17.0917) (weird, should be the same)
+	min:(16.9587), max(17.0592), average(17.0002)
+
+16-then-4 blocks: 
+	  min:(17.4581), max(17.5491), average(17.5116)
+	  min:(17.4790), max(17.7353), average(17.5602)
+
+16-then-8 blocks: min:(17.4832), max(17.6871), average(17.5599) (worse)

@@ -22,7 +22,7 @@ Mandelbrot {
 init:
 	z = #zwpixel
 loop:
-	z = z * z + #pixel
+	z = sqr(z) + #pixel
 bailout:
 	@bailfunc(z) < @bailout
 default:

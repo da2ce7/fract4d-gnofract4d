@@ -166,6 +166,9 @@ class Compiler:
         self.path_lists[FormulaTypes.GRADIENT] = copy.copy(
             prefs.get_list("map_path"))
         
+    def set_flags(self,flags):
+        self.flags = flags
+
     def add_path(self,path,type):
         self.path_lists[type].append(path)
 

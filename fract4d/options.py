@@ -35,6 +35,9 @@ class T:
             "trace",
             "tracez",
             "nogui",
+            "buildonly=",
+            "usebuilt=",
+            "cflags=",
             "version",
             "threads="]
 
@@ -46,6 +49,9 @@ class T:
         self.maxiter = -1
         self.trace = False
         self.tracez = False
+        self.buildonly = None
+        self.usebuilt = None
+        self.flags = None
         self.print_version = False
         self.paramchanges = {}
         self.quit_now = False
@@ -59,7 +65,7 @@ class T:
         self.antialias = None
         self.threads = None
         (self.width, self.height) = (0,0)
-
+        
     def help(self):
         return """Gnofract 4D %s
 Usage: gnofract4d [flags] [paramfile]
@@ -107,7 +113,9 @@ Obscure settings:
    --tracez\t\tPrint values of #z as loop runs
    --nogui\t\tRun with no UI (doesn't require X or GTK)
    --threads N\t\tUse N threads for calculations
-
+   --buildonly FILE\tGenerate code to FILE and quit
+   --usebuilt FILE\tInstead of using compiler, load FILE (from buildonly)
+   --cflags FLAGS\tPass these flags to C compiler (overrides prefs)
 """ % version
 
     def parse(self,args):
@@ -160,6 +168,12 @@ Obscure settings:
                 self.trace = True
             elif name=="--tracez":
                 self.tracez = True
+            elif name=="--buildonly":
+                self.buildonly = val
+            elif name=="--usebuilt":
+                self.usebuilt = val
+            elif name=="--cflags":
+                self.flags = val
             elif name=="--nogui":
                 self.nogui = True
             elif name=="--threads":

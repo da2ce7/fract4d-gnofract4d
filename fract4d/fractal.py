@@ -626,13 +626,16 @@ class T(fctutils.T):
             self.compiler_options)
         
         if outputfile != None:
-            if self.outputfile != outputfile:
-                self.outputfile = outputfile
-                self.handle = fract4dc.pf_load(self.outputfile)
-                self.pfunc = fract4dc.pf_create(self.handle)
+            self.set_output_file(outputfile)
 
         self.dirtyFormula = False
         return self.outputfile
+
+    def set_output_file(self, outputfile):
+        if self.outputfile != outputfile:
+            self.outputfile = outputfile
+            self.handle = fract4dc.pf_load(self.outputfile)
+            self.pfunc = fract4dc.pf_create(self.handle)
 
     def make_random_colors(self, n):
         self.get_gradient().randomize(n)
