@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sys/time.h>
+
 dmat4
 rotated_matrix(double *params)
 {
@@ -27,6 +29,18 @@ test_eye_vector(double *params, double dist)
 {
     dmat4 mat = rotated_matrix(params);
     return mat[VZ] * -dist;
+}
+
+double
+gettimediff(struct timeval& startTime, struct timeval& endTime)
+{
+    long int diff_usec = endTime.tv_usec - startTime.tv_usec;
+    if(diff_usec < 0)
+    {
+	endTime.tv_sec -= 1;
+	diff_usec = 1000000 + diff_usec; 
+    }
+    return (double)(endTime.tv_sec - startTime.tv_sec) + (double)diff_usec/1000000.0;
 }
  
 fractFunc::fractFunc(
@@ -252,6 +266,11 @@ void fractFunc::clear_in_fates()
 
 void fractFunc::draw_all()
 {
+    struct timeval startTime, endTime;
+    if(debug_flags & DEBUG_TIMING)
+    {
+	gettimeofday(&startTime, NULL);
+    }
     status_changed(GF4D_FRACTAL_CALCULATING);
     
 #if !defined(NO_CALC)
@@ -315,6 +334,14 @@ void fractFunc::draw_all()
 
     progress_changed(0.0);
     status_changed(GF4D_FRACTAL_DONE);
+
+    if(debug_flags & DEBUG_TIMING)
+    {
+	gettimeofday(&endTime, NULL);
+	
+	double diff = gettimediff(startTime, endTime);
+	printf("time:%g\n",diff);
+    }
 }
 
 void 

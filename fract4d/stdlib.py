@@ -402,7 +402,7 @@ def sqr_c_c(gen,t,srcs):
     ab = gen.emit_binop('*', [src.re, src.im], Float)
     dst = ComplexArg(
         gen.emit_binop('-', [a2, b2], Float),
-        gen.emit_binop('+', [ab, ab], Float))
+        gen.emit_binop('*', [ ConstFloatArg(2.0), ab], Float))
     return dst
     
 def sqr_f_f(gen,t,srcs):

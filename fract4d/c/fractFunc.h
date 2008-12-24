@@ -158,7 +158,8 @@ dvec4 test_eye_vector(double *params, double dist);
 
 enum {
     DEBUG_QUICK_TRACE = 1,
-    DEBUG_DRAWING_STATS = 2
+    DEBUG_DRAWING_STATS = 2,
+    DEBUG_TIMING = 4
 };
 
 #ifdef __cplusplus

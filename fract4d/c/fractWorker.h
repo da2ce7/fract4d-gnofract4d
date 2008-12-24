@@ -46,6 +46,9 @@ class STFractWorker : public IFractWorker {
     // (as for antialias pass)
     inline int periodGuess(int last);
 
+    // periodicity guesser to look up nearby points & guess based on that
+    inline int periodGuess(int x, int y);
+
     // update whether last pixel bailed
     inline void periodSet(int *ppos);
 

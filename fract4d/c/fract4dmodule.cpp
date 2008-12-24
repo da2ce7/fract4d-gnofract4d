@@ -618,16 +618,17 @@ pf_calc(PyObject *self, PyObject *args)
     double params[4];
     struct pfHandle *pfh; 
     int nIters, x=0,y=0,aa=0;
+    int repeats = 1;
     int outIters=0, outFate=-777;
     double outDist=0.0;
     int outSolid=0;
     int fDirectColorFlag=0;
     double colors[4] = {0.0, 0.0, 0.0, 0.0};
 
-    if(!PyArg_ParseTuple(args,"O(dddd)i|iii",
+    if(!PyArg_ParseTuple(args,"O(dddd)i|iiii",
 			 &pyobj,
 			 &params[0],&params[1],&params[2],&params[3],
-			 &nIters,&x,&y,&aa))
+			 &nIters,&x,&y,&aa,&repeats))
     {
 	return NULL;
     }
@@ -641,12 +642,16 @@ pf_calc(PyObject *self, PyObject *args)
 #ifdef DEBUG_THREADS
     fprintf(stderr,"%p : PF : CALC\n",pfh);
 #endif
-    pfh->pfo->vtbl->calc(pfh->pfo,params,
-			 nIters, -1, 
-			 nIters, 1.0E-9,
-			 x,y,aa,
-			 &outIters,&outFate,&outDist,&outSolid,
-			 &fDirectColorFlag, &colors[0]);
+    for(int i = 0; i < repeats; ++i)
+    {
+	pfh->pfo->vtbl->calc(
+	    pfh->pfo,params,
+	    nIters, -1, 
+	    nIters, 1.0E-9,
+	    x,y,aa,
+	    &outIters,&outFate,&outDist,&outSolid,
+	    &fDirectColorFlag, &colors[0]);
+    }
     assert(outFate != -777);
     pyret = Py_BuildValue("iidi",outIters,outFate,outDist,outSolid);
     return pyret; // Python can handle errors if this is NULL

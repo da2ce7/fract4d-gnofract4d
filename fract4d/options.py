@@ -38,7 +38,9 @@ class T:
             "buildonly=",
             "usebuilt=",
             "cflags=",
+            "printstats",
             "version",
+            "singlepoint",
             "threads="]
 
     def __init__(self):
@@ -52,6 +54,8 @@ class T:
         self.buildonly = None
         self.usebuilt = None
         self.flags = None
+        self.printstats = False
+        self.singlepoint = False
         self.print_version = False
         self.paramchanges = {}
         self.quit_now = False
@@ -109,13 +113,18 @@ Positional Parameters:
    --magnitude N
 
 Obscure settings:
-   --trace\t\tProduce voluminous tracing output
-   --tracez\t\tPrint values of #z as loop runs
    --nogui\t\tRun with no UI (doesn't require X or GTK)
    --threads N\t\tUse N threads for calculations
+
+Debugging and Profiling settings (most only work with --nogui):
+   --trace\t\tProduce voluminous tracing output
+   --tracez\t\tPrint values of #z as loop runs
+   --printstats\tPrint timing information after each image
    --buildonly FILE\tGenerate code to FILE and quit
    --usebuilt FILE\tInstead of using compiler, load FILE (from buildonly)
+   --singlepoint\tGenerate only a single point many times over (for benchmarking)
    --cflags FLAGS\tPass these flags to C compiler (overrides prefs)
+
 """ % version
 
     def parse(self,args):
@@ -178,6 +187,10 @@ Obscure settings:
                 self.nogui = True
             elif name=="--threads":
                 self.threads = int(val)
+            elif name=="--printstats":
+                self.printstats = True
+            elif name=="--singlepoint":
+                self.singlepoint = True
             else:
                 # see if it's a positional param
                 pname = name[2:].upper()

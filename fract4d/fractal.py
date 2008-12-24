@@ -9,6 +9,7 @@ import struct
 import math
 import copy
 import random
+from time import time as now
 
 try:
     import fract4dcgmp as fract4dc
@@ -840,6 +841,16 @@ class T(fctutils.T):
             dirty=self.clear_image,
             async=async)
         
+    def drawpoint(self):
+        self.init_pfunc()
+        print "x:\t\t%.17f\ny:\t\t%.17f\nz:\t\t%.17f\nw:\t\t%.17f\n" % tuple(self.params[0:4])
+        startTime = now()
+        result = fract4dc.pf_calc(
+            self.pfunc,self.params[0:4],self.maxiter,0,0,0,100 *1000 *1000)
+        duration = now() - startTime
+        print "iterations:\t%s\nfate:\t\t%s\ndistance:\t%s\nsolid:\t\t%s" % result
+        print "duration:\t%.4g" % duration
+
     def draw(self,image,nthreads=1):
         self.init_pfunc()
 

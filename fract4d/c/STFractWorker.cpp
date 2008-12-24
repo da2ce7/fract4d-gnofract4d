@@ -121,6 +121,22 @@ STFractWorker::periodGuess()
 }
 
 inline int
+STFractWorker::periodGuess(int x, int y)
+{
+    if (x <= 0)
+    {
+	return periodGuess();
+    }
+    fate_t previousxFate = im->getFate(x-1,y,0);
+    if (FATE_UNKNOWN == previousxFate)
+    {
+	return periodGuess();
+    }
+    int last = im->getIter(x-1,y);
+    return periodGuess(last);
+}
+
+inline int
 STFractWorker::periodGuess(int last) {
 
     if(!ff->periodicity)
@@ -430,7 +446,7 @@ STFractWorker::pixel(int x, int y,int w, int h)
 	    dvec4 pos = ff->topleft + x * ff->deltax + y * ff->deltay;
 
 	    //printf("(%g,%g,%g,%g)\n",pos[VX],pos[VY],pos[VZ],pos[VW]);
-
+	    
 	    pf->calc(
 		pos.n, ff->maxiter,
 		periodGuess(),ff->period_tolerance,
@@ -530,14 +546,14 @@ STFractWorker::pixel_aa(int x, int y)
         bool bFlat = true;
 
         // this could go a lot faster if we cached some of this info
-        bFlat = isTheSame(bFlat,iter,pcol,x-1,y-1);
+        //bFlat = isTheSame(bFlat,iter,pcol,x-1,y-1);
         bFlat = isTheSame(bFlat,iter,pcol,x,y-1);
-        bFlat = isTheSame(bFlat,iter,pcol,x+1,y-1);
+        //bFlat = isTheSame(bFlat,iter,pcol,x+1,y-1);
         bFlat = isTheSame(bFlat,iter,pcol,x-1,y);
         bFlat = isTheSame(bFlat,iter,pcol,x+1,y);
-        bFlat = isTheSame(bFlat,iter,pcol,x-1,y+1);
+        //bFlat = isTheSame(bFlat,iter,pcol,x-1,y+1);
         bFlat = isTheSame(bFlat,iter,pcol,x,y+1);
-        bFlat = isTheSame(bFlat,iter,pcol,x+1,y+1);
+        //bFlat = isTheSame(bFlat,iter,pcol,x+1,y+1);
         if(bFlat) 	    
         {
 	    if(ff->debug_flags & DEBUG_DRAWING_STATS)

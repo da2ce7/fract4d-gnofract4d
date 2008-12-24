@@ -24,8 +24,6 @@ class T:
         threads = options.threads or fractconfig.instance.getint(
             "general","threads")
 
-        im = image.T(width,height)
-
         if len(options.args) > 0:
             self.load(options.args[0])
 
@@ -33,28 +31,37 @@ class T:
         self.f.antialias = options.antialias or \
             fractconfig.instance.getint("display","antialias")
 
-        self.draw(im,options, threads)
+        outfile = self.compile(options)
+
+        if options.buildonly != None:
+            self.buildonly(options, outfile)
+            return            
+
+        if options.singlepoint:
+            self.f.drawpoint()
+        else:
+            im = image.T(width,height)
+            self.f.draw(im,nthreads)
 
         if options.save_filename:
             im.save(options.save_filename)
 
-    def draw(self, im, options, nthreads):
+    def compile(self,options):
         if options.usebuilt == None:
-            outfile = self.f.compile()
+            return self.f.compile()
         else:
             self.f.set_output_file(options.usebuilt)
 
-        if options.buildonly == None:
-            self.f.draw(im,nthreads)
-        else:
-            outdirname = os.path.dirname(options.buildonly)
-            if len(outdirname) > 0:
-                os.makedirs(outdirname)
-                
-            shutil.copy(outfile, options.buildonly)
-            (base, ext) = os.path.splitext(outfile)
-            cfile = base + ".c"
-            shutil.copy(cfile, options.buildonly + ".c")
-        
+
+    def buildonly(self, options, outfile):
+        outdirname = os.path.dirname(options.buildonly)
+        if len(outdirname) > 0:
+            os.makedirs(outdirname)
+            
+        shutil.copy(outfile, options.buildonly)
+        (base, ext) = os.path.splitext(outfile)
+        cfile = base + ".c"
+        shutil.copy(cfile, options.buildonly + ".c")
+
     def load(self,filename):
         self.f.loadFctFile(open(filename))
