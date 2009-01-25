@@ -98,7 +98,8 @@ pages = [
         comments=[
         "I'm always surprised how fast it runs...",
         "I'm still dribbling out of my slack-jawed mouth...",
-        "I'm an enthusiastic user of your program gnofract4d. It's really great..."
+        "I'm an enthusiastic user of your program gnofract4d. It's really great...",
+        "mieux que mario kart wii... c'est magnifique..."
         ]
         ),
     

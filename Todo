@@ -1,8 +1,10 @@
 changes in 3.11:
-* W	--buildonly, --usebuilt, --cflags flags, benchfct.py script
+* W	--buildonly, --usebuilt, --cflags, --singlepoint flags
+* W	benchfct.py script
 * W	z*z -> sqr(z) in Mandelbrot
 * W	16x16 blocks
-
+* W	4-way AA
+* W	ab+ab -> 2.0 * ab in sqr_cc_c (slight perf gain)
 todo:
 
 bugs (the more B's, the worse the bug):

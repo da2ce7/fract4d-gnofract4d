@@ -28,15 +28,13 @@ repeats = 1
 command = "./gnofract4d -i 1280 -j 1024 --nogui "
 args = ""
 for arg in sys.argv[1:]:
-    if arg == "--nogui":
-        useGui = False
-    elif arg == "--repeat":
+    if arg == "--repeat":
         repeats = 5
     else:
         args += " " + arg
 
 bench = Benchmark(command, args)
-bench.build()
+#bench.build()
 times = []
 for i in xrange(repeats):
     t = bench.run()
