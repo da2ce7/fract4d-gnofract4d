@@ -306,3 +306,14 @@ min:(18.2445), max(18.4242), average(18.3111)
 	  min:(17.4790), max(17.7353), average(17.5602)
 
 16-then-8 blocks: min:(17.4832), max(17.6871), average(17.5599) (worse)
+
+core i7:
+flags: -O2 -fPIC -DPIC -D_REENTRANT -shared -ffast-math -march=core2 -msse4.2
+./gnofract4d -i 1280 -j 1024 --nogui  --buildonly foo.so  testdata/valley_test.fct
+3.55383205414
+3.63214182854
+3.59000301361
+3.54913210869
+3.73380088806
+stats
+min:(3.5491), max(3.7338), average(3.6118)

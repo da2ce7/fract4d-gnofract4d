@@ -45,16 +45,12 @@ bugs (the more B's, the worse the bug):
 * B	should start drawing straight away when image returns to normal size
 * B	recoloring during deepening can make things shallower
 * B	horrible_drawing_bug.fct - zoom out & it looks very different
-* B	giger.fct - results of extangle are different vs 1.9
 * B	fractint builtin fns with () in the name 
 * B	each fractal gets compiled twice, 2nd time with extra vars
 * B	does everything have to be .17f ? (attach a float to controls)
 * B	default chebyshev gives blank screen
-* B	deeper.fct, hive.fct, image.fct doesn't load properly - old format
 * B	compile whenever resolution changes - pointless
 * B	O-fractals in fractint-g4.frm broken (don't work in Fractint either)
-* B	Mandrake: desktop icon not added to menu
-* B	mandrake: pygtk2 is called pygtk2.0
 * B	odd behavior re: selected transform in list
 
 features (the more W's, the more work involved):

@@ -34,7 +34,7 @@ for arg in sys.argv[1:]:
         args += " " + arg
 
 bench = Benchmark(command, args)
-#bench.build()
+bench.build()
 times = []
 for i in xrange(repeats):
     t = bench.run()

@@ -127,7 +127,7 @@ module_fract4dgmp = Extension(
     'stdc++', 'gmp'
     ] + jpg_libs,
     extra_compile_args = [
-    '-Wall',
+    '-Wall', '-Wno-strict-prototypes'
     ] + png_flags,
     extra_link_args = png_libs,
     define_macros = defines + [('USE_GMP',1)] + extra_macros,

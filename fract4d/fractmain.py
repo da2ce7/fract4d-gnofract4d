@@ -41,7 +41,7 @@ class T:
             self.f.drawpoint()
         else:
             im = image.T(width,height)
-            self.f.draw(im,nthreads)
+            self.f.draw(im,threads)
 
         if options.save_filename:
             im.save(options.save_filename)

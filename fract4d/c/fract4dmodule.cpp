@@ -184,7 +184,7 @@ pf_create(PyObject *self, PyObject *args)
 }
 
 void *
-get_double_field(PyObject *pyitem, char *name, double *pVal)
+get_double_field(PyObject *pyitem, const char *name, double *pVal)
 {
     PyObject *pyfield = PyObject_GetAttrString(pyitem,name);
     if(pyfield == NULL)
@@ -200,7 +200,7 @@ get_double_field(PyObject *pyitem, char *name, double *pVal)
 
 /* member 'name' of pyitem is a N-element list of doubles */
 void *
-get_double_array(PyObject *pyitem, char *name, double *pVal, int n)
+get_double_array(PyObject *pyitem, const char *name, double *pVal, int n)
 {
     PyObject *pyfield = PyObject_GetAttrString(pyitem,name);
     if(pyfield == NULL)
@@ -240,7 +240,7 @@ get_double_array(PyObject *pyitem, char *name, double *pVal, int n)
 }
 
 void *
-get_int_field(PyObject *pyitem, char *name, int *pVal)
+get_int_field(PyObject *pyitem, const char *name, int *pVal)
 {
     PyObject *pyfield = PyObject_GetAttrString(pyitem,name);
     if(pyfield == NULL)
@@ -853,8 +853,8 @@ public:
 	    GET_LOCK;
 	    PyObject *ret = PyObject_CallMethod(
 		site,
-		"iters_changed",
-		"i",
+		const_cast<char *>("iters_changed"),
+		const_cast<char *>("i"),
 		numiters);
 	    Py_XDECREF(ret);
 	    RELEASE_LOCK;
@@ -865,8 +865,8 @@ public:
 	    GET_LOCK;
 	    PyObject *ret = PyObject_CallMethod(
 		site,
-		"tolerance_changed",
-		"d",
+		const_cast<char *>("tolerance_changed"),
+		const_cast<char *>("d"),
 		tolerance);
 	    Py_XDECREF(ret);
 	    RELEASE_LOCK;
@@ -877,8 +877,9 @@ public:
 	    GET_LOCK;
 	    PyObject *ret = PyObject_CallMethod(
 		site,
-		"image_changed",
-		"iiii",x1,y1,x2,y2);
+		const_cast<char *>("image_changed"),
+		const_cast<char *>("iiii"),
+		x1,y1,x2,y2);
 	    Py_XDECREF(ret);
 	    RELEASE_LOCK;
 	}
@@ -890,8 +891,9 @@ public:
 	    GET_LOCK;
 	    PyObject *ret = PyObject_CallMethod(
 		site,
-		"progress_changed",
-		"d",d);
+		const_cast<char *>("progress_changed"),
+		const_cast<char *>("d"),
+		d);
 	    Py_XDECREF(ret);
 	    RELEASE_LOCK;
 	}
@@ -904,8 +906,9 @@ public:
 	    GET_LOCK;
 	    PyObject *ret = PyObject_CallMethod(
 		site,
-		"status_changed",
-		"i", status_val);
+		const_cast<char *>("status_changed"),
+		const_cast<char *>("i"), 
+		status_val);
 
 	    if(PyErr_Occurred())
 	    {
@@ -922,7 +925,7 @@ public:
 	    GET_LOCK;
 	    PyObject *pyret = PyObject_CallMethod(
 		site,
-		"is_interrupted",NULL);
+		const_cast<char *>("is_interrupted"),NULL);
 
 	    bool ret = false;
 	    if(PyInt_Check(pyret))
@@ -949,13 +952,13 @@ public:
 		GET_LOCK;
 		PyObject *pyret = PyObject_CallMethod(
 		    site,
-		    "pixel_changed",
-		    "(dddd)iiiiidiiiiii",
-		   params[0],params[1],params[2],params[3],
-		   x,y,aa,
-		   maxIters,nNoPeriodIters,
-		   dist,fate,nIters,
-		   r,g,b,a);
+		    const_cast<char *>("pixel_changed"),
+		    const_cast<char *>("(dddd)iiiiidiiiiii"),
+		    params[0],params[1],params[2],params[3],
+		    x,y,aa,
+		    maxIters,nNoPeriodIters,
+		    dist,fate,nIters,
+		    r,g,b,a);
 
 		Py_XDECREF(pyret);
 		RELEASE_LOCK;
@@ -1101,7 +1104,7 @@ public:
     inline void send(msg_t *pm)
 	{
 	    pthread_mutex_lock(&write_lock);
-	    write(fd,pm,sizeof(msg_t));
+	    if (write(fd,pm,sizeof(msg_t))) {};
 	    pthread_mutex_unlock(&write_lock);
 	}
     virtual void iters_changed(int numiters)
@@ -1542,7 +1545,7 @@ parse_calc_args(PyObject *args, PyObject *kwds)
     calc_args *cargs = new calc_args();
     double *p = NULL;
 
-    static char *kwlist[] = {
+    static const char *kwlist[] = {
 	"image",
 	"site",
 	"pfo",
@@ -1566,7 +1569,7 @@ parse_calc_args(PyObject *args, PyObject *kwds)
 	   args,
 	   kwds,
 	   "OOOOO|iiiiiiiiiidi",
-	   kwlist,
+	   const_cast<char **>(kwlist),
 
 	   &pyim, &pysite,
 	   &pypfo,&pycmap,
