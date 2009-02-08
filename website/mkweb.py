@@ -67,8 +67,8 @@ pages = [
         file="features.html",
         image="cheby.jpg",
         comments=[
-        "What a great program..."
-        "Thanks for the great fractal program...",
+        "What a great program...",
+        "Holy smokes, Batman!  It's the fractal program we'd always dreamed of, but never thought we'd see!",
         "It all works great, it's a whole new world I'm discovering..."
         ]
         ),
@@ -78,6 +78,7 @@ pages = [
         image="screencast.jpg",
         comments=[
             "Thanks for creating Gnofract 4D, I've found it a real pleasure to use so far...",
+            "Thanks for the great fractal program...",
             "Well, this pretty much rocks...",
         ]
         ),

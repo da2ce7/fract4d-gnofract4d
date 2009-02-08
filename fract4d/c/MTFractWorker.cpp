@@ -30,7 +30,7 @@ MTFractWorker::MTFractWorker(
 
     if(n > 1)
     {
-        ptp = new tpool<job_info_t,STFractWorker>(n,100,ptf);
+        ptp = new tpool<job_info_t,STFractWorker>(n,1000,ptf);
     }
     else
     {
@@ -119,14 +119,15 @@ MTFractWorker::reset_counts()
     }
 }
 
-pixel_stat_t
-MTFractWorker::stats(stat_type_t type)
-{ 
-    pixel_stat_t stats;
+const pixel_stat_t&
+MTFractWorker::get_stats() const
+{
+    // recompute the sums on the fly
+    stats.reset();
 
     for(int i = 0; i < nWorkers; ++i)
     {
-	stats.add(ptf[i].stats(type));
+	stats.add(ptf[i].get_stats());
     }
     return stats;
 }

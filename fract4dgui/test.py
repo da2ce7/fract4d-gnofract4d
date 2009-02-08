@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+print "A bunch of windows may appear and vanish again."
+print "Do not be alarmed, this is normal."
+
 # suppress annoying message during tests we get otherwise
 import warnings
 warnings.filterwarnings(

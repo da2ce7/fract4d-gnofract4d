@@ -113,10 +113,12 @@ module_gmp = Extension(
 
 defines = [ ('_REENTRANT',1),
             ('THREADS',1),
+            #('STATIC_CALC',1),
             #('NO_CALC', 1),  # set this to not calculate the fractal
             #('DEBUG_CREATION',1), # debug spew for allocation of objects
             #('DEBUG_ALLOCATION',1), # debug spew for array handling
             ]
+
 module_fract4dgmp = Extension(
     'fract4d.fract4dcgmp',
     sources = fract4d_gmp_sources,
@@ -129,20 +131,21 @@ module_fract4dgmp = Extension(
     extra_compile_args = [
     '-Wall', '-Wno-strict-prototypes'
     ] + png_flags,
-    extra_link_args = png_libs,
+    extra_link_args = png_libs, 
     define_macros = defines + [('USE_GMP',1)] + extra_macros,
     undef_macros = [ 'NDEBUG']    
     )
 
 module_fract4dc = Extension(
     'fract4d.fract4dc',
-    sources = fract4d_sources,
+    sources = fract4d_sources + ['fract4d/c/pf.c'],
     include_dirs = [
     'fract4d/c'
     ],
     libraries = [
-    'stdc++' 
+    'stdc++', 
     ] + jpg_libs,
+    library_dirs=['/home/edwin/gnofract4d'],
     extra_compile_args = [
     '-Wall',
     ] + png_flags,

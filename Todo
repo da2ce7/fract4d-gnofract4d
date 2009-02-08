@@ -5,6 +5,8 @@ changes in 3.11:
 * W	16x16 blocks
 * W	4-way AA
 * W	ab+ab -> 2.0 * ab in sqr_cc_c (slight perf gain)
+* B	tighten periodicity checking more often
+
 todo:
 
 bugs (the more B's, the worse the bug):

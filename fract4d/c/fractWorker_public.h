@@ -10,37 +10,7 @@ class IImage;
 
 class IFractalSite;
 
-typedef enum
-{
-    DEEPEN_STATS,
-    TOLERANCE_STATS
-} stat_type_t;
-
-typedef struct s_pixel_stat pixel_stat_t;
-
-struct s_pixel_stat{
-    // n pixels correctly classified that would be wrong 
-    // if we calculated less carefully
-    int nworsepixels;
-    // n pixels currenty misclassified that would be correct 
-    // if we doubled the iterations
-    int nbetterpixels; 
-    int k;	// number of pixels calculated    
-    s_pixel_stat() {
-	reset();
-    };
-    void reset() {
-	nworsepixels=0;
-	nbetterpixels=0;
-	k=0;
-    };
-    void add(const pixel_stat_t& other) {
-	nworsepixels += other.nworsepixels;
-	nbetterpixels += other.nbetterpixels;
-	k += other.k;
-    };
-
-};
+#include "stats.h"
 
 class IFractWorker {
 public:
@@ -70,7 +40,7 @@ public:
 
     // auto-deepening record keeping
     virtual void reset_counts() =0;
-    virtual pixel_stat_t stats(stat_type_t type) =0;
+    virtual const pixel_stat_t& get_stats() const =0;
 
     // ray-tracing machinery
     virtual bool find_root(const dvec4& eye, const dvec4& look, dvec4& root) = 0;
@@ -79,6 +49,7 @@ public:
 
     virtual void flush() = 0;
     virtual bool ok() = 0;
+
 };
 
 #endif /* FRACT_WORKER_PUBLIC_H_ */

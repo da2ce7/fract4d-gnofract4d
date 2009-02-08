@@ -61,7 +61,9 @@ pf_unload(void *p)
 #ifdef DEBUG_CREATION
     fprintf(stderr,"%p : SO : DEREF\n",p);
 #endif
+    #ifndef STATIC_CALC    
     dlclose(p);
+    #endif
 }
 
 static int 
@@ -106,6 +108,10 @@ ensure_cmap_loaded()
 static PyObject *
 pf_load(PyObject *self, PyObject *args)
 {
+    #ifdef STATIC_CALC
+    Py_INCREF(Py_None);
+    return Py_None;
+    #else
     if(!ensure_cmap_loaded())
     {
 	return NULL;
@@ -128,6 +134,7 @@ pf_load(PyObject *self, PyObject *args)
 	return NULL;
     }
     return PyCObject_FromVoidPtr(dlHandle,pf_unload);
+    #endif
 }
 
 struct pfHandle
@@ -153,8 +160,14 @@ pf_create(PyObject *self, PyObject *args)
 {
     struct pfHandle *pfh = (pfHandle *)malloc(sizeof(struct pfHandle));
     void *dlHandle;
-    PyObject *pyobj;
     pf_obj *(*pfn)(void); 
+
+    PyObject *pyobj;
+#ifdef STATIC_CALC
+    pf_obj *p = pf_new();
+    pyobj = Py_None;
+#else
+
     if(!PyArg_ParseTuple(args,"O",&pyobj))
     {
 	return NULL;
@@ -173,6 +186,7 @@ pf_create(PyObject *self, PyObject *args)
 	return NULL;
     }
     pf_obj *p = pfn();
+#endif
     pfh->pfo = p;
     pfh->pyhandle = pyobj;
 #ifdef DEBUG_CREATION

@@ -37,6 +37,16 @@ explorer = StockThing('explorer_mode.png', 'explore', _('Explorer'), ord('e'))
 
 improve_now = StockThing('improve_now.png', 'improve', _('Deepen'), ord('.'))
 
+mail_to = StockThing('mail-forward.png', 'mail-to', _('_Mail To'), ord('m'))
+
+draw_brush = StockThing('draw-brush.png', 'draw-brush', _('_Painter'), ord('p'))
+
+face_sad = StockThing('face-sad.png', 'face-sad', _('_Report Bug'), ord('b'))
+
+autozoom = StockThing('autozoom.png', 'autozoom', _('_Autozoom'), ord('a'))
+
+randomize = StockThing('randomize_colors.png', 'randomize-colors', _('_Randomize Colors'), ord('r'))
+
 #logo = StockThing('gnofract4d-logo.png', 'logo', _('Logo'), 0)
 
 

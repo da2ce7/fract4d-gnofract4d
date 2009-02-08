@@ -146,23 +146,26 @@ fractFunc::updateiters()
 {
     int flags = 0;
     // add up all the subtotals
-    pixel_stat_t stats = worker->stats(DEEPEN_STATS);
+    const pixel_stat_t& stats = worker->get_stats();
 
-    double doublepercent = ((double)stats.nbetterpixels*AUTO_DEEPEN_FREQUENCY*100)/stats.k;
-    double halfpercent = ((double)stats.nworsepixels*AUTO_DEEPEN_FREQUENCY*100)/stats.k;
+    if (auto_deepen)
+    {
+	double doublepercent = stats.better_depth_ratio() * AUTO_DEEPEN_FREQUENCY * 100;
+	double halfpercent = stats.worse_depth_ratio() * AUTO_DEEPEN_FREQUENCY * 100;
 		
-    if(doublepercent > 1.0) 
-    {
-        // more than 1% of pixels are the wrong colour! 
-        // quelle horreur!
-	flags |= SHOULD_DEEPEN;
-    }
-    else if(doublepercent == 0.0 && halfpercent < 0.5 && 
-       maxiter > 32)
-    {
-        // less than .5% would be wrong if we used half as many iters
-        // therefore we are working too hard!
-        flags |= SHOULD_SHALLOWEN;
+	if(doublepercent > 1.0) 
+	{
+	    // more than 1% of pixels are the wrong colour! 
+	    // quelle horreur!
+	    flags |= SHOULD_DEEPEN;
+	}
+	else if(doublepercent == 0.0 && halfpercent < 0.5 && 
+		maxiter > 32)
+	{
+	    // less than .5% would be wrong if we used half as many iters
+	    // therefore we are working too hard!
+	    flags |= SHOULD_SHALLOWEN;
+	}
     }
 
     if(!auto_tolerance)
@@ -170,15 +173,11 @@ fractFunc::updateiters()
 	// otherwise we might loosen without having gathered any stats
 	return flags;
     }
-    stats = worker->stats(TOLERANCE_STATS);
-    //printf(
-    //"tolerance stats: better %d worse %d total %d\n", 
-    //stats.nbetterpixels, stats.nworsepixels, stats.k);
 
-    double tightenpercent = ((double)stats.nbetterpixels*AUTO_DEEPEN_FREQUENCY*100)/stats.k;
-    double loosenpercent = ((double)stats.nworsepixels*AUTO_DEEPEN_FREQUENCY*100)/stats.k;
+    double tightenpercent = stats.better_tolerance_ratio() * AUTO_DEEPEN_FREQUENCY*100;
+    double loosenpercent = stats.worse_tolerance_ratio() * AUTO_DEEPEN_FREQUENCY*100;
 
-    if(tightenpercent > 1.0)
+    if(tightenpercent > 0.1)
     {
 	//printf("tightening\n");
 	flags |= SHOULD_TIGHTEN;

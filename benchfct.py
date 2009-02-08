@@ -25,7 +25,7 @@ class Benchmark:
         return new_time - last_time
 
 repeats = 1
-command = "./gnofract4d -i 1280 -j 1024 --nogui "
+command = "./gnofract4d -i 2560 -j 2048 --nogui "
 args = ""
 for arg in sys.argv[1:]:
     if arg == "--repeat":

@@ -549,7 +549,7 @@ class MainWindow:
 
     def get_toggle_actions(self):
         return [
-            ('ToolsExplorerAction', None, _('_Explorer'),
+            ('ToolsExplorerAction', icons.explorer.stock_name, _('_Explorer'),
              '<control>E', _('Create random fractals similar to this one'), 
              self.toggle_explorer)
             ]
@@ -585,7 +585,7 @@ class MainWindow:
              None, _('Quit'), self.quit),
 
             ('EditMenuAction', None, _('_Edit')),                
-            ('EditFractalSettingsAction', None, _('_Fractal Settings...'),
+            ('EditFractalSettingsAction', gtk.STOCK_PROPERTIES, _('_Fractal Settings...'),
              '<control>F', _('Edit the fractal\'s settings'), self.settings),
             ('EditPreferencesAction', gtk.STOCK_PREFERENCES, None,
              None, _('Edit user preferences'), self.preferences),
@@ -595,34 +595,34 @@ class MainWindow:
              '<control><shift>Z', _('Redo the last undone command'), self.redo),
             ('EditResetAction', gtk.STOCK_HOME,_('_Reset'),
              'Home', _('Reset all parameters to defaults'), self.reset),
-            ('EditResetZoomAction', None, _('Re_set Zoom'),
+            ('EditResetZoomAction', gtk.STOCK_ZOOM_100, _('Re_set Zoom'),
              '<control>Home', _('Reset magnification'), self.reset_zoom),
 
             ('ViewMenuAction', None, _('_View')),
-            ('ViewFullScreenAction', None, _('_Full Screen'),
+            ('ViewFullScreenAction', gtk.STOCK_FULLSCREEN, _('_Full Screen'),
              'F11', _('Full Screen (press Esc to finish)'), self.full_screen),
 
             ('ShareMenuAction', None, _('_Share')),
-            ('ShareMailToAction', None, _('_Mail To...'),
+            ('ShareMailToAction', icons.mail_to.stock_name, _('_Mail To...'),
              '<control>M', _('Send parameters by mail'), self.send_to),
             ('ShareUploadAction', None, _('_Upload to Flickr...'),
              '<control>U', _('Upload current image to Flickr'), self.upload),
             ('ShareViewMyFractalsAction', None, _('_View My Online Fractals'),
              None, _('View fractals I\'ve uploaded (if any'), self.view_my_fractals),
             ('ShareViewGroupFractalsAction', None, _('View _Group Fractals'),
-             None, _('View fractals I\'ve uploaded (if any)'), self.view_group_fractals),
+             None, _('View fractals uploaded by everyone'), self.view_group_fractals),
 
             ('ToolsMenuAction', None, _('_Tools')),
-            ('ToolsAutozoomAction', None, _('_Autozoom'),
+            ('ToolsAutozoomAction', icons.autozoom.stock_name, _('_Autozoom'),
              '<control>A', _('Automatically zoom in to interesting regions'), self.autozoom),
             # explorer is a toggle, see above
             ('ToolsBrowserAction', None, _('Formula _Browser'),
              '<control>B', _('Browse available formulas'), self.browser),
             ('ToolsDirectorAction', None, _('_Director'),
              '<control>D', _('Create animations'), self.director),
-            ('ToolsRandomizeAction', None, _('_Randomize Colors'),
+            ('ToolsRandomizeAction', icons.randomize.stock_name, _('_Randomize Colors'),
              '<control>R', _('Apply a new random color scheme'), self.randomize_colors),
-            ('ToolsPainterAction', None, _('_Painter'),
+            ('ToolsPainterAction', icons.draw_brush.stock_name, _('_Painter'),
              None, _('Change colors interactively'), self.painter),
 
             ('HelpMenuAction', None, _('_Help')),
@@ -633,8 +633,8 @@ class MainWindow:
             ('HelpFormulaReferenceAction', None, _('_Formula Reference'),
              None, _('Reference for functions and objects in the formula compiler'), 
              self.formula_reference),
-            ('HelpReportBugAction', None, _('_Report a Bug'),
-             None, _('Report a bug you\'ve found'), self.report_bug),
+            ('HelpReportBugAction', icons.face_sad.stock_name, _('_Report a Bug'),
+             '', _('Report a bug you\'ve found'), self.report_bug),
             ('HelpAboutAction', gtk.STOCK_ABOUT, _('_About'), 
              None, _('About Gnofract 4D'), self.about)
             ]

@@ -31,8 +31,7 @@ class STFractWorker : public IFractWorker {
     /* not a ctor because we always create a whole array then init them */
     bool init(pf_obj *pfo, ColorMap *cmap, IImage *im, IFractalSite *site);
 
-    ~STFractWorker();
-
+    ~STFractWorker();    
 
     STFractWorker() {
 	reset_counts();
@@ -93,7 +92,7 @@ class STFractWorker : public IFractWorker {
     rgba_t antialias(int x, int y);
 
     void reset_counts();
-    pixel_stat_t stats(stat_type_t type);
+    const pixel_stat_t& get_stats() const;
 
     void flush() {};
     bool ok() { return m_ok; }
@@ -103,6 +102,7 @@ class STFractWorker : public IFractWorker {
 
  private:
 
+    void compute_stats(const dvec4& pos, int iter, int x, int y);
     void compute_auto_deepen_stats(const dvec4& pos, int iter, int x, int y);
     void compute_auto_tolerance_stats(const dvec4& pos, int iter, int x, int y);
 
@@ -113,8 +113,7 @@ class STFractWorker : public IFractWorker {
     // and can have member vars
     pointFunc *pf; 
 
-    pixel_stat_t auto_deepen_stats;
-    pixel_stat_t auto_tolerance_stats;
+    pixel_stat_t stats;
 
     // period guessing
     int lastIter; // how many iterations did last pixel take?
@@ -152,9 +151,9 @@ class MTFractWorker : public IFractWorker
     virtual void pixel(int x, int y, int h, int w);
     virtual void pixel_aa(int x, int y);
 
-    // auto-deepening record keeping
+    // record keeping
     virtual void reset_counts();
-    pixel_stat_t stats(stat_type_t type);
+    const pixel_stat_t& get_stats() const;
 
     virtual void flush();
 
@@ -180,6 +179,7 @@ private:
     STFractWorker *ptf;
     tpool<job_info_t,STFractWorker> *ptp;
     bool m_ok;
+    mutable pixel_stat_t stats;
 };
 
 #endif /* FRACT_WORKER_H_ */
