@@ -8,7 +8,8 @@ class FractalSite:
         self.progress_list = []
         self.iters_list = []
         self.image_list = []
-        
+        self.stats_list = []
+
     def status_changed(self,val):
         #print "status: %d" % val
         self.status_list.append(val)
@@ -27,3 +28,7 @@ class FractalSite:
     def image_changed(self,x1,y1,x2,y2):
         #print "image: %d %d %d %d" %  (x1, x2, y1, y2)
         self.image_list.append((x1,y1,x2,y2))
+
+    def stats_changed(self,stats):
+        print "stats", stats
+        self.stats_list.append(stats)

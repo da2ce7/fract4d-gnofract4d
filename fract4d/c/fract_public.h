@@ -58,6 +58,7 @@ typedef enum {
 
 //class colorizer;
 class IImage;
+typedef struct s_pixel_stat pixel_stat_t;
 
 #include "pointFunc_public.h"
 
@@ -88,6 +89,8 @@ class IFractalSite
     virtual void progress_changed(float progress) {};
     // one of the status values above
     virtual void status_changed(int status_val) {};
+    // statistics about image
+    virtual void stats_changed(pixel_stat_t& stats) {};
 
     // per-pixel callback for debugging
     virtual void pixel_changed(

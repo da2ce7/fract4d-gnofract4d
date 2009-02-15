@@ -323,15 +323,25 @@ STFractWorker::antialias(int x, int y)
 
 
 void
-STFractWorker::compute_stats(const dvec4& pos, int iter, int x, int y)
+STFractWorker::compute_stats(const dvec4& pos, int iter, fate_t fate, int x, int y)
 {
-    stats.pixels++;
-    if (ff->auto_deepen && stats.pixels % ff->AUTO_DEEPEN_FREQUENCY == 0)
+    stats.s[PIXELS]++;
+    stats.s[PIXELS_CALCULATED]++;
+    if (fate & FATE_INSIDE)
+    {
+	stats.s[PIXELS_INSIDE]++;
+    }
+    else
+    {
+	stats.s[PIXELS_OUTSIDE]++;
+    }
+
+    if (ff->auto_deepen && stats.s[PIXELS] % ff->AUTO_DEEPEN_FREQUENCY == 0)
     {
 	compute_auto_deepen_stats(pos, iter, x, y);
     }
     if (ff->periodicity && ff->auto_tolerance && 
-	stats.pixels % ff->AUTO_TOLERANCE_FREQUENCY == 0)
+	stats.s[PIXELS] % ff->AUTO_TOLERANCE_FREQUENCY == 0)
     {
 	compute_auto_tolerance_stats(pos, iter, x, y);
     }
@@ -362,7 +372,7 @@ STFractWorker::compute_auto_tolerance_stats(const dvec4& pos, int iter, int x, i
 	{
 	    // current tolerance is too loose, we would get 1 more
 	    // pixel correct if we tightened it
-	    stats.better_tolerance_pixels++;
+	    stats.s[BETTER_TOLERANCE_PIXELS]++;
 	}
     }
     else
@@ -386,7 +396,7 @@ STFractWorker::compute_auto_tolerance_stats(const dvec4& pos, int iter, int x, i
 	if(temp_iter == -1)
 	{
 	    // if we loosened, we'd get this pixel wrong
-	    stats.worse_tolerance_pixels++;
+	    stats.s[WORSE_TOLERANCE_PIXELS]++;
 	}
     }
 }
@@ -398,7 +408,7 @@ STFractWorker::compute_auto_deepen_stats(const dvec4& pos, int iter, int x, int 
     {
 	/* we would have got this wrong if we used 
 	 * half as many iterations */
-	stats.worse_depth_pixels++;
+	stats.s[WORSE_DEPTH_PIXELS]++;
     }
     else if(iter == -1)
     {
@@ -418,7 +428,7 @@ STFractWorker::compute_auto_deepen_stats(const dvec4& pos, int iter, int x, int 
 	{
 	    /* we would have got this right if we used
 	     * twice as many iterations */
-	    stats.better_depth_pixels++;
+	    stats.s[BETTER_DEPTH_PIXELS]++;
 	}
     }
 }
@@ -453,7 +463,7 @@ STFractWorker::pixel(int x, int y,int w, int h)
 		x,y,0,
 		&pixel,&iter,&index,&fate);
 
-	    compute_stats(pos,iter,x,y);
+	    compute_stats(pos,iter,fate,x,y);
 	}
 	break;
 	case RENDER_LANDSCAPE:
@@ -656,6 +666,8 @@ STFractWorker::rectangle_with_iter(
             im->setIter(j,i,iter);
 	    im->setFate(j,i,0,fate);
 	    im->setIndex(j,i,0,index);
+	    stats.s[PIXELS]++;
+	    stats.s[PIXELS_SKIPPED]++;
         }
     }
 }

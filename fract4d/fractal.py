@@ -749,6 +749,9 @@ class T(fctutils.T):
     def progress_changed(self,d):
         pass
     
+    def stats_changed(self,s):
+        pass
+
     def is_interrupted(self):
         return False
 

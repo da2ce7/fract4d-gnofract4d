@@ -911,6 +911,20 @@ public:
 	    Py_XDECREF(ret);
 	    RELEASE_LOCK;
 	}
+
+    virtual void stats_changed(pixel_stat_t& stats)
+	{
+	    GET_LOCK;
+	    PyObject *ret = PyObject_CallMethod(
+		site,
+		const_cast<char *>("stats_changed"),
+		const_cast<char *>("[kkkkkkkkkk]"),
+		stats.s[0], stats.s[1], stats.s[2],stats.s[3],stats.s[4],
+		stats.s[5], stats.s[6], stats.s[7],stats.s[8],stats.s[9]);
+	    Py_XDECREF(ret);
+	    RELEASE_LOCK;			
+	}
+
     // one of the status values above
     virtual void status_changed(int status_val)
 	{
@@ -1159,6 +1173,12 @@ public:
 		send(&m);
 	    }
 	}
+
+    virtual void stats_changed(pixel_stat_t& stats)
+	{
+	    //TODO
+	}
+
     // one of the status values above
     virtual void status_changed(int status_val)
 	{

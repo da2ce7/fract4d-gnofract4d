@@ -50,30 +50,35 @@ class fractFunc {
 
     // callback wrappers
     inline void iters_changed(int iters)
-	{
-	    site->iters_changed(iters);
-	}
+    {
+	site->iters_changed(iters);
+    }
     inline void tolerance_changed(double tolerance)
-        {
-	    site->tolerance_changed(tolerance);
-	}
+    {
+	site->tolerance_changed(tolerance);
+    }
     inline void image_changed(int x1, int x2, int y1, int y2)
-	{
-	    site->image_changed(x1,x2,y1,y2);
-	}
+    {
+	site->image_changed(x1,x2,y1,y2);
+    }
     inline void progress_changed(float progress)
-	{
-	    float adjusted_progress = min_progress + progress * delta_progress;
-	    site->progress_changed(adjusted_progress);
-	}
+    {
+	float adjusted_progress = min_progress + progress * delta_progress;
+	site->progress_changed(adjusted_progress);
+    }
+    inline void stats_changed()
+    {
+	pixel_stat_t stats = worker->get_stats();
+	site->stats_changed(stats);	    
+    }
     inline void status_changed(int status_val)
-	{
-	    site->status_changed(status_val);
-	}
+    {
+	site->status_changed(status_val);
+    }
     inline bool try_finished_cond()
-	{
-	    return site->is_interrupted();
-	}
+    {
+	return site->is_interrupted();
+    }
 
     // used for calculating (x,y,z,w) pixel coords
     dmat4 rot; // scaled rotation matrix

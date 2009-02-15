@@ -225,6 +225,7 @@ void fractFunc::draw_aa(float min_progress, float max_progress)
         }
         reset_progress(1.0);
     }
+    stats_changed();
 }
 
 void fractFunc::reset_counts()
@@ -415,6 +416,7 @@ fractFunc::draw(
  done:
     /* refresh entire image & reset progress bar */
     reset_progress(1.0);
+    stats_changed();
 }
 
 void 

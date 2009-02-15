@@ -392,7 +392,18 @@ class Test(testbase.TestBase):
             else:
                 self.assertEqual(ord(byte), 255)
             i+= 1
-        
+
+        self.assertPixelCount(xsize,ysize,siteobj)
+
+    def assertPixelCount(self,xsize,ysize,siteobj):
+        # total pixels calculated should == w*h        
+        self.assertEqual(xsize*ysize,siteobj.stats_list[-1][1])
+        for stats in siteobj.stats_list:            
+            # pixels calced + pixels skipped = pixels
+            self.assertEqual(stats[1],stats[2]+stats[3])
+            # pixels inside + pixels outside = pixels calculated
+            self.assertEqual(stats[2],stats[4]+stats[5])
+
     def testCalc(self):
         xsize = 64
         ysize = int(xsize * 3.0/4.0)
@@ -454,6 +465,8 @@ class Test(testbase.TestBase):
             else:
                 self.assertEqual(ord(byte), 255)
             i+= 1
+
+        self.assertPixelCount(xsize,ysize,siteobj)
 
     def testConstants(self):
         self.assertEqual(fract4dc.CALC_DONE, 0)
