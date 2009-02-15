@@ -21,6 +21,9 @@ typedef enum
     // pixels which would up outside (inside + outside == pixels)
     PIXELS_OUTSIDE,          
 
+    // pixels which were found to be inside via periodicity 
+    PIXELS_PERIODIC,
+
     // n pixels correctly classified that would be wrong 
     // if we calculated half the iterations
     WORSE_DEPTH_PIXELS,

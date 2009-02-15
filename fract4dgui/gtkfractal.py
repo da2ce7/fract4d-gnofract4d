@@ -12,7 +12,7 @@ import random
 import gtk
 import gobject
 
-from fract4d import fractal,fract4dc,fracttypes, image
+from fract4d import fractal,fract4dc,fracttypes, image, messages
 
 import utils, fourway
 
@@ -52,18 +52,6 @@ class Hidden(gobject.GObject):
 
         self.compiler = comp
 
-        self.msgformat = "5i"
-        self.msgsize = struct.calcsize(self.msgformat)
-
-        self.name_of_msg = [
-            "PARAMS",
-            "IMAGE",
-            "PROGRESS",
-            "STATUS",
-            "PIXEL",
-            "TOLERANCE"
-            ]
-
         self.x = self.y = 0
         self.button = 0
         self.last_progress = 0.0
@@ -81,6 +69,8 @@ class Hidden(gobject.GObject):
         self.height = height
         self.image = image.T(
             self.width,self.height,total_width,total_height)
+
+        self.msgbuf = ""
 
     def try_init_fractal(self):
         f = fractal.T(self.compiler,self.site)
@@ -169,43 +159,49 @@ class Hidden(gobject.GObject):
         self.f.set_formula(fname, formula,index)
 
     def onData(self,fd,condition):
-        bytes = os.read(fd,self.msgsize)
-        if len(bytes) < self.msgsize:
-            print "bad message: %s" % list(bytes)
+        self.msgbuf = self.msgbuf + os.read(fd, 8 - len(self.msgbuf))
+        
+        if len(self.msgbuf) < 8:            
+            #print "incomplete message: %s" % list(self.msgbuf)
             return True
 
-        (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
-        m = self.name_of_msg[t]
+        (t,size) = struct.unpack("2i",self.msgbuf)
+        self.msgbuf = ""
+        bytes = os.read(fd,size)
+        if len(bytes) < size:
+            print "not enough bytes, got %d instead of %d" % (len(bytes),size)
+            return True
+
+        m = messages.parse(t,bytes)
 
         if utils.threads_enabled:
             gtk.gdk.threads_enter()    
 
         #print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
-        if t == 0:
-            if not self.skip_updates: self.iters_changed(p1)
-        elif t == 1:
-            if not self.skip_updates: self.image_changed(p1,p2,p3,p4)
-        elif t == 2:
+        if t == fract4dc.MESSAGE_TYPE_ITERS:
+            if not self.skip_updates: self.iters_changed(m.iterations)
+        elif t == fract4dc.MESSAGE_TYPE_IMAGE:
+            if not self.skip_updates: self.image_changed(m.x, m.y, m.w, m.h)
+        elif t == fract4dc.MESSAGE_TYPE_PROGRESS:
             if not self.skip_updates:
-                progress = float(p1)
+                progress = m.progress
                 # filters out 'backwards' progress which can occur due to threading
                 if progress > self.last_progress or progress == 0.0:
                     self.progress_changed(progress)
                     self.last_progress = progress
-        elif t == 3:
-            if p1 == 0: # DONE
+        elif t == fract4dc.MESSAGE_TYPE_STATUS:
+            if m.status == fract4dc.CALC_DONE: # DONE
                 #print "stop running"
                 self.running = False
-            if not self.skip_updates: self.status_changed(p1)
-        elif t == 4:
+            if not self.skip_updates: self.status_changed(m.status)
+        elif t == fract4dc.MESSAGE_TYPE_PIXEL:
             # FIXME pixel_changed
             pass
-        elif t == 5:
+        elif t == fract4dc.MESSAGE_TYPE_TOLERANCE:
             # tolerance changed
-            # binary format is different for this message
-            (tolerance,) = struct.unpack("d", bytes[4:12])
-
-            if not self.skip_updates: self.tolerance_changed(tolerance);
+            if not self.skip_updates: self.tolerance_changed(m.tolerance)
+        elif t == fract4dc.MESSAGE_TYPE_STATS:
+            if not self.skip_updates: self.stats_changed(m)
         else:
             print "Unknown message from fractal thread; %s" % list(bytes)
 
@@ -283,6 +279,10 @@ class Hidden(gobject.GObject):
 
     def image_changed(self,x1,y1,x2,y2):
         pass 
+
+    def stats_changed(self,stats):
+        print "stats changed"
+        print stats.show()
 
     def draw(self,image,width,height,nthreads):
         t = self.f.epsilon_tolerance(width,height)
@@ -1033,6 +1033,10 @@ class Preview(T):
         # suppress errors from previews
         pass
     
+    def stats_changed(self,s):
+        print "preview"
+        pass
+
 class SubFract(T):
     def __init__(self,comp,width=640,height=480):
         T.__init__(self,comp,None,width,height)

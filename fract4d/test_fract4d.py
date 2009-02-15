@@ -14,6 +14,7 @@ import testbase
 import fract4dc
 import gradient
 import image
+import messages
 
 from test_fractalsite import FractalSite
 
@@ -74,14 +75,6 @@ class Test(testbase.TestBase):
     def setUp(self):
         compiler = fc.Compiler()
         self.compiler = compiler
-        self.name_of_msg = [
-            "PARAMS",
-            "IMAGE",
-            "PROGRESS",
-            "STATUS",
-            "PIXEL",
-            "TOLERANCE"
-            ]
         self.gradient = gradient.Gradient()
         
     def tearDown(self):
@@ -397,12 +390,14 @@ class Test(testbase.TestBase):
 
     def assertPixelCount(self,xsize,ysize,siteobj):
         # total pixels calculated should == w*h        
-        self.assertEqual(xsize*ysize,siteobj.stats_list[-1][1])
+        self.assertEqual(xsize*ysize,siteobj.stats_list[-1].pixels)
         for stats in siteobj.stats_list:            
             # pixels calced + pixels skipped = pixels
-            self.assertEqual(stats[1],stats[2]+stats[3])
+            self.assertEqual(
+                stats.pixels,stats.pixels_calculated + stats.pixels_skipped)
             # pixels inside + pixels outside = pixels calculated
-            self.assertEqual(stats[2],stats[4]+stats[5])
+            self.assertEqual(
+                stats.pixels_calculated, stats.pixels_inside + stats.pixels_outside)
 
     def testCalc(self):
         xsize = 64
@@ -560,7 +555,7 @@ class Test(testbase.TestBase):
                  (1/256.0,255,255,255,255),
                  (1.0, 255, 255, 255, 255)])
 
-            #print x
+            print "pass",x
             fract4dc.calc(
                 params=[0.0, 0.0, 0.0, 0.0,
                  4.0,
@@ -580,19 +575,28 @@ class Test(testbase.TestBase):
 
             nrecved = 0
             while True:
-                nb = 5*4
                 if nrecved == x:
                     #print "hit message count"
                     fract4dc.interrupt(site)
                 
+                nb = 2*4
                 bytes = os.read(rfd,nb)
                 if len(bytes) < nb:
                     self.fail("bad message")
                     break
-                (t,p1,p2,p3,p4) = struct.unpack("5i",bytes)
-                m = self.name_of_msg[t] 
-                #print "msg: %s %d %d %d %d" % (m,p1,p2,p3,p4)
-                if m == "STATUS" and p1 == 0:
+
+                (t,size) = struct.unpack("2i",bytes)
+                #print "read %d, len %d" % (t,size)
+
+                # read the rest of the message
+                bytes = os.read(rfd,size)
+                if len(bytes) < size:
+                    self.fail("bad message")
+                    break
+                
+                msg = messages.parse(t, bytes)
+                #print "msg: %s" % msg.show()
+                if msg.name == "Status" and msg.status == 0:
                     #done
                     #print "done"
                     break

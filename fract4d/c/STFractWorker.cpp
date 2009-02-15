@@ -325,11 +325,16 @@ STFractWorker::antialias(int x, int y)
 void
 STFractWorker::compute_stats(const dvec4& pos, int iter, fate_t fate, int x, int y)
 {
+    stats.s[ITERATIONS] += iter;
     stats.s[PIXELS]++;
     stats.s[PIXELS_CALCULATED]++;
     if (fate & FATE_INSIDE)
     {
 	stats.s[PIXELS_INSIDE]++;
+	if (iter < ff->maxiter)
+	{
+	    stats.s[PIXELS_PERIODIC]++;
+	}
     }
     else
     {
@@ -458,7 +463,7 @@ STFractWorker::pixel(int x, int y,int w, int h)
 	    
 	    pf->calc(
 		pos.n, ff->maxiter,
-		periodGuess(),ff->period_tolerance,
+		periodGuess(), ff->period_tolerance,
 		ff->warp_param,
 		x,y,0,
 		&pixel,&iter,&index,&fate);

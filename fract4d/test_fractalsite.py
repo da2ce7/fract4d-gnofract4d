@@ -2,6 +2,8 @@
 
 # a utility class used by several test scripts
 
+import messages
+
 class FractalSite:
     def __init__(self):
         self.status_list = []
@@ -29,6 +31,7 @@ class FractalSite:
         #print "image: %d %d %d %d" %  (x1, x2, y1, y2)
         self.image_list.append((x1,y1,x2,y2))
 
-    def stats_changed(self,stats):
-        print "stats", stats
-        self.stats_list.append(stats)
+    def stats_changed(self,s):
+        s = messages.Stats.fromList(s)
+        print s.show()
+        self.stats_list.append(s)

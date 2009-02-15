@@ -1029,15 +1029,10 @@ typedef enum
     PROGRESS,
     STATUS,
     PIXEL,
-    TOLERANCE
+    TOLERANCE,
+    STATS,
 } msg_type_t;
     
-typedef struct
-{
-    msg_type_t type;
-    int params[4];
-} msg_t;
-
 struct calc_args
 {
     double params[N_PARAMS];
@@ -1129,25 +1124,21 @@ public:
 	    pthread_mutex_init(&write_lock,NULL);
 	}
 
-    inline void send(msg_t *pm)
+    inline void send(msg_type_t type, int size, void *buf)
 	{
 	    pthread_mutex_lock(&write_lock);
-	    if (write(fd,pm,sizeof(msg_t))) {};
+	    if (write(fd,&type,sizeof(type))) {};
+	    if (write(fd,&size,sizeof(size))) {};
+	    if (write(fd,buf,size)) {};
 	    pthread_mutex_unlock(&write_lock);
 	}
     virtual void iters_changed(int numiters)
 	{
-	    msg_t m = { ITERS, { 0, 0, 0, 0} };
-	    m.params[0] = numiters;
-
-	    send(&m);
+	    send(ITERS, sizeof(int), &numiters);
 	}
-    virtual void tolerance_changed(double numiters)
+    virtual void tolerance_changed(double tolerance)
 	{
-	    msg_t m = { TOLERANCE, {0, 0, 0, 0 }};
-	    // ick
-	    memcpy(&(m.params[0]),&numiters,sizeof(numiters));
-	    send(&m);
+	    send (TOLERANCE, sizeof(tolerance), &tolerance);
 	}
 
     // we've drawn a rectangle of image
@@ -1155,10 +1146,8 @@ public:
 	{
 	    if(!interrupted)
 	    {
-		msg_t m = { IMAGE };
-		m.params[0] = x1; m.params[1] = y1; m.params[2] = x2; m.params[3] = y2;
-
-		send(&m);
+		int buf[4] = { x1, y1, x2, y2 };
+		send(IMAGE, sizeof(buf), &buf[0]);
 	    }
 	}
     // estimate of how far through current pass we are
@@ -1166,27 +1155,24 @@ public:
 	{
 	    if(!interrupted)
 	    {
-		msg_t m = { PROGRESS };
-		m.params[0] = (int) (100.0 * progress);
-		m.params[1] = m.params[2] = m.params[3] = 0;
-
-		send(&m);
+		int percentdone = (int) (100.0 * progress); 
+		send(PROGRESS, sizeof(percentdone), &percentdone);
 	    }
 	}
 
     virtual void stats_changed(pixel_stat_t& stats)
 	{
-	    //TODO
+	    if(!interrupted)
+	    {
+		send(STATS,sizeof(stats),&stats);
+	    }
+		
 	}
 
     // one of the status values above
     virtual void status_changed(int status_val)
 	{
-	    msg_t m = { STATUS };
-	    m.params[0] = status_val;
-	    m.params[1] = m.params[2] = m.params[3] = 0;
-
-	    send(&m);
+	    send(STATUS,sizeof(status_val),&status_val);
 	}
 
     // return true if we've been interrupted and are supposed to stop
@@ -2687,4 +2673,13 @@ initfract4dc(void)
     PyModule_AddIntConstant(pymod, "FILE_TYPE_TGA", FILE_TYPE_TGA);
     PyModule_AddIntConstant(pymod, "FILE_TYPE_PNG", FILE_TYPE_PNG);
     PyModule_AddIntConstant(pymod, "FILE_TYPE_JPG", FILE_TYPE_JPG);
+
+    /* message type consts */
+    PyModule_AddIntConstant(pymod, "MESSAGE_TYPE_ITERS", ITERS);
+    PyModule_AddIntConstant(pymod, "MESSAGE_TYPE_IMAGE", IMAGE);
+    PyModule_AddIntConstant(pymod, "MESSAGE_TYPE_PROGRESS", PROGRESS);
+    PyModule_AddIntConstant(pymod, "MESSAGE_TYPE_STATUS", STATUS);
+    PyModule_AddIntConstant(pymod, "MESSAGE_TYPE_PIXEL", PIXEL);
+    PyModule_AddIntConstant(pymod, "MESSAGE_TYPE_TOLERANCE", TOLERANCE);
+    PyModule_AddIntConstant(pymod, "MESSAGE_TYPE_STATS", STATS);
 }

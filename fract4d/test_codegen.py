@@ -1991,8 +1991,8 @@ bailout:
         output = self.compileAndRun(c_code)
         lines = string.split(output,"\n")
 
-        self.assertEqual(lines[0],'34')
-        self.assertEqual(lines[1],'(100,32,0)')
+        self.assertEqual('34', lines[0])
+        self.assertEqual('(33,32,0)', lines[1])
 
     def testTolerance(self):
         'test that period_tolerance var changes periodicity behavior'
@@ -2020,7 +2020,7 @@ bailout:
         lines = string.split(output,"\n")
 
         self.assertEqual(lines[0],'10')
-        self.assertEqual(lines[1],'(100,32,0)')
+        self.assertEqual(lines[1],'(9,32,0)')
 
     def complexFromLine(self,str):
         cmplx_re = re.compile(r'\((.*?),(.*?)\)')

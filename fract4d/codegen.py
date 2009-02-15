@@ -190,12 +190,13 @@ static void pf_calc(
     
     /* fate of 0 = escaped, 1 = trapped */
     t__h_inside = (t__h_numiter >= maxiter);
-    
+    *t__p_pFate = (t__h_numiter >= maxiter);
+
+    loop_done:
     %(pre_final_inserts)s
     %(final)s
     %(done_inserts)s
     
-    *t__p_pFate = (t__h_numiter >= maxiter);
     *t__p_pnIters = t__h_numiter;
     if(t__h_inside == 0)
     {
@@ -733,7 +734,11 @@ extern "C" {
                            &&(fabs(z_im - old_z_im) < period_tolerance))
                         {
                             period_iters = t__h_numiter;
-                            t__h_numiter = maxiter; break;
+                            //t__h_numiter = maxiter; 
+                            t__h_inside = 1;
+                            *t__p_pFate = 1;
+
+                            goto loop_done;
                         }
                     }
                 }
