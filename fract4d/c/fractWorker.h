@@ -11,13 +11,14 @@ typedef enum {
     JOB_BOX,
     JOB_BOX_ROW,
     JOB_ROW,
-    JOB_ROW_AA
+    JOB_ROW_AA,
+    JOB_QBOX_ROW
 } job_type_t;
 
 /* one unit of work */
 typedef struct {
     job_type_t job;
-    int x, y, param;
+    int x, y, param, param2;
 } job_info_t;
 
 /* per-worker-thread fractal info */
@@ -72,6 +73,9 @@ class STFractWorker : public IFractWorker {
 
     // calculate a row of boxes
     void box_row(int w, int y, int rsize);
+
+    // calculate a row of boxes, quickly
+    void qbox_row(int w, int y, int rsize, int drawsize);
 
     // calculate a single pixel
     void pixel(int x, int y, int h, int w);
@@ -147,6 +151,7 @@ class MTFractWorker : public IFractWorker
     virtual void row_aa(int x, int y, int n) ;
     virtual void row(int x, int y, int n) ;
     virtual void box(int x, int y, int rsize) ;
+    virtual void qbox_row(int w, int y, int rsize, int drawsize);
     virtual void box_row(int w, int y, int rsize);
     virtual void pixel(int x, int y, int h, int w);
     virtual void pixel_aa(int x, int y);
@@ -166,15 +171,14 @@ private:
 
     /* wait for a ready thread then give it some work */
     void send_cmd(job_type_t job, int x, int y, int param);
+    void send_cmd(job_type_t job, int x, int y, int param, int param2);
     void send_quit();
-
-    // MEMBER FUNCTIONS
 
     void send_box(int x, int y, int rsize);
     void send_row(int x, int y, int n);
     void send_row_aa(int x, int y, int n);
-    // ... in a worker thread
     void send_box_row(int w, int y, int rsize);
+    void send_qbox_row(int w, int y, int rsize, int drawsize);
 
     STFractWorker *ptf;
     tpool<job_info_t,STFractWorker> *ptp;

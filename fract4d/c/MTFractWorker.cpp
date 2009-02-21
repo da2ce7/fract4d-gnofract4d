@@ -1,6 +1,8 @@
 #include "fractWorker.h" 
 #include "fractFunc.h"
 
+#include "unistd.h"
+
 /* redirect back to a member function */
 void worker(job_info_t& tdata, STFractWorker *pFunc)
 {
@@ -99,8 +101,22 @@ MTFractWorker::box_row(int w, int y, int rsize)
 }
 
 void
+MTFractWorker::qbox_row(int w, int y, int rsize, int drawsize)
+{
+    if(nWorkers > 1)
+    {
+	send_qbox_row(w,y,rsize, drawsize);
+    }
+    else
+    {
+	ptf->qbox_row(w,y,rsize, drawsize);
+    }
+}
+
+void
 MTFractWorker::pixel(int x, int y, int w, int h)
 {
+    //assert(0 && "unexpected");
     ptf->pixel(x,y,w,h);
 }
 
@@ -127,7 +143,8 @@ MTFractWorker::get_stats() const
 
     for(int i = 0; i < nWorkers; ++i)
     {
-	stats.add(ptf[i].get_stats());
+	const pixel_stat_t& stat = ptf[i].get_stats();
+	stats.add(stat);
     }
     return stats;
 }
@@ -138,7 +155,18 @@ MTFractWorker::send_cmd(job_type_t job, int x, int y, int param)
     job_info_t work;
 
     work.job = job; 
-    work.x = x; work.y = y; work.param = param;
+    work.x = x; work.y = y; work.param = param; work.param2 = 0;
+
+    ptp->add_work(worker, work);
+}
+
+void
+MTFractWorker::send_cmd(job_type_t job, int x, int y, int param, int param2)
+{
+    job_info_t work;
+
+    work.job = job; 
+    work.x = x; work.y = y; work.param = param; work.param2 = param2;
 
     ptp->add_work(worker, work);
 }
@@ -155,6 +183,13 @@ MTFractWorker::send_box_row(int w, int y, int rsize)
 {
     //cout << "sent BXR" << y << "\n";
     send_cmd(JOB_BOX_ROW, w, y, rsize);
+}
+
+void
+MTFractWorker::send_qbox_row(int w, int y, int rsize, int drawsize)
+{
+    //cout << "sent QBR" << y << "\n";
+    send_cmd(JOB_QBOX_ROW, w, y, rsize, drawsize);
 }
 
 void

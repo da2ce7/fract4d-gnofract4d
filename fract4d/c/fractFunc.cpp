@@ -359,7 +359,7 @@ fractFunc::draw(
     time(&now);
     srand((unsigned int)now);
 
-    int x,y;
+    int y;
     int w = im->Xres();
     int h = im->Yres();
 
@@ -373,20 +373,11 @@ fractFunc::draw(
     // first pass - big blocks and edges
     for (y = 0 ; y < h - rsize ; y += rsize) 
     {
-        // main large blocks 
-        for ( x = 0 ; x< w - rsize ; x += rsize) 
-        {
-            worker->pixel ( x, y, drawsize, drawsize);
-        }
-        // extra pixels at end of lines
-        for(int y2 = y; y2 < y + rsize; ++y2)
-        {
-            worker->row (x, y2, w-x);
-        }
-        if(update_image(y)) 
-        {
-            goto done;
-        }
+	worker->qbox_row (w, y, rsize, drawsize);
+	if(update_image(y)) 
+	{
+	    goto done;
+	}
     }
  
     // remaining lines

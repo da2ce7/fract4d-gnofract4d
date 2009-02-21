@@ -57,6 +57,7 @@ STFractWorker::work(job_info_t& tdata)
     int x = tdata.x;
     int y = tdata.y;
     int param = tdata.param;
+    int param2 =  tdata.param2;
     job_type_t job = tdata.job;
 
     if(ff->try_finished_cond())
@@ -89,6 +90,10 @@ STFractWorker::work(job_info_t& tdata)
         row_aa(x,y,param);
         nRows=1;
         break;
+    case JOB_QBOX_ROW:
+	qbox_row(x,y,param,param2);
+	nRows = param;
+	break;
     default:
         printf("Unknown job id %d ignored\n", (int) job);
     }
@@ -526,6 +531,22 @@ STFractWorker::box_row(int w, int y, int rsize)
     for(int x = 0; x < w - rsize ; x += rsize) {
         box(x,y,rsize);            
     }		
+}
+
+void
+STFractWorker::qbox_row(int w, int y, int rsize, int drawsize)
+{
+    int x;
+    // main large blocks 
+    for (x = 0 ; x< w - rsize ; x += rsize) 
+    {
+	pixel ( x, y, drawsize, drawsize);
+    }
+    // extra pixels at end of lines
+    for(int y2 = y; y2 < y + rsize; ++y2)
+    {
+	row (x, y2, w-x);
+    }
 }
 
 bool

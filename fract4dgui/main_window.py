@@ -787,7 +787,7 @@ class MainWindow:
         # preview
         self.toolbar.add_space()
         
-        self.preview = gtkfractal.SubFract(self.compiler)
+        self.preview = gtkfractal.Preview(self.compiler)
         self.preview.set_size(48,48)
         self.update_preview(self.f)
         self.f.connect('parameters-changed', self.update_preview)

@@ -14,6 +14,7 @@
 #include <signal.h>
 #include <cassert>
 #include <limits.h>
+#include <iostream>
 
 /* one unit of work */
 template<class work_t, class threadInfo>
@@ -162,15 +163,11 @@ class tpool {
             total_work_done++;
             while( cur_queue_size == 0 && !(shutdown))
             {
-                if(total_work_done == target_work_done)
-                {
-                    pthread_cond_signal(&queue_work_complete);
-                }
+		if(total_work_done == target_work_done)
+		{
+		    pthread_cond_signal(&queue_work_complete);
+		}
                 pthread_cond_wait(&queue_not_empty,&queue_lock);
-                if(total_work_done == target_work_done)
-                {
-                    pthread_cond_signal(&queue_work_complete);
-                }
             }
         
             if(shutdown)
@@ -202,15 +199,15 @@ class tpool {
             pthread_mutex_unlock(&queue_lock);
 
             try
-                {
-                    /* actually do the work */
-                    ((*my_routine))(my_arg, pInfo);
-                }
+	    {
+		/* actually do the work */
+		((*my_routine))(my_arg, pInfo);
+	    }
             catch(...)
-                {
-                    /* abort this task, but don't do anything else - 
-                       main thread will notice soon */
-                }
+	    {
+		/* abort this task, but don't do anything else - 
+		   main thread will notice soon */
+	    }
         }
     }
 
