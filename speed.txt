@@ -317,3 +317,12 @@ flags: -O2 -fPIC -DPIC -D_REENTRANT -shared -ffast-math -march=core2 -msse4.2
 3.73380088806
 stats
 min:(3.5491), max(3.7338), average(3.6118)
+
+parallel qbox_rows:
+3.55982089043
+3.50576996803
+3.50801992416
+3.55399107933
+3.51970791817
+stats
+min:(3.5058), max(3.5598), average(3.5295)

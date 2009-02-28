@@ -71,26 +71,27 @@ STFractWorker::work(job_info_t& tdata)
     switch(job)
     {
     case JOB_BOX:
-        //cout << "BOX " << y << " " << pthread_self() << "\n";
+        //printf("BOX(%d,%d,%d) [%x]\n",x,y,param,(unsigned int)pthread_self());
         box(x,y,param);
         nRows = param;
         break;
     case JOB_ROW:
-        //cout << "ROW " << y << " " << pthread_self() << "\n";
+        //printf("ROW(%d,%d,%d) [%x]\n",x,y,param,(unsigned int)pthread_self());
         row(x,y,param);
         nRows=1;
         break;
     case JOB_BOX_ROW:
-        //cout << "BXR " << y << " " << pthread_self() << "\n";
+        //printf("BXR(%d,%d,%d) [%x]\n",x,y,param,(unsigned int)pthread_self());
         box_row(x, y, param);
         nRows = param;
         break;
     case JOB_ROW_AA:
-        //cout << "RAA " << y << " " << pthread_self() << "\n";
+        //printf("RAA(%d,%d,%d) [%x]\n",x,y,param,(unsigned int)pthread_self());
         row_aa(x,y,param);
         nRows=1;
         break;
     case JOB_QBOX_ROW:
+        //printf("QBR(%d,%d,%d,%d) [%x]\n",x,y,param,param2,(unsigned int)pthread_self());
 	qbox_row(x,y,param,param2);
 	nRows = param;
 	break;
@@ -464,7 +465,8 @@ STFractWorker::pixel(int x, int y,int w, int h)
 	    // calculate coords of this point
 	    dvec4 pos = ff->topleft + x * ff->deltax + y * ff->deltay;
 
-	    //printf("(%g,%g,%g,%g)\n",pos[VX],pos[VY],pos[VZ],pos[VW]);
+	    //printf("(%d,%d -> %g,%g,%g,%g) [%x]\n",
+	    //	   x,y,pos[VX],pos[VY],pos[VZ],pos[VW], (unsigned int)pthread_self());
 	    
 	    pf->calc(
 		pos.n, ff->maxiter,
@@ -512,6 +514,7 @@ STFractWorker::pixel(int x, int y,int w, int h)
 	    printf("pixel %d %d %d %d\n", x, y, fate, iter);
 	}
 
+	assert(fate != FATE_UNKNOWN);
 	im->setIter(x,y,iter);
 	im->setFate(x,y,0,fate);
 	im->setIndex(x,y,0,index);
@@ -623,7 +626,7 @@ STFractWorker::box(int x, int y, int rsize)
         bFlat = isTheSame(bFlat,iter,pcol,x2,y+rsize-1);
     }
     // calc left and right of box & check for flatness
-    for(int y2 = y; y2 <= y + rsize; ++y2)
+    for(int y2 = y; y2 < y + rsize; ++y2)
     {
         pixel(x,y2,1,1);
         bFlat = isTheSame(bFlat, iter, pcol, x, y2);

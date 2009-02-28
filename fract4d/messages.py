@@ -99,9 +99,15 @@ class Stats(T):
              dummy,
              dummy) = struct.unpack("11L",buffer)        
 
-    def get_name(self):
+    def _get_name(self):
         return "Stats"
-    name = property(get_name)
+    name = property(_get_name)
+
+    def _get_percent_skipped(self):
+        if self.pixels == 0:
+            return 0.0
+        return 100.0 * float(self.pixels_skipped)/self.pixels
+    percent_skipped = property(_get_percent_skipped)
 
     def show(self):
         return (
@@ -110,4 +116,5 @@ class Stats(T):
             "pixels: \t%d\n" % self.pixels +
             "in/out/per:\t%d\t%d\t%d\n" % \
                 (self.pixels_inside, self.pixels_outside, self.pixels_periodic) +
-            "calc/skip:\t%d\t%d\n" % (self.pixels_calculated, self.pixels_skipped))
+            "calc/skip:\t%d\t%d(%2g%%)\n" % \
+                (self.pixels_calculated, self.pixels_skipped, self.percent_skipped))

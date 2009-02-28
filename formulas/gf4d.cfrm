@@ -446,3 +446,22 @@ param sign_type
 endparam
 }
 
+continuous_decomposition {
+final:
+float quadrant = 0.0;
+if(real(z) < 0.0) 
+	quadrant = quadrant + 0.25
+endif
+if(imag(z) < 0.0) 
+	quadrant = quadrant + 0.5
+endif
+float ed = @bailout/(|z| + 1.0e-9) 
+#index = (#numiter + ed) / 256.0 + @quadfactor * quadrant
+default:
+float param bailout
+	default = 4.0
+endparam
+float param @quadfactor
+      default = 1.0
+endparam
+}
