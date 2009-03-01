@@ -15,6 +15,12 @@ typedef enum
     // number of pixels we guessed (calculated + skipped == pixels)
     PIXELS_SKIPPED,          
 
+    // number of pixels we guessed wrong
+    PIXELS_SKIPPED_WRONG,
+
+    // number of pixels we guessed right
+    PIXELS_SKIPPED_RIGHT,
+    
     // pixels which wound up inside
     PIXELS_INSIDE,           
 

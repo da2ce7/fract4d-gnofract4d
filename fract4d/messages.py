@@ -91,13 +91,15 @@ class Stats(T):
              self.pixels, 
              self.pixels_calculated, 
              self.pixels_skipped,
+             self.pixels_skipped_wrong,
+             self.pixels_skipped_right,
              self.pixels_inside,
              self.pixels_outside,
              self.pixels_periodic,
              dummy,
              dummy,
              dummy,
-             dummy) = struct.unpack("11L",buffer)        
+             dummy) = struct.unpack("13L",buffer)        
 
     def _get_name(self):
         return "Stats"
@@ -109,6 +111,12 @@ class Stats(T):
         return 100.0 * float(self.pixels_skipped)/self.pixels
     percent_skipped = property(_get_percent_skipped)
 
+    def _get_percent_skipped_wrong(self):
+        if self.pixels_skipped == 0:
+            return 0.0
+        return 100.0 * float(self.pixels_skipped_wrong)/self.pixels_skipped
+    percent_skipped_wrong = property(_get_percent_skipped_wrong)
+
     def show(self):
         return (
             "Stats\n" +
@@ -117,4 +125,7 @@ class Stats(T):
             "in/out/per:\t%d\t%d\t%d\n" % \
                 (self.pixels_inside, self.pixels_outside, self.pixels_periodic) +
             "calc/skip:\t%d\t%d(%2g%%)\n" % \
-                (self.pixels_calculated, self.pixels_skipped, self.percent_skipped))
+                (self.pixels_calculated, self.pixels_skipped, self.percent_skipped) +
+            "skip right/wrong:\t%d\t%d(%2g%%)\n" % \
+                (self.pixels_skipped_right, self.pixels_skipped_wrong, self.percent_skipped_wrong)
+            )

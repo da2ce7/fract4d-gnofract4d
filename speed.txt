@@ -326,3 +326,49 @@ parallel qbox_rows:
 3.51970791817
 stats
 min:(3.5058), max(3.5598), average(3.5295)
+
+skippage:
+default 800x600 = 26.38%, 0% wrong
+valley 800x600 = 29.43%, 0.002% wrong
+
+check 4x4 blocks = no change
+
+interpolate w 0 MAXERROR = 33.4% skip
+./gnofract4d -i 2560 -j 2048 --nogui  --buildonly foo.so  testdata/valley_test.fct
+10.782599926
+10.7948391438
+10.7575318813
+10.7519798279
+10.7286520004
+stats
+min:(10.7287), max(10.7948), average(10.7631)
+
+no interpolate: 26.3817% skip
+./gnofract4d -i 2560 -j 2048 --nogui  --buildonly foo.so  testdata/valley_test.fct
+10.8028459549
+10.8582849503
+10.8116719723
+10.8753378391
+10.8040909767
+stats
+min:(10.8028), max(10.8753), average(10.8304)
+
+interpolate w 3 MAXERROR = 61.3759% skip
+./gnofract4d -i 2560 -j 2048 --nogui  --buildonly foo.so  testdata/valley_test.fct
+10.8810629845
+10.7146100998
+10.7172079086
+10.6843791008
+10.7130539417
+stats
+min:(10.6844), max(10.8811), average(10.7421)
+
+interpolate w 10 MAXERROR = 65.404% skip
+./gnofract4d -i 2560 -j 2048 --nogui  --buildonly foo.so  testdata/valley_test.fct
+10.664465189
+10.7233679295
+10.7226228714
+10.6460950375
+10.7730829716
+stats
+min:(10.6461), max(10.7731), average(10.7059)

@@ -68,8 +68,21 @@ class STFractWorker : public IFractWorker {
     // as the target?
     inline bool isTheSame(bool bFlat, int targetIter, int targetCol, int x, int y);
 
+    // is the square with its top-left corner at (x,y) close-enough to flat
+    // that we could interpolate & get a decent-looking image?
+    bool isNearlyFlat(int x, int y, int rsize);
+
+    // linearly interpolate between colors to guess correct color
+    rgba_t predict_color(rgba_t colors[2], double factor);
+    int predict_iter(int iters[2], double factor);
+    float predict_index(int indexes[2], double factor);
+
+    // sum squared differences between components of 2 colors
+    int diff_colors(rgba_t a, rgba_t b);
+
     // make an int corresponding to an RGB triple
     inline int RGB2INT(int x, int y);
+    inline int Pixel2INT(rgba_t pixel);
 
     // calculate a row of boxes
     void box_row(int w, int y, int rsize);
@@ -91,6 +104,12 @@ class STFractWorker : public IFractWorker {
     void rectangle_with_iter(rgba_t pixel, fate_t fate, 
 			     int iter, float index,
 			     int x, int y, int w, int h);
+
+    void interpolate_rectangle(int x, int y, int rsize);
+    void interpolate_row(int x, int y, int rsize);
+
+    // compare a prediction against the real answer & update stats
+    inline void check_guess(int x, int y, rgba_t pixel, fate_t fate, int iter, float index);
 
     // calculate this point using antialiasing
     rgba_t antialias(int x, int y);

@@ -6,6 +6,10 @@ changes in 3.11:
 * W	4-way AA
 * W	ab+ab -> 2.0 * ab in sqr_cc_c (slight perf gain)
 * B	tighten periodicity checking more often
+* W	added continuous_decomposition coloring method
+* W	added sterling2 formulas (courtesy Tad Boniecki)
+* W	stats calculation
+* B	fixed randomness in stats
 
 todo:
 

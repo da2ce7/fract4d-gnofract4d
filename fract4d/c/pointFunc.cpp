@@ -90,10 +90,11 @@ public:
 	    *pFate = (fate_t) fate;
 	    *pIndex = (float) dist;
 
+	    int color_iters = (fate & FATE_INSIDE) ? -1 : *pnIters;
 	    m_site->pixel_changed(
 		params,nIters, min_period_iters,
 		x,y,aa,
-		dist,fate,*pnIters,
+		dist,fate,color_iters,
 		color->r, color->g, color->b, color->a);
 	}
     inline rgba_t recolor(double dist, fate_t fate, rgba_t current) const
