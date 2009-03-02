@@ -804,7 +804,7 @@ STFractWorker::box(int x, int y, int rsize)
     }
     else
     {
-	bool nearlyFlat = isNearlyFlat(x,y,rsize);
+	bool nearlyFlat = false && isNearlyFlat(x,y,rsize);
 	if (nearlyFlat)
 	{
 	    //printf("nf: %d %d %d\n", x, y, rsize);

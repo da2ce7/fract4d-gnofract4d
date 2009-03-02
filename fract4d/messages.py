@@ -79,9 +79,11 @@ class Stats(T):
         instance.pixels = list[1]
         instance.pixels_calculated = list[2]
         instance.pixels_skipped = list[3]
-        instance.pixels_inside = list[4]
-        instance.pixels_outside = list[5]
-        instance.pixels_periodic = list[6]
+        instance.pixels_skipped_wrong = list[4]
+        instance.pixels_skipped_right = list[5]
+        instance.pixels_inside = list[6]
+        instance.pixels_outside = list[7]
+        instance.pixels_periodic = list[8]
         return instance
     fromList = staticmethod(fromList)
 
@@ -111,21 +113,48 @@ class Stats(T):
         return 100.0 * float(self.pixels_skipped)/self.pixels
     percent_skipped = property(_get_percent_skipped)
 
+    def _get_percent_calculated(self):
+        return 100.0 - self.percent_skipped
+    percent_calculated = property(_get_percent_calculated)
+
     def _get_percent_skipped_wrong(self):
         if self.pixels_skipped == 0:
             return 0.0
         return 100.0 * float(self.pixels_skipped_wrong)/self.pixels_skipped
     percent_skipped_wrong = property(_get_percent_skipped_wrong)
 
+    def _get_percent_inside(self):
+        if self.pixels_calculated == 0:
+            return 0.0
+        return 100.0 * float(self.pixels_inside)/self.pixels_calculated
+    percent_inside = property(_get_percent_inside)
+
+    def _get_percent_periodic(self):
+        if self.pixels_inside == 0:
+            return 0.0
+        return 100.0 * float(self.pixels_periodic)/self.pixels_inside
+    percent_periodic = property(_get_percent_periodic)
+
+    def _get_percent_outside(self):
+        return 100.0 - self.percent_inside
+    percent_outside = property(_get_percent_outside)
+
     def show(self):
         return (
-            "Stats\n" +
-            "iterations:\t%d\n" % self.iterations +
-            "pixels: \t%d\n" % self.pixels +
-            "in/out/per:\t%d\t%d\t%d\n" % \
-                (self.pixels_inside, self.pixels_outside, self.pixels_periodic) +
-            "calc/skip:\t%d\t%d(%2g%%)\n" % \
-                (self.pixels_calculated, self.pixels_skipped, self.percent_skipped) +
-            "skip right/wrong:\t%d\t%d(%2g%%)\n" % \
-                (self.pixels_skipped_right, self.pixels_skipped_wrong, self.percent_skipped_wrong)
+            "Calculation Statistics:\n" +
+            "Total pixels:%d\n" % self.pixels +
+            "Calculated pixels:%d(%2g%%)\n" % \
+                (self.pixels_calculated, self.percent_calculated) +
+            "  Inside pixels:%d(%2g%%)\n" % (self.pixels_inside, self.percent_inside) +
+            "    Perodic pixels:%d(%2g%%)\n" % (self.pixels_periodic, self.percent_periodic) +
+            "  Outside pixels:%d(%2g%%)\n" % (self.pixels_outside, self.percent_outside) +
+            "Guessed pixels:%d(%2g%%)\n" % (self.pixels_skipped, self.percent_skipped)
             )
+
+            #/out/per:\t%d\t%d\t%d\n" % \
+            #    (self.pixels_inside, self.pixels_outside, self.pixels_periodic) +
+            #"calc/skip:\t%d\t%d(%2g%%)\n" % \
+            #    (self.pixels_calculated, self.pixels_skipped, self.percent_skipped) +
+            #"skip right/wrong:\t%d\t%d(%2g%%)\n" % \
+            #    (self.pixels_skipped_right, self.pixels_skipped_wrong, self.percent_skipped_wrong)
+            #)

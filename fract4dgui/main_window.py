@@ -52,6 +52,8 @@ class MainWindow:
         self.accelgroup = gtk.AccelGroup()
         self.window.add_accel_group(self.accelgroup)
         self.window.connect('key-release-event', self.on_key_release)
+        self.tips = gtk.Tooltips()
+        self.tips.enable()
 
         # create fractal compiler and load standard formula and
         # coloring algorithm files
@@ -363,6 +365,7 @@ class MainWindow:
                 
         f.connect('progress_changed', self.progress_changed)
         f.connect('status_changed',self.status_changed)
+        f.connect('stats-changed', self.stats_changed)
 
         hbox = gtk.HBox()
         hbox.pack_start(self.swindow)
@@ -497,21 +500,25 @@ class MainWindow:
     def progress_changed(self,f,progress):
         self.bar.set_fraction(progress/100.0)
 
+    def stats_changed(self, f, stats):
+        self.tips.set_tip(self.bar, stats.show(), "wibble")
+
     def status_changed(self,f,status):
         if status == 2:
             # deepening
             text = self.statuses[status] % self.f.maxiter
-        else:
-            text = self.statuses[status]
-
-        if status == 0:
+        elif status == 0:
             # done
+            text = self.statuses[status] 
             if self.save_filename:
                 self.save_image_file(self.save_filename)
             if self.quit_when_done:
                 self.f.set_saved(True)
                 self.quit(None,None)
-            
+
+        else:
+            text = self.statuses[status]
+
         self.bar.set_text(text)
 
     def get_hires_dimensions(self,fs):
@@ -739,7 +746,7 @@ class MainWindow:
             self.window.set_decorated(False)
             self.menubar.hide()
             self.toolbar.hide()
-            self.bar.hide()
+            self.progress_button.hide()
             self.swindow.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
 
             screen = self.window.get_screen()
@@ -755,11 +762,11 @@ class MainWindow:
             self.swindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
             self.menubar.show()
             self.toolbar.show()
-            self.bar.show()
+            self.progress_button.show()
             self.window.unfullscreen()
             
     def create_status_bar(self):
-        self.bar = gtk.ProgressBar()
+        self.bar = gtk.ProgressBar()        
         self.vbox.pack_end(self.bar, expand=False)
 
     def update_preview(self,f,flip2julia=False):

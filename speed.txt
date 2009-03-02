@@ -372,3 +372,13 @@ interpolate w 10 MAXERROR = 65.404% skip
 10.7730829716
 stats
 min:(10.6461), max(10.7731), average(10.7059)
+
+overlap squares in a box_row:
+./gnofract4d -i 2560 -j 2048 --nogui  --buildonly foo.so  testdata/valley_test.fct
+10.3903110027
+10.3426129818
+10.3493080139
+10.3275959492
+10.5406808853
+stats
+min:(10.3276), max(10.5407), average(10.3901)

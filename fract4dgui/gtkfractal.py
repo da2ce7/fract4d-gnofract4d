@@ -41,7 +41,11 @@ class Hidden(gobject.GObject):
         'pointer-moved' : (
         (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
         gobject.TYPE_NONE, (gobject.TYPE_INT,
-                            gobject.TYPE_FLOAT, gobject.TYPE_FLOAT))
+                            gobject.TYPE_FLOAT, gobject.TYPE_FLOAT)),
+        'stats-changed' : (
+        (gobject.SIGNAL_RUN_FIRST | gobject.SIGNAL_NO_RECURSE),
+        gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))
+            
         }
 
     def __init__(self,comp,width,height,total_width=-1,total_height=-1):
@@ -281,8 +285,7 @@ class Hidden(gobject.GObject):
         pass 
 
     def stats_changed(self,stats):
-        print "stats changed"
-        print stats.show()
+        self.emit('stats-changed', stats)
 
     def draw(self,image,width,height,nthreads):
         t = self.f.epsilon_tolerance(width,height)
@@ -1034,7 +1037,6 @@ class Preview(T):
         pass
     
     def stats_changed(self,s):
-        print "preview"
         pass
 
 class SubFract(T):

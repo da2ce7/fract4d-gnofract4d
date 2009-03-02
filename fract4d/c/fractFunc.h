@@ -68,7 +68,7 @@ class fractFunc {
     }
     inline void stats_changed()
     {
-	pixel_stat_t stats = worker->get_stats();
+	stats.add(worker->get_stats());
 	site->stats_changed(stats);	    
     }
     inline void status_changed(int status_val)
@@ -112,7 +112,7 @@ class fractFunc {
 	SHOULD_RELAX = (SHOULD_SHALLOWEN | SHOULD_LOOSEN)
     };
 
-    // params from ctor
+    // params from ctor    
     int eaa;
     int maxiter;
     int nThreads;
@@ -136,6 +136,7 @@ class fractFunc {
     float min_progress;
     float delta_progress;
 
+    pixel_stat_t stats;
     void set_progress_range(float min, float max) { 
 	min_progress = min;
 	delta_progress = max-min;
