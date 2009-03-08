@@ -174,6 +174,15 @@ STFractWorker::row(int x, int y, int n)
 }
 
 void
+STFractWorker::col(int x, int y, int n)
+{
+    for(int i = 0; i < n; ++i)
+    {
+        pixel(x,y+i,1,1);
+    }
+}
+
+void
 STFractWorker::reset_counts()
 {
     stats.reset();
@@ -534,9 +543,17 @@ STFractWorker::pixel(int x, int y,int w, int h)
 void 
 STFractWorker::box_row(int w, int y, int rsize)
 {
-    for(int x = 0; x < w - rsize ; x += rsize) {
+    // we increment by rsize-1 because we want to reuse the vertical bars
+    // between the boxes - each box overlaps by 1 pixel
+    int x;
+    for(x = 0; x < w - rsize ; x += rsize -1) {
         box(x,y,rsize);            
     }		
+    // extra pixels at end of lines
+    for(int y2 = y; y2 < y + rsize; ++y2)
+    {
+	row (x, y2, w-x);
+    }
 }
 
 void
@@ -544,7 +561,7 @@ STFractWorker::qbox_row(int w, int y, int rsize, int drawsize)
 {
     int x;
     // main large blocks 
-    for (x = 0 ; x< w - rsize ; x += rsize) 
+    for (x = 0 ; x< w - rsize ; x += rsize -1) 
     {
 	pixel ( x, y, drawsize, drawsize);
     }

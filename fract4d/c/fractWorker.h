@@ -61,6 +61,9 @@ class STFractWorker : public IFractWorker {
     // calculate a row of pixels
     void row(int x, int y, int n);
 
+    // calculate a column of pixels
+    void col(int x, int y, int n);
+
     // calculate an rsize-by-rsize box of pixels
     void box(int x, int y, int rsize);
 

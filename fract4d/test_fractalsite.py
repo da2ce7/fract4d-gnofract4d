@@ -33,5 +33,5 @@ class FractalSite:
 
     def stats_changed(self,s):
         s = messages.Stats.fromList(s)
-        print s.show()
+        #print s.show()
         self.stats_list.append(s)

@@ -555,7 +555,6 @@ class Test(testbase.TestBase):
                  (1/256.0,255,255,255,255),
                  (1.0, 255, 255, 255, 255)])
 
-            print "pass",x
             fract4dc.calc(
                 params=[0.0, 0.0, 0.0, 0.0,
                  4.0,

@@ -34,7 +34,7 @@ class T:
     
     def clear(self):
         for f in os.listdir(self.dir):
-            pass #os.remove(os.path.join(self.dir,f))
+            os.remove(os.path.join(self.dir,f))
 
     def makefilename(self,name,ext):
         return os.path.join(self.dir, "fract4d_%s%s" % (name, ext))
