@@ -30,6 +30,7 @@ class MainWindow:
         self.save_filename = None
         self.compress_saves = True
         self.f = None
+        self.use_preview = True
 
         self.four_d_sensitives = []
         # window widget
@@ -746,7 +747,7 @@ class MainWindow:
             self.window.set_decorated(False)
             self.menubar.hide()
             self.toolbar.hide()
-            self.progress_button.hide()
+            self.bar.hide()
             self.swindow.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
 
             screen = self.window.get_screen()
@@ -762,7 +763,7 @@ class MainWindow:
             self.swindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
             self.menubar.show()
             self.toolbar.show()
-            self.progress_button.show()
+            self.bar.show()
             self.window.unfullscreen()
             
     def create_status_bar(self):
@@ -770,11 +771,12 @@ class MainWindow:
         self.vbox.pack_end(self.bar, expand=False)
 
     def update_preview(self,f,flip2julia=False):
-        self.preview.set_fractal(f.copy_f())
-        self.draw_preview()
+        if self.use_preview:
+            self.preview.set_fractal(f.copy_f())
+            self.draw_preview()
 
     def update_preview_on_pointer(self,f,button, x,y):
-        if button == 2:
+        if self.use_preview and button == 2:
             self.preview.set_fractal(f.copy_f())
             self.preview.relocate(x,y,1.0)
             self.preview.flip_to_julia()
@@ -796,7 +798,6 @@ class MainWindow:
         
         self.preview = gtkfractal.Preview(self.compiler)
         self.preview.set_size(48,48)
-        self.update_preview(self.f)
         self.f.connect('parameters-changed', self.update_preview)
         self.f.connect('pointer-moved', self.update_preview_on_pointer)
         
@@ -1453,13 +1454,14 @@ class MainWindow:
         
         self.quit_when_done = opts.quit_when_done
         self.save_filename = opts.save_filename
+        self.use_preview = opts.preview
 
         for path in opts.extra_paths:
             self.compiler.add_func_path(path)
 
         if len(opts.args) > 0:
             self.load(opts.args[0])
-            
+
         self.f.apply_options(opts)
         self.update_preview(self.f)
 
@@ -1475,5 +1477,5 @@ class MainWindow:
             self.set_explorer_state(True)
         
         self.f.set_size(width,height)
-        
+
     

@@ -84,6 +84,7 @@ def main(args):
         raise
 
 def test_version(major,minor,patch):
+    # check for pygtk >= 2.6
     if major < 2:
         return False
     elif major == 2:
@@ -99,7 +100,6 @@ def gtkmain(options):
         print _("Can't find PyGTK. You need to install it before you can run Gnofract 4D.")
         sys.exit(1)
 
-    # check for pygtk >= 2.6
     pygtk_ok = True
     try:
         (major,minor,patch) = gtk.pygtk_version
@@ -130,7 +130,7 @@ def gtkmain(options):
     mainWindow.apply_options(options)
     
     if mainWindow.f.thaw():
-        mainWindow.on_fractal_change()
+        gobject.idle_add(mainWindow.on_fractal_change)
 
     gtk.main()
 

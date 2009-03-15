@@ -139,7 +139,6 @@ class Hidden(gobject.GObject):
         return was_dirty
 
     def interrupt(self):
-        #print "interrupted %d" % self.running
         if self.skip_updates:
             #print "skip recursive interrupt"
             return
@@ -195,7 +194,6 @@ class Hidden(gobject.GObject):
                     self.last_progress = progress
         elif t == fract4dc.MESSAGE_TYPE_STATUS:
             if m.status == fract4dc.CALC_DONE: # DONE
-                #print "stop running"
                 self.running = False
             if not self.skip_updates: self.status_changed(m.status)
         elif t == fract4dc.MESSAGE_TYPE_PIXEL:

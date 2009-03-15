@@ -8,7 +8,7 @@ import stat
 import commands
 import sys
 
-gnofract4d_version = '3.10'
+gnofract4d_version = '3.11'
 
 if float(sys.version[:3]) < 2.4:
     print "Sorry, you need Python 2.4 or higher to run Gnofract 4D."
@@ -147,7 +147,7 @@ module_fract4dc = Extension(
     ] + jpg_libs,
     library_dirs=['/home/edwin/gnofract4d'],
     extra_compile_args = [
-    '-Wall',
+    '-Wall', 
     ] + png_flags,
     extra_link_args = png_libs,
     define_macros = defines + extra_macros,

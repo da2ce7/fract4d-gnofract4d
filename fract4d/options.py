@@ -5,7 +5,7 @@ import string
 import fractal
 
 # version of Gnofract 4D
-version = '3.10'
+version = '3.11'
 
 class OptionError(Exception):
     pass
@@ -41,7 +41,8 @@ class T:
             "printstats",
             "version",
             "singlepoint",
-            "threads="]
+            "threads=",
+            "nopreview"]
 
     def __init__(self):
         (self.basename,self.func) = (None,None)
@@ -69,7 +70,8 @@ class T:
         self.antialias = None
         self.threads = None
         (self.width, self.height) = (0,0)
-        
+        self.preview = True
+
     def help(self):
         return """Gnofract 4D %s
 Usage: gnofract4d [flags] [paramfile]
@@ -115,6 +117,7 @@ Positional Parameters:
 Obscure settings:
    --nogui\t\tRun with no UI (doesn't require X or GTK)
    --threads N\t\tUse N threads for calculations
+   --nopreview\t\tUse the UI, but no preview window
 
 Debugging and Profiling settings (most only work with --nogui):
    --trace\t\tProduce voluminous tracing output
@@ -185,6 +188,8 @@ Debugging and Profiling settings (most only work with --nogui):
                 self.flags = val
             elif name=="--nogui":
                 self.nogui = True
+            elif name=="--nopreview":
+                self.preview = False
             elif name=="--threads":
                 self.threads = int(val)
             elif name=="--printstats":
