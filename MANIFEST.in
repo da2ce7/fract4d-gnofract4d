@@ -28,6 +28,7 @@ include formulas/gf4d.frm
 include formulas/gf4d.uxf
 include formulas/standard.ucl
 include formulas/tutorial.frm
+include formulas/sterling2.frm
 include fract4d/c/*.h
 include fract4d/test.cfrm
 include fract4d/test.frm

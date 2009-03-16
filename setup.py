@@ -138,7 +138,7 @@ module_fract4dgmp = Extension(
 
 module_fract4dc = Extension(
     'fract4d.fract4dc',
-    sources = fract4d_sources + ['fract4d/c/pf.c'],
+    sources = fract4d_sources,
     include_dirs = [
     'fract4d/c'
     ],

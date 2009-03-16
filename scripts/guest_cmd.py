@@ -29,9 +29,13 @@ os.chdir(dirname)
 
 print "build"
 runAndCheck("python ./setup.py build")
-output = runAndCheck("python ./test.py")
-if output.count("FAIL:") > 0:
-    print "tests failed"
+
+try:
+    output = runAndCheck("python ./test.py")
+    if output.count("FAIL:") > 0:
+        print "tests failed"
+except Exception, err:
+    print "tests failed", err
 
 print "building package"
 if type == "DEB":

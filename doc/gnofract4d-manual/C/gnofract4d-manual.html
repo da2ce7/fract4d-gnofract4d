@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Gnofract 4D</title><link rel="stylesheet" href="docbook.css" type="text/css" /><meta name="generator" content="DocBook XSL Stylesheets V1.72.0" /></head><body><div class="article" lang="en" xml:lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="gnofract4d"></a>Gnofract 4D</h1></div><div><h3 class="subtitle"><i><span class="emphasis"><em>For when 2D fractals just aren't weird enough</em></span></i></h3></div><div><div class="author"><h3 class="author"><span class="firstname">Tim</span> <span class="surname">Whidbey</span></h3></div></div></div><hr /></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="#introduction">Introduction</a></span></dt><dt><span class="sect1"><a href="#using">Using <span class="application">Gnofract 4D</span></a></span></dt><dd><dl><dt><span class="sect2"><a href="#basics">Interacting with the Fractal</a></span></dt><dt><span class="sect2"><a href="#files">Working with Files</a></span></dt><dt><span class="sect2"><a href="#tools">Tools</a></span></dt><dt><span class="sect2"><a href="#toolbar">Toolbar buttons</a></span></dt><dt><span class="sect2"><a href="#preferences">Changing Fractal Settings</a></span></dt><dt><span class="sect2"><a href="#hints">Hints</a></span></dt></dl></dd><dt><span class="sect1"><a href="#cmdref">Command Reference</a></span></dt><dd><dl><dt><span class="sect2"><a href="#MouseCommands">Mouse Commands</a></span></dt><dt><span class="sect2"><a href="#KeyboardShortcuts">Keyboard Shortcuts</a></span></dt></dl></dd><dt><span class="sect1"><a href="#maths"> About the maths</a></span></dt><dd><dl><dt><span class="sect2"><a href="#mset">The Mandelbrot Set</a></span></dt><dt><span class="sect2"><a href="#julia">The Julia Set</a></span></dt><dt><span class="sect2"><a href="#julibrot">The Julibrot</a></span></dt><dt><span class="sect2"><a href="#viewing">Viewing in Four Dimensions</a></span></dt><dt><span class="sect2"><a href="#hypercomplex">Hypercomplex Fractals and Quaternions</a></span></dt></dl></dd><dt><span class="sect1"><a href="#compiler">Writing Your Own Functions</a></span></dt><dd><dl><dt><span class="sect2"><a href="#frm_tutorial">Writing Your First Formula</a></span></dt></dl></dd><dt><span class="sect1"><a href="#formref">Formula Language Reference</a></span></dt><dd><dl><dt><span class="sect2"><a href="#Operators">Operators</a></span></dt><dt><span class="sect2"><a href="#Functions">Functions</a></span></dt><dt><span class="sect2"><a href="#Symbols">Symbols</a></span></dt></dl></dd><dt><span class="sect1"><a href="#internals"><span class="application">Gnofract 4D</span> Internals</a></span></dt><dd><dl><dt><span class="sect2"><a href="#layout">Source Code Layout</a></span></dt><dt><span class="sect2"><a href="#compiler_internals">Compiler</a></span></dt><dt><span class="sect2"><a href="#threading">Threading</a></span></dt></dl></dd><dt><span class="sect1"><a href="#bugs">Bugs and Known Issues</a></span></dt><dd><dl><dt><span class="sect2"><a href="#reporting">Reporting Bugs</a></span></dt><dt><span class="sect2"><a href="#compat">Backwards Compatibility</a></span></dt></dl></dd><dt><span class="sect1"><a href="#about">About <span class="application">Gnofract 4D</span></a></span></dt><dd><dl><dt><span class="sect2"><a href="#credits">Credits and copyright</a></span></dt></dl></dd></dl></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="introduction"></a>Introduction</h2></div></div></div><div class="epigraph"><p>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Gnofract 4D</title><link rel="stylesheet" href="docbook.css" type="text/css" /><meta name="generator" content="DocBook XSL Stylesheets V1.73.2" /></head><body><div class="article" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="gnofract4d"></a>Gnofract 4D</h2></div><div><h3 class="subtitle"><i><span class="emphasis"><em>For when 2D fractals just aren't weird enough</em></span></i></h3></div><div><div class="author"><h3 class="author"><span class="firstname">Tim</span> <span class="surname">Whidbey</span></h3></div></div></div><hr /></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="#introduction">Introduction</a></span></dt><dt><span class="sect1"><a href="#using">Using <span class="application">Gnofract 4D</span></a></span></dt><dd><dl><dt><span class="sect2"><a href="#basics">Interacting with the Fractal</a></span></dt><dt><span class="sect2"><a href="#files">Working with Files</a></span></dt><dt><span class="sect2"><a href="#tools">Tools</a></span></dt><dt><span class="sect2"><a href="#toolbar">Toolbar buttons</a></span></dt><dt><span class="sect2"><a href="#preferences">Changing Fractal Settings</a></span></dt><dt><span class="sect2"><a href="#hints">Hints</a></span></dt></dl></dd><dt><span class="sect1"><a href="#cmdref">Command Reference</a></span></dt><dd><dl><dt><span class="sect2"><a href="#MouseCommands">Mouse Commands</a></span></dt><dt><span class="sect2"><a href="#KeyboardShortcuts">Keyboard Shortcuts</a></span></dt></dl></dd><dt><span class="sect1"><a href="#maths"> About the maths</a></span></dt><dd><dl><dt><span class="sect2"><a href="#mset">The Mandelbrot Set</a></span></dt><dt><span class="sect2"><a href="#julia">The Julia Set</a></span></dt><dt><span class="sect2"><a href="#julibrot">The Julibrot</a></span></dt><dt><span class="sect2"><a href="#viewing">Viewing in Four Dimensions</a></span></dt><dt><span class="sect2"><a href="#hypercomplex">Hypercomplex Fractals and Quaternions</a></span></dt></dl></dd><dt><span class="sect1"><a href="#compiler">Writing Your Own Functions</a></span></dt><dd><dl><dt><span class="sect2"><a href="#frm_tutorial">Writing Your First Formula</a></span></dt></dl></dd><dt><span class="sect1"><a href="#formref">Formula Language Reference</a></span></dt><dd><dl><dt><span class="sect2"><a href="#Operators">Operators</a></span></dt><dt><span class="sect2"><a href="#Functions">Functions</a></span></dt><dt><span class="sect2"><a href="#Symbols">Symbols</a></span></dt></dl></dd><dt><span class="sect1"><a href="#internals"><span class="application">Gnofract 4D</span> Internals</a></span></dt><dd><dl><dt><span class="sect2"><a href="#layout">Source Code Layout</a></span></dt><dt><span class="sect2"><a href="#compiler_internals">Compiler</a></span></dt><dt><span class="sect2"><a href="#threading">Threading</a></span></dt></dl></dd><dt><span class="sect1"><a href="#bugs">Bugs and Known Issues</a></span></dt><dd><dl><dt><span class="sect2"><a href="#reporting">Reporting Bugs</a></span></dt><dt><span class="sect2"><a href="#compat">Backwards Compatibility</a></span></dt></dl></dd><dt><span class="sect1"><a href="#about">About <span class="application">Gnofract 4D</span></a></span></dt><dd><dl><dt><span class="sect2"><a href="#credits">Credits and copyright</a></span></dt></dl></dd></dl></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="introduction"></a>Introduction</h2></div></div></div><div class="epigraph"><p>
 There is no excellent beauty which hath not some strangeness in the
 proportion.</p><div class="attribution"><span>--<span class="attribution">Francis Bacon</span></span></div></div><p><span class="application">Gnofract 4D</span> is a program which draws complex mathematical
 objects known as fractals, including the Mandelbrot and Julia sets and
@@ -35,8 +34,8 @@ draw a white box around an area. When you let go, you zoom in
 so that the area inside that box fills the window. 
 </p><p>
 To zoom back out, click with the right button. You can also press
-<span><strong class="keycap">Home</strong></span> to return all parameters to the starting point
-for this fractal, <span><strong class="keycap">Control</strong></span>+<span><strong class="keycap">Home</strong></span> to
+<span class="keycap"><strong>Home</strong></span> to return all parameters to the starting point
+for this fractal, <span class="keycap"><strong>Control</strong></span>+<span class="keycap"><strong>Home</strong></span> to
 reset the zoom only, or use <span class="guibutton">Undo</span> to go back one
 step.  There isn't a click and drag feature for the right button.
 </p><p>
@@ -50,12 +49,12 @@ so clicking twice will normally give you a perturbed, deformed-looking
 Mandelbrot.
 </p><p>
 The cursor keys pan around the image. Hold down
-<span><strong class="keycap">Control</strong></span>+ <span><strong class="keycap">&lt;cursor&gt;</strong></span> to move more
-quickly. Hold down <span><strong class="keycap">Shift</strong></span> +
-<span><strong class="keycap">&lt;cursor&gt;</strong></span> to move around in the other two
+<span class="keycap"><strong>Control</strong></span>+ <span class="keycap"><strong>&lt;cursor&gt;</strong></span> to move more
+quickly. Hold down <span class="keycap"><strong>Shift</strong></span> +
+<span class="keycap"><strong>&lt;cursor&gt;</strong></span> to move around in the other two
 dimensions, mutating the image. You can recenter the image on a point
 by left-clicking on that point while holding down
-<span><strong class="keycap">Shift</strong></span>.  </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Non-4D formulas</h3><p> Some fractal formulas
+<span class="keycap"><strong>Shift</strong></span>.  </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Non-4D formulas</h3><p> Some fractal formulas
 (typically those originally written for Fractint or UltraFractal)
 don't support full 4D operation. (<span class="application">Gnofract 4D</span> determines this by whether
 the formula uses the <code class="varname">#zwpixel</code> variable.) In this
@@ -106,7 +105,7 @@ Formula File
 
 A formula file is a collection of formulas, each of which is a
 description of the algorithm used to draw a particular kind of
-fractal, expressed in a simple programming language (see <a href="#formref" title="Formula Language Reference">the section called “Formula Language Reference”</a> for language details). Both <span class="application">Gnofract 4D</span> and <span class="application">Fractint</span>
+fractal, expressed in a simple programming language (see <a class="xref" href="#formref" title="Formula Language Reference">the section called “Formula Language Reference”</a> for language details). Both <span class="application">Gnofract 4D</span> and <span class="application">Fractint</span>
 use <code class="filename">.frm</code> as the extension, and
 <span class="application">UltraFractal</span> uses <code class="filename">.ufm</code>. In
 general, any formula which works in <span class="application">Fractint</span> should work in <span class="application">Gnofract 4D</span>
@@ -196,7 +195,7 @@ keyframe will stay in video (<span class="guilabel">stopped for</span>) and
 interpolation type between several possibilities. When you hit
 <span class="guibutton">Render</span> button, Director will render all frames
 and put them in directory you selected and then it will try to create
-video using <a href="http://www.transcoding.org/" target="_top"><span class="emphasis"><em>transcode</em></span></a>
+video using <a class="ulink" href="http://www.transcoding.org/" target="_top"><span class="emphasis"><em>transcode</em></span></a>
 tool.  </p><p>
 Tips:
 </p><div class="itemizedlist"><ul type="disc"><li><p>
@@ -258,7 +257,7 @@ Preferences dialog. </p><p> The <span class="emphasis"><em>Undo</em></span> and
 <span class="emphasis"><em>Redo</em></span> buttons should be fairly obvious. You can
 undo as many times as you like. Note that undo also affects parameters
 such as color, not just position on screen.  Lastly, the
-<span class="emphasis"><em>Explore</em></span> button toggles Explorer Mode. See <a href="#explorer" title="Explorer">the section called “Explorer”</a>.</p></div><div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="preferences"></a>Changing Fractal Settings</h3></div></div></div><p> In <span class="application">Gnofract 4D</span>, settings are divided into <span class="emphasis"><em>Fractal
+<span class="emphasis"><em>Explore</em></span> button toggles Explorer Mode. See <a class="xref" href="#explorer" title="Explorer">the section called “Explorer”</a>.</p></div><div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="preferences"></a>Changing Fractal Settings</h3></div></div></div><p> In <span class="application">Gnofract 4D</span>, settings are divided into <span class="emphasis"><em>Fractal
 Settings</em></span>, <span class="emphasis"><em>Gradients</em></span> and
 <span class="emphasis"><em>Preferences</em></span>. <span class="emphasis"><em>Fractal
 Settings</em></span> and <span class="emphasis"><em>Gradients</em></span> are saved in the
@@ -326,12 +325,17 @@ the image look smoother but takes extra time to do. The difference
 between 'fast' and 'best' is that fast antialiasing doesn't bother to
 recalculate points which are the same color as their neighbors. This
 speeds things up a lot but can miss a few details sometimes. </p></div><div class="sect4" lang="en" xml:lang="en"><div class="titlepage"><div><div><h5 class="title"><a id="prefs_compiler"></a>Compiler</h5></div></div></div><p>
-<span class="application">Gnofract 4D</span> needs a C compiler to be available at runtime in order to
-work (it dynamically creates the code to compute a particular formula
-when you select it). The <span class="emphasis"><em>Compiler</em></span> page allows you
-to specify a location for the compiler and options to pass to
-it. <span class="emphasis"><em>If <span class="application">Gnofract 4D</span> is working fine, I suggest you leave those
-settings alone.</em></span> The <span class="emphasis"><em>Formula Search
+<span class="application">Gnofract 4D</span> needs a C compiler to be available at runtime in order to work
+(it dynamically creates the code to compute a particular formula when
+you select it). The <span class="emphasis"><em>Compiler</em></span> page allows you to
+specify a location for the compiler and options to pass to
+it. <span class="emphasis"><em>If <span class="application">Gnofract 4D</span> is working fine, generally I suggest you leave
+those settings alone. However you <span class="emphasis"><em>may</em></span> be able to
+get noticeable performance gains by specifying the specific kind of
+processor you have. For example, fairly modern AMD processors will
+benefit by adding "-mathlon -msse2 -m3dnow" to the compiler flags.
+
+</em></span> The <span class="emphasis"><em>Formula Search
 Path</em></span> lists the directories where <span class="application">Gnofract 4D</span> will look for
 formulas when a parameter file is loaded.
 </p></div><div class="sect4" lang="en" xml:lang="en"><div class="titlepage"><div><div><h5 class="title"><a id="prefs_general"></a>General</h5></div></div></div><p>
@@ -522,10 +526,10 @@ extra care when writing formulas if you want them to work in <span class="applic
 too.
 </p><p>
 Here are links to some online resources for formula files:
-</p><div class="itemizedlist"><ul type="disc"><li><p> <a href="http://home.att.net/~Paul.N.Lee/OrgForm.html" target="_top">ORGFORM.ZIP</a>
+</p><div class="itemizedlist"><ul type="disc"><li><p> <a class="ulink" href="http://home.att.net/~Paul.N.Lee/OrgForm.html" target="_top">ORGFORM.ZIP</a>
 A collection of about 25,000 <span class="application">Fractint</span> formula files by many authors,
 originally compiled by George C. Martin and currently maintained by
-Paul N. Lee. Indispensable. </p></li><li><p> <a href="http://formulas.ultrafractal.com/" target="_top"><span class="application">UltraFractal</span> public formula
+Paul N. Lee. Indispensable. </p></li><li><p> <a class="ulink" href="http://formulas.ultrafractal.com/" target="_top"><span class="application">UltraFractal</span> public formula
 database</a> Many thousands of formulas by users of
 <span class="application">UltraFractal</span>. Most of these will work with <span class="application">Gnofract 4D</span>. Let me know of
 any issues, since I aim to improve compatibility further in future
@@ -1694,7 +1698,7 @@ containing code to generate the fractal which we dynamically load.
 </p><p>
 The UltraFractal manual is the best current description of the formula
 file format, though there are some UltraFractal features which are not
-yet supported. You can download it from <a href="http://www.ultrafractal.com/uf3-manual.zip" target="_top">here</a>.
+yet supported. You can download it from <a class="ulink" href="http://www.ultrafractal.com/uf3-manual.zip" target="_top">here</a>.
 </p><p>
 The implementation is based on the outline in <em class="citetitle">Modern Compiler Implementation in ML: basic
 techniques</em> (Appel 1997, Cambridge). It doesn't do any
@@ -1702,7 +1706,7 @@ optimization at this point, leaving that to the C compiler used as a
 back-end. It would be worthwhile to do some simple optimization (eg
 constant-folding, removing multiplication by 1.0) because the C
 compiler refuses to do this to floating point numbers.</p><p>
-Overall structure: The <a href="http://www.dabeaz.com/ply/ply.html" target="_top">PLY</a> package
+Overall structure: The <a class="ulink" href="http://www.dabeaz.com/ply/ply.html" target="_top">PLY</a> package
 is used to do lexing and SLR parsing - it's in
 <code class="filename">lex.py</code> and
 <code class="filename">yacc.py</code>. <code class="filename">fractlexer.py</code> and
@@ -1758,9 +1762,9 @@ well, at least on some of the libstdc++'s that <span class="application">Gnofrac
 C++ code can't throw exceptions or very odd things including crashes
 will happen. </p></div></div></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="bugs"></a>Bugs and Known Issues</h2></div></div></div><div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="reporting"></a>Reporting Bugs</h3></div></div></div><p>
 <span class="emphasis"><em>Please</em></span> report any bugs you encounter, either by
-mailing <a href="mailto:catenary@users.sourceforge.net" target="_top">
+mailing <a class="ulink" href="mailto:catenary@users.sourceforge.net" target="_top">
 catenary@users.sourceforge.net</a> or by
-using the <a href="http://sourceforge.net/tracker/?func=add&amp;group_id=785&amp;atid=100785" target="_top">
+using the <a class="ulink" href="http://sourceforge.net/tracker/?func=add&amp;group_id=785&amp;atid=100785" target="_top">
 bug form</a> at SourceForge. I'll do my best to fix them.  </p></div><div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="compat"></a>Backwards Compatibility</h3></div></div></div><p>
 Version 2.x contains major architectural changes from version 1.x, so
 unfortunately not all images generated by earlier versions will look
@@ -1775,20 +1779,20 @@ one). Inner colormaps are ignored. </p></li></ul></div><p>
 
 </p></div></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="about"></a>About <span class="application">Gnofract 4D</span></h2></div></div></div><p>
 
-This is <span class="application">Gnofract 4D</span> version 3.10. You can find the most recent version of
-<span class="application">Gnofract 4D</span> from <a href="http://gnofract4d.sourceforge.net" target="_top">
+This is <span class="application">Gnofract 4D</span> version 3.11. You can find the most recent version of
+<span class="application">Gnofract 4D</span> from <a class="ulink" href="http://gnofract4d.sourceforge.net" target="_top">
 http://gnofract4d.sourceforge.net/</a>. 
 </p><div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="credits"></a>Credits and copyright</h3></div></div></div><p>
-<span class="application">Gnofract 4D</span> is Copyright 1999-2007 Tim Whidbey <a href="mailto:catenary@users.sourceforge.net" target="_top">(catenary@users.sourceforge.net)
+<span class="application">Gnofract 4D</span> is Copyright 1999-2007 Tim Whidbey <a class="ulink" href="mailto:catenary@users.sourceforge.net" target="_top">(catenary@users.sourceforge.net)
 </a>, and is distributed under the <span class="emphasis"><em>BSD
 license</em></span>.  See the file "COPYING" for details. 
 </p><p>
 <span class="application">Gnofract 4D</span> was originally based on Gnofract, written by Aurelien Alleaume
-<a href="mailto:manchot@club-internet.fr" target="_top">(manchot@club-internet.fr)
+<a class="ulink" href="mailto:manchot@club-internet.fr" target="_top">(manchot@club-internet.fr)
 </a>,
 though none of the original code remains in the current version.
 Gnofract could once be obtained from
-<a href="http://www.multimania.com/mason/" target="_top">
+<a class="ulink" href="http://www.multimania.com/mason/" target="_top">
 http://www.multimania.com/mason/</a> but this no longer appears to
 work. 
 </p><p>
@@ -1800,12 +1804,12 @@ was substantially enhanced in <span class="application">UltraFractal</span>. How
 implementation does not share any code with those programs.
 </p><p>
 The <span class="application">Gnofract 4D</span> distribution contains palette (.map) files by a number of
-authors which were originally distributed with <a href="http://spanky.triumf.ca/" target="_top"><span class="application">Fractint</span></a> under somewhat murky
+authors which were originally distributed with <a class="ulink" href="http://spanky.triumf.ca/" target="_top"><span class="application">Fractint</span></a> under somewhat murky
 licensing conditions. It also contains a copy of "standard.ucl",
-originally distributed with <a href="http://www.ultrafractal.com/" target="_top"><span class="application">UltraFractal</span></a>, by kind
+originally distributed with <a class="ulink" href="http://www.ultrafractal.com/" target="_top"><span class="application">UltraFractal</span></a>, by kind
 permission of Frederik Slijkerman, Damien Jones, and Kerry Mitchell.
 "blatte1.ugr" and "blatte2.ugr" are included by kind permission of 
-<a href="http://exoteric.roach.org/" target="_top">'Blatte'</a>.
+<a class="ulink" href="http://exoteric.roach.org/" target="_top">'Blatte'</a>.
 </p><p>
 <code class="filename">gmpy.c</code> and <code class="filename">gmpy.h</code> are from
 the GMPY package (http://gmpy.sf.net), and are distributed under the
@@ -1813,4 +1817,7 @@ LGPL license.  </p><p>
 <code class="filename">lex.py</code> and <code class="filename">yacc.py</code> come from
 the PLY package, and are distributed under the LGPL license. </p><p>
 The man page was contributed by Aleksander Adamowski.
+</p><p>
+Some of the menu icons are taken or adapted from
+the <a class="ulink" href="http://tango.freedesktop.org" target="_top">Tango icon set</a>.
 </p></div></div></div></body></html>

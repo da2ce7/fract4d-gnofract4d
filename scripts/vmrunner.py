@@ -15,21 +15,21 @@ vms = [
     vminfo(
         name="ubuntu_704_i386",
         arch="i386",
-        file= '/home/catenary/vmware/ubuntu-7.04-x86/Ubuntu 7.04 x86.vmx',
+        file= '/home/edwin/vmware/ubuntu-7.04-x86/Ubuntu 7.04 x86.vmx',
         type = "DEB",
-        outfile='gnofract4d_3.10-1ubuntu1_i386.deb'),
+        outfile='gnofract4d_3.11-1ubuntu1_i386.deb'),
     vminfo(
         name="ubuntu_704_amd64",
         arch="amd64",
-        file="/home/catenary/vmware/Ubuntu 7.04 amd64/Ubuntu 7.04 amd64.vmx",
+        file="/home/edwin/vmware/ubuntu 7.04 amd64/ubuntu 7.04 amd64.vmx",
         type= "DEB",
-        outfile='gnofract4d_3.10-1ubuntu1_amd64.deb'),
+        outfile='gnofract4d_3.11-1ubuntu1_amd64.deb'),
 
 ]
 
-fedora_6_i386 = '/home/catenary/vmware/fedora6/fedora6.vmx'
+fedora_6_i386 = '/home/edwin/vmware/fedora6/fedora6.vmx'
 
-host_tarfile = '/home/catenary/gnofract4d/dist/gnofract4d-3.10.tar.gz'
+host_tarfile = '/home/edwin/gnofract4d/dist/gnofract4d-3.11.tar.gz'
 assert os.path.exists(host_tarfile)
 host_script = 'scripts/guest_cmd.py'
 guest_script = guest_file(host_script)
@@ -42,7 +42,7 @@ def build_binary_on_vm(vminfo):
     outfile_type = vminfo.type
 
     revert = True
-    powerOff = False
+    powerOff = True
     powerOn = False
 
     host = vix.Host() # open the local host
@@ -64,7 +64,11 @@ def build_binary_on_vm(vminfo):
             vm.waitForToolsInGuest()
             print "logging in"
             #fixme constant should be exposed from vix module
-            vm.loginInGuest(username="__VMware_Vix_Guest_Console_User__")
+            vm.loginInGuest(
+                username="catenary",
+                password="..smurf", 
+                options=8) # VIX_LOGIN_IN_GUEST_REQUIRE_INTERACTIVE_ENVIRONMENT
+
             print "copying files to guest"
             vm.copyFileFromHostToGuest(host_tarfile,guest_tarfile)
             vm.copyFileFromHostToGuest(host_script, guest_script)
@@ -91,3 +95,4 @@ def build_binary_on_vm(vminfo):
 
 
 build_binary_on_vm(vms[0])
+build_binary_on_vm(vms[1])
