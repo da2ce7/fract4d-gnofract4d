@@ -186,7 +186,7 @@ fractFunc::updateiters()
 	    period_tolerance < 1.0E-4)
     {
 	//printf("relaxing\n");
-	flags |= SHOULD_RELAX;
+	flags |= SHOULD_LOOSEN;
     }
     return flags;
 }
@@ -317,18 +317,15 @@ void fractFunc::draw_all()
 
     // we do this after antialiasing because otherwise sometimes the
     // aa pass makes the image shallower, which is distracting
-    if(improvement_flags & SHOULD_RELAX)
+    if(improvement_flags & SHOULD_SHALLOWEN)
     {
-	if(improvement_flags & SHOULD_SHALLOWEN)
-	{
-	    maxiter /= 2;
-	    iters_changed(maxiter);
-	}
-	if(improvement_flags & SHOULD_LOOSEN)
-	{
-	    period_tolerance *= 10.0;
-	    tolerance_changed(period_tolerance);
-	}
+	maxiter /= 2;
+	iters_changed(maxiter);
+    }
+    if(improvement_flags & SHOULD_LOOSEN)
+    {
+	period_tolerance *= 10.0;
+	tolerance_changed(period_tolerance);
     }
 #endif
 

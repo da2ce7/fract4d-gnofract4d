@@ -58,11 +58,11 @@ class FormulaTypes:
         re.compile(r'(\.frm\Z)|(\.ufm\Z)', re.IGNORECASE),
         re.compile(r'(\.cfrm\Z)|(\.ucl\Z)', re.IGNORECASE),
         re.compile(r'\.uxf\Z', re.IGNORECASE),
-        re.compile(r'(\.ugr\Z)|(\.map\Z)|(\.ggr\Z)|(\.cs\Z)', re.IGNORECASE)
+        re.compile(r'(\.ugr\Z)|(\.map\Z)|(\.ggr\Z)|(\.cs\Z)|(\.pal\Z)', re.IGNORECASE)
         ]
     
     # indexed by FormulaTypes above
-    extensions = [ "frm", "cfrm", "uxf", "ggr"]
+    extensions = [ "frm", "cfrm", "uxf", "ggr", "pal"]
 
     def extension_from_type(t):
         return FormulaTypes.extensions[t]
@@ -93,7 +93,7 @@ class FormulaTypes:
         filename = filename.lower()
         if filename.endswith(".ugr"):
             return FormulaTypes.GRAD_UGR
-        if filename.endswith(".map"):
+        if filename.endswith(".map") or filename.endswith(".pal"):
             return FormulaTypes.GRAD_MAP
         if filename.endswith(".ggr"):
             return FormulaTypes.GRAD_GGR
@@ -434,6 +434,16 @@ class Compiler:
         if f != None:
             f = type(f,prefix)
         return f
+
+    def get_gradient(self, filename, formname):
+        g = gradient.Gradient()
+        if formname == None:
+            g.load(open(self.find_file(filename, 3))) # FIXME
+        else:
+            compiled_gradient = self.get_formula(filename,formname)
+            g.load_ugr(compiled_gradient)
+            
+        return g
 
     def get_random_gradient(self):
         return self.get_random_formula(3) # FIXME

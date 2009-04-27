@@ -1,20 +1,10 @@
-changes in 3.11:
-* W	--buildonly, --usebuilt, --cflags, --singlepoint flags
-* W	benchfct.py script
-* W	z*z -> sqr(z) in Mandelbrot
-* W	16x16 blocks
-* W	4-way AA
-* W	ab+ab -> 2.0 * ab in sqr_cc_c (slight perf gain)
-* B	tighten periodicity checking more often
-* W	added continuous_decomposition coloring method
-* W	added sterling2 formulas (courtesy Tad Boniecki)
-* W	stats calculation
-* B	fixed randomness in stats
-
 todo:
+changes in 3.12:
+* B	auto-deepening logic made things shallower when it shouldn't
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
+* BB	disabling auto-deepen doesn't turn of making shallower
 * BB	black screen when load slow fractal via cmd line, + segfault when resize before redraw finishes
 * BB	(0,0)^1 == nan (pow_cf_c code wrong for this case)
 * BB	sometimes get "Fatal Python error: GC object already tracked" during fract4d/test.py
@@ -210,6 +200,19 @@ in return for a look at what I'm generating, (like ElectricSheep).
 
 Requires: above, +able to deal with ad-hoc networks of thousands of peers,
 economic incentive, security, works with NAT
+
+changes in 3.11:
+* W	--buildonly, --usebuilt, --cflags, --singlepoint flags
+* W	benchfct.py script
+* W	z*z -> sqr(z) in Mandelbrot
+* W	16x16 blocks
+* W	4-way AA
+* W	ab+ab -> 2.0 * ab in sqr_cc_c (slight perf gain)
+* B	tighten periodicity checking more often
+* W	added continuous_decomposition coloring method
+* W	added sterling2 formulas (courtesy Tad Boniecki)
+* W	stats calculation
+* B	fixed randomness in stats
 
 changes in 3.10:
 * B	can't upload immediately after authorizing

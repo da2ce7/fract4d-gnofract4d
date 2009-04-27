@@ -58,7 +58,7 @@ ${XML(body)}
 </div>
 
 <div id="footer">
-Hosted by: <a href="http://sourceforge.net/projects/gnofract4d"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=785&type=12" width="120" height="30" border="0" alt="Get Gnofract 4D at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
+Hosted by: <a href="http://sourceforge.net/projects/gnofract4d"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=785&amp;type=12" width="120" height="30" border="0" alt="Get Gnofract 4D at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
 </div>
 
 </div>

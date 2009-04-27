@@ -10,7 +10,7 @@
 <!ENTITY gf4d "<application>Gnofract 4D</application>">
 <!ENTITY fractint "<application>Fractint</application>">
 <!ENTITY ultrafractal "<application>UltraFractal</application>">
-<!ENTITY version "3.11">
+<!ENTITY version "3.12">
 
 ]>
 <article id="gnofract4d">
@@ -1239,7 +1239,7 @@ http://gnofract4d.sourceforge.net/</ulink>.
 <title>Credits and copyright</title>
 
 <para>
-&gf4d; is Copyright 1999-2007 Tim Whidbey <ulink
+&gf4d; is Copyright 1999-2009 Tim Whidbey <ulink
 url="mailto:catenary@users.sourceforge.net">(catenary@users.sourceforge.net)
 </ulink>, and is distributed under the <emphasis>BSD
 license</emphasis>.  See the file "COPYING" for details. 

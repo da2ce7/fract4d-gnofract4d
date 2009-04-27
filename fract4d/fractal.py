@@ -194,13 +194,7 @@ class T(fctutils.T):
             self.changed(True) #needs_redraw)
 
     def set_gradient_from_file(self, file, name):
-        g = gradient.Gradient()
-        if name == None:
-            g.load(open(self.compiler.find_file(file, 3))) # FIXME
-        else:
-            compiled_gradient = self.compiler.get_formula(file,name)
-            g.load_ugr(compiled_gradient)
-            
+        g = self.compiler.get_gradient(file, name)
         self.set_gradient(g)
         
     def parse_periodicity(self,val,f):

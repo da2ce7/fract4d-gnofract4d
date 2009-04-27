@@ -16,8 +16,8 @@ class Bag:
         self.__dict__.update(kwds)
         
 announce = Bag(
-    date="Dec 13th, 2008",
-    text="Version 3.11 released. This is a bit faster and adds new formulas.")
+    date="March 15th, 2009",
+    text="Version 3.11 released. This is a bit faster and adds 50 new formulas.")
 
 manual_pages = [
     Bag(name="Using Gnofract 4D",

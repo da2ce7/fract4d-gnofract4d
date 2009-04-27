@@ -8,7 +8,7 @@
 # use an pre-g++-3.5 compiler to build binary distributions - 3.5 changes the 
 # ABI again (groan) and hardly any of the distributions targeted have it
 
-export ARCH=i386
+export ARCH=amd64
 #export CC=/usr/local/bin/gcc33
 #export CXX=/usr/local/bin/g++33
 #

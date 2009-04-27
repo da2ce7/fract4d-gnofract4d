@@ -9,7 +9,7 @@ import gtk
 
 from fract4d import fc, gradient, browser_model
 
-import preferences, dialog, utils, gtkfractal
+import preferences, dialog, utils, gtkfractal, gradientCellRenderer
 
 def stricmp(a,b):
     return cmp(a.lower(),b.lower())
@@ -197,6 +197,10 @@ class BrowserDialog(dialog.T):
 
         renderer = gtk.CellRendererText ()
         column = gtk.TreeViewColumn (_('F_ormula'), renderer, text=0)
+        self.treeview.append_column (column)
+        renderer = gradientCellRenderer.GradientCellRenderer(self.model, self.compiler)
+        column = gtk.TreeViewColumn (_('_Preview'), renderer, text=0)
+        #column.add_attribute(renderer, "gradient", 1)
         self.treeview.append_column (column)
 
         selection = self.treeview.get_selection()
