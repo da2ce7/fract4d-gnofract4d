@@ -9,7 +9,9 @@
 #include "pointFunc_public.h"
 #include "fract_public.h"
 
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <dlfcn.h>
 #include <stdio.h>
 

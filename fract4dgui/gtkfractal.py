@@ -15,6 +15,7 @@ import gobject
 from fract4d import fractal,fract4dc,fracttypes, image, messages
 
 import utils, fourway
+from gtkio import gtkio
 
 class Hidden(gobject.GObject):
     """This class implements a fractal which calculates asynchronously
@@ -51,8 +52,12 @@ class Hidden(gobject.GObject):
     def __init__(self,comp,width,height,total_width=-1,total_height=-1):
         gobject.GObject.__init__(self)
 
-        (self.readfd,self.writefd) = os.pipe()
-        self.nthreads = 1        
+        if 'win' in sys.platform:
+            (self.readfd, self.writefd) = fract4dc.pipe()
+        else:
+            # This is the line that was screwing Windows up.. changed to be run only on Linux, for Windows, we want to do this in fract4dc..
+            (self.readfd, self.writefd) = os.pipe()
+        self.nthreads = 1
 
         self.compiler = comp
 
@@ -75,16 +80,18 @@ class Hidden(gobject.GObject):
             self.width,self.height,total_width,total_height)
 
         self.msgbuf = ""
+        self.io_subsys = gtkio();
 
     def try_init_fractal(self):
         f = fractal.T(self.compiler,self.site)
         self.set_fractal(f)
         self.f.compile()
-            
+
     def set_fractal(self,f):
         if f != self.f:
             if self.f:
                 self.interrupt()
+                del self.f
             self.f = f
 
             # take over fractal's changed function
@@ -162,15 +169,15 @@ class Hidden(gobject.GObject):
         self.f.set_formula(fname, formula,index)
 
     def onData(self,fd,condition):
-        self.msgbuf = self.msgbuf + os.read(fd, 8 - len(self.msgbuf))
-        
+        self.msgbuf = self.msgbuf + self.io_subsys.read(fd, 8 - len(self.msgbuf))
+
         if len(self.msgbuf) < 8:            
             #print "incomplete message: %s" % list(self.msgbuf)
             return True
 
         (t,size) = struct.unpack("2i",self.msgbuf)
         self.msgbuf = ""
-        bytes = os.read(fd,size)
+        bytes = self.io_subsys.read(fd,size)
         if len(bytes) < size:
             print "not enough bytes, got %d instead of %d" % (len(bytes),size)
             return True
@@ -454,7 +461,7 @@ class T(Hidden):
             )
 
         self.notice_mouse = False
-        
+
         drawing_area.connect('motion_notify_event', self.onMotionNotify)
         drawing_area.connect('button_release_event', self.onButtonRelease)
         drawing_area.connect('button_press_event', self.onButtonPress)
@@ -469,6 +476,15 @@ class T(Hidden):
 
     def image_changed(self,x1,y1,x2,y2):
         self.redraw_rect(x1,y1,x2-x1,y2-y1)
+
+#    def changed(self):
+#        Hidden.changed(self)
+#        try:
+#            widget = self.widget
+#        except Exception, e:
+#            return
+#        self.widget.queue_draw_area(0, 0, self.width, self.height)
+#        #self.expose()
 
     def make_numeric_entry(self, form, param, order):
         param_type = form.paramtypes[order]

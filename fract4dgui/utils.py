@@ -14,6 +14,11 @@ import inspect
 import gtk
 import gobject
 
+try:
+	from fract4d import fract4dcgmp as fract4dc
+except ImportError, err:
+    from fract4d import fract4dc
+
 threads_enabled = False
 break_new_things = False
 
@@ -59,15 +64,18 @@ def timeout_add(time,callable):
     except AttributeError:
         gtk.timeout_add(time,callable)
 
-def input_add(fd,cb):
-    try:
-        _throwback()
-        return gobject.io_add_watch(
-            fd, gobject.IO_IN | gobject.IO_HUP, cb)
-    except AttributeError, err:
-        return gtk.input_add(fd, gtk.gdk.INPUT_READ, cb)
+if 'win' not in sys.platform:
+    def input_add(fd,cb):
+        try:
+            _throwback()
+            return gobject.io_add_watch(fd, gobject.IO_IN | gobject.IO_HUP, cb)
+        except AttributeError, err:
+            return gtk.input_add(fd, gtk.gdk.INPUT_READ, cb)
+else:
+    def input_add(fd, cb):
+        # fd = %i; cb = %o
+        return fract4dc.io_add_watch(fd, gobject.IO_IN | gobject.IO_HUP, cb)
 
-    
 def find_in_path(exe):
     # find an executable along PATH env var
     pathstring = os.environ["PATH"]
@@ -271,15 +279,15 @@ class ColorButton:
             self.widget.connect('clicked', self.run_colorsel)
 
     def on_color_set(self, widget):
-	self.color_changed(widget.get_color())
+        self.color_changed(widget.get_color())
 
     def set_color(self, rgb):
         self.color = create_color(rgb[0], rgb[1], rgb[2])
-	
-	try:
+    
+        try:
             _throwback()
             self.widget.set_color(self.color)
-	except:
+        except:
             #print "sc", self.area, rgb
             if self.area:
                 self.area_expose(

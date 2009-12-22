@@ -136,22 +136,36 @@ module_fract4dgmp = Extension(
     undef_macros = [ 'NDEBUG']    
     )
 
+if "win" in sys.platform:
+    warnings = '/W3'
+    libs = [ 'pthreadVC2', 'libdl' ]
+    osdep = [ '/DWIN32', '/DWINDOWS', '/D_USE_MATH_DEFINES', '/D_CRT_SECURE_NO_WARNINGS', '/EHsc', '/Ox' ]
+    osdep += [ '/I"F:/Gamma/GTK+/Win32/include/glib-2.0/"', '/I"F:/Gamma/GTK+/Win32/lib/glib-2.0/include/"' ]
+    extra_source = [ 'fract4d/c/win32func.cpp', 'fract4d/c/fract4d_stdlib_exports.cpp' ]
+    extra_link = [ '/LIBPATH:"F:/Gamma/GTK+/Win32/lib"' ]
+else:
+    warnings = '-Wall'
+    libs = [ 'stdc++' ]
+    osdep = []
+    extra_source = []
+    extra_link = []
+
+fract4d_sources += extra_source
+
 module_fract4dc = Extension(
     'fract4d.fract4dc',
     sources = fract4d_sources,
     include_dirs = [
     'fract4d/c'
     ],
-    libraries = [
-    'stdc++', 
-    ] + jpg_libs,
-    library_dirs=['/home/edwin/gnofract4d'],
+    libraries = libs + jpg_libs,
+    #library_dirs=['/home/edwin/gnofract4d'],
     extra_compile_args = [
-    '-Wall', 
-    ] + png_flags,
-    extra_link_args = png_libs,
+    warnings,
+    ] + osdep + png_flags,
+    extra_link_args = extra_link + png_libs,
     define_macros = defines + extra_macros,
-    undef_macros = [ 'NDEBUG'],
+    #undef_macros = [ 'NDEBUG'],
     )
 
 module_cmap = Extension(
@@ -160,13 +174,12 @@ module_cmap = Extension(
     'fract4d/c/cmap.cpp',
     'fract4d/c/image.cpp',
     'fract4d/c/fract_stdlib.cpp'
-    ],
+    ] + extra_source,
     include_dirs = [
     'fract4d/c'
     ],
-    libraries = [
-    'stdc++'
-    ],
+    libraries = libs,
+    extra_link_args = extra_link,
     define_macros = [ ('_REENTRANT', 1)]
     )
 
@@ -258,6 +271,8 @@ lib_targets = {
     "fract4dcgmp" + so_extension : "fract4d",
     "gmpy" + so_extension: "fract4d"
     }
+if 'win' in sys.platform:
+    lib_targets["fract4d_stdlib.lib"] = "fract4d"
 
 def copy_libs(dummy,dirpath,namelist):
      for name in namelist:
@@ -267,4 +282,6 @@ def copy_libs(dummy,dirpath,namelist):
              shutil.copy(name, target)
             
 os.path.walk("build",copy_libs,None)
+if 'win' in sys.platform:
+    shutil.copy("fract4d/fract4d_stdlib.pyd", "fract4d_stdlib.pyd")
 

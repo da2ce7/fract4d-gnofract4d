@@ -7,9 +7,13 @@ class T(ConfigParser.ConfigParser):
     def __init__(self, file):
         _shared_formula_dir = self.get_data_path("formulas")
         _shared_map_dir = self.get_data_path("maps")
+        if 'win' in sys.platform:
+            comp = 'cl'
+        else:
+            comp = 'gcc'
         _defaults = {
             "compiler" : {
-              "name" : "gcc",
+              "name" : comp,
               "options" : self.get_default_compiler_options()
             },
             "optimize" : {
@@ -133,7 +137,10 @@ class T(ConfigParser.ConfigParser):
 
     def get_default_compiler_options(self):
         # appears to work for most unixes
-        return "-fPIC -DPIC -D_REENTRANT -O2 -shared -ffast-math"
+		if 'win' in sys.platform:
+			return "/Ox /EHsc /Gd /nologo /W3 /LD /MT /TP /DWIN32 /DWINDOWS /D_USE_MATH_DEFINES"
+		else:
+			return "-fPIC -DPIC -D_REENTRANT -O2 -shared -ffast-math"
         
     def set(self,section,key,val):
         if self.has_section(section) and \

@@ -10,6 +10,11 @@
 #define GREEN 1
 #define BLUE 2
 
+#ifdef WIN32
+#include <float.h>
+#define finite _finite
+#endif
+
 const int 
 image::N_SUBPIXELS = 4;
 

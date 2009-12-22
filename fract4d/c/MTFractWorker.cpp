@@ -1,7 +1,9 @@
 #include "fractWorker.h" 
 #include "fractFunc.h"
 
+#ifndef WIN32
 #include "unistd.h"
+#endif
 
 /* redirect back to a member function */
 void worker(job_info_t& tdata, STFractWorker *pFunc)

@@ -1289,16 +1289,16 @@ class MainWindow:
         """Reset rotation to show the YZ (Elliptic) plane."""
         # left = +z, down = +y
         self.f.set_plane(self.f.XZANGLE, None)
-	    
+
     def set_wy_plane(self,*args):
         """Reset rotation to show the WY (Rectangular) plane."""
         # left =+w, down = +y
         self.f.set_plane(self.f.XWANGLE, None)
-	
+
     def autozoom(self,*args):
         """Display AutoZoom dialog."""
         autozoom.show_autozoom(self.window, self.f)
-        
+
     def contents(self,*args):
         """Show help file contents page."""
         self.display_help()
@@ -1443,15 +1443,21 @@ class MainWindow:
         
         try:
             preferences.userPrefs.save()
+            del self.f
+            for f in self.subfracts:
+                del f
             self.compiler.clear_cache()
         finally:
             gtk.main_quit()
+            if 'win' in sys.platform:
+                exit(0);
+#            return False
 
     def apply_options(self,opts):
         "Deal with opts gathered from cmd-line"
         width = opts.width or preferences.userPrefs.getint("display","width")
         height = opts.height or preferences.userPrefs.getint("display","height")
-        
+
         self.quit_when_done = opts.quit_when_done
         self.save_filename = opts.save_filename
         self.use_preview = opts.preview
@@ -1475,7 +1481,5 @@ class MainWindow:
 
         if opts.explore:
             self.set_explorer_state(True)
-        
-        self.f.set_size(width,height)
 
-    
+        self.f.set_size(width,height)

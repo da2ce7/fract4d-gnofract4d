@@ -2,7 +2,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef WIN32
 #include <sys/time.h>
+#else
+struct timeval {
+        long    tv_sec;         /* seconds */
+        long    tv_usec;        /* and microseconds */
+};
+#include <sys/timeb.h>
+int gettimeofday (struct timeval *t, void *foo)
+{
+	struct _timeb temp;
+	_ftime(&temp);
+	t->tv_sec = (long)temp.time;
+	t->tv_usec = temp.millitm * 1000;
+	return (0);
+}
+#endif
 
 dmat4
 rotated_matrix(double *params)

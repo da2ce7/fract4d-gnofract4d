@@ -79,6 +79,7 @@ class T(fctutils.T):
         self.outputfile = None
         self.render_type = 0
         self.pfunc = None
+        self.handle = None
 
         self.warp_param = None
         # gradient
@@ -270,7 +271,9 @@ class T(fctutils.T):
         self.transforms[which_transform].load_param_bag(params)
         
     def __del__(self):
-        pass #print "deleting fractal %s" % self
+        #print "deleting fractal %s" % self
+        del self.pfunc
+        del self.handle
 
     def __copy__(self):
         # override shallow-copy to do a deeper copy than normal,
