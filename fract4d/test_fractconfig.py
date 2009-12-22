@@ -19,7 +19,7 @@ class Test(unittest.TestCase):
     def testGetList(self):
         c = fractconfig.T("testprefs")
         l = c.get_list("map_path")
-        self.assertEqual(3, len(l))
+        self.assertEqual(4, len(l))
         self.assertEqual("maps", l[0])
 
     def testSetList(self):

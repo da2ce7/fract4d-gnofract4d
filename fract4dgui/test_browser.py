@@ -67,7 +67,7 @@ class Test(unittest.TestCase):
         self.assertEqual(None, m.current.fname)
         self.assertEqual(None, m.current.formula)
 
-        
+
 def suite():
     return unittest.makeSuite(Test,'test')
 

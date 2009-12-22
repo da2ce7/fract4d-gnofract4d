@@ -1,9 +1,11 @@
 todo:
-changes in 3.12:
-* B	auto-deepening logic made things shallower when it shouldn't
+
+changes in 3.13:
+* B	can't open .ggr files created by newer Gimp versions
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!
+* BB	doesn't install on Ubuntu 9.04
 * BB	disabling auto-deepen doesn't turn of making shallower
 * BB	black screen when load slow fractal via cmd line, + segfault when resize before redraw finishes
 * BB	(0,0)^1 == nan (pow_cf_c code wrong for this case)
@@ -53,6 +55,7 @@ bugs (the more B's, the worse the bug):
 features (the more W's, the more work involved):
 * WWW	toolbox: autozoom, clickzoom, UF-style zoom, realtime zoom, painter
 * WWW	database-backed browser
+* WW	preview gradients better, hook up gradientCellRenderer
 * W	more transforms, incl 4-d ones. Make 4D a 'standard' transform?
 * W	minibrot finder a la explorer.c
 * WW	provide a way to get a gradient vector
@@ -200,6 +203,10 @@ in return for a look at what I'm generating, (like ElectricSheep).
 
 Requires: above, +able to deal with ad-hoc networks of thousands of peers,
 economic incentive, security, works with NAT
+
+changes in 3.12:
+* B	auto-deepening logic made things shallower when it shouldn't
+* W	include gimp 2.0 gradient path in default search
 
 changes in 3.11:
 * W	--buildonly, --usebuilt, --cflags, --singlepoint flags

@@ -341,10 +341,11 @@ class Gradient:
                 lr,lg,lb,la = rr,rg,rb,ra
                 [mid,right,rr,rg,rb,ra,bmode,cmode] = line.split()
             else:
+                list_elements = line.split()
                 [left, mid, right,
                  lr, lg, lb, la,
                  rr, rg, rb, ra,
-                 bmode, cmode] = line.split()
+                 bmode, cmode] = list_elements[0:13]
 
             if int(cmode) != ColorMode.RGB:
                 raise HsvError("This gradient file requires HSV support, which is not yet implemented")

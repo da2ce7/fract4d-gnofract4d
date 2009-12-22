@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os
+import os, shutil
 
 from pyvix import vix
 
@@ -17,19 +17,35 @@ vms = [
         arch="i386",
         file= '/home/edwin/vmware/ubuntu-7.04-x86/Ubuntu 7.04 x86.vmx',
         type = "DEB",
-        outfile='gnofract4d_3.11-1ubuntu1_i386.deb'),
+        outfile='gnofract4d_3.12-1ubuntu1_i386.deb',
+        distfile='gnofract4d-python25_3.12-1ubuntu1_i386.deb'),
     vminfo(
         name="ubuntu_704_amd64",
         arch="amd64",
         file="/home/edwin/vmware/ubuntu 7.04 amd64/ubuntu 7.04 amd64.vmx",
         type= "DEB",
-        outfile='gnofract4d_3.11-1ubuntu1_amd64.deb'),
+        outfile='gnofract4d_3.12-1ubuntu1_amd64.deb',
+        distfile='gnofract4d-python25_3.12-1ubuntu1_amd64.deb'),
+    vminfo(
+        name="ubuntu_904_amd64",
+        arch="amd64",
+        file= '/home/edwin/vmware/ubuntu904/Ubuntu 9/Ubuntu 9.04 64-bit.vmx',
+        type = "DEB",
+        outfile='gnofract4d_3.12-1ubuntu1_amd64.deb',
+        distfile='gnofract4d-python26_3.12-1ubuntu1_amd64.deb'),
+    vminfo(
+        name="ubuntu_904_i386",
+        arch="i386",
+        file= '/home/edwin/vmware/ubuntu-9.04-x86/Ubuntu 9.04 x86.vmx',
+        type = "DEB",
+        outfile='gnofract4d_3.12-1ubuntu1_i386.deb',
+        distfile='gnofract4d-python26_3.12-1ubuntu1_i386.deb'),
 
 ]
 
 fedora_6_i386 = '/home/edwin/vmware/fedora6/fedora6.vmx'
 
-host_tarfile = '/home/edwin/gnofract4d/dist/gnofract4d-3.11.tar.gz'
+host_tarfile = '/home/edwin/gnofract4d/dist/gnofract4d-3.12.tar.gz'
 assert os.path.exists(host_tarfile)
 host_script = 'scripts/guest_cmd.py'
 guest_script = guest_file(host_script)
@@ -42,9 +58,10 @@ def build_binary_on_vm(vminfo):
     outfile_type = vminfo.type
 
     revert = True
-    powerOff = True
+    powerOff = False
     powerOn = False
 
+    print "processing", vminfo.name
     host = vix.Host() # open the local host
     try:    
         vm = host.openVM(vminfo.file)
@@ -84,8 +101,12 @@ def build_binary_on_vm(vminfo):
             print "retrieving logs"
             vm.copyFileFromGuestToHost('/home/catenary/log.txt', 'log.txt')
 
-            print "retrieving output"
+            print "retrieving output", host_outfile
             vm.copyFileFromGuestToHost(guest_outfile, host_outfile)
+
+            distfile = "dist/" + vminfo.distfile
+            print "copying to dist dir", distfile
+            shutil.copy(host_outfile, distfile)
 
         finally:
             if powerOff:
@@ -94,5 +115,7 @@ def build_binary_on_vm(vminfo):
         host.close()
 
 
-build_binary_on_vm(vms[0])
-build_binary_on_vm(vms[1])
+#build_binary_on_vm(vms[0])
+#build_binary_on_vm(vms[1])
+#build_binary_on_vm(vms[2])
+build_binary_on_vm(vms[3])

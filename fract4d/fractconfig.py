@@ -48,7 +48,8 @@ class T(ConfigParser.ConfigParser):
             "map_path" : {
               "0" : "maps",
               "1" : _shared_map_dir,
-              "2" : os.path.expandvars("${HOME}/gnofract4d/maps")
+              "2" : os.path.expandvars("${HOME}/gnofract4d/maps"),
+              "3" : "/usr/share/gimp/2.0/gradients"
             },
             "recent_files" : {
             },

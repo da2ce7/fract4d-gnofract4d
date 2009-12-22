@@ -134,6 +134,10 @@ class BrowserDialog(dialog.T):
         
         self.filetreeview.append_column (column)
 
+        #renderer = gradientCellRenderer.GradientCellRenderer(self.model, self.compiler)
+        #column = gtk.TreeViewColumn (_('_Preview'), renderer)
+        #self.filetreeview.append_column (column)
+
         selection = self.filetreeview.get_selection()
         selection.connect('changed',self.file_selection_changed)
         return sw
@@ -198,10 +202,10 @@ class BrowserDialog(dialog.T):
         renderer = gtk.CellRendererText ()
         column = gtk.TreeViewColumn (_('F_ormula'), renderer, text=0)
         self.treeview.append_column (column)
-        renderer = gradientCellRenderer.GradientCellRenderer(self.model, self.compiler)
-        column = gtk.TreeViewColumn (_('_Preview'), renderer, text=0)
-        #column.add_attribute(renderer, "gradient", 1)
-        self.treeview.append_column (column)
+        #renderer = gradientCellRenderer.GradientCellRenderer(self.model, self.compiler)
+        #column = gtk.TreeViewColumn (_('_Preview'), renderer)
+        #column.add_attribute(renderer, "formname", 0)
+        #self.treeview.append_column (column)
 
         selection = self.treeview.get_selection()
         selection.connect('changed',self.formula_selection_changed)

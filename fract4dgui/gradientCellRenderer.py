@@ -5,17 +5,18 @@ import gtk, gobject
 
 class GradientCellRenderer(gtk.GenericCellRenderer):
     __gproperties__ = {
-        'text': (gobject.TYPE_STRING,
+        'filename': (gobject.TYPE_STRING,
                  'Text to be displayed',
                  'Text to be displayed',
                  '',
                  gobject.PARAM_READWRITE
                  ),
-        'gradient': (gobject.TYPE_PYOBJECT,
-                 'Gradient to display',
-                 'Gradient to display',
+        'formname': (gobject.TYPE_STRING,
+                 'Text to be displayed',
+                 'Text to be displayed',
+                 '',
                  gobject.PARAM_READWRITE
-                 )
+                 ),
         }
 
     def __init__(self,model,compiler):
@@ -49,10 +50,14 @@ class GradientCellRenderer(gtk.GenericCellRenderer):
         #    gtk.SHADOW_IN, expose_area, widget, "",
         #    cell_area.x, cell_area.y, w-1, h-1)
 
-        formname = self.__properties["text"]
-        filename = self.model.current.fname
+        formname = self.__properties["formname"]
+        filename = self.__properties["filename"]
 
-        grad = self.compiler.get_gradient(filename, formname)
+        try:
+            grad = self.compiler.get_gradient(filename, formname)
+        except Exception, ex:
+            # can't preview, but never mind
+            return
 
         wwidth = float(cell_area.width)+1
         colorband_height = cell_area.height
