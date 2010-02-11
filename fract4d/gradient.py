@@ -7,6 +7,8 @@ import copy
 import random
 import types
 import struct
+import colorsys
+
 
 #Class definition for Gradients
 #These use the format defined by the GIMP
@@ -176,9 +178,13 @@ class Segment:
         lcol = self.left_color
         rcol = self.right_color
         if self.cmode == ColorMode.HSV_CCW or self.cmode == ColorMode.HSV_CW:
-            # fixme, distinguish between these cases
-            lcol = RGBtoHSV(lcol)
-            rcol = RGBtoHSV(rcol)
+            lcol = [v for v in colorsys.rgb_to_hsv(lcol[0],lcol[1],lcol[2])] + [lcol[3]]
+            rcol = [v for v in colorsys.rgb_to_hsv(rcol[0],rcol[1],rcol[2])] + [rcol[3]]
+        if self.cmode == ColorMode.HSV_CCW:
+            if lcol[0] >= rcol[0]: rcol[0] += 1.0
+        if self.cmode == ColorMode.HSV_CW:
+            if lcol[0] <= rcol[0]: lcol[0] += 1.0
+            
             
         len = self.right-self.left
         if len < Segment.EPSILON:
@@ -208,9 +214,10 @@ class Segment:
         
         if self.cmode == ColorMode.RGB:
             return [RH, GS, BV, A]
-        else:
-            return HSVtoRGB([RH,GS,BV,A])
-
+        if self.cmode == ColorMode.HSV_CCW or self.cmode == ColorMode.HSV_CW:
+            if RH > 1: RH -= 1
+            return [v for v in colorsys.hsv_to_rgb(RH,GS,BV)] + [A]
+        
     def save(self,f,skip_left=False):
         if skip_left:
             # this segment's left end == previous right, so leave it out
@@ -347,8 +354,6 @@ class Gradient:
                  rr, rg, rb, ra,
                  bmode, cmode] = list_elements[0:13]
 
-            if int(cmode) != ColorMode.RGB:
-                raise HsvError("This gradient file requires HSV support, which is not yet implemented")
             seg = Segment(
                 float(left), [float(lr), float(lg), float(lb), float(la)],
                 float(right),[float(rr), float(rg), float(rb), float(ra)],
