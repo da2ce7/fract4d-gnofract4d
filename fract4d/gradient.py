@@ -217,7 +217,7 @@ class Segment:
         if self.cmode == ColorMode.HSV_CCW or self.cmode == ColorMode.HSV_CW:
             if RH > 1: RH -= 1
             return [v for v in colorsys.hsv_to_rgb(RH,GS,BV)] + [A]
-        
+
     def save(self,f,skip_left=False):
         if skip_left:
             # this segment's left end == previous right, so leave it out
