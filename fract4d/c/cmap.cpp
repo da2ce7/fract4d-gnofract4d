@@ -401,8 +401,8 @@ GradientColorMap::lookup(double input_index) const
         double lh,ls,lv;
         double rh,rs,rv;
 
-        rgb_to_hsv (lc[0], lc[1], lc[2], &lh, &ls, &lv);
-        rgb_to_hsv (rc[0], rc[1], rc[2], &rh, &rs, &rv);
+        gimp_rgb_to_hsv (lc[0], lc[1], lc[2], &lh, &ls, &lv);
+        gimp_rgb_to_hsv (rc[0], rc[1], rc[2], &rh, &rs, &rv);
 
         if (seg->cmode == HSV_CCW && lh >= rh)
         {
@@ -423,7 +423,7 @@ GradientColorMap::lookup(double input_index) const
         //fprintf(stderr,"HSV  %f %f %f FACTOR %f POS %f\n", h,s,v,factor,pos);
                 
         double r,g,b;
-        hsv_to_rgb(h, s, v, &r, &g, &b);
+        gimp_hsv_to_rgb(h, s, v, &r, &g, &b);
         result.r = (unsigned char)(255.0 * r);
         result.g = (unsigned char)(255.0 * g);
         result.b = (unsigned char)(255.0 * b);
@@ -580,10 +580,9 @@ rgb_to_hsv(
         *h = 4 + ( r - g ) / delta;        // between magenta & cyan
     }
 
-    *h /= 6.0;
     if( *h < 0 )
     {
-        *h += 1.0;
+        *h += 6.0;
     }
 }
 
@@ -628,10 +627,9 @@ rgb_to_hsl(
             *h = 4 + ( r - g ) / delta;        // between magenta & cyan
         }
         
-        *h /= 6.0;
         if( *h < 0 )
         {
-            *h += 1.0;
+            *h += 6.0;
         }
     }
 }
@@ -668,7 +666,6 @@ hsl_to_rgb(
     else
     {
 	// chromatic
-        h *= 6.0;
         double n2;
         if(l <= 0.5)
         {
@@ -701,13 +698,12 @@ hsv_to_rgb(
         return;
     }
 
-    h = fmod(h,1.0);
+    h = fmod(h,6.0);
     if(h < 0)
     {
-        h += 1.0;
+        h += 6.0;
     }
 
-    h *= 6.0; // h*360/60
     int i = int(h);
     double f = h - i; //Decimal bit of hue
     double p = v * (1 - s);
