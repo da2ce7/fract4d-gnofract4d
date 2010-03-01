@@ -3,7 +3,7 @@
 import os
 import stat
 import cPickle
-import md5
+import hashlib
 
 class TimeStampedObject:
     "An object and the last time it was updated"
@@ -43,7 +43,7 @@ class T:
         return os.path.join(self.dir, "fract4d_%s%s" % (name, ext))
 
     def hashcode(self,s,*extras):
-        hash = md5.new(s)
+        hash = hashlib.md5(s)
         for x in extras:
             hash.update(x)
 

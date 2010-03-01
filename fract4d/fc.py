@@ -28,7 +28,7 @@ import commands
 import os.path
 import stat
 import random
-import md5
+import hashlib
 import re
 import copy
 
@@ -390,7 +390,8 @@ class Compiler:
         return cg
 
     def hashcode(self,c_code):
-        hash = md5.new(c_code)
+        hash = hashlib.md5()
+        hash.update(c_code)
         hash.update(self.compiler_name)
         hash.update(self.flags)
         hash.update(self.libs)

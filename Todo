@@ -2,6 +2,8 @@ todo:
 
 changes in 3.13:
 * B	can't open .ggr files created by newer Gimp versions
+* W	hsv gradient .ggr support (Henrky Trappmann
+* W	steps towards Windows support (Richard Mant)
 
 bugs (the more B's, the worse the bug):
 * BBB	too slow!

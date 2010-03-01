@@ -3,7 +3,7 @@
 import os
 import urllib, urllib2, urlparse, mimetools, mimetypes
 import xml.dom.minidom
-import md5
+import hashlib
 import random
 
 from fetch import GET_CMD, Request
@@ -64,7 +64,7 @@ def createSig(**kwds):
         siglist.append(k)
         siglist.append(item)
     sig = "".join(siglist)
-    hash =  md5.new(sig)
+    hash =  hashlib.md5(sig)
     digest = hash.hexdigest()
     return digest
 
