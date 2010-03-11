@@ -221,7 +221,7 @@ def set_selected_value(menu,val):
     except:
         i = menu.item_list.index(val)
         menu.set_history(i)
-    
+
 def create_color(r,g,b):
     # multiply up to match range expected by gtk
     try:

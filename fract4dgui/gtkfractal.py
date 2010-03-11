@@ -692,7 +692,7 @@ class T(Hidden):
 
 
     def add_complex_formula_setting(
-        self,table,i,form,name,param,order,tips,param_type):
+        self,table,i,form,name,param,order,param_type):
         
         widget = self.make_numeric_entry(
                 form,param,order)
@@ -707,7 +707,7 @@ class T(Hidden):
         name = self.param_display_name(name,param)
         fway = fourway.T(name)
         tip = self.param_tip(name,param)
-        tips.set_tip(fway.widget, tip)
+        fway.widget.set_tooltip_text(tip)
         
         fway.connect('value-changed',self.fourway_released, order, form)
 
@@ -820,7 +820,7 @@ class T(Hidden):
         table.attach(widget,1,2,i,i+1,gtk.EXPAND | gtk.FILL,0,0,0)
         return i+1
 
-    def populate_formula_settings(self, table, param_type, tips,row=0):
+    def populate_formula_settings(self, table, param_type, row=0):
         # create widget to fiddle with this fractal's settings
         form = self.f.get_form(param_type)
         formula = form.formula
@@ -841,7 +841,7 @@ class T(Hidden):
                 if param.type == fracttypes.Complex:
                     self.add_complex_formula_setting(
                         table,row,form,name,param,
-                        op[name],tips,
+                        op[name],
                         param_type)
                     row+= 1
                 elif param.type == fracttypes.Hyper:

@@ -84,11 +84,11 @@ def main(args):
         raise
 
 def test_version(major,minor,patch):
-    # check for pygtk >= 2.6
+    # check for pygtk >= 2.12
     if major < 2:
         return False
     elif major == 2:
-        if minor < 6:
+        if minor < 12:
             return False
     return True
 

@@ -32,7 +32,6 @@ class PainterDialog(dialog.T):
         self.vbox.add(self.csel)
         self.vbox.add(self.paint_toggle)
         self.vbox.show_all()
-        self.tooltips = gtk.Tooltips()
         self.onChangePaintMode()
         
     def onChangePaintMode(self,*args):

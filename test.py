@@ -73,13 +73,13 @@ class Test(unittest.TestCase):
             
 
     def testVersionChecks(self):
-        self.assertEqual(True, gnofract4d.test_version(2,6,0))
-        self.assertEqual(True, gnofract4d.test_version(2,7,0))
+        self.assertEqual(False, gnofract4d.test_version(2,6,0))
+        self.assertEqual(True, gnofract4d.test_version(2,12,0))
         self.assertEqual(True, gnofract4d.test_version(3,0,0))
         
         self.assertEqual(False, gnofract4d.test_version(1,99,0))
         self.assertEqual(False, gnofract4d.test_version(2,0,0))
-        self.assertEqual(False, gnofract4d.test_version(2,5,0))
+        self.assertEqual(False, gnofract4d.test_version(2,11,0))
     
 def suite():
     return unittest.makeSuite(Test,'test')

@@ -31,7 +31,6 @@ class SettingsDialog(dialog.T):
 
         self.main_window = main_window
         self.f = f
-        self.tooltips = gtk.Tooltips()
         self.notebook = gtk.Notebook()
         self.controls = gtk.VBox()
         self.controls.pack_start(self.notebook,True,True)
@@ -183,14 +182,12 @@ class SettingsDialog(dialog.T):
         grad = self.f.get_gradient()
         self.left_color_button = utils.ColorButton(
             grad.segments[0].left_color, self.color_changed, True)
-        self.tooltips.set_tip(
-            self.left_color_button.widget,
+        self.left_color_button.widget.set_tooltip_text(
             _("Color of segment's left end"))
         
         self.right_color_button = utils.ColorButton(
             grad.segments[0].right_color, self.color_changed, False)
-        self.tooltips.set_tip(
-            self.right_color_button.widget,
+        self.right_color_button.widget.set_tooltip_text(
             _("Color of segment's right end"))
 
         table.attach(gtk.Label("Left Color:"),
@@ -391,8 +388,7 @@ class SettingsDialog(dialog.T):
     def create_yflip_widget(self):
         widget = gtk.CheckButton(_("Flip Y Axis"))
         widget.set_use_underline(True)
-        self.tooltips.set_tip(
-            widget,
+        widget.set_tooltip_text(
             _("If set, Y axis increases down the screen, otherwise up the screen"))
         
         def set_widget(*args):
@@ -410,8 +406,7 @@ class SettingsDialog(dialog.T):
     def create_periodicity_widget(self):
         widget = gtk.CheckButton(_("Periodicity Checking"))
         widget.set_use_underline(True)
-        self.tooltips.set_tip(
-            widget,
+        widget.set_tooltip_text(
             _("Try to speed up calculations by looking for loops. Can cause incorrect images with some functions, though."))
         
         def set_widget(*args):
@@ -521,7 +516,7 @@ class SettingsDialog(dialog.T):
 
         button = gtk.Button(_("_Browse..."))
         button.set_use_underline(True)
-        self.tooltips.set_tip(button,tip)
+        button.set_tooltip_text(tip)
         button.connect('clicked', self.show_browser, param_type)
         hbox.pack_start(button)
 
@@ -583,7 +578,6 @@ class SettingsDialog(dialog.T):
         sw.set_policy (gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         textview = gtk.TextView()
-        #self.tooltips.set_tip(textview, tip)
 
         sw.add(textview)
         parent.pack_start(sw, True, True, 2)
@@ -651,7 +645,7 @@ class SettingsDialog(dialog.T):
             self.tables[3] = Table(5,2,False)
             self.f.populate_formula_settings(
                 self.tables[3],
-                self.selected_transform+3,self.tooltips)
+                self.selected_transform+3)
 
             self.tables[3].show_all()
             parent.pack_start(self.tables[3])
@@ -679,7 +673,7 @@ class SettingsDialog(dialog.T):
             
             self.f.populate_formula_settings(
                 table,
-                param_type,self.tooltips, 1)
+                param_type, 1)
             
             table.show_all()
             parent.pack_start(table)

@@ -61,7 +61,6 @@ class BrowserDialog(dialog.T):
         self.compiler = f.compiler
 
         self.ir = None
-        self.tooltips = gtk.Tooltips()
         self.main_window = main_window
         self.set_size_request(600,500)
         self.preview = gtkfractal.Preview(self.compiler)
@@ -123,8 +122,7 @@ class BrowserDialog(dialog.T):
                        gtk.POLICY_AUTOMATIC)
 
         self.filetreeview = gtk.TreeView (self.file_list)
-        self.tooltips.set_tip(
-            self.filetreeview,
+        self.filetreeview.set_tooltip_text(
             _("A list of files containing fractal formulas"))
         
         sw.add(self.filetreeview)
@@ -193,8 +191,7 @@ class BrowserDialog(dialog.T):
 
         self.treeview = gtk.TreeView (self.formula_list)
 
-        self.tooltips.set_tip(
-            self.treeview,
+        self.treeview.set_tooltip_text(
             _("A list of formulas in the selected file"))
 
         sw.add(self.treeview)
@@ -217,7 +214,7 @@ class BrowserDialog(dialog.T):
         sw.set_policy (gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         textview = gtk.TextView()
-        self.tooltips.set_tip(textview, tip)
+        textview.set_tooltip_text(tip)
         textview.set_editable(False)
         
         sw.add(textview)
@@ -234,8 +231,7 @@ class BrowserDialog(dialog.T):
 
         utils.set_selected(self.funcTypeMenu,self.model.current_type)
         
-        self.tooltips.set_tip(
-            self.funcTypeMenu,
+        self.funcTypeMenu.set_tooltip_text(
             _("Which formula of the current fractal to change"))
 
         self.funcTypeMenu.connect('changed',self.set_type_cb)

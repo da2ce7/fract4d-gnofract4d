@@ -144,7 +144,7 @@ class Test(unittest.TestCase):
         self.f.set_outer("test.cfrm","flat")
         
         table = gtk.Table()
-        self.f.populate_formula_settings(table, 0,gtk.Tooltips())
+        self.f.populate_formula_settings(table, 0)
 
         children = table.get_children()
         list.reverse(children)
@@ -158,7 +158,7 @@ class Test(unittest.TestCase):
         self.assertEqual(names[4],"Myfunc")
         
         table = gtk.Table()
-        self.f.populate_formula_settings(table, 1,gtk.Tooltips())
+        self.f.populate_formula_settings(table, 1)
 
         children = table.get_children()
         list.reverse(children)
@@ -175,13 +175,13 @@ class Test(unittest.TestCase):
         self.f.set_formula("test.frm","fn_with_intparam")
 
         table = gtk.Table()
-        self.f.populate_formula_settings(table, 0,gtk.Tooltips())
+        self.f.populate_formula_settings(table, 0)
 
     def testAllSettingsTypes(self):
         self.f.set_formula("test.frm","test_all_types")
         
         table = gtk.Table()
-        self.f.populate_formula_settings(table, 0,gtk.Tooltips())
+        self.f.populate_formula_settings(table, 0)
         
     def testButton1(self):
         f = self.f

@@ -53,8 +53,6 @@ class MainWindow:
         self.accelgroup = gtk.AccelGroup()
         self.window.add_accel_group(self.accelgroup)
         self.window.connect('key-release-event', self.on_key_release)
-        self.tips = gtk.Tooltips()
-        self.tips.enable()
 
         # create fractal compiler and load standard formula and
         # coloring algorithm files
@@ -502,7 +500,7 @@ class MainWindow:
         self.bar.set_fraction(progress/100.0)
 
     def stats_changed(self, f, stats):
-        self.tips.set_tip(self.bar, stats.show(), "wibble")
+        self.bar.set_tooltip_text(stats.show())
 
     def status_changed(self,f,status):
         if status == 2:
