@@ -1,9 +1,0 @@
-*~
-*.pyc
-build
-.libs
-.deps
-parser.out
-*.tga
-lextab.py
-*.gif
