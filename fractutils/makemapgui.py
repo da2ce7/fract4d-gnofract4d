@@ -10,6 +10,8 @@ from fract4d import gradient
 
 from PIL import ImageFile
 
+import gtk
+
 class Node:
     def __init__(self,r,g,b,count):
         self.branches = [None] * 8
@@ -134,7 +136,7 @@ class T:
         node.r = maxchild.r
         node.g = maxchild.g
         node.b = maxchild.b
-
+        
     def getBranch(self,r,g,b,nr,ng,nb):
         branch = 0
         if r > nr:
@@ -225,14 +227,35 @@ class T:
     def reduceColors(self,n):
         while self.numColors() > n:
             candidates = self.find_collapse_candidates(self.root,[])
-            node_to_collapse = candidates[0][1]
-            self.collapse(node_to_collapse)
+            self.collapse(candidates[0][1])
 
     
+class MapMaker(gtk.Window):
+    def __init__(self,type=gtk.WINDOW_TOPLEVEL):
+        gtk.Window.__init__(self,type)
+        self.image = gtk.Image()
+        self.add(self.image)
+        self.resize(640,480)
+        self.connect('delete-event', self.quit)
+        
+    def load(self,name):
+        self.image.set_from_file(name)
+
+    def quit(self,*args):
+        gtk.main_quit()
+
 def main(args):
+    w = MapMaker()
+    w.load(args[0])
+    w.show_all()
+    
+
+    gtk.main()
+
+def old_main(args):
     mm = T()
     mm.load(open(args[0]))
-    mm.build(4)
+    mm.build(1)
     
     mm.reduceColors(int(args[1]))
     
